@@ -1,0 +1,20 @@
+{
+  "name": "magick-ai/magick-ai-abilities",
+  "description": "WordPress Abilities API toolkit for Magick AI and third-party agent-callable abilities.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.2"
+  },
+  "autoload": {
+    "classmap": [
+      "includes/"
+    ],
+    "files": [
+      "includes/functions.php"
+    ]
+  },
+  "scripts": {
+    "lint:php": "find . -name '*.php' -print0 | xargs -0 -n1 php -l"
+  }
+}
