@@ -14,7 +14,7 @@ Every public ability should define:
 - `meta.mcp.annotations.readonly`
 - `meta.mcp.annotations.destructive`
 - `meta.mcp.annotations.idempotent`
-- `meta.magick.channels`
+- `meta.magick.channels` when Magick AI compatibility metadata is needed
 - `risk_level`
 - `requires_confirm`
 - `contract_version`

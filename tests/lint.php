@@ -1,0 +1,36 @@
+<?php
+/**
+ * PHP syntax lint runner using the current PHP binary.
+ *
+ * @package MagickAIAbilities
+ */
+
+$root = dirname( __DIR__ );
+$iterator = new RecursiveIteratorIterator(
+	new RecursiveDirectoryIterator(
+		$root,
+		FilesystemIterator::SKIP_DOTS
+	)
+);
+
+$files = array();
+foreach ( $iterator as $file ) {
+	if ( false !== strpos( $file->getPathname(), DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR ) ) {
+		continue;
+	}
+	if ( 'php' === strtolower( $file->getExtension() ) ) {
+		$files[] = $file->getPathname();
+	}
+}
+
+sort( $files );
+
+foreach ( $files as $file ) {
+	$command = escapeshellarg( PHP_BINARY ) . ' -l ' . escapeshellarg( $file );
+	passthru( $command, $status );
+	if ( 0 !== $status ) {
+		exit( $status );
+	}
+}
+
+echo 'Linted ' . count( $files ) . " PHP files\n";

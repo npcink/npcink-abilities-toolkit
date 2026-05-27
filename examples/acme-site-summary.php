@@ -1,6 +1,6 @@
 <?php
 /**
- * Example integration for Magick AI Abilities.
+ * Example provider integration for Magick AI Abilities.
  *
  * @package MagickAIAbilitiesExample
  */

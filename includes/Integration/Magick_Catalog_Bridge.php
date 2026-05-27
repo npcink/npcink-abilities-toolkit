@@ -1,6 +1,6 @@
 <?php
 /**
- * Optional Magick AI catalog bridge.
+ * Optional Magick AI compatibility bridge.
  *
  * @package MagickAIAbilities
  */
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Projects registered WordPress abilities into Magick AI's catalog when available.
+ * Projects registered WordPress abilities into Magick AI's catalog when Magick AI is available.
  */
 final class Magick_Catalog_Bridge {
 	/**
@@ -43,7 +43,7 @@ final class Magick_Catalog_Bridge {
 	}
 
 	/**
-	 * Adds ability definitions to the Magick AI catalog.
+	 * Adds opted-in provider ability definitions to the Magick AI catalog.
 	 *
 	 * @param mixed $catalog Existing catalog.
 	 * @param mixed $args Catalog build args.
@@ -55,6 +55,10 @@ final class Magick_Catalog_Bridge {
 		$catalog = is_array( $catalog ) ? $catalog : array();
 
 		foreach ( $this->abilities->all() as $ability_id => $definition ) {
+			if ( empty( $definition['project_to_magick_catalog'] ) ) {
+				continue;
+			}
+
 			if ( empty( $definition['meta']['show_in_rest'] ) ) {
 				continue;
 			}
@@ -64,13 +68,29 @@ final class Magick_Catalog_Bridge {
 				continue;
 			}
 
+			$is_write_like = in_array( $definition['risk_level'], array( 'write', 'destructive' ), true );
+			$is_destructive = 'destructive' === $definition['risk_level'];
+			$write_mode    = $is_write_like ? 'allow_write' : 'read_only';
+			$tool_policy   = array(
+				'allow_write'          => $is_write_like,
+				'require_confirmation' => ! empty( $definition['requires_confirm'] ),
+				'max_calls'            => $is_write_like ? 1 : 0,
+			);
+			if ( $is_destructive ) {
+				$tool_policy['allow_destructive'] = true;
+			}
+			$magick_meta   = is_array( $definition['meta']['magick'] ?? null ) ? $definition['meta']['magick'] : array();
+			$magick_meta['show_in_rest'] = true;
+			$magick_meta['write_mode'] = $write_mode;
+			$magick_meta['tool_policy'] = $tool_policy;
+
 			$catalog[ $catalog_key ] = array(
 				'ability_id'        => $ability_id,
 				'name'              => $definition['label'],
 				'description'       => $definition['description'],
 				'version'           => '1.0.0',
 				'schema_version'    => 'v1',
-				'source'            => 'third_party',
+				'source'            => $definition['source'],
 				'review_status'     => 'draft',
 				'stability'         => 'beta',
 				'open_api_enabled'  => false,
@@ -83,16 +103,20 @@ final class Magick_Catalog_Bridge {
 				'wp_ability_id'     => $ability_id,
 				'risk_level'        => $definition['risk_level'],
 				'requires_confirm'  => $definition['requires_confirm'],
+				'show_in_rest'      => true,
+				'write_mode'        => $write_mode,
+				'tool_policy'       => $tool_policy,
 				'contract_version'  => $definition['contract_version'],
 				'deprecated'        => $definition['deprecated'],
 				'successor'         => $definition['successor'],
 				'execution_modes'   => array( 'sync' ),
-				'allowed_channels'  => $definition['meta']['magick']['channels'],
+				'allowed_channels'  => $magick_meta['channels'],
+				'skip_catalog_manifest_fallback' => true,
 				'meta'              => array(
 					'show_in_rest' => true,
 					'annotations'  => $definition['annotations'],
 					'mcp'          => $definition['meta']['mcp'],
-					'magick'       => $definition['meta']['magick'],
+					'magick'       => $magick_meta,
 				),
 			);
 		}

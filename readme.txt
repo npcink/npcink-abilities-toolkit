@@ -1,0 +1,60 @@
+=== Magick AI Abilities ===
+Contributors: magick-ai
+Tags: abilities api, agents, ai, automation
+Requires at least: 6.9
+Tested up to: 6.9
+Requires PHP: 7.2
+Stable tag: 0.1.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+Standalone WordPress Abilities API package toolkit for registering agent-callable abilities.
+
+== Description ==
+
+Magick AI Abilities provides a standalone toolkit for plugin authors who want to expose safe, agent-callable abilities through the WordPress Abilities API.
+
+The plugin owns ability registration helpers, category helpers, schema normalization, annotation normalization, and optional compatibility projection for Magick AI when Magick AI is installed.
+
+It can be used by any WordPress plugin or client that consumes the WordPress Abilities API. Magick AI is one optional consumer, not the owner of this plugin.
+
+It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final WordPress writes.
+
+== Requirements ==
+
+* WordPress 6.9 or later with the Abilities API available.
+* PHP 7.2 or later.
+
+== Public API ==
+
+* `magick_ai_abilities_register_category( $category_id, $args )`
+* `magick_ai_abilities_register_readonly( $ability_id, $definition )`
+* `magick_ai_abilities_register_write_proposal( $ability_id, $definition )`
+* `magick_ai_abilities_normalize_schema( $schema, $default_type )`
+* `magick_ai_abilities_normalize_annotations( $annotations, $risk_level )`
+* `magick_ai_abilities_get_registered()`
+
+== Test Page ==
+
+After activation, open Tools -> Abilities API Packages in wp-admin.
+
+The page verifies Abilities API availability, fetches the authenticated REST ability and category catalogs, and can enable/run a demo readonly ability.
+
+== Built-In Abilities ==
+
+The plugin includes migrated low-risk WordPress read abilities using preserved `magick-ai/*` ids for compatibility.
+
+It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
+
+== Developer Smoke Test ==
+
+When the plugin is installed in a local WordPress site, run:
+
+`WP_PATH=/path/to/wordpress composer smoke:wp`
+
+== Changelog ==
+
+= 0.1.0 =
+
+* Initial standalone development release.
+* Added migrated WordPress read abilities and standalone redacted WordPress diagnostics.

@@ -25,12 +25,20 @@ final class Contract_Normalizer {
 	private $schema_normalizer;
 
 	/**
+	 * Annotation normalizer.
+	 *
+	 * @var Annotation_Normalizer
+	 */
+	private $annotation_normalizer;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Schema_Normalizer $schema_normalizer Schema normalizer.
 	 */
-	public function __construct( Schema_Normalizer $schema_normalizer ) {
-		$this->schema_normalizer = $schema_normalizer;
+	public function __construct( Schema_Normalizer $schema_normalizer, ?Annotation_Normalizer $annotation_normalizer = null ) {
+		$this->schema_normalizer     = $schema_normalizer;
+		$this->annotation_normalizer = $annotation_normalizer ? $annotation_normalizer : new Annotation_Normalizer();
 	}
 
 	/**
@@ -44,19 +52,14 @@ final class Contract_Normalizer {
 	public function normalize( $ability_id, array $definition, $mode ) {
 		$ability_id = $this->sanitize_ability_id( $ability_id );
 		$mode       = sanitize_key( (string) $mode );
-		$is_write   = 'write_proposal' === $mode;
+		$is_write   = in_array( $mode, array( 'write_proposal', 'write_host', 'destructive_host' ), true );
+		$is_destructive = 'destructive_host' === $mode;
+		$risk_level = $is_destructive ? 'destructive' : ( $is_write ? 'write' : 'read' );
 
-		$annotations = isset( $definition['annotations'] ) && is_array( $definition['annotations'] )
-			? $definition['annotations']
-			: array();
-
-		$annotations['readonly']    = ! $is_write;
-		$annotations['destructive'] = false;
-		$annotations['idempotent']  = ! $is_write;
-
-		if ( isset( $annotations['instructions'] ) ) {
-			$annotations['instructions'] = sanitize_text_field( (string) $annotations['instructions'] );
-		}
+		$annotations = $this->annotation_normalizer->normalize(
+			isset( $definition['annotations'] ) && is_array( $definition['annotations'] ) ? $definition['annotations'] : array(),
+			$risk_level
+		);
 
 		$meta = isset( $definition['meta'] ) && is_array( $definition['meta'] )
 			? $definition['meta']
@@ -67,7 +70,7 @@ final class Contract_Normalizer {
 			: array();
 		$mcp_meta['public']      = ! empty( $mcp_meta['public'] );
 		$mcp_meta['server']      = isset( $mcp_meta['server'] ) ? sanitize_key( (string) $mcp_meta['server'] ) : ( $is_write ? 'magick-ai-write' : 'magick-ai-read' );
-		$mcp_meta['risk']        = $is_write ? 'write' : 'read';
+		$mcp_meta['risk']        = $risk_level;
 		$mcp_meta['annotations'] = $annotations;
 
 		$magick_meta = isset( $meta['magick'] ) && is_array( $meta['magick'] )
@@ -75,7 +78,7 @@ final class Contract_Normalizer {
 			: array();
 		$magick_meta['canonical_ability_id'] = $ability_id;
 		$magick_meta['wp_ability_id']        = $ability_id;
-		$magick_meta['risk_level']           = $is_write ? 'write' : 'read';
+		$magick_meta['risk_level']           = $risk_level;
 		$magick_meta['requires_confirm']     = $is_write;
 		$magick_meta['annotations']          = $annotations;
 		$magick_meta['channels']             = isset( $definition['channels'] ) && is_array( $definition['channels'] )
@@ -97,10 +100,18 @@ final class Contract_Normalizer {
 		$permission_callback = isset( $definition['permission_callback'] ) && is_callable( $definition['permission_callback'] )
 			? $definition['permission_callback']
 			: Permission_Callbacks::for_capability( $capability );
+		$source = isset( $definition['source'] ) ? sanitize_key( (string) $definition['source'] ) : 'third_party';
+		if ( ! in_array( $source, array( 'official', 'third_party' ), true ) ) {
+			$source = 'third_party';
+		}
 
 		return array(
 			'ability_id'          => $ability_id,
 			'mode'                => $mode,
+			'source'              => $source,
+			'project_to_magick_catalog' => array_key_exists( 'project_to_magick_catalog', $definition )
+				? ! empty( $definition['project_to_magick_catalog'] )
+				: false,
 			'label'               => isset( $definition['label'] ) ? sanitize_text_field( (string) $definition['label'] ) : $ability_id,
 			'description'         => isset( $definition['description'] ) ? sanitize_text_field( (string) $definition['description'] ) : '',
 			'category'            => isset( $definition['category'] ) ? sanitize_key( (string) $definition['category'] ) : ( $is_write ? 'magick-ai-abilities-write' : 'magick-ai-abilities-read' ),
@@ -112,7 +123,7 @@ final class Contract_Normalizer {
 			'permission_callback' => $permission_callback,
 			'capability'          => $capability,
 			'annotations'         => $annotations,
-			'risk_level'          => $is_write ? 'write' : 'read',
+			'risk_level'          => $risk_level,
 			'requires_confirm'    => $is_write,
 			'required_scope'      => isset( $definition['required_scope'] ) ? sanitize_text_field( (string) $definition['required_scope'] ) : '',
 			'required_scopes'     => isset( $definition['required_scopes'] ) && is_array( $definition['required_scopes'] )

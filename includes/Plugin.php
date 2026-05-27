@@ -7,8 +7,13 @@
 
 namespace Magick_AI_Abilities;
 
+use Magick_AI_Abilities\Admin\Test_Page;
 use Magick_AI_Abilities\Integration\Magick_Catalog_Bridge;
+use Magick_AI_Abilities\Packages\Core_Destructive_Package;
+use Magick_AI_Abilities\Packages\Core_Read_Package;
+use Magick_AI_Abilities\Packages\Core_Write_Package;
 use Magick_AI_Abilities\Registry\Ability_Registrar;
+use Magick_AI_Abilities\Registry\Annotation_Normalizer;
 use Magick_AI_Abilities\Registry\Category_Registrar;
 use Magick_AI_Abilities\Registry\Contract_Normalizer;
 use Magick_AI_Abilities\Registry\Schema_Normalizer;
@@ -50,6 +55,34 @@ final class Plugin {
 	private $catalog_bridge;
 
 	/**
+	 * Core WordPress read package.
+	 *
+	 * @var Core_Read_Package
+	 */
+	private $core_read_package;
+
+	/**
+	 * Core WordPress write package.
+	 *
+	 * @var Core_Write_Package
+	 */
+	private $core_write_package;
+
+	/**
+	 * Core WordPress destructive package.
+	 *
+	 * @var Core_Destructive_Package
+	 */
+	private $core_destructive_package;
+
+	/**
+	 * Admin test page.
+	 *
+	 * @var Test_Page
+	 */
+	private $test_page;
+
+	/**
 	 * Whether hooks have been registered.
 	 *
 	 * @var bool
@@ -74,11 +107,15 @@ final class Plugin {
 	 */
 	private function __construct() {
 		$schema_normalizer   = new Schema_Normalizer();
-		$contract_normalizer = new Contract_Normalizer( $schema_normalizer );
+		$contract_normalizer = new Contract_Normalizer( $schema_normalizer, new Annotation_Normalizer() );
 
 		$this->categories     = new Category_Registrar();
 		$this->abilities      = new Ability_Registrar( $this->categories, $contract_normalizer );
 		$this->catalog_bridge = new Magick_Catalog_Bridge( $this->abilities );
+		$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
+		$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
+		$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
+		$this->test_page      = new Test_Page( $this->abilities );
 	}
 
 	/**
@@ -94,7 +131,11 @@ final class Plugin {
 		$this->booted = true;
 		$this->categories->boot();
 		$this->abilities->boot();
+		$this->core_read_package->boot();
+		$this->core_write_package->boot();
+		$this->core_destructive_package->boot();
 		$this->catalog_bridge->boot();
+		$this->test_page->boot();
 	}
 
 	/**

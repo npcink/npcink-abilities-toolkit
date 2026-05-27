@@ -63,6 +63,21 @@ if ( ! function_exists( 'magick_ai_abilities_normalize_schema' ) ) {
 	}
 }
 
+if ( ! function_exists( 'magick_ai_abilities_normalize_annotations' ) ) {
+	/**
+	 * Normalizes Abilities API annotations for a risk level.
+	 *
+	 * @param mixed  $annotations Raw annotations.
+	 * @param string $risk_level Risk level.
+	 * @return array
+	 */
+	function magick_ai_abilities_normalize_annotations( $annotations, $risk_level = 'read' ) {
+		$normalizer = new Magick_AI_Abilities\Registry\Annotation_Normalizer();
+
+		return $normalizer->normalize( $annotations, $risk_level );
+	}
+}
+
 if ( ! function_exists( 'magick_ai_abilities_get_registered' ) ) {
 	/**
 	 * Returns normalized abilities registered through this toolkit.

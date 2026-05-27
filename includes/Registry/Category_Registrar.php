@@ -84,7 +84,7 @@ final class Category_Registrar {
 	}
 
 	/**
-	 * Registers default Magick AI categories.
+	 * Registers default Abilities API package categories.
 	 *
 	 * @return void
 	 */
@@ -92,21 +92,21 @@ final class Category_Registrar {
 		$this->add(
 			'magick-ai-abilities-read',
 			array(
-				'label'       => __( 'Magick AI Abilities: Read', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Read', 'magick-ai-abilities' ),
 				'description' => __( 'Read-only abilities for discovery, diagnostics, and context retrieval.', 'magick-ai-abilities' ),
 			)
 		);
 		$this->add(
 			'magick-ai-abilities-write',
 			array(
-				'label'       => __( 'Magick AI Abilities: Write Proposals', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Write Proposals', 'magick-ai-abilities' ),
 				'description' => __( 'Write-like abilities that produce proposals instead of committing changes directly.', 'magick-ai-abilities' ),
 			)
 		);
 		$this->add(
 			'magick-ai-abilities-tools',
 			array(
-				'label'       => __( 'Magick AI Abilities: Tools', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Tools', 'magick-ai-abilities' ),
 				'description' => __( 'Tool-backed abilities for agent workflows.', 'magick-ai-abilities' ),
 			)
 		);
