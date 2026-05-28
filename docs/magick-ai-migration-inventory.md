@@ -12,6 +12,9 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | --- | --- | --- | --- | --- |
 | `magick-ai/get-post-context` | New standalone Content Context Pack ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-content-publishing-checklist` | New standalone Publishing Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-content-inventory-health` | New standalone Content Context Pack inventory audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-bulk-publishing-checklist` | New standalone Publishing Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-internal-link-opportunity-report` | New standalone SEO/GEO Support Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 
 ## Migrated in 0.1
 

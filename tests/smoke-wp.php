@@ -111,6 +111,9 @@ foreach (
 		'magick-ai/get-post',
 		'magick-ai/get-post-context',
 		'magick-ai/get-content-publishing-checklist',
+		'magick-ai/get-content-inventory-health',
+		'magick-ai/get-bulk-publishing-checklist',
+		'magick-ai/get-internal-link-opportunity-report',
 		'magick-ai/resolve-url-to-post',
 		'magick-ai/get-post-blocks',
 		'magick-ai/list-post-revisions',
@@ -247,6 +250,55 @@ $publishing_checklist_run_request->set_query_params(
 $publishing_checklist_run_response = rest_do_request( $publishing_checklist_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $publishing_checklist_run_response->get_status(), 'Authenticated publishing checklist ability run returns 200.' );
 
+$smoke_candidate_id = wp_insert_post(
+	array(
+		'post_type'    => 'post',
+		'post_status'  => 'publish',
+		'post_title'   => 'Magick AI Abilities Smoke Internal Link Candidate',
+		'post_content' => '<p>This published smoke post provides a related ability workflow candidate for internal link opportunity checks.</p>',
+	),
+	true
+);
+magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_candidate_id ) && (int) $smoke_candidate_id > 0, 'Temporary smoke candidate post is available for internal-link ability runs.' );
+
+$inventory_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-inventory-health/run' );
+$inventory_health_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type' => 'post',
+			'status'    => 'any',
+			'per_page'  => 10,
+		),
+	)
+);
+$inventory_health_run_response = rest_do_request( $inventory_health_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $inventory_health_run_response->get_status(), 'Authenticated content inventory health ability run returns 200.' );
+
+$bulk_checklist_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-bulk-publishing-checklist/run' );
+$bulk_checklist_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_ids' => array( (int) $smoke_post_id, (int) $smoke_candidate_id ),
+		),
+	)
+);
+$bulk_checklist_run_response = rest_do_request( $bulk_checklist_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $bulk_checklist_run_response->get_status(), 'Authenticated bulk publishing checklist ability run returns 200.' );
+
+$internal_link_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-internal-link-opportunity-report/run' );
+$internal_link_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'focus_keyword' => 'ability workflow',
+			'max_targets'   => 3,
+		),
+	)
+);
+$internal_link_run_response = rest_do_request( $internal_link_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $internal_link_run_response->get_status(), 'Authenticated internal link opportunity ability run returns 200.' );
+
+wp_delete_post( (int) $smoke_candidate_id, true );
 wp_delete_post( (int) $smoke_post_id, true );
 
 wp_set_current_user( 0 );

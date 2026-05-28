@@ -4,6 +4,9 @@
 
 - Added `magick-ai/get-post-context`, a read-only post context bundle for agent workflows.
 - Added `magick-ai/get-content-publishing-checklist`, a read-only pre-publish readiness checklist.
+- Added `magick-ai/get-content-inventory-health`, a bounded read-only inventory health scan.
+- Added `magick-ai/get-bulk-publishing-checklist`, a batched wrapper around the publishing checklist.
+- Added `magick-ai/get-internal-link-opportunity-report`, a post-id based internal link opportunity report.
 - Updated first-party pack documentation, migration inventory, smoke coverage, and lightweight tests for the new abilities.
 
 ## 0.2.0 - 2026-05-28

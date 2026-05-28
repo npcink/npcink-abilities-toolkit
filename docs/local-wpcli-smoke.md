@@ -23,9 +23,12 @@ Verification status on 2026-05-28:
 - WP admin login with username `1` and password `1` succeeded.
 - `wp plugin status magick-ai-abilities` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
 - `composer smoke:wp` passed with `Smoke OK: 98 assertions`.
-- On 2026-05-28, the same Local site smoke passed with `Smoke OK: 103 assertions`
-  after adding `magick-ai/get-post-context` and
-  `magick-ai/get-content-publishing-checklist`.
+- On 2026-05-28, the same Local site smoke passed with `Smoke OK: 110 assertions`
+  after adding `magick-ai/get-post-context`,
+  `magick-ai/get-content-publishing-checklist`,
+  `magick-ai/get-content-inventory-health`,
+  `magick-ai/get-bulk-publishing-checklist`, and
+  `magick-ai/get-internal-link-opportunity-report`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -55,7 +58,7 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 103 assertions
+Smoke OK: 110 assertions
 ```
 
 The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, ability execution, and anonymous REST blocking.

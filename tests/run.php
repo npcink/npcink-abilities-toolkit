@@ -406,6 +406,9 @@ $migrated_read_ability_ids = array(
 $new_read_ability_ids = array(
 	'magick-ai/get-post-context',
 	'magick-ai/get-content-publishing-checklist',
+	'magick-ai/get-content-inventory-health',
+	'magick-ai/get-bulk-publishing-checklist',
+	'magick-ai/get-internal-link-opportunity-report',
 );
 $migrated_write_ability_ids = array(
 	'magick-ai/create-draft',
@@ -458,6 +461,9 @@ maa_assert_same( true, $package_abilities['magick-ai/site-info']['project_to_mag
 maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['project_to_magick_catalog'], 'new official post context ability projects into Magick AI catalog' );
 maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['input_schema']['properties']['include_blocks']['default'] ?? null, 'get-post-context includes blocks by default' );
 maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-checklist']['requires_confirm'], 'publishing checklist remains readonly' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
+maa_assert_same( 50, $package_abilities['magick-ai/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
+maa_assert_same( 10, $package_abilities['magick-ai/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/create-page'] ), 'create-page is not migrated as a readonly ability' );
@@ -1137,6 +1143,46 @@ maa_assert_same( true, $publishing_checklist['success'] ?? null, 'get-content-pu
 maa_assert_same( false, $publishing_checklist['data']['ready'] ?? null, 'get-content-publishing-checklist blocks thin content from ready state' );
 maa_assert_true( in_array( 'content', $publishing_checklist['data']['missing'] ?? array(), true ), 'get-content-publishing-checklist reports missing content depth' );
 maa_assert_true( in_array( 'excerpt', $publishing_checklist['data']['warnings'] ?? array(), true ), 'get-content-publishing-checklist reports missing excerpt as warning' );
+$GLOBALS['maa_unit_style_posts'][78] = (object) array(
+	'ID'           => 78,
+	'post_title'   => 'Internal Link Candidate',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => 'Candidate excerpt.',
+	'post_content' => 'Optimization workflow candidate content with enough body text to support an internal link opportunity report for related workflow articles.',
+	'post_name'    => 'internal-link-candidate',
+	'post_author'  => 7,
+	'post_modified' => '2024-01-02 03:04:05',
+);
+$inventory_health = $core_read_package->get_content_inventory_health(
+	array(
+		'post_type' => 'post',
+		'status'    => 'any',
+		'per_page'  => 5,
+		'page'      => 1,
+	)
+);
+maa_assert_same( true, $inventory_health['success'] ?? null, 'get-content-inventory-health returns a success envelope' );
+maa_assert_true( (int) ( $inventory_health['data']['summary']['scanned_count'] ?? 0 ) > 0, 'get-content-inventory-health scans bounded inventory rows' );
+maa_assert_true( isset( $inventory_health['data']['health_score'] ), 'get-content-inventory-health returns a health score' );
+$bulk_checklist = $core_read_package->get_bulk_publishing_checklist(
+	array(
+		'post_ids' => array( 77, 78, 77 ),
+	)
+);
+maa_assert_same( true, $bulk_checklist['success'] ?? null, 'get-bulk-publishing-checklist returns a success envelope' );
+maa_assert_same( 2, $bulk_checklist['data']['total'] ?? null, 'get-bulk-publishing-checklist deduplicates post ids' );
+maa_assert_true( (int) ( $bulk_checklist['data']['blocked_count'] ?? 0 ) >= 1, 'get-bulk-publishing-checklist counts blocked posts' );
+$internal_link_report = $core_read_package->get_internal_link_opportunity_report(
+	array(
+		'post_id'       => 77,
+		'focus_keyword' => 'workflow',
+		'max_targets'   => 3,
+	)
+);
+maa_assert_same( true, $internal_link_report['success'] ?? null, 'get-internal-link-opportunity-report returns a success envelope' );
+maa_assert_same( 77, $internal_link_report['data']['source_post']['post_id'] ?? null, 'get-internal-link-opportunity-report keeps source post id' );
+maa_assert_true( (int) ( $internal_link_report['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'get-internal-link-opportunity-report finds local candidate posts in isolated tests' );
 $single_suggest = $core_read_package->build_article_single_optimization_suggest(
 	array(
 		'post'              => array(

@@ -28,6 +28,7 @@ Representative abilities:
 - `magick-ai/list-posts`
 - `magick-ai/get-post`
 - `magick-ai/get-post-context`
+- `magick-ai/get-content-inventory-health`
 - `magick-ai/resolve-url-to-post`
 - `magick-ai/get-post-blocks`
 - `magick-ai/list-post-revisions`
@@ -88,6 +89,7 @@ Representative write abilities:
 Representative read-only publishing support abilities:
 
 - `magick-ai/get-content-publishing-checklist`
+- `magick-ai/get-bulk-publishing-checklist`
 
 Representative destructive abilities:
 
@@ -170,6 +172,7 @@ Representative abilities:
 - `magick-ai/propose-post-excerpt`
 - `magick-ai/resolve-post-metadata-plan`
 - `magick-ai/resolve-internal-link-targets`
+- `magick-ai/get-internal-link-opportunity-report`
 - `magick-ai/build-inline-image-blocks`
 - `magick-ai/build-media-seo-assets`
 - `magick-ai/geo-analyze`
