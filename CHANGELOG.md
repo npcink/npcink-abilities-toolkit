@@ -2,6 +2,8 @@
 
 ## 0.3.0 - Unreleased
 
+- Added the 0.3 ability acceptance matrix, agent workflow validation plan, and stabilization scope documents.
+- Expanded WordPress smoke coverage from individual ability execution to the publish preflight, content refresh discovery, and comment compliance workflow chains.
 - Added `magick-ai/get-post-context`, a read-only post context bundle for agent workflows.
 - Added `magick-ai/get-content-publishing-checklist`, a read-only pre-publish readiness checklist.
 - Added `magick-ai/get-content-inventory-health`, a bounded read-only inventory health scan.

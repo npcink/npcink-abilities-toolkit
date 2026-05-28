@@ -39,6 +39,7 @@ The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/
 The migration boundary from the Magick AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
 The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
+The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example
@@ -195,6 +196,8 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 ```
 
 Local app socket examples are documented in [docs/local-wpcli-smoke.md](docs/local-wpcli-smoke.md).
+The smoke test covers REST discovery, individual ability execution, and the
+workflow chains documented in [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md).
 
 Validate composer metadata:
 

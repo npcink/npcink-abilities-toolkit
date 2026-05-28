@@ -51,6 +51,9 @@ Verification status on 2026-05-28:
   `magick-ai/get-site-style-baseline`,
   `magick-ai/build-article-workflow-context`, and
   `magick-ai/get-publishing-calendar-context`.
+- On 2026-05-28, the same Local site smoke passed with `Smoke OK: 156 assertions`
+  after adding workflow-chain assertions for article publish preflight, content
+  refresh discovery, and comment compliance handoff.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -80,7 +83,7 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 149 assertions
+Smoke OK: 156 assertions
 ```
 
-The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, ability execution, and anonymous REST blocking.
+The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, individual ability execution, workflow-chain execution, and anonymous REST blocking.

@@ -256,6 +256,7 @@ $post_context_run_request->set_query_params(
 );
 $post_context_run_response = rest_do_request( $post_context_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $post_context_run_response->get_status(), 'Authenticated post context ability run returns 200.' );
+$post_context_run_data = $post_context_run_response->get_data();
 
 $publishing_checklist_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-publishing-checklist/run' );
 $publishing_checklist_run_request->set_query_params(
@@ -267,6 +268,7 @@ $publishing_checklist_run_request->set_query_params(
 );
 $publishing_checklist_run_response = rest_do_request( $publishing_checklist_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $publishing_checklist_run_response->get_status(), 'Authenticated publishing checklist ability run returns 200.' );
+$publishing_checklist_run_data = $publishing_checklist_run_response->get_data();
 
 $smoke_candidate_id = wp_insert_post(
 	array(
@@ -315,6 +317,7 @@ $internal_link_run_request->set_query_params(
 );
 $internal_link_run_response = rest_do_request( $internal_link_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $internal_link_run_response->get_status(), 'Authenticated internal link opportunity ability run returns 200.' );
+$internal_link_run_data = $internal_link_run_response->get_data();
 
 $site_operations_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-site-operations-dashboard/run' );
 $site_operations_run_request->set_query_params(
@@ -339,6 +342,7 @@ $publish_risk_run_request->set_query_params(
 );
 $publish_risk_run_response = rest_do_request( $publish_risk_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $publish_risk_run_response->get_status(), 'Authenticated post publish risk report ability run returns 200.' );
+$publish_risk_run_data = $publish_risk_run_response->get_data();
 
 $refresh_opportunities_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-refresh-opportunities/run' );
 $refresh_opportunities_run_request->set_query_params(
@@ -353,6 +357,7 @@ $refresh_opportunities_run_request->set_query_params(
 );
 $refresh_opportunities_run_response = rest_do_request( $refresh_opportunities_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $refresh_opportunities_run_response->get_status(), 'Authenticated content refresh opportunities ability run returns 200.' );
+$refresh_opportunities_run_data = $refresh_opportunities_run_response->get_data();
 
 $link_graph_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-internal-link-graph-health/run' );
 $link_graph_run_request->set_query_params(
@@ -366,6 +371,7 @@ $link_graph_run_request->set_query_params(
 );
 $link_graph_run_response = rest_do_request( $link_graph_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $link_graph_run_response->get_status(), 'Authenticated internal link graph health ability run returns 200.' );
+$link_graph_run_data = $link_graph_run_response->get_data();
 
 $smoke_attachment_id = wp_insert_post(
 	array(
@@ -501,6 +507,7 @@ $seo_geo_gap_run_request->set_query_params(
 );
 $seo_geo_gap_run_response = rest_do_request( $seo_geo_gap_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $seo_geo_gap_run_response->get_status(), 'Authenticated SEO/GEO gap report ability run returns 200.' );
+$seo_geo_gap_run_data = $seo_geo_gap_run_response->get_data();
 
 $site_style_baseline_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-site-style-baseline/run' );
 $site_style_baseline_run_request->set_query_params(
@@ -513,6 +520,7 @@ $site_style_baseline_run_request->set_query_params(
 );
 $site_style_baseline_run_response = rest_do_request( $site_style_baseline_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $site_style_baseline_run_response->get_status(), 'Authenticated site style baseline ability run returns 200.' );
+$site_style_baseline_run_data = $site_style_baseline_run_response->get_data();
 
 $article_workflow_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-article-workflow-context/run' );
 $article_workflow_context_run_request->set_query_params(
@@ -526,6 +534,7 @@ $article_workflow_context_run_request->set_query_params(
 );
 $article_workflow_context_run_response = rest_do_request( $article_workflow_context_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $article_workflow_context_run_response->get_status(), 'Authenticated article workflow context ability run returns 200.' );
+$article_workflow_context_run_data = $article_workflow_context_run_response->get_data();
 
 $publishing_calendar_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-publishing-calendar-context/run' );
 $publishing_calendar_run_request->set_query_params(
@@ -539,6 +548,7 @@ $publishing_calendar_run_request->set_query_params(
 );
 $publishing_calendar_run_response = rest_do_request( $publishing_calendar_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $publishing_calendar_run_response->get_status(), 'Authenticated publishing calendar context ability run returns 200.' );
+$publishing_calendar_run_data = $publishing_calendar_run_response->get_data();
 
 $smoke_comment_id = wp_insert_comment(
 	array(
@@ -563,6 +573,7 @@ $comment_queue_health_run_request->set_query_params(
 );
 $comment_queue_health_run_response = rest_do_request( $comment_queue_health_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $comment_queue_health_run_response->get_status(), 'Authenticated comment queue health ability run returns 200.' );
+$comment_queue_health_run_data = $comment_queue_health_run_response->get_data();
 
 $comment_action_queue_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-comment-action-priority-queue/run' );
 $comment_action_queue_run_request->set_query_params(
@@ -576,6 +587,66 @@ $comment_action_queue_run_request->set_query_params(
 );
 $comment_action_queue_run_response = rest_do_request( $comment_action_queue_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $comment_action_queue_run_response->get_status(), 'Authenticated comment action priority queue ability run returns 200.' );
+$comment_action_queue_run_data = $comment_action_queue_run_response->get_data();
+
+$comment_moderation_suggest_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-comment-moderation-suggest/run' );
+$comment_moderation_suggest_run_request->set_query_params(
+	array(
+		'input' => array(
+			'comment_id'      => (int) $smoke_comment_id,
+			'mode'            => 'suggest',
+			'allowed_actions' => array( 'approve', 'reply', 'escalate', 'spam', 'trash' ),
+		),
+	)
+);
+$comment_moderation_suggest_run_response = rest_do_request( $comment_moderation_suggest_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $comment_moderation_suggest_run_response->get_status(), 'Authenticated comment moderation suggestion ability run returns 200.' );
+$comment_moderation_suggest_run_data = $comment_moderation_suggest_run_response->get_data();
+
+$comment_mention_suggest_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-comment-mention-reply-suggest/run' );
+$comment_mention_suggest_run_request->set_query_params(
+	array(
+		'input' => array(
+			'comment_id'   => (int) $smoke_comment_id,
+			'trigger_type' => 'mention',
+		),
+	)
+);
+$comment_mention_suggest_run_response = rest_do_request( $comment_mention_suggest_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $comment_mention_suggest_run_response->get_status(), 'Authenticated comment mention reply suggestion ability run returns 200.' );
+$comment_mention_suggest_run_data = $comment_mention_suggest_run_response->get_data();
+
+magick_ai_abilities_smoke_assert(
+	true === ( $post_context_run_data['success'] ?? null )
+	&& true === ( $publishing_checklist_run_data['success'] ?? null )
+	&& true === ( $publish_risk_run_data['success'] ?? null )
+	&& true === ( $article_workflow_context_run_data['success'] ?? null )
+	&& true === ( $publishing_calendar_run_data['success'] ?? null ),
+	'Publishing preflight workflow returns success envelopes across context, checklist, risk, workflow context, and calendar.'
+);
+magick_ai_abilities_smoke_assert(
+	in_array( 'publish_risk', (array) ( $article_workflow_context_run_data['data']['sections'] ?? array() ), true ),
+	'Publishing preflight workflow context includes publish risk section.'
+);
+magick_ai_abilities_smoke_assert(
+	true === ( $refresh_opportunities_run_data['success'] ?? null )
+	&& true === ( $seo_geo_gap_run_data['success'] ?? null )
+	&& true === ( $site_style_baseline_run_data['success'] ?? null )
+	&& true === ( $link_graph_run_data['success'] ?? null )
+	&& true === ( $internal_link_run_data['success'] ?? null ),
+	'Content refresh workflow returns success envelopes across refresh, SEO/GEO gap, style, link graph, and link opportunity context.'
+);
+magick_ai_abilities_smoke_assert(
+	true === ( $comment_queue_health_run_data['success'] ?? null )
+	&& true === ( $comment_action_queue_run_data['success'] ?? null )
+	&& true === ( $comment_moderation_suggest_run_data['success'] ?? null )
+	&& true === ( $comment_mention_suggest_run_data['success'] ?? null ),
+	'Comment compliance workflow returns success envelopes across queue, priority, moderation suggestion, and reply handoff.'
+);
+magick_ai_abilities_smoke_assert(
+	true === ( $comment_mention_suggest_run_data['data']['trigger']['trigger_detected'] ?? null ),
+	'Comment compliance workflow detects the smoke mention reply trigger.'
+);
 
 wp_delete_comment( (int) $smoke_comment_id, true );
 wp_delete_post( (int) $smoke_page_id, true );
