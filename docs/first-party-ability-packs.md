@@ -4,6 +4,10 @@ This document groups the built-in abilities by product purpose. It does not
 change code ownership or move files. The current implementation remains in
 `includes/Packages/*` to avoid unnecessary migration risk.
 
+Recommended cross-pack compositions are documented in
+[Workflow Recipes](workflow-recipes.md). Those recipes are host-side
+consumption guidance, not runtime ownership in this package.
+
 ## Content Context Pack
 
 Purpose: give agents and host runtimes structured WordPress content context
@@ -98,6 +102,7 @@ Representative read-only publishing support abilities:
 - `magick-ai/get-bulk-publishing-checklist`
 - `magick-ai/get-revision-change-risk-report`
 - `magick-ai/get-post-publish-risk-report`
+- `magick-ai/get-article-publish-preflight-context`
 - `magick-ai/get-publishing-calendar-context`
 
 Representative destructive abilities:
@@ -134,6 +139,7 @@ Representative abilities:
 - `magick-ai/read-comment-trigger-queue`
 - `magick-ai/get-comment-queue-health`
 - `magick-ai/get-comment-action-priority-queue`
+- `magick-ai/get-comment-compliance-handoff`
 - `magick-ai/compose-comment-mention-reply-result`
 - `magick-ai/build-comment-moderation-batch-suggest`
 - `magick-ai/compose-comment-moderation-batch-result`
@@ -191,6 +197,7 @@ Representative abilities:
 - `magick-ai/get-seo-geo-gap-report`
 - `magick-ai/get-site-style-baseline`
 - `magick-ai/build-article-workflow-context`
+- `magick-ai/get-old-article-refresh-context`
 - `magick-ai/build-inline-image-blocks`
 - `magick-ai/build-media-seo-assets`
 - `magick-ai/geo-analyze`

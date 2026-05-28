@@ -20,6 +20,8 @@ It can be used by any WordPress plugin or client that consumes the WordPress Abi
 
 It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
 
+Reference workflow recipes may document how hosts can compose abilities, but they are not a workflow engine or second registry.
+
 == Requirements ==
 
 * WordPress 6.9 or later with the Abilities API available.
@@ -51,6 +53,10 @@ It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPr
 When the plugin is installed in a local WordPress site, run:
 
 `WP_PATH=/path/to/wordpress composer smoke:wp`
+
+For isolated bounded-chain performance validation, run:
+
+`composer perf:smoke`
 
 == Changelog ==
 

@@ -23,11 +23,14 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | `magick-ai/get-comment-queue-health` | New standalone Comment Compliance Pack queue health ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
 | `magick-ai/get-site-operations-dashboard` | New standalone Content Context Pack operations triage ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-post-publish-risk-report` | New standalone Publishing Pack read-support risk ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-article-publish-preflight-context` | New standalone Publishing Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-content-refresh-opportunities` | New standalone SEO/GEO Support Pack refresh opportunity ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-old-article-refresh-context` | New standalone SEO/GEO Support Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-internal-link-graph-health` | New standalone SEO/GEO Support Pack internal-link graph audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-media-cleanup-opportunities` | New standalone Content Context Pack media cleanup opportunity ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-taxonomy-consolidation-suggestions` | New standalone Content Context Pack taxonomy consolidation suggestion ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-comment-action-priority-queue` | New standalone Comment Compliance Pack priority queue ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
+| `magick-ai/get-comment-compliance-handoff` | New standalone Comment Compliance Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
 | `magick-ai/get-page-structure-health` | New standalone Content Context Pack page structure health ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-seo-geo-gap-report` | New standalone SEO/GEO Support Pack gap report ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-site-style-baseline` | New standalone SEO/GEO Support Pack style baseline ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |

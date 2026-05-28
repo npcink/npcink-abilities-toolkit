@@ -294,6 +294,39 @@ final class Core_Comment_Package {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $this, 'get_comment_action_priority_queue' ),
 			),
+			'magick-ai/get-comment-compliance-handoff' => array(
+				'label'            => __( 'Get Comment Compliance Handoff', 'magick-ai-abilities' ),
+				'description'      => __( 'Aggregates comment queue health, action priority rows, and optional selected-comment suggestions for host-side compliance workflows without writing.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-comments',
+				'capability'       => 'moderate_comments',
+				'required_scope'   => 'comments.manage',
+				'required_scopes'  => array( 'comments.manage' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Internal read layer only. Build a comment compliance handoff bundle and do not execute moderation actions.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array_merge(
+						array(
+							'post_id'             => array( 'type' => 'integer', 'minimum' => 1 ),
+							'status'              => array(
+								'type'    => 'string',
+								'enum'    => array( 'hold', 'approve', 'spam', 'trash', 'all' ),
+								'default' => 'hold',
+							),
+							'per_page'            => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+							'page'                => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+							'selected_comment_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+						),
+						$comment_style_properties
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => $success_schema,
+				'execute_callback' => array( $this, 'get_comment_compliance_handoff' ),
+			),
 			'magick-ai/compose-comment-mention-reply-result' => array(
 				'label'            => __( 'Compose Comment Mention Reply Result', 'magick-ai-abilities' ),
 				'description'      => __( 'Composes one canonical mention-triggered comment reply suggestion envelope.', 'magick-ai-abilities' ),
@@ -769,6 +802,78 @@ final class Core_Comment_Package {
 				'execution_mode' => 'deterministic',
 			),
 			'Comment action priority queue built.'
+		);
+	}
+
+	/**
+	 * Builds one host-side comment compliance handoff bundle.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>
+	 */
+	public function get_comment_compliance_handoff( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$per_page = min( 100, max( 1, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'hold' ) );
+		if ( ! in_array( $status, array( 'hold', 'approve', 'spam', 'trash', 'all' ), true ) ) {
+			$status = 'hold';
+		}
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		$selected_comment_id = $this->absint_value( $input['selected_comment_id'] ?? 0 );
+		$base_input = array(
+			'post_id'  => $post_id,
+			'status'   => $status,
+			'per_page' => $per_page,
+			'page'     => $page,
+		);
+
+		$queue_health = $this->get_comment_queue_health( $base_input );
+		$priority_queue = $this->get_comment_action_priority_queue( $base_input );
+		$sections = array( 'queue_health', 'priority_queue' );
+		$selected_suggestion = array();
+		$mention_reply = array();
+
+		if ( $selected_comment_id > 0 ) {
+			$selected_input = array_merge( $input, array( 'comment_id' => $selected_comment_id ) );
+			$moderation = $this->build_comment_moderation_suggest( $selected_input );
+			if ( is_array( $moderation ) ) {
+				$selected_suggestion = is_array( $moderation['data'] ?? null ) ? $moderation['data'] : array();
+				$sections[] = 'selected_moderation_suggestion';
+			}
+			$reply = $this->build_comment_mention_reply_suggest( $selected_input );
+			if ( is_array( $reply ) ) {
+				$mention_reply = is_array( $reply['data'] ?? null ) ? $reply['data'] : array();
+				$sections[] = 'selected_reply_suggestion';
+			}
+		}
+
+		$health_data = is_array( $queue_health['data'] ?? null ) ? $queue_health['data'] : array();
+		$priority_data = is_array( $priority_queue['data'] ?? null ) ? $priority_queue['data'] : array();
+
+		return $this->success(
+			array(
+				'recipe'               => 'workflow/wordpress_comment_compliance_handoff',
+				'queue_health'         => $health_data,
+				'priority_queue'       => $priority_data,
+				'selected_suggestion'  => $selected_suggestion,
+				'selected_reply'       => $mention_reply,
+				'sections'             => $sections,
+				'summary'              => array(
+					'status'              => $status,
+					'post_id'             => $post_id,
+					'selected_comment_id' => $selected_comment_id,
+					'attention_count'     => (int) ( $health_data['summary']['attention_count'] ?? 0 ),
+					'priority_count'      => (int) ( $priority_data['summary']['counts']['total'] ?? 0 ),
+					'section_count'       => count( $sections ),
+					'next_action'         => (int) ( $health_data['summary']['attention_count'] ?? 0 ) > 0 ? 'review_comment_handoff' : 'queue_clear',
+				),
+			),
+			array(
+				'source'         => 'local_comment_compliance_handoff',
+				'execution_mode' => 'deterministic',
+			),
+			'Comment compliance handoff built.'
 		);
 	}
 

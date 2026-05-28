@@ -14,6 +14,7 @@ workflow chains through standard WordPress ability contracts.
   write-proposal, normalization, and registry inspection helpers.
 - Validate the three primary workflow chains documented in
   [Agent Workflow Validation](agent-workflow-validation.md).
+- Validate bounded-chain performance with `composer perf:smoke`.
 - Keep Magick AI projection metadata-only with `executor_type=wp_ability`.
 - Record smoke results whenever the Local WordPress site is available.
 
@@ -34,6 +35,7 @@ workflow chains through standard WordPress ability contracts.
 - `composer check:boundary` passes.
 - `composer test` passes.
 - `composer lint:php` passes.
+- `composer perf:smoke` passes.
 - `composer test:all` passes.
 - `git diff --check` passes.
 - `composer smoke:wp` status is recorded, including the assertion count or why

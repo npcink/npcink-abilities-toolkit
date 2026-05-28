@@ -11,6 +11,29 @@ This document defines how `magick-ai-abilities` is developed after it is split f
 
 Magick AI is an optional consumer. This plugin must remain installable, testable, and useful without Magick AI.
 
+## Boundary Summary For Agents
+
+Use this project as a generic WordPress Abilities API package layer, not as a
+Magick AI admin/runtime submodule.
+
+`magick-ai-abilities` answers:
+
+- what reusable WordPress abilities can be registered;
+- what schemas, annotations, and categories those abilities expose;
+- what WordPress-only read or host-governed dry-run/write callbacks do;
+- how opted-in abilities may expose lightweight compatibility metadata.
+
+Magick AI answers:
+
+- which abilities appear in the Magick AI product catalog;
+- which channels, scopes, quotas, audits, and approvals apply;
+- how Agent Gateway, Open API, MCP, workflow runtime, model routing, and final
+  WordPress write governance operate.
+
+If code needs Magick AI runtime state, settings-shell UI state, MCP/Open API
+exposure state, quota/audit state, workflow orchestration, model routing, or
+final approval context, it does not belong in this project.
+
 ## Owned Here
 
 - WordPress Abilities API categories and ability definitions.
@@ -28,6 +51,9 @@ Magick AI is an optional consumer. This plugin must remain installable, testable
 - Magick AI workflow orchestration and operations dashboards.
 - Final commit authorization for host-governed writes.
 - Magick AI site diagnostics that include runtime, MCP, filesystem, database, REST probe, or operations state.
+- Magick AI settings pages, settings-shell JavaScript, or admin REST endpoints such as `/wp-json/magick-ai/v1/admin/settings/capabilities`.
+- The Magick AI Capability Library / catalog page at `plugins.php?page=magick-ai-settings&tab=catalog`.
+- Magick AI product catalog row shaping, summary-snapshot caching, channel exposure display, or settings performance gates.
 
 ## Integration Protocol
 
@@ -39,6 +65,43 @@ Magick AI or another host should consume this plugin through WordPress Abilities
 - install this plugin when migrated generic WordPress ability ids are required.
 
 The optional Magick AI compatibility bridge may project opted-in abilities into the Magick AI catalog. Projection is metadata only. It must not introduce a second runtime, second approval system, or direct dependency on Magick AI internals.
+
+Compatibility projection must stay thin:
+
+- allowed: optional filters that expose stable ability metadata to a host;
+- allowed: explicit `project_to_magick_catalog` metadata for opted-in abilities;
+- forbidden: Magick AI settings UI, admin REST handlers, product catalog caching,
+  MCP/Open API/Agent Gateway governance, quota/audit, or workflow execution.
+
+The Magick AI settings Capability Library may consume this project through
+WordPress Abilities API discovery or optional projection. The page itself and
+its `/admin/settings/capabilities` endpoint stay in Magick AI because they are
+consumer/product governance surfaces, not generic Abilities API package code.
+
+## Workflow Recipe Rule
+
+This project may document recommended workflow recipes that compose registered
+WordPress abilities. Recipes are allowed only as reference guidance for hosts,
+agents, MCP clients, and tests.
+
+Workflow recipes in this project may define:
+
+- documentation-only recipe ids such as `workflow/wordpress_article_draft`;
+- ability sequences and handoff expectations;
+- dry-run, approval, risk, and failure-handling guidance;
+- smoke-test targets for proving ability chains through WordPress Abilities API.
+
+Workflow recipes in this project must not define:
+
+- workflow runtime state, scheduling, retries, queues, or leases;
+- model routing, prompt/preset ownership, quota, audit, or approval truth;
+- MCP, Open API, Agent Gateway, Cloud, or final WordPress write governance;
+- a second ability, workflow, skill, MCP, or projection registry.
+
+The canonical recipe guidance lives in
+[workflow-recipes.md](workflow-recipes.md). Host runtimes may implement those
+recipes, but this package remains the ability contract owner, not the workflow
+engine.
 
 ## Write And Destructive Rule
 

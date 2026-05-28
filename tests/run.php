@@ -411,7 +411,9 @@ $new_read_ability_ids = array(
 	'magick-ai/get-internal-link-opportunity-report',
 	'magick-ai/get-site-operations-dashboard',
 	'magick-ai/get-post-publish-risk-report',
+	'magick-ai/get-article-publish-preflight-context',
 	'magick-ai/get-content-refresh-opportunities',
+	'magick-ai/get-old-article-refresh-context',
 	'magick-ai/get-internal-link-graph-health',
 	'magick-ai/get-media-cleanup-opportunities',
 	'magick-ai/get-taxonomy-consolidation-suggestions',
@@ -429,6 +431,7 @@ $new_read_ability_ids = array(
 $new_comment_ability_ids = array(
 	'magick-ai/get-comment-queue-health',
 	'magick-ai/get-comment-action-priority-queue',
+	'magick-ai/get-comment-compliance-handoff',
 );
 $migrated_write_ability_ids = array(
 	'magick-ai/create-draft',
@@ -490,7 +493,9 @@ maa_assert_same( 50, $package_abilities['magick-ai/get-bulk-publishing-checklist
 maa_assert_same( 10, $package_abilities['magick-ai/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-site-operations-dashboard']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site operations dashboard is bounded to 100 posts per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-publish-risk-report']['input_schema']['required'] ?? array(), 'post publish risk report requires post_id' );
+maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-article-publish-preflight-context']['input_schema']['required'] ?? array(), 'article publish preflight context requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-refresh-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'content refresh opportunities scan is bounded to 100 posts per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-old-article-refresh-context']['input_schema']['properties']['per_page']['maximum'] ?? null, 'old article refresh context scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
@@ -506,6 +511,7 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-inventory-healt
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-revision-change-risk-report']['input_schema']['required'] ?? array(), 'revision change risk report requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-queue-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment queue health scan is bounded to 100 comments per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-action-priority-queue']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment action priority queue scan is bounded to 100 comments per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-handoff']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment compliance handoff scan is bounded to 100 comments per page' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
@@ -727,6 +733,17 @@ $comment_action_queue = $core_comment_package->get_comment_action_priority_queue
 maa_assert_same( true, $comment_action_queue['success'] ?? null, 'get-comment-action-priority-queue returns a success envelope' );
 maa_assert_same( 3, $comment_action_queue['data']['summary']['counts']['total'] ?? null, 'get-comment-action-priority-queue counts queued comments' );
 maa_assert_true( (int) ( $comment_action_queue['data']['items'][0]['priority_score'] ?? 0 ) >= (int) ( $comment_action_queue['data']['items'][1]['priority_score'] ?? 0 ), 'get-comment-action-priority-queue sorts high-priority items first' );
+$comment_handoff = $core_comment_package->get_comment_compliance_handoff(
+	array(
+		'post_id'             => 77,
+		'status'              => 'hold',
+		'per_page'            => 10,
+		'selected_comment_id' => 12,
+	)
+);
+maa_assert_same( true, $comment_handoff['success'] ?? null, 'get-comment-compliance-handoff returns a success envelope' );
+maa_assert_same( 'workflow/wordpress_comment_compliance_handoff', $comment_handoff['data']['recipe'] ?? '', 'get-comment-compliance-handoff declares its recipe id' );
+maa_assert_true( in_array( 'selected_moderation_suggestion', $comment_handoff['data']['sections'] ?? array(), true ), 'get-comment-compliance-handoff includes selected moderation suggestion' );
 $batch_suggest = $core_comment_package->build_comment_moderation_batch_suggest(
 	array(
 		'comment_ids' => array( 11, 12 ),
@@ -1229,6 +1246,15 @@ $inventory_health = $core_read_package->get_content_inventory_health(
 maa_assert_same( true, $inventory_health['success'] ?? null, 'get-content-inventory-health returns a success envelope' );
 maa_assert_true( (int) ( $inventory_health['data']['summary']['scanned_count'] ?? 0 ) > 0, 'get-content-inventory-health scans bounded inventory rows' );
 maa_assert_true( isset( $inventory_health['data']['health_score'] ), 'get-content-inventory-health returns a health score' );
+$inventory_health_cached = $core_read_package->get_content_inventory_health(
+	array(
+		'post_type' => 'post',
+		'status'    => 'any',
+		'per_page'  => 5,
+		'page'      => 1,
+	)
+);
+maa_assert_same( true, $inventory_health_cached['meta']['cache_hit'] ?? null, 'get-content-inventory-health uses the bounded read cache on repeated calls' );
 $bulk_checklist = $core_read_package->get_bulk_publishing_checklist(
 	array(
 		'post_ids' => array( 77, 78, 77 ),
@@ -1284,6 +1310,16 @@ $publish_risk = $core_read_package->get_post_publish_risk_report(
 maa_assert_same( true, $publish_risk['success'] ?? null, 'get-post-publish-risk-report returns a success envelope' );
 maa_assert_same( 77, $publish_risk['data']['post']['post_id'] ?? null, 'get-post-publish-risk-report keeps post id' );
 maa_assert_true( (int) ( $publish_risk['data']['risk_score'] ?? 0 ) > 0, 'get-post-publish-risk-report returns a positive risk score for incomplete drafts' );
+$article_publish_preflight = $core_read_package->get_article_publish_preflight_context(
+	array(
+		'post_id'       => 77,
+		'focus_keyword' => 'workflow',
+		'window_days'   => 30,
+	)
+);
+maa_assert_same( true, $article_publish_preflight['success'] ?? null, 'get-article-publish-preflight-context returns a success envelope' );
+maa_assert_same( 'workflow/wordpress_article_publish_preflight', $article_publish_preflight['data']['recipe'] ?? '', 'get-article-publish-preflight-context declares its recipe id' );
+maa_assert_true( in_array( 'publish_risk', $article_publish_preflight['data']['sections'] ?? array(), true ), 'get-article-publish-preflight-context includes publish risk' );
 $refresh_opportunities = $core_read_package->get_content_refresh_opportunities(
 	array(
 		'post_type'      => 'post',
@@ -1307,6 +1343,19 @@ $internal_link_graph = $core_read_package->get_internal_link_graph_health(
 maa_assert_same( true, $internal_link_graph['success'] ?? null, 'get-internal-link-graph-health returns a success envelope' );
 maa_assert_true( (int) ( $internal_link_graph['data']['summary']['scanned_count'] ?? 0 ) >= 1, 'get-internal-link-graph-health scans local posts' );
 maa_assert_true( isset( $internal_link_graph['data']['issue_counts']['orphan_post'] ), 'get-internal-link-graph-health counts orphan posts' );
+$old_article_refresh = $core_read_package->get_old_article_refresh_context(
+	array(
+		'post_type'     => 'post',
+		'status'        => 'any',
+		'per_page'      => 5,
+		'topic_seed'    => 'workflow',
+		'post_id'       => 77,
+		'focus_keyword' => 'workflow',
+	)
+);
+maa_assert_same( true, $old_article_refresh['success'] ?? null, 'get-old-article-refresh-context returns a success envelope' );
+maa_assert_same( 'workflow/wordpress_old_article_refresh_discovery', $old_article_refresh['data']['recipe'] ?? '', 'get-old-article-refresh-context declares its recipe id' );
+maa_assert_true( in_array( 'seo_geo_gap_report', $old_article_refresh['data']['sections'] ?? array(), true ), 'get-old-article-refresh-context includes SEO/GEO gaps' );
 $GLOBALS['maa_unit_style_posts'][79] = (object) array(
 	'ID'             => 79,
 	'post_title'     => 'Workflow diagram image',
@@ -1441,6 +1490,15 @@ $seo_geo_gap = $core_read_package->get_seo_geo_gap_report(
 );
 maa_assert_same( true, $seo_geo_gap['success'] ?? null, 'get-seo-geo-gap-report returns a success envelope' );
 maa_assert_true( (int) ( $seo_geo_gap['data']['summary']['gap_count'] ?? 0 ) >= 1, 'get-seo-geo-gap-report reports gaps from refresh and coverage scans' );
+$seo_geo_gap_cached = $core_read_package->get_seo_geo_gap_report(
+	array(
+		'post_type'  => 'post',
+		'status'     => 'any',
+		'per_page'   => 5,
+		'topic_seed' => 'workflow',
+	)
+);
+maa_assert_same( true, $seo_geo_gap_cached['meta']['cache_hit'] ?? null, 'get-seo-geo-gap-report uses the bounded read cache on repeated calls' );
 $site_style_baseline = $core_read_package->get_site_style_baseline(
 	array(
 		'mode'  => 'site_recent',

@@ -16,7 +16,7 @@ Use this shared Local site for repeatable manual and smoke verification:
 - Installed plugin slug: `magick-ai-abilities`
 - Admin test page: `https://magick-ai.local/wp-admin/tools.php?page=magick-ai-abilities-test`
 
-Verification status on 2026-05-28:
+Verification status through 2026-05-29:
 
 - `curl -k -I https://magick-ai.local/` returned HTTP 200.
 - `https://magick-ai.local/wp-json/` exposed `/wp-abilities/v1`.
@@ -54,6 +54,10 @@ Verification status on 2026-05-28:
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 156 assertions`
   after adding workflow-chain assertions for article publish preflight, content
   refresh discovery, and comment compliance handoff.
+- On 2026-05-29, the same Local site smoke passed with `Smoke OK: 162 assertions`
+  after adding `magick-ai/get-article-publish-preflight-context`,
+  `magick-ai/get-old-article-refresh-context`, and
+  `magick-ai/get-comment-compliance-handoff`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -83,7 +87,7 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 156 assertions
+Smoke OK: 162 assertions
 ```
 
 The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, individual ability execution, workflow-chain execution, and anonymous REST blocking.

@@ -39,6 +39,8 @@ The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/
 The migration boundary from the Magick AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
 The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
+Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
+Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
@@ -118,6 +120,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/compose-comment-moderation-result`
 - `magick-ai/build-comment-mention-reply-suggest`
 - `magick-ai/read-comment-trigger-queue`
+- `magick-ai/get-comment-compliance-handoff`
 - `magick-ai/compose-comment-mention-reply-result`
 - `magick-ai/build-comment-moderation-batch-suggest`
 - `magick-ai/compose-comment-moderation-batch-result`
@@ -137,6 +140,8 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/build-article-single-optimization-suggest`
 - `magick-ai/build-article-optimization-apply-plan`
 - `magick-ai/compose-article-optimization-apply-result`
+- `magick-ai/get-article-publish-preflight-context`
+- `magick-ai/get-old-article-refresh-context`
 - `magick-ai/extract-reference-post-style`
 - `magick-ai/extract-style-baseline`
 - `magick-ai/build-article-production-fingerprint`
@@ -181,6 +186,12 @@ Run both:
 
 ```bash
 composer test:all
+```
+
+Run the isolated bounded-chain performance smoke:
+
+```bash
+composer perf:smoke
 ```
 
 Check that the standalone package has not drifted into Magick AI runtime ownership:

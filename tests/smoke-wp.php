@@ -116,7 +116,9 @@ foreach (
 		'magick-ai/get-internal-link-opportunity-report',
 		'magick-ai/get-site-operations-dashboard',
 		'magick-ai/get-post-publish-risk-report',
+		'magick-ai/get-article-publish-preflight-context',
 		'magick-ai/get-content-refresh-opportunities',
+		'magick-ai/get-old-article-refresh-context',
 		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-cleanup-opportunities',
 		'magick-ai/get-taxonomy-consolidation-suggestions',
@@ -149,6 +151,7 @@ foreach (
 			'magick-ai/read-comment-trigger-queue',
 			'magick-ai/get-comment-queue-health',
 			'magick-ai/get-comment-action-priority-queue',
+			'magick-ai/get-comment-compliance-handoff',
 			'magick-ai/compose-comment-mention-reply-result',
 			'magick-ai/build-comment-moderation-batch-suggest',
 			'magick-ai/compose-comment-moderation-batch-result',
@@ -344,6 +347,20 @@ $publish_risk_run_response = rest_do_request( $publish_risk_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $publish_risk_run_response->get_status(), 'Authenticated post publish risk report ability run returns 200.' );
 $publish_risk_run_data = $publish_risk_run_response->get_data();
 
+$article_publish_preflight_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-article-publish-preflight-context/run' );
+$article_publish_preflight_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'focus_keyword' => 'ability workflow',
+			'window_days'   => 30,
+		),
+	)
+);
+$article_publish_preflight_run_response = rest_do_request( $article_publish_preflight_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $article_publish_preflight_run_response->get_status(), 'Authenticated article publish preflight context ability run returns 200.' );
+$article_publish_preflight_run_data = $article_publish_preflight_run_response->get_data();
+
 $refresh_opportunities_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-refresh-opportunities/run' );
 $refresh_opportunities_run_request->set_query_params(
 	array(
@@ -372,6 +389,23 @@ $link_graph_run_request->set_query_params(
 $link_graph_run_response = rest_do_request( $link_graph_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $link_graph_run_response->get_status(), 'Authenticated internal link graph health ability run returns 200.' );
 $link_graph_run_data = $link_graph_run_response->get_data();
+
+$old_article_refresh_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-old-article-refresh-context/run' );
+$old_article_refresh_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type'     => 'post',
+			'status'        => 'any',
+			'per_page'      => 10,
+			'topic_seed'    => 'ability workflow',
+			'post_id'       => (int) $smoke_post_id,
+			'focus_keyword' => 'ability workflow',
+		),
+	)
+);
+$old_article_refresh_run_response = rest_do_request( $old_article_refresh_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $old_article_refresh_run_response->get_status(), 'Authenticated old article refresh context ability run returns 200.' );
+$old_article_refresh_run_data = $old_article_refresh_run_response->get_data();
 
 $smoke_attachment_id = wp_insert_post(
 	array(
@@ -589,6 +623,21 @@ $comment_action_queue_run_response = rest_do_request( $comment_action_queue_run_
 magick_ai_abilities_smoke_assert( 200 === (int) $comment_action_queue_run_response->get_status(), 'Authenticated comment action priority queue ability run returns 200.' );
 $comment_action_queue_run_data = $comment_action_queue_run_response->get_data();
 
+$comment_compliance_handoff_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-comment-compliance-handoff/run' );
+$comment_compliance_handoff_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'             => (int) $smoke_post_id,
+			'status'              => 'hold',
+			'per_page'            => 10,
+			'selected_comment_id' => (int) $smoke_comment_id,
+		),
+	)
+);
+$comment_compliance_handoff_run_response = rest_do_request( $comment_compliance_handoff_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $comment_compliance_handoff_run_response->get_status(), 'Authenticated comment compliance handoff ability run returns 200.' );
+$comment_compliance_handoff_run_data = $comment_compliance_handoff_run_response->get_data();
+
 $comment_moderation_suggest_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-comment-moderation-suggest/run' );
 $comment_moderation_suggest_run_request->set_query_params(
 	array(
@@ -620,9 +669,10 @@ magick_ai_abilities_smoke_assert(
 	true === ( $post_context_run_data['success'] ?? null )
 	&& true === ( $publishing_checklist_run_data['success'] ?? null )
 	&& true === ( $publish_risk_run_data['success'] ?? null )
+	&& true === ( $article_publish_preflight_run_data['success'] ?? null )
 	&& true === ( $article_workflow_context_run_data['success'] ?? null )
 	&& true === ( $publishing_calendar_run_data['success'] ?? null ),
-	'Publishing preflight workflow returns success envelopes across context, checklist, risk, workflow context, and calendar.'
+	'Publishing preflight workflow returns success envelopes across context, checklist, risk, preflight bundle, workflow context, and calendar.'
 );
 magick_ai_abilities_smoke_assert(
 	in_array( 'publish_risk', (array) ( $article_workflow_context_run_data['data']['sections'] ?? array() ), true ),
@@ -633,15 +683,17 @@ magick_ai_abilities_smoke_assert(
 	&& true === ( $seo_geo_gap_run_data['success'] ?? null )
 	&& true === ( $site_style_baseline_run_data['success'] ?? null )
 	&& true === ( $link_graph_run_data['success'] ?? null )
-	&& true === ( $internal_link_run_data['success'] ?? null ),
-	'Content refresh workflow returns success envelopes across refresh, SEO/GEO gap, style, link graph, and link opportunity context.'
+	&& true === ( $internal_link_run_data['success'] ?? null )
+	&& true === ( $old_article_refresh_run_data['success'] ?? null ),
+	'Content refresh workflow returns success envelopes across refresh, SEO/GEO gap, style, link graph, link opportunity, and refresh bundle context.'
 );
 magick_ai_abilities_smoke_assert(
 	true === ( $comment_queue_health_run_data['success'] ?? null )
 	&& true === ( $comment_action_queue_run_data['success'] ?? null )
+	&& true === ( $comment_compliance_handoff_run_data['success'] ?? null )
 	&& true === ( $comment_moderation_suggest_run_data['success'] ?? null )
 	&& true === ( $comment_mention_suggest_run_data['success'] ?? null ),
-	'Comment compliance workflow returns success envelopes across queue, priority, moderation suggestion, and reply handoff.'
+	'Comment compliance workflow returns success envelopes across queue, priority, handoff bundle, moderation suggestion, and reply handoff.'
 );
 magick_ai_abilities_smoke_assert(
 	true === ( $comment_mention_suggest_run_data['data']['trigger']['trigger_detected'] ?? null ),

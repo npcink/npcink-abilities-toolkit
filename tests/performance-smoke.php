@@ -1,0 +1,170 @@
+<?php
+/**
+ * Lightweight performance smoke for bounded read-only ability chains.
+ *
+ * @package MagickAIAbilities
+ */
+
+require_once __DIR__ . '/bootstrap.php';
+
+use Magick_AI_Abilities\Packages\Core_Comment_Package;
+use Magick_AI_Abilities\Packages\Core_Read_Package;
+use Magick_AI_Abilities\Registry\Ability_Registrar;
+use Magick_AI_Abilities\Registry\Annotation_Normalizer;
+use Magick_AI_Abilities\Registry\Category_Registrar;
+use Magick_AI_Abilities\Registry\Contract_Normalizer;
+use Magick_AI_Abilities\Registry\Schema_Normalizer;
+
+$schema_normalizer = new Schema_Normalizer();
+$contract_normalizer = new Contract_Normalizer( $schema_normalizer, new Annotation_Normalizer() );
+$categories = new Category_Registrar();
+$abilities = new Ability_Registrar( $categories, $contract_normalizer );
+$core_read_package = new Core_Read_Package( $categories, $abilities );
+$core_comment_package = new Core_Comment_Package( $categories, $abilities );
+
+$GLOBALS['maa_unit_style_posts'] = array();
+$GLOBALS['maa_unit_comments'] = array();
+$GLOBALS['maa_unit_post_meta'] = array();
+$GLOBALS['maa_unit_terms'] = array(
+	'category' => array(
+		(object) array(
+			'term_id'     => 301,
+			'name'        => 'Workflow',
+			'slug'        => 'workflow',
+			'description' => '',
+			'count'       => 3,
+			'parent'      => 0,
+		),
+	),
+);
+$GLOBALS['maa_unit_transients'] = array();
+
+for ( $i = 1; $i <= 40; ++$i ) {
+	$GLOBALS['maa_unit_style_posts'][ $i ] = (object) array(
+		'ID'            => $i,
+		'post_author'   => 7,
+		'post_title'    => 'Workflow performance sample ' . $i,
+		'post_content'  => '<p>Workflow sample content with enough words to exercise inventory, SEO, GEO, internal link, and article preflight scans.</p><p><a href="https://example.test/?p=1">Related workflow note</a></p>',
+		'post_excerpt'  => 0 === $i % 3 ? '' : 'Sample excerpt.',
+		'post_name'     => 'workflow-performance-sample-' . $i,
+		'post_status'   => 0 === $i % 7 ? 'draft' : 'publish',
+		'post_type'     => 'post',
+		'post_date'     => '2024-01-01 00:00:00',
+		'post_modified' => '2024-01-0' . ( ( $i % 9 ) + 1 ) . ' 00:00:00',
+	);
+}
+
+for ( $i = 1; $i <= 12; ++$i ) {
+	$GLOBALS['maa_unit_comments'][ $i ] = (object) array(
+		'comment_ID'       => $i,
+		'comment_post_ID'  => 1,
+		'comment_author'   => 'Reader ' . $i,
+		'comment_approved' => 'hold',
+		'comment_content'  => 0 === $i % 4 ? 'Buy cheap pills now.' : 'Please review this workflow question.',
+	);
+}
+
+$targets = array(
+	'content_inventory' => array(
+		'budget_ms' => 500,
+		'callback'  => static function () use ( $core_read_package ) {
+			return $core_read_package->get_content_inventory_health(
+				array(
+					'post_type' => 'post',
+					'status'    => 'any',
+					'per_page'  => 40,
+				)
+			);
+		},
+	),
+	'seo_geo_gap_cached' => array(
+		'budget_ms' => 500,
+		'callback'  => static function () use ( $core_read_package ) {
+			$core_read_package->get_seo_geo_gap_report(
+				array(
+					'post_type'  => 'post',
+					'status'     => 'any',
+					'per_page'   => 40,
+					'topic_seed' => 'workflow',
+				)
+			);
+			return $core_read_package->get_seo_geo_gap_report(
+				array(
+					'post_type'  => 'post',
+					'status'     => 'any',
+					'per_page'   => 40,
+					'topic_seed' => 'workflow',
+				)
+			);
+		},
+	),
+	'article_publish_preflight' => array(
+		'budget_ms' => 700,
+		'callback'  => static function () use ( $core_read_package ) {
+			return $core_read_package->get_article_publish_preflight_context(
+				array(
+					'post_id'       => 1,
+					'focus_keyword' => 'workflow',
+				)
+			);
+		},
+	),
+	'old_article_refresh' => array(
+		'budget_ms' => 700,
+		'callback'  => static function () use ( $core_read_package ) {
+			return $core_read_package->get_old_article_refresh_context(
+				array(
+					'post_type'  => 'post',
+					'status'     => 'any',
+					'per_page'   => 40,
+					'topic_seed' => 'workflow',
+					'post_id'    => 1,
+				)
+			);
+		},
+	),
+	'comment_compliance_handoff' => array(
+		'budget_ms' => 250,
+		'callback'  => static function () use ( $core_comment_package ) {
+			return $core_comment_package->get_comment_compliance_handoff(
+				array(
+					'post_id'             => 1,
+					'per_page'            => 12,
+					'selected_comment_id' => 1,
+				)
+			);
+		},
+	),
+);
+
+$failures = 0;
+$rows = array();
+foreach ( $targets as $name => $target ) {
+	$start = microtime( true );
+	$result = call_user_func( $target['callback'] );
+	$elapsed_ms = ( microtime( true ) - $start ) * 1000;
+	$success = is_array( $result ) && true === ( $result['success'] ?? null );
+	$within_budget = $elapsed_ms <= (float) $target['budget_ms'];
+	$rows[] = sprintf(
+		'%s: %.2fms budget=%sms success=%s',
+		$name,
+		$elapsed_ms,
+		(string) $target['budget_ms'],
+		$success ? 'yes' : 'no'
+	);
+	if ( ! $success || ! $within_budget ) {
+		++$failures;
+	}
+}
+
+echo "Performance smoke\n";
+foreach ( $rows as $row ) {
+	echo $row . "\n";
+}
+
+if ( $failures > 0 ) {
+	fwrite( STDERR, "FAIL: {$failures} performance smoke target(s) exceeded budget or failed.\n" );
+	exit( 1 );
+}
+
+echo "OK: performance smoke targets within budget\n";

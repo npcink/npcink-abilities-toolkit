@@ -3,6 +3,9 @@
 ## 0.3.0 - Unreleased
 
 - Added the 0.3 ability acceptance matrix, agent workflow validation plan, and stabilization scope documents.
+- Added workflow recipe guidance that documents host-side ability composition without moving workflow runtime ownership into this package.
+- Added read-only workflow context bundles for article publish preflight, old article refresh discovery, and comment compliance handoff.
+- Added short-TTL read caching for selected bounded reports and a `composer perf:smoke` performance smoke command.
 - Expanded WordPress smoke coverage from individual ability execution to the publish preflight, content refresh discovery, and comment compliance workflow chains.
 - Added `magick-ai/get-post-context`, a read-only post context bundle for agent workflows.
 - Added `magick-ai/get-content-publishing-checklist`, a read-only pre-publish readiness checklist.

@@ -18,6 +18,7 @@
     "validate:composer": "composer validate --no-check-publish",
     "check:boundary": "@php scripts/check-project-boundary.php",
     "lint:php": "@php tests/lint.php",
+    "perf:smoke": "@php tests/performance-smoke.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
     "test": "@php tests/run.php",
     "test:all": [

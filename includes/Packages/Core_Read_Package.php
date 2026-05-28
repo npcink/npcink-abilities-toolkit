@@ -2129,6 +2129,39 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_post_publish_risk_report' ),
 			),
+			'magick-ai/get-article-publish-preflight-context' => array(
+				'label'            => __( 'Get Article Publish Preflight Context', 'magick-ai-abilities' ),
+				'description'      => __( 'Aggregates post context, publishing checklist, publish risk, workflow context, and calendar context for host-side publish preflight workflows without writing.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'         => array( 'type' => 'integer', 'minimum' => 1 ),
+						'target_status'   => array( 'type' => 'string', 'enum' => array( 'publish', 'future', 'draft' ), 'default' => 'publish' ),
+						'focus_keyword'   => array( 'type' => 'string' ),
+						'window_days'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 365, 'default' => 30 ),
+						'include_content' => array( 'type' => 'boolean', 'default' => false ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_article_publish_preflight_context' ),
+			),
 			'magick-ai/get-content-refresh-opportunities' => array(
 				'label'            => __( 'Get Content Refresh Opportunities', 'magick-ai-abilities' ),
 				'description'      => __( 'Scans a bounded content set and returns stale, thin, SEO-light, answer-light, and low-link refresh opportunities.', 'magick-ai-abilities' ),
@@ -2161,6 +2194,41 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'get_content_refresh_opportunities' ),
+			),
+			'magick-ai/get-old-article-refresh-context' => array(
+				'label'            => __( 'Get Old Article Refresh Context', 'magick-ai-abilities' ),
+				'description'      => __( 'Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, internal-link graph health, and optional selected-post link opportunities for host-side old article refresh workflows.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'      => array( 'type' => 'string', 'default' => 'post' ),
+						'status'         => array( 'type' => 'string', 'default' => 'publish' ),
+						'per_page'       => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'           => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'stale_days'     => array( 'type' => 'integer', 'minimum' => 30, 'maximum' => 3650, 'default' => 365 ),
+						'topic_seed'     => array( 'type' => 'string' ),
+						'post_id'        => array( 'type' => 'integer', 'minimum' => 1 ),
+						'focus_keyword'  => array( 'type' => 'string' ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_old_article_refresh_context' ),
 			),
 			'magick-ai/get-internal-link-graph-health' => array(
 				'label'            => __( 'Get Internal Link Graph Health', 'magick-ai-abilities' ),
@@ -6429,6 +6497,22 @@ final class Core_Read_Package {
 			$target_status = 'publish';
 		}
 
+		$cache_key = $this->build_read_cache_key(
+			'content_inventory_health',
+			array(
+				'post_type'     => $post_type,
+				'status'        => $status,
+				'per_page'      => $per_page,
+				'page'          => $page,
+				'stale_days'    => $stale_days,
+				'target_status' => $target_status,
+			)
+		);
+		$cached = $this->get_cached_read_response( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
 		$query_result = $this->query_inventory_posts( $post_type, $status, $per_page, $page );
 		$post_ids = is_array( $query_result['post_ids'] ?? null ) ? $query_result['post_ids'] : array();
 		$total = (int) ( $query_result['total'] ?? count( $post_ids ) );
@@ -6490,7 +6574,7 @@ final class Core_Read_Package {
 
 		arsort( $issue_counts );
 
-		return $this->build_analysis_success_response(
+		$result = $this->build_analysis_success_response(
 			array(
 				'total'        => $total,
 				'page'         => $page,
@@ -6520,6 +6604,8 @@ final class Core_Read_Package {
 			),
 			'Content inventory health report built.'
 		);
+		$this->set_cached_read_response( $cache_key, $result, 'content_inventory_health' );
+		return $result;
 	}
 
 	/**
@@ -6907,6 +6993,117 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds one host-side article publish preflight context bundle.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_article_publish_preflight_context( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
+		if ( ! in_array( $target_status, array( 'publish', 'future', 'draft' ), true ) ) {
+			$target_status = 'publish';
+		}
+		$focus_keyword = sanitize_text_field( (string) ( $input['focus_keyword'] ?? '' ) );
+		$window_days = max( 1, min( 365, $this->absint_value( $input['window_days'] ?? 30 ) ) );
+		$include_content = ! empty( $input['include_content'] );
+		$sections = array();
+
+		$post_context = $this->get_post_context(
+			array(
+				'post_id'           => $post_id,
+				'include_content'   => $include_content,
+				'include_blocks'    => true,
+				'include_terms'     => true,
+				'include_media'     => true,
+				'include_revisions' => true,
+			)
+		);
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $post_context ) ) {
+			return $post_context;
+		}
+		$sections[] = 'post_context';
+
+		$checklist = $this->get_content_publishing_checklist(
+			array(
+				'post_id'       => $post_id,
+				'target_status' => $target_status,
+			)
+		);
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $checklist ) ) {
+			return $checklist;
+		}
+		$sections[] = 'publishing_checklist';
+
+		$risk = $this->get_post_publish_risk_report(
+			array(
+				'post_id'       => $post_id,
+				'target_status' => $target_status,
+				'focus_keyword' => $focus_keyword,
+			)
+		);
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $risk ) ) {
+			return $risk;
+		}
+		$sections[] = 'publish_risk';
+
+		$workflow_context = $this->build_article_workflow_context(
+			array(
+				'workflow'   => 'publish',
+				'post_id'    => $post_id,
+				'topic_seed' => $focus_keyword,
+			)
+		);
+		if ( is_array( $workflow_context ) ) {
+			$sections[] = 'workflow_context';
+		}
+
+		$calendar = $this->get_publishing_calendar_context(
+			array(
+				'post_type'   => is_array( $post_context ) ? sanitize_key( (string) ( $post_context['data']['post']['post_type'] ?? 'post' ) ) : 'post',
+				'window_days' => $window_days,
+				'per_page'    => 50,
+			)
+		);
+		if ( is_array( $calendar ) ) {
+			$sections[] = 'publishing_calendar';
+		}
+
+		$checklist_data = is_array( $checklist['data'] ?? null ) ? $checklist['data'] : array();
+		$risk_data = is_array( $risk['data'] ?? null ) ? $risk['data'] : array();
+		$ready = ! empty( $checklist_data['ready'] ) && ! in_array( sanitize_key( (string) ( $risk_data['risk_level'] ?? '' ) ), array( 'high', 'medium' ), true );
+
+		return $this->build_analysis_success_response(
+			array(
+				'recipe'               => 'workflow/wordpress_article_publish_preflight',
+				'post_context'         => is_array( $post_context ) ? ( $post_context['data'] ?? array() ) : array(),
+				'publishing_checklist' => $checklist_data,
+				'publish_risk'         => $risk_data,
+				'workflow_context'     => is_array( $workflow_context ) ? ( $workflow_context['data'] ?? array() ) : array(),
+				'publishing_calendar'  => is_array( $calendar ) ? ( $calendar['data'] ?? array() ) : array(),
+				'sections'             => $sections,
+				'summary'              => array(
+					'ready_for_host_approval' => $ready,
+					'target_status'           => $target_status,
+					'risk_level'              => sanitize_key( (string) ( $risk_data['risk_level'] ?? 'none' ) ),
+					'section_count'           => count( $sections ),
+					'next_action'             => $ready ? 'request_host_publish_or_schedule_approval' : 'resolve_preflight_findings',
+				),
+			),
+			array(
+				'source'         => 'local_article_publish_preflight_context',
+				'execution_mode' => 'deterministic',
+			),
+			'Article publish preflight context built.'
+		);
+	}
+
+	/**
 	 * Builds content refresh opportunities.
 	 *
 	 * @param mixed $input Input args.
@@ -7015,6 +7212,115 @@ final class Core_Read_Package {
 				'execution_mode' => 'deterministic',
 			),
 			'Content refresh opportunities built.'
+		);
+	}
+
+	/**
+	 * Builds one host-side old article refresh context bundle.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_old_article_refresh_context( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read article refresh context.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$stale_days = max( 30, min( 3650, $this->absint_value( $input['stale_days'] ?? 365 ) ) );
+		$topic_seed = sanitize_text_field( (string) ( $input['topic_seed'] ?? '' ) );
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		$focus_keyword = sanitize_text_field( (string) ( $input['focus_keyword'] ?? $topic_seed ) );
+		$sections = array();
+
+		$refresh = $this->get_content_refresh_opportunities(
+			array(
+				'post_type'  => '' !== $post_type ? $post_type : 'post',
+				'status'     => '' !== $status ? $status : 'publish',
+				'per_page'   => $per_page,
+				'page'       => $page,
+				'stale_days' => $stale_days,
+			)
+		);
+		if ( is_array( $refresh ) ) {
+			$sections[] = 'refresh_opportunities';
+		}
+
+		$gap_report = $this->get_seo_geo_gap_report(
+			array(
+				'post_type'  => '' !== $post_type ? $post_type : 'post',
+				'status'     => '' !== $status ? $status : 'publish',
+				'per_page'   => $per_page,
+				'page'       => $page,
+				'topic_seed' => $topic_seed,
+			)
+		);
+		if ( is_array( $gap_report ) ) {
+			$sections[] = 'seo_geo_gap_report';
+		}
+
+		$style = $this->get_site_style_baseline( array( 'mode' => 'site_recent', 'limit' => 5 ) );
+		if ( is_array( $style ) ) {
+			$sections[] = 'style_baseline';
+		}
+
+		$link_graph = $this->get_internal_link_graph_health(
+			array(
+				'post_type' => '' !== $post_type ? $post_type : 'post',
+				'status'    => '' !== $status ? $status : 'publish',
+				'per_page'  => $per_page,
+				'page'      => $page,
+			)
+		);
+		if ( is_array( $link_graph ) ) {
+			$sections[] = 'internal_link_graph';
+		}
+
+		$link_opportunity = array();
+		if ( $post_id > 0 ) {
+			$link_opportunity_result = $this->get_internal_link_opportunity_report(
+				array(
+					'post_id'       => $post_id,
+					'focus_keyword' => $focus_keyword,
+					'max_targets'   => 5,
+				)
+			);
+			if ( is_array( $link_opportunity_result ) ) {
+				$link_opportunity = is_array( $link_opportunity_result['data'] ?? null ) ? $link_opportunity_result['data'] : array();
+				$sections[] = 'selected_post_link_opportunity';
+			}
+		}
+
+		$refresh_data = is_array( $refresh['data'] ?? null ) ? $refresh['data'] : array();
+		$gap_data = is_array( $gap_report['data'] ?? null ) ? $gap_report['data'] : array();
+
+		return $this->build_analysis_success_response(
+			array(
+				'recipe'                    => 'workflow/wordpress_old_article_refresh_discovery',
+				'refresh_opportunities'     => $refresh_data,
+				'seo_geo_gap_report'        => $gap_data,
+				'style_baseline'            => is_array( $style ) ? ( $style['data'] ?? array() ) : array(),
+				'internal_link_graph'       => is_array( $link_graph ) ? ( $link_graph['data'] ?? array() ) : array(),
+				'selected_link_opportunity' => $link_opportunity,
+				'sections'                  => $sections,
+				'summary'                   => array(
+					'post_type'         => $post_type,
+					'status'            => $status,
+					'opportunity_count' => (int) ( $refresh_data['summary']['opportunity_count'] ?? 0 ),
+					'gap_count'         => (int) ( $gap_data['summary']['gap_count'] ?? 0 ),
+					'section_count'     => count( $sections ),
+					'next_action'       => (int) ( $refresh_data['summary']['opportunity_count'] ?? 0 ) > 0 ? 'select_refresh_candidate' : 'no_refresh_candidate_detected',
+				),
+			),
+			array(
+				'source'         => 'local_old_article_refresh_context',
+				'execution_mode' => 'deterministic',
+			),
+			'Old article refresh context built.'
 		);
 	}
 
@@ -7398,6 +7704,21 @@ final class Core_Read_Package {
 		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
 		$topic_seed = sanitize_text_field( (string) ( $input['topic_seed'] ?? '' ) );
 
+		$cache_key = $this->build_read_cache_key(
+			'seo_geo_gap_report',
+			array(
+				'post_type'  => $post_type,
+				'status'     => $status,
+				'per_page'   => $per_page,
+				'page'       => $page,
+				'topic_seed' => $topic_seed,
+			)
+		);
+		$cached = $this->get_cached_read_response( $cache_key );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
 		$coverage = $this->get_site_topic_coverage_report(
 			array(
 				'post_type'  => '' !== $post_type ? $post_type : 'post',
@@ -7439,7 +7760,7 @@ final class Core_Read_Package {
 			);
 		}
 
-		return $this->build_analysis_success_response(
+		$result = $this->build_analysis_success_response(
 			array(
 				'gaps'       => $gaps,
 				'coverage'   => $coverage_data,
@@ -7458,6 +7779,8 @@ final class Core_Read_Package {
 			),
 			'SEO/GEO gap report built.'
 		);
+		$this->set_cached_read_response( $cache_key, $result, 'seo_geo_gap_report' );
+		return $result;
 	}
 
 	/**
@@ -10223,6 +10546,81 @@ final class Core_Read_Package {
 			'meta'    => $meta,
 			'message' => sanitize_text_field( (string) $message ),
 		);
+	}
+
+	/**
+	 * Builds a versioned read-cache key for bounded read-only ability responses.
+	 *
+	 * @param string              $namespace Cache namespace.
+	 * @param array<string,mixed> $input Cache input.
+	 * @return string
+	 */
+	private function build_read_cache_key( $namespace, array $input ) {
+		$user_id = function_exists( 'get_current_user_id' ) ? $this->absint_value( get_current_user_id() ) : 0;
+		$payload = array(
+			'namespace' => sanitize_key( (string) $namespace ),
+			'input'     => $input,
+			'user_id'   => $user_id,
+			'version'   => $this->get_read_cache_version(),
+		);
+		$encoded = function_exists( 'wp_json_encode' ) ? wp_json_encode( $payload ) : json_encode( $payload );
+
+		return 'maa_read_' . substr( md5( (string) $encoded ), 0, 32 );
+	}
+
+	/**
+	 * Returns one cached read response when available.
+	 *
+	 * @param string $cache_key Cache key.
+	 * @return array<string,mixed>|null
+	 */
+	private function get_cached_read_response( $cache_key ) {
+		if ( ! function_exists( 'get_transient' ) ) {
+			return null;
+		}
+		$cached = get_transient( sanitize_key( (string) $cache_key ) );
+		if ( ! is_array( $cached ) || ! isset( $cached['success'], $cached['data'] ) ) {
+			return null;
+		}
+		if ( ! isset( $cached['meta'] ) || ! is_array( $cached['meta'] ) ) {
+			$cached['meta'] = array();
+		}
+		$cached['meta']['cache_hit'] = true;
+
+		return $cached;
+	}
+
+	/**
+	 * Stores one bounded read-only response in a transient.
+	 *
+	 * @param string              $cache_key Cache key.
+	 * @param array<string,mixed> $response Response payload.
+	 * @param string              $source Cache source.
+	 * @return void
+	 */
+	private function set_cached_read_response( $cache_key, array $response, $source ) {
+		if ( ! function_exists( 'set_transient' ) ) {
+			return;
+		}
+		if ( ! isset( $response['meta'] ) || ! is_array( $response['meta'] ) ) {
+			$response['meta'] = array();
+		}
+		$ttl = defined( 'MINUTE_IN_SECONDS' ) ? 10 * MINUTE_IN_SECONDS : 10 * 60;
+		$response['meta']['cache_source'] = sanitize_key( (string) $source );
+		$response['meta']['cache_ttl'] = $ttl;
+		set_transient( sanitize_key( (string) $cache_key ), $response, $ttl );
+	}
+
+	/**
+	 * Returns the current read-cache version.
+	 *
+	 * @return int
+	 */
+	private function get_read_cache_version() {
+		if ( function_exists( 'get_option' ) ) {
+			return max( 1, (int) get_option( 'magick_ai_abilities_read_cache_version', 1 ) );
+		}
+		return 1;
 	}
 
 	/**

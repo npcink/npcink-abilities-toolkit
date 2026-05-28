@@ -146,6 +146,7 @@ final class Plugin {
 		$this->core_comment_package->boot();
 		$this->catalog_bridge->boot();
 		$this->test_page->boot();
+		$this->register_cache_invalidation_hooks();
 	}
 
 	/**
@@ -164,5 +165,40 @@ final class Plugin {
 	 */
 	public function abilities() {
 		return $this->abilities;
+	}
+
+	/**
+	 * Registers read-cache invalidation hooks when WordPress hooks are available.
+	 *
+	 * @return void
+	 */
+	private function register_cache_invalidation_hooks() {
+		if ( ! function_exists( 'add_action' ) ) {
+			return;
+		}
+
+		add_action( 'save_post', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'deleted_post', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'transition_post_status', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'created_term', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'edited_term', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'delete_term', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'add_attachment', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'edit_attachment', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'delete_attachment', array( $this, 'bump_read_cache_version' ), 20 );
+	}
+
+	/**
+	 * Bumps the read-cache version for bounded read-only report transients.
+	 *
+	 * @return void
+	 */
+	public function bump_read_cache_version() {
+		if ( ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
+			return;
+		}
+
+		$current = max( 1, (int) get_option( 'magick_ai_abilities_read_cache_version', 1 ) );
+		update_option( 'magick_ai_abilities_read_cache_version', $current + 1, false );
 	}
 }
