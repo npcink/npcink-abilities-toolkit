@@ -1837,6 +1837,103 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_post' ),
 			),
+			'magick-ai/get-post-context' => array(
+				'label'            => __( 'Get Post Context', 'magick-ai-abilities' ),
+				'description'      => __( 'Returns one agent-ready post context bundle with content, stats, terms, media, blocks, revisions, and optional scoped metadata.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'           => array( 'type' => 'integer', 'minimum' => 1 ),
+						'include_content'   => array( 'type' => 'boolean', 'default' => true ),
+						'include_blocks'    => array( 'type' => 'boolean', 'default' => true ),
+						'include_terms'     => array( 'type' => 'boolean', 'default' => true ),
+						'include_media'     => array( 'type' => 'boolean', 'default' => true ),
+						'include_revisions' => array( 'type' => 'boolean', 'default' => false ),
+						'include_meta'      => array( 'type' => 'boolean', 'default' => false ),
+						'meta_keys'         => array(
+							'type'  => 'array',
+							'items' => array( 'type' => 'string' ),
+						),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'post'      => array( 'type' => 'object', 'additionalProperties' => true ),
+								'stats'     => array( 'type' => 'object', 'additionalProperties' => true ),
+								'terms'     => array( 'type' => 'object', 'additionalProperties' => true ),
+								'media'     => array( 'type' => 'object', 'additionalProperties' => true ),
+								'blocks'    => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'revisions' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'meta'      => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'post', 'stats' ),
+							'additionalProperties' => true,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_post_context' ),
+			),
+			'magick-ai/get-content-publishing-checklist' => array(
+				'label'            => __( 'Get Content Publishing Checklist', 'magick-ai-abilities' ),
+				'description'      => __( 'Returns a deterministic pre-publish readiness checklist for one post or page without applying changes.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'       => array( 'type' => 'integer', 'minimum' => 1 ),
+						'target_status' => array( 'type' => 'string', 'enum' => array( 'publish', 'future', 'draft' ), 'default' => 'publish' ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'ready'        => array( 'type' => 'boolean' ),
+								'post_id'      => array( 'type' => 'integer' ),
+								'post_type'    => array( 'type' => 'string' ),
+								'current_status' => array( 'type' => 'string' ),
+								'target_status' => array( 'type' => 'string' ),
+								'checks'       => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'missing'      => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+								'warnings'     => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+								'summary'      => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'ready', 'post_id', 'target_status', 'checks', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_content_publishing_checklist' ),
+			),
 			'magick-ai/resolve-url-to-post' => array(
 				'label'            => __( 'Resolve URL to Post', 'magick-ai-abilities' ),
 				'description'      => __( 'Resolves a URL or slug to a post ID, post type, status, edit link, and permalink.', 'magick-ai-abilities' ),
@@ -5385,6 +5482,230 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Gets an agent-ready context bundle for one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_post_context( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$include_content = ! array_key_exists( 'include_content', $input ) || ! empty( $input['include_content'] );
+		$include_blocks = ! array_key_exists( 'include_blocks', $input ) || ! empty( $input['include_blocks'] );
+		$include_terms = ! array_key_exists( 'include_terms', $input ) || ! empty( $input['include_terms'] );
+		$include_media = ! array_key_exists( 'include_media', $input ) || ! empty( $input['include_media'] );
+		$include_revisions = ! empty( $input['include_revisions'] );
+		$include_meta = ! empty( $input['include_meta'] );
+
+		$content = (string) ( $post->post_content ?? '' );
+		$plain_text = $this->strip_all_tags_value( $content );
+		$parsed_blocks = $include_blocks && function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+		$blocks = $include_blocks ? $this->normalize_block_tree( is_array( $parsed_blocks ) ? $parsed_blocks : array(), true ) : array();
+		if ( $include_blocks && empty( $blocks ) && '' !== trim( $content ) ) {
+			$blocks[] = array(
+				'blockName'   => 'core/freeform',
+				'attrs'       => array(),
+				'innerHTML'   => $content,
+				'innerBlocks' => array(),
+			);
+		}
+
+		$author_id = $this->absint_value( $post->post_author ?? 0 );
+		$author_name = '';
+		if ( $author_id > 0 && function_exists( 'get_the_author_meta' ) ) {
+			$author_name = sanitize_text_field( (string) get_the_author_meta( 'display_name', $author_id ) );
+		}
+
+		$data = array(
+			'post'  => array(
+				'id'         => $post_id,
+				'title'      => sanitize_text_field( (string) get_the_title( $post_id ) ),
+				'status'     => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'post_type'  => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'slug'       => $this->sanitize_metadata_slug( (string) ( $post->post_name ?? '' ) ),
+				'author_id'  => $author_id,
+				'author'     => $author_name,
+				'excerpt'    => sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) ),
+				'date'       => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+				'modified'   => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'permalink'  => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
+				'edit_link'  => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+				'content'    => $include_content ? $content : '',
+				'text_excerpt' => $this->trim_words_value( $plain_text, 80 ),
+			),
+			'stats' => array(
+				'content_length'        => strlen( $content ),
+				'plain_text_length'     => $this->strlen_value( $plain_text ),
+				'word_count'            => str_word_count( $plain_text ),
+				'image_count'           => substr_count( strtolower( $content ), '<img' ),
+				'block_count'           => count( $blocks ),
+				'reading_time_minutes'  => max( 1, (int) ceil( max( 1, str_word_count( $plain_text ) ) / 200 ) ),
+			),
+		);
+
+		if ( $include_terms ) {
+			$data['terms'] = $this->collect_post_terms_context( $post_id, sanitize_key( (string) ( $post->post_type ?? '' ) ) );
+		}
+		if ( $include_media ) {
+			$data['media'] = $this->collect_post_media_context( $post_id );
+		}
+		if ( $include_blocks ) {
+			$data['blocks'] = $blocks;
+		}
+		if ( $include_revisions ) {
+			$revisions = $this->list_post_revisions(
+				array(
+					'post_id'  => $post_id,
+					'per_page' => 5,
+					'page'     => 1,
+				)
+			);
+			$data['revisions'] = is_array( $revisions ) ? array_values( $revisions['items'] ?? array() ) : array();
+		}
+		if ( $include_meta ) {
+			$data['meta'] = $this->get_scoped_post_meta( $post_id, $input['meta_keys'] ?? array() );
+		}
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'            => 'local_post_context',
+				'execution_mode'    => 'deterministic',
+				'included_sections' => array_values(
+					array_filter(
+						array(
+							'post',
+							'stats',
+							$include_terms ? 'terms' : '',
+							$include_media ? 'media' : '',
+							$include_blocks ? 'blocks' : '',
+							$include_revisions ? 'revisions' : '',
+							$include_meta ? 'meta' : '',
+						)
+					)
+				),
+			),
+			'Post context loaded.'
+		);
+	}
+
+	/**
+	 * Builds a deterministic pre-publish checklist for one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_content_publishing_checklist( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
+		if ( ! in_array( $target_status, array( 'publish', 'future', 'draft' ), true ) ) {
+			$target_status = 'publish';
+		}
+
+		$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+		$content = (string) ( $post->post_content ?? '' );
+		$plain_text = $this->strip_all_tags_value( $content );
+		$excerpt = sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) );
+		$slug = $this->sanitize_metadata_slug( (string) ( $post->post_name ?? '' ) );
+		$post_type = sanitize_key( (string) ( $post->post_type ?? '' ) );
+		$author_id = $this->absint_value( $post->post_author ?? 0 );
+		$seo_provider = $this->detect_seo_provider();
+		$seo_meta_keys = $this->seo_meta_keys( $seo_provider );
+		$seo_title = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $post_id, (string) ( $seo_meta_keys['title'] ?? '' ), true ) ) : '';
+		$seo_description = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $post_id, (string) ( $seo_meta_keys['description'] ?? '' ), true ) ) : '';
+		$featured_media_id = function_exists( 'get_post_thumbnail_id' ) ? $this->absint_value( get_post_thumbnail_id( $post_id ) ) : 0;
+		$category_names = function_exists( 'get_the_terms' ) ? $this->format_term_name_list( get_the_terms( $post_id, 'category' ) ) : array();
+
+		$checks = array();
+		$this->append_publishing_check( $checks, 'title', '' !== $title, 'fail', __( 'Title is present.', 'magick-ai-abilities' ), __( 'Add a clear post title before publishing.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'content', $this->strlen_value( $plain_text ) >= 120, 'fail', __( 'Body content has enough text for review.', 'magick-ai-abilities' ), __( 'Add more body content before publishing.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'slug', '' !== $slug, 'fail', __( 'Slug is set.', 'magick-ai-abilities' ), __( 'Set a stable URL slug before publishing.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'author', $author_id > 0, 'fail', __( 'Author is assigned.', 'magick-ai-abilities' ), __( 'Assign an author before publishing.', 'magick-ai-abilities' ) );
+
+		if ( 'post' === $post_type && function_exists( 'get_the_terms' ) ) {
+			$this->append_publishing_check( $checks, 'categories', ! empty( $category_names ), 'fail', __( 'At least one category is assigned.', 'magick-ai-abilities' ), __( 'Assign at least one category before publishing.', 'magick-ai-abilities' ) );
+		} elseif ( 'post' === $post_type ) {
+			$this->append_publishing_check( $checks, 'categories', false, 'warning', __( 'Category lookup is available.', 'magick-ai-abilities' ), __( 'Category lookup is unavailable in this runtime; verify categories in WordPress.', 'magick-ai-abilities' ) );
+		}
+
+		$this->append_publishing_check( $checks, 'excerpt', '' !== $excerpt, 'warning', __( 'Excerpt is present.', 'magick-ai-abilities' ), __( 'Add an excerpt for archive and social previews.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'featured_media', $featured_media_id > 0, 'warning', __( 'Featured image is assigned.', 'magick-ai-abilities' ), __( 'Add a featured image when the layout or channel expects one.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'seo_title', '' !== $seo_title, 'warning', __( 'SEO title metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO title metadata if the site SEO plugin uses it.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'seo_description', '' !== $seo_description, 'warning', __( 'SEO description metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO description metadata for search and share snippets.', 'magick-ai-abilities' ) );
+
+		if ( 'future' === $target_status ) {
+			$future_date = strtotime( (string) ( $post->post_date ?? '' ) );
+			$this->append_publishing_check( $checks, 'schedule_date', false !== $future_date && $future_date > time(), 'fail', __( 'Scheduled publish date is in the future.', 'magick-ai-abilities' ), __( 'Set a future publish date before scheduling.', 'magick-ai-abilities' ) );
+		}
+
+		$missing = array();
+		$warnings = array();
+		foreach ( $checks as $check ) {
+			$key = sanitize_key( (string) ( $check['key'] ?? '' ) );
+			$status = sanitize_key( (string) ( $check['status'] ?? '' ) );
+			$severity = sanitize_key( (string) ( $check['severity'] ?? '' ) );
+			if ( 'fail' === $status && '' !== $key ) {
+				$missing[] = $key;
+			}
+			if ( 'warning' === $status && 'warning' === $severity && '' !== $key ) {
+				$warnings[] = $key;
+			}
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'ready'         => empty( $missing ),
+				'post_id'       => $post_id,
+				'post_type'     => $post_type,
+				'current_status' => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'target_status' => $target_status,
+				'checks'        => $checks,
+				'missing'       => $missing,
+				'warnings'      => $warnings,
+				'summary'       => array(
+					'check_count'       => count( $checks ),
+					'fail_count'        => count( $missing ),
+					'warning_count'     => count( $warnings ),
+					'seo_provider'      => $seo_provider,
+					'word_count'        => str_word_count( $plain_text ),
+					'featured_media_id' => $featured_media_id,
+					'categories'        => $category_names,
+				),
+			),
+			array(
+				'source'         => 'local_content_publishing_checklist',
+				'execution_mode' => 'deterministic',
+			),
+			'Content publishing checklist built.'
+		);
+	}
+
+	/**
 	 * Resolves a URL or slug to a post.
 	 *
 	 * @param mixed $input Input args.
@@ -5701,6 +6022,159 @@ final class Core_Read_Package {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Collects taxonomy terms for a post context payload.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $post_type Post type.
+	 * @return array<string,array<int,array<string,mixed>>>
+	 */
+	private function collect_post_terms_context( $post_id, $post_type ) {
+		$terms_context = array();
+		if ( ! function_exists( 'get_object_taxonomies' ) || ! function_exists( 'get_the_terms' ) ) {
+			return $terms_context;
+		}
+
+		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
+		foreach ( ( is_array( $taxonomies ) ? $taxonomies : array() ) as $taxonomy => $taxonomy_object ) {
+			$taxonomy = sanitize_key( (string) $taxonomy );
+			if ( '' === $taxonomy ) {
+				continue;
+			}
+			$terms = get_the_terms( $post_id, $taxonomy );
+			if ( function_exists( 'is_wp_error' ) && is_wp_error( $terms ) ) {
+				continue;
+			}
+
+			$rows = array();
+			foreach ( ( is_array( $terms ) ? $terms : array() ) as $term ) {
+				if ( ! is_object( $term ) ) {
+					continue;
+				}
+				$rows[] = array(
+					'id'          => $this->absint_value( $term->term_id ?? 0 ),
+					'name'        => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+					'slug'        => sanitize_title( (string) ( $term->slug ?? '' ) ),
+					'taxonomy'    => $taxonomy,
+					'description' => $this->sanitize_metadata_text( (string) ( $term->description ?? '' ) ),
+				);
+			}
+
+			if ( ! empty( $rows ) || ! empty( $taxonomy_object->show_ui ) ) {
+				$terms_context[ $taxonomy ] = $rows;
+			}
+		}
+
+		return $terms_context;
+	}
+
+	/**
+	 * Collects featured and attached media for a post context payload.
+	 *
+	 * @param int $post_id Post id.
+	 * @return array<string,mixed>
+	 */
+	private function collect_post_media_context( $post_id ) {
+		$featured_id = function_exists( 'get_post_thumbnail_id' ) ? $this->absint_value( get_post_thumbnail_id( $post_id ) ) : 0;
+		$featured = null;
+		if ( $featured_id > 0 ) {
+			$featured = $this->build_media_context_row( $featured_id, 'featured' );
+		}
+
+		$attachments = array();
+		if ( function_exists( 'get_attached_media' ) ) {
+			foreach ( (array) get_attached_media( '', $post_id ) as $attachment ) {
+				$attachment_id = is_object( $attachment ) ? $this->absint_value( $attachment->ID ?? 0 ) : $this->absint_value( $attachment );
+				if ( $attachment_id <= 0 ) {
+					continue;
+				}
+				$attachments[] = $this->build_media_context_row( $attachment_id, 'attachment' );
+				if ( count( $attachments ) >= 20 ) {
+					break;
+				}
+			}
+		}
+
+		return array(
+			'featured'    => $featured,
+			'attachments' => $attachments,
+			'total'       => count( $attachments ) + ( $featured ? 1 : 0 ),
+		);
+	}
+
+	/**
+	 * Builds one normalized media context row.
+	 *
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $role Media role.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_context_row( $attachment_id, $role ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
+
+		return array(
+			'id'          => $attachment_id,
+			'role'        => sanitize_key( (string) $role ),
+			'title'       => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '',
+			'mime_type'   => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '',
+			'url'         => function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '',
+			'alt'         => $alt,
+			'caption'     => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ?? '' ) ) : '',
+			'description' => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ?? '' ) ) : '',
+		);
+	}
+
+	/**
+	 * Appends one publishing checklist row.
+	 *
+	 * @param array<int,array<string,mixed>> $checks Checklist rows.
+	 * @param string                         $key Check key.
+	 * @param bool                           $passed Whether the check passed.
+	 * @param string                         $failure_severity fail or warning.
+	 * @param string                         $passed_detail Passed detail.
+	 * @param string                         $failed_detail Failed detail.
+	 * @return void
+	 */
+	private function append_publishing_check( array &$checks, $key, $passed, $failure_severity, $passed_detail, $failed_detail ) {
+		$failure_severity = sanitize_key( (string) $failure_severity );
+		if ( ! in_array( $failure_severity, array( 'fail', 'warning' ), true ) ) {
+			$failure_severity = 'warning';
+		}
+		$checks[] = array(
+			'key'      => sanitize_key( (string) $key ),
+			'status'   => $passed ? 'pass' : ( 'fail' === $failure_severity ? 'fail' : 'warning' ),
+			'severity' => $passed ? 'none' : $failure_severity,
+			'detail'   => $passed ? sanitize_text_field( (string) $passed_detail ) : sanitize_text_field( (string) $failed_detail ),
+		);
+	}
+
+	/**
+	 * Trims plain text by words with an isolated-runtime fallback.
+	 *
+	 * @param string $text Text.
+	 * @param int    $word_count Word count.
+	 * @return string
+	 */
+	private function trim_words_value( $text, $word_count ) {
+		if ( function_exists( 'wp_trim_words' ) ) {
+			return wp_trim_words( (string) $text, (int) $word_count );
+		}
+
+		$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) ?? '' );
+		if ( '' === $text ) {
+			return '';
+		}
+		$words = preg_split( '/\s+/', $text );
+		$words = is_array( $words ) ? $words : array();
+		if ( count( $words ) <= $word_count ) {
+			return $text;
+		}
+
+		return implode( ' ', array_slice( $words, 0, max( 1, (int) $word_count ) ) ) . '...';
 	}
 
 	/**

@@ -27,6 +27,7 @@ Representative abilities:
 - `magick-ai/list-pages-tree`
 - `magick-ai/list-posts`
 - `magick-ai/get-post`
+- `magick-ai/get-post-context`
 - `magick-ai/resolve-url-to-post`
 - `magick-ai/get-post-blocks`
 - `magick-ai/list-post-revisions`
@@ -50,14 +51,15 @@ Representative abilities:
 
 ## Publishing Pack
 
-Purpose: expose generic WordPress publishing mutations through host-governed
-dry-run and commit contracts.
+Purpose: expose generic WordPress publishing context and mutations through
+read-only support helpers plus host-governed dry-run and commit contracts.
 
-Risk: write or destructive.
+Risk: read for publishing support helpers; write or destructive for final
+mutations.
 
-Writable: yes.
+Writable: read-support helpers are not writable; mutation abilities are writable.
 
-Host approval: required for final commit.
+Host approval: not required for read-support helpers; required for final commit.
 
 Primary consumers: Magick AI and other host runtimes that can provide caller
 identity, approval, audit, quota, and idempotency context.
@@ -82,6 +84,10 @@ Representative write abilities:
 - `magick-ai/schedule-post`
 - `magick-ai/publish-post`
 - `magick-ai/restore-post`
+
+Representative read-only publishing support abilities:
+
+- `magick-ai/get-content-publishing-checklist`
 
 Representative destructive abilities:
 

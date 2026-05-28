@@ -109,6 +109,8 @@ foreach (
 		'magick-ai/list-pages-tree',
 		'magick-ai/list-posts',
 		'magick-ai/get-post',
+		'magick-ai/get-post-context',
+		'magick-ai/get-content-publishing-checklist',
 		'magick-ai/resolve-url-to-post',
 		'magick-ai/get-post-blocks',
 		'magick-ai/list-post-revisions',
@@ -208,6 +210,44 @@ $diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilit
 $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 $diagnostics_run_response = rest_do_request( $diagnostics_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $diagnostics_run_response->get_status(), 'Authenticated diagnostics ability run returns 200.' );
+
+$smoke_post_id = wp_insert_post(
+	array(
+		'post_type'    => 'post',
+		'post_status'  => 'draft',
+		'post_title'   => 'Magick AI Abilities Smoke Context Post',
+		'post_content' => '<!-- wp:paragraph --><p>This local smoke post verifies the post context and publishing checklist abilities.</p><!-- /wp:paragraph -->',
+		'post_excerpt' => 'Smoke context post.',
+	),
+	true
+);
+magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_post_id ) && (int) $smoke_post_id > 0, 'Temporary smoke post is available for post-context ability runs.' );
+
+$post_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-context/run' );
+$post_context_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'include_meta'  => false,
+			'include_terms' => false,
+		),
+	)
+);
+$post_context_run_response = rest_do_request( $post_context_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $post_context_run_response->get_status(), 'Authenticated post context ability run returns 200.' );
+
+$publishing_checklist_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-publishing-checklist/run' );
+$publishing_checklist_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id' => (int) $smoke_post_id,
+		),
+	)
+);
+$publishing_checklist_run_response = rest_do_request( $publishing_checklist_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $publishing_checklist_run_response->get_status(), 'Authenticated publishing checklist ability run returns 200.' );
+
+wp_delete_post( (int) $smoke_post_id, true );
 
 wp_set_current_user( 0 );
 $anonymous_response = rest_do_request( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' ) );

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - Unreleased
+
+- Added `magick-ai/get-post-context`, a read-only post context bundle for agent workflows.
+- Added `magick-ai/get-content-publishing-checklist`, a read-only pre-publish readiness checklist.
+- Updated first-party pack documentation, migration inventory, smoke coverage, and lightweight tests for the new abilities.
+
 ## 0.2.0 - 2026-05-28
 
 - Stabilized the public helper contract and documented parameters, defaults, failure modes, and examples.

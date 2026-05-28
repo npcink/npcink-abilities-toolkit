@@ -2,6 +2,17 @@
 
 This inventory tracks the migration from `magick-ai/includes/abilities` into this standalone Abilities API package plugin.
 
+## Added After 0.2
+
+These abilities are new standalone first-party abilities, not migrated from the
+Magick AI plugin. They are official `magick-ai-abilities` package capabilities
+and are projected to the Magick AI catalog as `wp_ability` consumers.
+
+| Ability id | Source | New owner | Magick AI-owned | Host-governed |
+| --- | --- | --- | --- | --- |
+| `magick-ai/get-post-context` | New standalone Content Context Pack ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-content-publishing-checklist` | New standalone Publishing Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+
 ## Migrated in 0.1
 
 | Ability id | Source in Magick AI | New owner |

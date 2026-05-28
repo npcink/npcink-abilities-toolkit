@@ -173,9 +173,22 @@ if ( ! function_exists( 'update_post_meta' ) ) {
 }
 
 if ( ! function_exists( 'get_post_meta' ) ) {
-	function get_post_meta( $post_id, $meta_key, $single = false ) {
-		unset( $single );
-		return $GLOBALS['maa_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] ?? '';
+	function get_post_meta( $post_id, $meta_key = '', $single = false ) {
+		$post_meta = $GLOBALS['maa_unit_post_meta'][ (int) $post_id ] ?? array();
+		if ( '' === (string) $meta_key ) {
+			$all_meta = array();
+			foreach ( ( is_array( $post_meta ) ? $post_meta : array() ) as $key => $value ) {
+				$all_meta[ (string) $key ] = is_array( $value ) ? $value : array( $value );
+			}
+			return $all_meta;
+		}
+		$value = is_array( $post_meta ) && array_key_exists( (string) $meta_key, $post_meta )
+			? $post_meta[ (string) $meta_key ]
+			: '';
+		if ( $single && is_array( $value ) ) {
+			return $value[0] ?? '';
+		}
+		return $value;
 	}
 }
 

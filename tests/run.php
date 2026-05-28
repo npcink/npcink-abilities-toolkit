@@ -403,6 +403,10 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-page',
 	'magick-ai/inspect-page-structure',
 );
+$new_read_ability_ids = array(
+	'magick-ai/get-post-context',
+	'magick-ai/get-content-publishing-checklist',
+);
 $migrated_write_ability_ids = array(
 	'magick-ai/create-draft',
 	'magick-ai/update-post',
@@ -446,7 +450,14 @@ foreach ( $migrated_read_ability_ids as $migrated_ability_id ) {
 	maa_assert_true( isset( $package_abilities[ $migrated_ability_id ] ), "core read package owns migrated {$migrated_ability_id} ability" );
 	maa_assert_package_read_ability_contract( $migrated_ability_id, $package_abilities[ $migrated_ability_id ] );
 }
+foreach ( $new_read_ability_ids as $new_read_ability_id ) {
+	maa_assert_true( isset( $package_abilities[ $new_read_ability_id ] ), "core read package owns new {$new_read_ability_id} ability" );
+	maa_assert_package_read_ability_contract( $new_read_ability_id, $package_abilities[ $new_read_ability_id ] );
+}
 maa_assert_same( true, $package_abilities['magick-ai/site-info']['project_to_magick_catalog'], 'migrated core read abilities project into Magick AI catalog' );
+maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['project_to_magick_catalog'], 'new official post context ability projects into Magick AI catalog' );
+maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['input_schema']['properties']['include_blocks']['default'] ?? null, 'get-post-context includes blocks by default' );
+maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-checklist']['requires_confirm'], 'publishing checklist remains readonly' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/create-page'] ), 'create-page is not migrated as a readonly ability' );
@@ -1103,6 +1114,29 @@ maa_assert_same( true, $post_context['success'] ?? null, 'read-post-optimization
 maa_assert_same( 77, $post_context['data']['id'] ?? null, 'read-post-optimization-context reads the requested post id' );
 maa_assert_same( 'optimization-context-post', $post_context['data']['slug'] ?? '', 'read-post-optimization-context exposes slug for optimization workflows' );
 maa_assert_same( 'standard', $post_context['data']['format'] ?? '', 'read-post-optimization-context defaults empty post format to standard' );
+$GLOBALS['maa_unit_post_meta'][77]['_yoast_wpseo_title'] = 'Optimization SEO Title';
+$GLOBALS['maa_unit_post_meta'][77]['_yoast_wpseo_metadesc'] = 'Optimization SEO Description';
+$agent_post_context = $core_read_package->get_post_context(
+	array(
+		'post_id'      => 77,
+		'include_meta' => true,
+		'meta_keys'    => array( '_yoast_wpseo_title' ),
+	)
+);
+maa_assert_same( true, $agent_post_context['success'] ?? null, 'get-post-context returns a success envelope' );
+maa_assert_same( 77, $agent_post_context['data']['post']['id'] ?? null, 'get-post-context reads the requested post id' );
+maa_assert_same( 'Optimization context content.', $agent_post_context['data']['post']['content'] ?? '', 'get-post-context includes post content by default' );
+maa_assert_same( 1, $agent_post_context['data']['stats']['block_count'] ?? null, 'get-post-context falls back to a freeform block for plain content' );
+maa_assert_same( 'Optimization SEO Title', $agent_post_context['data']['meta']['_yoast_wpseo_title'] ?? '', 'get-post-context supports scoped metadata reads' );
+$publishing_checklist = $core_read_package->get_content_publishing_checklist(
+	array(
+		'post_id' => 77,
+	)
+);
+maa_assert_same( true, $publishing_checklist['success'] ?? null, 'get-content-publishing-checklist returns a success envelope' );
+maa_assert_same( false, $publishing_checklist['data']['ready'] ?? null, 'get-content-publishing-checklist blocks thin content from ready state' );
+maa_assert_true( in_array( 'content', $publishing_checklist['data']['missing'] ?? array(), true ), 'get-content-publishing-checklist reports missing content depth' );
+maa_assert_true( in_array( 'excerpt', $publishing_checklist['data']['warnings'] ?? array(), true ), 'get-content-publishing-checklist reports missing excerpt as warning' );
 $single_suggest = $core_read_package->build_article_single_optimization_suggest(
 	array(
 		'post'              => array(
