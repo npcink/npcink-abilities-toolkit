@@ -86,9 +86,13 @@ pnpm run check:unit:php:files -- \
 
 ## Package Evidence
 
-Pending final package build after the release-prep commit is created.
+- Package path: `dist/magick-ai-abilities-0.2.0.zip`
+- Build source commit: `7ecda76c3c13bea0c40f5d9109afafffb4f92147`
+- SHA-256: `082fac1af345fc4050345fa0b166dd4fa6e86185e39c93cc75449704c8a55eb9`
+- Package inspection: `unzip -l` reports 48 files under the `magick-ai-abilities/` prefix.
+- Version inspection: packaged `magick-ai-abilities.php` reports `Version: 0.2.0` and `MAGICK_AI_ABILITIES_VERSION` is `0.2.0`; packaged `readme.txt` reports `Stable tag: 0.2.0`.
 
 ## Remaining Before Tagging
 
 - Run `git diff --check` after any final release-note edits.
-- Build and inspect the release zip before tagging.
+- Tag `0.2.0` only after confirming the packaged zip should be treated as the release artifact.
