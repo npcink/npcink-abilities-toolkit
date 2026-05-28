@@ -60,3 +60,4 @@ Supported definition fields:
 - `composer test:all` passes.
 - `git diff --check` passes.
 - WordPress smoke status recorded: either `WP_PATH=/path/to/wordpress composer smoke:wp` passed, or the release notes state why it was not run.
+- Cross-repository Magick AI consumer verification recorded in [0.2 Candidate Verification](release-0.2-candidate-verification.md).
