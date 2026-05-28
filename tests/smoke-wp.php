@@ -114,6 +114,10 @@ foreach (
 		'magick-ai/get-content-inventory-health',
 		'magick-ai/get-bulk-publishing-checklist',
 		'magick-ai/get-internal-link-opportunity-report',
+		'magick-ai/get-site-operations-dashboard',
+		'magick-ai/get-post-publish-risk-report',
+		'magick-ai/get-content-refresh-opportunities',
+		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-inventory-health',
 		'magick-ai/get-post-seo-geo-readiness',
 		'magick-ai/get-site-topic-coverage-report',
@@ -303,6 +307,57 @@ $internal_link_run_request->set_query_params(
 );
 $internal_link_run_response = rest_do_request( $internal_link_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $internal_link_run_response->get_status(), 'Authenticated internal link opportunity ability run returns 200.' );
+
+$site_operations_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-site-operations-dashboard/run' );
+$site_operations_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type' => 'post',
+			'per_page'  => 10,
+		),
+	)
+);
+$site_operations_run_response = rest_do_request( $site_operations_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $site_operations_run_response->get_status(), 'Authenticated site operations dashboard ability run returns 200.' );
+
+$publish_risk_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-publish-risk-report/run' );
+$publish_risk_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'focus_keyword' => 'ability workflow',
+		),
+	)
+);
+$publish_risk_run_response = rest_do_request( $publish_risk_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $publish_risk_run_response->get_status(), 'Authenticated post publish risk report ability run returns 200.' );
+
+$refresh_opportunities_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-refresh-opportunities/run' );
+$refresh_opportunities_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type'      => 'post',
+			'status'         => 'any',
+			'per_page'       => 10,
+			'min_word_count' => 200,
+		),
+	)
+);
+$refresh_opportunities_run_response = rest_do_request( $refresh_opportunities_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $refresh_opportunities_run_response->get_status(), 'Authenticated content refresh opportunities ability run returns 200.' );
+
+$link_graph_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-internal-link-graph-health/run' );
+$link_graph_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type' => 'post',
+			'status'    => 'any',
+			'per_page'  => 10,
+		),
+	)
+);
+$link_graph_run_response = rest_do_request( $link_graph_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $link_graph_run_response->get_status(), 'Authenticated internal link graph health ability run returns 200.' );
 
 $smoke_attachment_id = wp_insert_post(
 	array(

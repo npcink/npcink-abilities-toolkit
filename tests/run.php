@@ -409,6 +409,10 @@ $new_read_ability_ids = array(
 	'magick-ai/get-content-inventory-health',
 	'magick-ai/get-bulk-publishing-checklist',
 	'magick-ai/get-internal-link-opportunity-report',
+	'magick-ai/get-site-operations-dashboard',
+	'magick-ai/get-post-publish-risk-report',
+	'magick-ai/get-content-refresh-opportunities',
+	'magick-ai/get-internal-link-graph-health',
 	'magick-ai/get-media-inventory-health',
 	'magick-ai/get-post-seo-geo-readiness',
 	'magick-ai/get-site-topic-coverage-report',
@@ -476,6 +480,10 @@ maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-che
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
 maa_assert_same( 50, $package_abilities['magick-ai/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
 maa_assert_same( 10, $package_abilities['magick-ai/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-site-operations-dashboard']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site operations dashboard is bounded to 100 posts per page' );
+maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-publish-risk-report']['input_schema']['required'] ?? array(), 'post publish risk report requires post_id' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-content-refresh-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'content refresh opportunities scan is bounded to 100 posts per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media inventory health scan is bounded to 100 assets per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-seo-geo-readiness']['input_schema']['required'] ?? array(), 'post SEO/GEO readiness requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-site-topic-coverage-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site topic coverage scan is bounded to 100 posts per page' );
@@ -1213,6 +1221,66 @@ $internal_link_report = $core_read_package->get_internal_link_opportunity_report
 maa_assert_same( true, $internal_link_report['success'] ?? null, 'get-internal-link-opportunity-report returns a success envelope' );
 maa_assert_same( 77, $internal_link_report['data']['source_post']['post_id'] ?? null, 'get-internal-link-opportunity-report keeps source post id' );
 maa_assert_true( (int) ( $internal_link_report['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'get-internal-link-opportunity-report finds local candidate posts in isolated tests' );
+$GLOBALS['maa_unit_comments'][21] = (object) array(
+	'comment_ID'       => 21,
+	'comment_post_ID'  => 77,
+	'comment_author'   => 'Ops Reader',
+	'comment_approved' => 'hold',
+	'comment_content'  => 'Please review this operations comment.',
+);
+$GLOBALS['maa_unit_terms'] = array(
+	'category' => array(
+		(object) array(
+			'term_id'     => 301,
+			'name'        => 'Workflow',
+			'slug'        => 'workflow',
+			'description' => '',
+			'count'       => 0,
+			'parent'      => 0,
+		),
+	),
+);
+$site_operations = $core_read_package->get_site_operations_dashboard(
+	array(
+		'post_type' => 'post',
+		'per_page'  => 5,
+	)
+);
+maa_assert_same( true, $site_operations['success'] ?? null, 'get-site-operations-dashboard returns a success envelope' );
+maa_assert_true( isset( $site_operations['data']['status_counts']['draft'] ), 'get-site-operations-dashboard returns status counts' );
+maa_assert_true( (int) ( $site_operations['data']['comments']['pending_count'] ?? 0 ) >= 1, 'get-site-operations-dashboard counts pending comments' );
+$publish_risk = $core_read_package->get_post_publish_risk_report(
+	array(
+		'post_id'       => 77,
+		'focus_keyword' => 'workflow',
+	)
+);
+maa_assert_same( true, $publish_risk['success'] ?? null, 'get-post-publish-risk-report returns a success envelope' );
+maa_assert_same( 77, $publish_risk['data']['post']['post_id'] ?? null, 'get-post-publish-risk-report keeps post id' );
+maa_assert_true( (int) ( $publish_risk['data']['risk_score'] ?? 0 ) > 0, 'get-post-publish-risk-report returns a positive risk score for incomplete drafts' );
+$refresh_opportunities = $core_read_package->get_content_refresh_opportunities(
+	array(
+		'post_type'      => 'post',
+		'status'         => 'any',
+		'per_page'       => 5,
+		'stale_days'     => 30,
+		'min_word_count' => 200,
+	)
+);
+maa_assert_same( true, $refresh_opportunities['success'] ?? null, 'get-content-refresh-opportunities returns a success envelope' );
+maa_assert_true( (int) ( $refresh_opportunities['data']['summary']['opportunity_count'] ?? 0 ) >= 1, 'get-content-refresh-opportunities finds refresh candidates' );
+maa_assert_true( isset( $refresh_opportunities['data']['issue_counts']['thin_content'] ), 'get-content-refresh-opportunities counts thin content' );
+$GLOBALS['maa_unit_style_posts'][77]->post_content = 'Optimization context content with <a href="https://example.test/?p=78">workflow candidate</a>.';
+$internal_link_graph = $core_read_package->get_internal_link_graph_health(
+	array(
+		'post_type' => 'post',
+		'status'    => 'any',
+		'per_page'  => 5,
+	)
+);
+maa_assert_same( true, $internal_link_graph['success'] ?? null, 'get-internal-link-graph-health returns a success envelope' );
+maa_assert_true( (int) ( $internal_link_graph['data']['summary']['scanned_count'] ?? 0 ) >= 1, 'get-internal-link-graph-health scans local posts' );
+maa_assert_true( isset( $internal_link_graph['data']['issue_counts']['orphan_post'] ), 'get-internal-link-graph-health counts orphan posts' );
 $GLOBALS['maa_unit_style_posts'][79] = (object) array(
 	'ID'             => 79,
 	'post_title'     => 'Workflow diagram image',

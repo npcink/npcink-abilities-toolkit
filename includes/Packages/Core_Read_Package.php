@@ -2068,6 +2068,133 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_internal_link_opportunity_report' ),
 			),
+			'magick-ai/get-site-operations-dashboard' => array(
+				'label'            => __( 'Get Site Operations Dashboard', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds a bounded read-only site operations dashboard for content status, inventory issues, taxonomy health, comments, and media signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'  => array( 'type' => 'string', 'default' => 'post' ),
+						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'stale_days' => array( 'type' => 'integer', 'minimum' => 30, 'maximum' => 3650, 'default' => 365 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_site_operations_dashboard' ),
+			),
+			'magick-ai/get-post-publish-risk-report' => array(
+				'label'            => __( 'Get Post Publish Risk Report', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds a read-only publish risk report for one post from checklist, SEO/GEO, revision, and internal-link signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'       => array( 'type' => 'integer', 'minimum' => 1 ),
+						'target_status' => array( 'type' => 'string', 'enum' => array( 'publish', 'future', 'draft' ), 'default' => 'publish' ),
+						'focus_keyword' => array( 'type' => 'string' ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_post_publish_risk_report' ),
+			),
+			'magick-ai/get-content-refresh-opportunities' => array(
+				'label'            => __( 'Get Content Refresh Opportunities', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans a bounded content set and returns stale, thin, SEO-light, answer-light, and low-link refresh opportunities.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'      => array( 'type' => 'string', 'default' => 'post' ),
+						'status'         => array( 'type' => 'string', 'default' => 'publish' ),
+						'per_page'       => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'           => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'stale_days'     => array( 'type' => 'integer', 'minimum' => 30, 'maximum' => 3650, 'default' => 365 ),
+						'min_word_count' => array( 'type' => 'integer', 'minimum' => 50, 'maximum' => 5000, 'default' => 500 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_content_refresh_opportunities' ),
+			),
+			'magick-ai/get-internal-link-graph-health' => array(
+				'label'            => __( 'Get Internal Link Graph Health', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans a bounded content set and summarizes outgoing links, incoming links, orphan posts, and candidate internal-link pairs.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'          => array( 'type' => 'string', 'default' => 'post' ),
+						'status'             => array( 'type' => 'string', 'default' => 'publish' ),
+						'per_page'           => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'               => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'min_outbound_links' => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 20, 'default' => 1 ),
+						'max_outbound_links' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 20 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_internal_link_graph_health' ),
+			),
 			'magick-ai/get-media-inventory-health' => array(
 				'label'            => __( 'Get Media Inventory Health', 'magick-ai-abilities' ),
 				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'magick-ai-abilities' ),
@@ -6356,6 +6483,448 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds a bounded site operations dashboard.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_site_operations_dashboard( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read site operations.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		if ( '' === $post_type ) {
+			$post_type = 'post';
+		}
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$stale_days = max( 30, min( 3650, $this->absint_value( $input['stale_days'] ?? 365 ) ) );
+		$status_counts = array();
+		foreach ( array( 'publish', 'draft', 'pending', 'future', 'private' ) as $status ) {
+			$status_counts[ $status ] = (int) ( $this->query_inventory_posts( $post_type, $status, 1, 1 )['total'] ?? 0 );
+		}
+
+		$inventory = $this->get_content_inventory_health(
+			array(
+				'post_type'  => $post_type,
+				'status'     => 'any',
+				'per_page'   => $per_page,
+				'page'       => 1,
+				'stale_days' => $stale_days,
+			)
+		);
+		$taxonomy = $this->get_taxonomy_inventory_health(
+			array(
+				'taxonomy' => 'category',
+				'per_page' => min( 50, $per_page ),
+			)
+		);
+		$media = $this->get_media_inventory_health(
+			array(
+				'mime_type' => 'image',
+				'per_page'  => min( 50, $per_page ),
+			)
+		);
+		$comment_count = $this->count_comments_for_status( 'hold' );
+
+		$inventory_data = is_array( $inventory['data'] ?? null ) ? $inventory['data'] : array();
+		$taxonomy_data = is_array( $taxonomy['data'] ?? null ) ? $taxonomy['data'] : array();
+		$media_data = is_array( $media['data'] ?? null ) ? $media['data'] : array();
+		$attention_items = array();
+		foreach ( array_slice( is_array( $inventory_data['items'] ?? null ) ? $inventory_data['items'] : array(), 0, 10 ) as $item ) {
+			if ( (int) ( $item['issue_count'] ?? 0 ) > 0 ) {
+				$attention_items[] = array(
+					'type'       => 'content',
+					'post_id'    => $this->absint_value( $item['post_id'] ?? 0 ),
+					'title'      => sanitize_text_field( (string) ( $item['title'] ?? '' ) ),
+					'issue_count' => (int) ( $item['issue_count'] ?? 0 ),
+					'issues'     => is_array( $item['issues'] ?? null ) ? $item['issues'] : array(),
+				);
+			}
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'post_type'       => $post_type,
+				'status_counts'   => $status_counts,
+				'inventory'       => array(
+					'health_score' => (int) ( $inventory_data['health_score'] ?? 100 ),
+					'issue_counts' => is_array( $inventory_data['issue_counts'] ?? null ) ? $inventory_data['issue_counts'] : array(),
+					'summary'      => is_array( $inventory_data['summary'] ?? null ) ? $inventory_data['summary'] : array(),
+				),
+				'taxonomy'        => array(
+					'health_score' => (int) ( $taxonomy_data['health_score'] ?? 100 ),
+					'issue_counts' => is_array( $taxonomy_data['issue_counts'] ?? null ) ? $taxonomy_data['issue_counts'] : array(),
+					'summary'      => is_array( $taxonomy_data['summary'] ?? null ) ? $taxonomy_data['summary'] : array(),
+				),
+				'media'           => array(
+					'health_score' => (int) ( $media_data['health_score'] ?? 100 ),
+					'issue_counts' => is_array( $media_data['issue_counts'] ?? null ) ? $media_data['issue_counts'] : array(),
+					'summary'      => is_array( $media_data['summary'] ?? null ) ? $media_data['summary'] : array(),
+				),
+				'comments'        => array(
+					'pending_count' => $comment_count,
+				),
+				'attention_items' => $attention_items,
+				'summary'         => array(
+					'total_content'       => array_sum( array_map( 'intval', $status_counts ) ),
+					'draft_backlog'       => (int) ( $status_counts['draft'] ?? 0 ) + (int) ( $status_counts['pending'] ?? 0 ),
+					'pending_comments'    => $comment_count,
+					'content_issue_count' => array_sum( array_map( 'intval', is_array( $inventory_data['issue_counts'] ?? null ) ? $inventory_data['issue_counts'] : array() ) ),
+					'next_action'         => ! empty( $attention_items ) || $comment_count > 0 ? 'review_attention_items' : 'operations_clear',
+				),
+			),
+			array(
+				'source'         => 'local_site_operations_dashboard',
+				'execution_mode' => 'deterministic',
+			),
+			'Site operations dashboard built.'
+		);
+	}
+
+	/**
+	 * Builds one post publish risk report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_post_publish_risk_report( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+
+		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
+		if ( ! in_array( $target_status, array( 'publish', 'future', 'draft' ), true ) ) {
+			$target_status = 'publish';
+		}
+		$focus_keyword = sanitize_text_field( (string) ( $input['focus_keyword'] ?? '' ) );
+		$risk_items = array();
+		$risk_score = 0;
+
+		$checklist = $this->get_content_publishing_checklist(
+			array(
+				'post_id'       => $post_id,
+				'target_status' => $target_status,
+			)
+		);
+		$checklist_data = is_array( $checklist['data'] ?? null ) ? $checklist['data'] : array();
+		foreach ( (array) ( $checklist_data['missing'] ?? array() ) as $key ) {
+			$risk_items[] = $this->build_publish_risk_item( $key, 'high', 'Required publishing checklist item is missing.' );
+			$risk_score += 18;
+		}
+		foreach ( (array) ( $checklist_data['warnings'] ?? array() ) as $key ) {
+			$risk_items[] = $this->build_publish_risk_item( $key, 'medium', 'Publishing checklist warning needs review.' );
+			$risk_score += 8;
+		}
+
+		$seo_geo = $this->get_post_seo_geo_readiness(
+			array(
+				'post_id'       => $post_id,
+				'focus_keyword' => $focus_keyword,
+			)
+		);
+		$seo_data = is_array( $seo_geo['data'] ?? null ) ? $seo_geo['data'] : array();
+		if ( 'ready' !== sanitize_key( (string) ( $seo_data['status'] ?? '' ) ) ) {
+			$risk_items[] = $this->build_publish_risk_item( 'seo_geo_readiness', 'medium', 'SEO/GEO readiness is not fully ready.' );
+			$risk_score += 'not_ready' === sanitize_key( (string) ( $seo_data['status'] ?? '' ) ) ? 16 : 10;
+		}
+
+		$revision = $this->get_revision_change_risk_report(
+			array(
+				'post_id'       => $post_id,
+				'max_revisions' => 5,
+			)
+		);
+		$revision_data = is_array( $revision['data'] ?? null ) ? $revision['data'] : array();
+		$revision_risk = sanitize_key( (string) ( $revision_data['risk_level'] ?? 'none' ) );
+		if ( in_array( $revision_risk, array( 'high', 'medium' ), true ) ) {
+			$risk_items[] = $this->build_publish_risk_item( 'revision_change_risk', $revision_risk, 'Recent revision changes should be reviewed before publishing.' );
+			$risk_score += 'high' === $revision_risk ? 16 : 8;
+		}
+
+		$link_report = $this->get_internal_link_opportunity_report(
+			array(
+				'post_id'       => $post_id,
+				'focus_keyword' => $focus_keyword,
+				'max_targets'   => 3,
+			)
+		);
+		$link_data = is_array( $link_report['data'] ?? null ) ? $link_report['data'] : array();
+		if ( 0 === (int) ( $link_data['summary']['candidate_count'] ?? 0 ) ) {
+			$risk_items[] = $this->build_publish_risk_item( 'internal_link_gap', 'low', 'No obvious internal-link target was found in the bounded scan.' );
+			$risk_score += 5;
+		}
+
+		$risk_score = max( 0, min( 100, $risk_score ) );
+		$risk_level = $risk_score >= 60 ? 'high' : ( $risk_score >= 30 ? 'medium' : ( $risk_score > 0 ? 'low' : 'none' ) );
+
+		return $this->build_analysis_success_response(
+			array(
+				'post'          => array(
+					'post_id' => $post_id,
+					'title'   => sanitize_text_field( (string) get_the_title( $post_id ) ),
+					'status'  => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				),
+				'risk_score'    => $risk_score,
+				'risk_level'    => $risk_level,
+				'risk_items'    => $risk_items,
+				'checklist'     => $checklist_data,
+				'seo_geo'       => $seo_data,
+				'revision'      => $revision_data,
+				'internal_links' => $link_data,
+				'summary'       => array(
+					'target_status' => $target_status,
+					'risk_count'    => count( $risk_items ),
+					'next_action'   => in_array( $risk_level, array( 'high', 'medium' ), true ) ? 'resolve_publish_risks' : 'ready_for_editorial_review',
+				),
+			),
+			array(
+				'source'         => 'local_post_publish_risk_report',
+				'execution_mode' => 'deterministic',
+			),
+			'Post publish risk report built.'
+		);
+	}
+
+	/**
+	 * Builds content refresh opportunities.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_content_refresh_opportunities( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content refresh opportunities.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$stale_days = max( 30, min( 3650, $this->absint_value( $input['stale_days'] ?? 365 ) ) );
+		$min_word_count = max( 50, min( 5000, $this->absint_value( $input['min_word_count'] ?? 500 ) ) );
+		$query_result = $this->query_inventory_posts( '' !== $post_type ? $post_type : 'post', '' !== $status ? $status : 'publish', $per_page, $page );
+		$post_ids = is_array( $query_result['post_ids'] ?? null ) ? $query_result['post_ids'] : array();
+		$cutoff = time() - ( $stale_days * ( defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400 ) );
+		$issue_counts = array();
+		$items = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$post_id = $this->absint_value( $post_id );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+			$content = (string) ( $post->post_content ?? '' );
+			$plain_text = $this->strip_all_tags_value( $content );
+			$word_count = str_word_count( $plain_text );
+			$modified_ts = strtotime( (string) ( $post->post_modified ?? $post->post_date ?? '' ) );
+			$seo_provider = $this->detect_seo_provider();
+			$seo_keys = $this->seo_meta_keys( $seo_provider );
+			$seo_title = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $post_id, (string) ( $seo_keys['title'] ?? '' ), true ) ) : '';
+			$seo_description = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $post_id, (string) ( $seo_keys['description'] ?? '' ), true ) ) : '';
+			$questions = $this->collect_article_question_candidates( $plain_text, $title, $this->guess_focus_keyword_from_post( $post_id, $title ) );
+			$outbound_count = count( $this->extract_post_internal_links( $post_id, $content, array() ) );
+			$issues = array();
+			if ( false !== $modified_ts && $modified_ts > 0 && $modified_ts < $cutoff ) {
+				$issues[] = 'stale_content';
+			}
+			if ( $word_count < $min_word_count ) {
+				$issues[] = 'thin_content';
+			}
+			if ( '' === $seo_title ) {
+				$issues[] = 'missing_seo_title';
+			}
+			if ( '' === $seo_description ) {
+				$issues[] = 'missing_seo_description';
+			}
+			if ( empty( $questions ) ) {
+				$issues[] = 'answer_structure_gap';
+			}
+			if ( $outbound_count < 1 ) {
+				$issues[] = 'low_internal_links';
+			}
+			foreach ( $issues as $issue ) {
+				$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+			}
+			if ( empty( $issues ) ) {
+				continue;
+			}
+			$priority_score = count( $issues ) * 10 + ( in_array( 'stale_content', $issues, true ) ? 15 : 0 ) + ( in_array( 'thin_content', $issues, true ) ? 10 : 0 );
+			$items[] = array(
+				'post_id'        => $post_id,
+				'title'          => $title,
+				'status'         => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'modified'       => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'word_count'     => $word_count,
+				'outbound_links' => $outbound_count,
+				'issues'         => $issues,
+				'priority'       => $priority_score >= 45 ? 'high' : ( $priority_score >= 25 ? 'medium' : 'low' ),
+				'priority_score' => $priority_score,
+				'edit_link'      => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+			);
+		}
+
+		usort(
+			$items,
+			static function ( array $a, array $b ) {
+				return (int) ( $b['priority_score'] ?? 0 ) <=> (int) ( $a['priority_score'] ?? 0 );
+			}
+		);
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'        => (int) ( $query_result['total'] ?? count( $post_ids ) ),
+				'page'         => $page,
+				'per_page'     => $per_page,
+				'items'        => $items,
+				'issue_counts' => $issue_counts,
+				'summary'      => array(
+					'opportunity_count' => count( $items ),
+					'post_type'         => $post_type,
+					'status'            => $status,
+					'stale_days'        => $stale_days,
+					'min_word_count'    => $min_word_count,
+				),
+			),
+			array(
+				'source'         => 'local_content_refresh_opportunities',
+				'execution_mode' => 'deterministic',
+			),
+			'Content refresh opportunities built.'
+		);
+	}
+
+	/**
+	 * Builds an internal-link graph health report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_internal_link_graph_health( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read internal link graph health.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$min_outbound = max( 0, min( 20, $this->absint_value( $input['min_outbound_links'] ?? 1 ) ) );
+		$max_outbound = max( 1, min( 100, $this->absint_value( $input['max_outbound_links'] ?? 20 ) ) );
+		$query_result = $this->query_inventory_posts( '' !== $post_type ? $post_type : 'post', '' !== $status ? $status : 'publish', $per_page, $page );
+		$post_ids = is_array( $query_result['post_ids'] ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query_result['post_ids'] ) ) : array();
+		$url_map = array();
+		$incoming = array();
+		foreach ( $post_ids as $post_id ) {
+			$url_map[ $post_id ] = $this->post_graph_url( $post_id );
+			$incoming[ $post_id ] = 0;
+		}
+
+		$rows = array();
+		$issue_counts = array();
+		$candidate_pairs = array();
+		$post_terms = array();
+		foreach ( $post_ids as $post_id ) {
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$content = (string) ( $post->post_content ?? '' );
+			$links = $this->extract_post_internal_links( $post_id, $content, $url_map );
+			foreach ( $links as $target_id ) {
+				if ( isset( $incoming[ $target_id ] ) ) {
+					++$incoming[ $target_id ];
+				}
+			}
+			$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+			$post_terms[ $post_id ] = $this->collect_topic_terms_for_post( $post_id, $title, $this->strip_all_tags_value( $content ), '' );
+			$rows[ $post_id ] = array(
+				'post_id'        => $post_id,
+				'title'          => $title,
+				'outbound_count' => count( $links ),
+				'incoming_count' => 0,
+				'issues'         => array(),
+				'edit_link'      => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+			);
+		}
+
+		foreach ( $rows as $post_id => $row ) {
+			$row['incoming_count'] = (int) ( $incoming[ $post_id ] ?? 0 );
+			if ( (int) $row['incoming_count'] <= 0 ) {
+				$row['issues'][] = 'orphan_post';
+			}
+			if ( (int) $row['outbound_count'] < $min_outbound ) {
+				$row['issues'][] = 'low_outbound_links';
+			}
+			if ( (int) $row['outbound_count'] > $max_outbound ) {
+				$row['issues'][] = 'excessive_outbound_links';
+			}
+			foreach ( $row['issues'] as $issue ) {
+				$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+			}
+			$rows[ $post_id ] = $row;
+		}
+
+		$ids = array_keys( $rows );
+		foreach ( $ids as $source_id ) {
+			foreach ( $ids as $target_id ) {
+				if ( $source_id === $target_id || count( $candidate_pairs ) >= 20 ) {
+					continue;
+				}
+				$overlap = array_values( array_intersect( $post_terms[ $source_id ] ?? array(), $post_terms[ $target_id ] ?? array() ) );
+				if ( empty( $overlap ) ) {
+					continue;
+				}
+				$candidate_pairs[] = array(
+					'source_post_id' => $source_id,
+					'target_post_id' => $target_id,
+					'source_title'   => sanitize_text_field( (string) ( $rows[ $source_id ]['title'] ?? '' ) ),
+					'target_title'   => sanitize_text_field( (string) ( $rows[ $target_id ]['title'] ?? '' ) ),
+					'shared_terms'   => array_slice( $overlap, 0, 3 ),
+					'reason'         => __( 'Posts share topic terms and may support a contextual internal link.', 'magick-ai-abilities' ),
+				);
+			}
+		}
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'           => (int) ( $query_result['total'] ?? count( $post_ids ) ),
+				'page'            => $page,
+				'per_page'        => $per_page,
+				'items'           => array_values( $rows ),
+				'issue_counts'    => $issue_counts,
+				'candidate_pairs' => $candidate_pairs,
+				'summary'         => array(
+					'scanned_count'         => count( $rows ),
+					'orphan_count'          => (int) ( $issue_counts['orphan_post'] ?? 0 ),
+					'low_outbound_count'    => (int) ( $issue_counts['low_outbound_links'] ?? 0 ),
+					'candidate_pair_count'  => count( $candidate_pairs ),
+					'min_outbound_links'    => $min_outbound,
+					'max_outbound_links'    => $max_outbound,
+				),
+			),
+			array(
+				'source'         => 'local_internal_link_graph_health',
+				'execution_mode' => 'deterministic',
+			),
+			'Internal link graph health built.'
+		);
+	}
+
+	/**
 	 * Builds a media inventory health report.
 	 *
 	 * @param mixed $input Input args.
@@ -7750,6 +8319,119 @@ final class Core_Read_Package {
 		}
 
 		return $post_ids;
+	}
+
+	/**
+	 * Builds one publish risk item.
+	 *
+	 * @param string $key Risk key.
+	 * @param string $severity Risk severity.
+	 * @param string $detail Detail.
+	 * @return array<string,string>
+	 */
+	private function build_publish_risk_item( $key, $severity, $detail ) {
+		$severity = sanitize_key( (string) $severity );
+		if ( ! in_array( $severity, array( 'high', 'medium', 'low' ), true ) ) {
+			$severity = 'medium';
+		}
+
+		return array(
+			'key'      => sanitize_key( (string) $key ),
+			'severity' => $severity,
+			'detail'   => sanitize_text_field( (string) $detail ),
+		);
+	}
+
+	/**
+	 * Counts comments for one status with isolated-runtime fallback.
+	 *
+	 * @param string $status Comment status.
+	 * @return int
+	 */
+	private function count_comments_for_status( $status ) {
+		$status = sanitize_key( (string) $status );
+		if ( ! function_exists( 'get_comments' ) ) {
+			return 0;
+		}
+		$count = get_comments(
+			array(
+				'status' => '' !== $status ? $status : 'hold',
+				'count'  => true,
+				'number' => 0,
+				'offset' => 0,
+			)
+		);
+		if ( is_numeric( $count ) ) {
+			return max( 0, (int) $count );
+		}
+		if ( is_array( $count ) ) {
+			return count( $count );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Extracts links from content that point at scanned posts.
+	 *
+	 * @param int               $source_post_id Source post id.
+	 * @param string            $content Content.
+	 * @param array<int,string> $url_map Post id to URL map.
+	 * @return array<int,int>
+	 */
+	private function extract_post_internal_links( $source_post_id, $content, array $url_map ) {
+		$links = array();
+		$source_post_id = $this->absint_value( $source_post_id );
+		$content = (string) $content;
+		preg_match_all( '/href=["\']([^"\']+)["\']/i', $content, $matches );
+		$hrefs = is_array( $matches[1] ?? null ) ? $matches[1] : array();
+		foreach ( $url_map as $target_id => $url ) {
+			$target_id = $this->absint_value( $target_id );
+			if ( $target_id <= 0 || $target_id === $source_post_id ) {
+				continue;
+			}
+			$url = (string) $url;
+			foreach ( $hrefs as $href ) {
+				$href = (string) $href;
+				if ( '' !== $url && false !== strpos( $href, $url ) ) {
+					$links[ $target_id ] = $target_id;
+					break;
+				}
+				if ( false !== strpos( $href, 'p=' . $target_id ) || false !== strpos( $href, '/?p=' . $target_id ) ) {
+					$links[ $target_id ] = $target_id;
+					break;
+				}
+			}
+		}
+
+		if ( empty( $url_map ) ) {
+			foreach ( $hrefs as $href ) {
+				$href = (string) $href;
+				if ( 1 === preg_match( '/(?:^|[?&])p=(\d+)/', $href, $id_match ) ) {
+					$target_id = $this->absint_value( $id_match[1] ?? 0 );
+					if ( $target_id > 0 && $target_id !== $source_post_id ) {
+						$links[ $target_id ] = $target_id;
+					}
+				}
+			}
+		}
+
+		return array_values( $links );
+	}
+
+	/**
+	 * Returns a stable URL for graph matching.
+	 *
+	 * @param int $post_id Post id.
+	 * @return string
+	 */
+	private function post_graph_url( $post_id ) {
+		$post_id = $this->absint_value( $post_id );
+		if ( function_exists( 'get_permalink' ) ) {
+			return $this->esc_url_value( (string) get_permalink( $post_id ) );
+		}
+
+		return 'https://example.test/?p=' . $post_id;
 	}
 
 	/**
