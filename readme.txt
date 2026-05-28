@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,6 +53,14 @@ When the plugin is installed in a local WordPress site, run:
 `WP_PATH=/path/to/wordpress composer smoke:wp`
 
 == Changelog ==
+
+= 0.2.0 =
+
+* Stabilized the public helper contract and ability metadata rules.
+* Documented host-governed write/destructive semantics and the Magick AI integration boundary.
+* Added first-party ability pack grouping and 0.2 candidate verification evidence.
+* Strengthened lightweight tests for schema controls, Magick catalog projection, provider defaults, and invalid ability ids.
+* Verified Local WP smoke coverage and Magick AI consumer split-boundary checks.
 
 = 0.1.0 =
 

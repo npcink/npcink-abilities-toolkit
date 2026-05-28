@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Magick AI Abilities
  * Description: Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Requires at least: 6.9
  * Requires PHP: 7.2
  * Author: Magick AI
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MAGICK_AI_ABILITIES_VERSION', '0.1.0' );
+define( 'MAGICK_AI_ABILITIES_VERSION', '0.2.0' );
 define( 'MAGICK_AI_ABILITIES_FILE', __FILE__ );
 define( 'MAGICK_AI_ABILITIES_DIR', plugin_dir_path( __FILE__ ) );
 

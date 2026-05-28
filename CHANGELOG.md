@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.1.0 - Unreleased
+## 0.2.0 - 2026-05-28
+
+- Stabilized the public helper contract and documented parameters, defaults, failure modes, and examples.
+- Documented the ability contract for ids, categories, schemas, annotations, risk levels, scopes, Magick AI metadata, MCP metadata, deprecation, and successor fields.
+- Added host-governed write/destructive semantics for `dry_run`, `commit`, `idempotency_key`, `requires_confirm`, `preview`, and `commit_required`.
+- Kept third-party public registration limited to category, readonly, write-proposal, schema/annotation normalization, and registered ability inspection helpers.
+- Added first-party ability pack grouping for content context, publishing, comment compliance, diagnostics, and SEO/GEO support.
+- Added Magick AI consumer verification evidence, including duplicate-id audit expectations and `wp_ability` projection checks.
+- Expanded lightweight tests for write controls, output schema controls, invalid ability ids, provider projection defaults, and Magick catalog projection behavior.
+- Verified Local WP smoke coverage and recorded 0.2 candidate evidence.
+
+## 0.1.0 - 2026-05-28
 
 - Established Magick AI Abilities as a standalone WordPress Abilities API capability-package plugin.
 - Added public helpers for category registration, readonly abilities, write-proposal abilities, schema normalization, annotation normalization, and registered ability inspection.

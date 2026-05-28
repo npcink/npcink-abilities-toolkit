@@ -21,7 +21,7 @@ Verification status on 2026-05-28:
 - `curl -k -I https://magick-ai.local/` returned HTTP 200.
 - `https://magick-ai.local/wp-json/` exposed `/wp-abilities/v1`.
 - WP admin login with username `1` and password `1` succeeded.
-- `wp plugin status magick-ai-abilities` reported the plugin as active, version `0.1.0`.
+- `wp plugin status magick-ai-abilities` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
 - `composer smoke:wp` passed with `Smoke OK: 98 assertions`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from

@@ -9,6 +9,7 @@ a release.
 
 ## Candidate Baseline
 
+- Release candidate version: `0.2.0`
 - `magick-ai-abilities`: `0981ca3 固化能力基础设施契约和本地验证流程`
 - Magick AI consumer: `287f8d358 open-platform: docs 强化 abilities 拆分边界审计`
 - Local WordPress smoke site: `https://magick-ai.local`
@@ -30,6 +31,7 @@ a release.
 | `composer lint:php` | Pass | `Linted 22 PHP files`. |
 | `composer test:all` | Pass | Composer validation, project boundary, tests, and PHP lint all passed. |
 | `composer smoke:wp` | Pass | `Smoke OK: 98 assertions` against the local WordPress site. |
+| Local plugin version | Pass | `wp plugin status magick-ai-abilities` reports version `0.2.0`. |
 
 Smoke command:
 
@@ -55,6 +57,7 @@ files from `magick-ai-abilities`.
 | `pnpm run check:abilities:split-boundary` | Pass | `magick-ai-abilities split boundary: ok (39 main ids, 85 standalone ids, 0 duplicates)`. |
 | `node --check scripts/check-magick-ai-abilities-split.js` | Pass | Script syntax check passed. |
 | Target PHP consumer contracts | Pass | `PHP unit checks passed (5 files, lane all)`. |
+| Local WP consumer E2E | Pass | `site-info` read run returned 200; `create-draft` write dry-run returned 200 with `dry_run=true`, `host_governed=true`, and `commit_required=true`; Magick AI catalog entries used `executor_type=wp_ability`. |
 
 Target PHP consumer contracts:
 
@@ -81,8 +84,11 @@ pnpm run check:unit:php:files -- \
 - No fallback definitions or direct internal `require_once` path were reintroduced
   for migrated standalone package abilities.
 
+## Package Evidence
+
+Pending final package build after the release-prep commit is created.
+
 ## Remaining Before Tagging
 
-- Decide the actual release version string and changelog entry.
 - Run `git diff --check` after any final release-note edits.
-- If packaging is required, build and inspect the release zip before tagging.
+- Build and inspect the release zip before tagging.

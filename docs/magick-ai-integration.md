@@ -4,7 +4,7 @@
 
 The same registered abilities must remain usable by other plugins and clients through the standard WordPress Abilities API.
 
-Minimum recommended `magick-ai-abilities` version for this contract: `0.1.0`.
+Minimum recommended `magick-ai-abilities` version for this contract: `0.2.0`.
 Magick AI should update its own integration contract whenever it requires a
 newer version.
 
