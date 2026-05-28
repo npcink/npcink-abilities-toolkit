@@ -236,6 +236,35 @@ final class Core_Comment_Package {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $this, 'read_comment_trigger_queue' ),
 			),
+			'magick-ai/get-comment-queue-health' => array(
+				'label'            => __( 'Get Comment Queue Health', 'magick-ai-abilities' ),
+				'description'      => __( 'Reads a bounded comment queue and summarizes moderation, reply, and escalation health without writing.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-comments',
+				'capability'       => 'moderate_comments',
+				'required_scope'   => 'comments.manage',
+				'required_scopes'  => array( 'comments.manage' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Internal read layer only. Summarize comment queue health and do not execute moderation actions.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
+						'status'   => array(
+							'type'    => 'string',
+							'enum'    => array( 'hold', 'approve', 'spam', 'trash', 'all' ),
+							'default' => 'hold',
+						),
+						'per_page' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'     => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => $success_schema,
+				'execute_callback' => array( $this, 'get_comment_queue_health' ),
+			),
 			'magick-ai/compose-comment-mention-reply-result' => array(
 				'label'            => __( 'Compose Comment Mention Reply Result', 'magick-ai-abilities' ),
 				'description'      => __( 'Composes one canonical mention-triggered comment reply suggestion envelope.', 'magick-ai-abilities' ),
@@ -500,6 +529,115 @@ final class Core_Comment_Package {
 			),
 			array( 'source' => 'standalone_comment_trigger_queue' ),
 			'Comment trigger queue built.'
+		);
+	}
+
+	/**
+	 * Builds a comment queue health summary.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>
+	 */
+	public function get_comment_queue_health( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$per_page = min( 100, max( 1, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'hold' ) );
+		if ( ! in_array( $status, array( 'hold', 'approve', 'spam', 'trash', 'all' ), true ) ) {
+			$status = 'hold';
+		}
+
+		$args = array(
+			'number' => $per_page,
+			'offset' => ( $page - 1 ) * $per_page,
+			'status' => $status,
+		);
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id > 0 ) {
+			$args['post_id'] = $post_id;
+		}
+
+		$comments = function_exists( 'get_comments' ) ? get_comments( $args ) : array();
+		$comments = is_array( $comments ) ? $comments : array();
+		$items = array();
+		$counts = array(
+			'total'       => 0,
+			'spam_risk'   => 0,
+			'reply_needed' => 0,
+			'escalate'    => 0,
+			'low_value'   => 0,
+		);
+		$action_counts = array(
+			'approve'  => 0,
+			'spam'     => 0,
+			'trash'    => 0,
+			'reply'    => 0,
+			'escalate' => 0,
+		);
+
+		foreach ( $comments as $comment ) {
+			if ( ! is_object( $comment ) ) {
+				continue;
+			}
+			$content = $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) );
+			$classification = $this->classify_comment_content( $content );
+			$action = sanitize_key( (string) ( $classification['recommended_action'] ?? 'approve' ) );
+			$risk_flags = array_values( array_unique( array_map( 'sanitize_key', (array) ( $classification['risk_flags'] ?? array() ) ) ) );
+			if ( isset( $action_counts[ $action ] ) ) {
+				++$action_counts[ $action ];
+			}
+			++$counts['total'];
+			if ( in_array( 'commercial_promo', $risk_flags, true ) || 'spam' === $action ) {
+				++$counts['spam_risk'];
+			}
+			if ( in_array( 'support_request', $risk_flags, true ) || in_array( 'simple_question', $risk_flags, true ) || 'reply' === $action ) {
+				++$counts['reply_needed'];
+			}
+			if ( in_array( 'abusive_or_hostile', $risk_flags, true ) || 'escalate' === $action ) {
+				++$counts['escalate'];
+			}
+			if ( in_array( 'low_value_noise', $risk_flags, true ) ) {
+				++$counts['low_value'];
+			}
+
+			$items[] = array(
+				'comment_id'         => $this->absint_value( $comment->comment_ID ?? 0 ),
+				'post_id'            => $this->absint_value( $comment->comment_post_ID ?? 0 ),
+				'author'             => sanitize_text_field( (string) ( $comment->comment_author ?? '' ) ),
+				'status'             => sanitize_key( (string) ( $comment->comment_approved ?? '' ) ),
+				'excerpt'            => $this->trim_words( $content, 28 ),
+				'recommended_action' => $action,
+				'confidence'         => (float) ( $classification['confidence'] ?? 0 ),
+				'risk_flags'         => $risk_flags,
+			);
+		}
+
+		$attention_count = (int) $counts['spam_risk'] + (int) $counts['reply_needed'] + (int) $counts['escalate'];
+		$health_score = count( $items ) > 0
+			? max( 0, 100 - min( 100, (int) round( ( $attention_count / max( 1, count( $items ) ) ) * 22 ) ) )
+			: 100;
+
+		return $this->success(
+			array(
+				'total'        => count( $items ),
+				'page'         => $page,
+				'per_page'     => $per_page,
+				'health_score' => $health_score,
+				'items'        => $items,
+				'summary'      => array(
+					'status'          => $status,
+					'post_id'         => $post_id,
+					'counts'          => $counts,
+					'action_counts'   => $action_counts,
+					'attention_count' => $attention_count,
+					'next_action'     => $attention_count > 0 ? 'review_attention_items' : 'queue_clear',
+				),
+			),
+			array(
+				'source'         => 'local_comment_queue_health',
+				'execution_mode' => 'deterministic',
+			),
+			'Comment queue health report built.'
 		);
 	}
 

@@ -10,6 +10,9 @@
 - Added `magick-ai/get-media-inventory-health`, a bounded read-only media metadata health scan.
 - Added `magick-ai/get-post-seo-geo-readiness`, a deterministic single-post SEO/GEO readiness snapshot.
 - Added `magick-ai/get-site-topic-coverage-report`, a bounded topic coverage summary for site content.
+- Added `magick-ai/get-taxonomy-inventory-health`, a bounded read-only taxonomy term governance scan.
+- Added `magick-ai/get-revision-change-risk-report`, a read-only revision change-risk summary for pre-write review.
+- Added `magick-ai/get-comment-queue-health`, a read-only moderation queue health summary.
 - Updated first-party pack documentation, migration inventory, smoke coverage, and lightweight tests for the new abilities.
 
 ## 0.2.0 - 2026-05-28

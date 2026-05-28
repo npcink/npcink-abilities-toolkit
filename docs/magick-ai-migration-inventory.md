@@ -18,6 +18,9 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | `magick-ai/get-media-inventory-health` | New standalone Content Context Pack media inventory audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-post-seo-geo-readiness` | New standalone SEO/GEO Support Pack readiness ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-site-topic-coverage-report` | New standalone SEO/GEO Support Pack topic coverage ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-taxonomy-inventory-health` | New standalone Content Context Pack taxonomy governance audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-revision-change-risk-report` | New standalone Publishing Pack read-support revision risk ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-comment-queue-health` | New standalone Comment Compliance Pack queue health ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
 
 ## Migrated in 0.1
 

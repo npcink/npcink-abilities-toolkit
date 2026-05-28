@@ -117,6 +117,8 @@ foreach (
 		'magick-ai/get-media-inventory-health',
 		'magick-ai/get-post-seo-geo-readiness',
 		'magick-ai/get-site-topic-coverage-report',
+		'magick-ai/get-taxonomy-inventory-health',
+		'magick-ai/get-revision-change-risk-report',
 		'magick-ai/resolve-url-to-post',
 		'magick-ai/get-post-blocks',
 		'magick-ai/list-post-revisions',
@@ -134,6 +136,7 @@ foreach (
 			'magick-ai/compose-comment-moderation-result',
 			'magick-ai/build-comment-mention-reply-suggest',
 			'magick-ai/read-comment-trigger-queue',
+			'magick-ai/get-comment-queue-health',
 			'magick-ai/compose-comment-mention-reply-result',
 			'magick-ai/build-comment-moderation-batch-suggest',
 			'magick-ai/compose-comment-moderation-batch-result',
@@ -352,6 +355,55 @@ $topic_coverage_run_request->set_query_params(
 $topic_coverage_run_response = rest_do_request( $topic_coverage_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $topic_coverage_run_response->get_status(), 'Authenticated site topic coverage ability run returns 200.' );
 
+$taxonomy_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-taxonomy-inventory-health/run' );
+$taxonomy_health_run_request->set_query_params(
+	array(
+		'input' => array(
+			'taxonomy' => 'category',
+			'per_page' => 10,
+		),
+	)
+);
+$taxonomy_health_run_response = rest_do_request( $taxonomy_health_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $taxonomy_health_run_response->get_status(), 'Authenticated taxonomy inventory health ability run returns 200.' );
+
+$revision_risk_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-revision-change-risk-report/run' );
+$revision_risk_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'max_revisions' => 5,
+		),
+	)
+);
+$revision_risk_run_response = rest_do_request( $revision_risk_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $revision_risk_run_response->get_status(), 'Authenticated revision change risk ability run returns 200.' );
+
+$smoke_comment_id = wp_insert_comment(
+	array(
+		'comment_post_ID'      => (int) $smoke_post_id,
+		'comment_author'       => 'Magick AI Abilities Smoke',
+		'comment_author_email' => 'smoke@example.test',
+		'comment_content'      => '@admin please check this smoke comment queue item.',
+		'comment_approved'     => '0',
+	)
+);
+magick_ai_abilities_smoke_assert( (int) $smoke_comment_id > 0, 'Temporary smoke comment is available for comment queue ability runs.' );
+
+$comment_queue_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-comment-queue-health/run' );
+$comment_queue_health_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'  => (int) $smoke_post_id,
+			'status'   => 'hold',
+			'per_page' => 10,
+		),
+	)
+);
+$comment_queue_health_run_response = rest_do_request( $comment_queue_health_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $comment_queue_health_run_response->get_status(), 'Authenticated comment queue health ability run returns 200.' );
+
+wp_delete_comment( (int) $smoke_comment_id, true );
 wp_delete_post( (int) $smoke_attachment_id, true );
 wp_delete_post( (int) $smoke_candidate_id, true );
 wp_delete_post( (int) $smoke_post_id, true );

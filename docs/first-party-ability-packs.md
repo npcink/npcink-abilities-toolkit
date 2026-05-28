@@ -34,6 +34,7 @@ Representative abilities:
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
 - `magick-ai/get-media-inventory-health`
+- `magick-ai/get-taxonomy-inventory-health`
 - `magick-ai/list-terms`
 - `magick-ai/list-taxonomy-terms`
 - `magick-ai/list-categories`
@@ -91,6 +92,7 @@ Representative read-only publishing support abilities:
 
 - `magick-ai/get-content-publishing-checklist`
 - `magick-ai/get-bulk-publishing-checklist`
+- `magick-ai/get-revision-change-risk-report`
 
 Representative destructive abilities:
 
@@ -124,6 +126,7 @@ Representative abilities:
 - `magick-ai/compose-comment-moderation-result`
 - `magick-ai/build-comment-mention-reply-suggest`
 - `magick-ai/read-comment-trigger-queue`
+- `magick-ai/get-comment-queue-health`
 - `magick-ai/compose-comment-mention-reply-result`
 - `magick-ai/build-comment-moderation-batch-suggest`
 - `magick-ai/compose-comment-moderation-batch-result`

@@ -2197,6 +2197,95 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_site_topic_coverage_report' ),
 			),
+			'magick-ai/get-taxonomy-inventory-health' => array(
+				'label'            => __( 'Get Taxonomy Inventory Health', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans a bounded taxonomy term inventory and summarizes empty, unused, duplicate, and hierarchy attention signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'manage_categories',
+				'required_scope'   => 'taxonomy.read',
+				'required_scopes'  => array( 'taxonomy.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'taxonomy'   => array( 'type' => 'string', 'default' => 'category' ),
+						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
+						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'taxonomy'     => array( 'type' => 'string' ),
+								'total'        => array( 'type' => 'integer' ),
+								'page'         => array( 'type' => 'integer' ),
+								'per_page'     => array( 'type' => 'integer' ),
+								'health_score' => array( 'type' => 'integer' ),
+								'issue_counts' => array( 'type' => 'object', 'additionalProperties' => true ),
+								'items'        => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'summary'      => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'taxonomy', 'total', 'items', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_taxonomy_inventory_health' ),
+			),
+			'magick-ai/get-revision-change-risk-report' => array(
+				'label'            => __( 'Get Revision Change Risk Report', 'magick-ai-abilities' ),
+				'description'      => __( 'Reads recent revisions for one post and summarizes title, content length, block count, and recency change-risk signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'       => array( 'type' => 'integer', 'minimum' => 1 ),
+						'max_revisions' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 10 ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'post'             => array( 'type' => 'object', 'additionalProperties' => true ),
+								'revision_count'   => array( 'type' => 'integer' ),
+								'risk_level'       => array( 'type' => 'string' ),
+								'risk_flags'       => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+								'latest_revision'  => array( 'type' => 'object', 'additionalProperties' => true ),
+								'change_summary'   => array( 'type' => 'object', 'additionalProperties' => true ),
+								'recent_revisions' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'summary'          => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'post', 'revision_count', 'risk_level', 'risk_flags', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_revision_change_risk_report' ),
+			),
 			'magick-ai/resolve-url-to-post' => array(
 				'label'            => __( 'Resolve URL to Post', 'magick-ai-abilities' ),
 				'description'      => __( 'Resolves a URL or slug to a post ID, post type, status, edit link, and permalink.', 'magick-ai-abilities' ),
@@ -6525,6 +6614,225 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds a taxonomy inventory health report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_taxonomy_inventory_health( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'manage_categories' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'category' ) );
+		if ( '' === $taxonomy ) {
+			$taxonomy = 'category';
+		}
+		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$hide_empty = ! empty( $input['hide_empty'] );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$query_result = $this->query_taxonomy_inventory_terms( $taxonomy, $hide_empty, $per_page, $page );
+		$terms = is_array( $query_result['terms'] ?? null ) ? $query_result['terms'] : array();
+		$items = array();
+		$issue_counts = array();
+		$seen_slugs = array();
+
+		foreach ( $terms as $term ) {
+			if ( ! is_object( $term ) ) {
+				continue;
+			}
+			$slug = sanitize_title( (string) ( $term->slug ?? '' ) );
+			$row = $this->build_taxonomy_inventory_health_row( $taxonomy, $term, isset( $seen_slugs[ $slug ] ) );
+			if ( '' !== $slug ) {
+				$seen_slugs[ $slug ] = true;
+			}
+			foreach ( (array) ( $row['issues'] ?? array() ) as $issue ) {
+				$issue = sanitize_key( (string) $issue );
+				if ( '' !== $issue ) {
+					$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+				}
+			}
+			$items[] = $row;
+		}
+
+		$total_issue_instances = array_sum( array_map( 'intval', $issue_counts ) );
+		$health_score = count( $items ) > 0
+			? max( 0, 100 - min( 100, (int) round( ( $total_issue_instances / max( 1, count( $items ) ) ) * 16 ) ) )
+			: 100;
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'taxonomy'     => $taxonomy,
+				'total'        => (int) ( $query_result['total'] ?? count( $terms ) ),
+				'page'         => $page,
+				'per_page'     => $per_page,
+				'health_score' => $health_score,
+				'issue_counts' => $issue_counts,
+				'items'        => $items,
+				'summary'      => array(
+					'scanned_count'          => count( $items ),
+					'terms_with_issues'      => count(
+						array_filter(
+							$items,
+							static function ( array $item ) {
+								return (int) ( $item['issue_count'] ?? 0 ) > 0;
+							}
+						)
+					),
+					'total_issue_instances' => $total_issue_instances,
+					'hide_empty'            => $hide_empty,
+				),
+			),
+			array(
+				'source'         => 'local_taxonomy_inventory_health',
+				'execution_mode' => 'deterministic',
+			),
+			'Taxonomy inventory health report built.'
+		);
+	}
+
+	/**
+	 * Builds a revision change-risk report for one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_revision_change_risk_report( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$max_revisions = max( 1, min( 20, $this->absint_value( $input['max_revisions'] ?? 10 ) ) );
+		$revisions = array_slice( $this->get_revision_objects_for_post( $post_id ), 0, $max_revisions );
+		$current_title = sanitize_text_field( (string) get_the_title( $post_id ) );
+		$current_content = (string) ( $post->post_content ?? '' );
+		$current_text_length = $this->strlen_value( $this->strip_all_tags_value( $current_content ) );
+		$current_block_count = count( $this->parse_content_blocks( $current_content ) );
+		$latest = is_object( $revisions[0] ?? null ) ? $revisions[0] : null;
+		$risk_flags = array();
+		$recent_rows = array();
+
+		if ( ! is_object( $latest ) ) {
+			$risk_flags[] = 'no_revisions';
+		}
+
+		$latest_summary = array();
+		$change_summary = array(
+			'title_changed'        => false,
+			'content_length_delta' => 0,
+			'block_count_delta'    => 0,
+			'latest_modified'      => '',
+		);
+
+		if ( is_object( $latest ) ) {
+			$latest_title = sanitize_text_field( (string) ( $latest->post_title ?? '' ) );
+			$latest_content = (string) ( $latest->post_content ?? '' );
+			$latest_text_length = $this->strlen_value( $this->strip_all_tags_value( $latest_content ) );
+			$latest_block_count = count( $this->parse_content_blocks( $latest_content ) );
+			$content_delta = $current_text_length - $latest_text_length;
+			$block_delta = $current_block_count - $latest_block_count;
+			$title_changed = '' !== $latest_title && $latest_title !== $current_title;
+			if ( $title_changed ) {
+				$risk_flags[] = 'title_changed';
+			}
+			if ( abs( $content_delta ) >= 800 || ( $latest_text_length > 0 && abs( $content_delta ) / max( 1, $latest_text_length ) >= 0.35 ) ) {
+				$risk_flags[] = 'large_content_delta';
+			}
+			if ( abs( $block_delta ) >= 4 ) {
+				$risk_flags[] = 'large_block_delta';
+			}
+
+			$modified = sanitize_text_field( (string) ( $latest->post_modified_gmt ?? $latest->post_modified ?? $latest->post_date ?? '' ) );
+			$latest_summary = array(
+				'revision_id'         => $this->absint_value( $latest->ID ?? 0 ),
+				'modified'            => $modified,
+				'author_id'           => $this->absint_value( $latest->post_author ?? 0 ),
+				'title'               => $latest_title,
+				'content_text_length' => $latest_text_length,
+				'block_count'         => $latest_block_count,
+				'excerpt'             => $this->build_revision_excerpt( $latest_content ),
+			);
+			$change_summary = array(
+				'title_changed'        => $title_changed,
+				'content_length_delta' => $content_delta,
+				'block_count_delta'    => $block_delta,
+				'latest_modified'      => $modified,
+			);
+		}
+
+		foreach ( $revisions as $revision ) {
+			if ( ! is_object( $revision ) ) {
+				continue;
+			}
+			$content = (string) ( $revision->post_content ?? '' );
+			$recent_rows[] = array(
+				'revision_id'         => $this->absint_value( $revision->ID ?? 0 ),
+				'modified'            => sanitize_text_field( (string) ( $revision->post_modified_gmt ?? $revision->post_modified ?? $revision->post_date ?? '' ) ),
+				'author_id'           => $this->absint_value( $revision->post_author ?? 0 ),
+				'title'               => sanitize_text_field( (string) ( $revision->post_title ?? '' ) ),
+				'content_text_length' => $this->strlen_value( $this->strip_all_tags_value( $content ) ),
+				'block_count'         => count( $this->parse_content_blocks( $content ) ),
+				'excerpt'             => $this->build_revision_excerpt( $content ),
+			);
+		}
+
+		$risk_flags = array_values( array_unique( array_map( 'sanitize_key', $risk_flags ) ) );
+		$risk_level = 'none';
+		if ( in_array( 'large_content_delta', $risk_flags, true ) || in_array( 'large_block_delta', $risk_flags, true ) ) {
+			$risk_level = 'high';
+		} elseif ( in_array( 'title_changed', $risk_flags, true ) || in_array( 'no_revisions', $risk_flags, true ) ) {
+			$risk_level = 'medium';
+		} elseif ( count( $recent_rows ) > 0 ) {
+			$risk_level = 'low';
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'post'             => array(
+					'post_id'             => $post_id,
+					'title'               => $current_title,
+					'post_type'           => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+					'status'              => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+					'content_text_length' => $current_text_length,
+					'block_count'         => $current_block_count,
+					'edit_link'           => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+				),
+				'revision_count'   => count( $revisions ),
+				'risk_level'       => $risk_level,
+				'risk_flags'       => $risk_flags,
+				'latest_revision'  => $latest_summary,
+				'change_summary'   => $change_summary,
+				'recent_revisions' => $recent_rows,
+				'summary'          => array(
+					'max_revisions' => $max_revisions,
+					'next_action'   => 'high' === $risk_level ? 'review_latest_revision_before_write' : 'continue_with_standard_review',
+				),
+			),
+			array(
+				'source'         => 'local_revision_change_risk_report',
+				'execution_mode' => 'deterministic',
+			),
+			'Revision change risk report built.'
+		);
+	}
+
+	/**
 	 * Resolves a URL or slug to a post.
 	 *
 	 * @param mixed $input Input args.
@@ -7025,6 +7333,187 @@ final class Core_Read_Package {
 			'attachment_ids' => array_slice( array_filter( $filtered ), ( $page - 1 ) * $per_page, $per_page ),
 			'total'          => count( $filtered ),
 		);
+	}
+
+	/**
+	 * Queries taxonomy terms for a bounded inventory scan.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @param bool   $hide_empty Hide empty terms.
+	 * @param int    $per_page Per page.
+	 * @param int    $page Page.
+	 * @return array<string,mixed>
+	 */
+	private function query_taxonomy_inventory_terms( $taxonomy, $hide_empty, $per_page, $page ) {
+		$args = array(
+			'taxonomy'   => $taxonomy,
+			'hide_empty' => (bool) $hide_empty,
+			'number'     => $per_page,
+			'offset'     => ( $page - 1 ) * $per_page,
+			'orderby'    => 'count',
+			'order'      => 'DESC',
+		);
+
+		if ( function_exists( 'get_terms' ) ) {
+			$terms = get_terms( $args );
+			if ( is_wp_error( $terms ) ) {
+				return array(
+					'terms' => array(),
+					'total' => 0,
+				);
+			}
+
+			$count_args = $args;
+			$count_args['fields'] = 'count';
+			$count_args['number'] = 0;
+			$count_args['offset'] = 0;
+			$total = get_terms( $count_args );
+			return array(
+				'terms' => is_array( $terms ) ? $terms : array(),
+				'total' => is_wp_error( $total ) ? count( is_array( $terms ) ? $terms : array() ) : (int) $total,
+			);
+		}
+
+		$terms = isset( $GLOBALS['maa_unit_terms'][ $taxonomy ] ) && is_array( $GLOBALS['maa_unit_terms'][ $taxonomy ] )
+			? array_values( $GLOBALS['maa_unit_terms'][ $taxonomy ] )
+			: array();
+		if ( $hide_empty ) {
+			$terms = array_values(
+				array_filter(
+					$terms,
+					static function ( $term ) {
+						return is_object( $term ) && (int) ( $term->count ?? 0 ) > 0;
+					}
+				)
+			);
+		}
+
+		return array(
+			'terms' => array_slice( $terms, ( $page - 1 ) * $per_page, $per_page ),
+			'total' => count( $terms ),
+		);
+	}
+
+	/**
+	 * Builds one taxonomy inventory health row.
+	 *
+	 * @param string $taxonomy Taxonomy name.
+	 * @param object $term Term object.
+	 * @param bool   $duplicate_slug Whether slug already appeared in the scan.
+	 * @return array<string,mixed>
+	 */
+	private function build_taxonomy_inventory_health_row( $taxonomy, $term, $duplicate_slug ) {
+		$term_id = $this->absint_value( $term->term_id ?? 0 );
+		$name = sanitize_text_field( (string) ( $term->name ?? '' ) );
+		$slug = sanitize_title( (string) ( $term->slug ?? '' ) );
+		$description = $this->sanitize_metadata_text( (string) ( $term->description ?? '' ) );
+		$count = $this->absint_value( $term->count ?? 0 );
+		$parent = $this->absint_value( $term->parent ?? 0 );
+		$issues = array();
+
+		if ( '' === $name ) {
+			$issues[] = 'empty_name';
+		}
+		if ( '' === $slug ) {
+			$issues[] = 'empty_slug';
+		}
+		if ( '' === $description ) {
+			$issues[] = 'missing_description';
+		}
+		if ( 0 === $count ) {
+			$issues[] = 'unused_term';
+		}
+		if ( $duplicate_slug ) {
+			$issues[] = 'duplicate_slug_in_scan';
+		}
+		if ( $parent > 0 && function_exists( 'get_term' ) ) {
+			$parent_term = get_term( $parent, $taxonomy );
+			if ( ! is_object( $parent_term ) || ( function_exists( 'is_wp_error' ) && is_wp_error( $parent_term ) ) ) {
+				$issues[] = 'missing_parent';
+			}
+		}
+
+		return array(
+			'term_id'     => $term_id,
+			'name'        => $name,
+			'slug'        => $slug,
+			'description' => $description,
+			'count'       => $count,
+			'parent'      => $parent,
+			'issue_count' => count( $issues ),
+			'issues'      => array_values( array_unique( $issues ) ),
+			'edit_link'   => function_exists( 'get_edit_term_link' ) ? $this->esc_url_value( (string) get_edit_term_link( $term_id, $taxonomy ) ) : '',
+		);
+	}
+
+	/**
+	 * Reads revisions for a post with a unit-test fallback.
+	 *
+	 * @param int $post_id Post id.
+	 * @return array<int,object>
+	 */
+	private function get_revision_objects_for_post( $post_id ) {
+		$post_id = $this->absint_value( $post_id );
+		$revisions = function_exists( 'wp_get_post_revisions' )
+			? wp_get_post_revisions(
+				$post_id,
+				array(
+					'check_enabled' => false,
+					'order'         => 'DESC',
+					'orderby'       => 'date ID',
+				)
+			)
+			: array();
+		$revisions = is_array( $revisions ) ? array_values( $revisions ) : array();
+
+		if ( empty( $revisions ) && isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
+			foreach ( $GLOBALS['maa_unit_style_posts'] as $post ) {
+				if ( is_object( $post ) && 'revision' === sanitize_key( (string) ( $post->post_type ?? '' ) ) && $post_id === $this->absint_value( $post->post_parent ?? 0 ) ) {
+					$revisions[] = $post;
+				}
+			}
+		}
+
+		usort(
+			$revisions,
+			static function ( $a, $b ) {
+				$a_time = strtotime( (string) ( is_object( $a ) ? ( $a->post_modified_gmt ?? $a->post_modified ?? $a->post_date ?? '' ) : '' ) );
+				$b_time = strtotime( (string) ( is_object( $b ) ? ( $b->post_modified_gmt ?? $b->post_modified ?? $b->post_date ?? '' ) : '' ) );
+				$a_time = false === $a_time ? 0 : $a_time;
+				$b_time = false === $b_time ? 0 : $b_time;
+				if ( $a_time === $b_time ) {
+					return (int) ( is_object( $b ) ? ( $b->ID ?? 0 ) : 0 ) <=> (int) ( is_object( $a ) ? ( $a->ID ?? 0 ) : 0 );
+				}
+				return $b_time <=> $a_time;
+			}
+		);
+
+		return array_values(
+			array_filter(
+				$revisions,
+				static function ( $revision ) {
+					return is_object( $revision );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Parses Gutenberg blocks with a non-block fallback count.
+	 *
+	 * @param string $content Post content.
+	 * @return array<int,mixed>
+	 */
+	private function parse_content_blocks( $content ) {
+		if ( function_exists( 'parse_blocks' ) ) {
+			$blocks = parse_blocks( (string) $content );
+			if ( is_array( $blocks ) && ! empty( $blocks ) ) {
+				return $blocks;
+			}
+		}
+
+		$plain = trim( $this->strip_all_tags_value( (string) $content ) );
+		return '' === $plain ? array() : array( array( 'blockName' => 'core/freeform' ) );
 	}
 
 	/**
