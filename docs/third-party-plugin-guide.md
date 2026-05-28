@@ -2,6 +2,28 @@
 
 Any WordPress plugin can use this toolkit to provide Abilities API capability packages. Magick AI is an optional consumer; other clients can discover and run the same abilities through the standard WordPress Abilities API.
 
+## Detect The Toolkit
+
+Register provider abilities after plugins are loaded and check for the public
+helpers before calling them:
+
+```php
+add_action(
+	'plugins_loaded',
+	static function () {
+		if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+			return;
+		}
+
+		// Register categories and abilities here.
+	}
+);
+```
+
+Do not include files from `magick-ai-abilities/includes/` and do not instantiate
+classes under the `Magick_AI_Abilities` namespace. Those are implementation
+details.
+
 ## Register a Provider Category
 
 Use `magick_ai_abilities_register_category()` when your plugin owns a group of abilities:
@@ -28,6 +50,41 @@ The toolkit sets:
 - `show_in_rest=true`
 - default capability `manage_options`
 
+Example:
+
+```php
+magick_ai_abilities_register_readonly(
+	'acme/content-inventory-summary',
+	array(
+		'label'          => 'Content Inventory Summary',
+		'description'    => 'Returns counts of common public content types.',
+		'category'       => 'acme-demo',
+		'capability'     => 'edit_posts',
+		'required_scope' => 'cap.content.read',
+		'input_schema'   => array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+		),
+		'output_schema'  => array(
+			'type'       => 'object',
+			'properties' => array(
+				'posts' => array( 'type' => 'integer' ),
+				'pages' => array( 'type' => 'integer' ),
+			),
+		),
+		'execute_callback' => static function () {
+			$posts = wp_count_posts( 'post' );
+			$pages = wp_count_posts( 'page' );
+
+			return array(
+				'posts' => isset( $posts->publish ) ? (int) $posts->publish : 0,
+				'pages' => isset( $pages->publish ) ? (int) $pages->publish : 0,
+			);
+		},
+	)
+);
+```
+
 ## Opt Into Magick AI Compatibility Projection
 
 Abilities are not projected into Magick AI by default. If your provider plugin intentionally wants Magick AI compatibility, set:
@@ -38,22 +95,75 @@ Abilities are not projected into Magick AI by default. If your provider plugin i
 
 The ability remains a normal WordPress Abilities API ability; the projection only adds a Magick AI catalog entry when Magick AI is installed.
 
+Opt in only when:
+
+- the ability is intentionally useful to Magick AI;
+- the provider is comfortable exposing its schema in the Magick AI catalog;
+- the ability can be executed through the normal WordPress Abilities API path.
+
+Do not opt in when:
+
+- another host already owns catalog truth for the same ability id;
+- the ability requires private runtime state not represented in the schema;
+- exposing the ability would imply Magick AI approval, quota, billing, or audit
+  behavior that the provider does not own.
+
 ## Register a Write Proposal Ability
 
 Use `magick_ai_abilities_register_write_proposal()` for write-like operations.
 
-The callback should return a proposal object instead of committing:
+The callback should return a proposal object instead of committing. The host
+product owns approval and any final mutation.
 
 ```php
-array(
-	'proposal_id' => 'proposal-123',
-	'subject_refs' => array(),
-	'diff' => array(),
-	'next_actions' => array( 'approve', 'reject' ),
-)
+magick_ai_abilities_register_write_proposal(
+	'acme/create-draft-proposal',
+	array(
+		'label'            => 'Create Draft Proposal',
+		'description'      => 'Builds a draft proposal without creating a post.',
+		'category'         => 'acme-demo',
+		'capability'       => 'edit_posts',
+		'required_scope'   => 'cap.content.write',
+		'input_schema'     => array(
+			'type'       => 'object',
+			'properties' => array(
+				'title'   => array( 'type' => 'string' ),
+				'content' => array( 'type' => 'string' ),
+			),
+			'required'   => array( 'title' ),
+		),
+		'output_schema'    => array(
+			'type'       => 'object',
+			'properties' => array(
+				'proposal_id'  => array( 'type' => 'string' ),
+				'diff'         => array( 'type' => 'object' ),
+				'next_actions' => array(
+					'type'  => 'array',
+					'items' => array( 'type' => 'string' ),
+				),
+			),
+		),
+		'execute_callback' => static function ( $input = array() ) {
+			$input = is_array( $input ) ? $input : array();
+
+			return array(
+				'proposal_id'  => 'proposal-' . wp_generate_uuid4(),
+				'diff'         => array(
+					'post_title' => array(
+						'from' => null,
+						'to'   => sanitize_text_field( (string) ( $input['title'] ?? '' ) ),
+					),
+				),
+				'next_actions' => array( 'approve_in_host', 'reject' ),
+			);
+		},
+	)
+);
 ```
 
-Final approval and commit should stay in the host plugin or another governed local control path.
+Third-party providers should not perform final host-governed commits through
+this helper. Host-governed write/destructive commit registration is not public
+third-party API in 0.1.
 
 ## Local Smoke Test
 

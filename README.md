@@ -38,6 +38,7 @@ magick_ai_abilities_get_registered();
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Magick AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
 The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
+The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example

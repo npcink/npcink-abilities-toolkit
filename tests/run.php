@@ -128,6 +128,10 @@ maa_assert_same( false, $readonly['annotations']['destructive'], 'readonly abili
 maa_assert_same( 'read', $readonly['risk_level'], 'readonly ability risk is read' );
 maa_assert_same( true, $readonly['meta']['show_in_rest'], 'readonly ability defaults to show_in_rest' );
 maa_assert_same( 'read', $readonly['meta']['mcp']['risk'], 'readonly mcp risk is read' );
+maa_assert_true( ! isset( $readonly['input_schema']['properties']['dry_run'] ), 'readonly input schema does not include write dry_run control' );
+maa_assert_true( ! isset( $readonly['input_schema']['properties']['commit'] ), 'readonly input schema does not include write commit control' );
+maa_assert_true( ! isset( $readonly['input_schema']['properties']['idempotency_key'] ), 'readonly input schema does not include write idempotency_key control' );
+maa_assert_true( ! isset( $readonly['output_schema']['properties']['commit_required'] ), 'readonly output schema does not include write commit_required field' );
 
 $write = $contract_normalizer->normalize(
 	'acme/create-draft-proposal',
@@ -146,6 +150,47 @@ maa_assert_same( false, $write['annotations']['readonly'], 'write proposal is no
 maa_assert_same( 'write', $write['risk_level'], 'write proposal risk is write' );
 maa_assert_same( true, $write['requires_confirm'], 'write proposal requires confirmation' );
 maa_assert_same( 'magick-ai-abilities-write', $write['category'], 'write proposal default category is write category' );
+foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $write_control_property ) {
+	maa_assert_true(
+		isset( $write['input_schema']['properties'][ $write_control_property ] ),
+		"write proposal input schema includes {$write_control_property} control"
+	);
+}
+foreach ( array( 'dry_run', 'host_governed', 'commit_required', 'preview' ) as $write_output_property ) {
+	maa_assert_true(
+		isset( $write['output_schema']['properties'][ $write_output_property ] ),
+		"write proposal output schema includes {$write_output_property} field"
+	);
+}
+
+$destructive = $contract_normalizer->normalize(
+	'acme/delete-post',
+	array(
+		'label'            => 'Delete Post',
+		'description'      => 'Deletes a post through a host-governed path.',
+		'input_schema'     => array( 'type' => 'object' ),
+		'output_schema'    => array( 'type' => 'object' ),
+		'execute_callback' => static function () {
+			return array( 'dry_run' => true );
+		},
+	),
+	'destructive_host'
+);
+maa_assert_same( true, $destructive['annotations']['destructive'], 'destructive host ability is destructive' );
+maa_assert_same( 'destructive', $destructive['risk_level'], 'destructive host ability risk is destructive' );
+maa_assert_same( true, $destructive['requires_confirm'], 'destructive host ability requires confirmation' );
+foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $destructive_control_property ) {
+	maa_assert_true(
+		isset( $destructive['input_schema']['properties'][ $destructive_control_property ] ),
+		"destructive input schema includes {$destructive_control_property} control"
+	);
+}
+foreach ( array( 'dry_run', 'host_governed', 'commit_required', 'preview' ) as $destructive_output_property ) {
+	maa_assert_true(
+		isset( $destructive['output_schema']['properties'][ $destructive_output_property ] ),
+		"destructive output schema includes {$destructive_output_property} field"
+	);
+}
 
 $categories = new Category_Registrar();
 $registrar = new Ability_Registrar( $categories, $contract_normalizer );
@@ -222,6 +267,51 @@ maa_assert_same( 'acme/projected-summary', $catalog['acme_projected-summary']['w
 maa_assert_same( false, $catalog['acme_projected-summary']['open_api_enabled'], 'catalog bridge does not publish Open API by default' );
 maa_assert_same( true, $catalog['acme_projected-summary']['skip_catalog_manifest_fallback'], 'catalog bridge preserves provider contract over host default manifest fallback' );
 maa_assert_same( true, $catalog['acme_projected-summary']['show_in_rest'], 'catalog bridge sets top-level show_in_rest for host catalog normalization' );
+
+maa_assert_true(
+	$registrar->add_write_host_governed(
+		'acme/projected-host-write',
+		array(
+			'label'                     => 'Projected Host Write',
+			'description'               => 'Provider write ability explicitly projected for Magick AI compatibility.',
+			'project_to_magick_catalog' => true,
+			'input_schema'              => array( 'type' => 'object' ),
+			'output_schema'             => array( 'type' => 'object' ),
+			'execute_callback'          => static function () {
+				return array( 'dry_run' => true );
+			},
+		)
+	),
+	'registrar accepts projected host-governed write ability'
+);
+$catalog = $bridge->filter_catalog( array(), array() );
+maa_assert_same( 'wp_ability', $catalog['acme_projected-host-write']['executor_type'] ?? '', 'catalog bridge projects host-governed write as wp_ability' );
+maa_assert_same( true, $catalog['acme_projected-host-write']['tool_policy']['require_confirmation'] ?? null, 'catalog bridge requires confirmation for projected host-governed write' );
+maa_assert_same( true, $catalog['acme_projected-host-write']['tool_policy']['allow_write'] ?? null, 'catalog bridge allows write for projected host-governed write policy' );
+maa_assert_same( true, $catalog['acme_projected-host-write']['skip_catalog_manifest_fallback'] ?? null, 'catalog bridge keeps skip fallback for projected host-governed write' );
+
+maa_assert_true(
+	$registrar->add_destructive_host_governed(
+		'acme/projected-delete-post',
+		array(
+			'label'                     => 'Projected Delete Post',
+			'description'               => 'Provider destructive ability explicitly projected for Magick AI compatibility.',
+			'project_to_magick_catalog' => true,
+			'input_schema'              => array( 'type' => 'object' ),
+			'output_schema'             => array( 'type' => 'object' ),
+			'execute_callback'          => static function () {
+				return array( 'dry_run' => true );
+			},
+		)
+	),
+	'registrar accepts projected destructive host-governed ability'
+);
+$catalog = $bridge->filter_catalog( array(), array() );
+maa_assert_same( 'wp_ability', $catalog['acme_projected-delete-post']['executor_type'] ?? '', 'catalog bridge projects destructive ability as wp_ability' );
+maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['require_confirmation'] ?? null, 'catalog bridge requires confirmation for projected destructive ability' );
+maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['allow_write'] ?? null, 'catalog bridge allows write for projected destructive policy' );
+maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['allow_destructive'] ?? null, 'catalog bridge marks projected destructive policy as destructive' );
+maa_assert_same( true, $catalog['acme_projected-delete-post']['skip_catalog_manifest_fallback'] ?? null, 'catalog bridge keeps skip fallback for projected destructive ability' );
 
 maa_assert_true(
 	$registrar->add_readonly(

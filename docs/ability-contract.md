@@ -1,22 +1,106 @@
 # Ability Contract
 
-Every public ability should define:
+Every public ability should define a stable machine-readable contract. The
+contract must be clear enough for WordPress Abilities API clients, Magick AI,
+MCP-oriented hosts, and tests to understand the same behavior without reading
+package internals.
 
-- `ability_id`: stable `namespace/name`
+## Identity
+
+- `ability_id`: stable `namespace/name`. The namespace should identify the
+  provider or compatibility surface. The name should describe the operation.
+- Ability ids are lowercased and stripped to machine-safe characters during
+  normalization.
+- Ability ids without `/` are rejected by the registrar.
+- Published ids should not be reused for different behavior.
+
+## Required Human Metadata
+
 - `label`
 - `description`
-- `category`
+
+Labels and descriptions should describe the operation, not the UI that happens
+to expose it.
+
+## Category
+
+- `category`: stable category id.
+- Read-only abilities default to `magick-ai-abilities-read`.
+- Write-like abilities default to `magick-ai-abilities-write`.
+- First-party migrated abilities may preserve legacy categories such as
+  `magick-ai-data`, `magick-ai-pages`, `magick-ai-comments`, and
+  `magick-ai-write` for compatibility.
+
+## Schemas
+
 - `input_schema`: JSON Schema object
 - `output_schema`: JSON Schema object
+
+Schemas are normalized before registration. Shorthand property values such as
+`'string'` may be expanded by the schema normalizer, but published examples
+should prefer explicit JSON Schema arrays.
+
+Write-like definitions receive common host-governed input fields:
+
+- `dry_run` (`boolean`): request a preview without mutating WordPress.
+- `commit` (`boolean`): request a final commit attempt. Host approval context
+  is still required.
+- `idempotency_key` (`string`): optional host-provided replay/audit key.
+
+Write-like definitions also receive common output fields:
+
+- `dry_run` (`boolean`): whether the result is a preview.
+- `host_governed` (`boolean`): whether final mutation belongs to a host path.
+- `commit_required` (`boolean`): whether approval/commit is still needed.
+- `preview` (`object`): reviewable summary of the intended mutation.
+
+## Execution And Permission
+
 - `execute_callback`
 - `permission_callback` or `capability`
+
+If `permission_callback` is absent, the toolkit builds one from `capability`.
+The default capability is `manage_options`. Provider plugins should choose the
+least broad WordPress capability that matches the operation.
+
+## REST, MCP, And Magick Metadata
+
 - `meta.show_in_rest`
 - `meta.mcp.annotations.readonly`
 - `meta.mcp.annotations.destructive`
 - `meta.mcp.annotations.idempotent`
 - `meta.magick.channels` when Magick AI compatibility metadata is needed
+
+Rules:
+
+- `meta.show_in_rest` defaults to `true`.
+- `meta.mcp.public` is not the same as `meta.show_in_rest`.
+- `meta.magick.channels` is not the same as REST exposure.
+- `project_to_magick_catalog` controls Magick AI compatibility projection and
+  defaults to `false` for provider abilities.
+- Projection is metadata only. Execution still goes through the WordPress
+  Abilities API path.
+
+## Risk And Governance
+
 - `risk_level`
 - `requires_confirm`
+
+Risk levels:
+
+- `read`: data retrieval or deterministic proposal/context generation.
+- `write`: non-destructive mutation or write proposal.
+- `destructive`: delete, trash, merge, spam, or other destructive operation.
+
+`requires_confirm` is `false` for read abilities and `true` for write-like
+abilities. Host-governed writes and destructive abilities may live in this
+package only when they are generic WordPress operations. Direct clients receive
+dry-run previews by default; final commit requires host approval context.
+
+## Scopes And Versioning
+
+- `required_scope`
+- `required_scopes`
 - `contract_version`
 - `deprecated`
 - `successor`
@@ -24,3 +108,8 @@ Every public ability should define:
 Read-only abilities may return data directly.
 
 Write-proposal abilities must return a proposal, preview, diff, or other reviewable artifact. They must not commit destructive WordPress changes directly.
+
+Host-governed commit abilities are not public third-party registration helpers
+in 0.1. They are reserved for first-party package abilities and host runtime
+contracts. If a future release exposes third-party host-governed registration,
+that must be recorded in a new ADR first.

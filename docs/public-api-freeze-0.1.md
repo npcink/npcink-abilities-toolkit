@@ -20,6 +20,10 @@ Consumers should not instantiate classes under `includes/` directly. Those class
 - Keep `meta.show_in_rest`, `meta.mcp.public`, and `meta.magick.channels` separate.
 - Keep Magick AI catalog projection explicit: `project_to_magick_catalog` defaults to false.
 - Write-like helpers must produce proposal-oriented abilities; final commit ownership stays outside this toolkit.
+- Do not add public third-party host-governed write/destructive helper functions in the 0.1 line. If that changes later, write a new ADR first.
+- Built-in ability ids follow SemVer-style compatibility: changing the meaning of an existing id is breaking; adding optional schema properties is non-breaking; removing an id requires `deprecated` and `successor` metadata first.
+- Schema additions must be optional unless the release is explicitly breaking.
+- `deprecated=true` means consumers may continue to call the ability in the current line but should migrate to `successor` when present.
 
 ## Definition Fields
 
@@ -43,3 +47,16 @@ Supported definition fields:
 - `project_to_magick_catalog`
 - `deprecated`
 - `successor`
+
+## 0.2 Release Checklist
+
+- Documentation updated: public API, ability contract, provider guide, integration contract, and first-party pack grouping.
+- Migration inventory updated for any added, moved, removed, deprecated, or successor ability ids.
+- Public API reviewed to confirm no accidental promise of host-governed third-party commit helpers.
+- `composer validate:composer` passes.
+- `composer check:boundary` passes.
+- `composer test` passes.
+- `composer lint:php` passes.
+- `composer test:all` passes.
+- `git diff --check` passes.
+- WordPress smoke status recorded: either `WP_PATH=/path/to/wordpress composer smoke:wp` passed, or the release notes state why it was not run.

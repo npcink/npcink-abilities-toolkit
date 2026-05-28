@@ -1,5 +1,7 @@
 # Project Development Plan
 
+The product positioning and next-stage priority plan are documented in [project-positioning-and-next-stage-plan.md](project-positioning-and-next-stage-plan.md). This plan should be interpreted through that boundary: `magick-ai-abilities` is the WordPress AI Agent ability infrastructure layer, not the end-user AI product or Magick AI runtime.
+
 ## Phase 1: Standalone Abilities API Plugin
 
 - Keep this plugin independent from the Magick AI runtime.
