@@ -53,11 +53,33 @@ Current migrated core read package:
 - `magick-ai/list-tags`
 - `magick-ai/get-term`
 - `magick-ai/propose-post-excerpt`
+- `magick-ai/resolve-post-metadata-plan`
 - `magick-ai/list-users`
 - `magick-ai/list-comments`
 - `magick-ai/list-menus`
 - `magick-ai/get-menu`
 - `magick-ai/search-posts`
+- `magick-ai/resolve-internal-link-targets`
+- `magick-ai/build-inline-image-blocks`
+- `magick-ai/build-media-seo-assets`
+- `magick-ai/geo-analyze`
+- `magick-ai/optimize-media-metadata`
+- `magick-ai/position-inline-image-blocks`
+- `magick-ai/build-article-optimization-report`
+- `magick-ai/seo-report-context`
+- `magick-ai/read-post-optimization-context`
+- `magick-ai/build-article-single-optimization-suggest`
+- `magick-ai/build-article-optimization-apply-plan`
+- `magick-ai/compose-article-optimization-apply-result`
+- `magick-ai/extract-reference-post-style`
+- `magick-ai/extract-style-baseline`
+- `magick-ai/build-article-production-fingerprint`
+- `magick-ai/check-article-production-duplicate`
+- `magick-ai/review-article-output-light`
+- `magick-ai/compose-article-production-result`
+- `magick-ai/compose-article-draft-result`
+- `magick-ai/resolve-article-publication-decision`
+- `magick-ai/build-article-style-profile`
 - `magick-ai/get-post-stats`
 - `magick-ai/list-revisions`
 - `magick-ai/get-post-meta`
@@ -65,15 +87,36 @@ Current migrated core read package:
 - `magick-ai/get-page`
 - `magick-ai/inspect-page-structure`
 
+Current migrated deterministic comment helper package:
+
+- `magick-ai/build-comment-moderation-suggest`
+- `magick-ai/compose-comment-moderation-result`
+- `magick-ai/build-comment-mention-reply-suggest`
+- `magick-ai/read-comment-trigger-queue`
+- `magick-ai/compose-comment-mention-reply-result`
+- `magick-ai/build-comment-moderation-batch-suggest`
+- `magick-ai/compose-comment-moderation-batch-result`
+
 Current migrated host-governed write package:
 
+- `magick-ai/create-draft`
+- `magick-ai/update-post`
+- `magick-ai/set-post-seo-meta`
+- `magick-ai/patch-post-content`
+- `magick-ai/update-post-blocks`
 - `magick-ai/set-post-slug`
 - `magick-ai/set-post-author`
 - `magick-ai/set-post-template`
 - `magick-ai/set-post-format`
 - `magick-ai/create-term`
 - `magick-ai/update-term`
+- `magick-ai/set-post-terms`
 - `magick-ai/update-media-details`
+- `magick-ai/upload-media-from-url`
+- `magick-ai/set-post-featured-image`
+- `magick-ai/schedule-post`
+- `magick-ai/publish-post`
+- `magick-ai/restore-post`
 - `magick-ai/approve-comment`
 - `magick-ai/reply-comment`
 
@@ -81,6 +124,7 @@ Current migrated host-governed destructive package:
 
 - `magick-ai/delete-term`
 - `magick-ai/merge-terms`
+- `magick-ai/bulk-update-post-terms`
 - `magick-ai/spam-comment`
 - `magick-ai/trash-comment`
 - `magick-ai/delete-media-permanently`
@@ -95,4 +139,4 @@ Update consumers, including the Magick AI plugin, to consume this plugin through
 
 Avoid direct `require_once` calls into this plugin's internal `includes/` files.
 
-Current Magick AI development rule: remove migrated read-only, migrated host-governed write, and migrated host-governed destructive configs/callbacks from the main plugin. Do not keep fallback copies unless a later release-mode ADR explicitly reintroduces them.
+Current Magick AI development rule: remove migrated read-only, deterministic comment helper, migrated host-governed write, and migrated host-governed destructive configs/callbacks from the main plugin. Do not keep fallback copies unless a later release-mode ADR explicitly reintroduces them.

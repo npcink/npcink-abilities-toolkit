@@ -508,6 +508,213 @@ final class Core_Destructive_Package {
 	}
 
 	/**
+	 * Bulk updates post taxonomy terms.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function bulk_update_post_terms( $input ) {
+		$input     = is_array( $input ) ? $input : array();
+		$validated = $this->validate_bulk_post_terms_input( $input );
+		if ( is_wp_error( $validated ) ) {
+			return $validated;
+		}
+
+		$taxonomy = (string) $validated['taxonomy'];
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$cap_check = $this->check_taxonomy_capability( $taxonomy, 'assign_terms' );
+		if ( is_wp_error( $cap_check ) ) {
+			return $cap_check;
+		}
+
+		$resolve_result = $this->resolve_term_ids_for_assignment(
+			$taxonomy,
+			is_array( $validated['term_ids'] ?? null ) ? $validated['term_ids'] : array(),
+			is_array( $validated['terms'] ?? null ) ? $validated['terms'] : array(),
+			! empty( $validated['create_missing'] ),
+			$this->should_dry_run( $input )
+		);
+		if ( is_wp_error( $resolve_result ) ) {
+			return $resolve_result;
+		}
+		$resolved_term_ids   = is_array( $resolve_result['term_ids'] ?? null ) ? $resolve_result['term_ids'] : array();
+		$missing_term_labels = is_array( $resolve_result['missing'] ?? null ) ? $resolve_result['missing'] : array();
+		$operation           = (string) $validated['operation'];
+		if ( empty( $resolved_term_ids ) && 'replace' !== $operation ) {
+			return new \WP_Error( 'magick_ai_abilities_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$query = new \WP_Query( $this->bulk_post_terms_query_args( $validated ) );
+		$post_ids = is_array( $query->posts ) ? $query->posts : array();
+		$matched_count = count( $post_ids );
+		$items = array();
+		$skipped = array();
+		$warnings = array();
+		$affected_count = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			$post_id = absint( $post_id );
+			if ( $post_id <= 0 ) {
+				continue;
+			}
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				$skipped[] = array(
+					'post_id' => $post_id,
+					'reason'  => __( 'Current user cannot edit this post.', 'magick-ai-abilities' ),
+				);
+				continue;
+			}
+			$current_term_ids = $this->object_term_ids( $post_id, $taxonomy );
+			if ( is_wp_error( $current_term_ids ) ) {
+				$skipped[] = array(
+					'post_id' => $post_id,
+					'reason'  => $current_term_ids->get_error_message(),
+				);
+				continue;
+			}
+			$next_term_ids = $this->compute_term_update( $current_term_ids, $resolved_term_ids, $operation );
+			$summary       = $this->post_terms_summary( $post_id, $taxonomy, $current_term_ids, $next_term_ids );
+			$summary['has_changes'] = $current_term_ids !== $next_term_ids;
+			if ( ! empty( $summary['has_changes'] ) ) {
+				$affected_count++;
+			}
+			$items[ $post_id ] = $summary;
+		}
+
+		$sample = array();
+		$sample_post_ids = array_slice( $post_ids, 0, absint( $validated['sample_limit'] ?? 20 ) );
+		foreach ( $sample_post_ids as $sample_post_id ) {
+			$sample_post_id = absint( $sample_post_id );
+			if ( isset( $items[ $sample_post_id ] ) ) {
+				$sample[] = $items[ $sample_post_id ];
+			}
+		}
+		if ( $matched_count >= absint( $validated['limit'] ?? 50 ) ) {
+			$warnings[] = sprintf(
+				/* translators: %d: query limit. */
+				__( 'Matched post count reached limit (%d); more matching posts may exist.', 'magick-ai-abilities' ),
+				absint( $validated['limit'] ?? 50 )
+			);
+		}
+		if ( empty( $resolved_term_ids ) && 'replace' === $operation ) {
+			$warnings[] = __( 'Replace operation has no valid terms; matching posts will have these terms cleared.', 'magick-ai-abilities' );
+		}
+		if ( ! empty( $missing_term_labels ) ) {
+			$warnings[] = sprintf(
+				/* translators: %s: comma-separated term labels. */
+				__( 'These terms will be created during approved commit: %s', 'magick-ai-abilities' ),
+				implode( ', ', $missing_term_labels )
+			);
+		}
+
+		$payload = array(
+			'matched_count'     => $matched_count,
+			'affected_count'    => $affected_count,
+			'sample'            => $sample,
+			'skipped'           => $skipped,
+			'warnings'          => $warnings,
+			'approval_required' => true,
+			'preview'           => array(
+				'action'              => 'bulk_update_post_terms',
+				'taxonomy'            => $taxonomy,
+				'operation'           => $operation,
+				'post_type'           => (string) $validated['post_type'],
+				'post_status'         => (string) $validated['post_status'],
+				'limit'               => absint( $validated['limit'] ?? 50 ),
+				'resolved_term_count' => count( $resolved_term_ids ),
+				'missing_terms'       => $missing_term_labels,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/bulk-update-post-terms', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		if ( ! empty( $missing_term_labels ) ) {
+			$resolve_result = $this->resolve_term_ids_for_assignment(
+				$taxonomy,
+				is_array( $validated['term_ids'] ?? null ) ? $validated['term_ids'] : array(),
+				is_array( $validated['terms'] ?? null ) ? $validated['terms'] : array(),
+				! empty( $validated['create_missing'] ),
+				false
+			);
+			if ( is_wp_error( $resolve_result ) ) {
+				return $resolve_result;
+			}
+			$resolved_term_ids = is_array( $resolve_result['term_ids'] ?? null ) ? $resolve_result['term_ids'] : array();
+			foreach ( $items as $post_id => &$summary ) {
+				$current_term_ids = is_array( $summary['before']['term_ids'] ?? null ) ? $summary['before']['term_ids'] : array();
+				$next_term_ids    = $this->compute_term_update( $current_term_ids, $resolved_term_ids, $operation );
+				$summary          = $this->post_terms_summary( absint( $post_id ), $taxonomy, $current_term_ids, $next_term_ids );
+				$summary['has_changes'] = $current_term_ids !== $next_term_ids;
+			}
+			unset( $summary );
+		}
+
+		$processed_count = 0;
+		$updated_count   = 0;
+		$skipped_count   = 0;
+		$failed_count    = 0;
+		$commit_items    = array();
+		foreach ( $items as $post_id => $summary ) {
+			$post_id = absint( $post_id );
+			$processed_count++;
+			if ( empty( $summary['has_changes'] ) ) {
+				$skipped_count++;
+				$commit_items[] = array(
+					'post_id' => $post_id,
+					'updated' => false,
+					'before'  => $summary['before'],
+					'after'   => $summary['after'],
+					'error'   => null,
+				);
+				continue;
+			}
+			$next_term_ids = is_array( $summary['after']['term_ids'] ?? null ) ? $summary['after']['term_ids'] : array();
+			$set_result    = wp_set_post_terms( $post_id, $next_term_ids, $taxonomy, false );
+			if ( is_wp_error( $set_result ) ) {
+				$failed_count++;
+				$commit_items[] = array(
+					'post_id' => $post_id,
+					'updated' => false,
+					'before'  => $summary['before'],
+					'after'   => $summary['after'],
+					'error'   => $set_result->get_error_message(),
+				);
+				continue;
+			}
+			$updated_count++;
+			$applied_term_ids = $this->object_term_ids( $post_id, $taxonomy );
+			$applied_term_ids = is_wp_error( $applied_term_ids ) ? $next_term_ids : $applied_term_ids;
+			$commit_items[] = array(
+				'post_id' => $post_id,
+				'updated' => true,
+				'before'  => $summary['before'],
+				'after'   => array(
+					'count'    => count( $applied_term_ids ),
+					'term_ids' => $applied_term_ids,
+					'terms'    => $this->collect_term_rows( $taxonomy, $applied_term_ids ),
+				),
+				'error'   => null,
+			);
+		}
+
+		return array(
+			'processed_count' => $processed_count,
+			'updated_count'   => $updated_count,
+			'skipped_count'   => $skipped_count,
+			'failed_count'    => $failed_count,
+			'items'           => $commit_items,
+			'dry_run'         => false,
+		);
+	}
+
+	/**
 	 * Marks one comment as spam.
 	 *
 	 * @param mixed $input Input args.
@@ -864,6 +1071,285 @@ final class Core_Destructive_Package {
 			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to moderate comments.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
 		}
 		return $comment;
+	}
+
+	/**
+	 * Validates and normalizes bulk post terms input.
+	 *
+	 * @param array<string,mixed> $input Raw input.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function validate_bulk_post_terms_input( array $input ) {
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'post_type only supports post and page.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$post_status = sanitize_key( (string) ( $input['post_status'] ?? 'publish' ) );
+		if ( ! in_array( $post_status, array( 'publish', 'draft', 'pending', 'future', 'any' ), true ) ) {
+			$post_status = 'publish';
+		}
+		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'post_tag' ) );
+		if ( ! in_array( $taxonomy, array( 'category', 'post_tag' ), true ) ) {
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'taxonomy only supports category and post_tag.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$operation = sanitize_key( (string) ( $input['operation'] ?? 'add' ) );
+		if ( ! in_array( $operation, array( 'add', 'replace', 'remove' ), true ) ) {
+			return new \WP_Error( 'magick_ai_abilities_operation_invalid', __( 'operation only supports add, replace, and remove.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$limit = min( 200, max( 1, absint( $input['limit'] ?? 50 ) ) );
+		$sample_limit = min( 50, max( 1, absint( $input['sample_limit'] ?? 20 ) ) );
+		$filters = is_array( $input['filters'] ?? null ) ? $input['filters'] : array();
+		$normalized_filters = array(
+			'include_term_ids' => $this->normalize_positive_ids( is_array( $filters['include_term_ids'] ?? null ) ? $filters['include_term_ids'] : array() ),
+			'exclude_term_ids' => $this->normalize_positive_ids( is_array( $filters['exclude_term_ids'] ?? null ) ? $filters['exclude_term_ids'] : array() ),
+			'search'           => sanitize_text_field( (string) ( $filters['search'] ?? '' ) ),
+			'date_after'       => sanitize_text_field( (string) ( $filters['date_after'] ?? '' ) ),
+			'date_before'      => sanitize_text_field( (string) ( $filters['date_before'] ?? '' ) ),
+		);
+		$terms = array();
+		foreach ( is_array( $input['terms'] ?? null ) ? $input['terms'] : array() as $term ) {
+			$term = sanitize_text_field( (string) $term );
+			if ( '' !== $term ) {
+				$terms[] = $term;
+			}
+		}
+		return array(
+			'post_type'      => $post_type,
+			'post_status'    => $post_status,
+			'taxonomy'       => $taxonomy,
+			'operation'      => $operation,
+			'term_ids'       => $this->normalize_positive_ids( is_array( $input['term_ids'] ?? null ) ? $input['term_ids'] : array() ),
+			'terms'          => array_values( array_unique( $terms ) ),
+			'create_missing' => ! empty( $input['create_missing'] ),
+			'filters'        => $normalized_filters,
+			'limit'          => $limit,
+			'sample_limit'   => $sample_limit,
+		);
+	}
+
+	/**
+	 * Normalizes positive integer IDs.
+	 *
+	 * @param array<mixed> $ids Raw ids.
+	 * @return array<int,int>
+	 */
+	private function normalize_positive_ids( array $ids ) {
+		return array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+	}
+
+	/**
+	 * Builds query args for bulk post terms.
+	 *
+	 * @param array<string,mixed> $input Normalized input.
+	 * @return array<string,mixed>
+	 */
+	private function bulk_post_terms_query_args( array $input ) {
+		$args = array(
+			'post_type'              => $input['post_type'],
+			'posts_per_page'         => $input['limit'],
+			'post_status'            => $input['post_status'],
+			'fields'                 => 'ids',
+			'orderby'                => 'ID',
+			'order'                  => 'ASC',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		);
+		$filters = is_array( $input['filters'] ?? null ) ? $input['filters'] : array();
+		if ( ! empty( $filters['search'] ) ) {
+			$args['s'] = $filters['search'];
+		}
+		if ( ! empty( $filters['date_after'] ) || ! empty( $filters['date_before'] ) ) {
+			$args['date_query'] = array();
+			if ( ! empty( $filters['date_after'] ) ) {
+				$args['date_query'][] = array(
+					'after'     => $filters['date_after'],
+					'inclusive' => true,
+				);
+			}
+			if ( ! empty( $filters['date_before'] ) ) {
+				$args['date_query'][] = array(
+					'before'    => $filters['date_before'],
+					'inclusive' => true,
+				);
+			}
+		}
+		if ( ! empty( $filters['include_term_ids'] ) || ! empty( $filters['exclude_term_ids'] ) ) {
+			$tax_query = array();
+			if ( ! empty( $filters['include_term_ids'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => $input['taxonomy'],
+					'field'    => 'term_id',
+					'terms'    => $filters['include_term_ids'],
+					'operator' => 'IN',
+				);
+			}
+			if ( ! empty( $filters['exclude_term_ids'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => $input['taxonomy'],
+					'field'    => 'term_id',
+					'terms'    => $filters['exclude_term_ids'],
+					'operator' => 'NOT IN',
+				);
+			}
+			if ( count( $tax_query ) > 1 ) {
+				$tax_query['relation'] = 'AND';
+			}
+			$args['tax_query'] = $tax_query;
+		}
+		return $args;
+	}
+
+	/**
+	 * Resolves term IDs from explicit IDs and labels.
+	 *
+	 * @param string       $taxonomy Taxonomy id.
+	 * @param array<mixed> $term_ids Explicit term ids.
+	 * @param array<mixed> $terms Term labels.
+	 * @param bool         $create_missing Whether missing terms can be created during commit.
+	 * @param bool         $dry_run Whether this is a dry-run.
+	 * @return array{term_ids:array<int,int>,missing:array<int,string>}|\WP_Error
+	 */
+	private function resolve_term_ids_for_assignment( $taxonomy, array $term_ids, array $terms, $create_missing, $dry_run ) {
+		$resolved = array();
+		$missing  = array();
+		foreach ( $term_ids as $term_id ) {
+			$term_id = absint( $term_id );
+			if ( $term_id <= 0 ) {
+				continue;
+			}
+			$term = get_term( $term_id, $taxonomy );
+			if ( $term && ! is_wp_error( $term ) && is_object( $term ) && ! empty( $term->term_id ) ) {
+				$resolved[] = absint( $term->term_id );
+			}
+		}
+		foreach ( $terms as $raw_term ) {
+			$term_label = sanitize_text_field( (string) $raw_term );
+			if ( '' === $term_label ) {
+				continue;
+			}
+			$term_slug = sanitize_title( $term_label );
+			$term      = get_term_by( 'slug', $term_slug, $taxonomy );
+			if ( ! is_object( $term ) || empty( $term->term_id ) ) {
+				$term = get_term_by( 'name', $term_label, $taxonomy );
+			}
+			if ( is_object( $term ) && ! empty( $term->term_id ) ) {
+				$resolved[] = absint( $term->term_id );
+				continue;
+			}
+			if ( ! $create_missing ) {
+				continue;
+			}
+			$missing[] = $term_label;
+			if ( $dry_run ) {
+				continue;
+			}
+			$cap_check = $this->check_taxonomy_capability( $taxonomy, 'manage_terms' );
+			if ( is_wp_error( $cap_check ) ) {
+				return $cap_check;
+			}
+			$created = wp_insert_term( $term_label, $taxonomy, array( 'slug' => $term_slug ) );
+			if ( is_wp_error( $created ) ) {
+				return $created;
+			}
+			$created_term_id = absint( $created['term_id'] ?? 0 );
+			if ( $created_term_id > 0 ) {
+				$resolved[] = $created_term_id;
+			}
+		}
+		return array(
+			'term_ids' => $this->normalize_positive_ids( $resolved ),
+			'missing'  => array_values( array_unique( $missing ) ),
+		);
+	}
+
+	/**
+	 * Returns object term IDs.
+	 *
+	 * @param int    $object_id Object id.
+	 * @param string $taxonomy Taxonomy id.
+	 * @return array<int,int>|\WP_Error
+	 */
+	private function object_term_ids( $object_id, $taxonomy ) {
+		$term_ids = wp_get_object_terms( absint( $object_id ), $taxonomy, array( 'fields' => 'ids' ) );
+		if ( is_wp_error( $term_ids ) ) {
+			return $term_ids;
+		}
+		return $this->normalize_positive_ids( (array) $term_ids );
+	}
+
+	/**
+	 * Computes next term IDs for a bulk operation.
+	 *
+	 * @param array<int> $current_term_ids Current term ids.
+	 * @param array<int> $resolved_term_ids Target term ids.
+	 * @param string     $operation Operation.
+	 * @return array<int,int>
+	 */
+	private function compute_term_update( array $current_term_ids, array $resolved_term_ids, $operation ) {
+		$current_term_ids  = $this->normalize_positive_ids( $current_term_ids );
+		$resolved_term_ids = $this->normalize_positive_ids( $resolved_term_ids );
+		if ( 'add' === $operation ) {
+			return array_values( array_unique( array_merge( $current_term_ids, $resolved_term_ids ) ) );
+		}
+		if ( 'remove' === $operation ) {
+			return array_values( array_diff( $current_term_ids, $resolved_term_ids ) );
+		}
+		return $resolved_term_ids;
+	}
+
+	/**
+	 * Builds per-post term summary.
+	 *
+	 * @param int        $post_id Post id.
+	 * @param string     $taxonomy Taxonomy id.
+	 * @param array<int> $current_term_ids Current term ids.
+	 * @param array<int> $next_term_ids Next term ids.
+	 * @return array<string,mixed>
+	 */
+	private function post_terms_summary( $post_id, $taxonomy, array $current_term_ids, array $next_term_ids ) {
+		return array(
+			'post_id'          => absint( $post_id ),
+			'before'           => array(
+				'count'    => count( $current_term_ids ),
+				'term_ids' => $current_term_ids,
+				'terms'    => $this->collect_term_rows( $taxonomy, $current_term_ids ),
+			),
+			'after'            => array(
+				'count'    => count( $next_term_ids ),
+				'term_ids' => $next_term_ids,
+				'terms'    => $this->collect_term_rows( $taxonomy, $next_term_ids ),
+			),
+			'added_term_ids'   => array_values( array_diff( $next_term_ids, $current_term_ids ) ),
+			'removed_term_ids' => array_values( array_diff( $current_term_ids, $next_term_ids ) ),
+		);
+	}
+
+	/**
+	 * Collects normalized term rows.
+	 *
+	 * @param string     $taxonomy Taxonomy id.
+	 * @param array<int> $term_ids Term ids.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function collect_term_rows( $taxonomy, array $term_ids ) {
+		$rows = array();
+		foreach ( $term_ids as $term_id ) {
+			$term_id = absint( $term_id );
+			if ( $term_id <= 0 ) {
+				continue;
+			}
+			$term = get_term( $term_id, $taxonomy );
+			if ( ! $term || is_wp_error( $term ) || ! is_object( $term ) || empty( $term->term_id ) ) {
+				continue;
+			}
+			$rows[] = array(
+				'term_id' => absint( $term->term_id ),
+				'slug'    => sanitize_title( (string) ( $term->slug ?? '' ) ),
+				'name'    => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+			);
+		}
+		return $rows;
 	}
 
 	/**

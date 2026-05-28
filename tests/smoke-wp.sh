@@ -28,11 +28,19 @@ run_wp() {
 			read -r -a extra_php_args <<< "$WP_CLI_PHP_ARGS"
 			php_args+=("${extra_php_args[@]}")
 		fi
-		"$WP_CLI_PHP" "${php_args[@]}" "$WP_CLI_BIN" "${wp_args[@]}" "$@"
+		if [[ ${#wp_args[@]} -gt 0 ]]; then
+			"$WP_CLI_PHP" "${php_args[@]}" "$WP_CLI_BIN" "${wp_args[@]}" "$@"
+		else
+			"$WP_CLI_PHP" "${php_args[@]}" "$WP_CLI_BIN" "$@"
+		fi
 		return
 	fi
 
-	"$WP_CLI_BIN" "${wp_args[@]}" "$@"
+	if [[ ${#wp_args[@]} -gt 0 ]]; then
+		"$WP_CLI_BIN" "${wp_args[@]}" "$@"
+	else
+		"$WP_CLI_BIN" "$@"
+	fi
 }
 
 run_wp core is-installed >/dev/null

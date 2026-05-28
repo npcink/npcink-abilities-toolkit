@@ -17,7 +17,7 @@ This project owns the WordPress Abilities API registration layer:
 - low-risk WordPress read ability packages
 - optional compatibility projection for Magick AI when Magick AI is installed
 
-It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final WordPress writes.
+It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
 
 ## Requirements
 
@@ -37,6 +37,7 @@ magick_ai_abilities_get_registered();
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Magick AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
+The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example
@@ -88,9 +89,9 @@ The page can:
 - fetch `/wp-json/wp-abilities/v1/categories`
 - enable and run a demo read-only ability: `magick-ai-abilities/site-summary`
 
-## Built-In WordPress Read Package
+## Built-In WordPress Read and Comment Packages
 
-The migrated core read package provides these read-only WordPress abilities:
+The migrated core read and deterministic comment packages provide these read-only WordPress abilities:
 
 - `magick-ai/site-info`
 - `magick-ai/list-post-types`
@@ -111,9 +112,38 @@ The migrated core read package provides these read-only WordPress abilities:
 - `magick-ai/propose-post-excerpt`
 - `magick-ai/list-users`
 - `magick-ai/list-comments`
+- `magick-ai/build-comment-moderation-suggest`
+- `magick-ai/compose-comment-moderation-result`
+- `magick-ai/build-comment-mention-reply-suggest`
+- `magick-ai/read-comment-trigger-queue`
+- `magick-ai/compose-comment-mention-reply-result`
+- `magick-ai/build-comment-moderation-batch-suggest`
+- `magick-ai/compose-comment-moderation-batch-result`
 - `magick-ai/list-menus`
 - `magick-ai/get-menu`
 - `magick-ai/search-posts`
+- `magick-ai/resolve-post-metadata-plan`
+- `magick-ai/resolve-internal-link-targets`
+- `magick-ai/build-inline-image-blocks`
+- `magick-ai/build-media-seo-assets`
+- `magick-ai/geo-analyze`
+- `magick-ai/optimize-media-metadata`
+- `magick-ai/position-inline-image-blocks`
+- `magick-ai/build-article-optimization-report`
+- `magick-ai/seo-report-context`
+- `magick-ai/read-post-optimization-context`
+- `magick-ai/build-article-single-optimization-suggest`
+- `magick-ai/build-article-optimization-apply-plan`
+- `magick-ai/compose-article-optimization-apply-result`
+- `magick-ai/extract-reference-post-style`
+- `magick-ai/extract-style-baseline`
+- `magick-ai/build-article-production-fingerprint`
+- `magick-ai/check-article-production-duplicate`
+- `magick-ai/review-article-output-light`
+- `magick-ai/compose-article-production-result`
+- `magick-ai/compose-article-draft-result`
+- `magick-ai/resolve-article-publication-decision`
+- `magick-ai/build-article-style-profile`
 - `magick-ai/get-post-stats`
 - `magick-ai/list-revisions`
 - `magick-ai/get-post-meta`
@@ -149,6 +179,12 @@ Run both:
 
 ```bash
 composer test:all
+```
+
+Check that the standalone package has not drifted into Magick AI runtime ownership:
+
+```bash
+composer check:boundary
 ```
 
 Run the WordPress smoke test from a site where the plugin is installed:

@@ -51,13 +51,42 @@ Remove these migrated read-only definitions from Magick AI:
 - `magick-ai/get-term`
 - `magick-ai/list-categories`
 - `magick-ai/list-tags`
+- `magick-ai/resolve-post-metadata-plan`
 - `magick-ai/search-posts`
+- `magick-ai/resolve-internal-link-targets`
+- `magick-ai/build-inline-image-blocks`
+- `magick-ai/build-media-seo-assets`
+- `magick-ai/geo-analyze`
+- `magick-ai/optimize-media-metadata`
+- `magick-ai/position-inline-image-blocks`
+- `magick-ai/build-article-optimization-report`
+- `magick-ai/seo-report-context`
+- `magick-ai/read-post-optimization-context`
+- `magick-ai/build-article-single-optimization-suggest`
+- `magick-ai/build-article-optimization-apply-plan`
+- `magick-ai/compose-article-optimization-apply-result`
+- `magick-ai/extract-reference-post-style`
+- `magick-ai/extract-style-baseline`
+- `magick-ai/build-article-production-fingerprint`
+- `magick-ai/check-article-production-duplicate`
+- `magick-ai/review-article-output-light`
+- `magick-ai/compose-article-production-result`
+- `magick-ai/compose-article-draft-result`
+- `magick-ai/resolve-article-publication-decision`
+- `magick-ai/build-article-style-profile`
 - `magick-ai/get-post-stats`
 - `magick-ai/list-revisions`
 - `magick-ai/get-post-meta`
 - `magick-ai/list-pages`
 - `magick-ai/get-page`
 - `magick-ai/inspect-page-structure`
+- `magick-ai/build-comment-moderation-suggest`
+- `magick-ai/compose-comment-moderation-result`
+- `magick-ai/build-comment-mention-reply-suggest`
+- `magick-ai/read-comment-trigger-queue`
+- `magick-ai/compose-comment-mention-reply-result`
+- `magick-ai/build-comment-moderation-batch-suggest`
+- `magick-ai/compose-comment-moderation-batch-result`
 
 Remove the old Magick AI callback/config files that existed only for the migrated packages:
 
@@ -66,6 +95,9 @@ Remove the old Magick AI callback/config files that existed only for the migrate
 - `includes/abilities/abilities-pages.php`
 - `includes/abilities/config-read-others.php`
 - `includes/abilities/config-pages.php`
+- `includes/abilities/config-tools/article-media/style-extraction.php`
+- `includes/abilities/config-tools/comment.php`
+- `includes/abilities/config-tools/registry/comment.php`
 
 Deleting `config-pages.php` also removes the old `magick-ai/create-page` and `magick-ai/update-page` placeholders from Magick AI. They are not migrated into `magick-ai-abilities` in this batch because they are write-like page management abilities and did not have valid Magick AI callback ownership at cleanup time. Future generic page-write support should be redesigned as proposal-only abilities before any standalone migration.
 
@@ -79,13 +111,24 @@ Do not migrate Magick AI write/destructive abilities as one unreviewed bulk move
 
 The first host-governed write migration includes:
 
+- `magick-ai/create-draft`
+- `magick-ai/update-post`
+- `magick-ai/set-post-seo-meta`
+- `magick-ai/patch-post-content`
+- `magick-ai/update-post-blocks`
 - `magick-ai/set-post-slug`
 - `magick-ai/set-post-author`
 - `magick-ai/set-post-template`
 - `magick-ai/set-post-format`
 - `magick-ai/create-term`
 - `magick-ai/update-term`
+- `magick-ai/set-post-terms`
 - `magick-ai/update-media-details`
+- `magick-ai/upload-media-from-url`
+- `magick-ai/set-post-featured-image`
+- `magick-ai/schedule-post`
+- `magick-ai/publish-post`
+- `magick-ai/restore-post`
 - `magick-ai/approve-comment`
 - `magick-ai/reply-comment`
 
@@ -93,6 +136,7 @@ The first host-governed destructive migration includes:
 
 - `magick-ai/delete-term`
 - `magick-ai/merge-terms`
+- `magick-ai/bulk-update-post-terms`
 - `magick-ai/spam-comment`
 - `magick-ai/trash-comment`
 - `magick-ai/delete-media-permanently`
@@ -120,17 +164,28 @@ For Magick AI, that host runtime is the Magick AI plugin, not `magick-ai-abiliti
 
 The Magick AI cleanup for the first host-governed write migration also removes the old local callback functions for:
 
+- `magick_ai_ability_create_draft`
+- `magick_ai_ability_update_post`
+- `magick_ai_ability_patch_post_content`
+- `magick_ai_ability_update_post_blocks`
 - `magick_ai_ability_set_post_slug`
 - `magick_ai_ability_set_post_author`
 - `magick_ai_ability_set_post_template`
 - `magick_ai_ability_set_post_format`
 - `magick_ai_ability_create_term`
 - `magick_ai_ability_update_term`
+- `magick_ai_ability_set_post_terms`
 - `magick_ai_ability_update_media_details`
+- `magick_ai_ability_upload_media_from_url`
+- `magick_ai_ability_set_post_featured_image`
+- `magick_ai_ability_schedule_post`
+- `magick_ai_ability_publish_post`
+- `magick_ai_ability_restore_post`
 - `magick_ai_ability_approve_comment`
 - `magick_ai_ability_reply_comment`
 - `magick_ai_ability_delete_term`
 - `magick_ai_ability_merge_terms`
+- `magick_ai_ability_bulk_update_post_terms`
 - `magick_ai_ability_spam_comment`
 - `magick_ai_ability_trash_comment`
 - `magick_ai_ability_delete_media_permanently`
@@ -141,6 +196,8 @@ The Magick AI cleanup for the first host-governed write migration also removes t
 
 - Magick AI's Abilities surface becomes smaller and more operations-focused.
 - `magick-ai-abilities` becomes the development home for generic WordPress ability packages.
+- After the current cleanup pass, Magick AI and `magick-ai-abilities` have no duplicate `magick-ai/*` package ability ids in their local registries.
+- The remaining Magick AI-owned abilities are runtime/model, bridge, MCP resource, workflow-semantic, or operations-diagnostics abilities; moving those would require a separate semantic/runtime extraction decision, not a continuation of this pure WordPress package migration.
 - Duplicate registration guards in Magick AI are no longer the main compatibility mechanism for migrated read-only abilities.
 - Accidental reintroduction of migrated read-only ability configs should be caught by review, smoke tests, and inventory checks rather than silently deferred.
 - Magick AI unit tests that directly require deleted ability package files should be retired or ported to `magick-ai-abilities` tests.

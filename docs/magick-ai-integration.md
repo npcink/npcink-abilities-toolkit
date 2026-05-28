@@ -46,3 +46,5 @@ Move helpers first. Move abilities later. Move final write ownership never.
 When a migrated read ability is owned by this plugin, Magick AI should not register a duplicate WordPress ability for the same id. During the current no-user development stage, Magick AI should delete fallback configs and callbacks for migrated read abilities instead of keeping hidden duplicate owners.
 
 The cleanup posture is recorded in [ADR 0002](adr/0002-standalone-owner-and-magick-ai-cleanup.md).
+
+The independent-project split rules are recorded in [magick-ai-project-split-contract.md](magick-ai-project-split-contract.md). That contract is the current source of truth for cross-project development, host-governed write/destructive behavior, duplicate registration audits, and version compatibility once Magick AI and this plugin are developed as separate projects.

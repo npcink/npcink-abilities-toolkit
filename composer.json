@@ -16,11 +16,13 @@
   },
   "scripts": {
     "validate:composer": "composer validate --no-check-publish",
+    "check:boundary": "@php scripts/check-project-boundary.php",
     "lint:php": "@php tests/lint.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
     "test": "@php tests/run.php",
     "test:all": [
       "@validate:composer",
+      "@check:boundary",
       "@test",
       "@lint:php"
     ]

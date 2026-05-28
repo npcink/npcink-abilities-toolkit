@@ -18,7 +18,7 @@ The plugin owns ability registration helpers, category helpers, schema normaliza
 
 It can be used by any WordPress plugin or client that consumes the WordPress Abilities API. Magick AI is one optional consumer, not the owner of this plugin.
 
-It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final WordPress writes.
+It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
 
 == Requirements ==
 
@@ -42,7 +42,7 @@ The page verifies Abilities API availability, fetches the authenticated REST abi
 
 == Built-In Abilities ==
 
-The plugin includes migrated low-risk WordPress read abilities using preserved `magick-ai/*` ids for compatibility.
+The plugin includes migrated low-risk WordPress read abilities, deterministic comment helpers, and host-governed WordPress write/destructive abilities using preserved `magick-ai/*` ids for compatibility.
 
 It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
 
@@ -57,4 +57,4 @@ When the plugin is installed in a local WordPress site, run:
 = 0.1.0 =
 
 * Initial standalone development release.
-* Added migrated WordPress read abilities and standalone redacted WordPress diagnostics.
+* Added migrated WordPress read abilities, deterministic comment helpers, host-governed write/destructive abilities, and standalone redacted WordPress diagnostics.

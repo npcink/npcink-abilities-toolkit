@@ -5,8 +5,12 @@
  * @package MagickAIAbilities
  */
 
-define( 'ABSPATH', __DIR__ . '/' );
-define( 'MAGICK_AI_ABILITIES_VERSION', '0.1.0-test' );
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+if ( ! defined( 'MAGICK_AI_ABILITIES_VERSION' ) ) {
+	define( 'MAGICK_AI_ABILITIES_VERSION', '0.1.0-test' );
+}
 
 if ( ! function_exists( 'sanitize_key' ) ) {
 	function sanitize_key( $key ) {
@@ -21,6 +25,44 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_textarea_field' ) ) {
+	function sanitize_textarea_field( $value ) {
+		return trim( (string) $value );
+	}
+}
+
+if ( ! function_exists( 'sanitize_title' ) ) {
+	function sanitize_title( $value ) {
+		$value = strtolower( trim( (string) $value ) );
+		$value = preg_replace( '/[^a-z0-9]+/', '-', $value );
+		return trim( (string) $value, '-' );
+	}
+}
+
+if ( ! function_exists( 'absint' ) ) {
+	function absint( $value ) {
+		return abs( (int) $value );
+	}
+}
+
+if ( ! function_exists( 'esc_url_raw' ) ) {
+	function esc_url_raw( $value ) {
+		return filter_var( (string) $value, FILTER_SANITIZE_URL );
+	}
+}
+
+if ( ! function_exists( 'esc_html' ) ) {
+	function esc_html( $value ) {
+		return htmlspecialchars( (string) $value, ENT_QUOTES, 'UTF-8' );
+	}
+}
+
+if ( ! function_exists( 'sanitize_email' ) ) {
+	function sanitize_email( $value ) {
+		return sanitize_text_field( $value );
+	}
+}
+
 if ( ! function_exists( '__' ) ) {
 	function __( $text, $domain = 'default' ) {
 		unset( $domain );
@@ -29,8 +71,297 @@ if ( ! function_exists( '__' ) ) {
 }
 
 if ( ! function_exists( 'current_user_can' ) ) {
-	function current_user_can( $capability ) {
+	function current_user_can( $capability, ...$args ) {
+		unset( $args );
 		return 'do_not_allow' !== $capability;
+	}
+}
+
+if ( ! function_exists( 'apply_filters' ) ) {
+	function apply_filters( $hook_name, $value, ...$args ) {
+		$filters = isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) && is_array( $GLOBALS['maa_unit_filters'][ $hook_name ] )
+			? $GLOBALS['maa_unit_filters'][ $hook_name ]
+			: array();
+		foreach ( $filters as $callback ) {
+			if ( is_callable( $callback ) ) {
+				$value = $callback( $value, ...$args );
+			}
+		}
+		return $value;
+	}
+}
+
+if ( ! function_exists( 'get_post' ) ) {
+	function get_post( $post_id ) {
+		if ( is_object( $post_id ) ) {
+			return $post_id;
+		}
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
+			? $GLOBALS['maa_unit_style_posts']
+			: array();
+		$post_id = (int) $post_id;
+		return $posts[ $post_id ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'post_type_exists' ) ) {
+	function post_type_exists( $post_type ) {
+		return in_array( (string) $post_type, array( 'post', 'page' ), true );
+	}
+}
+
+if ( ! function_exists( 'get_post_type_object' ) ) {
+	function get_post_type_object( $post_type ) {
+		if ( ! post_type_exists( $post_type ) ) {
+			return null;
+		}
+		return (object) array(
+			'name' => (string) $post_type,
+			'cap'  => (object) array(
+				'create_posts' => 'edit_posts',
+			),
+		);
+	}
+}
+
+if ( ! function_exists( 'wp_insert_post' ) ) {
+	function wp_insert_post( $postarr, $wp_error = false ) {
+		unset( $wp_error );
+		if ( ! isset( $GLOBALS['maa_unit_style_posts'] ) || ! is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
+			$GLOBALS['maa_unit_style_posts'] = array();
+		}
+		$post_id = isset( $postarr['ID'] ) ? (int) $postarr['ID'] : count( $GLOBALS['maa_unit_style_posts'] ) + 1000;
+		$GLOBALS['maa_unit_style_posts'][ $post_id ] = (object) array(
+			'ID'           => $post_id,
+			'post_type'    => (string) ( $postarr['post_type'] ?? 'post' ),
+			'post_status'  => (string) ( $postarr['post_status'] ?? 'draft' ),
+			'post_title'   => (string) ( $postarr['post_title'] ?? '' ),
+			'post_content' => (string) ( $postarr['post_content'] ?? '' ),
+			'post_excerpt' => (string) ( $postarr['post_excerpt'] ?? '' ),
+			'post_author'  => (int) ( $postarr['post_author'] ?? 7 ),
+			'post_name'    => (string) ( $postarr['post_name'] ?? '' ),
+			'post_parent'  => (int) ( $postarr['post_parent'] ?? 0 ),
+		);
+		return $post_id;
+	}
+}
+
+if ( ! function_exists( 'wp_update_post' ) ) {
+	function wp_update_post( $postarr, $wp_error = false ) {
+		unset( $wp_error );
+		$post_id = (int) ( $postarr['ID'] ?? 0 );
+		if ( $post_id <= 0 || ! isset( $GLOBALS['maa_unit_style_posts'][ $post_id ] ) ) {
+			return new WP_Error( 'not_found', 'Post not found.' );
+		}
+		foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_author' ) as $field ) {
+			if ( array_key_exists( $field, $postarr ) ) {
+				$GLOBALS['maa_unit_style_posts'][ $post_id ]->{$field} = $postarr[ $field ];
+			}
+		}
+		return $post_id;
+	}
+}
+
+if ( ! function_exists( 'update_post_meta' ) ) {
+	function update_post_meta( $post_id, $meta_key, $meta_value ) {
+		if ( ! isset( $GLOBALS['maa_unit_post_meta'] ) || ! is_array( $GLOBALS['maa_unit_post_meta'] ) ) {
+			$GLOBALS['maa_unit_post_meta'] = array();
+		}
+		$GLOBALS['maa_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] = $meta_value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'get_post_meta' ) ) {
+	function get_post_meta( $post_id, $meta_key, $single = false ) {
+		unset( $single );
+		return $GLOBALS['maa_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] ?? '';
+	}
+}
+
+if ( ! function_exists( 'get_post_status' ) ) {
+	function get_post_status( $post_id ) {
+		$post = get_post( (int) $post_id );
+		return is_object( $post ) ? (string) ( $post->post_status ?? '' ) : '';
+	}
+}
+
+if ( ! function_exists( 'get_edit_post_link' ) ) {
+	function get_edit_post_link( $post_id, $context = 'display' ) {
+		unset( $context );
+		return 'https://example.test/wp-admin/post.php?post=' . (int) $post_id . '&action=edit';
+	}
+}
+
+if ( ! function_exists( 'get_preview_post_link' ) ) {
+	function get_preview_post_link( $post_id ) {
+		return 'https://example.test/?p=' . (int) $post_id . '&preview=true';
+	}
+}
+
+if ( ! function_exists( 'wp_kses_post' ) ) {
+	function wp_kses_post( $content ) {
+		return (string) $content;
+	}
+}
+
+if ( ! function_exists( 'wp_strip_all_tags' ) ) {
+	function wp_strip_all_tags( $content ) {
+		return strip_tags( (string) $content );
+	}
+}
+
+if ( ! function_exists( 'wpautop' ) ) {
+	function wpautop( $content ) {
+		$paragraphs = preg_split( "/\n\s*\n/", str_replace( array( "\r\n", "\r" ), "\n", trim( (string) $content ) ) );
+		$paragraphs = is_array( $paragraphs ) ? $paragraphs : array();
+		return implode(
+			"\n\n",
+			array_map(
+				static function ( $paragraph ) {
+					return '<p>' . nl2br( trim( (string) $paragraph ) ) . '</p>';
+				},
+				array_filter(
+					$paragraphs,
+					static function ( $paragraph ) {
+						return '' !== trim( (string) $paragraph );
+					}
+				)
+			)
+		);
+	}
+}
+
+if ( ! function_exists( 'parse_blocks' ) ) {
+	function parse_blocks( $content ) {
+		preg_match_all( '/<!-- wp:([a-z0-9_\/-]+)(?:\\s+\\{.*?\\})? -->/i', (string) $content, $matches );
+		$blocks = array();
+		foreach ( $matches[1] ?? array() as $block_name ) {
+			$blocks[] = array(
+				'blockName'   => 0 === strpos( $block_name, 'core/' ) ? $block_name : 'core/' . $block_name,
+				'attrs'       => array(),
+				'innerHTML'   => '',
+				'innerBlocks' => array(),
+			);
+		}
+		return $blocks;
+	}
+}
+
+if ( ! function_exists( 'wp_json_encode' ) ) {
+	function wp_json_encode( $data, $flags = 0, $depth = 512 ) {
+		return json_encode( $data, $flags, $depth );
+	}
+}
+
+if ( ! function_exists( 'get_posts' ) ) {
+	function get_posts( $args = array() ) {
+		$args = is_array( $args ) ? $args : array();
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
+			? array_values( $GLOBALS['maa_unit_style_posts'] )
+			: array();
+		if ( isset( $args['author'] ) ) {
+			$author_id = (int) $args['author'];
+			$posts = array_values(
+				array_filter(
+					$posts,
+					static function ( $post ) use ( $author_id ) {
+						return is_object( $post ) && (int) ( $post->post_author ?? 0 ) === $author_id;
+					}
+				)
+			);
+		}
+		$limit = isset( $args['posts_per_page'] ) ? max( 1, (int) $args['posts_per_page'] ) : count( $posts );
+		return array_slice( $posts, 0, $limit );
+	}
+}
+
+if ( ! function_exists( 'get_the_title' ) ) {
+	function get_the_title( $post = 0 ) {
+		if ( is_object( $post ) ) {
+			return (string) ( $post->post_title ?? '' );
+		}
+		$post = get_post( (int) $post );
+		return is_object( $post ) ? (string) ( $post->post_title ?? '' ) : '';
+	}
+}
+
+if ( ! function_exists( 'get_comment' ) ) {
+	function get_comment( $comment_id ) {
+		$comments = isset( $GLOBALS['maa_unit_comments'] ) && is_array( $GLOBALS['maa_unit_comments'] )
+			? $GLOBALS['maa_unit_comments']
+			: array();
+		$comment_id = (int) $comment_id;
+		return $comments[ $comment_id ] ?? null;
+	}
+}
+
+if ( ! function_exists( 'get_comments' ) ) {
+	function get_comments( $args = array() ) {
+		$args = is_array( $args ) ? $args : array();
+		$comments = isset( $GLOBALS['maa_unit_comments'] ) && is_array( $GLOBALS['maa_unit_comments'] )
+			? array_values( $GLOBALS['maa_unit_comments'] )
+			: array();
+		if ( isset( $args['post_id'] ) ) {
+			$post_id = (int) $args['post_id'];
+			$comments = array_values(
+				array_filter(
+					$comments,
+					static function ( $comment ) use ( $post_id ) {
+						return is_object( $comment ) && (int) ( $comment->comment_post_ID ?? 0 ) === $post_id;
+					}
+				)
+			);
+		}
+		if ( isset( $args['status'] ) && 'all' !== $args['status'] ) {
+			$status = (string) $args['status'];
+			$comments = array_values(
+				array_filter(
+					$comments,
+					static function ( $comment ) use ( $status ) {
+						return is_object( $comment ) && (string) ( $comment->comment_approved ?? '' ) === $status;
+					}
+				)
+			);
+		}
+		$offset = isset( $args['offset'] ) ? max( 0, (int) $args['offset'] ) : 0;
+		$number = isset( $args['number'] ) ? max( 1, (int) $args['number'] ) : count( $comments );
+		return array_slice( $comments, $offset, $number );
+	}
+}
+
+if ( ! function_exists( 'get_current_user_id' ) ) {
+	function get_current_user_id() {
+		return 7;
+	}
+}
+
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( $name, $default = false ) {
+		$options = isset( $GLOBALS['maa_unit_options'] ) && is_array( $GLOBALS['maa_unit_options'] )
+			? $GLOBALS['maa_unit_options']
+			: array();
+		return array_key_exists( $name, $options ) ? $options[ $name ] : $default;
+	}
+}
+
+if ( ! function_exists( 'get_transient' ) ) {
+	function get_transient( $name ) {
+		$transients = isset( $GLOBALS['maa_unit_transients'] ) && is_array( $GLOBALS['maa_unit_transients'] )
+			? $GLOBALS['maa_unit_transients']
+			: array();
+		return array_key_exists( $name, $transients ) ? $transients[ $name ] : false;
+	}
+}
+
+if ( ! function_exists( 'set_transient' ) ) {
+	function set_transient( $name, $value, $expiration = 0 ) {
+		unset( $expiration );
+		if ( ! isset( $GLOBALS['maa_unit_transients'] ) || ! is_array( $GLOBALS['maa_unit_transients'] ) ) {
+			$GLOBALS['maa_unit_transients'] = array();
+		}
+		$GLOBALS['maa_unit_transients'][ $name ] = $value;
+		return true;
 	}
 }
 
@@ -45,6 +376,16 @@ if ( ! class_exists( 'WP_Error' ) ) {
 			$this->message = $message;
 			$this->data    = $data;
 		}
+
+		public function get_error_message() {
+			return $this->message;
+		}
+	}
+}
+
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $value ) {
+		return $value instanceof WP_Error;
 	}
 }
 
@@ -58,3 +399,4 @@ require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.p
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Destructive_Package.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Core_Comment_Package.php';

@@ -9,6 +9,7 @@ namespace Magick_AI_Abilities;
 
 use Magick_AI_Abilities\Admin\Test_Page;
 use Magick_AI_Abilities\Integration\Magick_Catalog_Bridge;
+use Magick_AI_Abilities\Packages\Core_Comment_Package;
 use Magick_AI_Abilities\Packages\Core_Destructive_Package;
 use Magick_AI_Abilities\Packages\Core_Read_Package;
 use Magick_AI_Abilities\Packages\Core_Write_Package;
@@ -76,6 +77,13 @@ final class Plugin {
 	private $core_destructive_package;
 
 	/**
+	 * Core WordPress comment helper package.
+	 *
+	 * @var Core_Comment_Package
+	 */
+	private $core_comment_package;
+
+	/**
 	 * Admin test page.
 	 *
 	 * @var Test_Page
@@ -115,6 +123,7 @@ final class Plugin {
 		$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
 		$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
 		$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
+		$this->core_comment_package = new Core_Comment_Package( $this->categories, $this->abilities );
 		$this->test_page      = new Test_Page( $this->abilities );
 	}
 
@@ -134,6 +143,7 @@ final class Plugin {
 		$this->core_read_package->boot();
 		$this->core_write_package->boot();
 		$this->core_destructive_package->boot();
+		$this->core_comment_package->boot();
 		$this->catalog_bridge->boot();
 		$this->test_page->boot();
 	}

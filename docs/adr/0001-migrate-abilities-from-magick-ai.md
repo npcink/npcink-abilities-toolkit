@@ -33,7 +33,7 @@ The Magick AI plugin owns:
 - Agent Gateway and Open API routes.
 - Scope, quota, audit, telemetry, and observability enforcement.
 - Model routing and workflow/skill runtime.
-- Two-phase confirmation and final WordPress writes.
+- Two-phase confirmation, final write approval/governance, and Magick AI runtime context.
 - Operations/admin management surfaces.
 
 ## First Migration Batch
@@ -53,7 +53,7 @@ These abilities live in `Magick_AI_Abilities\Packages\Core_Read_Package`.
 - `project_to_magick_catalog` remains false by default for third-party provider abilities.
 - Migrated official `magick-ai/*` read abilities may explicitly project into the Magick AI catalog through the compatibility bridge after Magick AI deletes its fallback definitions.
 - Built-in package abilities should not become Agent Gateway, quota, audit, or model runtime owners.
-- The Magick AI plugin may retain fallback definitions during the transition for sites that have not installed this plugin.
+- The Magick AI plugin may retain fallback definitions only when a release-mode compatibility ADR explicitly allows it. ADR 0002 supersedes this for the current no-user development stage and removes migrated fallback definitions by default.
 - Duplicate WordPress ability registration must be avoided through `wp_has_ability()` checks.
 
 ## Consequences

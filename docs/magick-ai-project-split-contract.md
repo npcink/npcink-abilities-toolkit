@@ -1,0 +1,80 @@
+# Magick AI Project Split Contract
+
+Status: active
+Version: magick-ai-project-split-v1
+
+This document defines how `magick-ai-abilities` is developed after it is split from the Magick AI plugin.
+
+## Project Role
+
+`magick-ai-abilities` is an independent WordPress Abilities API package plugin. It owns reusable WordPress ability definitions that can be consumed by Magick AI, other plugins, or direct Abilities API clients.
+
+Magick AI is an optional consumer. This plugin must remain installable, testable, and useful without Magick AI.
+
+## Owned Here
+
+- WordPress Abilities API categories and ability definitions.
+- Input and output schemas for reusable WordPress abilities.
+- WordPress-only read callbacks.
+- Host-governed WordPress write and destructive callbacks.
+- Dry-run previews for write and destructive abilities.
+- Compatibility projection into Magick AI only through optional filters.
+- Local admin test page and smoke tests for this plugin.
+
+## Not Owned Here
+
+- Magick AI model routing, provider selection, vector runtime, or semantic runtime.
+- Agent Gateway, Open API, MCP governance, quota, audit, approval storage, or app-key authentication.
+- Magick AI workflow orchestration and operations dashboards.
+- Final commit authorization for host-governed writes.
+- Magick AI site diagnostics that include runtime, MCP, filesystem, database, REST probe, or operations state.
+
+## Integration Protocol
+
+Magick AI or another host should consume this plugin through WordPress Abilities API discovery and execution:
+
+- discover abilities through WordPress Abilities API or `wp_get_ability()`;
+- call the registered WordPress ability id instead of requiring internal package files;
+- keep admission, caller identity, quota, audit, approval, and commit authorization in the host runtime;
+- install this plugin when migrated generic WordPress ability ids are required.
+
+The optional Magick AI compatibility bridge may project opted-in abilities into the Magick AI catalog. Projection is metadata only. It must not introduce a second runtime, second approval system, or direct dependency on Magick AI internals.
+
+## Write And Destructive Rule
+
+Write and destructive abilities may live here only when they are generic WordPress operations.
+
+Direct clients receive dry-run previews by default. A real commit requires host approval context. For Magick AI, that context comes from the Magick AI plugin. For other hosts, the host must provide an equivalent authorization envelope.
+
+## Duplicate Registration Rule
+
+When an ability id has moved to `magick-ai-abilities`, Magick AI must not keep a duplicate local config row or duplicate callback implementation for that id.
+
+During local cross-repo development, Magick AI should run its duplicate-id audit against this project. This plugin's own CI must not require the Magick AI repository to be present.
+
+## Dependency Rule
+
+Production package code in this plugin must not require files from the Magick AI repository and must not call Magick AI runtime execution functions.
+
+Allowed integration is limited to optional WordPress hooks and filters, for example the catalog projection filter implemented by the compatibility bridge.
+
+## Version Compatibility
+
+- `magick-ai-abilities` keeps SemVer-style public API discipline for registration helpers and built-in ability ids.
+- Magick AI should document the minimum recommended `magick-ai-abilities` version in its own integration contract.
+- If a future release needs Magick AI fallback definitions, that must be recorded in a new ADR before fallback code is reintroduced.
+
+## Required Checks
+
+For this project:
+
+- `composer test:all`
+- `composer smoke:wp` in a WordPress site where the plugin is installed
+- `composer check:boundary`
+
+For Magick AI:
+
+- main PHP contract tests
+- duplicate ability id audit
+- Agent Gateway projection tests
+- externalized ability contract tests

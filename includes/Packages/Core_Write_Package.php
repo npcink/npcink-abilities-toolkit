@@ -74,6 +74,214 @@ final class Core_Write_Package {
 		$text    = array( 'type' => 'string' );
 
 		return array(
+			'magick-ai/create-draft'       => array(
+				'label'           => __( 'Create Draft', 'magick-ai-abilities' ),
+				'description'     => __( 'Creates a draft post or page after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_type'          => array( 'type' => 'string', 'default' => 'post' ),
+						'status'             => array(
+							'type'    => 'string',
+							'enum'    => array( 'draft' ),
+							'default' => 'draft',
+						),
+						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
+						'content'            => $text,
+						'content_format'     => array(
+							'type' => 'string',
+							'enum' => array( 'html', 'markdown', 'plain' ),
+						),
+						'excerpt'            => $text,
+						'soft_block_reason'  => $text,
+						'soft_block_summary' => $text,
+						'meta'               => array(
+							'type'                 => 'object',
+							'additionalProperties' => array(
+								'type' => array( 'string', 'number', 'integer', 'boolean' ),
+							),
+						),
+					),
+					array( 'title' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'        => array( 'type' => 'integer' ),
+						'status'         => array( 'type' => 'string' ),
+						'content_format' => array( 'type' => 'string' ),
+						'edit_link'      => array( 'type' => 'string' ),
+						'preview_link'   => array( 'type' => 'string' ),
+						'dry_run'        => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'status', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'create_draft' ),
+			),
+			'magick-ai/update-post'        => array(
+				'label'           => __( 'Update Post', 'magick-ai-abilities' ),
+				'description'     => __( 'Updates a post title, content, or excerpt after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'        => $post_id,
+						'title'          => $text,
+						'content'        => $text,
+						'content_format' => array(
+							'type' => 'string',
+							'enum' => array( 'html', 'markdown', 'plain' ),
+						),
+						'excerpt'        => $text,
+					),
+					array( 'post_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'   => array( 'type' => 'integer' ),
+						'updated'   => array( 'type' => 'boolean' ),
+						'status'    => array( 'type' => 'string' ),
+						'edit_link' => array( 'type' => 'string' ),
+						'changes'   => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'   => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'updated', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'update_post' ),
+			),
+			'magick-ai/set-post-seo-meta'  => array(
+				'label'           => __( 'Set Post SEO Meta', 'magick-ai-abilities' ),
+				'description'     => __( 'Updates SEO title and description metadata for one post after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'         => $post_id,
+						'seo_title'       => $text,
+						'seo_description' => $text,
+					),
+					array( 'post_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'   => array( 'type' => 'integer' ),
+						'updated'   => array( 'type' => 'boolean' ),
+						'status'    => array( 'type' => 'string' ),
+						'provider'  => array( 'type' => 'string' ),
+						'changes'   => array( 'type' => 'object', 'additionalProperties' => true ),
+						'current'   => array( 'type' => 'object', 'additionalProperties' => true ),
+						'preview'   => array( 'type' => 'object', 'additionalProperties' => true ),
+						'edit_link' => array( 'type' => 'string' ),
+						'dry_run'   => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'updated', 'status', 'provider', 'changes', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'set_post_seo_meta' ),
+			),
+			'magick-ai/patch-post-content' => array(
+				'label'           => __( 'Patch Post Content', 'magick-ai-abilities' ),
+				'description'     => __( 'Applies text patch operations to saved post content after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'    => $post_id,
+						'operations' => array(
+							'type'     => 'array',
+							'minItems' => 1,
+							'items'    => array(
+								'type'                 => 'object',
+								'properties'           => array(
+									'op'             => array(
+										'type' => 'string',
+										'enum' => array( 'replace', 'delete', 'insert_before', 'insert_after' ),
+									),
+									'find'           => array( 'type' => 'string', 'minLength' => 1 ),
+									'replace'        => $text,
+									'limit'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 1 ),
+									'case_sensitive' => array( 'type' => 'boolean', 'default' => true ),
+								),
+								'required'             => array( 'op', 'find' ),
+								'additionalProperties' => false,
+							),
+						),
+					),
+					array( 'post_id', 'operations' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'               => array( 'type' => 'integer' ),
+						'updated'               => array( 'type' => 'boolean' ),
+						'status'                => array( 'type' => 'string' ),
+						'edit_link'             => array( 'type' => 'string' ),
+						'content_length_before' => array( 'type' => 'integer' ),
+						'content_length_after'  => array( 'type' => 'integer' ),
+						'impact_ranges'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+						'patch_preview'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+						'diff_preview'          => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'               => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'updated', 'content_length_before', 'content_length_after', 'impact_ranges', 'patch_preview', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'patch_post_content' ),
+			),
+			'magick-ai/update-post-blocks' => array(
+				'label'           => __( 'Update Post Blocks', 'magick-ai-abilities' ),
+				'description'     => __( 'Writes Gutenberg blocks into post content after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'            => $post_id,
+						'mode'               => array(
+							'type'    => 'string',
+							'enum'    => array( 'replace', 'append' ),
+							'default' => 'replace',
+						),
+						'validate_roundtrip' => array( 'type' => 'boolean', 'default' => true ),
+						'blocks'             => array(
+							'type'     => 'array',
+							'minItems' => 1,
+							'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						),
+					),
+					array( 'post_id', 'blocks' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'               => array( 'type' => 'integer' ),
+						'updated'               => array( 'type' => 'boolean' ),
+						'status'                => array( 'type' => 'string' ),
+						'mode'                  => array( 'type' => 'string' ),
+						'edit_link'             => array( 'type' => 'string' ),
+						'block_count_before'    => array( 'type' => 'integer' ),
+						'block_count_after'     => array( 'type' => 'integer' ),
+						'content_length_before' => array( 'type' => 'integer' ),
+						'content_length_after'  => array( 'type' => 'integer' ),
+						'validation'            => array( 'type' => 'object', 'additionalProperties' => true ),
+						'impact_ranges'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+						'diff_preview'          => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'               => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'updated', 'mode', 'block_count_before', 'block_count_after', 'validation', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'update_post_blocks' ),
+			),
 			'magick-ai/set-post-slug'      => array(
 				'label'           => __( 'Set Post Slug', 'magick-ai-abilities' ),
 				'description'     => __( 'Updates a post slug after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
@@ -349,6 +557,156 @@ final class Core_Write_Package {
 				),
 				'execute_callback' => array( $this, 'update_media_details' ),
 			),
+			'magick-ai/upload-media-from-url' => array(
+				'label'           => __( 'Upload Media From URL', 'magick-ai-abilities' ),
+				'description'     => __( 'Downloads one remote media asset into the WordPress media library after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'upload_files',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'url'               => array( 'type' => 'string', 'format' => 'uri', 'minLength' => 1 ),
+						'title'             => $text,
+						'alt'               => $text,
+						'caption'           => $text,
+						'description'       => $text,
+						'attach_to_post_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+					),
+					array( 'url' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'attachment_id'     => array( 'type' => 'integer' ),
+						'url'               => array( 'type' => 'string' ),
+						'sizes'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'attach_to_post_id' => array( 'type' => 'integer' ),
+						'edit_link'         => array( 'type' => 'string' ),
+						'dry_run'           => array( 'type' => 'boolean' ),
+					),
+					array( 'attachment_id', 'url', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'upload_media_from_url' ),
+			),
+			'magick-ai/set-post-featured-image' => array(
+				'label'           => __( 'Set Post Featured Image', 'magick-ai-abilities' ),
+				'description'     => __( 'Sets a post featured image from an attachment ID or approved remote media URL, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'       => $post_id,
+						'attachment_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+						'media_url'     => array( 'type' => 'string', 'format' => 'uri' ),
+						'media_title'   => $text,
+					),
+					array( 'post_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'            => array( 'type' => 'integer' ),
+						'attachment_id'      => array( 'type' => 'integer' ),
+						'featured_image_url' => array( 'type' => 'string' ),
+						'updated'            => array( 'type' => 'boolean' ),
+						'source'             => array( 'type' => 'string' ),
+						'edit_link'          => array( 'type' => 'string' ),
+						'dry_run'            => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'attachment_id', 'updated', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'set_post_featured_image' ),
+			),
+			'magick-ai/schedule-post' => array(
+				'label'           => __( 'Schedule Post', 'magick-ai-abilities' ),
+				'description'     => __( 'Schedules a post for future publication after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'publish_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'    => $post_id,
+						'publish_at' => array( 'type' => 'string', 'minLength' => 1 ),
+						'timezone'   => array(
+							'type'    => 'string',
+							'enum'    => array( 'site', 'utc' ),
+							'default' => 'site',
+						),
+					),
+					array( 'post_id', 'publish_at' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'        => array( 'type' => 'integer' ),
+						'scheduled'      => array( 'type' => 'boolean' ),
+						'status'         => array( 'type' => 'string' ),
+						'publish_at'     => array( 'type' => 'string' ),
+						'publish_at_gmt' => array( 'type' => 'string' ),
+						'edit_link'      => array( 'type' => 'string' ),
+						'dry_run'        => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'scheduled', 'status', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'schedule_post' ),
+			),
+			'magick-ai/publish-post' => array(
+				'label'           => __( 'Publish Post', 'magick-ai-abilities' ),
+				'description'     => __( 'Publishes a draft or pending post after host approval. Only treat the post as publicly accessible after this succeeds.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'publish_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id' => $post_id,
+					),
+					array( 'post_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'   => array( 'type' => 'integer' ),
+						'published' => array( 'type' => 'boolean' ),
+						'status'    => array( 'type' => 'string' ),
+						'edit_link' => array( 'type' => 'string' ),
+						'permalink' => array( 'type' => 'string' ),
+						'dry_run'   => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'published', 'status', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'publish_post' ),
+			),
+			'magick-ai/restore-post' => array(
+				'label'           => __( 'Restore Post', 'magick-ai-abilities' ),
+				'description'     => __( 'Restores a trashed post or page after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id' => $post_id,
+					),
+					array( 'post_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'  => array( 'type' => 'integer' ),
+						'restored' => array( 'type' => 'boolean' ),
+						'status'   => array( 'type' => 'string' ),
+						'edit_link' => array( 'type' => 'string' ),
+						'dry_run'  => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'restored', 'status', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'restore_post' ),
+			),
 			'magick-ai/approve-comment'      => array(
 				'label'           => __( 'Approve Comment', 'magick-ai-abilities' ),
 				'description'     => __( 'Approves one comment after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
@@ -410,6 +768,419 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'reply_comment' ),
 			),
 		);
+	}
+
+	/**
+	 * Creates one draft post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function create_draft( $input ) {
+		$input     = is_array( $input ) ? $input : array();
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		if ( '' === $post_type || ! post_type_exists( $post_type ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! $post_type_object || empty( $post_type_object->cap->create_posts ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not support creation.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$create_capability = sanitize_key( (string) $post_type_object->cap->create_posts );
+		if ( '' !== $create_capability && ! current_user_can( $create_capability ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to create this post type.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
+		if ( '' === $title ) {
+			return new \WP_Error( 'magick_ai_abilities_title_required', __( 'Title is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$content_payload    = $this->normalize_content_input( $input, 'content', $title );
+		$content            = (string) ( $content_payload['content'] ?? '' );
+		$excerpt            = array_key_exists( 'excerpt', $input ) ? sanitize_textarea_field( (string) $input['excerpt'] ) : '';
+		$soft_block_reason  = sanitize_key( (string) ( $input['soft_block_reason'] ?? '' ) );
+		$soft_block_summary = sanitize_textarea_field( (string) ( $input['soft_block_summary'] ?? '' ) );
+
+		$payload = array(
+			'post_id'        => 0,
+			'status'         => 'dry_run',
+			'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			'edit_link'      => '',
+			'preview_link'   => '',
+			'preview'        => array(
+				'action'             => ( $this->should_dry_run( $input ) && '' !== $soft_block_reason ) ? 'create_draft_soft_blocked' : 'create_draft',
+				'post_type'          => $post_type,
+				'title'              => $title,
+				'content_format'     => (string) ( $content_payload['content_format'] ?? 'html' ),
+				'content_length'     => strlen( $content ),
+				'excerpt_length'     => strlen( $excerpt ),
+				'soft_block_reason'  => $soft_block_reason,
+				'soft_block_summary' => $soft_block_summary,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/create-draft', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => $post_type,
+				'post_status'  => 'draft',
+				'post_title'   => $title,
+				'post_content' => $content,
+				'post_excerpt' => $excerpt,
+			),
+			true
+		);
+		if ( is_wp_error( $post_id ) ) {
+			return $post_id;
+		}
+		$post_id = absint( $post_id );
+
+		$meta = is_array( $input['meta'] ?? null ) ? $input['meta'] : array();
+		foreach ( $meta as $meta_key => $meta_value ) {
+			$meta_key = sanitize_key( (string) $meta_key );
+			if ( '' === $meta_key || is_array( $meta_value ) || is_object( $meta_value ) ) {
+				continue;
+			}
+			update_post_meta( $post_id, $meta_key, sanitize_text_field( (string) $meta_value ) );
+		}
+
+		return array(
+			'post_id'        => $post_id,
+			'status'         => $this->post_status( $post_id ),
+			'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			'edit_link'      => $this->edit_link( $post_id ),
+			'preview_link'   => function_exists( 'get_preview_post_link' ) ? (string) get_preview_post_link( $post_id ) : '',
+			'dry_run'        => false,
+		);
+	}
+
+	/**
+	 * Updates title/content/excerpt on one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function update_post( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$changes = array();
+		$update  = array( 'ID' => $post_id );
+		if ( array_key_exists( 'title', $input ) ) {
+			$new_title            = sanitize_text_field( (string) $input['title'] );
+			$update['post_title'] = $new_title;
+			$changes['title']     = array(
+				'before' => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+				'after'  => $new_title,
+			);
+		}
+		if ( array_key_exists( 'content', $input ) ) {
+			$title_for_content      = array_key_exists( 'title', $input ) ? sanitize_text_field( (string) $input['title'] ) : (string) ( $post->post_title ?? '' );
+			$content_payload        = $this->normalize_content_input( $input, 'content', $title_for_content );
+			$new_content            = (string) ( $content_payload['content'] ?? '' );
+			$update['post_content'] = $new_content;
+			$changes['content']     = array(
+				'before'         => (string) ( $post->post_content ?? '' ),
+				'after'          => $new_content,
+				'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			);
+		}
+		if ( array_key_exists( 'excerpt', $input ) ) {
+			$new_excerpt            = sanitize_textarea_field( (string) $input['excerpt'] );
+			$update['post_excerpt'] = $new_excerpt;
+			$changes['excerpt']     = array(
+				'before' => sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) ),
+				'after'  => $new_excerpt,
+			);
+		}
+		if ( empty( $changes ) ) {
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$payload = array(
+			'post_id'   => $post_id,
+			'updated'   => false,
+			'status'    => 'dry_run',
+			'edit_link' => $this->edit_link( $post_id ),
+			'changes'   => $changes,
+			'preview'   => array(
+				'action'         => 'update_post',
+				'target_status'  => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'changed_fields' => array_keys( $changes ),
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/update-post', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$result = wp_update_post( $update, true );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$payload['updated'] = true;
+		$payload['status']  = $this->post_status( $post_id );
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
+	 * Updates SEO title and description metadata on one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function set_post_seo_meta( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$current          = $this->read_post_seo_meta( $post_id );
+		$next_title       = sanitize_text_field( (string) ( $input['seo_title'] ?? '' ) );
+		$next_description = sanitize_textarea_field( (string) ( $input['seo_description'] ?? '' ) );
+		$changes          = array(
+			'seo_title'       => $next_title,
+			'seo_description' => $next_description,
+		);
+		$payload          = array(
+			'post_id'   => $post_id,
+			'updated'   => false,
+			'status'    => 'dry_run',
+			'provider'  => sanitize_key( (string) ( $current['provider'] ?? 'seo_adapter' ) ),
+			'changes'   => $changes,
+			'current'   => array(
+				'title'       => sanitize_text_field( (string) ( $current['title'] ?? '' ) ),
+				'description' => sanitize_textarea_field( (string) ( $current['description'] ?? '' ) ),
+			),
+			'preview'   => array(
+				'action'         => 'seo_meta_write',
+				'changed_fields' => array( 'seo_title', 'seo_description' ),
+			),
+			'edit_link' => $this->edit_link( $post_id ),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/set-post-seo-meta', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$written = $this->write_post_seo_meta(
+			$post_id,
+			array(
+				'title'       => $next_title,
+				'description' => $next_description,
+			)
+		);
+		if ( is_wp_error( $written ) ) {
+			return $written;
+		}
+		$written = is_array( $written ) ? $written : array();
+
+		return array(
+			'post_id'   => $post_id,
+			'updated'   => true,
+			'status'    => $this->post_status( $post_id ),
+			'provider'  => sanitize_key( (string) ( $written['provider'] ?? $current['provider'] ?? 'seo_adapter' ) ),
+			'changes'   => array(
+				'seo_title'       => sanitize_text_field( (string) ( $written['title'] ?? $next_title ) ),
+				'seo_description' => sanitize_textarea_field( (string) ( $written['description'] ?? $next_description ) ),
+			),
+			'edit_link' => $this->edit_link( $post_id ),
+			'dry_run'   => false,
+		);
+	}
+
+	/**
+	 * Applies patch operations to one post's stored content.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function patch_post_content( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$before_content = (string) ( $post->post_content ?? '' );
+		$patch_result   = $this->apply_patch_operations( $before_content, is_array( $input['operations'] ?? null ) ? $input['operations'] : array() );
+		if ( is_wp_error( $patch_result ) ) {
+			return $patch_result;
+		}
+
+		$after_content = (string) ( $patch_result['content'] ?? $before_content );
+		$updated       = $before_content !== $after_content;
+		$impact_ranges = is_array( $patch_result['impact_ranges'] ?? null ) ? $patch_result['impact_ranges'] : array();
+		$patch_preview = is_array( $patch_result['patch_preview'] ?? null ) ? $patch_result['patch_preview'] : array();
+
+		$payload = array(
+			'post_id'               => $post_id,
+			'updated'               => $updated,
+			'status'                => 'dry_run',
+			'edit_link'             => $this->edit_link( $post_id ),
+			'content_length_before' => strlen( $before_content ),
+			'content_length_after'  => strlen( $after_content ),
+			'impact_ranges'         => $impact_ranges,
+			'patch_preview'         => $patch_preview,
+			'diff_preview'          => $this->build_text_diff_preview( $before_content, $after_content ),
+			'preview'               => array(
+				'action'             => 'patch_post_content',
+				'applied_operations' => count(
+					array_filter(
+						$patch_preview,
+						static function ( $row ) {
+							return absint( $row['applied'] ?? 0 ) > 0;
+						}
+					)
+				),
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/patch-post-content', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		if ( $updated ) {
+			$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		$payload['status']  = $this->post_status( $post_id );
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
+	 * Writes Gutenberg blocks into one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function update_post_blocks( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$mode = sanitize_key( (string) ( $input['mode'] ?? 'replace' ) );
+		if ( ! in_array( $mode, array( 'replace', 'append' ), true ) ) {
+			$mode = 'replace';
+		}
+		$validate_roundtrip = ! array_key_exists( 'validate_roundtrip', $input ) || ! empty( $input['validate_roundtrip'] );
+		$raw_blocks         = is_array( $input['blocks'] ?? null ) ? $input['blocks'] : array();
+		if ( empty( $raw_blocks ) ) {
+			return new \WP_Error( 'magick_ai_abilities_blocks_required', __( 'Blocks are required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$block_errors            = array();
+		$normalized_input_blocks = $this->normalize_blocks_input( $raw_blocks, $block_errors, 'blocks' );
+		if ( ! empty( $block_errors ) ) {
+			return new \WP_Error( 'magick_ai_abilities_blocks_invalid', __( 'Blocks structure is invalid.', 'magick-ai-abilities' ), array( 'status' => 400, 'errors' => $block_errors ) );
+		}
+
+		$before_content       = (string) ( $post->post_content ?? '' );
+		$before_parsed_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( $before_content ) : array();
+		$before_block_count   = $this->count_blocks_recursive( $before_parsed_blocks );
+		$target_blocks        = $normalized_input_blocks;
+		if ( 'append' === $mode ) {
+			$existing_errors = array();
+			$existing_blocks = $this->normalize_blocks_input( $before_parsed_blocks, $existing_errors, 'existing' );
+			$target_blocks   = array_merge( $existing_blocks, $normalized_input_blocks );
+		}
+
+		$after_content            = $this->serialize_blocks_minimal( $target_blocks );
+		$after_parsed_blocks      = function_exists( 'parse_blocks' ) ? parse_blocks( $after_content ) : array();
+		$after_block_count        = $this->count_blocks_recursive( $target_blocks );
+		$parsed_top_level_count   = is_array( $after_parsed_blocks ) ? count( $after_parsed_blocks ) : 0;
+		$expected_top_level_count = count( $target_blocks );
+		$roundtrip_checked        = $validate_roundtrip && function_exists( 'parse_blocks' );
+		$roundtrip_ok             = true;
+		if ( $roundtrip_checked ) {
+			$roundtrip_ok = $expected_top_level_count === $parsed_top_level_count;
+		}
+		$validation = array(
+			'valid'                    => empty( $block_errors ) && $roundtrip_ok,
+			'roundtrip_checked'        => $roundtrip_checked,
+			'roundtrip_ok'             => $roundtrip_ok,
+			'parse_available'          => function_exists( 'parse_blocks' ),
+			'expected_top_level_count' => $expected_top_level_count,
+			'parsed_top_level_count'   => $parsed_top_level_count,
+			'errors'                   => $block_errors,
+		);
+		$updated = $before_content !== $after_content;
+
+		$payload = array(
+			'post_id'               => $post_id,
+			'updated'               => $updated,
+			'status'                => 'dry_run',
+			'mode'                  => $mode,
+			'edit_link'             => $this->edit_link( $post_id ),
+			'block_count_before'    => $before_block_count,
+			'block_count_after'     => $after_block_count,
+			'content_length_before' => strlen( $before_content ),
+			'content_length_after'  => strlen( $after_content ),
+			'validation'            => $validation,
+			'impact_ranges'         => $this->build_impact_ranges_from_diff( $before_content, $after_content ),
+			'diff_preview'          => $this->build_text_diff_preview( $before_content, $after_content ),
+			'preview'               => array(
+				'action' => 'update_post_blocks',
+				'mode'   => $mode,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/update-post-blocks', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+		if ( $roundtrip_checked && ! $roundtrip_ok ) {
+			return new \WP_Error( 'magick_ai_abilities_blocks_roundtrip_invalid', __( 'Blocks roundtrip validation failed; write was blocked.', 'magick-ai-abilities' ), array( 'status' => 400, 'validation' => $validation ) );
+		}
+
+		if ( $updated ) {
+			$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		$payload['status']  = $this->post_status( $post_id );
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
 	}
 
 	/**
@@ -978,6 +1749,343 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Uploads one remote media asset into the media library.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function upload_media_from_url( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$url = esc_url_raw( (string) ( $input['url'] ?? '' ) );
+		if ( '' === $url ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$attach_to_post_id = absint( $input['attach_to_post_id'] ?? 0 );
+		if ( $attach_to_post_id > 0 && ! current_user_can( 'edit_post', $attach_to_post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to attach media to this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$title       = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
+		$alt         = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
+		$caption     = sanitize_textarea_field( (string) ( $input['caption'] ?? '' ) );
+		$description = sanitize_textarea_field( (string) ( $input['description'] ?? '' ) );
+		$payload     = array(
+			'attachment_id'     => 0,
+			'url'               => $url,
+			'sizes'             => array(),
+			'attach_to_post_id' => $attach_to_post_id,
+			'preview'           => array(
+				'action'            => 'upload_media_from_url',
+				'url'               => $url,
+				'attach_to_post_id' => $attach_to_post_id,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/upload-media-from-url', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$attachment_id = $this->upload_media_asset_from_url( $url, $attach_to_post_id, $title );
+		if ( is_wp_error( $attachment_id ) ) {
+			return $attachment_id;
+		}
+		$attachment_id = absint( $attachment_id );
+
+		$update_args = array( 'ID' => $attachment_id );
+		if ( '' !== $title ) {
+			$update_args['post_title'] = $title;
+		}
+		if ( '' !== $caption || '' !== $description ) {
+			$update_args['post_excerpt'] = $caption;
+			$update_args['post_content'] = $description;
+		}
+		if ( count( $update_args ) > 1 ) {
+			$updated = wp_update_post( $update_args, true );
+			if ( is_wp_error( $updated ) ) {
+				return $updated;
+			}
+		}
+		if ( '' !== $alt ) {
+			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt );
+		}
+
+		return array(
+			'attachment_id'     => $attachment_id,
+			'url'               => (string) wp_get_attachment_url( $attachment_id ),
+			'sizes'             => $this->attachment_sizes( $attachment_id ),
+			'attach_to_post_id' => $attach_to_post_id,
+			'edit_link'         => $this->edit_link( $attachment_id ),
+			'dry_run'           => false,
+		);
+	}
+
+	/**
+	 * Sets one post featured image.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function set_post_featured_image( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$attachment_id = absint( $input['attachment_id'] ?? 0 );
+		$media_url     = esc_url_raw( (string) ( $input['media_url'] ?? '' ) );
+		$media_title   = sanitize_text_field( (string) ( $input['media_title'] ?? '' ) );
+		if ( $attachment_id <= 0 && '' === $media_url ) {
+			return new \WP_Error( 'magick_ai_abilities_featured_image_required', __( 'Either attachment_id or media_url is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$source                = $attachment_id > 0 ? 'attachment_id' : 'media_url';
+		$preview_attachment_id = $attachment_id > 0 ? $attachment_id : -1;
+		$payload               = array(
+			'post_id'            => $post_id,
+			'attachment_id'      => $preview_attachment_id,
+			'featured_image_url' => '',
+			'updated'            => false,
+			'source'             => $source,
+			'edit_link'          => $this->edit_link( $post_id ),
+			'preview'            => array(
+				'action'      => 'set_post_featured_image',
+				'post_status' => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'source'      => $source,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/set-post-featured-image', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		if ( $attachment_id <= 0 ) {
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			}
+			$uploaded_id = $this->upload_media_asset_from_url( $media_url, $post_id, $media_title );
+			if ( is_wp_error( $uploaded_id ) ) {
+				return $uploaded_id;
+			}
+			$attachment_id = absint( $uploaded_id );
+			$source        = 'media_url';
+		}
+
+		$attachment = $this->get_media_attachment( $attachment_id );
+		if ( is_wp_error( $attachment ) ) {
+			return $attachment;
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to use this attachment.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		if ( ! function_exists( 'set_post_thumbnail' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Featured image runtime is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+		set_post_thumbnail( $post_id, $attachment_id );
+		$applied_attachment_id = absint( get_post_thumbnail_id( $post_id ) );
+
+		return array(
+			'post_id'            => $post_id,
+			'attachment_id'      => $attachment_id,
+			'featured_image_url' => (string) wp_get_attachment_url( $attachment_id ),
+			'updated'            => $applied_attachment_id === $attachment_id,
+			'source'             => $source,
+			'edit_link'          => $this->edit_link( $post_id ),
+			'dry_run'            => false,
+		);
+	}
+
+	/**
+	 * Schedules one post for future publication.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function schedule_post( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to schedule this post.', 'magick-ai-abilities' ) );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$publish_at_raw = sanitize_text_field( (string) ( $input['publish_at'] ?? '' ) );
+		if ( '' === $publish_at_raw ) {
+			return new \WP_Error( 'magick_ai_abilities_publish_at_required', __( 'publish_at is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$timestamp = strtotime( $publish_at_raw );
+		if ( false === $timestamp ) {
+			return new \WP_Error( 'magick_ai_abilities_publish_at_invalid', __( 'publish_at is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( $timestamp <= time() ) {
+			return new \WP_Error( 'magick_ai_abilities_publish_at_past', __( 'publish_at must be in the future.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$timezone_mode = sanitize_key( (string) ( $input['timezone'] ?? 'site' ) );
+		if ( ! in_array( $timezone_mode, array( 'site', 'utc' ), true ) ) {
+			$timezone_mode = 'site';
+		}
+		if ( 'utc' === $timezone_mode ) {
+			$publish_at_gmt = gmdate( 'Y-m-d H:i:s', $timestamp );
+			$publish_at     = function_exists( 'get_date_from_gmt' ) ? get_date_from_gmt( $publish_at_gmt ) : $publish_at_gmt;
+		} else {
+			$publish_at     = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d H:i:s', $timestamp ) : gmdate( 'Y-m-d H:i:s', $timestamp );
+			$publish_at_gmt = function_exists( 'get_gmt_from_date' ) ? get_gmt_from_date( $publish_at ) : gmdate( 'Y-m-d H:i:s', $timestamp );
+		}
+
+		$payload = array(
+			'post_id'        => $post_id,
+			'scheduled'      => false,
+			'status'         => 'dry_run',
+			'publish_at'     => $publish_at,
+			'publish_at_gmt' => $publish_at_gmt,
+			'edit_link'      => $this->edit_link( $post_id ),
+			'preview'        => array(
+				'action'      => 'schedule_post',
+				'from_status' => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'to_status'   => 'future',
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/schedule-post', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'            => $post_id,
+				'post_status'   => 'future',
+				'post_date'     => $publish_at,
+				'post_date_gmt' => $publish_at_gmt,
+			),
+			true
+		);
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		$payload['scheduled'] = true;
+		$payload['status']    = $this->post_status( $post_id );
+		$payload['dry_run']   = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
+	 * Publishes one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function publish_post( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to publish this post.', 'magick-ai-abilities' ) );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$payload = array(
+			'post_id'   => $post_id,
+			'published' => false,
+			'status'    => 'dry_run',
+			'edit_link' => $this->edit_link( $post_id ),
+			'preview'   => array(
+				'action'      => 'publish_post',
+				'from_status' => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'to_status'   => 'publish',
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/publish-post', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'          => $post_id,
+				'post_status' => 'publish',
+			),
+			true
+		);
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+
+		$payload['published'] = true;
+		$payload['status']    = $this->post_status( $post_id );
+		$payload['permalink'] = function_exists( 'get_permalink' ) ? (string) get_permalink( $post_id ) : '';
+		$payload['dry_run']   = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
+	 * Restores one trashed post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function restore_post( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+		if ( 'trash' !== sanitize_key( (string) ( $post->post_status ?? '' ) ) ) {
+			return new \WP_Error( 'magick_ai_abilities_not_trashed', __( 'This post is not in the trash.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$payload = array(
+			'post_id'  => $post_id,
+			'restored' => false,
+			'status'   => 'dry_run',
+			'edit_link' => $this->edit_link( $post_id ),
+			'preview'  => array(
+				'action'      => 'restore_post',
+				'from_status' => 'trash',
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/restore-post', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$result = function_exists( 'wp_untrash_post' ) ? wp_untrash_post( $post_id ) : false;
+		if ( ! $result ) {
+			return new \WP_Error( 'magick_ai_abilities_restore_failed', __( 'Post restore failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		$payload['restored'] = true;
+		$payload['status']   = $this->post_status( $post_id );
+		$payload['dry_run']  = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
 	 * Approves one comment.
 	 *
 	 * @param mixed $input Input args.
@@ -1159,6 +2267,87 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Reads SEO metadata through host adapters, with a small WordPress meta fallback.
+	 *
+	 * @param int $post_id Post id.
+	 * @return array<string,mixed>
+	 */
+	private function read_post_seo_meta( $post_id ) {
+		$filtered = null;
+		if ( function_exists( 'apply_filters' ) ) {
+			$filtered = apply_filters( 'magick_ai_abilities_read_post_seo_meta', null, $post_id );
+		}
+		if ( is_array( $filtered ) ) {
+			return $filtered;
+		}
+
+		$get_meta = static function ( $key ) use ( $post_id ) {
+			return function_exists( 'get_post_meta' ) ? (string) get_post_meta( $post_id, $key, true ) : '';
+		};
+		$providers = array(
+			'yoast'     => array( '_yoast_wpseo_title', '_yoast_wpseo_metadesc' ),
+			'rank_math' => array( 'rank_math_title', 'rank_math_description' ),
+			'aioseo'    => array( '_aioseo_title', '_aioseo_description' ),
+		);
+		foreach ( $providers as $provider => $keys ) {
+			$title       = sanitize_text_field( $get_meta( $keys[0] ) );
+			$description = sanitize_textarea_field( $get_meta( $keys[1] ) );
+			if ( '' !== $title || '' !== $description ) {
+				return array(
+					'provider'    => $provider,
+					'title'       => $title,
+					'description' => $description,
+				);
+			}
+		}
+
+		return array(
+			'provider'    => 'post_meta',
+			'title'       => '',
+			'description' => '',
+		);
+	}
+
+	/**
+	 * Writes SEO metadata through host adapters, falling back to Yoast-compatible meta keys.
+	 *
+	 * @param int                 $post_id Post id.
+	 * @param array<string,mixed> $args SEO args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function write_post_seo_meta( $post_id, array $args ) {
+		$title       = sanitize_text_field( (string) ( $args['title'] ?? '' ) );
+		$description = sanitize_textarea_field( (string) ( $args['description'] ?? '' ) );
+		$filtered    = null;
+		if ( function_exists( 'apply_filters' ) ) {
+			$filtered = apply_filters(
+				'magick_ai_abilities_write_post_seo_meta',
+				null,
+				$post_id,
+				array(
+					'title'       => $title,
+					'description' => $description,
+				)
+			);
+		}
+		if ( is_wp_error( $filtered ) || is_array( $filtered ) ) {
+			return $filtered;
+		}
+
+		if ( ! function_exists( 'update_post_meta' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_seo_adapter_missing', __( 'No SEO metadata writer is available.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+		update_post_meta( $post_id, '_yoast_wpseo_title', $title );
+		update_post_meta( $post_id, '_yoast_wpseo_metadesc', $description );
+
+		return array(
+			'provider'    => 'post_meta',
+			'title'       => $title,
+			'description' => $description,
+		);
+	}
+
+	/**
 	 * Returns whether a host runtime approved the final commit.
 	 *
 	 * @param string              $ability_id Ability id.
@@ -1210,6 +2399,28 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Returns a post that the current user may publish.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $permission_message Permission denial message.
+	 * @return object|\WP_Error
+	 */
+	private function get_post_for_publish( $post_id, $permission_message ) {
+		$post_id = absint( $post_id );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$post = get_post( $post_id );
+		if ( ! $post ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'publish_post', $post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', $permission_message, array( 'status' => 403 ) );
+		}
+		return $post;
+	}
+
+	/**
 	 * Returns an editable attachment object.
 	 *
 	 * @param int $attachment_id Attachment id.
@@ -1225,6 +2436,155 @@ final class Core_Write_Package {
 			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
 		}
 		return $attachment;
+	}
+
+	/**
+	 * Downloads and sideloads one media URL.
+	 *
+	 * @param string $url Media URL.
+	 * @param int    $attach_to_post_id Optional parent post id.
+	 * @param string $title Optional attachment title.
+	 * @return int|\WP_Error
+	 */
+	private function upload_media_asset_from_url( $url, $attach_to_post_id = 0, $title = '' ) {
+		$url = esc_url_raw( (string) $url );
+		if ( '' === $url ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( function_exists( 'wp_http_validate_url' ) && ! wp_http_validate_url( $url ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_blocked', __( 'Media URL is not allowed.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$download_timeout = function_exists( 'apply_filters' )
+			? (int) apply_filters( 'magick_ai_abilities_upload_media_from_url_timeout', 15, $url )
+			: 15;
+		$download_timeout = max( 3, min( 30, $download_timeout ) );
+		$max_bytes        = function_exists( 'apply_filters' )
+			? (int) apply_filters( 'magick_ai_abilities_upload_media_from_url_max_bytes', 20 * MB_IN_BYTES, $url )
+			: 20 * MB_IN_BYTES;
+		$max_bytes        = max( MB_IN_BYTES, min( 256 * MB_IN_BYTES, $max_bytes ) );
+		$head_content_type = '';
+
+		if ( ! function_exists( 'download_url' ) && defined( 'ABSPATH' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		if ( ! function_exists( 'media_handle_sideload' ) && defined( 'ABSPATH' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+		}
+		if ( ! function_exists( 'wp_generate_attachment_metadata' ) && defined( 'ABSPATH' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		if ( function_exists( 'wp_safe_remote_head' ) ) {
+			$head_response = wp_safe_remote_head(
+				$url,
+				array(
+					'timeout'             => $download_timeout,
+					'redirection'         => 3,
+					'reject_unsafe_urls'  => true,
+					'limit_response_size' => 1024,
+				)
+			);
+			if ( ! is_wp_error( $head_response ) ) {
+				$head_status = (int) wp_remote_retrieve_response_code( $head_response );
+				if ( $head_status >= 400 ) {
+					return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Remote media is not reachable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+				}
+				$content_length = (int) wp_remote_retrieve_header( $head_response, 'content-length' );
+				if ( $content_length > 0 && $content_length > $max_bytes ) {
+					return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+				}
+				$head_content_type = sanitize_text_field( (string) wp_remote_retrieve_header( $head_response, 'content-type' ) );
+			}
+		}
+
+		$tmp_file = download_url( $url, $download_timeout );
+		if ( is_wp_error( $tmp_file ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_download_failed', $tmp_file->get_error_message(), array( 'status' => 400 ) );
+		}
+		if ( ! is_string( $tmp_file ) || '' === $tmp_file || ! file_exists( $tmp_file ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Downloaded media temp file is unavailable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$file_size = (int) filesize( $tmp_file );
+		if ( $file_size <= 0 || $file_size > $max_bytes ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$path     = parse_url( $url, PHP_URL_PATH );
+		$path     = is_string( $path ) ? $path : '';
+		$filename = sanitize_file_name( basename( $path ) );
+		if ( '' === $filename ) {
+			$filename = 'remote-media-' . gmdate( 'YmdHis' );
+		}
+		if ( '' === pathinfo( $filename, PATHINFO_EXTENSION ) ) {
+			$content_type = strtolower( trim( preg_replace( '/;.*/', '', $head_content_type ) ) );
+			$extension_map = array(
+				'image/jpeg' => 'jpg',
+				'image/jpg'  => 'jpg',
+				'image/png'  => 'png',
+				'image/gif'  => 'gif',
+				'image/webp' => 'webp',
+			);
+			if ( isset( $extension_map[ $content_type ] ) ) {
+				$filename .= '.' . $extension_map[ $content_type ];
+			}
+		}
+
+		$allowed_mimes = function_exists( 'get_allowed_mime_types' ) ? get_allowed_mime_types() : array();
+		$filetype      = function_exists( 'wp_check_filetype_and_ext' )
+			? wp_check_filetype_and_ext( $tmp_file, $filename, $allowed_mimes )
+			: array();
+		$detected_type = sanitize_text_field( (string) ( $filetype['type'] ?? '' ) );
+		$detected_ext  = sanitize_key( (string) ( $filetype['ext'] ?? '' ) );
+		if ( '' === $detected_type || '' === $detected_ext ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'magick_ai_abilities_media_type_blocked', __( 'Remote media type is not allowed.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$file_array = array(
+			'name'     => $filename,
+			'type'     => $detected_type,
+			'tmp_name' => $tmp_file,
+			'size'     => $file_size,
+		);
+		$attachment_id = media_handle_sideload( $file_array, max( 0, absint( $attach_to_post_id ) ), sanitize_text_field( (string) $title ) );
+		if ( is_wp_error( $attachment_id ) ) {
+			if ( file_exists( $tmp_file ) ) {
+				wp_delete_file( $tmp_file );
+			}
+			return $attachment_id;
+		}
+
+		return absint( $attachment_id );
+	}
+
+	/**
+	 * Returns normalized generated attachment sizes.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return array<string,array<string,int|string>>
+	 */
+	private function attachment_sizes( $attachment_id ) {
+		$meta       = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( absint( $attachment_id ) ) : array();
+		$meta_sizes = is_array( $meta['sizes'] ?? null ) ? $meta['sizes'] : array();
+		$sizes      = array();
+		foreach ( $meta_sizes as $size_key => $size_data ) {
+			$size_key = sanitize_key( (string) $size_key );
+			if ( '' === $size_key || ! is_array( $size_data ) ) {
+				continue;
+			}
+			$sizes[ $size_key ] = array(
+				'file'   => sanitize_file_name( (string) ( $size_data['file'] ?? '' ) ),
+				'width'  => absint( $size_data['width'] ?? 0 ),
+				'height' => absint( $size_data['height'] ?? 0 ),
+			);
+		}
+		return $sizes;
 	}
 
 	/**
@@ -1273,9 +2633,10 @@ final class Core_Write_Package {
 	 *
 	 * @param array<string,mixed> $input Input args.
 	 * @param string              $field Input field.
+	 * @param string              $title Optional title used to remove duplicate first headings.
 	 * @return array{content:string,content_format:string}
 	 */
-	private function normalize_content_input( array $input, $field = 'content' ) {
+	private function normalize_content_input( array $input, $field = 'content', $title = '' ) {
 		$field          = is_string( $field ) && '' !== $field ? $field : 'content';
 		$content        = array_key_exists( $field, $input ) ? (string) $input[ $field ] : '';
 		$content_format = $this->resolve_content_format( $content, (string) ( $input['content_format'] ?? '' ) );
@@ -1284,6 +2645,8 @@ final class Core_Write_Package {
 		} elseif ( 'plain' === $content_format ) {
 			$content = $this->plain_text_to_html( $content );
 		}
+
+		$content = $this->strip_duplicate_title_heading( $content, $title );
 
 		return array(
 			'content'        => function_exists( 'wp_kses_post' ) ? wp_kses_post( $content ) : $content,
@@ -1476,6 +2839,346 @@ final class Core_Write_Package {
 		return function_exists( 'esc_html' )
 			? (string) esc_html( (string) $content )
 			: htmlspecialchars( (string) $content, ENT_QUOTES, 'UTF-8' );
+	}
+
+	/**
+	 * Removes a first HTML heading when it only repeats the post title.
+	 *
+	 * @param string $content Normalized HTML content.
+	 * @param string $title Post title.
+	 * @return string
+	 */
+	private function strip_duplicate_title_heading( $content, $title ) {
+		$strip_tags = static function ( $value ) {
+			return function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( (string) $value ) : strip_tags( (string) $value );
+		};
+		$title = trim( $strip_tags( (string) $title ) );
+		if ( '' === $title ) {
+			return (string) $content;
+		}
+
+		$pattern = '/^\\s*<h([1-6])[^>]*>(.*?)<\\/h\\1>\\s*/is';
+		if ( ! preg_match( $pattern, (string) $content, $matches ) ) {
+			return (string) $content;
+		}
+		$heading_text = trim( $strip_tags( html_entity_decode( (string) ( $matches[2] ?? '' ), ENT_QUOTES, 'UTF-8' ) ) );
+		if ( strtolower( $heading_text ) !== strtolower( $title ) ) {
+			return (string) $content;
+		}
+
+		return (string) preg_replace( $pattern, '', (string) $content, 1 );
+	}
+
+	/**
+	 * Truncates one preview fragment.
+	 *
+	 * @param string $text Raw text.
+	 * @param int    $max_len Max length.
+	 * @return string
+	 */
+	private function truncate_fragment( $text, $max_len = 400 ) {
+		$text    = (string) $text;
+		$max_len = max( 32, absint( $max_len ) );
+		if ( strlen( $text ) <= $max_len ) {
+			return $text;
+		}
+		return substr( $text, 0, $max_len ) . '...';
+	}
+
+	/**
+	 * Builds a minimal diff preview for audit output.
+	 *
+	 * @param string $before Before content.
+	 * @param string $after After content.
+	 * @return array<string,mixed>
+	 */
+	private function build_text_diff_preview( $before, $after ) {
+		$before     = (string) $before;
+		$after      = (string) $after;
+		$before_len = strlen( $before );
+		$after_len  = strlen( $after );
+		$prefix     = 0;
+		$limit      = min( $before_len, $after_len );
+		while ( $prefix < $limit && $before[ $prefix ] === $after[ $prefix ] ) {
+			$prefix++;
+		}
+
+		$suffix = 0;
+		while (
+			$suffix < ( $before_len - $prefix ) &&
+			$suffix < ( $after_len - $prefix ) &&
+			substr( $before, $before_len - 1 - $suffix, 1 ) === substr( $after, $after_len - 1 - $suffix, 1 )
+		) {
+			$suffix++;
+		}
+
+		$before_changed_len = max( 0, $before_len - $prefix - $suffix );
+		$after_changed_len  = max( 0, $after_len - $prefix - $suffix );
+		$prefix_start       = max( 0, $prefix - 120 );
+
+		return array(
+			'changed'               => $before !== $after,
+			'before_hash'           => md5( $before ),
+			'after_hash'            => md5( $after ),
+			'prefix_length'         => $prefix,
+			'suffix_length'         => $suffix,
+			'before_changed_length' => $before_changed_len,
+			'after_changed_length'  => $after_changed_len,
+			'prefix_context'        => $this->truncate_fragment( substr( $before, $prefix_start, $prefix - $prefix_start ), 240 ),
+			'before_fragment'       => $this->truncate_fragment( substr( $before, $prefix, $before_changed_len ), 600 ),
+			'after_fragment'        => $this->truncate_fragment( substr( $after, $prefix, $after_changed_len ), 600 ),
+			'suffix_context'        => $this->truncate_fragment( $suffix > 0 ? substr( $after, $after_len - min( 120, $suffix ) ) : '', 240 ),
+		);
+	}
+
+	/**
+	 * Builds a minimal changed range from a before/after diff.
+	 *
+	 * @param string $before Before content.
+	 * @param string $after After content.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_impact_ranges_from_diff( $before, $after ) {
+		$preview = $this->build_text_diff_preview( $before, $after );
+		if ( empty( $preview['changed'] ) ) {
+			return array();
+		}
+		$start                 = max( 0, absint( $preview['prefix_length'] ?? 0 ) );
+		$before_changed_length = max( 0, absint( $preview['before_changed_length'] ?? 0 ) );
+		$after_changed_length  = max( 0, absint( $preview['after_changed_length'] ?? 0 ) );
+		return array(
+			array(
+				'op'            => 'replace',
+				'start'         => $start,
+				'end'           => $start + $before_changed_length,
+				'before_length' => $before_changed_length,
+				'after_length'  => $after_changed_length,
+			),
+		);
+	}
+
+	/**
+	 * Applies patch operations to post content.
+	 *
+	 * @param string       $content Original content.
+	 * @param array<mixed> $operations Patch operations.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function apply_patch_operations( $content, array $operations ) {
+		$content    = (string) $content;
+		$operations = array_values( $operations );
+		if ( empty( $operations ) ) {
+			return new \WP_Error( 'magick_ai_abilities_patch_operations_required', __( 'Operations are required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$impact_ranges = array();
+		$patch_preview = array();
+		foreach ( $operations as $index => $operation ) {
+			$operation = is_array( $operation ) ? $operation : array();
+			$op        = sanitize_key( (string) ( $operation['op'] ?? '' ) );
+			if ( ! in_array( $op, array( 'replace', 'delete', 'insert_before', 'insert_after' ), true ) ) {
+				return new \WP_Error( 'magick_ai_abilities_patch_operation_invalid', __( 'Patch operation is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			}
+			$find = (string) ( $operation['find'] ?? '' );
+			if ( '' === $find ) {
+				return new \WP_Error( 'magick_ai_abilities_patch_find_required', __( 'Patch find text is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			}
+			$replace       = 'delete' === $op ? '' : (string) ( $operation['replace'] ?? '' );
+			$limit         = max( 1, min( 20, absint( $operation['limit'] ?? 1 ) ) );
+			$case_sensitive = ! array_key_exists( 'case_sensitive', $operation ) || ! empty( $operation['case_sensitive'] );
+			$needle_len    = strlen( $find );
+			$offset        = 0;
+			$applied       = 0;
+
+			while ( $applied < $limit ) {
+				$position = $case_sensitive ? strpos( $content, $find, $offset ) : stripos( $content, $find, $offset );
+				if ( false === $position ) {
+					break;
+				}
+				$position       = (int) $position;
+				$before_segment = substr( $content, $position, $needle_len );
+				if ( 'replace' === $op ) {
+					$after_segment = $replace;
+				} elseif ( 'insert_before' === $op ) {
+					$after_segment = $replace . $before_segment;
+				} elseif ( 'insert_after' === $op ) {
+					$after_segment = $before_segment . $replace;
+				} else {
+					$after_segment = '';
+				}
+
+				$content         = substr( $content, 0, $position ) . $after_segment . substr( $content, $position + $needle_len );
+				$impact_ranges[] = array(
+					'operation_index' => $index,
+					'op'              => $op,
+					'start'           => $position,
+					'end'             => $position + $needle_len,
+					'before_length'   => $needle_len,
+					'after_length'    => strlen( $after_segment ),
+					'before_preview'  => $this->truncate_fragment( $before_segment, 160 ),
+					'after_preview'   => $this->truncate_fragment( $after_segment, 160 ),
+				);
+				$applied++;
+				$offset = $position + strlen( $after_segment );
+			}
+
+			$patch_preview[] = array(
+				'operation_index' => $index,
+				'op'              => $op,
+				'find'            => $this->truncate_fragment( $find, 160 ),
+				'replace'         => $this->truncate_fragment( $replace, 160 ),
+				'applied'         => $applied,
+				'limit'           => $limit,
+				'case_sensitive'  => $case_sensitive,
+			);
+		}
+
+		return array(
+			'content'       => $content,
+			'impact_ranges' => $impact_ranges,
+			'patch_preview' => $patch_preview,
+		);
+	}
+
+	/**
+	 * Sanitizes one Gutenberg attribute key without destroying camelCase names.
+	 *
+	 * @param string $key Raw key.
+	 * @return string
+	 */
+	private function sanitize_block_attr_key( $key ) {
+		$key = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $key );
+		return is_string( $key ) ? $key : '';
+	}
+
+	/**
+	 * Sanitizes block attrs recursively.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param int   $depth Recursion depth.
+	 * @return mixed
+	 */
+	private function sanitize_block_attrs( $value, $depth = 0 ) {
+		$depth = absint( $depth );
+		if ( $depth >= 5 ) {
+			return null;
+		}
+		if ( is_bool( $value ) || is_int( $value ) || is_float( $value ) || null === $value ) {
+			return $value;
+		}
+		if ( is_string( $value ) ) {
+			return sanitize_text_field( $value );
+		}
+		if ( is_array( $value ) ) {
+			$normalized = array();
+			foreach ( $value as $key => $item ) {
+				$normalized_key = is_int( $key ) ? $key : $this->sanitize_block_attr_key( (string) $key );
+				if ( '' === $normalized_key ) {
+					continue;
+				}
+				$normalized[ $normalized_key ] = $this->sanitize_block_attrs( $item, $depth + 1 );
+			}
+			return $normalized;
+		}
+		if ( is_object( $value ) ) {
+			return $this->sanitize_block_attrs( (array) $value, $depth + 1 );
+		}
+		return sanitize_text_field( (string) $value );
+	}
+
+	/**
+	 * Normalizes one block list payload recursively.
+	 *
+	 * @param mixed        $blocks Raw block list.
+	 * @param array<mixed> $errors Validation error rows.
+	 * @param string       $path Path hint.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function normalize_blocks_input( $blocks, &$errors, $path = 'root' ) {
+		$blocks     = is_array( $blocks ) ? array_values( $blocks ) : array();
+		$errors     = is_array( $errors ) ? $errors : array();
+		$normalized = array();
+		foreach ( $blocks as $index => $block ) {
+			$current_path = $path . '.' . $index;
+			if ( ! is_array( $block ) ) {
+				$errors[] = array( 'path' => $current_path, 'error' => 'block_must_be_object' );
+				continue;
+			}
+			$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? $block['block_name'] ?? '' ) );
+			if ( '' === $block_name ) {
+				$errors[] = array( 'path' => $current_path . '.blockName', 'error' => 'block_name_required' );
+				continue;
+			}
+			$inner_blocks_errors = array();
+			$inner_blocks        = $this->normalize_blocks_input( $block['innerBlocks'] ?? array(), $inner_blocks_errors, $current_path . '.innerBlocks' );
+			if ( ! empty( $inner_blocks_errors ) ) {
+				$errors = array_merge( $errors, $inner_blocks_errors );
+			}
+			$normalized[] = array(
+				'blockName'   => $block_name,
+				'attrs'       => is_array( $block['attrs'] ?? null ) ? $this->sanitize_block_attrs( $block['attrs'], 0 ) : array(),
+				'innerHTML'   => (string) ( $block['innerHTML'] ?? $block['inner_html'] ?? '' ),
+				'innerBlocks' => $inner_blocks,
+			);
+		}
+		return $normalized;
+	}
+
+	/**
+	 * Counts a block tree recursively.
+	 *
+	 * @param mixed $blocks Block list.
+	 * @return int
+	 */
+	private function count_blocks_recursive( $blocks ) {
+		$blocks = is_array( $blocks ) ? $blocks : array();
+		$total  = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$total++;
+			$total += $this->count_blocks_recursive( $block['innerBlocks'] ?? array() );
+		}
+		return $total;
+	}
+
+	/**
+	 * Serializes blocks using minimal Gutenberg comment syntax.
+	 *
+	 * @param array<mixed> $blocks Normalized blocks.
+	 * @return string
+	 */
+	private function serialize_blocks_minimal( array $blocks ) {
+		$serialized = '';
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? '' ) );
+			$block_name = preg_replace( '/[^A-Za-z0-9_\/-]/', '', $block_name );
+			$block_name = is_string( $block_name ) ? $block_name : '';
+			$comment_block_name = 0 === strpos( $block_name, 'core/' ) ? substr( $block_name, 5 ) : $block_name;
+			$attrs              = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			$inner_html         = (string) ( $block['innerHTML'] ?? '' );
+			$inner_blocks       = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array();
+			$inner_content      = $inner_html . $this->serialize_blocks_minimal( $inner_blocks );
+
+			if ( '' === $block_name || 'core/freeform' === $block_name ) {
+				$serialized .= $inner_content;
+				continue;
+			}
+
+			$attrs_json = '';
+			if ( ! empty( $attrs ) ) {
+				$encoded = wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				if ( is_string( $encoded ) && '' !== $encoded && '{}' !== $encoded ) {
+					$attrs_json = ' ' . $encoded;
+				}
+			}
+			$serialized .= '<!-- wp:' . $comment_block_name . $attrs_json . ' -->' . $inner_content . '<!-- /wp:' . $comment_block_name . ' -->';
+		}
+		return $serialized;
 	}
 
 	/**

@@ -104,6 +104,14 @@ final class Contract_Normalizer {
 		if ( ! in_array( $source, array( 'official', 'third_party' ), true ) ) {
 			$source = 'third_party';
 		}
+		$input_schema = $this->schema_normalizer->normalize( isset( $definition['input_schema'] ) ? $definition['input_schema'] : array(), 'object' );
+		if ( $is_write ) {
+			$input_schema = $this->add_write_control_schema( $input_schema );
+		}
+		$output_schema = $this->schema_normalizer->normalize( isset( $definition['output_schema'] ) ? $definition['output_schema'] : array(), 'object' );
+		if ( $is_write ) {
+			$output_schema = $this->add_write_output_schema( $output_schema );
+		}
 
 		return array(
 			'ability_id'          => $ability_id,
@@ -115,8 +123,8 @@ final class Contract_Normalizer {
 			'label'               => isset( $definition['label'] ) ? sanitize_text_field( (string) $definition['label'] ) : $ability_id,
 			'description'         => isset( $definition['description'] ) ? sanitize_text_field( (string) $definition['description'] ) : '',
 			'category'            => isset( $definition['category'] ) ? sanitize_key( (string) $definition['category'] ) : ( $is_write ? 'magick-ai-abilities-write' : 'magick-ai-abilities-read' ),
-			'input_schema'        => $this->schema_normalizer->normalize( isset( $definition['input_schema'] ) ? $definition['input_schema'] : array(), 'object' ),
-			'output_schema'       => $this->schema_normalizer->normalize( isset( $definition['output_schema'] ) ? $definition['output_schema'] : array(), 'object' ),
+			'input_schema'        => $input_schema,
+			'output_schema'       => $output_schema,
 			'execute_callback'    => isset( $definition['execute_callback'] ) && is_callable( $definition['execute_callback'] )
 				? $definition['execute_callback']
 				: array( $this, 'missing_execute_callback' ),
@@ -167,5 +175,50 @@ final class Contract_Normalizer {
 		$ability_id = preg_replace( '/[^a-z0-9._:\/-]/', '', $ability_id );
 
 		return is_string( $ability_id ) ? $ability_id : '';
+	}
+
+	/**
+	 * Adds common host-governed write controls to an input schema.
+	 *
+	 * @param array<string,mixed> $schema Input schema.
+	 * @return array<string,mixed>
+	 */
+	private function add_write_control_schema( array $schema ) {
+		if ( ! isset( $schema['properties'] ) || ! is_array( $schema['properties'] ) ) {
+			$schema['properties'] = array();
+		}
+		$schema['properties']['dry_run'] = array(
+			'type'        => 'boolean',
+			'description' => __( 'When true, return a host-governed preview without mutating WordPress.', 'magick-ai-abilities' ),
+		);
+		$schema['properties']['commit'] = array(
+			'type'        => 'boolean',
+			'description' => __( 'When true, attempt the final commit. Host approval context is still required.', 'magick-ai-abilities' ),
+		);
+		$schema['properties']['idempotency_key'] = array(
+			'type'        => 'string',
+			'description' => __( 'Optional host-provided idempotency key for audit and replay correlation.', 'magick-ai-abilities' ),
+		);
+		return $schema;
+	}
+
+	/**
+	 * Adds common host-governed write dry-run output fields.
+	 *
+	 * @param array<string,mixed> $schema Output schema.
+	 * @return array<string,mixed>
+	 */
+	private function add_write_output_schema( array $schema ) {
+		if ( ! isset( $schema['properties'] ) || ! is_array( $schema['properties'] ) ) {
+			$schema['properties'] = array();
+		}
+		$schema['properties']['dry_run'] = array( 'type' => 'boolean' );
+		$schema['properties']['host_governed'] = array( 'type' => 'boolean' );
+		$schema['properties']['commit_required'] = array( 'type' => 'boolean' );
+		$schema['properties']['preview'] = array(
+			'type'                 => 'object',
+			'additionalProperties' => true,
+		);
+		return $schema;
 	}
 }

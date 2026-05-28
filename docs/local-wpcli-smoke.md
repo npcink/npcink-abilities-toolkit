@@ -26,7 +26,7 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 41 assertions
+Smoke OK: 98 assertions
 ```
 
-The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read ability registration, ability execution, and anonymous REST blocking.
+The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, ability execution, and anonymous REST blocking.
