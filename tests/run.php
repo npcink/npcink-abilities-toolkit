@@ -409,6 +409,9 @@ $new_read_ability_ids = array(
 	'magick-ai/get-content-inventory-health',
 	'magick-ai/get-bulk-publishing-checklist',
 	'magick-ai/get-internal-link-opportunity-report',
+	'magick-ai/get-media-inventory-health',
+	'magick-ai/get-post-seo-geo-readiness',
+	'magick-ai/get-site-topic-coverage-report',
 );
 $migrated_write_ability_ids = array(
 	'magick-ai/create-draft',
@@ -464,6 +467,9 @@ maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-che
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
 maa_assert_same( 50, $package_abilities['magick-ai/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
 maa_assert_same( 10, $package_abilities['magick-ai/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-media-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media inventory health scan is bounded to 100 assets per page' );
+maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-seo-geo-readiness']['input_schema']['required'] ?? array(), 'post SEO/GEO readiness requires post_id' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-site-topic-coverage-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site topic coverage scan is bounded to 100 posts per page' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/create-page'] ), 'create-page is not migrated as a readonly ability' );
@@ -1183,6 +1189,46 @@ $internal_link_report = $core_read_package->get_internal_link_opportunity_report
 maa_assert_same( true, $internal_link_report['success'] ?? null, 'get-internal-link-opportunity-report returns a success envelope' );
 maa_assert_same( 77, $internal_link_report['data']['source_post']['post_id'] ?? null, 'get-internal-link-opportunity-report keeps source post id' );
 maa_assert_true( (int) ( $internal_link_report['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'get-internal-link-opportunity-report finds local candidate posts in isolated tests' );
+$GLOBALS['maa_unit_style_posts'][79] = (object) array(
+	'ID'             => 79,
+	'post_title'     => 'Workflow diagram image',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'workflow-diagram-image',
+	'post_author'    => 7,
+	'post_mime_type' => 'image/jpeg',
+);
+$media_health = $core_read_package->get_media_inventory_health(
+	array(
+		'mime_type' => 'image',
+		'per_page'  => 5,
+	)
+);
+maa_assert_same( true, $media_health['success'] ?? null, 'get-media-inventory-health returns a success envelope' );
+maa_assert_true( (int) ( $media_health['data']['summary']['scanned_count'] ?? 0 ) >= 1, 'get-media-inventory-health scans local media rows' );
+maa_assert_true( isset( $media_health['data']['issue_counts']['missing_alt'] ), 'get-media-inventory-health counts missing alt text' );
+$seo_geo_readiness = $core_read_package->get_post_seo_geo_readiness(
+	array(
+		'post_id'       => 77,
+		'focus_keyword' => 'workflow',
+	)
+);
+maa_assert_same( true, $seo_geo_readiness['success'] ?? null, 'get-post-seo-geo-readiness returns a success envelope' );
+maa_assert_same( 77, $seo_geo_readiness['data']['post']['post_id'] ?? null, 'get-post-seo-geo-readiness keeps post id' );
+maa_assert_true( isset( $seo_geo_readiness['data']['readiness_score'] ), 'get-post-seo-geo-readiness returns a readiness score' );
+$topic_coverage = $core_read_package->get_site_topic_coverage_report(
+	array(
+		'post_type'  => 'post',
+		'status'     => 'any',
+		'per_page'   => 5,
+		'topic_seed' => 'workflow',
+	)
+);
+maa_assert_same( true, $topic_coverage['success'] ?? null, 'get-site-topic-coverage-report returns a success envelope' );
+maa_assert_true( (int) ( $topic_coverage['data']['summary']['scanned_count'] ?? 0 ) >= 1, 'get-site-topic-coverage-report scans local posts' );
+maa_assert_true( ! empty( $topic_coverage['data']['topics'] ), 'get-site-topic-coverage-report returns topic rows' );
 $single_suggest = $core_read_package->build_article_single_optimization_suggest(
 	array(
 		'post'              => array(

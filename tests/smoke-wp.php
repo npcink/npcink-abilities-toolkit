@@ -114,6 +114,9 @@ foreach (
 		'magick-ai/get-content-inventory-health',
 		'magick-ai/get-bulk-publishing-checklist',
 		'magick-ai/get-internal-link-opportunity-report',
+		'magick-ai/get-media-inventory-health',
+		'magick-ai/get-post-seo-geo-readiness',
+		'magick-ai/get-site-topic-coverage-report',
 		'magick-ai/resolve-url-to-post',
 		'magick-ai/get-post-blocks',
 		'magick-ai/list-post-revisions',
@@ -298,6 +301,58 @@ $internal_link_run_request->set_query_params(
 $internal_link_run_response = rest_do_request( $internal_link_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $internal_link_run_response->get_status(), 'Authenticated internal link opportunity ability run returns 200.' );
 
+$smoke_attachment_id = wp_insert_post(
+	array(
+		'post_type'      => 'attachment',
+		'post_status'    => 'inherit',
+		'post_title'     => 'Magick AI Abilities Smoke Media Asset',
+		'post_mime_type' => 'image/jpeg',
+		'post_excerpt'   => '',
+		'post_content'   => '',
+	),
+	true
+);
+magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_attachment_id ) && (int) $smoke_attachment_id > 0, 'Temporary smoke media asset is available for media inventory ability runs.' );
+
+$media_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-media-inventory-health/run' );
+$media_health_run_request->set_query_params(
+	array(
+		'input' => array(
+			'mime_type' => 'image',
+			'per_page'  => 10,
+		),
+	)
+);
+$media_health_run_response = rest_do_request( $media_health_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $media_health_run_response->get_status(), 'Authenticated media inventory health ability run returns 200.' );
+
+$seo_geo_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-seo-geo-readiness/run' );
+$seo_geo_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'       => (int) $smoke_post_id,
+			'focus_keyword' => 'ability workflow',
+		),
+	)
+);
+$seo_geo_run_response = rest_do_request( $seo_geo_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $seo_geo_run_response->get_status(), 'Authenticated post SEO/GEO readiness ability run returns 200.' );
+
+$topic_coverage_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-site-topic-coverage-report/run' );
+$topic_coverage_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type'  => 'post',
+			'status'     => 'any',
+			'per_page'   => 10,
+			'topic_seed' => 'ability workflow',
+		),
+	)
+);
+$topic_coverage_run_response = rest_do_request( $topic_coverage_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $topic_coverage_run_response->get_status(), 'Authenticated site topic coverage ability run returns 200.' );
+
+wp_delete_post( (int) $smoke_attachment_id, true );
 wp_delete_post( (int) $smoke_candidate_id, true );
 wp_delete_post( (int) $smoke_post_id, true );
 

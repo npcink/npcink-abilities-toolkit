@@ -33,6 +33,7 @@ Representative abilities:
 - `magick-ai/get-post-blocks`
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
+- `magick-ai/get-media-inventory-health`
 - `magick-ai/list-terms`
 - `magick-ai/list-taxonomy-terms`
 - `magick-ai/list-categories`
@@ -173,6 +174,8 @@ Representative abilities:
 - `magick-ai/resolve-post-metadata-plan`
 - `magick-ai/resolve-internal-link-targets`
 - `magick-ai/get-internal-link-opportunity-report`
+- `magick-ai/get-post-seo-geo-readiness`
+- `magick-ai/get-site-topic-coverage-report`
 - `magick-ai/build-inline-image-blocks`
 - `magick-ai/build-media-seo-assets`
 - `magick-ai/geo-analyze`

@@ -2068,6 +2068,135 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_internal_link_opportunity_report' ),
 			),
+			'magick-ai/get-media-inventory-health' => array(
+				'label'            => __( 'Get Media Inventory Health', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'mime_type' => array( 'type' => 'string' ),
+						'search'    => array( 'type' => 'string' ),
+						'per_page'  => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'      => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'total'        => array( 'type' => 'integer' ),
+								'page'         => array( 'type' => 'integer' ),
+								'per_page'     => array( 'type' => 'integer' ),
+								'health_score' => array( 'type' => 'integer' ),
+								'issue_counts' => array( 'type' => 'object', 'additionalProperties' => true ),
+								'items'        => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'summary'      => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'total', 'items', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_media_inventory_health' ),
+			),
+			'magick-ai/get-post-seo-geo-readiness' => array(
+				'label'            => __( 'Get Post SEO GEO Readiness', 'magick-ai-abilities' ),
+				'description'      => __( 'Returns one deterministic SEO/GEO readiness snapshot for a post, including metadata, content-depth, question, and media signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'       => array( 'type' => 'integer', 'minimum' => 1 ),
+						'focus_keyword' => array( 'type' => 'string' ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'post'            => array( 'type' => 'object', 'additionalProperties' => true ),
+								'readiness_score' => array( 'type' => 'integer' ),
+								'status'          => array( 'type' => 'string' ),
+								'checks'          => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'recommendations' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'summary'         => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'post', 'readiness_score', 'status', 'checks', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_post_seo_geo_readiness' ),
+			),
+			'magick-ai/get-site-topic-coverage-report' => array(
+				'label'            => __( 'Get Site Topic Coverage Report', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds a bounded site topic coverage summary from post titles, terms, and content snippets without model routing.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'  => array( 'type' => 'string', 'default' => 'post' ),
+						'status'     => array( 'type' => 'string', 'default' => 'publish' ),
+						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'topic_seed' => array( 'type' => 'string' ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'total'          => array( 'type' => 'integer' ),
+								'topics'         => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'coverage_gaps'  => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'representative_posts' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'summary'        => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'total', 'topics', 'summary' ),
+							'additionalProperties' => false,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_site_topic_coverage_report' ),
+			),
 			'magick-ai/resolve-url-to-post' => array(
 				'label'            => __( 'Resolve URL to Post', 'magick-ai-abilities' ),
 				'description'      => __( 'Resolves a URL or slug to a post ID, post type, status, edit link, and permalink.', 'magick-ai-abilities' ),
@@ -6138,6 +6267,264 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds a media inventory health report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_media_inventory_health( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
+		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$query_result = $this->query_media_inventory( $mime_type, $search, $per_page, $page );
+		$attachment_ids = is_array( $query_result['attachment_ids'] ?? null ) ? $query_result['attachment_ids'] : array();
+		$items = array();
+		$issue_counts = array();
+
+		foreach ( $attachment_ids as $attachment_id ) {
+			$attachment_id = $this->absint_value( $attachment_id );
+			if ( $attachment_id <= 0 || ! current_user_can( 'edit_post', $attachment_id ) ) {
+				continue;
+			}
+			$row = $this->build_media_inventory_health_row( $attachment_id );
+			foreach ( (array) ( $row['issues'] ?? array() ) as $issue ) {
+				$issue = sanitize_key( (string) $issue );
+				if ( '' !== $issue ) {
+					$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+				}
+			}
+			$items[] = $row;
+		}
+
+		$total_issue_instances = array_sum( array_map( 'intval', $issue_counts ) );
+		$health_score = count( $items ) > 0
+			? max( 0, 100 - min( 100, (int) round( ( $total_issue_instances / max( 1, count( $items ) ) ) * 14 ) ) )
+			: 100;
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'        => (int) ( $query_result['total'] ?? count( $attachment_ids ) ),
+				'page'         => $page,
+				'per_page'     => $per_page,
+				'health_score' => $health_score,
+				'issue_counts' => $issue_counts,
+				'items'        => $items,
+				'summary'      => array(
+					'scanned_count'          => count( $items ),
+					'assets_with_issues'     => count(
+						array_filter(
+							$items,
+							static function ( array $item ) {
+								return (int) ( $item['issue_count'] ?? 0 ) > 0;
+							}
+						)
+					),
+					'total_issue_instances' => $total_issue_instances,
+					'mime_type'             => $mime_type,
+					'search'                => $search,
+				),
+			),
+			array(
+				'source'         => 'local_media_inventory_health',
+				'execution_mode' => 'deterministic',
+			),
+			'Media inventory health report built.'
+		);
+	}
+
+	/**
+	 * Builds one deterministic SEO/GEO readiness snapshot for a post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_post_seo_geo_readiness( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+		$content = (string) ( $post->post_content ?? '' );
+		$plain_text = $this->strip_all_tags_value( $content );
+		$focus_keyword = sanitize_text_field( (string) ( $input['focus_keyword'] ?? '' ) );
+		if ( '' === $focus_keyword ) {
+			$focus_keyword = $this->guess_focus_keyword_from_post( $post_id, $title );
+		}
+		$seo_provider = $this->detect_seo_provider();
+		$seo_keys = $this->seo_meta_keys( $seo_provider );
+		$seo_title = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $post_id, (string) ( $seo_keys['title'] ?? '' ), true ) ) : '';
+		$seo_description = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $post_id, (string) ( $seo_keys['description'] ?? '' ), true ) ) : '';
+		$word_count = str_word_count( $plain_text );
+		$question_candidates = $this->collect_article_question_candidates( $plain_text, $title, $focus_keyword );
+		$featured_media_id = function_exists( 'get_post_thumbnail_id' ) ? $this->absint_value( get_post_thumbnail_id( $post_id ) ) : 0;
+		$checks = array();
+		$recommendations = array();
+
+		$this->append_readiness_check( $checks, $recommendations, 'focus_keyword', '' !== $focus_keyword && $this->contains_text_ci( $plain_text . ' ' . $title, $focus_keyword ), 'high', __( 'Focus keyword appears in title or content.', 'magick-ai-abilities' ), __( 'Add or confirm a focus keyword and place it naturally in the title or lead section.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'seo_title', '' !== $seo_title, 'medium', __( 'SEO title metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO title metadata before publication or optimization handoff.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'seo_description', '' !== $seo_description, 'medium', __( 'SEO description metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO description metadata for search and share snippets.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'content_depth', $this->strlen_value( $plain_text ) >= 320, 'medium', __( 'Content has enough depth for baseline SEO review.', 'magick-ai-abilities' ), __( 'Expand the content with clearer context, steps, evidence, or examples.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'answerability', ! empty( $question_candidates ), 'medium', __( 'Content has answer-oriented question candidates.', 'magick-ai-abilities' ), __( 'Add direct answer sections or FAQ-style questions for GEO readiness.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'featured_media', $featured_media_id > 0, 'low', __( 'Featured media is assigned.', 'magick-ai-abilities' ), __( 'Add featured media when the channel or theme expects one.', 'magick-ai-abilities' ) );
+
+		$penalty = 0;
+		foreach ( $checks as $check ) {
+			if ( 'pass' === sanitize_key( (string) ( $check['status'] ?? '' ) ) ) {
+				continue;
+			}
+			$severity = sanitize_key( (string) ( $check['severity'] ?? '' ) );
+			$penalty += 'high' === $severity ? 22 : ( 'medium' === $severity ? 14 : 7 );
+		}
+		$readiness_score = max( 0, 100 - min( 100, $penalty ) );
+
+		return $this->build_analysis_success_response(
+			array(
+				'post'            => array(
+					'post_id'       => $post_id,
+					'title'         => $title,
+					'post_type'     => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+					'status'        => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+					'focus_keyword' => $focus_keyword,
+					'edit_link'     => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+				),
+				'readiness_score' => $readiness_score,
+				'status'          => $readiness_score >= 80 ? 'ready' : ( $readiness_score >= 60 ? 'needs_attention' : 'not_ready' ),
+				'checks'          => $checks,
+				'recommendations' => $recommendations,
+				'summary'         => array(
+					'word_count'               => $word_count,
+					'plain_text_length'        => $this->strlen_value( $plain_text ),
+					'seo_provider'             => $seo_provider,
+					'featured_media_id'        => $featured_media_id,
+					'question_candidate_count' => count( $question_candidates ),
+					'question_candidates'      => $question_candidates,
+				),
+			),
+			array(
+				'source'         => 'local_post_seo_geo_readiness',
+				'execution_mode' => 'deterministic',
+			),
+			'Post SEO/GEO readiness built.'
+		);
+	}
+
+	/**
+	 * Builds a bounded site topic coverage report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_site_topic_coverage_report( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read topic coverage.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		if ( '' === $post_type ) {
+			$post_type = 'post';
+		}
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		if ( '' === $status ) {
+			$status = 'publish';
+		}
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$topic_seed = sanitize_text_field( (string) ( $input['topic_seed'] ?? '' ) );
+		$query_result = $this->query_inventory_posts( $post_type, $status, $per_page, $page );
+		$post_ids = is_array( $query_result['post_ids'] ?? null ) ? $query_result['post_ids'] : array();
+		$topic_map = array();
+		$representative_posts = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$post_id = $this->absint_value( $post_id );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+			$content = $this->strip_all_tags_value( (string) ( $post->post_content ?? '' ) );
+			$terms = $this->collect_topic_terms_for_post( $post_id, $title, $content, $topic_seed );
+			foreach ( $terms as $term ) {
+				if ( ! isset( $topic_map[ $term ] ) ) {
+					$topic_map[ $term ] = array(
+						'topic'    => $term,
+						'count'    => 0,
+						'post_ids' => array(),
+					);
+				}
+				++$topic_map[ $term ]['count'];
+				if ( count( $topic_map[ $term ]['post_ids'] ) < 5 ) {
+					$topic_map[ $term ]['post_ids'][] = $post_id;
+				}
+			}
+			$representative_posts[] = array(
+				'post_id'      => $post_id,
+				'title'        => $title,
+				'status'       => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'primary_terms' => array_slice( $terms, 0, 5 ),
+				'edit_link'    => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+			);
+		}
+
+		$topics = array_values( $topic_map );
+		usort(
+			$topics,
+			static function ( array $a, array $b ) {
+				return (int) ( $b['count'] ?? 0 ) <=> (int) ( $a['count'] ?? 0 );
+			}
+		);
+		$coverage_gaps = array();
+		foreach ( array_slice( $topics, 0, 12 ) as $topic ) {
+			if ( (int) ( $topic['count'] ?? 0 ) <= 1 ) {
+				$coverage_gaps[] = array(
+					'topic'  => sanitize_text_field( (string) ( $topic['topic'] ?? '' ) ),
+					'reason' => __( 'Only one scanned post covers this topic; consider adding supporting content or internal links.', 'magick-ai-abilities' ),
+				);
+			}
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'                => (int) ( $query_result['total'] ?? count( $post_ids ) ),
+				'topics'               => array_slice( $topics, 0, 20 ),
+				'coverage_gaps'        => $coverage_gaps,
+				'representative_posts' => array_slice( $representative_posts, 0, 20 ),
+				'summary'              => array(
+					'scanned_count'       => count( $representative_posts ),
+					'unique_topic_count'  => count( $topics ),
+					'coverage_gap_count'  => count( $coverage_gaps ),
+					'post_type'           => $post_type,
+					'status'              => $status,
+					'topic_seed'          => $topic_seed,
+				),
+			),
+			array(
+				'source'         => 'local_site_topic_coverage_report',
+				'execution_mode' => 'deterministic',
+			),
+			'Site topic coverage report built.'
+		);
+	}
+
+	/**
 	 * Resolves a URL or slug to a post.
 	 *
 	 * @param mixed $input Input args.
@@ -6579,6 +6966,178 @@ final class Core_Read_Package {
 			'post_ids' => $post_ids,
 			'total'    => count( $post_ids ),
 		);
+	}
+
+	/**
+	 * Queries media attachment ids for a bounded inventory scan.
+	 *
+	 * @param string $mime_type Mime type filter.
+	 * @param string $search Search term.
+	 * @param int    $per_page Per page.
+	 * @param int    $page Page.
+	 * @return array<string,mixed>
+	 */
+	private function query_media_inventory( $mime_type, $search, $per_page, $page ) {
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'posts_per_page' => $per_page,
+			'paged'          => $page,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'fields'         => 'ids',
+		);
+		if ( '' !== $mime_type ) {
+			$args['post_mime_type'] = $mime_type;
+		}
+		if ( '' !== $search ) {
+			$args['s'] = $search;
+		}
+
+		if ( class_exists( '\WP_Query' ) ) {
+			$query = new \WP_Query( $args );
+			return array(
+				'attachment_ids' => is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array(),
+				'total'          => (int) ( $query->found_posts ?? 0 ),
+			);
+		}
+
+		$attachments = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
+			? array_values( $GLOBALS['maa_unit_style_posts'] )
+			: array();
+		$filtered = array();
+		foreach ( $attachments as $attachment ) {
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+				continue;
+			}
+			$current_mime = sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) );
+			if ( '' !== $mime_type && false === strpos( $current_mime, $mime_type ) ) {
+				continue;
+			}
+			$title = sanitize_text_field( (string) ( $attachment->post_title ?? '' ) );
+			if ( '' !== $search && false === stripos( $title, $search ) ) {
+				continue;
+			}
+			$filtered[] = $this->absint_value( $attachment->ID ?? 0 );
+		}
+
+		return array(
+			'attachment_ids' => array_slice( array_filter( $filtered ), ( $page - 1 ) * $per_page, $per_page ),
+			'total'          => count( $filtered ),
+		);
+	}
+
+	/**
+	 * Builds one media inventory health row.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_inventory_health_row( $attachment_id ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$attachment = get_post( $attachment_id );
+		$title = is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '';
+		$caption = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ?? '' ) ) : '';
+		$description = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ?? '' ) ) : '';
+		$mime_type = function_exists( 'get_post_mime_type' )
+			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
+			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
+		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
+		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_source_page_url', true ) ) : '';
+		$attribution = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_attribution_text', true ) ) : '';
+		$issues = array();
+		if ( '' === $alt && 0 === strpos( $mime_type, 'image/' ) ) {
+			$issues[] = 'missing_alt';
+		}
+		if ( '' === $caption ) {
+			$issues[] = 'missing_caption';
+		}
+		if ( '' === $description ) {
+			$issues[] = 'missing_description';
+		}
+		if ( '' === $source_url && '' === $attribution ) {
+			$issues[] = 'missing_source';
+		}
+		if ( '' !== $mime_type && 0 === strpos( $mime_type, 'image/' ) && false === strpos( $mime_type, 'webp' ) && false === strpos( $mime_type, 'avif' ) ) {
+			$issues[] = 'format_attention';
+		}
+
+		return array(
+			'attachment_id' => $attachment_id,
+			'title'         => $title,
+			'mime_type'     => $mime_type,
+			'url'           => function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '',
+			'alt'           => $alt,
+			'caption'       => $caption,
+			'description'   => $description,
+			'issue_count'   => count( $issues ),
+			'issues'        => $issues,
+			'edit_link'     => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $attachment_id, 'raw' ) ) : '',
+		);
+	}
+
+	/**
+	 * Appends one SEO/GEO readiness check and recommendation.
+	 *
+	 * @param array<int,array<string,mixed>> $checks Checks.
+	 * @param array<int,array<string,mixed>> $recommendations Recommendations.
+	 * @param string                         $key Check key.
+	 * @param bool                           $passed Passed.
+	 * @param string                         $severity Severity.
+	 * @param string                         $passed_detail Passed detail.
+	 * @param string                         $failed_detail Failed detail.
+	 * @return void
+	 */
+	private function append_readiness_check( array &$checks, array &$recommendations, $key, $passed, $severity, $passed_detail, $failed_detail ) {
+		$key = sanitize_key( (string) $key );
+		$severity = sanitize_key( (string) $severity );
+		if ( ! in_array( $severity, array( 'high', 'medium', 'low' ), true ) ) {
+			$severity = 'medium';
+		}
+		$checks[] = array(
+			'key'      => $key,
+			'status'   => $passed ? 'pass' : 'fail',
+			'severity' => $passed ? 'none' : $severity,
+			'detail'   => $passed ? sanitize_text_field( (string) $passed_detail ) : sanitize_text_field( (string) $failed_detail ),
+		);
+		if ( ! $passed ) {
+			$recommendations[] = array(
+				'key'      => $key,
+				'priority' => $severity,
+				'detail'   => sanitize_text_field( (string) $failed_detail ),
+			);
+		}
+	}
+
+	/**
+	 * Collects topic terms from title, terms, content, and optional seed.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $title Title.
+	 * @param string $content Plain content.
+	 * @param string $topic_seed Optional topic seed.
+	 * @return array<int,string>
+	 */
+	private function collect_topic_terms_for_post( $post_id, $title, $content, $topic_seed ) {
+		$taxonomy_terms = array();
+		if ( function_exists( 'get_the_terms' ) ) {
+			foreach ( array( 'category', 'post_tag' ) as $taxonomy ) {
+				$taxonomy_terms = array_merge( $taxonomy_terms, $this->format_term_name_list( get_the_terms( $post_id, $taxonomy ) ) );
+			}
+		}
+
+		$terms = $this->collect_focus_terms( $title . ' ' . $this->trim_words_value( $content, 24 ), $topic_seed, $taxonomy_terms );
+		$stop_words = array( 'the', 'and', 'for', 'with', 'this', 'that', 'from', 'your', 'you', 'are', 'was', 'were', 'post', 'page', 'article' );
+		$filtered = array();
+		foreach ( $terms as $term ) {
+			$term = trim( sanitize_text_field( (string) $term ) );
+			if ( '' === $term || in_array( strtolower( $term ), $stop_words, true ) || $this->strlen_value( $term ) < 3 ) {
+				continue;
+			}
+			$filtered[] = $term;
+		}
+
+		return array_slice( array_values( array_unique( $filtered ) ), 0, 8 );
 	}
 
 	/**
