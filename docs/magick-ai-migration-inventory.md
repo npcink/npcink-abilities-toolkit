@@ -29,6 +29,10 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | `magick-ai/get-taxonomy-consolidation-suggestions` | New standalone Content Context Pack taxonomy consolidation suggestion ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-comment-action-priority-queue` | New standalone Comment Compliance Pack priority queue ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
 | `magick-ai/get-page-structure-health` | New standalone Content Context Pack page structure health ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-seo-geo-gap-report` | New standalone SEO/GEO Support Pack gap report ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-site-style-baseline` | New standalone SEO/GEO Support Pack style baseline ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/build-article-workflow-context` | New standalone SEO/GEO Support Pack workflow context ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-publishing-calendar-context` | New standalone Publishing Pack read-support calendar ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 
 ## Migrated in 0.1
 

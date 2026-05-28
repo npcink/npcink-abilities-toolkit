@@ -46,6 +46,11 @@ Verification status on 2026-05-28:
   `magick-ai/get-taxonomy-consolidation-suggestions`,
   `magick-ai/get-comment-action-priority-queue`, and
   `magick-ai/get-page-structure-health`.
+- On 2026-05-28, the same Local site smoke passed with `Smoke OK: 149 assertions`
+  after adding `magick-ai/get-seo-geo-gap-report`,
+  `magick-ai/get-site-style-baseline`,
+  `magick-ai/build-article-workflow-context`, and
+  `magick-ai/get-publishing-calendar-context`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -75,7 +80,7 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 141 assertions
+Smoke OK: 149 assertions
 ```
 
 The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, ability execution, and anonymous REST blocking.

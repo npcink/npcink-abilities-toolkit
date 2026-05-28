@@ -2286,6 +2286,128 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_page_structure_health' ),
 			),
+			'magick-ai/get-seo-geo-gap-report' => array(
+				'label'            => __( 'Get SEO GEO Gap Report', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds a bounded SEO/GEO gap report from topic coverage, refresh opportunities, answer structure, and SEO metadata signals.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'  => array( 'type' => 'string', 'default' => 'post' ),
+						'status'     => array( 'type' => 'string', 'default' => 'publish' ),
+						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'topic_seed' => array( 'type' => 'string' ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_seo_geo_gap_report' ),
+			),
+			'magick-ai/get-site-style-baseline' => array(
+				'label'            => __( 'Get Site Style Baseline', 'magick-ai-abilities' ),
+				'description'      => __( 'Returns a compact read-only site-wide or author-specific writing style baseline from recent posts.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'mode'      => array( 'type' => 'string', 'enum' => array( 'site_recent', 'author_recent' ), 'default' => 'site_recent' ),
+						'author_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+						'limit'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 5 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_site_style_baseline' ),
+			),
+			'magick-ai/build-article-workflow-context' => array(
+				'label'            => __( 'Build Article Workflow Context', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds one read-only context bundle for article refresh, publish, or new-article workflows without model routing.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'workflow'   => array( 'type' => 'string', 'enum' => array( 'new_article', 'refresh', 'publish' ), 'default' => 'new_article' ),
+						'post_id'    => array( 'type' => 'integer', 'minimum' => 1 ),
+						'topic_seed' => array( 'type' => 'string' ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_article_workflow_context' ),
+			),
+			'magick-ai/get-publishing-calendar-context' => array(
+				'label'            => __( 'Get Publishing Calendar Context', 'magick-ai-abilities' ),
+				'description'      => __( 'Returns scheduled posts, draft backlog, pending review items, and near-term publishing cadence context.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'   => array( 'type' => 'string', 'default' => 'post' ),
+						'window_days' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 365, 'default' => 30 ),
+						'per_page'    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_publishing_calendar_context' ),
+			),
 			'magick-ai/get-media-inventory-health' => array(
 				'label'            => __( 'Get Media Inventory Health', 'magick-ai-abilities' ),
 				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'magick-ai-abilities' ),
@@ -7263,6 +7385,274 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds SEO/GEO gap report.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_seo_geo_gap_report( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$topic_seed = sanitize_text_field( (string) ( $input['topic_seed'] ?? '' ) );
+
+		$coverage = $this->get_site_topic_coverage_report(
+			array(
+				'post_type'  => '' !== $post_type ? $post_type : 'post',
+				'status'     => '' !== $status ? $status : 'publish',
+				'per_page'   => $per_page,
+				'page'       => $page,
+				'topic_seed' => $topic_seed,
+			)
+		);
+		$refresh = $this->get_content_refresh_opportunities(
+			array(
+				'post_type'  => '' !== $post_type ? $post_type : 'post',
+				'status'     => '' !== $status ? $status : 'publish',
+				'per_page'   => $per_page,
+				'page'       => $page,
+			)
+		);
+		$coverage_data = is_array( $coverage['data'] ?? null ) ? $coverage['data'] : array();
+		$refresh_data = is_array( $refresh['data'] ?? null ) ? $refresh['data'] : array();
+		$refresh_issue_counts = is_array( $refresh_data['issue_counts'] ?? null ) ? $refresh_data['issue_counts'] : array();
+		$gaps = array();
+		foreach ( (array) ( $coverage_data['coverage_gaps'] ?? array() ) as $gap ) {
+			$gaps[] = array(
+				'type'     => 'topic_coverage_gap',
+				'priority' => 'medium',
+				'topic'    => sanitize_text_field( (string) ( is_array( $gap ) ? ( $gap['topic'] ?? '' ) : '' ) ),
+				'reason'   => sanitize_text_field( (string) ( is_array( $gap ) ? ( $gap['reason'] ?? '' ) : '' ) ),
+			);
+		}
+		foreach ( array( 'missing_seo_title', 'missing_seo_description', 'answer_structure_gap', 'thin_content', 'low_internal_links' ) as $issue ) {
+			if ( (int) ( $refresh_issue_counts[ $issue ] ?? 0 ) <= 0 ) {
+				continue;
+			}
+			$gaps[] = array(
+				'type'     => $issue,
+				'priority' => in_array( $issue, array( 'missing_seo_description', 'answer_structure_gap' ), true ) ? 'high' : 'medium',
+				'count'    => (int) $refresh_issue_counts[ $issue ],
+				'reason'   => __( 'Refresh scan found repeated SEO/GEO readiness gaps.', 'magick-ai-abilities' ),
+			);
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'gaps'       => $gaps,
+				'coverage'   => $coverage_data,
+				'refresh'    => $refresh_data,
+				'summary'    => array(
+					'gap_count'      => count( $gaps ),
+					'post_type'      => $post_type,
+					'status'         => $status,
+					'topic_seed'     => $topic_seed,
+					'next_action'    => count( $gaps ) > 0 ? 'prioritize_gap_closure' : 'no_major_gap_detected',
+				),
+			),
+			array(
+				'source'         => 'local_seo_geo_gap_report',
+				'execution_mode' => 'deterministic',
+			),
+			'SEO/GEO gap report built.'
+		);
+	}
+
+	/**
+	 * Builds a compact site style baseline.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>
+	 */
+	public function get_site_style_baseline( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$mode = sanitize_key( (string) ( $input['mode'] ?? 'site_recent' ) );
+		if ( ! in_array( $mode, array( 'site_recent', 'author_recent' ), true ) ) {
+			$mode = 'site_recent';
+		}
+		$baseline = $this->extract_style_baseline(
+			array(
+				'mode'      => $mode,
+				'author_id' => $this->absint_value( $input['author_id'] ?? 0 ),
+				'limit'     => max( 1, min( 5, $this->absint_value( $input['limit'] ?? 5 ) ) ),
+			)
+		);
+		if ( is_array( $baseline ) ) {
+			$baseline['message'] = __( 'Site style baseline built.', 'magick-ai-abilities' );
+			$baseline['meta']['source'] = 'local_site_style_baseline';
+			return $baseline;
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'profile' => array(),
+				'samples' => array(),
+				'source'  => 'unavailable',
+			),
+			array(
+				'source'         => 'local_site_style_baseline',
+				'execution_mode' => 'deterministic',
+			),
+			'Site style baseline built.'
+		);
+	}
+
+	/**
+	 * Builds one article workflow context bundle.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_article_workflow_context( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$workflow = sanitize_key( (string) ( $input['workflow'] ?? 'new_article' ) );
+		if ( ! in_array( $workflow, array( 'new_article', 'refresh', 'publish' ), true ) ) {
+			$workflow = 'new_article';
+		}
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		$topic_seed = sanitize_text_field( (string) ( $input['topic_seed'] ?? '' ) );
+		$data = array(
+			'workflow'   => $workflow,
+			'topic_seed' => $topic_seed,
+			'sections'   => array(),
+		);
+
+		if ( $post_id > 0 ) {
+			$post_context = $this->get_post_context(
+				array(
+					'post_id'           => $post_id,
+					'include_meta'      => true,
+					'include_terms'     => true,
+					'include_media'     => true,
+					'include_revisions' => 'publish' === $workflow,
+				)
+			);
+			if ( is_array( $post_context ) ) {
+				$data['post_context'] = $post_context['data'] ?? array();
+				$data['sections'][] = 'post_context';
+			}
+			if ( in_array( $workflow, array( 'publish', 'refresh' ), true ) ) {
+				$risk = $this->get_post_publish_risk_report(
+					array(
+						'post_id'       => $post_id,
+						'focus_keyword' => $topic_seed,
+					)
+				);
+				if ( is_array( $risk ) ) {
+					$data['publish_risk'] = $risk['data'] ?? array();
+					$data['sections'][] = 'publish_risk';
+				}
+			}
+		}
+
+		$gap_report = $this->get_seo_geo_gap_report(
+			array(
+				'post_type'  => 'post',
+				'status'     => 'any',
+				'per_page'   => 20,
+				'topic_seed' => $topic_seed,
+			)
+		);
+		if ( is_array( $gap_report ) ) {
+			$data['seo_geo_gap_report'] = $gap_report['data'] ?? array();
+			$data['sections'][] = 'seo_geo_gap_report';
+		}
+		$style = $this->get_site_style_baseline( array( 'mode' => 'site_recent', 'limit' => 5 ) );
+		if ( is_array( $style ) ) {
+			$data['style_baseline'] = $style['data'] ?? array();
+			$data['sections'][] = 'style_baseline';
+		}
+		$link_graph = $this->get_internal_link_graph_health(
+			array(
+				'post_type' => 'post',
+				'status'    => 'any',
+				'per_page'  => 20,
+			)
+		);
+		if ( is_array( $link_graph ) ) {
+			$data['internal_link_graph'] = $link_graph['data'] ?? array();
+			$data['sections'][] = 'internal_link_graph';
+		}
+		$data['summary'] = array(
+			'section_count' => count( $data['sections'] ),
+			'next_action'   => 'publish' === $workflow ? 'review_risk_then_prepare_write_handoff' : 'compose_agent_plan_from_context',
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_article_workflow_context',
+				'execution_mode' => 'deterministic',
+			),
+			'Article workflow context built.'
+		);
+	}
+
+	/**
+	 * Builds publishing calendar context.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_publishing_calendar_context( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read publishing calendar context.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+		if ( '' === $post_type ) {
+			$post_type = 'post';
+		}
+		$window_days = max( 1, min( 365, $this->absint_value( $input['window_days'] ?? 30 ) ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$status_counts = array();
+		foreach ( array( 'future', 'draft', 'pending', 'publish' ) as $status ) {
+			$status_counts[ $status ] = (int) ( $this->query_inventory_posts( $post_type, $status, 1, 1 )['total'] ?? 0 );
+		}
+		$future = $this->query_inventory_posts( $post_type, 'future', $per_page, 1 );
+		$drafts = $this->query_inventory_posts( $post_type, 'draft', $per_page, 1 );
+		$pending = $this->query_inventory_posts( $post_type, 'pending', $per_page, 1 );
+		$window_end = time() + ( $window_days * ( defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400 ) );
+		$scheduled = array();
+		foreach ( (array) ( $future['post_ids'] ?? array() ) as $post_id ) {
+			$post_id = $this->absint_value( $post_id );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) ) {
+				continue;
+			}
+			$post_time = strtotime( (string) ( $post->post_date ?? '' ) );
+			if ( false !== $post_time && $post_time > $window_end ) {
+				continue;
+			}
+			$scheduled[] = $this->build_calendar_post_row( $post_id, $post );
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'post_type'      => $post_type,
+				'window_days'    => $window_days,
+				'status_counts'  => $status_counts,
+				'scheduled'      => $scheduled,
+				'draft_backlog'  => $this->build_calendar_rows_from_ids( (array) ( $drafts['post_ids'] ?? array() ) ),
+				'pending_review' => $this->build_calendar_rows_from_ids( (array) ( $pending['post_ids'] ?? array() ) ),
+				'summary'        => array(
+					'scheduled_count' => count( $scheduled ),
+					'draft_count'     => (int) ( $status_counts['draft'] ?? 0 ),
+					'pending_count'   => (int) ( $status_counts['pending'] ?? 0 ),
+					'next_action'     => (int) ( $status_counts['draft'] ?? 0 ) + (int) ( $status_counts['pending'] ?? 0 ) > 0 ? 'review_backlog_and_calendar' : 'calendar_clear',
+				),
+			),
+			array(
+				'source'         => 'local_publishing_calendar_context',
+				'execution_mode' => 'deterministic',
+			),
+			'Publishing calendar context built.'
+		);
+	}
+
+	/**
 	 * Builds a media inventory health report.
 	 *
 	 * @param mixed $input Input args.
@@ -8783,6 +9173,43 @@ final class Core_Read_Package {
 		$value = strtolower( trim( $value ) );
 		$value = preg_replace( '/[^a-z0-9\p{Han}]+/u', '', $value );
 		return sanitize_key( (string) $value );
+	}
+
+	/**
+	 * Builds calendar rows from ids.
+	 *
+	 * @param array<int,int> $post_ids Post ids.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_calendar_rows_from_ids( array $post_ids ) {
+		$rows = array();
+		foreach ( $post_ids as $post_id ) {
+			$post_id = $this->absint_value( $post_id );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( is_object( $post ) ) {
+				$rows[] = $this->build_calendar_post_row( $post_id, $post );
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Builds one calendar post row.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param object $post Post object.
+	 * @return array<string,mixed>
+	 */
+	private function build_calendar_post_row( $post_id, $post ) {
+		return array(
+			'post_id'   => $this->absint_value( $post_id ),
+			'title'     => sanitize_text_field( (string) get_the_title( $post_id ) ),
+			'status'    => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+			'post_date' => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+			'modified'  => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+			'edit_link' => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+		);
 	}
 
 	/**

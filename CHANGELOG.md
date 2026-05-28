@@ -21,6 +21,10 @@
 - Added `magick-ai/get-taxonomy-consolidation-suggestions`, a read-only taxonomy consolidation suggestion report.
 - Added `magick-ai/get-comment-action-priority-queue`, a prioritized read-only comment handoff queue.
 - Added `magick-ai/get-page-structure-health`, a read-only page structure health report.
+- Added `magick-ai/get-seo-geo-gap-report`, a read-only SEO/GEO gap report.
+- Added `magick-ai/get-site-style-baseline`, a read-only site style baseline wrapper.
+- Added `magick-ai/build-article-workflow-context`, a read-only article workflow context bundle.
+- Added `magick-ai/get-publishing-calendar-context`, a read-only publishing calendar context report.
 - Updated first-party pack documentation, migration inventory, smoke coverage, and lightweight tests for the new abilities.
 
 ## 0.2.0 - 2026-05-28

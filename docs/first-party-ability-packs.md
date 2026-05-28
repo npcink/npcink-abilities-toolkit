@@ -98,6 +98,7 @@ Representative read-only publishing support abilities:
 - `magick-ai/get-bulk-publishing-checklist`
 - `magick-ai/get-revision-change-risk-report`
 - `magick-ai/get-post-publish-risk-report`
+- `magick-ai/get-publishing-calendar-context`
 
 Representative destructive abilities:
 
@@ -187,6 +188,9 @@ Representative abilities:
 - `magick-ai/get-internal-link-graph-health`
 - `magick-ai/get-post-seo-geo-readiness`
 - `magick-ai/get-site-topic-coverage-report`
+- `magick-ai/get-seo-geo-gap-report`
+- `magick-ai/get-site-style-baseline`
+- `magick-ai/build-article-workflow-context`
 - `magick-ai/build-inline-image-blocks`
 - `magick-ai/build-media-seo-assets`
 - `magick-ai/geo-analyze`

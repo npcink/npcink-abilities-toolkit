@@ -416,6 +416,10 @@ $new_read_ability_ids = array(
 	'magick-ai/get-media-cleanup-opportunities',
 	'magick-ai/get-taxonomy-consolidation-suggestions',
 	'magick-ai/get-page-structure-health',
+	'magick-ai/get-seo-geo-gap-report',
+	'magick-ai/get-site-style-baseline',
+	'magick-ai/build-article-workflow-context',
+	'magick-ai/get-publishing-calendar-context',
 	'magick-ai/get-media-inventory-health',
 	'magick-ai/get-post-seo-geo-readiness',
 	'magick-ai/get-site-topic-coverage-report',
@@ -491,6 +495,10 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-heal
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-page-structure-health']['input_schema']['properties']['max_pages']['maximum'] ?? null, 'page structure health scan is bounded to 100 pages' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-seo-geo-gap-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'SEO/GEO gap report scan is bounded to 100 posts per page' );
+maa_assert_same( 5, $package_abilities['magick-ai/get-site-style-baseline']['input_schema']['properties']['limit']['maximum'] ?? null, 'site style baseline is bounded to 5 samples' );
+maa_assert_same( array( 'new_article', 'refresh', 'publish' ), $package_abilities['magick-ai/build-article-workflow-context']['input_schema']['properties']['workflow']['enum'] ?? array(), 'article workflow context supports known workflow modes' );
+maa_assert_same( 365, $package_abilities['magick-ai/get-publishing-calendar-context']['input_schema']['properties']['window_days']['maximum'] ?? null, 'publishing calendar window is bounded to 365 days' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media inventory health scan is bounded to 100 assets per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-seo-geo-readiness']['input_schema']['required'] ?? array(), 'post SEO/GEO readiness requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-site-topic-coverage-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site topic coverage scan is bounded to 100 posts per page' );
@@ -1423,6 +1431,54 @@ $page_structure = $core_read_package->get_page_structure_health(
 maa_assert_same( true, $page_structure['success'] ?? null, 'get-page-structure-health returns a success envelope' );
 maa_assert_same( 1, $page_structure['data']['summary']['pages_with_issues'] ?? null, 'get-page-structure-health counts pages with issues' );
 maa_assert_true( in_array( 'missing_cta', $page_structure['data']['items'][0]['issues'] ?? array(), true ), 'get-page-structure-health detects missing CTA' );
+$seo_geo_gap = $core_read_package->get_seo_geo_gap_report(
+	array(
+		'post_type'  => 'post',
+		'status'     => 'any',
+		'per_page'   => 5,
+		'topic_seed' => 'workflow',
+	)
+);
+maa_assert_same( true, $seo_geo_gap['success'] ?? null, 'get-seo-geo-gap-report returns a success envelope' );
+maa_assert_true( (int) ( $seo_geo_gap['data']['summary']['gap_count'] ?? 0 ) >= 1, 'get-seo-geo-gap-report reports gaps from refresh and coverage scans' );
+$site_style_baseline = $core_read_package->get_site_style_baseline(
+	array(
+		'mode'  => 'site_recent',
+		'limit' => 3,
+	)
+);
+maa_assert_same( true, $site_style_baseline['success'] ?? null, 'get-site-style-baseline returns a success envelope' );
+maa_assert_true( isset( $site_style_baseline['data']['profile'] ), 'get-site-style-baseline returns a profile payload' );
+$workflow_context = $core_read_package->build_article_workflow_context(
+	array(
+		'workflow'   => 'publish',
+		'post_id'    => 77,
+		'topic_seed' => 'workflow',
+	)
+);
+maa_assert_same( true, $workflow_context['success'] ?? null, 'build-article-workflow-context returns a success envelope' );
+maa_assert_true( in_array( 'post_context', $workflow_context['data']['sections'] ?? array(), true ), 'build-article-workflow-context includes post context when post_id is provided' );
+$GLOBALS['maa_unit_style_posts'][82] = (object) array(
+	'ID'            => 82,
+	'post_title'    => 'Scheduled Workflow Post',
+	'post_status'   => 'future',
+	'post_type'     => 'post',
+	'post_excerpt'  => '',
+	'post_content'  => 'Scheduled workflow content.',
+	'post_name'     => 'scheduled-workflow-post',
+	'post_author'   => 7,
+	'post_date'     => '2030-01-02 03:04:05',
+	'post_modified' => '2030-01-01 03:04:05',
+);
+$publishing_calendar = $core_read_package->get_publishing_calendar_context(
+	array(
+		'post_type'   => 'post',
+		'window_days' => 365,
+		'per_page'    => 5,
+	)
+);
+maa_assert_same( true, $publishing_calendar['success'] ?? null, 'get-publishing-calendar-context returns a success envelope' );
+maa_assert_true( isset( $publishing_calendar['data']['status_counts']['future'] ), 'get-publishing-calendar-context returns status counts' );
 $GLOBALS['maa_unit_style_posts'][771] = (object) array(
 	'ID'                => 771,
 	'post_title'        => 'Previous Optimization Context',

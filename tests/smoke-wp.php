@@ -121,6 +121,10 @@ foreach (
 		'magick-ai/get-media-cleanup-opportunities',
 		'magick-ai/get-taxonomy-consolidation-suggestions',
 		'magick-ai/get-page-structure-health',
+		'magick-ai/get-seo-geo-gap-report',
+		'magick-ai/get-site-style-baseline',
+		'magick-ai/build-article-workflow-context',
+		'magick-ai/get-publishing-calendar-context',
 		'magick-ai/get-media-inventory-health',
 		'magick-ai/get-post-seo-geo-readiness',
 		'magick-ai/get-site-topic-coverage-report',
@@ -483,6 +487,58 @@ $page_structure_run_request->set_query_params(
 );
 $page_structure_run_response = rest_do_request( $page_structure_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $page_structure_run_response->get_status(), 'Authenticated page structure health ability run returns 200.' );
+
+$seo_geo_gap_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-seo-geo-gap-report/run' );
+$seo_geo_gap_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type'  => 'post',
+			'status'     => 'any',
+			'per_page'   => 10,
+			'topic_seed' => 'ability workflow',
+		),
+	)
+);
+$seo_geo_gap_run_response = rest_do_request( $seo_geo_gap_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $seo_geo_gap_run_response->get_status(), 'Authenticated SEO/GEO gap report ability run returns 200.' );
+
+$site_style_baseline_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-site-style-baseline/run' );
+$site_style_baseline_run_request->set_query_params(
+	array(
+		'input' => array(
+			'mode'  => 'site_recent',
+			'limit' => 3,
+		),
+	)
+);
+$site_style_baseline_run_response = rest_do_request( $site_style_baseline_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $site_style_baseline_run_response->get_status(), 'Authenticated site style baseline ability run returns 200.' );
+
+$article_workflow_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-article-workflow-context/run' );
+$article_workflow_context_run_request->set_query_params(
+	array(
+		'input' => array(
+			'workflow'   => 'publish',
+			'post_id'    => (int) $smoke_post_id,
+			'topic_seed' => 'ability workflow',
+		),
+	)
+);
+$article_workflow_context_run_response = rest_do_request( $article_workflow_context_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $article_workflow_context_run_response->get_status(), 'Authenticated article workflow context ability run returns 200.' );
+
+$publishing_calendar_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-publishing-calendar-context/run' );
+$publishing_calendar_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_type'   => 'post',
+			'window_days' => 30,
+			'per_page'    => 10,
+		),
+	)
+);
+$publishing_calendar_run_response = rest_do_request( $publishing_calendar_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $publishing_calendar_run_response->get_status(), 'Authenticated publishing calendar context ability run returns 200.' );
 
 $smoke_comment_id = wp_insert_comment(
 	array(
