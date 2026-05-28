@@ -17,6 +17,10 @@
 - Added `magick-ai/get-post-publish-risk-report`, a read-only per-post publish risk report.
 - Added `magick-ai/get-content-refresh-opportunities`, a read-only refresh opportunity scanner.
 - Added `magick-ai/get-internal-link-graph-health`, a bounded internal-link graph health report.
+- Added `magick-ai/get-media-cleanup-opportunities`, a read-only media cleanup opportunity scanner.
+- Added `magick-ai/get-taxonomy-consolidation-suggestions`, a read-only taxonomy consolidation suggestion report.
+- Added `magick-ai/get-comment-action-priority-queue`, a prioritized read-only comment handoff queue.
+- Added `magick-ai/get-page-structure-health`, a read-only page structure health report.
 - Updated first-party pack documentation, migration inventory, smoke coverage, and lightweight tests for the new abilities.
 
 ## 0.2.0 - 2026-05-28

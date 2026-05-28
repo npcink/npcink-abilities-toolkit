@@ -413,6 +413,9 @@ $new_read_ability_ids = array(
 	'magick-ai/get-post-publish-risk-report',
 	'magick-ai/get-content-refresh-opportunities',
 	'magick-ai/get-internal-link-graph-health',
+	'magick-ai/get-media-cleanup-opportunities',
+	'magick-ai/get-taxonomy-consolidation-suggestions',
+	'magick-ai/get-page-structure-health',
 	'magick-ai/get-media-inventory-health',
 	'magick-ai/get-post-seo-geo-readiness',
 	'magick-ai/get-site-topic-coverage-report',
@@ -421,6 +424,7 @@ $new_read_ability_ids = array(
 );
 $new_comment_ability_ids = array(
 	'magick-ai/get-comment-queue-health',
+	'magick-ai/get-comment-action-priority-queue',
 );
 $migrated_write_ability_ids = array(
 	'magick-ai/create-draft',
@@ -484,12 +488,16 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-site-operations-dashboar
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-publish-risk-report']['input_schema']['required'] ?? array(), 'post publish risk report requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-refresh-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'content refresh opportunities scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-page-structure-health']['input_schema']['properties']['max_pages']['maximum'] ?? null, 'page structure health scan is bounded to 100 pages' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media inventory health scan is bounded to 100 assets per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-post-seo-geo-readiness']['input_schema']['required'] ?? array(), 'post SEO/GEO readiness requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-site-topic-coverage-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site topic coverage scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy inventory health scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-revision-change-risk-report']['input_schema']['required'] ?? array(), 'revision change risk report requires post_id' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-queue-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment queue health scan is bounded to 100 comments per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-comment-action-priority-queue']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment action priority queue scan is bounded to 100 comments per page' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
@@ -701,6 +709,16 @@ maa_assert_same( true, $comment_queue_health['success'] ?? null, 'get-comment-qu
 maa_assert_same( 3, $comment_queue_health['data']['summary']['counts']['total'] ?? null, 'get-comment-queue-health counts queued comments' );
 maa_assert_true( (int) ( $comment_queue_health['data']['summary']['counts']['spam_risk'] ?? 0 ) >= 1, 'get-comment-queue-health counts spam-risk comments' );
 maa_assert_true( (int) ( $comment_queue_health['data']['summary']['counts']['reply_needed'] ?? 0 ) >= 1, 'get-comment-queue-health counts reply-needed comments' );
+$comment_action_queue = $core_comment_package->get_comment_action_priority_queue(
+	array(
+		'post_id'  => 77,
+		'status'   => 'hold',
+		'per_page' => 10,
+	)
+);
+maa_assert_same( true, $comment_action_queue['success'] ?? null, 'get-comment-action-priority-queue returns a success envelope' );
+maa_assert_same( 3, $comment_action_queue['data']['summary']['counts']['total'] ?? null, 'get-comment-action-priority-queue counts queued comments' );
+maa_assert_true( (int) ( $comment_action_queue['data']['items'][0]['priority_score'] ?? 0 ) >= (int) ( $comment_action_queue['data']['items'][1]['priority_score'] ?? 0 ), 'get-comment-action-priority-queue sorts high-priority items first' );
 $batch_suggest = $core_comment_package->build_comment_moderation_batch_suggest(
 	array(
 		'comment_ids' => array( 11, 12 ),
@@ -1301,6 +1319,15 @@ $media_health = $core_read_package->get_media_inventory_health(
 maa_assert_same( true, $media_health['success'] ?? null, 'get-media-inventory-health returns a success envelope' );
 maa_assert_true( (int) ( $media_health['data']['summary']['scanned_count'] ?? 0 ) >= 1, 'get-media-inventory-health scans local media rows' );
 maa_assert_true( isset( $media_health['data']['issue_counts']['missing_alt'] ), 'get-media-inventory-health counts missing alt text' );
+$media_cleanup = $core_read_package->get_media_cleanup_opportunities(
+	array(
+		'mime_type' => 'image',
+		'per_page'  => 5,
+	)
+);
+maa_assert_same( true, $media_cleanup['success'] ?? null, 'get-media-cleanup-opportunities returns a success envelope' );
+maa_assert_true( (int) ( $media_cleanup['data']['summary']['opportunity_count'] ?? 0 ) >= 1, 'get-media-cleanup-opportunities finds cleanup opportunities' );
+maa_assert_true( isset( $media_cleanup['data']['issue_counts']['possibly_unattached'] ), 'get-media-cleanup-opportunities counts unattached media' );
 $seo_geo_readiness = $core_read_package->get_post_seo_geo_readiness(
 	array(
 		'post_id'       => 77,
@@ -1340,6 +1367,24 @@ $GLOBALS['maa_unit_terms'] = array(
 			'parent'      => 0,
 		),
 	),
+	'post_tag' => array(
+		(object) array(
+			'term_id'     => 401,
+			'name'        => 'AI Workflow',
+			'slug'        => 'ai-workflow',
+			'description' => '',
+			'count'       => 0,
+			'parent'      => 0,
+		),
+		(object) array(
+			'term_id'     => 402,
+			'name'        => 'AI workflow',
+			'slug'        => 'ai-workflow-2',
+			'description' => '',
+			'count'       => 2,
+			'parent'      => 0,
+		),
+	),
 );
 $taxonomy_health = $core_read_package->get_taxonomy_inventory_health(
 	array(
@@ -1351,6 +1396,33 @@ maa_assert_same( true, $taxonomy_health['success'] ?? null, 'get-taxonomy-invent
 maa_assert_same( 'category', $taxonomy_health['data']['taxonomy'] ?? '', 'get-taxonomy-inventory-health keeps taxonomy name' );
 maa_assert_true( isset( $taxonomy_health['data']['issue_counts']['missing_description'] ), 'get-taxonomy-inventory-health counts missing descriptions' );
 maa_assert_true( isset( $taxonomy_health['data']['issue_counts']['unused_term'] ), 'get-taxonomy-inventory-health counts unused terms' );
+$taxonomy_consolidation = $core_read_package->get_taxonomy_consolidation_suggestions(
+	array(
+		'taxonomy' => 'post_tag',
+		'per_page' => 10,
+	)
+);
+maa_assert_same( true, $taxonomy_consolidation['success'] ?? null, 'get-taxonomy-consolidation-suggestions returns a success envelope' );
+maa_assert_true( (int) ( $taxonomy_consolidation['data']['summary']['suggestion_count'] ?? 0 ) >= 1, 'get-taxonomy-consolidation-suggestions returns suggestions' );
+maa_assert_same( 'duplicate_or_near_duplicate', $taxonomy_consolidation['data']['suggestions'][1]['type'] ?? '', 'get-taxonomy-consolidation-suggestions detects duplicate term groups' );
+$GLOBALS['maa_unit_style_posts'][81] = (object) array(
+	'ID'           => 81,
+	'post_title'   => 'Landing Page',
+	'post_status'  => 'publish',
+	'post_type'    => 'page',
+	'post_excerpt' => '',
+	'post_content' => '<p>Short landing page.</p>',
+	'post_name'    => 'landing-page',
+	'post_author'  => 7,
+);
+$page_structure = $core_read_package->get_page_structure_health(
+	array(
+		'page_id' => 81,
+	)
+);
+maa_assert_same( true, $page_structure['success'] ?? null, 'get-page-structure-health returns a success envelope' );
+maa_assert_same( 1, $page_structure['data']['summary']['pages_with_issues'] ?? null, 'get-page-structure-health counts pages with issues' );
+maa_assert_true( in_array( 'missing_cta', $page_structure['data']['items'][0]['issues'] ?? array(), true ), 'get-page-structure-health detects missing CTA' );
 $GLOBALS['maa_unit_style_posts'][771] = (object) array(
 	'ID'                => 771,
 	'post_title'        => 'Previous Optimization Context',

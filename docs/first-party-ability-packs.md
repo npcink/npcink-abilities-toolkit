@@ -35,7 +35,9 @@ Representative abilities:
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
 - `magick-ai/get-media-inventory-health`
+- `magick-ai/get-media-cleanup-opportunities`
 - `magick-ai/get-taxonomy-inventory-health`
+- `magick-ai/get-taxonomy-consolidation-suggestions`
 - `magick-ai/list-terms`
 - `magick-ai/list-taxonomy-terms`
 - `magick-ai/list-categories`
@@ -52,6 +54,7 @@ Representative abilities:
 - `magick-ai/list-pages`
 - `magick-ai/get-page`
 - `magick-ai/inspect-page-structure`
+- `magick-ai/get-page-structure-health`
 
 ## Publishing Pack
 
@@ -129,6 +132,7 @@ Representative abilities:
 - `magick-ai/build-comment-mention-reply-suggest`
 - `magick-ai/read-comment-trigger-queue`
 - `magick-ai/get-comment-queue-health`
+- `magick-ai/get-comment-action-priority-queue`
 - `magick-ai/compose-comment-mention-reply-result`
 - `magick-ai/build-comment-moderation-batch-suggest`
 - `magick-ai/compose-comment-moderation-batch-result`

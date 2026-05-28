@@ -265,6 +265,35 @@ final class Core_Comment_Package {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $this, 'get_comment_queue_health' ),
 			),
+			'magick-ai/get-comment-action-priority-queue' => array(
+				'label'            => __( 'Get Comment Action Priority Queue', 'magick-ai-abilities' ),
+				'description'      => __( 'Reads a bounded comment queue and returns prioritized read-only moderation and reply handoff candidates.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-comments',
+				'capability'       => 'moderate_comments',
+				'required_scope'   => 'comments.manage',
+				'required_scopes'  => array( 'comments.manage' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Internal read layer only. Prioritize comment action handoffs and do not execute moderation actions.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
+						'status'   => array(
+							'type'    => 'string',
+							'enum'    => array( 'hold', 'approve', 'spam', 'trash', 'all' ),
+							'default' => 'hold',
+						),
+						'per_page' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'     => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => $success_schema,
+				'execute_callback' => array( $this, 'get_comment_action_priority_queue' ),
+			),
 			'magick-ai/compose-comment-mention-reply-result' => array(
 				'label'            => __( 'Compose Comment Mention Reply Result', 'magick-ai-abilities' ),
 				'description'      => __( 'Composes one canonical mention-triggered comment reply suggestion envelope.', 'magick-ai-abilities' ),
@@ -638,6 +667,108 @@ final class Core_Comment_Package {
 				'execution_mode' => 'deterministic',
 			),
 			'Comment queue health report built.'
+		);
+	}
+
+	/**
+	 * Builds a prioritized comment action queue.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>
+	 */
+	public function get_comment_action_priority_queue( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$per_page = min( 100, max( 1, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'hold' ) );
+		if ( ! in_array( $status, array( 'hold', 'approve', 'spam', 'trash', 'all' ), true ) ) {
+			$status = 'hold';
+		}
+
+		$args = array(
+			'number' => $per_page,
+			'offset' => ( $page - 1 ) * $per_page,
+			'status' => $status,
+		);
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id > 0 ) {
+			$args['post_id'] = $post_id;
+		}
+
+		$comments = function_exists( 'get_comments' ) ? get_comments( $args ) : array();
+		$items = array();
+		$counts = array(
+			'total'    => 0,
+			'high'     => 0,
+			'medium'   => 0,
+			'low'      => 0,
+			'reply'    => 0,
+			'spam'     => 0,
+			'escalate' => 0,
+		);
+		foreach ( is_array( $comments ) ? $comments : array() as $comment ) {
+			if ( ! is_object( $comment ) ) {
+				continue;
+			}
+			$content = $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) );
+			$classification = $this->classify_comment_content( $content );
+			$action = sanitize_key( (string) ( $classification['recommended_action'] ?? 'approve' ) );
+			$confidence = (float) ( $classification['confidence'] ?? 0 );
+			$risk_flags = array_values( array_unique( array_map( 'sanitize_key', (array) ( $classification['risk_flags'] ?? array() ) ) ) );
+			$priority_score = (int) round( $confidence * 50 );
+			if ( in_array( $action, array( 'spam', 'trash', 'escalate' ), true ) ) {
+				$priority_score += 35;
+			} elseif ( 'reply' === $action ) {
+				$priority_score += 25;
+			}
+			if ( in_array( 'support_request', $risk_flags, true ) || in_array( 'abusive_or_hostile', $risk_flags, true ) ) {
+				$priority_score += 10;
+			}
+			$priority = $priority_score >= 75 ? 'high' : ( $priority_score >= 50 ? 'medium' : 'low' );
+			++$counts['total'];
+			++$counts[ $priority ];
+			if ( isset( $counts[ $action ] ) ) {
+				++$counts[ $action ];
+			}
+			$items[] = array(
+				'comment_id'         => $this->absint_value( $comment->comment_ID ?? 0 ),
+				'post_id'            => $this->absint_value( $comment->comment_post_ID ?? 0 ),
+				'author'             => sanitize_text_field( (string) ( $comment->comment_author ?? '' ) ),
+				'status'             => sanitize_key( (string) ( $comment->comment_approved ?? '' ) ),
+				'excerpt'            => $this->trim_words( $content, 28 ),
+				'recommended_action' => $action,
+				'priority'           => $priority,
+				'priority_score'     => $priority_score,
+				'risk_flags'         => $risk_flags,
+				'next_action'        => in_array( $action, array( 'approve', 'spam', 'trash', 'reply' ), true ) ? 'handoff_to_host_governed_action' : 'manual_review',
+			);
+		}
+
+		usort(
+			$items,
+			static function ( array $a, array $b ) {
+				return (int) ( $b['priority_score'] ?? 0 ) <=> (int) ( $a['priority_score'] ?? 0 );
+			}
+		);
+
+		return $this->success(
+			array(
+				'total'   => count( $items ),
+				'page'    => $page,
+				'per_page' => $per_page,
+				'items'   => $items,
+				'summary' => array(
+					'status'      => $status,
+					'post_id'     => $post_id,
+					'counts'      => $counts,
+					'next_action' => count( $items ) > 0 ? 'review_priority_queue' : 'queue_clear',
+				),
+			),
+			array(
+				'source'         => 'local_comment_action_priority_queue',
+				'execution_mode' => 'deterministic',
+			),
+			'Comment action priority queue built.'
 		);
 	}
 

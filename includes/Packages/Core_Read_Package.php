@@ -2195,6 +2195,97 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_internal_link_graph_health' ),
 			),
+			'magick-ai/get-media-cleanup-opportunities' => array(
+				'label'            => __( 'Get Media Cleanup Opportunities', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans a bounded media inventory and returns cleanup opportunities for metadata gaps, source gaps, and likely unused assets.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'mime_type' => array( 'type' => 'string' ),
+						'per_page'  => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'page'      => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_media_cleanup_opportunities' ),
+			),
+			'magick-ai/get-taxonomy-consolidation-suggestions' => array(
+				'label'            => __( 'Get Taxonomy Consolidation Suggestions', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans taxonomy terms and suggests read-only consolidation candidates for empty, duplicate, similar, and unused terms.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'manage_categories',
+				'required_scope'   => 'taxonomy.read',
+				'required_scopes'  => array( 'taxonomy.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'taxonomy'   => array( 'type' => 'string', 'default' => 'post_tag' ),
+						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
+						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 100 ),
+						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_taxonomy_consolidation_suggestions' ),
+			),
+			'magick-ai/get-page-structure-health' => array(
+				'label'            => __( 'Get Page Structure Health', 'magick-ai-abilities' ),
+				'description'      => __( 'Scans one page or a bounded page set and reports heading, CTA, content depth, and block structure health.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-pages',
+				'capability'       => 'edit_pages',
+				'required_scope'   => 'page.read',
+				'required_scopes'  => array( 'page.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'page_id'   => array( 'type' => 'integer', 'minimum' => 1 ),
+						'status'    => array( 'type' => 'string', 'default' => 'publish' ),
+						'max_pages' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_page_structure_health' ),
+			),
 			'magick-ai/get-media-inventory-health' => array(
 				'label'            => __( 'Get Media Inventory Health', 'magick-ai-abilities' ),
 				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'magick-ai-abilities' ),
@@ -6925,6 +7016,253 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds media cleanup opportunities.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_media_cleanup_opportunities( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media cleanup opportunities.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$query_result = $this->query_media_inventory( $mime_type, '', $per_page, $page );
+		$items = array();
+		$issue_counts = array();
+		foreach ( (array) ( $query_result['attachment_ids'] ?? array() ) as $attachment_id ) {
+			$attachment_id = $this->absint_value( $attachment_id );
+			if ( $attachment_id <= 0 || ! current_user_can( 'edit_post', $attachment_id ) ) {
+				continue;
+			}
+			$row = $this->build_media_inventory_health_row( $attachment_id );
+			$issues = is_array( $row['issues'] ?? null ) ? $row['issues'] : array();
+			$attached_to = get_post( $attachment_id );
+			if ( is_object( $attached_to ) && 0 === $this->absint_value( $attached_to->post_parent ?? 0 ) ) {
+				$issues[] = 'possibly_unattached';
+			}
+			foreach ( $issues as $issue ) {
+				$issue = sanitize_key( (string) $issue );
+				if ( '' !== $issue ) {
+					$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+				}
+			}
+			if ( empty( $issues ) ) {
+				continue;
+			}
+			$row['issues'] = array_values( array_unique( $issues ) );
+			$row['issue_count'] = count( $row['issues'] );
+			$row['priority'] = in_array( 'missing_alt', $row['issues'], true ) || in_array( 'possibly_unattached', $row['issues'], true ) ? 'medium' : 'low';
+			$items[] = $row;
+		}
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'        => (int) ( $query_result['total'] ?? 0 ),
+				'page'         => $page,
+				'per_page'     => $per_page,
+				'items'        => $items,
+				'issue_counts' => $issue_counts,
+				'summary'      => array(
+					'opportunity_count' => count( $items ),
+					'mime_type'         => $mime_type,
+				),
+			),
+			array(
+				'source'         => 'local_media_cleanup_opportunities',
+				'execution_mode' => 'deterministic',
+			),
+			'Media cleanup opportunities built.'
+		);
+	}
+
+	/**
+	 * Builds taxonomy consolidation suggestions.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_taxonomy_consolidation_suggestions( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'manage_categories' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy consolidation suggestions.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'post_tag' ) );
+		if ( '' === $taxonomy ) {
+			$taxonomy = 'post_tag';
+		}
+		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$hide_empty = ! empty( $input['hide_empty'] );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 100 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$query_result = $this->query_taxonomy_inventory_terms( $taxonomy, $hide_empty, $per_page, $page );
+		$terms = is_array( $query_result['terms'] ?? null ) ? $query_result['terms'] : array();
+		$by_key = array();
+		$items = array();
+		$suggestions = array();
+
+		foreach ( $terms as $term ) {
+			if ( ! is_object( $term ) ) {
+				continue;
+			}
+			$row = array(
+				'term_id' => $this->absint_value( $term->term_id ?? 0 ),
+				'name'    => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+				'slug'    => sanitize_title( (string) ( $term->slug ?? '' ) ),
+				'count'   => $this->absint_value( $term->count ?? 0 ),
+			);
+			$key = $this->normalize_taxonomy_consolidation_key( $row['name'] ?: $row['slug'] );
+			if ( '' !== $key ) {
+				$by_key[ $key ][] = $row;
+			}
+			$items[] = $row;
+			if ( 0 === (int) $row['count'] ) {
+				$suggestions[] = array(
+					'type'      => 'unused_term',
+					'priority'  => 'medium',
+					'term_ids'  => array( (int) $row['term_id'] ),
+					'terms'     => array( $row['name'] ),
+					'reason'    => __( 'Term has no associated content in the current scan.', 'magick-ai-abilities' ),
+				);
+			}
+		}
+
+		foreach ( $by_key as $rows ) {
+			if ( count( $rows ) < 2 ) {
+				continue;
+			}
+			$suggestions[] = array(
+				'type'     => 'duplicate_or_near_duplicate',
+				'priority' => 'high',
+				'term_ids' => array_values( array_map( 'intval', array_column( $rows, 'term_id' ) ) ),
+				'terms'    => array_values( array_map( 'strval', array_column( $rows, 'name' ) ) ),
+				'reason'   => __( 'Terms normalize to the same consolidation key.', 'magick-ai-abilities' ),
+			);
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'taxonomy'    => $taxonomy,
+				'total'       => (int) ( $query_result['total'] ?? count( $items ) ),
+				'items'       => $items,
+				'suggestions' => array_slice( $suggestions, 0, 50 ),
+				'summary'     => array(
+					'scanned_count'    => count( $items ),
+					'suggestion_count' => count( $suggestions ),
+					'hide_empty'       => $hide_empty,
+				),
+			),
+			array(
+				'source'         => 'local_taxonomy_consolidation_suggestions',
+				'execution_mode' => 'deterministic',
+			),
+			'Taxonomy consolidation suggestions built.'
+		);
+	}
+
+	/**
+	 * Builds page structure health.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_page_structure_health( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read page structure health.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$page_id = $this->absint_value( $input['page_id'] ?? 0 );
+		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$max_pages = max( 1, min( 100, $this->absint_value( $input['max_pages'] ?? 50 ) ) );
+		$page_ids = array();
+		if ( $page_id > 0 ) {
+			$page_ids = array( $page_id );
+		} else {
+			$query_result = $this->query_inventory_posts( 'page', '' !== $status ? $status : 'publish', $max_pages, 1 );
+			$page_ids = is_array( $query_result['post_ids'] ?? null ) ? $query_result['post_ids'] : array();
+		}
+
+		$items = array();
+		$issue_counts = array();
+		foreach ( $page_ids as $current_page_id ) {
+			$current_page_id = $this->absint_value( $current_page_id );
+			$page = $current_page_id > 0 ? get_post( $current_page_id ) : null;
+			if ( ! is_object( $page ) || ! current_user_can( 'edit_post', $current_page_id ) ) {
+				continue;
+			}
+			$content = (string) ( $page->post_content ?? '' );
+			$plain_text = $this->strip_all_tags_value( $content );
+			$heading_count = preg_match_all( '/<h[1-6][^>]*>/i', $content, $heading_matches );
+			$heading_count = is_int( $heading_count ) ? $heading_count : 0;
+			$cta_count = preg_match_all( '/<a\\s[^>]*href=|wp:button|wp:buttons|class=["\'][^"\']*(?:button|cta)/i', $content, $cta_matches );
+			$cta_count = is_int( $cta_count ) ? $cta_count : 0;
+			$block_count = count( $this->parse_content_blocks( $content ) );
+			$issues = array();
+			if ( $this->strlen_value( $plain_text ) < 160 ) {
+				$issues[] = 'thin_page_content';
+			}
+			if ( $heading_count < 1 ) {
+				$issues[] = 'missing_heading_structure';
+			}
+			if ( $cta_count < 1 ) {
+				$issues[] = 'missing_cta';
+			}
+			if ( $block_count < 2 ) {
+				$issues[] = 'low_block_structure';
+			}
+			foreach ( $issues as $issue ) {
+				$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+			}
+			$items[] = array(
+				'page_id'           => $current_page_id,
+				'title'             => sanitize_text_field( (string) get_the_title( $current_page_id ) ),
+				'status'            => sanitize_key( (string) ( $page->post_status ?? '' ) ),
+				'plain_text_length' => $this->strlen_value( $plain_text ),
+				'heading_count'     => $heading_count,
+				'cta_count'         => $cta_count,
+				'block_count'       => $block_count,
+				'issue_count'       => count( $issues ),
+				'issues'            => $issues,
+				'edit_link'         => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $current_page_id, 'raw' ) ) : '',
+			);
+		}
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'total'        => count( $items ),
+				'items'        => $items,
+				'issue_counts' => $issue_counts,
+				'summary'      => array(
+					'scanned_count'     => count( $items ),
+					'pages_with_issues' => count(
+						array_filter(
+							$items,
+							static function ( array $item ) {
+								return (int) ( $item['issue_count'] ?? 0 ) > 0;
+							}
+						)
+					),
+				),
+			),
+			array(
+				'source'         => 'local_page_structure_health',
+				'execution_mode' => 'deterministic',
+			),
+			'Page structure health built.'
+		);
+	}
+
+	/**
 	 * Builds a media inventory health report.
 	 *
 	 * @param mixed $input Input args.
@@ -8432,6 +8770,19 @@ final class Core_Read_Package {
 		}
 
 		return 'https://example.test/?p=' . $post_id;
+	}
+
+	/**
+	 * Normalizes a term name for consolidation grouping.
+	 *
+	 * @param string $value Term name or slug.
+	 * @return string
+	 */
+	private function normalize_taxonomy_consolidation_key( $value ) {
+		$value = function_exists( 'remove_accents' ) ? remove_accents( (string) $value ) : (string) $value;
+		$value = strtolower( trim( $value ) );
+		$value = preg_replace( '/[^a-z0-9\p{Han}]+/u', '', $value );
+		return sanitize_key( (string) $value );
 	}
 
 	/**
