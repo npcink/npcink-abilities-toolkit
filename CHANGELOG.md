@@ -3,6 +3,7 @@
 ## 0.4.0 - Unreleased
 
 - Added a Core governance catalog snapshot fixture covering draft creation, SEO metadata, comment approval, and workflow definition discovery contracts.
+- Added Core consumer handoff and catalog audit checks for release-candidate governance validation.
 - Added permission matrix and schema boundary audit documentation for first-party write/destructive abilities.
 - Added a Core governance consumer example that discovers ability contracts and prepares a proposal payload without moving Core governance into this package.
 - Hardened write-like contract metadata with `requires_approval`, dry-run and commit defaults, and bounded idempotency keys.

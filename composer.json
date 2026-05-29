@@ -17,6 +17,8 @@
   "scripts": {
     "validate:composer": "composer validate --no-check-publish",
     "check:boundary": "@php scripts/check-project-boundary.php",
+    "check:consumer": "@php scripts/check-consumer-handoff.php",
+    "check:catalog": "@php scripts/audit-ability-catalog.php tests/fixtures/core-governance-catalog-snapshot.json",
     "lint:php": "@php tests/lint.php",
     "perf:smoke": "@php tests/performance-smoke.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
@@ -24,6 +26,8 @@
     "test:all": [
       "@validate:composer",
       "@check:boundary",
+      "@check:consumer",
+      "@check:catalog",
       "@test",
       "@lint:php"
     ]

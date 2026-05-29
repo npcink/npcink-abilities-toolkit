@@ -1,11 +1,33 @@
 # 0.4 Candidate Verification
 
-Status: internal candidate evidence recorded.
+Status: release candidate checklist.
 Date: 2026-05-29.
 
-This receipt records the verification state after adding read-only workflow
-definition runtime discovery and Core governance handoff hardening. It does not
-create a tag or publish a release.
+This checklist records the release-candidate scope and gates after adding
+read-only workflow definition runtime discovery and Core governance handoff
+hardening. It does not create a tag or publish a release.
+
+## Release Candidate Gates
+
+Before tagging `0.4.0`, the release owner should verify:
+
+- [x] Public docs describe the project boundary and keep workflow runtime,
+  approval, audit, quota, model routing, and final write governance outside this
+  package.
+- [x] `composer test:all` includes composer validation, project-boundary checks,
+  consumer handoff checks, catalog governance audit, lightweight contract tests,
+  and PHP lint.
+- [x] Core governance catalog fixture covers representative write, comment, and
+  workflow-discovery contracts.
+- [x] Consumer acceptance fixture proves hosts can build Core proposal payloads
+  from discovered ability metadata without depending on internal classes.
+- [x] Duplicate-id and governance drift audit script is available for local
+  cross-repo checks.
+- [ ] Release zip has been built and inspected.
+- [ ] Final smoke commands have been run against each target WordPress/PHP
+  profile required by the release owner.
+- [ ] The release owner has decided whether the current unreleased line ships
+  as `0.4.0`.
 
 ## Candidate Scope
 
@@ -40,8 +62,10 @@ create a tag or publish a release.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `composer test` | Pass | `OK: 2549 assertions` after contract hardening; snapshot checks are covered by the lightweight suite. |
-| `composer test:all` | Pass | Composer validation, project boundary, tests, and PHP lint passed; `Linted 29 PHP files`. |
+| `composer test` | Pass | `OK: 2562 assertions`; snapshot checks are covered by the lightweight suite. |
+| `composer test:all` | Pass | Composer validation, project boundary, consumer handoff, catalog audit, tests, and PHP lint passed; `Linted 32 PHP files`. |
+| `composer check:consumer` | Pass | Validates proposal payload construction from discovered contracts for Core governance consumers. |
+| `composer check:catalog` | Pass | Validates catalog fixture risk metadata, write controls, approval aliases, and duplicate ids. |
 | `composer perf:smoke` | Pass | Content inventory, SEO/GEO cached report, publish preflight, old article refresh, and comment compliance handoff were within budget. |
 | `git diff --check` | Pass | No whitespace errors. |
 | `composer smoke:wp` full profile | Pass | `Smoke OK: 193 assertions`; includes REST detail checks for governance metadata and schemas. |
@@ -79,3 +103,14 @@ composer smoke:wp
 - Build and inspect the release zip before tagging.
 - Run the same smoke commands against any additional target WordPress/PHP
   profiles required by the release owner.
+
+## Cross-Repo Audit Command
+
+When a consuming host exports its own ability catalog JSON, compare it with this
+package snapshot before merging cross-repo governance changes:
+
+```bash
+php scripts/audit-ability-catalog.php \
+  tests/fixtures/core-governance-catalog-snapshot.json \
+  /path/to/host-catalog.json
+```

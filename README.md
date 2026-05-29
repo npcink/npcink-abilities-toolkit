@@ -96,6 +96,18 @@ for a minimal consumer-side example that discovers a real ability id, reads
 schema/risk metadata, and prepares a `magick-ai-core` proposal payload without
 this package owning Core governance.
 
+The consumer handoff fixture and release-candidate governance checks are
+available through:
+
+```bash
+composer check:consumer
+composer check:catalog
+```
+
+Use `scripts/audit-ability-catalog.php` with one or more catalog JSON files to
+detect duplicate ability ids and governance metadata drift before merging
+cross-repo Core integration changes.
+
 ## Test Page
 
 After activating the plugin, open **Tools -> Abilities API Packages** in wp-admin.
@@ -209,6 +221,13 @@ Run both:
 
 ```bash
 composer test:all
+```
+
+Run the Core consumer handoff and catalog governance checks:
+
+```bash
+composer check:consumer
+composer check:catalog
 ```
 
 Run the isolated bounded-chain performance smoke:
