@@ -26,8 +26,8 @@ registration set with filters:
   `magick_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
 - `magick_ai_abilities_enabled_read_packs`: read-only sub-packs. Returning
   only `array( 'core_wordpress_read' )` keeps generic WordPress reads and drops
-  higher-level content, article, diagnostics, media, taxonomy, page, SEO/GEO,
-  and comment workflow helpers.
+  higher-level content, article, diagnostics, workflow definition discovery,
+  media, taxonomy, page, SEO/GEO, and comment workflow helpers.
 - `magick_ai_abilities_enabled_comment_packs`: comment helper sub-packs.
 - `magick_ai_abilities_should_register_read_ability` and
   `magick_ai_abilities_should_register_comment_ability`: final per-ability
@@ -292,3 +292,37 @@ Return shape:
 - values are normalized definition arrays containing `ability_id`, `mode`,
   `source`, schemas, callbacks, permission callback, `risk_level`,
   `requires_confirm`, scopes, contract metadata, and `meta`.
+
+## `magick_ai_abilities_get_workflow_definitions()`
+
+Returns the read-only workflow recipe definition manifest.
+
+This is a discovery helper for hosts that need machine-readable recipe guidance
+without reading files from this package. The returned definitions are
+declarative; they do not execute, schedule, approve, retry, audit, route models,
+select prompts, or commit final WordPress writes.
+
+Return shape:
+
+- `schema_version`
+- `purpose`
+- `cases`, keyed by workflow case id
+
+Each case follows [Workflow Definition Contract](workflow-definition-contract.md).
+
+## `magick_ai_abilities_get_workflow_definition( $recipe_id )`
+
+Returns one workflow recipe definition by recipe id or case id, or `null` when
+the recipe is unknown.
+
+Parameters:
+
+- `$recipe_id` (`string`): Recipe id such as
+  `workflow/wordpress_article_publish_preflight`, or a case id such as
+  `article_publish_preflight`.
+
+Hosts that need REST-based discovery can also call the read-only Abilities API
+abilities:
+
+- `magick-ai-abilities/list-workflow-recipes`
+- `magick-ai-abilities/get-workflow-recipe`

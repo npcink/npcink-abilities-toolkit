@@ -22,6 +22,8 @@ It does not own model routing, cloud execution, billing, quota, workflow runtime
 
 Reference workflow recipes may document how hosts can compose abilities, but they are not a workflow engine or second registry.
 
+Workflow recipe definitions are available through read-only helpers and Abilities API discovery abilities for hosts that need runtime discovery without workflow execution ownership.
+
 == Requirements ==
 
 * WordPress 6.9 or later with the Abilities API available.
@@ -35,6 +37,8 @@ Reference workflow recipes may document how hosts can compose abilities, but the
 * `magick_ai_abilities_normalize_schema( $schema, $default_type )`
 * `magick_ai_abilities_normalize_annotations( $annotations, $risk_level )`
 * `magick_ai_abilities_get_registered()`
+* `magick_ai_abilities_get_workflow_definitions()`
+* `magick_ai_abilities_get_workflow_definition( $recipe_id )`
 
 == Test Page ==
 
@@ -47,6 +51,8 @@ The page verifies Abilities API availability, fetches the authenticated REST abi
 The plugin includes migrated low-risk WordPress read abilities, deterministic comment helpers, and host-governed WordPress write/destructive abilities using preserved `magick-ai/*` ids for compatibility.
 
 It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
+
+It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only workflow definition discovery abilities for hosts that need recipe metadata at runtime without workflow execution ownership.
 
 == Developer Smoke Test ==
 

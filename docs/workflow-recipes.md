@@ -6,6 +6,31 @@ This document publishes recommended ways to compose first-party abilities into
 useful host workflows. It is a recipe catalog, not a runtime owned by this
 package.
 
+The first three stabilization recipes also have a machine-readable consumer
+replay fixture at `tests/fixtures/agent-workflow-replay.json`. Host-side tests
+can use that fixture to check natural-task routing, preferred bundled ability
+selection, and write-boundary behavior without depending on this package for
+runtime orchestration.
+
+The machine-readable field contract is documented in
+[Workflow Definition Contract](workflow-definition-contract.md).
+Hosts that need runtime discovery can use
+`magick_ai_abilities_get_workflow_definitions()` or the read-only
+`magick-ai-abilities/list-workflow-recipes` ability.
+
+## Core Principle For AI Agents
+
+Workflow definitions in this package may tell a host what ability chain is
+recommended, what data should be handed off, and where the write boundary is.
+They must not decide, schedule, approve, retry, audit, route models, select
+prompts, or commit final WordPress writes.
+
+When an AI agent extends this area, keep the definition read-only and
+declarative. The host runtime owns execution state, policy, approval, audit,
+quota, model or prompt selection, and final mutation. If a proposed workflow
+field would require this package to remember runtime state or enforce host
+policy, that field belongs in the consuming host, not in `magick-ai-abilities`.
+
 ## Boundary
 
 `magick-ai-abilities` may publish workflow recipes when they remain

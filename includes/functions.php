@@ -88,3 +88,29 @@ if ( ! function_exists( 'magick_ai_abilities_get_registered' ) ) {
 		return Magick_AI_Abilities\Plugin::instance()->abilities()->all();
 	}
 }
+
+if ( ! function_exists( 'magick_ai_abilities_get_workflow_definitions' ) ) {
+	/**
+	 * Returns read-only workflow recipe definitions for host discovery.
+	 *
+	 * These definitions are declarative recipe guidance. They do not execute,
+	 * schedule, approve, retry, audit, or commit workflow steps.
+	 *
+	 * @return array<string,mixed>
+	 */
+	function magick_ai_abilities_get_workflow_definitions() {
+		return Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::manifest();
+	}
+}
+
+if ( ! function_exists( 'magick_ai_abilities_get_workflow_definition' ) ) {
+	/**
+	 * Returns one workflow recipe definition by recipe id or case id.
+	 *
+	 * @param string $recipe_id Recipe id or case id.
+	 * @return array<string,mixed>|null
+	 */
+	function magick_ai_abilities_get_workflow_definition( $recipe_id ) {
+		return Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::get( $recipe_id );
+	}
+}

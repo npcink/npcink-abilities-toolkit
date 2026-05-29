@@ -169,6 +169,27 @@ Abilities:
 
 - `magick-ai-abilities/wp-diagnostics-summary`
 
+## Workflow Definition Pack
+
+Purpose: expose read-only workflow recipe definitions for hosts that need
+runtime discovery of recommended ability composition without turning this
+package into a workflow engine.
+
+Risk: read.
+
+Writable: no.
+
+Host approval: no final commit approval required.
+
+Primary consumers: Magick AI Core, Agent Gateway, MCP adapters, and other hosts
+that need recipe discovery while keeping execution, approval, audit, quota, model
+routing, and final writes in the host runtime.
+
+Abilities:
+
+- `magick-ai-abilities/list-workflow-recipes`
+- `magick-ai-abilities/get-workflow-recipe`
+
 ## SEO/GEO Support Pack
 
 Purpose: provide deterministic context, planning, and review helpers for SEO,

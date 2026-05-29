@@ -33,6 +33,8 @@ magick_ai_abilities_register_write_proposal( $ability_id, $definition );
 magick_ai_abilities_normalize_schema( $schema, $default_type );
 magick_ai_abilities_normalize_annotations( $annotations, $risk_level );
 magick_ai_abilities_get_registered();
+magick_ai_abilities_get_workflow_definitions();
+magick_ai_abilities_get_workflow_definition( $recipe_id );
 ```
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
@@ -40,6 +42,8 @@ The migration boundary from the Magick AI plugin is documented in [docs/adr/0001
 The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
+The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
+Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
@@ -167,6 +171,15 @@ The standalone diagnostics package provides:
 - `magick-ai-abilities/wp-diagnostics-summary`
 
 This ability returns a redacted WordPress-only environment summary for agents and other plugins. It reports site hosts, WordPress/PHP runtime details, active theme summary, plugin counts, REST/Abilities API availability, cron counts, and update counts. It intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error log contents, and external HTTP probes.
+
+## Built-In Workflow Definition Discovery
+
+The standalone workflow definition package provides:
+
+- `magick-ai-abilities/list-workflow-recipes`
+- `magick-ai-abilities/get-workflow-recipe`
+
+These abilities return read-only recipe definitions for host-side ability composition. They do not execute workflow steps, schedule work, approve writes, route models, select prompts, audit runs, or commit final WordPress writes.
 
 ## Development
 

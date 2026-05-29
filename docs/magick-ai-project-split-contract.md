@@ -94,9 +94,10 @@ they want a lighter, generic WordPress Abilities API package:
   `core_read`, `core_write`, `core_destructive`, `core_comment`,
   `magick_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
 - `magick_ai_abilities_enabled_read_packs` gates read sub-packs such as
-  `core_wordpress_read`, `wordpress_diagnostics`, `article_workflow_context`,
-  `content_operations`, `media_governance`, `taxonomy_governance`,
-  `page_governance`, `seo_geo_support`, and `comment_workflow_context`.
+  `core_wordpress_read`, `wordpress_diagnostics`, `workflow_definitions`,
+  `article_workflow_context`, `content_operations`, `media_governance`,
+  `taxonomy_governance`, `page_governance`, `seo_geo_support`, and
+  `comment_workflow_context`.
 - `magick_ai_abilities_enabled_comment_packs` gates standalone comment helper
   sub-packs such as `comment_queue_context` and `comment_handoff_context`.
 
@@ -126,6 +127,13 @@ and successor migration, not a silent replacement.
 This project may document recommended workflow recipes that compose registered
 WordPress abilities. Recipes are allowed only as reference guidance for hosts,
 agents, MCP clients, and tests.
+
+Core principle for future agents: workflow definitions here are read-only
+composition contracts. They may describe recommended ability chains, handoff
+shapes, required scopes, expected sections, failure posture, and host-governed
+write boundaries. They must not become an execution engine, approval store,
+scheduler, retry system, audit system, model router, prompt registry, or final
+WordPress write authority.
 
 Workflow recipes in this project may define:
 

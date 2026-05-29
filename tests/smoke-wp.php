@@ -105,11 +105,15 @@ if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/site-summary' ),
 		'Authenticated abilities REST catalog contains the demo ability.'
 	);
-	magick_ai_abilities_smoke_assert(
-		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-diagnostics-summary' ),
-		'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
-	);
-}
+		magick_ai_abilities_smoke_assert(
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-diagnostics-summary' ),
+			'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
+		);
+		magick_ai_abilities_smoke_assert(
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/list-workflow-recipes' ),
+			'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
+		);
+	}
 
 if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 	foreach ( array( 'magick-ai/site-info', 'magick-ai/get-post', 'magick-ai/list-posts' ) as $expected_core_read_id ) {
@@ -118,10 +122,10 @@ if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-	foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
-		magick_ai_abilities_smoke_assert(
-			! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
-			"Light profile disables optional ability {$disabled_ability_id}."
+		foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai-abilities/list-workflow-recipes', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
+			magick_ai_abilities_smoke_assert(
+				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
+				"Light profile disables optional ability {$disabled_ability_id}."
 		);
 	}
 
@@ -130,8 +134,10 @@ if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 }
 foreach (
 	array(
-		'magick-ai/site-info',
-		'magick-ai/list-post-types',
+			'magick-ai/site-info',
+			'magick-ai-abilities/list-workflow-recipes',
+			'magick-ai-abilities/get-workflow-recipe',
+			'magick-ai/list-post-types',
 		'magick-ai/list-taxonomies',
 		'magick-ai/count-posts',
 		'magick-ai/list-pages-tree',
@@ -260,10 +266,30 @@ magick_ai_abilities_smoke_assert( 200 === (int) $run_response->get_status(), 'Au
 
 $diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/wp-diagnostics-summary/run' );
 $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
-$diagnostics_run_response = rest_do_request( $diagnostics_run_request );
-magick_ai_abilities_smoke_assert( 200 === (int) $diagnostics_run_response->get_status(), 'Authenticated diagnostics ability run returns 200.' );
+	$diagnostics_run_response = rest_do_request( $diagnostics_run_request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $diagnostics_run_response->get_status(), 'Authenticated diagnostics ability run returns 200.' );
 
-$smoke_post_id = wp_insert_post(
+	$workflow_recipes_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/list-workflow-recipes/run' );
+	$workflow_recipes_run_request->set_query_params( array( 'input' => array() ) );
+	$workflow_recipes_run_response = rest_do_request( $workflow_recipes_run_request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $workflow_recipes_run_response->get_status(), 'Authenticated workflow recipe discovery ability run returns 200.' );
+	$workflow_recipes_run_data = $workflow_recipes_run_response->get_data();
+	magick_ai_abilities_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_publish_preflight'] ), 'Workflow recipe discovery returns publish preflight definition.' );
+
+	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/get-workflow-recipe/run' );
+	$workflow_recipe_run_request->set_query_params(
+		array(
+			'input' => array(
+				'recipe_id' => 'workflow/wordpress_comment_compliance_handoff',
+			),
+		)
+	);
+	$workflow_recipe_run_response = rest_do_request( $workflow_recipe_run_request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $workflow_recipe_run_response->get_status(), 'Authenticated workflow recipe detail ability run returns 200.' );
+	$workflow_recipe_run_data = $workflow_recipe_run_response->get_data();
+	magick_ai_abilities_smoke_assert( 'magick-ai/get-comment-compliance-handoff' === (string) ( $workflow_recipe_run_data['entrypoint_ability_id'] ?? '' ), 'Workflow recipe detail returns comment handoff entrypoint.' );
+
+	$smoke_post_id = wp_insert_post(
 	array(
 		'post_type'    => 'post',
 		'post_status'  => 'draft',

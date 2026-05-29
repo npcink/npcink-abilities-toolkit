@@ -21,11 +21,12 @@ final class Core_Read_Pack_Classifier {
 	 * @return string[]
 	 */
 	public static function default_packs() {
-		return array(
-			'core_wordpress_read',
-			'wordpress_diagnostics',
-			'comment_workflow_context',
-			'article_workflow_context',
+			return array(
+				'core_wordpress_read',
+				'wordpress_diagnostics',
+				'workflow_definitions',
+				'comment_workflow_context',
+				'article_workflow_context',
 			'content_operations',
 			'media_governance',
 			'taxonomy_governance',
@@ -43,10 +44,12 @@ final class Core_Read_Pack_Classifier {
 	 * @return array<string,string>
 	 */
 	public static function known_pack_map() {
-		return array(
-			'magick-ai/site-info'                                => 'core_wordpress_read',
-			'magick-ai-abilities/wp-diagnostics-summary'        => 'wordpress_diagnostics',
-			'magick-ai/list-post-types'                         => 'core_wordpress_read',
+			return array(
+				'magick-ai/site-info'                                => 'core_wordpress_read',
+				'magick-ai-abilities/wp-diagnostics-summary'        => 'wordpress_diagnostics',
+				'magick-ai-abilities/list-workflow-recipes'          => 'workflow_definitions',
+				'magick-ai-abilities/get-workflow-recipe'            => 'workflow_definitions',
+				'magick-ai/list-post-types'                         => 'core_wordpress_read',
 			'magick-ai/list-taxonomies'                         => 'core_wordpress_read',
 			'magick-ai/list-media'                              => 'media_governance',
 			'magick-ai/list-terms'                              => 'taxonomy_governance',

@@ -450,6 +450,7 @@ require_once dirname( __DIR__ ) . '/includes/Registry/Category_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.php';
 require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
+require_once dirname( __DIR__ ) . '/includes/Workflow/Workflow_Definition_Provider.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
@@ -460,3 +461,4 @@ require_once dirname( __DIR__ ) . '/includes/Packages/Core_Comment_Pack_Classifi
 require_once dirname( __DIR__ ) . '/includes/Packages/Comment_Definitions/Core_Comment_Definitions.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Comment_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Plugin.php';
+require_once dirname( __DIR__ ) . '/includes/functions.php';

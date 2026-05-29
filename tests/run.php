@@ -36,6 +36,21 @@ function maa_assert_same( $expected, $actual, $message ) {
 	maa_assert_true( $expected === $actual, $message . ' Expected ' . var_export( $expected, true ) . ', got ' . var_export( $actual, true ) );
 }
 
+function maa_assert_array_omits_keys( $value, array $forbidden_keys, $path ) {
+	if ( ! is_array( $value ) ) {
+		return;
+	}
+
+	foreach ( $value as $key => $child ) {
+		if ( is_string( $key ) ) {
+			maa_assert_true( ! in_array( $key, $forbidden_keys, true ), "{$path} omits forbidden field {$key}" );
+		}
+
+		$child_path = is_string( $key ) ? "{$path}.{$key}" : "{$path}[]";
+		maa_assert_array_omits_keys( $child, $forbidden_keys, $child_path );
+	}
+}
+
 function maa_assert_package_read_ability_contract( $ability_id, $definition ) {
 	$definition = is_array( $definition ) ? $definition : array();
 	maa_assert_same( true, $definition['annotations']['readonly'] ?? null, "{$ability_id} is readonly" );
@@ -429,8 +444,10 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-page',
 	'magick-ai/inspect-page-structure',
 );
-$new_read_ability_ids = array(
-	'magick-ai/get-post-context',
+	$new_read_ability_ids = array(
+		'magick-ai-abilities/list-workflow-recipes',
+		'magick-ai-abilities/get-workflow-recipe',
+		'magick-ai/get-post-context',
 	'magick-ai/get-content-publishing-checklist',
 	'magick-ai/get-content-inventory-health',
 	'magick-ai/get-bulk-publishing-checklist',
@@ -538,19 +555,24 @@ maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/get-revision-
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-queue-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment queue health scan is bounded to 100 comments per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-action-priority-queue']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment action priority queue scan is bounded to 100 comments per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-handoff']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment compliance handoff scan is bounded to 100 comments per page' );
-maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
-maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
-maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
-maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
+	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
+	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
+	maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
+	maa_assert_same( false, $package_abilities['magick-ai-abilities/list-workflow-recipes']['project_to_magick_catalog'], 'workflow recipe discovery ability does not project into Magick AI by default' );
+	maa_assert_same( 'magick-ai-abilities-workflows', $package_abilities['magick-ai-abilities/list-workflow-recipes']['category'], 'workflow recipe discovery uses standalone workflow category' );
+	maa_assert_same( 'workflow_definitions', $package_abilities['magick-ai-abilities/list-workflow-recipes']['meta']['magick_ai_abilities']['pack'] ?? '', 'workflow recipe discovery is classified as workflow definitions' );
+	maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
-$core_read_definition_ids = array_keys( $core_read_package->definitions() );
-maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
-maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
-maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[2] ?? '', 'core read definitions keep post types third after provider split' );
-maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[4] ?? '', 'core read definitions keep media governance order after provider split' );
-maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[71] ?? '', 'core read definitions keep URL resolver order after provider split' );
-maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[73] ?? '', 'core read definitions keep revision list last after provider split' );
+	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
+	maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
+	maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
+	maa_assert_same( 'magick-ai-abilities/list-workflow-recipes', $core_read_definition_ids[2] ?? '', 'core read definitions keep workflow list third after provider split' );
+	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow get fourth after provider split' );
+	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[4] ?? '', 'core read definitions keep post types after workflow definitions' );
+	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[6] ?? '', 'core read definitions keep media governance order after provider split' );
+	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[73] ?? '', 'core read definitions keep URL resolver order after provider split' );
+	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[75] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -580,9 +602,10 @@ $filtered_read_registrar = new Ability_Registrar( $filtered_read_categories, $co
 $filtered_read_package = new Core_Read_Package( $filtered_read_categories, $filtered_read_registrar );
 $filtered_read_package->boot();
 $filtered_read_abilities = $filtered_read_registrar->all();
-maa_assert_true( isset( $filtered_read_abilities['magick-ai/site-info'] ), 'core read pack filter keeps generic site-info ability' );
-maa_assert_true( ! isset( $filtered_read_abilities['magick-ai/get-site-operations-dashboard'] ), 'core read pack filter removes operations helper ability' );
-maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
+	maa_assert_true( isset( $filtered_read_abilities['magick-ai/site-info'] ), 'core read pack filter keeps generic site-info ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai/get-site-operations-dashboard'] ), 'core read pack filter removes operations helper ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/list-workflow-recipes'] ), 'core read pack filter removes workflow definition discovery ability' );
 remove_all_filters( 'magick_ai_abilities_enabled_read_packs' );
 
 add_filter(
@@ -1891,5 +1914,116 @@ foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id 
 	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'] ), "{$migrated_destructive_ability_id} catalog projection does not own host fallback policy" );
 }
 maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-diagnostics-summary'] ), 'catalog bridge does not project standalone diagnostics ability' );
+
+$workflow_replay_path = __DIR__ . '/fixtures/agent-workflow-replay.json';
+$workflow_replay_json = file_get_contents( $workflow_replay_path );
+maa_assert_true( false !== $workflow_replay_json, 'agent workflow replay fixture is readable' );
+$workflow_replay = json_decode( (string) $workflow_replay_json, true );
+maa_assert_true( is_array( $workflow_replay ), 'agent workflow replay fixture decodes as an object' );
+$workflow_manifest = \Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::manifest();
+maa_assert_same( $workflow_manifest, $workflow_replay, 'agent workflow replay fixture matches production workflow definition provider' );
+maa_assert_same( $workflow_manifest, magick_ai_abilities_get_workflow_definitions(), 'public workflow definitions helper matches provider manifest' );
+maa_assert_same( $workflow_manifest['cases']['article_publish_preflight'], magick_ai_abilities_get_workflow_definition( 'workflow/wordpress_article_publish_preflight' ), 'public workflow definition helper resolves recipe id' );
+maa_assert_same( 'v1', $workflow_replay['schema_version'] ?? '', 'agent workflow replay fixture schema is v1' );
+maa_assert_true( is_array( $workflow_replay['cases'] ?? null ), 'agent workflow replay fixture exposes cases' );
+$forbidden_workflow_definition_fields = \Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::forbidden_field_keys();
+maa_assert_array_omits_keys( $workflow_replay, $forbidden_workflow_definition_fields, 'agent workflow replay fixture' );
+$expected_workflow_replay_cases = array(
+	'article_publish_preflight'      => array(
+		'ability_id'         => 'magick-ai/get-article-publish-preflight-context',
+		'recipe_id'          => 'workflow/wordpress_article_publish_preflight',
+		'required_scope'     => 'post.read',
+		'required_inputs'    => array( 'post_id' ),
+		'expected_sections'  => array( 'post_context', 'publishing_checklist', 'publish_risk', 'workflow_context', 'publishing_calendar' ),
+		'expanded_abilities' => array(
+			'magick-ai/get-post-context',
+			'magick-ai/get-content-publishing-checklist',
+			'magick-ai/get-post-publish-risk-report',
+			'magick-ai/build-article-workflow-context',
+			'magick-ai/get-publishing-calendar-context',
+		),
+		'handoff_kind'       => 'context',
+		'disallowed_default' => array( 'magick-ai/schedule-post', 'magick-ai/publish-post' ),
+	),
+	'old_article_refresh_discovery' => array(
+		'ability_id'         => 'magick-ai/get-old-article-refresh-context',
+		'recipe_id'          => 'workflow/wordpress_old_article_refresh_discovery',
+		'required_scope'     => 'post.read',
+		'required_inputs'    => array(),
+		'expected_sections'  => array( 'refresh_opportunities', 'seo_geo_gap_report', 'site_style_baseline', 'internal_link_graph_health' ),
+		'expanded_abilities' => array(
+			'magick-ai/get-content-refresh-opportunities',
+			'magick-ai/get-seo-geo-gap-report',
+			'magick-ai/get-site-style-baseline',
+			'magick-ai/get-internal-link-graph-health',
+			'magick-ai/get-internal-link-opportunity-report',
+		),
+		'handoff_kind'       => 'context',
+		'disallowed_default' => array( 'magick-ai/patch-post-content', 'magick-ai/update-post', 'magick-ai/update-post-blocks' ),
+	),
+	'comment_compliance_handoff'    => array(
+		'ability_id'         => 'magick-ai/get-comment-compliance-handoff',
+		'recipe_id'          => 'workflow/wordpress_comment_compliance_handoff',
+		'required_scope'     => 'comments.manage',
+		'required_inputs'    => array(),
+		'expected_sections'  => array( 'queue_health', 'priority_queue', 'selected_moderation_suggestion' ),
+		'expanded_abilities' => array(
+			'magick-ai/get-comment-queue-health',
+			'magick-ai/get-comment-action-priority-queue',
+			'magick-ai/build-comment-moderation-suggest',
+			'magick-ai/build-comment-mention-reply-suggest',
+			'magick-ai/compose-comment-moderation-result',
+		),
+		'handoff_kind'       => 'context',
+		'disallowed_default' => array( 'magick-ai/approve-comment', 'magick-ai/reply-comment', 'magick-ai/spam-comment', 'magick-ai/trash-comment' ),
+	),
+);
+maa_assert_same( array_keys( $expected_workflow_replay_cases ), array_keys( $workflow_replay['cases'] ), 'agent workflow replay fixture keeps the three approved stabilization cases in order' );
+foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
+	$case = $workflow_replay['cases'][ $case_id ] ?? array();
+	maa_assert_true( is_array( $case ), "agent workflow replay case {$case_id} is an object" );
+	maa_assert_same( 'workflow_recipe', $case['definition_kind'] ?? '', "agent workflow replay case {$case_id} is a workflow recipe definition" );
+	maa_assert_same( 'v1', $case['contract_version'] ?? '', "agent workflow replay case {$case_id} uses definition contract v1" );
+	maa_assert_true( is_array( $case['natural_tasks'] ?? null ), "agent workflow replay case {$case_id} exposes natural task examples" );
+	maa_assert_true( count( $case['natural_tasks'] ) >= 3, "agent workflow replay case {$case_id} keeps at least three natural task examples" );
+	maa_assert_same( $expected_case['ability_id'], $case['preferred_ability_id'] ?? '', "agent workflow replay case {$case_id} prefers the bundle ability" );
+	maa_assert_same( $expected_case['ability_id'], $case['entrypoint_ability_id'] ?? '', "agent workflow replay case {$case_id} exposes the preferred bundle as entrypoint" );
+	maa_assert_same( $expected_case['recipe_id'], $case['recipe_id'] ?? '', "agent workflow replay case {$case_id} keeps the recipe id" );
+	maa_assert_same( $expected_case['required_scope'], $case['required_scope'] ?? '', "agent workflow replay case {$case_id} keeps the required scope" );
+	maa_assert_same( $expected_case['required_inputs'], $case['required_inputs'] ?? array(), "agent workflow replay case {$case_id} keeps required inputs" );
+	maa_assert_same( $expected_case['expected_sections'], $case['expected_sections'] ?? array(), "agent workflow replay case {$case_id} keeps expected output sections" );
+	maa_assert_same( $expected_case['expanded_abilities'], $case['expanded_ability_ids'] ?? array(), "agent workflow replay case {$case_id} keeps expanded ability chain" );
+	maa_assert_true( is_array( $case['handoff'] ?? null ), "agent workflow replay case {$case_id} exposes a structured handoff" );
+	maa_assert_same( $expected_case['handoff_kind'], $case['handoff']['kind'] ?? '', "agent workflow replay case {$case_id} keeps handoff kind" );
+	maa_assert_same( 'host', $case['handoff']['owner'] ?? '', "agent workflow replay case {$case_id} keeps host-owned handoff" );
+	maa_assert_true( is_string( $case['handoff']['next_action'] ?? null ) && '' !== $case['handoff']['next_action'], "agent workflow replay case {$case_id} keeps a host next action hint" );
+	maa_assert_same( 'fail_closed', $case['failure_policy'] ?? '', "agent workflow replay case {$case_id} fails closed" );
+	maa_assert_same( $expected_case['disallowed_default'], $case['disallowed_default_ability_ids'] ?? array(), "agent workflow replay case {$case_id} keeps disallowed default write abilities" );
+	maa_assert_same( true, $case['host_governed_write_boundary'] ?? null, "agent workflow replay case {$case_id} keeps host-governed write boundary" );
+	maa_assert_true( isset( $package_abilities[ $expected_case['ability_id'] ] ), "agent workflow replay case {$case_id} points to a registered ability" );
+	$entrypoint_ability = $package_abilities[ $expected_case['ability_id'] ];
+	maa_assert_same( 'read', $entrypoint_ability['risk_level'] ?? '', "agent workflow replay case {$case_id} points to a read-risk bundle" );
+	maa_assert_same( false, $entrypoint_ability['requires_confirm'] ?? null, "agent workflow replay case {$case_id} points to a read-only bundle without confirmation" );
+	maa_assert_same( $expected_case['required_scope'], $entrypoint_ability['required_scope'] ?? '', "agent workflow replay case {$case_id} matches registered ability scope" );
+	maa_assert_same( $expected_case['required_inputs'], $entrypoint_ability['input_schema']['required'] ?? array(), "agent workflow replay case {$case_id} required inputs match the entrypoint schema" );
+	$case_catalog_key = str_replace( '/', '_', $expected_case['ability_id'] );
+	maa_assert_same( 'wp_ability', $package_catalog[ $case_catalog_key ]['executor_type'] ?? '', "agent workflow replay case {$case_id} is projected for wp_ability execution" );
+	foreach ( $expected_case['expanded_abilities'] as $expanded_ability_id ) {
+		maa_assert_true( isset( $package_abilities[ $expanded_ability_id ] ), "agent workflow replay case {$case_id} references known expanded ability {$expanded_ability_id}" );
+		maa_assert_true( 'destructive' !== ( $package_abilities[ $expanded_ability_id ]['risk_level'] ?? '' ), "agent workflow replay case {$case_id} expanded ability {$expanded_ability_id} is not destructive" );
+	}
+	foreach ( $expected_case['disallowed_default'] as $disallowed_ability_id ) {
+		maa_assert_true( $disallowed_ability_id !== $expected_case['ability_id'], "agent workflow replay case {$case_id} does not disallow its preferred bundle" );
+		maa_assert_true( isset( $package_abilities[ $disallowed_ability_id ] ), "agent workflow replay case {$case_id} references a known disallowed default ability {$disallowed_ability_id}" );
+		maa_assert_true( 'read' !== ( $package_abilities[ $disallowed_ability_id ]['risk_level'] ?? 'read' ), "agent workflow replay case {$case_id} disallowed default {$disallowed_ability_id} is write-like" );
+	}
+}
+
+$workflow_list = call_user_func( $package_abilities['magick-ai-abilities/list-workflow-recipes']['execute_callback'], array() );
+maa_assert_same( $workflow_manifest, $workflow_list, 'workflow recipe discovery ability returns provider manifest' );
+$workflow_get = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/wordpress_comment_compliance_handoff' ) );
+maa_assert_same( $workflow_manifest['cases']['comment_compliance_handoff'], $workflow_get, 'workflow recipe detail ability resolves recipe id' );
+$workflow_missing = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
+maa_assert_true( is_wp_error( $workflow_missing ), 'workflow recipe detail ability fails closed for missing recipe' );
 
 echo "OK: {$assertions} assertions\n";

@@ -2,6 +2,9 @@
 
 ## 0.4.0 - Unreleased
 
+- Added read-only workflow definition discovery through PHP helpers and Abilities API abilities without introducing workflow runtime ownership.
+- Added host profile guidance for full governed hosts and light core-read integrations.
+- Added workflow definition contract tests that keep the replay fixture aligned with the production provider and reject runtime/governance fields.
 - Split the standalone WordPress diagnostics read ability definition into a dedicated read definitions provider while preserving registration order and behavior.
 - Split built-in comment helper ability definitions into a dedicated comment definitions provider while preserving callback ownership, sub-pack classification, and registration behavior.
 - Split generic `core_wordpress_read` ability definitions into a dedicated read definitions provider while preserving callback ownership, sub-pack classification, and registration order.

@@ -1,0 +1,128 @@
+{
+  "schema_version": "v1",
+  "purpose": "AI consumer task replay and workflow definition cases for the first three workflow bundle entry points.",
+  "cases": {
+    "article_publish_preflight": {
+      "definition_kind": "workflow_recipe",
+      "contract_version": "v1",
+      "title": "Article publish preflight",
+      "natural_tasks": [
+        "Check whether this draft is ready to publish.",
+        "Review the article before scheduling it.",
+        "Find publication risks and calendar pressure for this post."
+      ],
+      "preferred_ability_id": "magick-ai/get-article-publish-preflight-context",
+      "entrypoint_ability_id": "magick-ai/get-article-publish-preflight-context",
+      "expanded_ability_ids": [
+        "magick-ai/get-post-context",
+        "magick-ai/get-content-publishing-checklist",
+        "magick-ai/get-post-publish-risk-report",
+        "magick-ai/build-article-workflow-context",
+        "magick-ai/get-publishing-calendar-context"
+      ],
+      "recipe_id": "workflow/wordpress_article_publish_preflight",
+      "required_scope": "post.read",
+      "required_inputs": [
+        "post_id"
+      ],
+      "expected_sections": [
+        "post_context",
+        "publishing_checklist",
+        "publish_risk",
+        "workflow_context",
+        "publishing_calendar"
+      ],
+      "handoff": {
+        "kind": "context",
+        "owner": "host",
+        "next_action": "review_publish_readiness_then_request_host_approval_for_any_write"
+      },
+      "failure_policy": "fail_closed",
+      "disallowed_default_ability_ids": [
+        "magick-ai/schedule-post",
+        "magick-ai/publish-post"
+      ],
+      "host_governed_write_boundary": true
+    },
+    "old_article_refresh_discovery": {
+      "definition_kind": "workflow_recipe",
+      "contract_version": "v1",
+      "title": "Old article refresh discovery",
+      "natural_tasks": [
+        "Find old articles that need refreshing.",
+        "Discover SEO and GEO gaps across existing posts.",
+        "Choose candidate posts for an article refresh plan."
+      ],
+      "preferred_ability_id": "magick-ai/get-old-article-refresh-context",
+      "entrypoint_ability_id": "magick-ai/get-old-article-refresh-context",
+      "expanded_ability_ids": [
+        "magick-ai/get-content-refresh-opportunities",
+        "magick-ai/get-seo-geo-gap-report",
+        "magick-ai/get-site-style-baseline",
+        "magick-ai/get-internal-link-graph-health",
+        "magick-ai/get-internal-link-opportunity-report"
+      ],
+      "recipe_id": "workflow/wordpress_old_article_refresh_discovery",
+      "required_scope": "post.read",
+      "required_inputs": [],
+      "expected_sections": [
+        "refresh_opportunities",
+        "seo_geo_gap_report",
+        "site_style_baseline",
+        "internal_link_graph_health"
+      ],
+      "handoff": {
+        "kind": "context",
+        "owner": "host",
+        "next_action": "choose_refresh_candidates_then_open_host_governed_optimization"
+      },
+      "failure_policy": "fail_closed",
+      "disallowed_default_ability_ids": [
+        "magick-ai/patch-post-content",
+        "magick-ai/update-post",
+        "magick-ai/update-post-blocks"
+      ],
+      "host_governed_write_boundary": true
+    },
+    "comment_compliance_handoff": {
+      "definition_kind": "workflow_recipe",
+      "contract_version": "v1",
+      "title": "Comment compliance handoff",
+      "natural_tasks": [
+        "Triage comments waiting for moderation.",
+        "Prepare moderation suggestions without approving anything.",
+        "Build a reply or moderation handoff for a selected comment."
+      ],
+      "preferred_ability_id": "magick-ai/get-comment-compliance-handoff",
+      "entrypoint_ability_id": "magick-ai/get-comment-compliance-handoff",
+      "expanded_ability_ids": [
+        "magick-ai/get-comment-queue-health",
+        "magick-ai/get-comment-action-priority-queue",
+        "magick-ai/build-comment-moderation-suggest",
+        "magick-ai/build-comment-mention-reply-suggest",
+        "magick-ai/compose-comment-moderation-result"
+      ],
+      "recipe_id": "workflow/wordpress_comment_compliance_handoff",
+      "required_scope": "comments.manage",
+      "required_inputs": [],
+      "expected_sections": [
+        "queue_health",
+        "priority_queue",
+        "selected_moderation_suggestion"
+      ],
+      "handoff": {
+        "kind": "context",
+        "owner": "host",
+        "next_action": "review_comment_suggestions_then_request_host_approval_for_any_action"
+      },
+      "failure_policy": "fail_closed",
+      "disallowed_default_ability_ids": [
+        "magick-ai/approve-comment",
+        "magick-ai/reply-comment",
+        "magick-ai/spam-comment",
+        "magick-ai/trash-comment"
+      ],
+      "host_governed_write_boundary": true
+    }
+  }
+}

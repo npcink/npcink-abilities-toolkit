@@ -155,6 +155,8 @@ These abilities are owned by this standalone plugin and are not migrated Magick 
 | Ability id | Purpose | Owner |
 | --- | --- | --- |
 | `magick-ai-abilities/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `magick-ai-abilities/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `magick-ai-abilities/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
 
 ## Next Read-Only Candidates
 

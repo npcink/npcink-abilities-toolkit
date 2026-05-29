@@ -11,6 +11,7 @@ use Magick_AI_Abilities\Packages\Read_Definitions\Core_WordPress_Read_Definition
 use Magick_AI_Abilities\Packages\Read_Definitions\WordPress_Diagnostics_Definitions;
 use Magick_AI_Abilities\Registry\Ability_Registrar;
 use Magick_AI_Abilities\Registry\Category_Registrar;
+use Magick_AI_Abilities\Workflow\Workflow_Definition_Provider;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -65,13 +66,20 @@ final class Core_Read_Package {
 				'description' => __( 'Read-only WordPress page discovery and inspection abilities.', 'magick-ai-abilities' ),
 			)
 		);
-		$this->categories->add(
-			'magick-ai-abilities-diagnostics',
-			array(
-				'label'       => __( 'WordPress Diagnostics', 'magick-ai-abilities' ),
-				'description' => __( 'Redacted WordPress environment diagnostics for Abilities API clients.', 'magick-ai-abilities' ),
-			)
-		);
+			$this->categories->add(
+				'magick-ai-abilities-diagnostics',
+				array(
+					'label'       => __( 'WordPress Diagnostics', 'magick-ai-abilities' ),
+					'description' => __( 'Redacted WordPress environment diagnostics for Abilities API clients.', 'magick-ai-abilities' ),
+				)
+			);
+			$this->categories->add(
+				'magick-ai-abilities-workflows',
+				array(
+					'label'       => __( 'Workflow Recipe Definitions', 'magick-ai-abilities' ),
+					'description' => __( 'Read-only workflow recipe definitions for host-side ability composition.', 'magick-ai-abilities' ),
+				)
+			);
 
 		foreach ( $this->definitions() as $ability_id => $definition ) {
 			$pack = $this->read_pack_for( $ability_id );
@@ -146,9 +154,53 @@ final class Core_Read_Package {
 	 *
 	 * @return array<string,array<string,mixed>>
 	 */
-	public function definitions() {
-		$definitions = array(
-			'magick-ai/list-media'      => array(
+		public function definitions() {
+			$definitions = array(
+				'magick-ai-abilities/list-workflow-recipes' => array(
+					'label'            => __( 'List Workflow Recipes', 'magick-ai-abilities' ),
+					'description'      => __( 'Returns read-only workflow recipe definitions for host-side ability composition without executing workflow steps.', 'magick-ai-abilities' ),
+					'category'         => 'magick-ai-abilities-workflows',
+					'capability'       => 'manage_options',
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'schema_version' => array( 'type' => 'string' ),
+							'purpose'        => array( 'type' => 'string' ),
+							'cases'          => array( 'type' => 'object', 'additionalProperties' => true ),
+						),
+						'required'   => array( 'schema_version', 'cases' ),
+					),
+					'execute_callback' => array( $this, 'list_workflow_recipes' ),
+				),
+				'magick-ai-abilities/get-workflow-recipe'  => array(
+					'label'            => __( 'Get Workflow Recipe', 'magick-ai-abilities' ),
+					'description'      => __( 'Returns one read-only workflow recipe definition by recipe id or case id without executing workflow steps.', 'magick-ai-abilities' ),
+					'category'         => 'magick-ai-abilities-workflows',
+					'capability'       => 'manage_options',
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'recipe_id' => array( 'type' => 'string' ),
+						),
+						'required'             => array( 'recipe_id' ),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'                 => 'object',
+						'additionalProperties' => true,
+					),
+					'execute_callback' => array( $this, 'get_workflow_recipe' ),
+				),
+				'magick-ai/list-media'      => array(
 				'label'            => __( 'List Media', 'magick-ai-abilities' ),
 				'description'      => __( 'Returns a paginated list of media library attachments.', 'magick-ai-abilities' ),
 				'category'         => 'magick-ai-data',
@@ -2172,14 +2224,40 @@ final class Core_Read_Package {
 			}
 		}
 
-		return $ordered + $definitions;
-	}
+			return $ordered + $definitions;
+		}
 
-	/**
-	 * Returns site information.
-	 *
-	 * @return array<string,mixed>
-	 */
+		/**
+		 * Returns read-only workflow recipe definitions.
+		 *
+		 * @return array<string,mixed>
+		 */
+		public function list_workflow_recipes() {
+			return Workflow_Definition_Provider::manifest();
+		}
+
+		/**
+		 * Returns one read-only workflow recipe definition.
+		 *
+		 * @param mixed $input Ability input.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		public function get_workflow_recipe( $input ) {
+			$input     = is_array( $input ) ? $input : array();
+			$recipe_id = isset( $input['recipe_id'] ) ? sanitize_text_field( (string) $input['recipe_id'] ) : '';
+			$recipe    = Workflow_Definition_Provider::get( $recipe_id );
+			if ( null === $recipe ) {
+				return new \WP_Error( 'magick_ai_abilities_workflow_recipe_not_found', __( 'Workflow recipe definition was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			}
+
+			return $recipe;
+		}
+
+		/**
+		 * Returns site information.
+		 *
+		 * @return array<string,mixed>
+		 */
 	public function site_info() {
 		$theme = wp_get_theme();
 		$timezone = get_option( 'timezone_string' );

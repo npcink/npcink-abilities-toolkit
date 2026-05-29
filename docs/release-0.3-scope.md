@@ -51,8 +51,8 @@ workflow chains through standard WordPress ability contracts.
   `core_comment`, `magick_catalog_bridge`, `admin_test_page`, and
   `read_cache_hooks`.
 - Light host profile can keep only `core_read` plus the `core_wordpress_read`
-  sub-pack and must not register workflow, diagnostics, write, destructive, or
-  comment helper abilities.
+  sub-pack and must not register workflow definition discovery, workflow,
+  diagnostics, write, destructive, or comment helper abilities.
 - Projected Magick AI catalog rows remain thin by default and do not include
   host-owned policy fields such as `open_api_enabled`, `backend_priority`,
   `write_mode`, `tool_policy`, or catalog fallback controls.

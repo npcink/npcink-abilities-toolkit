@@ -106,6 +106,35 @@ single-ability registration and execution:
 Use the Local WordPress command documented in
 [local-wpcli-smoke.md](local-wpcli-smoke.md) to rerun this validation.
 
+## AI Consumer Replay Fixture
+
+`tests/fixtures/agent-workflow-replay.json` records the first three natural task
+replay cases for consumer-side validation. It is intentionally small and
+machine-readable:
+
+- each case follows the field rules in
+  [Workflow Definition Contract](workflow-definition-contract.md);
+- each case maps natural task examples to one preferred bundled ability;
+- each case names the recipe id, required scope, expected output sections, and
+  required input keys;
+- each case lists write/destructive abilities that an agent must not pick as
+  the default entry for the task;
+- `composer test` verifies the fixture against registered abilities and the
+  optional `wp_ability` compatibility projection consumed by host projects.
+
+The current required consumer-side check belongs in `magick-ai-core`. Future
+Agent Gateway, MCP, or other host tests may reuse the same fixture, but the
+abandoned legacy Magick AI project is no longer a validation target.
+
+Use this fixture to prove that task selection prefers the bundled context entry
+before falling back to expanded individual calls or host-governed writes.
+
+Runtime consumers should prefer the read-only workflow definition helper or
+Abilities API discovery abilities documented in
+[Workflow Definition Contract](workflow-definition-contract.md). The fixture
+keeps tests aligned with the production provider; it should not be the only
+production discovery path.
+
 ## Failure Handling
 
 - Missing ability: fail the host workflow early and report the missing ability
