@@ -26,9 +26,11 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Security/Permission_Callbacks.p
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Category_Registrar.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Ability_Registrar.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Integration/Magick_Catalog_Bridge.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Write_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Destructive_Package.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Pack_Classifier.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Admin/Test_Page.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Plugin.php';

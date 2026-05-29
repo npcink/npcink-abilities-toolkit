@@ -16,6 +16,7 @@ workflow chains through standard WordPress ability contracts.
   [Agent Workflow Validation](agent-workflow-validation.md).
 - Validate bounded-chain performance with `composer perf:smoke`.
 - Keep Magick AI projection metadata-only with `executor_type=wp_ability`.
+- Keep default/full and light `core_wordpress_read` smoke profiles passing.
 - Record smoke results whenever the Local WordPress site is available.
 
 ## Non-Goals
@@ -41,6 +42,29 @@ workflow chains through standard WordPress ability contracts.
 - `composer smoke:wp` status is recorded, including the assertion count or why
   it was not run.
 - Any new ability id is added to `docs/magick-ai-migration-inventory.md`.
+
+## Compatibility Checklist
+
+- Default boot still enables `core_read`, `core_write`, `core_destructive`,
+  `core_comment`, `magick_catalog_bridge`, `admin_test_page`, and
+  `read_cache_hooks`.
+- Light host profile can keep only `core_read` plus the `core_wordpress_read`
+  sub-pack and must not register workflow, diagnostics, write, destructive, or
+  comment helper abilities.
+- Projected Magick AI catalog rows remain thin by default and do not include
+  host-owned policy fields such as `open_api_enabled`, `backend_priority`,
+  `write_mode`, `tool_policy`, or catalog fallback controls.
+- Magick AI consumer tests derive backend priority and tool policy in Magick AI
+  from `executor_type`, `risk_level`, and `requires_confirm`.
+- Public third-party helpers remain limited to category, read-only,
+  write-proposal, normalization, registry inspection, and composition filters.
+  No third-party final commit helper is introduced without a new ADR.
+- Existing `magick-ai/*` ids remain compatibility ids. Namespace cleanup is
+  deferred until each renamed id has `deprecated` / `successor` metadata and
+  host migration tests.
+- Any source-file split must be zero behavior change: no ability id, schema,
+  annotation, risk, confirmation, callback, or default registration change may
+  be bundled with the split.
 
 ## Fourth Batch Rule
 

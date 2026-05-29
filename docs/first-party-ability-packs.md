@@ -1,8 +1,10 @@
 # First-Party Ability Packs
 
 This document groups the built-in abilities by product purpose. It does not
-change code ownership or move files. The current implementation remains in
-`includes/Packages/*` to avoid unnecessary migration risk.
+change runtime ownership. The current implementation remains in
+`includes/Packages/*`, with sub-pack classifiers split into small
+`Core_*_Pack_Classifier` classes so host package gating can evolve without
+changing ability ids, schemas, or callbacks.
 
 Recommended cross-pack compositions are documented in
 [Workflow Recipes](workflow-recipes.md). Those recipes are host-side

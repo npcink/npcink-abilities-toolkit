@@ -91,6 +91,46 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	}
 }
 
+if ( ! function_exists( 'add_filter' ) ) {
+	function add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+		unset( $priority, $accepted_args );
+		if ( ! isset( $GLOBALS['maa_unit_filters'] ) || ! is_array( $GLOBALS['maa_unit_filters'] ) ) {
+			$GLOBALS['maa_unit_filters'] = array();
+		}
+		if ( ! isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) || ! is_array( $GLOBALS['maa_unit_filters'][ $hook_name ] ) ) {
+			$GLOBALS['maa_unit_filters'][ $hook_name ] = array();
+		}
+		$GLOBALS['maa_unit_filters'][ $hook_name ][] = $callback;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_action' ) ) {
+	function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
+		unset( $priority, $accepted_args );
+		if ( ! isset( $GLOBALS['maa_unit_actions'] ) || ! is_array( $GLOBALS['maa_unit_actions'] ) ) {
+			$GLOBALS['maa_unit_actions'] = array();
+		}
+		if ( ! isset( $GLOBALS['maa_unit_actions'][ $hook_name ] ) || ! is_array( $GLOBALS['maa_unit_actions'][ $hook_name ] ) ) {
+			$GLOBALS['maa_unit_actions'][ $hook_name ] = array();
+		}
+		$GLOBALS['maa_unit_actions'][ $hook_name ][] = $callback;
+
+		return true;
+	}
+}
+
+if ( ! function_exists( 'remove_all_filters' ) ) {
+	function remove_all_filters( $hook_name ) {
+		if ( isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) ) {
+			unset( $GLOBALS['maa_unit_filters'][ $hook_name ] );
+		}
+
+		return true;
+	}
+}
+
 if ( ! function_exists( 'get_post' ) ) {
 	function get_post( $post_id ) {
 		if ( is_object( $post_id ) ) {
@@ -409,7 +449,11 @@ require_once dirname( __DIR__ ) . '/includes/Registry/Contract_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Category_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.php';
+require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Destructive_Package.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Core_Comment_Pack_Classifier.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Comment_Package.php';
+require_once dirname( __DIR__ ) . '/includes/Plugin.php';

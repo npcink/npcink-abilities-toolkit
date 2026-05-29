@@ -29,6 +29,8 @@ Each accepted ability must satisfy these rules:
 - no Magick AI runtime, model routing, quota, audit, or workflow ownership;
 - REST discovery and execution through WordPress Abilities API;
 - smoke coverage when the ability is part of a top-level workflow.
+- assignment to a built-in package or sub-pack so hosts can disable optional
+  workflow helpers without losing the generic WordPress read surface.
 
 ## Matrix
 
@@ -60,3 +62,6 @@ Current known gaps:
 - Media write/destructive approval UX belongs in the host runtime.
 - A future fourth ability batch should be limited to gaps discovered while
   validating these workflows, ideally three to five abilities at most.
+- The broad `magick-ai/*` compatibility namespace remains in place for migrated
+  ids. Future namespace cleanup needs explicit deprecation/successor metadata
+  and host migration tests before renaming.

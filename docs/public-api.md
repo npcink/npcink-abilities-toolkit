@@ -9,6 +9,42 @@ APIs in 0.1. Third-party providers may register read-only abilities and
 write-proposal abilities only. Final commit authorization belongs to a host
 runtime such as Magick AI.
 
+The internal registrar can still register first-party host-governed write and
+destructive callbacks for this package's built-in WordPress ability packs. That
+does not make commit helpers a third-party public API. External provider
+plugins should expose proposals and let the consuming host decide whether and
+how a final write is authorized.
+
+## Built-In Package Controls
+
+The default plugin boot keeps all built-in packages enabled for compatibility.
+Hosts that only need the generic Abilities API surface can narrow the local
+registration set with filters:
+
+- `magick_ai_abilities_enabled_packages`: package-level boot map. Supported
+  slugs are `core_read`, `core_write`, `core_destructive`, `core_comment`,
+  `magick_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
+- `magick_ai_abilities_enabled_read_packs`: read-only sub-packs. Returning
+  only `array( 'core_wordpress_read' )` keeps generic WordPress reads and drops
+  higher-level content, article, diagnostics, media, taxonomy, page, SEO/GEO,
+  and comment workflow helpers.
+- `magick_ai_abilities_enabled_comment_packs`: comment helper sub-packs.
+- `magick_ai_abilities_should_register_read_ability` and
+  `magick_ai_abilities_should_register_comment_ability`: final per-ability
+  registration gates.
+- `magick_ai_abilities_projected_catalog_row`: last-mile customization for the
+  optional Magick AI compatibility row. The default row is intentionally thin;
+  hosts that need product-specific runtime fields should add them here or in
+  the consuming host, not by expanding this package's default projection.
+
+These filters are host composition controls, not new public ability-definition
+APIs. They prevent this package from becoming a forced Magick AI catalog bundle
+in installations that only want reusable WordPress ability definitions.
+
+The projection filter is metadata-only. It must not be used to move final
+approval, quota, audit, Open API exposure, MCP policy, workflow state, or model
+routing ownership into this package.
+
 ## `magick_ai_abilities_register_category( $category_id, $args )`
 
 Registers an Abilities API category.

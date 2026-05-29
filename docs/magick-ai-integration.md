@@ -38,6 +38,14 @@ catalog rows into Magick AI with `executor_type=wp_ability`. That projection is
 discovery metadata only; execution still goes through WordPress Abilities API
 and Magick AI's consuming runtime.
 
+Projected catalog rows are intentionally thin. They identify the WordPress
+ability, carry schemas, annotations, risk level, confirmation requirement, and
+optional lightweight compatibility metadata. They do not publish Open API
+policy, backend priority, catalog fallback behavior, MCP policy, quota, audit,
+or tool-policy decisions. Those remain Magick AI runtime responsibilities.
+When Magick AI consumes a thin row, it should derive runtime fields in its own
+catalog normalization layer instead of requiring this package to emit them.
+
 Magick AI owns only its consuming runtime:
 
 - Open API Gateway

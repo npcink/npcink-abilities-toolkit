@@ -58,6 +58,10 @@ Verification status through 2026-05-29:
   after adding `magick-ai/get-article-publish-preflight-context`,
   `magick-ai/get-old-article-refresh-context`, and
   `magick-ai/get-comment-compliance-handoff`.
+- On 2026-05-29, `composer smoke:wp` passed the default profile with
+  `Smoke OK: 162 assertions` and the light `core_wordpress_read` profile with
+  `Smoke OK: 13 assertions` after adding package/sub-pack gating and thin
+  projection compatibility checks.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -88,6 +92,13 @@ Expected result:
 
 ```text
 Smoke OK: 162 assertions
+Smoke OK: 13 assertions
 ```
 
-The smoke test verifies Abilities API availability, authenticated REST catalog access, the demo ability, the standalone diagnostics ability, migrated core read/comment/write/destructive ability registration, individual ability execution, workflow-chain execution, and anonymous REST blocking.
+The default smoke profile verifies Abilities API availability, authenticated
+REST catalog access, the demo ability, the standalone diagnostics ability,
+migrated core read/comment/write/destructive ability registration, individual
+ability execution, workflow-chain execution, and anonymous REST blocking. The
+light profile verifies that a host can keep only generic `core_wordpress_read`
+abilities while disabling workflow helpers, diagnostics, write/destructive
+abilities, comment helpers, catalog bridge, admin test page, and cache hooks.

@@ -14,6 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $GLOBALS['magick_ai_abilities_smoke_assertions'] = 0;
+$magick_ai_abilities_smoke_profile = sanitize_key( (string) ( getenv( 'MAGICK_AI_ABILITIES_SMOKE_PROFILE' ) ?: 'default' ) );
+if ( '' === $magick_ai_abilities_smoke_profile ) {
+	$magick_ai_abilities_smoke_profile = 'default';
+}
 
 /**
  * Asserts a smoke-test condition.
@@ -58,16 +62,20 @@ magick_ai_abilities_smoke_assert( function_exists( 'wp_register_ability' ), 'Wor
 magick_ai_abilities_smoke_assert( function_exists( 'wp_register_ability_category' ), 'WordPress Abilities API category registration function exists.' );
 magick_ai_abilities_smoke_assert( function_exists( 'magick_ai_abilities_register_readonly' ), 'Plugin public readonly registration helper is loaded.' );
 
-update_option( 'magick_ai_abilities_demo_enabled', '1' );
+if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
+	update_option( 'magick_ai_abilities_demo_enabled', '1' );
+}
 
 if ( function_exists( 'wp_get_abilities' ) ) {
 	wp_get_abilities();
 }
 
-magick_ai_abilities_smoke_assert(
-	! function_exists( 'wp_has_ability' ) || wp_has_ability( 'magick-ai-abilities/site-summary' ),
-	'Demo site-summary ability is registered.'
-);
+if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
+	magick_ai_abilities_smoke_assert(
+		! function_exists( 'wp_has_ability' ) || wp_has_ability( 'magick-ai-abilities/site-summary' ),
+		'Demo site-summary ability is registered.'
+	);
+}
 
 $admin_ids = get_users(
 	array(
@@ -92,14 +100,34 @@ $provider_abilities_response = rest_do_request( $provider_abilities_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $provider_abilities_response->get_status(), 'Authenticated provider namespace REST catalog returns 200.' );
 
 $provider_abilities_data = $provider_abilities_response->get_data();
-magick_ai_abilities_smoke_assert(
-	magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/site-summary' ),
-	'Authenticated abilities REST catalog contains the demo ability.'
-);
-magick_ai_abilities_smoke_assert(
-	magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-diagnostics-summary' ),
-	'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
-);
+if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
+	magick_ai_abilities_smoke_assert(
+		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/site-summary' ),
+		'Authenticated abilities REST catalog contains the demo ability.'
+	);
+	magick_ai_abilities_smoke_assert(
+		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-diagnostics-summary' ),
+		'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
+	);
+}
+
+if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
+	foreach ( array( 'magick-ai/site-info', 'magick-ai/get-post', 'magick-ai/list-posts' ) as $expected_core_read_id ) {
+		magick_ai_abilities_smoke_assert(
+			! function_exists( 'wp_has_ability' ) || wp_has_ability( $expected_core_read_id ),
+			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
+		);
+	}
+	foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
+		magick_ai_abilities_smoke_assert(
+			! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
+			"Light profile disables optional ability {$disabled_ability_id}."
+		);
+	}
+
+	echo 'Smoke OK: ' . (int) $GLOBALS['magick_ai_abilities_smoke_assertions'] . " assertions\n";
+	return;
+}
 foreach (
 	array(
 		'magick-ai/site-info',

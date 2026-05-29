@@ -158,7 +158,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/get-page`
 - `magick-ai/inspect-page-structure`
 
-The `magick-ai/*` ids are preserved for compatibility during the migration from the Magick AI plugin. They do not project into Magick AI by default.
+The `magick-ai/*` ids are preserved for compatibility during the migration from the Magick AI plugin. Built-in migrated ids may explicitly project into Magick AI as thin `wp_ability` compatibility rows; third-party provider abilities still do not project into Magick AI by default.
 
 ## Built-In WordPress Diagnostics
 

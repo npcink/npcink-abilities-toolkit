@@ -12,6 +12,7 @@ use Magick_AI_Abilities\Packages\Core_Comment_Package;
 use Magick_AI_Abilities\Packages\Core_Destructive_Package;
 use Magick_AI_Abilities\Packages\Core_Read_Package;
 use Magick_AI_Abilities\Packages\Core_Write_Package;
+use Magick_AI_Abilities\Plugin;
 use Magick_AI_Abilities\Registry\Ability_Registrar;
 use Magick_AI_Abilities\Registry\Annotation_Normalizer;
 use Magick_AI_Abilities\Registry\Category_Registrar;
@@ -220,6 +221,28 @@ maa_assert_true(
 	'registrar rejects unnamespaced ability'
 );
 
+add_filter(
+	'magick_ai_abilities_enabled_packages',
+	static function ( $packages ) {
+		$packages['core_write']            = false;
+		$packages['core_destructive']      = false;
+		$packages['core_comment']          = false;
+		$packages['magick_catalog_bridge'] = false;
+		$packages['admin_test_page']       = false;
+		$packages['read_cache_hooks']      = false;
+
+		return $packages;
+	}
+);
+$plugin = Plugin::instance();
+$plugin->boot();
+$plugin_abilities = $plugin->abilities()->all();
+maa_assert_true( isset( $plugin_abilities['magick-ai/site-info'] ), 'package filter keeps enabled core read package' );
+maa_assert_true( ! isset( $plugin_abilities['magick-ai/create-draft'] ), 'package filter disables core write package' );
+maa_assert_true( ! isset( $plugin_abilities['magick-ai/delete-post-permanently'] ), 'package filter disables core destructive package' );
+maa_assert_true( ! isset( $plugin_abilities['magick-ai/get-comment-queue-health'] ), 'package filter disables core comment package' );
+remove_all_filters( 'magick_ai_abilities_enabled_packages' );
+
 maa_assert_true(
 	$registrar->add_write_host_governed(
 		'acme/host-write',
@@ -264,9 +287,10 @@ $catalog = $bridge->filter_catalog( array(), array() );
 maa_assert_true( isset( $catalog['acme_projected-summary'] ), 'catalog bridge projects opted-in provider ability' );
 maa_assert_same( 'wp_ability', $catalog['acme_projected-summary']['executor_type'], 'catalog bridge uses wp_ability executor' );
 maa_assert_same( 'acme/projected-summary', $catalog['acme_projected-summary']['wp_ability_id'], 'catalog bridge keeps wp ability id' );
-maa_assert_same( false, $catalog['acme_projected-summary']['open_api_enabled'], 'catalog bridge does not publish Open API by default' );
-maa_assert_same( true, $catalog['acme_projected-summary']['skip_catalog_manifest_fallback'], 'catalog bridge preserves provider contract over host default manifest fallback' );
 maa_assert_same( true, $catalog['acme_projected-summary']['show_in_rest'], 'catalog bridge sets top-level show_in_rest for host catalog normalization' );
+maa_assert_true( ! isset( $catalog['acme_projected-summary']['open_api_enabled'] ), 'catalog bridge does not own Open API routing policy' );
+maa_assert_true( ! isset( $catalog['acme_projected-summary']['skip_catalog_manifest_fallback'] ), 'catalog bridge does not own host manifest fallback policy' );
+maa_assert_true( ! isset( $catalog['acme_projected-summary']['backend_priority'] ), 'catalog bridge does not own backend priority policy' );
 
 maa_assert_true(
 	$registrar->add_write_host_governed(
@@ -286,9 +310,9 @@ maa_assert_true(
 );
 $catalog = $bridge->filter_catalog( array(), array() );
 maa_assert_same( 'wp_ability', $catalog['acme_projected-host-write']['executor_type'] ?? '', 'catalog bridge projects host-governed write as wp_ability' );
-maa_assert_same( true, $catalog['acme_projected-host-write']['tool_policy']['require_confirmation'] ?? null, 'catalog bridge requires confirmation for projected host-governed write' );
-maa_assert_same( true, $catalog['acme_projected-host-write']['tool_policy']['allow_write'] ?? null, 'catalog bridge allows write for projected host-governed write policy' );
-maa_assert_same( true, $catalog['acme_projected-host-write']['skip_catalog_manifest_fallback'] ?? null, 'catalog bridge keeps skip fallback for projected host-governed write' );
+maa_assert_same( true, $catalog['acme_projected-host-write']['requires_confirm'] ?? null, 'catalog bridge carries confirmation requirement for projected host-governed write' );
+maa_assert_true( ! isset( $catalog['acme_projected-host-write']['tool_policy'] ), 'catalog bridge does not own projected host-governed write tool policy' );
+maa_assert_true( ! isset( $catalog['acme_projected-host-write']['skip_catalog_manifest_fallback'] ), 'catalog bridge does not own projected host-governed write fallback policy' );
 
 maa_assert_true(
 	$registrar->add_destructive_host_governed(
@@ -308,10 +332,10 @@ maa_assert_true(
 );
 $catalog = $bridge->filter_catalog( array(), array() );
 maa_assert_same( 'wp_ability', $catalog['acme_projected-delete-post']['executor_type'] ?? '', 'catalog bridge projects destructive ability as wp_ability' );
-maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['require_confirmation'] ?? null, 'catalog bridge requires confirmation for projected destructive ability' );
-maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['allow_write'] ?? null, 'catalog bridge allows write for projected destructive policy' );
-maa_assert_same( true, $catalog['acme_projected-delete-post']['tool_policy']['allow_destructive'] ?? null, 'catalog bridge marks projected destructive policy as destructive' );
-maa_assert_same( true, $catalog['acme_projected-delete-post']['skip_catalog_manifest_fallback'] ?? null, 'catalog bridge keeps skip fallback for projected destructive ability' );
+maa_assert_same( true, $catalog['acme_projected-delete-post']['requires_confirm'] ?? null, 'catalog bridge carries confirmation requirement for projected destructive ability' );
+maa_assert_same( 'destructive', $catalog['acme_projected-delete-post']['risk_level'] ?? '', 'catalog bridge carries projected destructive risk' );
+maa_assert_true( ! isset( $catalog['acme_projected-delete-post']['tool_policy'] ), 'catalog bridge does not own projected destructive tool policy' );
+maa_assert_true( ! isset( $catalog['acme_projected-delete-post']['skip_catalog_manifest_fallback'] ), 'catalog bridge does not own projected destructive fallback policy' );
 
 maa_assert_true(
 	$registrar->add_readonly(
@@ -515,8 +539,42 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-hando
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
+maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
+maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
+maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/create-page'] ), 'create-page is not migrated as a readonly ability' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/update-page'] ), 'update-page is not migrated as a readonly ability' );
+
+add_filter(
+	'magick_ai_abilities_enabled_read_packs',
+	static function () {
+		return array( 'core_wordpress_read' );
+	}
+);
+$filtered_read_categories = new Category_Registrar();
+$filtered_read_registrar = new Ability_Registrar( $filtered_read_categories, $contract_normalizer );
+$filtered_read_package = new Core_Read_Package( $filtered_read_categories, $filtered_read_registrar );
+$filtered_read_package->boot();
+$filtered_read_abilities = $filtered_read_registrar->all();
+maa_assert_true( isset( $filtered_read_abilities['magick-ai/site-info'] ), 'core read pack filter keeps generic site-info ability' );
+maa_assert_true( ! isset( $filtered_read_abilities['magick-ai/get-site-operations-dashboard'] ), 'core read pack filter removes operations helper ability' );
+maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
+remove_all_filters( 'magick_ai_abilities_enabled_read_packs' );
+
+add_filter(
+	'magick_ai_abilities_enabled_comment_packs',
+	static function () {
+		return array( 'comment_queue_context' );
+	}
+);
+$filtered_comment_categories = new Category_Registrar();
+$filtered_comment_registrar = new Ability_Registrar( $filtered_comment_categories, $contract_normalizer );
+$filtered_comment_package = new Core_Comment_Package( $filtered_comment_categories, $filtered_comment_registrar );
+$filtered_comment_package->boot();
+$filtered_comment_abilities = $filtered_comment_registrar->all();
+maa_assert_true( isset( $filtered_comment_abilities['magick-ai/get-comment-queue-health'] ), 'comment pack filter keeps queue helper ability' );
+maa_assert_true( ! isset( $filtered_comment_abilities['magick-ai/get-comment-compliance-handoff'] ), 'comment pack filter removes handoff helper ability' );
+remove_all_filters( 'magick_ai_abilities_enabled_comment_packs' );
 foreach ( $migrated_write_ability_ids as $migrated_write_ability_id ) {
 	maa_assert_true( isset( $package_abilities[ $migrated_write_ability_id ] ), "core write package owns migrated {$migrated_write_ability_id} ability" );
 	maa_assert_package_write_ability_contract( $migrated_write_ability_id, $package_abilities[ $migrated_write_ability_id ] );
@@ -1784,7 +1842,7 @@ foreach ( $migrated_read_ability_ids as $migrated_ability_id ) {
 	$catalog_key = str_replace( '/', '_', $migrated_ability_id );
 	maa_assert_true( isset( $package_catalog[ $catalog_key ] ), "catalog bridge projects migrated {$migrated_ability_id}" );
 	maa_assert_same( 'wp_ability', $package_catalog[ $catalog_key ]['executor_type'], "{$migrated_ability_id} catalog entry executes through wp_ability" );
-	maa_assert_same( false, $package_catalog[ $catalog_key ]['open_api_enabled'], "{$migrated_ability_id} catalog projection does not publish Open API by default" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['open_api_enabled'] ), "{$migrated_ability_id} catalog projection does not own Open API policy" );
 }
 foreach ( $migrated_write_ability_ids as $migrated_write_ability_id ) {
 	$catalog_key = str_replace( '/', '_', $migrated_write_ability_id );
@@ -1792,10 +1850,10 @@ foreach ( $migrated_write_ability_ids as $migrated_write_ability_id ) {
 	maa_assert_same( 'wp_ability', $package_catalog[ $catalog_key ]['executor_type'], "{$migrated_write_ability_id} catalog entry executes through wp_ability" );
 	maa_assert_same( true, $package_catalog[ $catalog_key ]['requires_confirm'], "{$migrated_write_ability_id} catalog projection requires confirmation" );
 	maa_assert_same( 'write', $package_catalog[ $catalog_key ]['risk_level'], "{$migrated_write_ability_id} catalog projection is write risk" );
-	maa_assert_same( 'allow_write', $package_catalog[ $catalog_key ]['write_mode'], "{$migrated_write_ability_id} catalog projection keeps write mode" );
 	maa_assert_same( true, $package_catalog[ $catalog_key ]['show_in_rest'], "{$migrated_write_ability_id} catalog projection exposes show_in_rest for host normalization" );
-	maa_assert_same( false, $package_catalog[ $catalog_key ]['open_api_enabled'], "{$migrated_write_ability_id} catalog projection does not publish Open API by default" );
-	maa_assert_same( true, $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'], "{$migrated_write_ability_id} catalog projection skips host default manifest fallback" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['write_mode'] ), "{$migrated_write_ability_id} catalog projection does not own write mode policy" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['open_api_enabled'] ), "{$migrated_write_ability_id} catalog projection does not own Open API policy" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'] ), "{$migrated_write_ability_id} catalog projection does not own host fallback policy" );
 }
 foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id ) {
 	$catalog_key = str_replace( '/', '_', $migrated_destructive_ability_id );
@@ -1803,10 +1861,10 @@ foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id 
 	maa_assert_same( 'wp_ability', $package_catalog[ $catalog_key ]['executor_type'], "{$migrated_destructive_ability_id} catalog entry executes through wp_ability" );
 	maa_assert_same( true, $package_catalog[ $catalog_key ]['requires_confirm'], "{$migrated_destructive_ability_id} catalog projection requires confirmation" );
 	maa_assert_same( 'destructive', $package_catalog[ $catalog_key ]['risk_level'], "{$migrated_destructive_ability_id} catalog projection is destructive risk" );
-	maa_assert_same( 'allow_write', $package_catalog[ $catalog_key ]['write_mode'], "{$migrated_destructive_ability_id} catalog projection keeps write mode" );
-	maa_assert_same( true, $package_catalog[ $catalog_key ]['tool_policy']['allow_destructive'] ?? null, "{$migrated_destructive_ability_id} catalog projection allows destructive only under policy" );
-	maa_assert_same( false, $package_catalog[ $catalog_key ]['open_api_enabled'], "{$migrated_destructive_ability_id} catalog projection does not publish Open API by default" );
-	maa_assert_same( true, $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'], "{$migrated_destructive_ability_id} catalog projection skips host default manifest fallback" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['write_mode'] ), "{$migrated_destructive_ability_id} catalog projection does not own write mode policy" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['tool_policy'] ), "{$migrated_destructive_ability_id} catalog projection does not own destructive tool policy" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['open_api_enabled'] ), "{$migrated_destructive_ability_id} catalog projection does not own Open API policy" );
+	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'] ), "{$migrated_destructive_ability_id} catalog projection does not own host fallback policy" );
 }
 maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-diagnostics-summary'] ), 'catalog bridge does not project standalone diagnostics ability' );
 

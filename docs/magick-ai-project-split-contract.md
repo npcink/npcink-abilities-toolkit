@@ -70,13 +70,56 @@ Compatibility projection must stay thin:
 
 - allowed: optional filters that expose stable ability metadata to a host;
 - allowed: explicit `project_to_magick_catalog` metadata for opted-in abilities;
+- allowed: `executor_type=wp_ability`, the WordPress ability id, schemas,
+  annotations, risk level, confirmation requirement, and lightweight
+  compatibility metadata;
 - forbidden: Magick AI settings UI, admin REST handlers, product catalog caching,
   MCP/Open API/Agent Gateway governance, quota/audit, or workflow execution.
+- forbidden: projection fields that make this package the owner of Magick AI
+  routing policy, backend priority, Open API exposure, catalog fallback, or tool
+  policy.
 
 The Magick AI settings Capability Library may consume this project through
 WordPress Abilities API discovery or optional projection. The page itself and
 its `/admin/settings/capabilities` endpoint stay in Magick AI because they are
 consumer/product governance surfaces, not generic Abilities API package code.
+
+## Built-In Package Gating
+
+The built-in packages are enabled by default to preserve compatibility with the
+current migrated ability set. Hosts can narrow the registration surface when
+they want a lighter, generic WordPress Abilities API package:
+
+- `magick_ai_abilities_enabled_packages` gates top-level packages such as
+  `core_read`, `core_write`, `core_destructive`, `core_comment`,
+  `magick_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
+- `magick_ai_abilities_enabled_read_packs` gates read sub-packs such as
+  `core_wordpress_read`, `wordpress_diagnostics`, `article_workflow_context`,
+  `content_operations`, `media_governance`, `taxonomy_governance`,
+  `page_governance`, `seo_geo_support`, and `comment_workflow_context`.
+- `magick_ai_abilities_enabled_comment_packs` gates standalone comment helper
+  sub-packs such as `comment_queue_context` and `comment_handoff_context`.
+
+Package gating is the preferred way to keep this project from becoming too
+large in a host installation. It is not a reason to move Magick AI catalog UI,
+workflow runtime, or final approval state into this repository.
+
+The read and comment sub-pack classifiers are implementation details that make
+the gating contract explicit. Future file splits should move definitions by
+sub-pack only when tests prove no ability id, schema, callback, risk, or default
+registration behavior changed.
+
+## Legacy ID Policy
+
+Many migrated first-party abilities still use `magick-ai/*` ids for backward
+compatibility with existing host references. Those ids are stable compatibility
+ids, not proof that Magick AI owns the callback implementation.
+
+New generic provider examples should use their own namespace. New first-party
+abilities in this package may keep the legacy namespace only when they extend a
+migrated compatibility surface already consumed by Magick AI. A future rename
+from `magick-ai/*` to a standalone namespace must be handled as a deprecation
+and successor migration, not a silent replacement.
 
 ## Workflow Recipe Rule
 

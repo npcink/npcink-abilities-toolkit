@@ -140,13 +140,27 @@ final class Plugin {
 		$this->booted = true;
 		$this->categories->boot();
 		$this->abilities->boot();
-		$this->core_read_package->boot();
-		$this->core_write_package->boot();
-		$this->core_destructive_package->boot();
-		$this->core_comment_package->boot();
-		$this->catalog_bridge->boot();
-		$this->test_page->boot();
-		$this->register_cache_invalidation_hooks();
+		if ( $this->is_package_enabled( 'core_read' ) ) {
+			$this->core_read_package->boot();
+		}
+		if ( $this->is_package_enabled( 'core_write' ) ) {
+			$this->core_write_package->boot();
+		}
+		if ( $this->is_package_enabled( 'core_destructive' ) ) {
+			$this->core_destructive_package->boot();
+		}
+		if ( $this->is_package_enabled( 'core_comment' ) ) {
+			$this->core_comment_package->boot();
+		}
+		if ( $this->is_package_enabled( 'magick_catalog_bridge' ) ) {
+			$this->catalog_bridge->boot();
+		}
+		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
+			$this->test_page->boot();
+		}
+		if ( $this->is_package_enabled( 'read_cache_hooks' ) ) {
+			$this->register_cache_invalidation_hooks();
+		}
 	}
 
 	/**
@@ -165,6 +179,41 @@ final class Plugin {
 	 */
 	public function abilities() {
 		return $this->abilities;
+	}
+
+	/**
+	 * Checks whether a built-in package should boot.
+	 *
+	 * Supported package slugs are core_read, core_write, core_destructive,
+	 * core_comment, magick_catalog_bridge, admin_test_page, and read_cache_hooks.
+	 *
+	 * @param string $package Package slug.
+	 * @return bool
+	 */
+	private function is_package_enabled( $package ) {
+		$defaults = array(
+			'core_read'             => true,
+			'core_write'            => true,
+			'core_destructive'      => true,
+			'core_comment'          => true,
+			'magick_catalog_bridge' => true,
+			'admin_test_page'       => true,
+			'read_cache_hooks'      => true,
+		);
+
+		/**
+		 * Filters the built-in package boot map.
+		 *
+		 * The default keeps the plugin's existing behavior. Hosts can disable
+		 * optional packages when they only need the generic Abilities API surface.
+		 *
+		 * @param array<string,bool> $defaults Package enable map.
+		 */
+		$enabled = apply_filters( 'magick_ai_abilities_enabled_packages', $defaults );
+		$enabled = is_array( $enabled ) ? $enabled : $defaults;
+		$package = sanitize_key( $package );
+
+		return ! empty( $enabled[ $package ] );
 	}
 
 	/**

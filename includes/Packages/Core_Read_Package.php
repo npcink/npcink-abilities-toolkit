@@ -72,11 +72,71 @@ final class Core_Read_Package {
 		);
 
 		foreach ( $this->definitions() as $ability_id => $definition ) {
+			$pack = $this->read_pack_for( $ability_id );
+			if ( ! $this->should_register_read_ability( $pack, $ability_id, $definition ) ) {
+				continue;
+			}
+
+			$definition['meta'] = is_array( $definition['meta'] ?? null ) ? $definition['meta'] : array();
+			$definition['meta']['magick_ai_abilities'] = is_array( $definition['meta']['magick_ai_abilities'] ?? null )
+				? $definition['meta']['magick_ai_abilities']
+				: array();
+			$definition['meta']['magick_ai_abilities']['pack'] = $pack;
 			if ( 0 === strpos( (string) $ability_id, 'magick-ai/' ) ) {
 				$definition['project_to_magick_catalog'] = true;
 			}
 			$this->abilities->add_readonly( $ability_id, $definition );
 		}
+	}
+
+	/**
+	 * Returns whether a read ability from a sub-pack should register.
+	 *
+	 * @param string              $pack Ability sub-pack.
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Ability definition.
+	 * @return bool
+	 */
+	private function should_register_read_ability( $pack, $ability_id, array $definition ) {
+		$defaults = Core_Read_Pack_Classifier::default_packs();
+
+		/**
+		 * Filters enabled read-only sub-packs.
+		 *
+		 * The default preserves the full built-in catalog. Hosts that only need
+		 * generic WordPress reads can return array( 'core_wordpress_read' ).
+		 *
+		 * @param string[] $defaults Enabled read sub-pack slugs.
+		 */
+		$enabled = apply_filters( 'magick_ai_abilities_enabled_read_packs', $defaults );
+		$enabled = is_array( $enabled ) ? array_map( 'sanitize_key', $enabled ) : $defaults;
+		$pack    = sanitize_key( $pack );
+
+		/**
+		 * Filters registration for a single built-in read ability.
+		 *
+		 * @param bool                $register Whether to register the ability.
+		 * @param string              $ability_id Ability id.
+		 * @param string              $pack Ability sub-pack.
+		 * @param array<string,mixed> $definition Ability definition.
+		 */
+		return (bool) apply_filters(
+			'magick_ai_abilities_should_register_read_ability',
+			in_array( $pack, $enabled, true ),
+			$ability_id,
+			$pack,
+			$definition
+		);
+	}
+
+	/**
+	 * Classifies a built-in read ability into a coarse sub-pack.
+	 *
+	 * @param string $ability_id Ability id.
+	 * @return string
+	 */
+	private function read_pack_for( $ability_id ) {
+		return Core_Read_Pack_Classifier::classify( $ability_id );
 	}
 
 	/**
