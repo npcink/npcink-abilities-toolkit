@@ -73,6 +73,14 @@ if ( ! function_exists( '__' ) ) {
 if ( ! function_exists( 'current_user_can' ) ) {
 	function current_user_can( $capability, ...$args ) {
 		unset( $args );
+		$capability = sanitize_key( (string) $capability );
+		$cap_map    = isset( $GLOBALS['maa_unit_current_user_caps'] ) && is_array( $GLOBALS['maa_unit_current_user_caps'] )
+			? $GLOBALS['maa_unit_current_user_caps']
+			: array();
+		if ( array_key_exists( $capability, $cap_map ) ) {
+			return ! empty( $cap_map[ $capability ] );
+		}
+
 		return 'do_not_allow' !== $capability;
 	}
 }

@@ -56,6 +56,8 @@ function maa_assert_package_read_ability_contract( $ability_id, $definition ) {
 	maa_assert_same( true, $definition['annotations']['readonly'] ?? null, "{$ability_id} is readonly" );
 	maa_assert_same( false, $definition['annotations']['destructive'] ?? null, "{$ability_id} is not destructive" );
 	maa_assert_same( 'read', $definition['risk_level'] ?? '', "{$ability_id} risk is read" );
+	maa_assert_same( false, $definition['requires_approval'] ?? null, "{$ability_id} does not require host approval" );
+	maa_assert_same( false, $definition['meta']['magick']['requires_approval'] ?? null, "{$ability_id} Magick metadata does not require approval" );
 	maa_assert_same( true, $definition['meta']['show_in_rest'] ?? null, "{$ability_id} is shown in REST" );
 	maa_assert_same( 'official', $definition['source'] ?? '', "{$ability_id} is an official migrated ability" );
 	maa_assert_true( is_callable( $definition['execute_callback'] ?? null ), "{$ability_id} execute callback is callable" );
@@ -69,6 +71,8 @@ function maa_assert_package_write_ability_contract( $ability_id, $definition ) {
 	maa_assert_same( false, $definition['annotations']['destructive'] ?? null, "{$ability_id} is not destructive" );
 	maa_assert_same( 'write', $definition['risk_level'] ?? '', "{$ability_id} risk is write" );
 	maa_assert_same( true, $definition['requires_confirm'] ?? null, "{$ability_id} requires host approval" );
+	maa_assert_same( true, $definition['requires_approval'] ?? null, "{$ability_id} exposes requires_approval for governance consumers" );
+	maa_assert_same( true, $definition['meta']['magick']['requires_approval'] ?? null, "{$ability_id} Magick metadata requires approval" );
 	maa_assert_same( true, $definition['meta']['show_in_rest'] ?? null, "{$ability_id} is shown in REST" );
 	maa_assert_same( 'magick-ai-write', $definition['category'] ?? '', "{$ability_id} uses write category" );
 	maa_assert_same( 'official', $definition['source'] ?? '', "{$ability_id} is an official migrated write ability" );
@@ -76,6 +80,10 @@ function maa_assert_package_write_ability_contract( $ability_id, $definition ) {
 	maa_assert_true( is_callable( $definition['execute_callback'] ?? null ), "{$ability_id} execute callback is callable" );
 	maa_assert_true( is_array( $definition['input_schema'] ?? null ), "{$ability_id} has an input schema" );
 	maa_assert_true( is_array( $definition['output_schema'] ?? null ), "{$ability_id} has an output schema" );
+	maa_assert_same( false, $definition['input_schema']['additionalProperties'] ?? null, "{$ability_id} input schema rejects undeclared fields" );
+	maa_assert_same( true, $definition['input_schema']['properties']['dry_run']['default'] ?? null, "{$ability_id} dry_run defaults to preview" );
+	maa_assert_same( false, $definition['input_schema']['properties']['commit']['default'] ?? null, "{$ability_id} commit defaults to false" );
+	maa_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	maa_assert_same( true, $definition['meta']['mcp']['public'] ?? null, "{$ability_id} is MCP-public for governed write server discovery" );
 	maa_assert_same( 'magick-ai-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
 }
@@ -86,6 +94,8 @@ function maa_assert_package_destructive_ability_contract( $ability_id, $definiti
 	maa_assert_same( true, $definition['annotations']['destructive'] ?? null, "{$ability_id} is destructive" );
 	maa_assert_same( 'destructive', $definition['risk_level'] ?? '', "{$ability_id} risk is destructive" );
 	maa_assert_same( true, $definition['requires_confirm'] ?? null, "{$ability_id} requires host approval" );
+	maa_assert_same( true, $definition['requires_approval'] ?? null, "{$ability_id} exposes requires_approval for governance consumers" );
+	maa_assert_same( true, $definition['meta']['magick']['requires_approval'] ?? null, "{$ability_id} Magick metadata requires approval" );
 	maa_assert_same( true, $definition['meta']['show_in_rest'] ?? null, "{$ability_id} is shown in REST" );
 	maa_assert_same( 'magick-ai-write', $definition['category'] ?? '', "{$ability_id} keeps legacy write category" );
 	maa_assert_same( 'official', $definition['source'] ?? '', "{$ability_id} is an official migrated destructive ability" );
@@ -93,6 +103,10 @@ function maa_assert_package_destructive_ability_contract( $ability_id, $definiti
 	maa_assert_true( is_callable( $definition['execute_callback'] ?? null ), "{$ability_id} execute callback is callable" );
 	maa_assert_true( is_array( $definition['input_schema'] ?? null ), "{$ability_id} has an input schema" );
 	maa_assert_true( is_array( $definition['output_schema'] ?? null ), "{$ability_id} has an output schema" );
+	maa_assert_same( false, $definition['input_schema']['additionalProperties'] ?? null, "{$ability_id} input schema rejects undeclared fields" );
+	maa_assert_same( true, $definition['input_schema']['properties']['dry_run']['default'] ?? null, "{$ability_id} dry_run defaults to preview" );
+	maa_assert_same( false, $definition['input_schema']['properties']['commit']['default'] ?? null, "{$ability_id} commit defaults to false" );
+	maa_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	maa_assert_same( 'magick-ai-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
 	maa_assert_same( 'destructive', $definition['meta']['mcp']['risk'] ?? '', "{$ability_id} MCP risk is destructive" );
 }
@@ -167,6 +181,7 @@ $write = $contract_normalizer->normalize(
 maa_assert_same( false, $write['annotations']['readonly'], 'write proposal is not readonly' );
 maa_assert_same( 'write', $write['risk_level'], 'write proposal risk is write' );
 maa_assert_same( true, $write['requires_confirm'], 'write proposal requires confirmation' );
+maa_assert_same( true, $write['requires_approval'], 'write proposal exposes approval requirement alias' );
 maa_assert_same( 'magick-ai-abilities-write', $write['category'], 'write proposal default category is write category' );
 foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $write_control_property ) {
 	maa_assert_true(
@@ -174,6 +189,9 @@ foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $write_control_prop
 		"write proposal input schema includes {$write_control_property} control"
 	);
 }
+maa_assert_same( true, $write['input_schema']['properties']['dry_run']['default'] ?? null, 'write proposal dry_run defaults to preview' );
+maa_assert_same( false, $write['input_schema']['properties']['commit']['default'] ?? null, 'write proposal commit defaults to false' );
+maa_assert_same( 190, $write['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, 'write proposal idempotency key is bounded' );
 foreach ( array( 'dry_run', 'host_governed', 'commit_required', 'preview' ) as $write_output_property ) {
 	maa_assert_true(
 		isset( $write['output_schema']['properties'][ $write_output_property ] ),
@@ -197,12 +215,16 @@ $destructive = $contract_normalizer->normalize(
 maa_assert_same( true, $destructive['annotations']['destructive'], 'destructive host ability is destructive' );
 maa_assert_same( 'destructive', $destructive['risk_level'], 'destructive host ability risk is destructive' );
 maa_assert_same( true, $destructive['requires_confirm'], 'destructive host ability requires confirmation' );
+maa_assert_same( true, $destructive['requires_approval'], 'destructive host ability exposes approval requirement alias' );
 foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $destructive_control_property ) {
 	maa_assert_true(
 		isset( $destructive['input_schema']['properties'][ $destructive_control_property ] ),
 		"destructive input schema includes {$destructive_control_property} control"
 	);
 }
+maa_assert_same( true, $destructive['input_schema']['properties']['dry_run']['default'] ?? null, 'destructive dry_run defaults to preview' );
+maa_assert_same( false, $destructive['input_schema']['properties']['commit']['default'] ?? null, 'destructive commit defaults to false' );
+maa_assert_same( 190, $destructive['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, 'destructive idempotency key is bounded' );
 foreach ( array( 'dry_run', 'host_governed', 'commit_required', 'preview' ) as $destructive_output_property ) {
 	maa_assert_true(
 		isset( $destructive['output_schema']['properties'][ $destructive_output_property ] ),
@@ -702,6 +724,22 @@ $seo_preview = $core_write_package->set_post_seo_meta(
 );
 maa_assert_same( true, $seo_preview['dry_run'] ?? null, 'set-post-seo-meta returns a governed dry-run preview after migration' );
 maa_assert_same( 'yoast', $seo_preview['provider'] ?? '', 'set-post-seo-meta detects existing Yoast-style SEO metadata after migration' );
+$seo_missing_fields = $core_write_package->set_post_seo_meta(
+	array(
+		'post_id' => 501,
+		'dry_run' => true,
+	)
+);
+maa_assert_true( is_wp_error( $seo_missing_fields ), 'set-post-seo-meta rejects requests without explicit metadata fields' );
+maa_assert_same( 'magick_ai_abilities_no_changes', $seo_missing_fields->code ?? '', 'set-post-seo-meta no-change request fails with a stable code' );
+$seo_title_only_preview = $core_write_package->set_post_seo_meta(
+	array(
+		'post_id'   => 501,
+		'seo_title' => 'Title-only preview',
+		'dry_run'   => true,
+	)
+);
+maa_assert_same( array( 'seo_title' ), $seo_title_only_preview['preview']['changed_fields'] ?? array(), 'set-post-seo-meta preview reports only explicit changed fields' );
 $GLOBALS['magick_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 $seo_written = $core_write_package->set_post_seo_meta(
 	array(
@@ -715,6 +753,35 @@ unset( $GLOBALS['magick_ai_runtime_wp_ability_context'] );
 maa_assert_same( false, $seo_written['dry_run'] ?? null, 'set-post-seo-meta commit returns a committed payload after migration' );
 maa_assert_same( 'Committed SEO title', $GLOBALS['maa_unit_post_meta'][501]['_yoast_wpseo_title'] ?? '', 'set-post-seo-meta writes SEO title through standalone fallback metadata keys' );
 maa_assert_same( 'Committed SEO description', $GLOBALS['maa_unit_post_meta'][501]['_yoast_wpseo_metadesc'] ?? '', 'set-post-seo-meta writes SEO description through standalone fallback metadata keys' );
+$GLOBALS['magick_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+$seo_title_only_written = $core_write_package->set_post_seo_meta(
+	array(
+		'post_id'   => 501,
+		'seo_title' => 'Only title changed',
+		'commit'    => true,
+	)
+);
+unset( $GLOBALS['magick_ai_runtime_wp_ability_context'] );
+maa_assert_same( false, $seo_title_only_written['dry_run'] ?? null, 'set-post-seo-meta title-only commit returns committed payload' );
+maa_assert_same( 'Only title changed', $GLOBALS['maa_unit_post_meta'][501]['_yoast_wpseo_title'] ?? '', 'set-post-seo-meta title-only commit writes title' );
+maa_assert_same( 'Committed SEO description', $GLOBALS['maa_unit_post_meta'][501]['_yoast_wpseo_metadesc'] ?? '', 'set-post-seo-meta title-only commit preserves description' );
+$GLOBALS['maa_unit_comments'][11] = (object) array(
+	'comment_ID'       => 11,
+	'comment_post_ID'  => 77,
+	'comment_author'   => 'Permission Fixture',
+	'comment_approved' => 'hold',
+	'comment_content'  => 'Pending moderation.',
+);
+$GLOBALS['maa_unit_current_user_caps'] = array( 'moderate_comments' => false );
+$comment_permission_denied = $core_write_package->approve_comment(
+	array(
+		'comment_id' => 11,
+		'dry_run'    => true,
+	)
+);
+unset( $GLOBALS['maa_unit_current_user_caps'] );
+maa_assert_true( is_wp_error( $comment_permission_denied ), 'approve-comment enforces moderate_comments before dry-run preview' );
+maa_assert_same( 'magick_ai_abilities_permission_denied', $comment_permission_denied->code ?? '', 'approve-comment permission denial has stable error code' );
 
 $patch_preview = $core_write_package->patch_post_content(
 	array(

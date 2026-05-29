@@ -42,10 +42,12 @@ should prefer explicit JSON Schema arrays.
 
 Write-like definitions receive common host-governed input fields:
 
-- `dry_run` (`boolean`): request a preview without mutating WordPress.
+- `dry_run` (`boolean`, default `true`): request a preview without mutating
+  WordPress.
 - `commit` (`boolean`): request a final commit attempt. Host approval context
-  is still required.
+  is still required. The default is `false`.
 - `idempotency_key` (`string`): optional host-provided replay/audit key.
+  Implementations bound this field to 190 characters for storage/index safety.
 
 Write-like definitions also receive common output fields:
 
@@ -85,6 +87,7 @@ Rules:
 
 - `risk_level`
 - `requires_confirm`
+- `requires_approval`
 
 Risk levels:
 
@@ -92,10 +95,16 @@ Risk levels:
 - `write`: non-destructive mutation or write proposal.
 - `destructive`: delete, trash, merge, spam, or other destructive operation.
 
-`requires_confirm` is `false` for read abilities and `true` for write-like
-abilities. Host-governed writes and destructive abilities may live in this
-package only when they are generic WordPress operations. Direct clients receive
-dry-run previews by default; final commit requires host approval context.
+`requires_confirm` and its governance-consumer alias `requires_approval` are
+`false` for read abilities and `true` for write-like abilities.
+Host-governed writes and destructive abilities may live in this package only
+when they are generic WordPress operations. Direct clients receive dry-run
+previews by default; final commit requires host approval context.
+
+Write-like input schemas should reject undeclared fields unless a specific
+ability has a documented reason to accept extension data. Permission checks must
+run before both dry-run previews and final commits so previews do not leak data
+to callers who could not perform the corresponding WordPress operation.
 
 ## Scopes And Versioning
 

@@ -80,6 +80,7 @@ final class Contract_Normalizer {
 		$magick_meta['wp_ability_id']        = $ability_id;
 		$magick_meta['risk_level']           = $risk_level;
 		$magick_meta['requires_confirm']     = $is_write;
+		$magick_meta['requires_approval']    = $is_write;
 		$magick_meta['annotations']          = $annotations;
 		$magick_meta['channels']             = isset( $definition['channels'] ) && is_array( $definition['channels'] )
 			? array_values( array_map( 'sanitize_key', $definition['channels'] ) )
@@ -133,6 +134,7 @@ final class Contract_Normalizer {
 			'annotations'         => $annotations,
 			'risk_level'          => $risk_level,
 			'requires_confirm'    => $is_write,
+			'requires_approval'   => $is_write,
 			'required_scope'      => isset( $definition['required_scope'] ) ? sanitize_text_field( (string) $definition['required_scope'] ) : '',
 			'required_scopes'     => isset( $definition['required_scopes'] ) && is_array( $definition['required_scopes'] )
 				? array_values(
@@ -189,14 +191,18 @@ final class Contract_Normalizer {
 		}
 		$schema['properties']['dry_run'] = array(
 			'type'        => 'boolean',
+			'default'     => true,
 			'description' => __( 'When true, return a host-governed preview without mutating WordPress.', 'magick-ai-abilities' ),
 		);
 		$schema['properties']['commit'] = array(
 			'type'        => 'boolean',
+			'default'     => false,
 			'description' => __( 'When true, attempt the final commit. Host approval context is still required.', 'magick-ai-abilities' ),
 		);
 		$schema['properties']['idempotency_key'] = array(
 			'type'        => 'string',
+			'minLength'   => 1,
+			'maxLength'   => 190,
 			'description' => __( 'Optional host-provided idempotency key for audit and replay correlation.', 'magick-ai-abilities' ),
 		);
 		return $schema;

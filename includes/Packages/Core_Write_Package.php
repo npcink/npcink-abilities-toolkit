@@ -166,8 +166,8 @@ final class Core_Write_Package {
 				'input_schema'    => $this->schema(
 					array(
 						'post_id'         => $post_id,
-						'seo_title'       => $text,
-						'seo_description' => $text,
+						'seo_title'       => array( 'type' => 'string', 'maxLength' => 255 ),
+						'seo_description' => array( 'type' => 'string', 'maxLength' => 500 ),
 					),
 					array( 'post_id' )
 				),
@@ -956,12 +956,23 @@ final class Core_Write_Package {
 		}
 
 		$current          = $this->read_post_seo_meta( $post_id );
-		$next_title       = sanitize_text_field( (string) ( $input['seo_title'] ?? '' ) );
-		$next_description = sanitize_textarea_field( (string) ( $input['seo_description'] ?? '' ) );
-		$changes          = array(
-			'seo_title'       => $next_title,
-			'seo_description' => $next_description,
-		);
+		$has_title        = array_key_exists( 'seo_title', $input );
+		$has_description  = array_key_exists( 'seo_description', $input );
+		if ( ! $has_title && ! $has_description ) {
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No SEO metadata fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$current_title       = sanitize_text_field( (string) ( $current['title'] ?? '' ) );
+		$current_description = sanitize_textarea_field( (string) ( $current['description'] ?? '' ) );
+		$next_title          = $has_title ? sanitize_text_field( (string) $input['seo_title'] ) : $current_title;
+		$next_description    = $has_description ? sanitize_textarea_field( (string) $input['seo_description'] ) : $current_description;
+		$changes             = array();
+		if ( $has_title ) {
+			$changes['seo_title'] = $next_title;
+		}
+		if ( $has_description ) {
+			$changes['seo_description'] = $next_description;
+		}
 		$payload          = array(
 			'post_id'   => $post_id,
 			'updated'   => false,
@@ -969,12 +980,12 @@ final class Core_Write_Package {
 			'provider'  => sanitize_key( (string) ( $current['provider'] ?? 'seo_adapter' ) ),
 			'changes'   => $changes,
 			'current'   => array(
-				'title'       => sanitize_text_field( (string) ( $current['title'] ?? '' ) ),
-				'description' => sanitize_textarea_field( (string) ( $current['description'] ?? '' ) ),
+				'title'       => $current_title,
+				'description' => $current_description,
 			),
 			'preview'   => array(
 				'action'         => 'seo_meta_write',
-				'changed_fields' => array( 'seo_title', 'seo_description' ),
+				'changed_fields' => array_keys( $changes ),
 			),
 			'edit_link' => $this->edit_link( $post_id ),
 		);
