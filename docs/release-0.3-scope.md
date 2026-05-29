@@ -1,6 +1,6 @@
 # Release 0.3 Scope
 
-Status: proposed stabilization scope.
+Status: accepted for `0.3.0`.
 
 The 0.3 line should make the current ability surface dependable for consumers
 instead of expanding aggressively. The priority is proving that Magick AI,
@@ -18,6 +18,8 @@ workflow chains through standard WordPress ability contracts.
 - Keep Magick AI projection metadata-only with `executor_type=wp_ability`.
 - Keep default/full and light `core_wordpress_read` smoke profiles passing.
 - Record smoke results whenever the Local WordPress site is available.
+- Publish release metadata as plugin/readme version `0.3.0` after final local
+  verification passes.
 
 ## Non-Goals
 
@@ -62,6 +64,8 @@ workflow chains through standard WordPress ability contracts.
 - Existing `magick-ai/*` ids remain compatibility ids. Namespace cleanup is
   deferred until each renamed id has `deprecated` / `successor` metadata and
   host migration tests.
+- Built-in read/comment definitions must have explicit sub-pack map entries;
+  heuristics are only a fallback for unknown ids during local development.
 - Any source-file split must be zero behavior change: no ability id, schema,
   annotation, risk, confirmation, callback, or default registration change may
   be bundled with the split.

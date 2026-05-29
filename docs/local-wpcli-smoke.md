@@ -62,6 +62,14 @@ Verification status through 2026-05-29:
   `Smoke OK: 162 assertions` and the light `core_wordpress_read` profile with
   `Smoke OK: 13 assertions` after adding package/sub-pack gating and thin
   projection compatibility checks.
+- On 2026-05-29, Magick AI local Catalog verification passed after removing a
+  stale Magick AI settings loader require: authenticated
+  `plugins.php?page=magick-ai-settings&tab=catalog` returned HTTP 200, the
+  Magick AI capabilities endpoint returned 198 entries, and the projected rows
+  did not include `open_api_enabled`, `backend_priority`, `tool_policy`,
+  `skip_catalog_manifest_fallback`, or `write_mode`.
+- On 2026-05-29, `wp plugin status magick-ai-abilities` reported the plugin as
+  active with version `0.3.0`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the

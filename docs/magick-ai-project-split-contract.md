@@ -167,6 +167,7 @@ Allowed integration is limited to optional WordPress hooks and filters, for exam
 ## Version Compatibility
 
 - `magick-ai-abilities` keeps SemVer-style public API discipline for registration helpers and built-in ability ids.
+- Magick AI should require `magick-ai-abilities` `0.3.0` or newer when it depends on host-selectable package gating, thin default projection rows, or explicit read/comment sub-pack maps.
 - Magick AI should document the minimum recommended `magick-ai-abilities` version in its own integration contract.
 - If a future release needs Magick AI fallback definitions, that must be recorded in a new ADR before fallback code is reintroduced.
 

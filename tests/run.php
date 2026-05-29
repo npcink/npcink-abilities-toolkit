@@ -8,8 +8,10 @@
 require_once __DIR__ . '/bootstrap.php';
 
 use Magick_AI_Abilities\Integration\Magick_Catalog_Bridge;
+use Magick_AI_Abilities\Packages\Core_Comment_Pack_Classifier;
 use Magick_AI_Abilities\Packages\Core_Comment_Package;
 use Magick_AI_Abilities\Packages\Core_Destructive_Package;
+use Magick_AI_Abilities\Packages\Core_Read_Pack_Classifier;
 use Magick_AI_Abilities\Packages\Core_Read_Package;
 use Magick_AI_Abilities\Packages\Core_Write_Package;
 use Magick_AI_Abilities\Plugin;
@@ -542,6 +544,18 @@ maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-s
 maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
+foreach ( array_keys( $core_read_package->definitions() ) as $known_read_ability_id ) {
+	maa_assert_true(
+		isset( Core_Read_Pack_Classifier::known_pack_map()[ $known_read_ability_id ] ),
+		"core read ability {$known_read_ability_id} has an explicit sub-pack map entry"
+	);
+}
+foreach ( array_keys( $core_comment_package->definitions() ) as $known_comment_ability_id ) {
+	maa_assert_true(
+		isset( Core_Comment_Pack_Classifier::known_pack_map()[ $known_comment_ability_id ] ),
+		"core comment ability {$known_comment_ability_id} has an explicit sub-pack map entry"
+	);
+}
 maa_assert_true( ! isset( $package_abilities['magick-ai/create-page'] ), 'create-page is not migrated as a readonly ability' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/update-page'] ), 'update-page is not migrated as a readonly ability' );
 

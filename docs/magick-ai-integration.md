@@ -4,7 +4,7 @@
 
 The same registered abilities must remain usable by other plugins and clients through the standard WordPress Abilities API.
 
-Minimum recommended `magick-ai-abilities` version for this contract: `0.2.0`.
+Minimum recommended `magick-ai-abilities` version for this contract: `0.3.0`.
 Magick AI should update its own integration contract whenever it requires a
 newer version.
 
@@ -109,3 +109,10 @@ ids with enough context for Magick AI to remove the duplicate owner.
 The cleanup posture is recorded in [ADR 0002](adr/0002-standalone-owner-and-magick-ai-cleanup.md).
 
 The independent-project split rules are recorded in [magick-ai-project-split-contract.md](magick-ai-project-split-contract.md). That contract is the current source of truth for cross-project development, host-governed write/destructive behavior, duplicate registration audits, and version compatibility once Magick AI and this plugin are developed as separate projects.
+
+## Minimum Version Matrix
+
+| Consumer need | Minimum `magick-ai-abilities` version |
+| --- | --- |
+| Public registration helpers, migrated baseline read/write/destructive abilities, and optional Magick AI projection | `0.2.0` |
+| Host-selectable package/sub-pack gating, thin Magick projection defaults, projection-row filter, and explicit read/comment sub-pack maps | `0.3.0` |

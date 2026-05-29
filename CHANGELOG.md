@@ -1,8 +1,14 @@
 # Changelog
 
-## 0.3.0 - Unreleased
+## 0.3.0 - 2026-05-29
 
 - Added the 0.3 ability acceptance matrix, agent workflow validation plan, and stabilization scope documents.
+- Added package and sub-pack filters for host-selectable built-in package composition while preserving full default registration.
+- Added explicit read/comment sub-pack maps as the stable entry point for future definition-provider extraction.
+- Kept public third-party helpers read-only/write-proposal oriented and documented that final commit authorization belongs to host runtimes.
+- Made Magick AI catalog projection thin by default and added a single projected-row filter for host-owned compatibility expansion.
+- Preserved migrated `magick-ai/*` ids as compatibility ids and documented the deprecation/successor rule for any future namespace cleanup.
+- Verified Magick AI local Catalog compatibility: authenticated catalog page returned HTTP 200, the capabilities endpoint returned 198 entries, and projected rows omitted host-owned runtime policy fields.
 - Added workflow recipe guidance that documents host-side ability composition without moving workflow runtime ownership into this package.
 - Added read-only workflow context bundles for article publish preflight, old article refresh discovery, and comment compliance handoff.
 - Added short-TTL read caching for selected bounded reports and a `composer perf:smoke` performance smoke command.
