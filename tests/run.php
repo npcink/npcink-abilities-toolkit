@@ -547,6 +547,9 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 $core_read_definition_ids = array_keys( $core_read_package->definitions() );
 maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
 maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
+$core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
+maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
+maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
 foreach ( array_keys( $core_read_package->definitions() ) as $known_read_ability_id ) {
 	maa_assert_true(
 		isset( Core_Read_Pack_Classifier::known_pack_map()[ $known_read_ability_id ] ),

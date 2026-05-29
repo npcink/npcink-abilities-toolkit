@@ -70,6 +70,10 @@ Verification status through 2026-05-29:
   `skip_catalog_manifest_fallback`, or `write_mode`.
 - On 2026-05-29, `wp plugin status magick-ai-abilities` reported the plugin as
   active with version `0.3.0`.
+- On 2026-05-29, `composer smoke:wp` passed after splitting diagnostics and
+  comment helper definitions into dedicated providers: default profile
+  `Smoke OK: 162 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 13 assertions`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the

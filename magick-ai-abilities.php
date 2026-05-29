@@ -32,6 +32,7 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Package.php'
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Write_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Destructive_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Pack_Classifier.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Comment_Definitions/Core_Comment_Definitions.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Admin/Test_Page.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Plugin.php';
