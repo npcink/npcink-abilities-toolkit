@@ -451,6 +451,7 @@ require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.php';
 require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Package.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php';

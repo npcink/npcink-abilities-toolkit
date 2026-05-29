@@ -74,6 +74,10 @@ Verification status through 2026-05-29:
   comment helper definitions into dedicated providers: default profile
   `Smoke OK: 162 assertions`, light `core_wordpress_read` profile
   `Smoke OK: 13 assertions`.
+- On 2026-05-29, `composer smoke:wp` passed after splitting generic
+  `core_wordpress_read` definitions into a dedicated provider: default profile
+  `Smoke OK: 162 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 13 assertions`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the

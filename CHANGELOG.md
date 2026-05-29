@@ -4,6 +4,7 @@
 
 - Split the standalone WordPress diagnostics read ability definition into a dedicated read definitions provider while preserving registration order and behavior.
 - Split built-in comment helper ability definitions into a dedicated comment definitions provider while preserving callback ownership, sub-pack classification, and registration behavior.
+- Split generic `core_wordpress_read` ability definitions into a dedicated read definitions provider while preserving callback ownership, sub-pack classification, and registration order.
 
 ## 0.3.0 - 2026-05-29
 

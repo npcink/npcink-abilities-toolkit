@@ -547,6 +547,10 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 $core_read_definition_ids = array_keys( $core_read_package->definitions() );
 maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
 maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
+maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[2] ?? '', 'core read definitions keep post types third after provider split' );
+maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[4] ?? '', 'core read definitions keep media governance order after provider split' );
+maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[71] ?? '', 'core read definitions keep URL resolver order after provider split' );
+maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[73] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
