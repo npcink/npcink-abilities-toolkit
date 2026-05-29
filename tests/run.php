@@ -51,6 +51,69 @@ function maa_assert_array_omits_keys( $value, array $forbidden_keys, $path ) {
 	}
 }
 
+function maa_schema_contract_fingerprint( array $schema ) {
+	$properties = array();
+	foreach ( (array) ( $schema['properties'] ?? array() ) as $property_key => $property_schema ) {
+		if ( ! is_string( $property_key ) || ! is_array( $property_schema ) ) {
+			continue;
+		}
+
+		$fingerprint = array();
+		foreach ( array( 'type', 'enum', 'default', 'minimum', 'maximum', 'minLength', 'maxLength' ) as $field ) {
+			if ( array_key_exists( $field, $property_schema ) ) {
+				$fingerprint[ $field ] = $property_schema[ $field ];
+			}
+		}
+		if ( array_key_exists( 'additionalProperties', $property_schema ) ) {
+			$additional_properties = $property_schema['additionalProperties'];
+			$fingerprint['additionalProperties'] = is_array( $additional_properties )
+				? array_intersect_key( $additional_properties, array( 'type' => true ) )
+				: $additional_properties;
+		}
+
+		$properties[ $property_key ] = $fingerprint;
+	}
+
+	return array(
+		'required'             => (array) ( $schema['required'] ?? array() ),
+		'additionalProperties' => $schema['additionalProperties'] ?? null,
+		'properties'           => $properties,
+	);
+}
+
+function maa_core_governance_catalog_snapshot( array $abilities, array $ability_ids ) {
+	$snapshot = array(
+		'schema_version' => 'v1',
+		'purpose'        => 'Core governance handoff contract snapshot for high-value abilities.',
+		'abilities'      => array(),
+	);
+
+	foreach ( $ability_ids as $ability_id ) {
+		$definition = $abilities[ $ability_id ] ?? array();
+		maa_assert_true( is_array( $definition ), "snapshot ability {$ability_id} exists" );
+
+		$snapshot['abilities'][ $ability_id ] = array(
+			'category'          => (string) ( $definition['category'] ?? '' ),
+			'risk_level'        => (string) ( $definition['risk_level'] ?? '' ),
+			'requires_confirm'  => (bool) ( $definition['requires_confirm'] ?? false ),
+			'requires_approval' => (bool) ( $definition['requires_approval'] ?? false ),
+			'capability'        => (string) ( $definition['capability'] ?? '' ),
+			'required_scope'    => (string) ( $definition['required_scope'] ?? '' ),
+			'required_scopes'   => (array) ( $definition['required_scopes'] ?? array() ),
+			'input'             => maa_schema_contract_fingerprint( is_array( $definition['input_schema'] ?? null ) ? $definition['input_schema'] : array() ),
+			'output'            => maa_schema_contract_fingerprint( is_array( $definition['output_schema'] ?? null ) ? $definition['output_schema'] : array() ),
+			'meta'              => array(
+				'show_in_rest' => (bool) ( $definition['meta']['show_in_rest'] ?? false ),
+				'mcp_public'   => (bool) ( $definition['meta']['mcp']['public'] ?? false ),
+				'mcp_server'   => (string) ( $definition['meta']['mcp']['server'] ?? '' ),
+				'mcp_risk'     => (string) ( $definition['meta']['mcp']['risk'] ?? '' ),
+			),
+		);
+	}
+
+	return $snapshot;
+}
+
 function maa_assert_package_read_ability_contract( $ability_id, $definition ) {
 	$definition = is_array( $definition ) ? $definition : array();
 	maa_assert_same( true, $definition['annotations']['readonly'] ?? null, "{$ability_id} is readonly" );
@@ -530,6 +593,28 @@ $migrated_destructive_ability_ids = array(
 	'magick-ai/trash-post',
 	'magick-ai/delete-post-permanently',
 );
+$core_governance_snapshot_path = __DIR__ . '/fixtures/core-governance-catalog-snapshot.json';
+$core_governance_snapshot_json = file_get_contents( $core_governance_snapshot_path );
+maa_assert_true( false !== $core_governance_snapshot_json, 'core governance catalog snapshot fixture is readable' );
+$core_governance_expected_snapshot = json_decode( (string) $core_governance_snapshot_json, true );
+maa_assert_true( is_array( $core_governance_expected_snapshot ), 'core governance catalog snapshot fixture decodes as an object' );
+maa_assert_same(
+	$core_governance_expected_snapshot,
+	maa_core_governance_catalog_snapshot(
+		$package_abilities,
+		array_keys( (array) ( $core_governance_expected_snapshot['abilities'] ?? array() ) )
+	),
+	'core governance catalog snapshot matches normalized package definitions'
+);
+$core_snapshot_doc = file_get_contents( __DIR__ . '/../docs/core-governance-catalog-snapshot.md' );
+maa_assert_true( is_string( $core_snapshot_doc ) && false !== strpos( $core_snapshot_doc, 'tests/fixtures/core-governance-catalog-snapshot.json' ), 'core governance catalog snapshot doc points to fixture' );
+$permission_matrix_doc = file_get_contents( __DIR__ . '/../docs/permission-matrix.md' );
+maa_assert_true( is_string( $permission_matrix_doc ) && false !== strpos( $permission_matrix_doc, 'Dry-run previews must still pass the same WordPress permission checks' ), 'permission matrix documents dry-run permission boundary' );
+$schema_audit_doc = file_get_contents( __DIR__ . '/../docs/schema-boundary-audit.md' );
+maa_assert_true( is_string( $schema_audit_doc ) && false !== strpos( $schema_audit_doc, 'REST ability details expose' ), 'schema boundary audit documents REST exposure verification' );
+$core_consumer_example = file_get_contents( __DIR__ . '/../examples/core-governance-consumer.php' );
+maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, 'magick_ai_abilities_get_registered' ), 'core governance consumer example uses ability discovery' );
+maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, "'ability_id' => \$ability_id" ), 'core governance consumer example prepares a real ability proposal payload' );
 maa_assert_true( isset( $package_categories->all()['magick-ai-data'] ), 'core read package registers the legacy magick-ai-data category for compatibility' );
 maa_assert_true( isset( $package_categories->all()['magick-ai-pages'] ), 'core read package registers the legacy magick-ai-pages category for compatibility' );
 maa_assert_true( isset( $package_categories->all()['magick-ai-comments'] ), 'core comment package registers the standalone comments category' );

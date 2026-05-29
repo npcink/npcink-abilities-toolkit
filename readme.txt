@@ -54,6 +54,8 @@ It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPr
 
 It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only workflow definition discovery abilities for hosts that need recipe metadata at runtime without workflow execution ownership.
 
+Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `magick-ai-core`.
+
 == Developer Smoke Test ==
 
 When the plugin is installed in a local WordPress site, run:
@@ -65,6 +67,14 @@ For isolated bounded-chain performance validation, run:
 `composer perf:smoke`
 
 == Changelog ==
+
+= 0.4.0 =
+
+* Added workflow definition discovery abilities and public PHP helpers.
+* Added Core governance handoff documentation, a catalog snapshot fixture, a permission matrix, and a schema boundary audit.
+* Hardened write-like contracts with `requires_approval`, explicit dry-run and commit defaults, and bounded idempotency keys.
+* Expanded smoke coverage for REST-exposed governance metadata and schemas.
+* Added a consumer example for preparing Core proposal payloads from discovered ability contracts.
 
 = 0.3.0 =
 

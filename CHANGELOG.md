@@ -2,6 +2,12 @@
 
 ## 0.4.0 - Unreleased
 
+- Added a Core governance catalog snapshot fixture covering draft creation, SEO metadata, comment approval, and workflow definition discovery contracts.
+- Added permission matrix and schema boundary audit documentation for first-party write/destructive abilities.
+- Added a Core governance consumer example that discovers ability contracts and prepares a proposal payload without moving Core governance into this package.
+- Hardened write-like contract metadata with `requires_approval`, dry-run and commit defaults, and bounded idempotency keys.
+- Expanded WordPress smoke coverage to assert REST-exposed governance metadata and schemas for Core handoff abilities.
+- Tightened `set-post-seo-meta` so omitted metadata fields do not overwrite existing values, and added permission coverage for comment approval dry-runs.
 - Added read-only workflow definition discovery through PHP helpers and Abilities API abilities without introducing workflow runtime ownership.
 - Added host profile guidance for full governed hosts and light core-read integrations.
 - Added workflow definition contract tests that keep the replay fixture aligned with the production provider and reject runtime/governance fields.

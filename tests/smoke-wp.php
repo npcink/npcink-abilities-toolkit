@@ -58,6 +58,39 @@ function magick_ai_abilities_smoke_has_ability_name( $items, $name ) {
 	return false;
 }
 
+/**
+ * Fetches one ability detail through REST.
+ *
+ * @param string $ability_id Ability id.
+ * @return array<string,mixed>
+ */
+function magick_ai_abilities_smoke_rest_ability( $ability_id ) {
+	$request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $ability_id );
+	$response = rest_do_request( $request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $response->get_status(), "Authenticated ability REST detail for {$ability_id} returns 200." );
+
+	$data = $response->get_data();
+	return is_array( $data ) ? $data : array();
+}
+
+/**
+ * Asserts that one REST ability detail exposes governance fields.
+ *
+ * @param string $ability_id Ability id.
+ * @param string $risk_level Expected risk.
+ * @param bool   $requires_approval Expected approval requirement.
+ * @return void
+ */
+function magick_ai_abilities_smoke_assert_rest_governance_contract( $ability_id, $risk_level, $requires_approval ) {
+	$ability = magick_ai_abilities_smoke_rest_ability( $ability_id );
+
+	magick_ai_abilities_smoke_assert( $ability_id === (string) ( $ability['name'] ?? '' ), "{$ability_id} REST detail keeps the real ability id." );
+	magick_ai_abilities_smoke_assert( is_array( $ability['input_schema'] ?? null ), "{$ability_id} REST detail exposes input_schema." );
+	magick_ai_abilities_smoke_assert( is_array( $ability['output_schema'] ?? null ), "{$ability_id} REST detail exposes output_schema." );
+	magick_ai_abilities_smoke_assert( $risk_level === (string) ( $ability['meta']['magick']['risk_level'] ?? '' ), "{$ability_id} REST detail exposes risk_level." );
+	magick_ai_abilities_smoke_assert( $requires_approval === (bool) ( $ability['meta']['magick']['requires_approval'] ?? ! $requires_approval ), "{$ability_id} REST detail exposes requires_approval." );
+}
+
 magick_ai_abilities_smoke_assert( function_exists( 'wp_register_ability' ), 'WordPress Abilities API registration function exists.' );
 magick_ai_abilities_smoke_assert( function_exists( 'wp_register_ability_category' ), 'WordPress Abilities API category registration function exists.' );
 magick_ai_abilities_smoke_assert( function_exists( 'magick_ai_abilities_register_readonly' ), 'Plugin public readonly registration helper is loaded.' );
@@ -113,6 +146,10 @@ if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/list-workflow-recipes' ),
 			'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
 		);
+		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/create-draft', 'write', true );
+		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/set-post-seo-meta', 'write', true );
+		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/approve-comment', 'write', true );
+		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai-abilities/list-workflow-recipes', 'read', false );
 	}
 
 if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {

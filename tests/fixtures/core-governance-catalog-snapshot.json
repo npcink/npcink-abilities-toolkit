@@ -1,0 +1,376 @@
+{
+  "schema_version": "v1",
+  "purpose": "Core governance handoff contract snapshot for high-value abilities.",
+  "abilities": {
+    "magick-ai/create-draft": {
+      "category": "magick-ai-write",
+      "risk_level": "write",
+      "requires_confirm": true,
+      "requires_approval": true,
+      "capability": "edit_posts",
+      "required_scope": "",
+      "required_scopes": [
+        "post.write"
+      ],
+      "input": {
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "post_type": {
+            "type": "string",
+            "default": "post"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft"
+            ],
+            "default": "draft"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "content": {
+            "type": "string"
+          },
+          "content_format": {
+            "type": "string",
+            "enum": [
+              "html",
+              "markdown",
+              "plain"
+            ]
+          },
+          "excerpt": {
+            "type": "string"
+          },
+          "soft_block_reason": {
+            "type": "string"
+          },
+          "soft_block_summary": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "integer",
+                "boolean"
+              ]
+            }
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": true
+          },
+          "commit": {
+            "type": "boolean",
+            "default": false
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "post_id",
+          "status",
+          "dry_run"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "post_id": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "content_format": {
+            "type": "string"
+          },
+          "edit_link": {
+            "type": "string"
+          },
+          "preview_link": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "host_governed": {
+            "type": "boolean"
+          },
+          "commit_required": {
+            "type": "boolean"
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": true,
+        "mcp_server": "magick-ai-write",
+        "mcp_risk": "write"
+      }
+    },
+    "magick-ai/set-post-seo-meta": {
+      "category": "magick-ai-write",
+      "risk_level": "write",
+      "requires_confirm": true,
+      "requires_approval": true,
+      "capability": "edit_posts",
+      "required_scope": "",
+      "required_scopes": [
+        "post.write"
+      ],
+      "input": {
+        "required": [
+          "post_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "post_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "seo_title": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "seo_description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": true
+          },
+          "commit": {
+            "type": "boolean",
+            "default": false
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "post_id",
+          "updated",
+          "status",
+          "provider",
+          "changes",
+          "dry_run"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "post_id": {
+            "type": "integer"
+          },
+          "updated": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "current": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "edit_link": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "host_governed": {
+            "type": "boolean"
+          },
+          "commit_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": true,
+        "mcp_server": "magick-ai-write",
+        "mcp_risk": "write"
+      }
+    },
+    "magick-ai/approve-comment": {
+      "category": "magick-ai-write",
+      "risk_level": "write",
+      "requires_confirm": true,
+      "requires_approval": true,
+      "capability": "moderate_comments",
+      "required_scope": "",
+      "required_scopes": [
+        "comments.manage"
+      ],
+      "input": {
+        "required": [
+          "comment_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "comment_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": true
+          },
+          "commit": {
+            "type": "boolean",
+            "default": false
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "comment_id",
+          "post_id",
+          "updated",
+          "comment_status",
+          "dry_run"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "comment_id": {
+            "type": "integer"
+          },
+          "post_id": {
+            "type": "integer"
+          },
+          "updated": {
+            "type": "boolean"
+          },
+          "comment_status": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "host_governed": {
+            "type": "boolean"
+          },
+          "commit_required": {
+            "type": "boolean"
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": true,
+        "mcp_server": "magick-ai-write",
+        "mcp_risk": "write"
+      }
+    },
+    "magick-ai-abilities/list-workflow-recipes": {
+      "category": "magick-ai-abilities-workflows",
+      "risk_level": "read",
+      "requires_confirm": false,
+      "requires_approval": false,
+      "capability": "manage_options",
+      "required_scope": "",
+      "required_scopes": [],
+      "input": {
+        "required": [],
+        "additionalProperties": false,
+        "properties": []
+      },
+      "output": {
+        "required": [
+          "schema_version",
+          "cases"
+        ],
+        "additionalProperties": null,
+        "properties": {
+          "schema_version": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "cases": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": false,
+        "mcp_server": "magick-ai-read",
+        "mcp_risk": "read"
+      }
+    },
+    "magick-ai-abilities/get-workflow-recipe": {
+      "category": "magick-ai-abilities-workflows",
+      "risk_level": "read",
+      "requires_confirm": false,
+      "requires_approval": false,
+      "capability": "manage_options",
+      "required_scope": "",
+      "required_scopes": [],
+      "input": {
+        "required": [
+          "recipe_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "recipe_id": {
+            "type": "string"
+          }
+        }
+      },
+      "output": {
+        "required": [],
+        "additionalProperties": true,
+        "properties": []
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": false,
+        "mcp_server": "magick-ai-read",
+        "mcp_risk": "read"
+      }
+    }
+  }
+}

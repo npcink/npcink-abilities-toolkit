@@ -44,6 +44,10 @@ The built-in abilities are grouped by product purpose in [docs/first-party-abili
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
 The Core governance handoff rules are documented in [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md).
+The Core handoff catalog snapshot, permission matrix, and schema boundary audit
+are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governance-catalog-snapshot.md),
+[docs/permission-matrix.md](docs/permission-matrix.md), and
+[docs/schema-boundary-audit.md](docs/schema-boundary-audit.md).
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
@@ -86,6 +90,11 @@ add_action(
 ```
 
 When Magick AI is installed, provider plugins may opt into compatibility projection so their registered abilities appear in `magick_ai_open_platform_ability_catalog` as `wp_ability` backend entries. Other plugins can ignore that integration and consume the same abilities through the standard WordPress Abilities API.
+
+See [examples/core-governance-consumer.php](examples/core-governance-consumer.php)
+for a minimal consumer-side example that discovers a real ability id, reads
+schema/risk metadata, and prepares a `magick-ai-core` proposal payload without
+this package owning Core governance.
 
 ## Test Page
 
