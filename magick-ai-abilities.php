@@ -27,6 +27,7 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Category_Registrar.php
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Ability_Registrar.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Integration/Magick_Catalog_Bridge.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Write_Package.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Destructive_Package.php';

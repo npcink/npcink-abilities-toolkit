@@ -7,6 +7,7 @@
 
 namespace Magick_AI_Abilities\Packages;
 
+use Magick_AI_Abilities\Packages\Read_Definitions\WordPress_Diagnostics_Definitions;
 use Magick_AI_Abilities\Registry\Ability_Registrar;
 use Magick_AI_Abilities\Registry\Category_Registrar;
 
@@ -145,7 +146,7 @@ final class Core_Read_Package {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public function definitions() {
-		return array(
+		$definitions = array(
 			'magick-ai/site-info'       => array(
 				'label'            => __( 'Site Info', 'magick-ai-abilities' ),
 				'description'      => __( 'Returns the site name, URLs, language, WordPress version, timezone, and active theme.', 'magick-ai-abilities' ),
@@ -174,47 +175,6 @@ final class Core_Read_Package {
 					'required'   => array( 'name', 'home_url', 'site_url' ),
 				),
 				'execute_callback' => array( $this, 'site_info' ),
-			),
-			'magick-ai-abilities/wp-diagnostics-summary' => array(
-				'label'            => __( 'WordPress Diagnostics Summary', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a redacted local WordPress diagnostics summary without Magick AI, MCP, filesystem path, database name, or secret details.', 'magick-ai-abilities' ),
-				'category'         => 'magick-ai-abilities-diagnostics',
-				'capability'       => 'manage_options',
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'input_schema'     => array(
-					'type'                 => 'object',
-					'properties'           => array(
-						'include_plugins' => array( 'type' => 'boolean', 'default' => true ),
-						'include_theme'   => array( 'type' => 'boolean', 'default' => true ),
-						'include_cron'    => array( 'type' => 'boolean', 'default' => true ),
-						'include_updates' => array( 'type' => 'boolean', 'default' => true ),
-					),
-					'additionalProperties' => false,
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'summary_version' => array( 'type' => 'string' ),
-						'generated_at'    => array( 'type' => 'string' ),
-						'redacted'        => array( 'type' => 'boolean' ),
-						'site'            => array( 'type' => 'object' ),
-						'wordpress'       => array( 'type' => 'object' ),
-						'php'             => array( 'type' => 'object' ),
-						'theme'           => array( 'type' => 'object' ),
-						'plugins'         => array( 'type' => 'object' ),
-						'rest_api'        => array( 'type' => 'object' ),
-						'abilities_api'   => array( 'type' => 'object' ),
-						'cron'            => array( 'type' => 'object' ),
-						'updates'         => array( 'type' => 'object' ),
-						'omitted'         => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'string' ),
-						),
-					),
-					'required'   => array( 'summary_version', 'generated_at', 'redacted', 'site', 'wordpress', 'php', 'rest_api', 'abilities_api', 'omitted' ),
-				),
-				'execute_callback' => array( $this, 'wp_diagnostics_summary' ),
 			),
 			'magick-ai/list-post-types' => array(
 				'label'            => __( 'List Post Types', 'magick-ai-abilities' ),
@@ -2849,6 +2809,12 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'list_post_revisions' ),
 			),
+		);
+
+		return array_merge(
+			array_slice( $definitions, 0, 1, true ),
+			WordPress_Diagnostics_Definitions::definitions( $this ),
+			array_slice( $definitions, 1, null, true )
 		);
 	}
 

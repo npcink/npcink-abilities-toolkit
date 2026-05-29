@@ -544,6 +544,9 @@ maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-s
 maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
+$core_read_definition_ids = array_keys( $core_read_package->definitions() );
+maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
+maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
 foreach ( array_keys( $core_read_package->definitions() ) as $known_read_ability_id ) {
 	maa_assert_true(
 		isset( Core_Read_Pack_Classifier::known_pack_map()[ $known_read_ability_id ] ),

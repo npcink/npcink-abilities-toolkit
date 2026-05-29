@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - Unreleased
+
+- Split the standalone WordPress diagnostics read ability definition into a dedicated read definitions provider while preserving registration order and behavior.
+
 ## 0.3.0 - 2026-05-29
 
 - Added the 0.3 ability acceptance matrix, agent workflow validation plan, and stabilization scope documents.
