@@ -43,6 +43,7 @@ The independent-project split and Magick AI integration boundary are documented 
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
+The Core governance handoff rules are documented in [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md).
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
