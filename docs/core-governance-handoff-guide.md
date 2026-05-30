@@ -75,6 +75,12 @@ against the real `magick-ai/propose-post-taxonomy-terms` and
 `magick-ai/set-post-terms` contracts. No additional schema, metadata, or ability
 contract gap is currently open on the abilities side.
 
+The 2026-05-30 main repo harvest checkpoint also found no new ability-side gap
+from the content, media, comment, batch, provider, or Agent Gateway cleanup
+signals. Those signals should be treated as host workflow or product extraction
+guidance unless a future consumer proof demonstrates a missing reusable
+WordPress-only contract.
+
 ## Deferred Surfaces
 
 Keep these out of the current Core governance implementation:

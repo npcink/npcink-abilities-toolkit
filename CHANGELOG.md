@@ -4,6 +4,8 @@
 
 - Added `magick-ai/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `magick-ai/set-post-terms` without mutating posts or creating terms.
 - Added a 0.5 unreleased verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
+- Added a Magick AI main repo harvest checkpoint that maps content/media/comment/batch cleanup signals to existing abilities and confirms that no new ability batch should start from candidate lists alone.
+- Expanded the Core consumer handoff check to assert the five harvested surfaces and their corresponding host-governed write targets expose Abilities API discovery metadata, schemas, dry-run controls, and approval metadata.
 
 ## 0.4.0 - 2026-05-30
 

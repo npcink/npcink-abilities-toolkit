@@ -43,6 +43,7 @@ The independent-project split and Magick AI integration boundary are documented 
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
+Static agent and MCP usage guidance rules are documented in [docs/agent-usage-metadata.md](docs/agent-usage-metadata.md).
 The Core governance handoff rules are documented in [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md).
 The Core handoff catalog snapshot, permission matrix, and schema boundary audit
 are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governance-catalog-snapshot.md),
@@ -52,6 +53,7 @@ Recommended full and light host profiles are documented in [docs/host-profiles.m
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 unreleased observation line is tracked in [docs/release-0.5-unreleased-verification.md](docs/release-0.5-unreleased-verification.md).
+The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example
@@ -230,6 +232,12 @@ Run the Core consumer handoff and catalog governance checks:
 ```bash
 composer check:consumer
 composer check:catalog
+```
+
+Run the registered first-party ability contract readiness audit:
+
+```bash
+composer check:contracts
 ```
 
 Run the isolated bounded-chain performance smoke:

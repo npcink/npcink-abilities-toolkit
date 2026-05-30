@@ -70,6 +70,7 @@ final class Core_Comment_Package {
 				: array();
 			$definition['meta']['magick_ai_abilities']['pack'] = $pack;
 			$definition['project_to_magick_catalog'] = true;
+			$definition = $this->with_agent_usage_metadata( $ability_id, $definition );
 			$this->abilities->add_readonly( $ability_id, $definition );
 		}
 	}
@@ -128,6 +129,28 @@ final class Core_Comment_Package {
 	 */
 	public function definitions() {
 		return Core_Comment_Definitions::definitions( $this );
+	}
+
+	/**
+	 * Adds static agent usage guidance for priority comment abilities.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Ability definition.
+	 * @return array<string,mixed>
+	 */
+	private function with_agent_usage_metadata( $ability_id, array $definition ) {
+		if ( 'magick-ai/get-comment-compliance-handoff' !== $ability_id ) {
+			return $definition;
+		}
+
+		$definition['agent_usage'] = array(
+			'when_to_use'     => array( 'Prepare read-only comment moderation and reply context for a compliance review.' ),
+			'not_for'         => array( 'Do not use this to approve, reply, spam, trash, or otherwise mutate comments.' ),
+			'best_for'        => array( 'Prioritizing a comment queue and preparing suggestions before a governed comment action proposal.' ),
+			'stopping_points' => array( 'Stop before any comment action; final approval, reply, spam, or trash requires host/Core approval.' ),
+		);
+
+		return $definition;
 	}
 
 	/**

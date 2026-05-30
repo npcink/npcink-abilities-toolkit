@@ -64,6 +64,9 @@ final class Contract_Normalizer {
 		$meta = isset( $definition['meta'] ) && is_array( $definition['meta'] )
 			? $definition['meta']
 			: array();
+		$agent_usage = $this->normalize_agent_usage(
+			isset( $definition['agent_usage'] ) ? $definition['agent_usage'] : ( $meta['agent_usage'] ?? array() )
+		);
 
 		$mcp_meta = isset( $meta['mcp'] ) && is_array( $meta['mcp'] )
 			? $meta['mcp']
@@ -92,6 +95,9 @@ final class Contract_Normalizer {
 		$meta['annotations']  = $annotations;
 		$meta['mcp']         = $mcp_meta;
 		$meta['magick']      = $magick_meta;
+		if ( $this->has_agent_usage( $agent_usage ) ) {
+			$meta['agent_usage'] = $agent_usage;
+		}
 
 		$capability = isset( $definition['capability'] ) ? sanitize_key( (string) $definition['capability'] ) : 'manage_options';
 		if ( '' === $capability ) {
@@ -114,7 +120,7 @@ final class Contract_Normalizer {
 			$output_schema = $this->add_write_output_schema( $output_schema );
 		}
 
-		return array(
+		$contract = array(
 			'ability_id'          => $ability_id,
 			'mode'                => $mode,
 			'source'              => $source,
@@ -151,6 +157,12 @@ final class Contract_Normalizer {
 			'successor'           => isset( $definition['successor'] ) ? $this->sanitize_ability_id( $definition['successor'] ) : '',
 			'meta'                => $meta,
 		);
+
+		if ( $this->has_agent_usage( $agent_usage ) ) {
+			$contract['agent_usage'] = $agent_usage;
+		}
+
+		return $contract;
 	}
 
 	/**
@@ -226,5 +238,55 @@ final class Contract_Normalizer {
 			'additionalProperties' => true,
 		);
 		return $schema;
+	}
+
+	/**
+	 * Normalizes static guidance for agents and MCP tool descriptions.
+	 *
+	 * @param mixed $agent_usage Raw agent usage guidance.
+	 * @return array<string,array<int,string>>
+	 */
+	private function normalize_agent_usage( $agent_usage ) {
+		$agent_usage = is_array( $agent_usage ) ? $agent_usage : array();
+		$normalized  = array();
+
+		foreach ( array( 'when_to_use', 'not_for', 'best_for', 'stopping_points' ) as $field ) {
+			$items = isset( $agent_usage[ $field ] ) ? $agent_usage[ $field ] : array();
+			if ( ! is_array( $items ) ) {
+				$items = array( $items );
+			}
+
+			$normalized[ $field ] = array_values(
+				array_filter(
+					array_map(
+						static function ( $item ) {
+							return sanitize_text_field( (string) $item );
+						},
+						$items
+					),
+					static function ( $item ) {
+						return '' !== $item;
+					}
+				)
+			);
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Checks whether agent usage guidance contains any guidance items.
+	 *
+	 * @param array<string,array<int,string>> $agent_usage Normalized usage guidance.
+	 * @return bool
+	 */
+	private function has_agent_usage( array $agent_usage ) {
+		foreach ( $agent_usage as $items ) {
+			if ( ! empty( $items ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

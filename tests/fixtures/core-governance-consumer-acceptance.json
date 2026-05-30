@@ -2,6 +2,67 @@
   "schema_version": "v1",
   "purpose": "Consumer-side acceptance fixture for hosts that build Core governance proposals from discovered ability contracts.",
   "proposal_endpoint": "POST /wp-json/magick-ai-core/v1/proposals",
+  "harvest_surfaces": {
+    "taxonomy_content_cleanup": {
+      "read_or_proposal_abilities": [
+        "magick-ai/propose-post-taxonomy-terms",
+        "magick-ai/propose-post-excerpt",
+        "magick-ai/resolve-post-metadata-plan"
+      ],
+      "write_targets": [
+        "magick-ai/set-post-terms",
+        "magick-ai/set-post-slug",
+        "magick-ai/update-post"
+      ]
+    },
+    "publish_preflight": {
+      "read_or_proposal_abilities": [
+        "magick-ai/get-article-publish-preflight-context",
+        "magick-ai/get-content-publishing-checklist",
+        "magick-ai/get-post-publish-risk-report",
+        "magick-ai/get-publishing-calendar-context"
+      ],
+      "write_targets": [
+        "magick-ai/schedule-post",
+        "magick-ai/publish-post"
+      ]
+    },
+    "media_inventory": {
+      "read_or_proposal_abilities": [
+        "magick-ai/list-media",
+        "magick-ai/get-media-inventory-health",
+        "magick-ai/get-media-cleanup-opportunities",
+        "magick-ai/build-media-seo-assets",
+        "magick-ai/optimize-media-metadata"
+      ],
+      "write_targets": [
+        "magick-ai/update-media-details",
+        "magick-ai/delete-media-permanently"
+      ]
+    },
+    "page_structure_inspection": {
+      "read_or_proposal_abilities": [
+        "magick-ai/inspect-page-structure",
+        "magick-ai/get-page-structure-health"
+      ],
+      "write_targets": [
+        "magick-ai/update-post-blocks",
+        "magick-ai/patch-post-content"
+      ]
+    },
+    "comment_handoff_context": {
+      "read_or_proposal_abilities": [
+        "magick-ai/get-comment-compliance-handoff",
+        "magick-ai/build-comment-moderation-suggest"
+      ],
+      "write_targets": [
+        "magick-ai/approve-comment",
+        "magick-ai/reply-comment",
+        "magick-ai/spam-comment",
+        "magick-ai/trash-comment"
+      ]
+    }
+  },
   "abilities": {
     "magick-ai/create-draft": {
       "risk_level": "write",

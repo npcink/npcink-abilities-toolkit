@@ -58,6 +58,7 @@ final class Core_Destructive_Package {
 		);
 
 		foreach ( $this->definitions() as $ability_id => $definition ) {
+			$definition                              = $this->with_agent_usage_metadata( $ability_id, $definition );
 			$definition['source']                    = 'official';
 			$definition['project_to_magick_catalog'] = true;
 			$this->abilities->add_destructive_host_governed( $ability_id, $definition );
@@ -900,6 +901,36 @@ final class Core_Destructive_Package {
 				'risk'   => 'destructive',
 			),
 		);
+	}
+
+	/**
+	 * Adds static agent and MCP selection guidance to priority destructive abilities.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Ability definition.
+	 * @return array<string,mixed>
+	 */
+	private function with_agent_usage_metadata( $ability_id, array $definition ) {
+		if ( 'magick-ai/delete-media-permanently' !== $ability_id ) {
+			return $definition;
+		}
+
+		$definition['agent_usage'] = array(
+			'when_to_use'     => array(
+				'Prepare or commit permanent deletion of one media attachment after explicit review.',
+			),
+			'not_for'         => array(
+				'Do not use this for cleanup discovery, reversible trash actions, or bulk deletion.',
+			),
+			'best_for'        => array(
+				'Executing one approved destructive media cleanup action with a known attachment id.',
+			),
+			'stopping_points' => array(
+				'Default to dry_run; final permanent deletion requires host approval context and idempotency protection.',
+			),
+		);
+
+		return $definition;
 	}
 
 	/**

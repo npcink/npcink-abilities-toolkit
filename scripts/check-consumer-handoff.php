@@ -87,12 +87,77 @@ function maa_consumer_handoff_proposal_payload( $ability_id, array $ability, arr
 	);
 }
 
+function maa_consumer_handoff_get_ability( array $abilities, $ability_id, $label ) {
+	$ability_id = (string) $ability_id;
+	maa_consumer_handoff_assert( isset( $abilities[ $ability_id ] ), $label . ' discovers ' . $ability_id );
+
+	return isset( $abilities[ $ability_id ] ) && is_array( $abilities[ $ability_id ] )
+		? $abilities[ $ability_id ]
+		: array();
+}
+
+function maa_consumer_handoff_assert_schema_object( array $ability, $ability_id, $schema_key ) {
+	$schema = isset( $ability[ $schema_key ] ) && is_array( $ability[ $schema_key ] )
+		? $ability[ $schema_key ]
+		: array();
+
+	maa_consumer_handoff_assert( 'object' === (string) ( $schema['type'] ?? '' ), $ability_id . ' exposes object ' . $schema_key );
+	maa_consumer_handoff_assert( isset( $schema['properties'] ) && is_array( $schema['properties'] ), $ability_id . ' exposes ' . $schema_key . ' properties' );
+}
+
+function maa_consumer_handoff_assert_rest_metadata( array $ability, $ability_id ) {
+	$meta        = isset( $ability['meta'] ) && is_array( $ability['meta'] ) ? $ability['meta'] : array();
+	$magick_meta = isset( $meta['magick'] ) && is_array( $meta['magick'] ) ? $meta['magick'] : array();
+	$mcp_meta    = isset( $meta['mcp'] ) && is_array( $meta['mcp'] ) ? $meta['mcp'] : array();
+
+	maa_consumer_handoff_assert( true === (bool) ( $meta['show_in_rest'] ?? false ), $ability_id . ' is discoverable through Abilities API REST metadata' );
+	maa_consumer_handoff_assert( $ability_id === (string) ( $magick_meta['canonical_ability_id'] ?? '' ), $ability_id . ' metadata preserves canonical ability id' );
+	maa_consumer_handoff_assert( (string) ( $ability['risk_level'] ?? '' ) === (string) ( $magick_meta['risk_level'] ?? '' ), $ability_id . ' metadata mirrors risk level' );
+	maa_consumer_handoff_assert( (string) ( $ability['risk_level'] ?? '' ) === (string) ( $mcp_meta['risk'] ?? '' ), $ability_id . ' MCP metadata mirrors risk level' );
+}
+
+function maa_consumer_handoff_assert_read_surface_ability( array $abilities, $ability_id, $surface_id ) {
+	$ability = maa_consumer_handoff_get_ability( $abilities, $ability_id, $surface_id . ' read/proposal surface' );
+	if ( empty( $ability ) ) {
+		return;
+	}
+
+	maa_consumer_handoff_assert( 'read' === (string) ( $ability['risk_level'] ?? '' ), $ability_id . ' remains read-risk for consumer discovery' );
+	maa_consumer_handoff_assert( false === (bool) ( $ability['requires_approval'] ?? true ), $ability_id . ' does not require approval as a read/proposal surface' );
+	maa_consumer_handoff_assert( false === (bool) ( $ability['requires_confirm'] ?? true ), $ability_id . ' does not require confirm as a read/proposal surface' );
+	maa_consumer_handoff_assert_rest_metadata( $ability, $ability_id );
+	maa_consumer_handoff_assert_schema_object( $ability, $ability_id, 'input_schema' );
+	maa_consumer_handoff_assert_schema_object( $ability, $ability_id, 'output_schema' );
+	foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $control ) {
+		maa_consumer_handoff_assert( ! isset( $ability['input_schema']['properties'][ $control ] ), $ability_id . ' does not expose write control ' . $control );
+	}
+}
+
+function maa_consumer_handoff_assert_write_target_ability( array $abilities, $ability_id, $surface_id ) {
+	$ability = maa_consumer_handoff_get_ability( $abilities, $ability_id, $surface_id . ' write target' );
+	if ( empty( $ability ) ) {
+		return;
+	}
+
+	$risk_level = (string) ( $ability['risk_level'] ?? '' );
+	maa_consumer_handoff_assert( in_array( $risk_level, array( 'write', 'destructive' ), true ), $ability_id . ' is a governed write/destructive target' );
+	maa_consumer_handoff_assert( true === (bool) ( $ability['requires_approval'] ?? false ), $ability_id . ' requires host approval' );
+	maa_consumer_handoff_assert( true === (bool) ( $ability['requires_confirm'] ?? false ), $ability_id . ' requires host confirm' );
+	maa_consumer_handoff_assert_rest_metadata( $ability, $ability_id );
+	maa_consumer_handoff_assert_schema_object( $ability, $ability_id, 'input_schema' );
+	maa_consumer_handoff_assert_schema_object( $ability, $ability_id, 'output_schema' );
+	foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $control ) {
+		maa_consumer_handoff_assert( isset( $ability['input_schema']['properties'][ $control ] ), $ability_id . ' exposes governance control ' . $control );
+	}
+}
+
 $fixture_path = dirname( __DIR__ ) . '/tests/fixtures/core-governance-consumer-acceptance.json';
 $fixture      = maa_consumer_handoff_json( $fixture_path );
 $abilities    = maa_consumer_handoff_catalog();
 
 maa_consumer_handoff_assert( 'v1' === (string) ( $fixture['schema_version'] ?? '' ), 'consumer acceptance fixture uses schema_version v1' );
 maa_consumer_handoff_assert( isset( $fixture['abilities'] ) && is_array( $fixture['abilities'] ), 'consumer acceptance fixture has abilities map' );
+maa_consumer_handoff_assert( isset( $fixture['harvest_surfaces'] ) && is_array( $fixture['harvest_surfaces'] ), 'consumer acceptance fixture has harvest surfaces map' );
 
 foreach ( (array) ( $fixture['abilities'] ?? array() ) as $ability_id => $expected ) {
 	$expected = is_array( $expected ) ? $expected : array();
@@ -112,6 +177,16 @@ foreach ( (array) ( $fixture['abilities'] ?? array() ) as $ability_id => $expect
 	}
 	foreach ( (array) ( $expected['must_have_input_controls'] ?? array() ) as $control ) {
 		maa_consumer_handoff_assert( isset( $ability['input_schema']['properties'][ $control ] ), $ability_id . ' input schema exposes governance control ' . $control );
+	}
+}
+
+foreach ( (array) ( $fixture['harvest_surfaces'] ?? array() ) as $surface_id => $surface ) {
+	$surface = is_array( $surface ) ? $surface : array();
+	foreach ( (array) ( $surface['read_or_proposal_abilities'] ?? array() ) as $ability_id ) {
+		maa_consumer_handoff_assert_read_surface_ability( $abilities, $ability_id, (string) $surface_id );
+	}
+	foreach ( (array) ( $surface['write_targets'] ?? array() ) as $ability_id ) {
+		maa_consumer_handoff_assert_write_target_ability( $abilities, $ability_id, (string) $surface_id );
 	}
 }
 

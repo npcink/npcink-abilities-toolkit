@@ -72,6 +72,8 @@ least broad WordPress capability that matches the operation.
 - `meta.mcp.annotations.destructive`
 - `meta.mcp.annotations.idempotent`
 - `meta.magick.channels` when Magick AI compatibility metadata is needed
+- `agent_usage` / `meta.agent_usage` for static agent and MCP selection
+  guidance on priority entry or high-risk abilities
 
 Rules:
 
@@ -82,6 +84,9 @@ Rules:
   defaults to `false` for provider abilities.
 - Projection is metadata only. Execution still goes through the WordPress
   Abilities API path.
+- `agent_usage` is static descriptive guidance only. It must not define model
+  routing, approval policy, channel-local execution, or workflow runtime rules.
+  See [Agent Usage Metadata](agent-usage-metadata.md).
 
 ## Risk And Governance
 

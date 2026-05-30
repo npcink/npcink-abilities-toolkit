@@ -2260,6 +2260,7 @@ final class Core_Read_Package {
 			WordPress_Diagnostics_Definitions::definitions( $this ),
 			$definitions
 		);
+		$definitions = $this->apply_agent_usage_metadata( $definitions );
 
 		$ordered = array();
 		foreach ( array_keys( Core_Read_Pack_Classifier::known_pack_map() ) as $ability_id ) {
@@ -2270,6 +2271,67 @@ final class Core_Read_Package {
 		}
 
 			return $ordered + $definitions;
+		}
+
+		/**
+		 * Adds static agent usage guidance for priority entry/read abilities.
+		 *
+		 * @param array<string,array<string,mixed>> $definitions Ability definitions.
+		 * @return array<string,array<string,mixed>>
+		 */
+		private function apply_agent_usage_metadata( array $definitions ) {
+			$usage = array(
+				'magick-ai-abilities/list-workflow-recipes' => array(
+					'when_to_use'     => array( 'Discover supported host-side workflow recipes before choosing a multi-step path.' ),
+					'not_for'         => array( 'Do not use this to execute, schedule, approve, audit, or commit workflow steps.' ),
+					'best_for'        => array( 'Selecting the right entry ability for article, refresh, comment, diagnostics, or governance handoff work.' ),
+					'stopping_points' => array( 'After selecting a recipe, call the listed abilities through the host; this package does not run the workflow.' ),
+				),
+				'magick-ai-abilities/get-workflow-recipe' => array(
+					'when_to_use'     => array( 'Fetch one workflow recipe by recipe id or case id after discovery.' ),
+					'not_for'         => array( 'Do not use this as a workflow execution endpoint or approval record.' ),
+					'best_for'        => array( 'Reading required inputs, entry ability, expanded ability ids, and handoff boundaries for one workflow.' ),
+					'stopping_points' => array( 'Stop after reading the recipe; execution, approval, audit, retry, and final writes belong to the host.' ),
+				),
+				'magick-ai-abilities/wp-diagnostics-summary' => array(
+					'when_to_use'     => array( 'Inspect a redacted WordPress-only environment summary for support or readiness triage.' ),
+					'not_for'         => array( 'Do not use this for Magick AI settings, MCP settings, secrets, filesystem paths, database names, or external probes.' ),
+					'best_for'        => array( 'Checking REST, Abilities API, WordPress, PHP, theme, plugin, cron, and update context without leaking secrets.' ),
+					'stopping_points' => array( 'For runtime, cloud, MCP, or secret diagnostics, hand off to the owning host or operations addon.' ),
+				),
+				'magick-ai/get-article-publish-preflight-context' => array(
+					'when_to_use'     => array( 'Assemble read-only publish readiness, risk, workflow, and calendar context for one post.' ),
+					'not_for'         => array( 'Do not use this to schedule, publish, rewrite, or commit post changes.' ),
+					'best_for'        => array( 'Deciding whether a draft needs edits, review, scheduling, or a host-governed write proposal.' ),
+					'stopping_points' => array( 'Stop before any publish, schedule, metadata, or content mutation and request host/Core approval.' ),
+				),
+				'magick-ai/get-old-article-refresh-context' => array(
+					'when_to_use'     => array( 'Find stale or under-optimized articles and collect SEO/GEO, style, and link context.' ),
+					'not_for'         => array( 'Do not use this to rewrite posts, patch content, or change SEO metadata.' ),
+					'best_for'        => array( 'Choosing refresh candidates and preparing a host-owned optimization plan.' ),
+					'stopping_points' => array( 'Stop after candidate discovery; content generation, model calls, and writes belong to product or host workflows.' ),
+				),
+				'magick-ai/get-media-cleanup-opportunities' => array(
+					'when_to_use'     => array( 'Scan media for metadata gaps, source gaps, and likely unused assets.' ),
+					'not_for'         => array( 'Do not use this to update media metadata or delete attachments.' ),
+					'best_for'        => array( 'Building a review queue before media SEO enrichment or cleanup proposals.' ),
+					'stopping_points' => array( 'Stop before update-media-details or delete-media-permanently and require host/Core approval.' ),
+				),
+				'magick-ai/propose-post-taxonomy-terms' => array(
+					'when_to_use'     => array( 'Build a deterministic taxonomy assignment proposal using existing terms.' ),
+					'not_for'         => array( 'Do not use this to create terms, assign terms, delete terms, or mutate posts.' ),
+					'best_for'        => array( 'Preparing bounded dry-run input for a host-governed set-post-terms proposal.' ),
+					'stopping_points' => array( 'Stop at the returned proposal; final taxonomy writes require Core approval and host execution.' ),
+				),
+			);
+
+			foreach ( $usage as $ability_id => $agent_usage ) {
+				if ( isset( $definitions[ $ability_id ] ) ) {
+					$definitions[ $ability_id ]['agent_usage'] = $agent_usage;
+				}
+			}
+
+			return $definitions;
 		}
 
 		/**

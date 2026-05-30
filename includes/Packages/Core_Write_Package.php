@@ -60,6 +60,7 @@ final class Core_Write_Package {
 		foreach ( $this->definitions() as $ability_id => $definition ) {
 			$definition['source']                    = 'official';
 			$definition['project_to_magick_catalog'] = true;
+			$definition = $this->with_agent_usage_metadata( $ability_id, $definition );
 			$this->abilities->add_write_host_governed( $ability_id, $definition );
 		}
 	}
@@ -2213,6 +2214,48 @@ final class Core_Write_Package {
 		$payload['dry_run']        = false;
 		unset( $payload['preview'] );
 		return $payload;
+	}
+
+	/**
+	 * Adds static agent usage guidance for priority write abilities.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Ability definition.
+	 * @return array<string,mixed>
+	 */
+	private function with_agent_usage_metadata( $ability_id, array $definition ) {
+		$usage = array(
+			'magick-ai/create-draft' => array(
+				'when_to_use'     => array( 'Prepare or commit a host-approved draft post or page request.' ),
+				'not_for'         => array( 'Do not use this for publishing, scheduling, updating existing posts, or bypassing editorial approval.' ),
+				'best_for'        => array( 'Creating a draft only after the caller has a reviewed title and content payload.' ),
+				'stopping_points' => array( 'Default to dry_run; final commit requires host approval context and idempotency protection.' ),
+			),
+			'magick-ai/set-post-seo-meta' => array(
+				'when_to_use'     => array( 'Prepare or commit approved SEO title and description metadata changes for one post.' ),
+				'not_for'         => array( 'Do not use this for content rewrites, taxonomy changes, schema generation, or model selection.' ),
+				'best_for'        => array( 'Applying field-level SEO metadata after a read helper or product workflow has produced reviewed values.' ),
+				'stopping_points' => array( 'Default to dry_run; final metadata writes require host approval context and idempotency protection.' ),
+			),
+			'magick-ai/update-media-details' => array(
+				'when_to_use'     => array( 'Prepare or commit approved attachment title, alt, caption, description, or attribution metadata changes.' ),
+				'not_for'         => array( 'Do not use this to upload files, generate images, delete media, or infer copyright ownership.' ),
+				'best_for'        => array( 'Applying reviewed media SEO or attribution improvements to one existing attachment.' ),
+				'stopping_points' => array( 'Default to dry_run; final media metadata writes require host approval context and idempotency protection.' ),
+			),
+			'magick-ai/approve-comment' => array(
+				'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
+				'not_for'         => array( 'Do not use this to generate replies, spam comments, trash comments, or moderate without human policy review.' ),
+				'best_for'        => array( 'Executing a reviewed approve action that was prepared by comment compliance handoff context.' ),
+				'stopping_points' => array( 'Default to dry_run; final comment status changes require host approval context and idempotency protection.' ),
+			),
+		);
+
+		if ( isset( $usage[ $ability_id ] ) ) {
+			$definition['agent_usage'] = $usage[ $ability_id ];
+		}
+
+		return $definition;
 	}
 
 	/**

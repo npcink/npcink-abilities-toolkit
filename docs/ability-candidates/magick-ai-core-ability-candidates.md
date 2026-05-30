@@ -6,6 +6,16 @@ This document records high-value WordPress ability candidates found while
 shrinking Magick AI Core back to a governance layer. It is intentionally not an
 implementation plan and does not move Magick AI runtime code into this package.
 
+Latest harvest checkpoint:
+`docs/migration-notes/magick-ai-main-repo-harvest-2026-05-30.md`.
+
+As of the 2026-05-30 checkpoint, the main content/media/comment/batch cleanup
+signals do not open a new `magick-ai-abilities` implementation batch. Current
+coverage already includes the reusable WordPress-only read, proposal, dry-run,
+and host-governed write surfaces needed by the validated Core handoff scenarios.
+Future candidates must start from a failed host workflow proof, not from the
+existence of a product workflow in the main repo.
+
 ## Boundary
 
 `magick-ai-abilities` may own reusable WordPress Abilities API definitions,
