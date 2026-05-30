@@ -51,6 +51,7 @@ are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governanc
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
+The 0.5 unreleased observation line is tracked in [docs/release-0.5-unreleased-verification.md](docs/release-0.5-unreleased-verification.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example

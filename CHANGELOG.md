@@ -3,6 +3,7 @@
 ## 0.5.0 - Unreleased
 
 - Added `magick-ai/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `magick-ai/set-post-terms` without mutating posts or creating terms.
+- Added a 0.5 unreleased verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
 
 ## 0.4.0 - 2026-05-30
 

@@ -71,6 +71,7 @@ For isolated bounded-chain performance validation, run:
 = 0.5.0 =
 
 * Added `magick-ai/propose-post-taxonomy-terms`, a deterministic post taxonomy assignment proposal helper for existing terms.
+* Added 0.5 unreleased verification notes for the taxonomy terms Core consumer proof and freeze/observe policy.
 
 = 0.4.0 =
 
