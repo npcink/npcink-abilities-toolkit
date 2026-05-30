@@ -1,7 +1,7 @@
 # 0.4 Candidate Verification
 
 Status: release candidate checklist.
-Date: 2026-05-29.
+Date: 2026-05-30.
 
 This checklist records the release-candidate scope and gates after adding
 read-only workflow definition runtime discovery and Core governance handoff
@@ -23,10 +23,10 @@ Before tagging `0.4.0`, the release owner should verify:
   from discovered ability metadata without depending on internal classes.
 - [x] Duplicate-id and governance drift audit script is available for local
   cross-repo checks.
-- [ ] Release zip has been built and inspected.
-- [ ] Final smoke commands have been run against each target WordPress/PHP
+- [x] Release zip has been built and inspected.
+- [x] Final smoke commands have been run against each target WordPress/PHP
   profile required by the release owner.
-- [ ] The release owner has decided whether the current unreleased line ships
+- [x] The release owner has decided whether the current unreleased line ships
   as `0.4.0`.
 
 ## Candidate Scope
@@ -73,6 +73,15 @@ Before tagging `0.4.0`, the release owner should verify:
 | `magick-ai-core composer test:all` | Pass | PHP lint and static contracts passed. |
 | `magick-ai-core composer smoke:wp` | Pass | Core discovered capabilities from `magick-ai-abilities` and found shared workflow definitions at runtime. |
 
+## Package Evidence
+
+- Package path: `dist/magick-ai-abilities-0.4.0.zip`
+- Package inspection: `unzip -Z1` reports 60 files and 17 directories under the
+  `magick-ai-abilities/` prefix.
+- Version inspection: packaged `magick-ai-abilities.php` reports
+  `Version: 0.4.0` and `MAGICK_AI_ABILITIES_VERSION` is `0.4.0`; packaged
+  `readme.txt` reports `Stable tag: 0.4.0`.
+
 Smoke command:
 
 ```bash
@@ -98,11 +107,8 @@ composer smoke:wp
 
 ## Remaining Before Release
 
-- Decide whether these changes ship as `0.4.0` or are held in the unreleased
-  line.
-- Build and inspect the release zip before tagging.
-- Run the same smoke commands against any additional target WordPress/PHP
-  profiles required by the release owner.
+- Tag `0.4.0` only after confirming the packaged zip should be treated as the
+  release artifact.
 
 ## Cross-Repo Audit Command
 
