@@ -42,7 +42,7 @@ Each accepted ability must satisfy these rules:
 | Comment compliance handoff | `magick-ai/get-comment-compliance-handoff`, `magick-ai/get-comment-queue-health`, `magick-ai/get-comment-action-priority-queue`, `magick-ai/build-comment-moderation-suggest`, `magick-ai/build-comment-mention-reply-suggest`, `magick-ai/compose-comment-moderation-result` | Agent can prioritize comments and prepare moderation/reply suggestions; approve, reply, spam, and trash remain host-governed. | `composer test`, `composer perf:smoke`, `composer smoke:wp` workflow assertion. | Accepted for workflow validation. |
 | Workflow recipe discovery | `magick-ai-abilities/list-workflow-recipes`, `magick-ai-abilities/get-workflow-recipe` | Host can discover read-only workflow recipe definitions at runtime without this package owning workflow execution, approval, audit, quota, model routing, prompts, or final writes. | `composer test`, `composer smoke:wp` discovery runs. | Accepted for runtime discovery. |
 | Media governance | `magick-ai/get-media-cleanup-opportunities`, `magick-ai/build-media-seo-assets`, `magick-ai/optimize-media-metadata`, `magick-ai/update-media-details`, `magick-ai/delete-media-permanently` | Agent can separate read-only cleanup/SEO recommendations from host-approved metadata updates and destructive deletes. | `composer test`, `composer smoke:wp` single-ability runs for read context. | Read side accepted; write/destructive side remains host approval only. |
-| Taxonomy consolidation | `magick-ai/get-taxonomy-consolidation-suggestions`, `magick-ai/create-term`, `magick-ai/update-term`, `magick-ai/set-post-terms`, `magick-ai/merge-terms`, `magick-ai/delete-term` | Agent can propose taxonomy cleanup from read-only signals and hand final mutations to host-governed write/destructive abilities. | `composer test`, `composer smoke:wp` read-side run. | Read side accepted; mutation chain needs host-side workflow verification. |
+| Taxonomy consolidation | `magick-ai/get-taxonomy-consolidation-suggestions`, `magick-ai/propose-post-taxonomy-terms`, `magick-ai/create-term`, `magick-ai/update-term`, `magick-ai/set-post-terms`, `magick-ai/merge-terms`, `magick-ai/delete-term` | Agent can propose taxonomy cleanup from read-only signals, build a bounded post taxonomy assignment proposal, and hand final mutations to host-governed write/destructive abilities. | `composer test`, `composer smoke:wp` read/proposal-side runs; `magick-ai-core` taxonomy terms preview consumer smoke. | Read and proposal side accepted. Core consumer proof found no additional schema, metadata, or ability contract gap. Final mutation execution remains host-governed. |
 | Diagnostics and support | `magick-ai-abilities/wp-diagnostics-summary`, `magick-ai/site-info` | Agent can inspect redacted WordPress-only environment state without leaking secrets or Magick AI internals. | `composer smoke:wp` diagnostics run. | Accepted. |
 
 ## Gap Policy
@@ -58,8 +58,11 @@ Use this policy before creating a new ability:
 
 Current known gaps:
 
-- Host-side workflow validation for taxonomy write/destructive chains belongs
-  in Magick AI or another host runtime, not this package.
+- No active fourth-batch ability gap is open after the taxonomy terms preview
+  consumer proof. Keep this package in freeze/observe mode until Core or a host
+  workflow reports a concrete schema, metadata, or contract gap.
+- Final host-side execution validation for taxonomy write/destructive chains
+  belongs in Magick AI or another host runtime, not this package.
 - Media write/destructive approval UX belongs in the host runtime.
 - A future fourth ability batch should be limited to gaps discovered while
   validating these workflows, ideally three to five abilities at most.

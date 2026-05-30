@@ -52,6 +52,7 @@ short-name mapping layer for them in Core or Abilities.
 | `site/read` | `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard`, `magick-ai-abilities/wp-diagnostics-summary` | Ready. | Treat as read-only intake and discovery context. Core may list or classify these abilities, but no proposal is required unless a host chooses to record review activity. |
 | `content/draft-preview` | `magick-ai/create-draft` | Ready as a host-governed write ability. | Use the real ability id in proposals. Preview/dry-run output belongs to the ability or host runtime. Final write remains gated by Core approval and commit preflight. |
 | `seo/metadata-preview` | `magick-ai/resolve-post-metadata-plan`, `magick-ai/set-post-seo-meta` | Ready. | Use read helper output for planning and the write ability id for proposals. Core must not invent SEO workflow orchestration. |
+| `taxonomy/terms-preview` | `magick-ai/propose-post-taxonomy-terms`, `magick-ai/set-post-terms` | Ready as a proposal-to-write handoff. | Use the proposal helper to resolve existing terms and build a bounded `set-post-terms` dry-run input. Core must still govern approval and final commit preflight. |
 | `comment/moderation-preview` | `magick-ai/get-comment-compliance-handoff`, `magick-ai/build-comment-moderation-suggest`, `magick-ai/approve-comment`, `magick-ai/reply-comment`, `magick-ai/spam-comment`, `magick-ai/trash-comment` | Ready. | Suggestions and handoff context are read-side. Final comment actions are host-governed write/destructive abilities and should flow through proposal, approval, preflight, and audit. |
 | `cdn/purge-preview` | None. | Deferred operations/toolbox candidate. | Do not implement this in the current content governance phase. A future provider or toolbox plugin may add a preflight ability before any purge execution exists. |
 | `backup/restore-preflight` | No site-level backup/restore ability. `magick-ai/restore-post` covers post-level restore only. | Deferred operations/toolbox candidate. | Do not treat post restore as site backup restore. Site-level backup/restore preflight needs a separate ops contract before Core should govern it. |
@@ -63,10 +64,16 @@ Core can safely plan against these first:
 - site and diagnostics reads;
 - draft creation proposals;
 - SEO metadata planning and write proposals;
+- taxonomy term assignment proposals;
 - comment moderation and reply handoffs.
 
 These are enough to validate the Core governance loop without adding product
 features to Core.
+
+The `taxonomy/terms-preview` consumer proof has passed in `magick-ai-core`
+against the real `magick-ai/propose-post-taxonomy-terms` and
+`magick-ai/set-post-terms` contracts. No additional schema, metadata, or ability
+contract gap is currently open on the abilities side.
 
 ## Deferred Surfaces
 

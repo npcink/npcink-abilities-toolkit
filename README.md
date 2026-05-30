@@ -139,6 +139,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/list-categories`
 - `magick-ai/list-tags`
 - `magick-ai/get-term`
+- `magick-ai/propose-post-taxonomy-terms`
 - `magick-ai/propose-post-excerpt`
 - `magick-ai/list-users`
 - `magick-ai/list-comments`

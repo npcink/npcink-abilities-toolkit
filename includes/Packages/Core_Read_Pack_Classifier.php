@@ -108,6 +108,7 @@ final class Core_Read_Pack_Classifier {
 			'magick-ai/get-internal-link-graph-health'          => 'seo_geo_support',
 			'magick-ai/get-media-cleanup-opportunities'         => 'media_governance',
 			'magick-ai/get-taxonomy-consolidation-suggestions'  => 'taxonomy_governance',
+			'magick-ai/propose-post-taxonomy-terms'             => 'taxonomy_governance',
 			'magick-ai/get-page-structure-health'               => 'page_governance',
 			'magick-ai/get-seo-geo-gap-report'                  => 'seo_geo_support',
 			'magick-ai/get-site-style-baseline'                 => 'article_workflow_context',

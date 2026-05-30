@@ -545,6 +545,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-internal-link-graph-health',
 	'magick-ai/get-media-cleanup-opportunities',
 	'magick-ai/get-taxonomy-consolidation-suggestions',
+	'magick-ai/propose-post-taxonomy-terms',
 	'magick-ai/get-page-structure-health',
 	'magick-ai/get-seo-geo-gap-report',
 	'magick-ai/get-site-style-baseline',
@@ -649,6 +650,8 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-old-article-refresh-cont
 maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
+maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
+maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-page-structure-health']['input_schema']['properties']['max_pages']['maximum'] ?? null, 'page structure health scan is bounded to 100 pages' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-seo-geo-gap-report']['input_schema']['properties']['per_page']['maximum'] ?? null, 'SEO/GEO gap report scan is bounded to 100 posts per page' );
 maa_assert_same( 5, $package_abilities['magick-ai/get-site-style-baseline']['input_schema']['properties']['limit']['maximum'] ?? null, 'site style baseline is bounded to 5 samples' );
@@ -670,6 +673,7 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-hando
 	maa_assert_same( 'workflow_definitions', $package_abilities['magick-ai-abilities/list-workflow-recipes']['meta']['magick_ai_abilities']['pack'] ?? '', 'workflow recipe discovery is classified as workflow definitions' );
 	maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
+maa_assert_same( 'taxonomy_governance', $package_abilities['magick-ai/propose-post-taxonomy-terms']['meta']['magick_ai_abilities']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
 	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
 	maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
@@ -678,8 +682,8 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow get fourth after provider split' );
 	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[4] ?? '', 'core read definitions keep post types after workflow definitions' );
 	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[6] ?? '', 'core read definitions keep media governance order after provider split' );
-	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[73] ?? '', 'core read definitions keep URL resolver order after provider split' );
-	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[75] ?? '', 'core read definitions keep revision list last after provider split' );
+	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[74] ?? '', 'core read definitions keep URL resolver order after provider split' );
+	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[76] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -1719,6 +1723,28 @@ $taxonomy_consolidation = $core_read_package->get_taxonomy_consolidation_suggest
 maa_assert_same( true, $taxonomy_consolidation['success'] ?? null, 'get-taxonomy-consolidation-suggestions returns a success envelope' );
 maa_assert_true( (int) ( $taxonomy_consolidation['data']['summary']['suggestion_count'] ?? 0 ) >= 1, 'get-taxonomy-consolidation-suggestions returns suggestions' );
 maa_assert_same( 'duplicate_or_near_duplicate', $taxonomy_consolidation['data']['suggestions'][1]['type'] ?? '', 'get-taxonomy-consolidation-suggestions detects duplicate term groups' );
+$GLOBALS['maa_unit_post_terms'][77]['post_tag'] = array(
+	(object) array(
+		'term_id' => 401,
+		'name'    => 'AI Workflow',
+		'slug'    => 'ai-workflow',
+		'count'   => 0,
+	),
+);
+$post_taxonomy_proposal = $core_read_package->propose_post_taxonomy_terms(
+	array(
+		'post_id'            => 77,
+		'taxonomy'           => 'post_tag',
+		'mode'               => 'append',
+		'candidate_terms'    => array( 'AI workflow', 'Unknown Topic' ),
+		'candidate_term_ids' => array( 402 ),
+	)
+);
+maa_assert_same( true, $post_taxonomy_proposal['success'] ?? null, 'propose-post-taxonomy-terms returns a success envelope' );
+maa_assert_same( 'magick-ai/set-post-terms', $post_taxonomy_proposal['data']['proposal']['target_ability_id'] ?? '', 'post taxonomy proposal targets set-post-terms' );
+maa_assert_same( false, $post_taxonomy_proposal['data']['proposal']['commit_execution'] ?? null, 'post taxonomy proposal does not execute commits' );
+maa_assert_same( array( 401, 402 ), $post_taxonomy_proposal['data']['proposed_term_ids'] ?? array(), 'post taxonomy proposal computes proposed terms from current and matched candidates' );
+maa_assert_same( 'Unknown Topic', $post_taxonomy_proposal['data']['unmatched_terms'][0]['value'] ?? '', 'post taxonomy proposal reports unmatched term names' );
 $GLOBALS['maa_unit_style_posts'][81] = (object) array(
 	'ID'           => 81,
 	'post_title'   => 'Landing Page',

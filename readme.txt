@@ -68,6 +68,10 @@ For isolated bounded-chain performance validation, run:
 
 == Changelog ==
 
+= 0.5.0 =
+
+* Added `magick-ai/propose-post-taxonomy-terms`, a deterministic post taxonomy assignment proposal helper for existing terms.
+
 = 0.4.0 =
 
 * Added workflow definition discovery abilities and public PHP helpers.

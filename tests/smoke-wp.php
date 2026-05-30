@@ -193,6 +193,7 @@ foreach (
 		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-cleanup-opportunities',
 		'magick-ai/get-taxonomy-consolidation-suggestions',
+		'magick-ai/propose-post-taxonomy-terms',
 		'magick-ai/get-page-structure-health',
 		'magick-ai/get-seo-geo-gap-report',
 		'magick-ai/get-site-style-baseline',
@@ -585,6 +586,36 @@ $taxonomy_consolidation_run_request->set_query_params(
 $taxonomy_consolidation_run_response = rest_do_request( $taxonomy_consolidation_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $taxonomy_consolidation_run_response->get_status(), 'Authenticated taxonomy consolidation suggestions ability run returns 200.' );
 
+$smoke_tag_result = function_exists( 'wp_insert_term' )
+	? wp_insert_term( 'Ability Workflow Smoke', 'post_tag' )
+	: new WP_Error( 'missing_wp_insert_term', 'wp_insert_term unavailable.' );
+$smoke_tag_created = ! is_wp_error( $smoke_tag_result );
+if ( is_wp_error( $smoke_tag_result ) && 'term_exists' === (string) $smoke_tag_result->get_error_code() ) {
+	$smoke_tag_error_data = $smoke_tag_result->get_error_data();
+	$smoke_tag_id = (int) ( is_array( $smoke_tag_error_data ) ? ( $smoke_tag_error_data['term_id'] ?? 0 ) : $smoke_tag_error_data );
+} else {
+	$smoke_tag_id = (int) ( is_array( $smoke_tag_result ) ? ( $smoke_tag_result['term_id'] ?? 0 ) : 0 );
+}
+magick_ai_abilities_smoke_assert( $smoke_tag_id > 0, 'Temporary smoke tag is available for taxonomy proposal ability runs.' );
+
+$post_taxonomy_proposal_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/propose-post-taxonomy-terms/run' );
+$post_taxonomy_proposal_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id'            => (int) $smoke_post_id,
+			'taxonomy'           => 'post_tag',
+			'mode'               => 'append',
+			'candidate_term_ids' => array( $smoke_tag_id ),
+			'candidate_terms'    => array( 'Unmatched Smoke Topic' ),
+		),
+	)
+);
+$post_taxonomy_proposal_run_response = rest_do_request( $post_taxonomy_proposal_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $post_taxonomy_proposal_run_response->get_status(), 'Authenticated post taxonomy terms proposal ability run returns 200.' );
+$post_taxonomy_proposal_run_data = $post_taxonomy_proposal_run_response->get_data();
+magick_ai_abilities_smoke_assert( 'magick-ai/set-post-terms' === (string) ( $post_taxonomy_proposal_run_data['data']['proposal']['target_ability_id'] ?? '' ), 'Post taxonomy terms proposal targets set-post-terms.' );
+magick_ai_abilities_smoke_assert( false === ( $post_taxonomy_proposal_run_data['data']['proposal']['commit_execution'] ?? null ), 'Post taxonomy terms proposal does not execute commits.' );
+
 $revision_risk_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-revision-change-risk-report/run' );
 $revision_risk_run_request->set_query_params(
 	array(
@@ -796,6 +827,9 @@ wp_delete_post( (int) $smoke_page_id, true );
 wp_delete_post( (int) $smoke_attachment_id, true );
 wp_delete_post( (int) $smoke_candidate_id, true );
 wp_delete_post( (int) $smoke_post_id, true );
+if ( ! empty( $smoke_tag_created ) && function_exists( 'wp_delete_term' ) ) {
+	wp_delete_term( (int) $smoke_tag_id, 'post_tag' );
+}
 
 wp_set_current_user( 0 );
 $anonymous_response = rest_do_request( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' ) );

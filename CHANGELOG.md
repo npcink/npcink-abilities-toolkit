@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 - Unreleased
+
+- Added `magick-ai/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `magick-ai/set-post-terms` without mutating posts or creating terms.
+
 ## 0.4.0 - 2026-05-30
 
 - Added a Core governance catalog snapshot fixture covering draft creation, SEO metadata, comment approval, and workflow definition discovery contracts.

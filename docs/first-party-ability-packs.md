@@ -44,6 +44,7 @@ Representative abilities:
 - `magick-ai/get-media-cleanup-opportunities`
 - `magick-ai/get-taxonomy-inventory-health`
 - `magick-ai/get-taxonomy-consolidation-suggestions`
+- `magick-ai/propose-post-taxonomy-terms`
 - `magick-ai/list-terms`
 - `magick-ai/list-taxonomy-terms`
 - `magick-ai/list-categories`

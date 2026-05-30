@@ -109,7 +109,7 @@ Ability chain:
 1. `magick-ai/get-post-context`
 2. `magick-ai/list-tags`
 3. `magick-ai/list-taxonomy-terms`
-4. Future proposal-only taxonomy helper if it can be deterministic enough.
+4. `magick-ai/propose-post-taxonomy-terms`
 5. Optional dry-run: `magick-ai/set-post-terms`
 
 Host-owned pieces:
