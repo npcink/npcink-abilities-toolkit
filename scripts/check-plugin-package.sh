@@ -31,12 +31,18 @@ for excluded_path in \
 	".gitattributes" \
 	".gitignore" \
 	".DS_Store" \
+	"CHANGELOG.md" \
+	"README.md" \
+	"composer.json" \
 	"composer.lock" \
 	"dist" \
+	"docs" \
 	"examples" \
 	"phpstan.neon.dist" \
 	"scripts" \
-	"tests"
+	"sj" \
+	"tests" \
+	"vendor"
 do
 	if [[ -e "$package_dir/$excluded_path" ]]; then
 		echo "Packaged plugin includes excluded path: $excluded_path" >&2
