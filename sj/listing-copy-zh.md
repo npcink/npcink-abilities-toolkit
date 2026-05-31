@@ -34,7 +34,7 @@ Magick AI Abilities 和官方 WordPress AI、MCP、Abilities API 生态插件是
 
 - 注册可复用的只读能力和提案式写入能力。
 - 规范化 ability schema 和 annotation，方便 agent 安全消费。
-- 提供内置 WordPress 读取、诊断、workflow discovery、评论辅助能力。
+- 提供内置 WordPress 读取、诊断、host composition recipe discovery、评论辅助能力。
 - 在需要时保留兼容性的 `magick-ai/*` ability id。
 - 将能力合约暴露给 host 插件，由 host 自己完成审批、preflight、audit。
 - 保持 Magick AI 集成可选，而不是让 Magick AI 拥有 Abilities API 层。
@@ -48,7 +48,8 @@ Magick AI Abilities 和官方 WordPress AI、MCP、Abilities API 生态插件是
 
 ## 环境要求
 
-- WordPress 7.0 或更高版本，并且 Abilities API 可用。
+- WordPress 7.0 或更高版本。本版本有意面向 WordPress 7.0+ 提供的
+  WordPress Abilities API 基线。
 - PHP 8.0 或更高版本。
 
 ## 系列插件边界

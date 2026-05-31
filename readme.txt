@@ -20,13 +20,13 @@ It can be used by any WordPress plugin or client that consumes the WordPress Abi
 
 It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
 
-Reference workflow recipes may document how hosts can compose abilities, but they are not a workflow engine or second registry.
+Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry.
 
-Workflow recipe definitions are available through read-only helpers and Abilities API discovery abilities for hosts that need runtime discovery without workflow execution ownership.
+Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership.
 
 == Requirements ==
 
-* WordPress 7.0 or later with the Abilities API available.
+* WordPress 7.0 or later. This release intentionally targets the WordPress Abilities API baseline available in WordPress 7.0+.
 * PHP 8.0 or later.
 
 == Public API ==
@@ -52,7 +52,7 @@ The plugin includes migrated low-risk WordPress read abilities, deterministic co
 
 It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
 
-It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only workflow definition discovery abilities for hosts that need recipe metadata at runtime without workflow execution ownership.
+It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only host composition recipe metadata discovery abilities. These expose metadata only and do not execute workflow runtime behavior.
 
 Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `magick-ai-core`.
 
@@ -70,7 +70,7 @@ For isolated bounded-chain performance validation, run:
 
 = 0.4.0 =
 
-* Added workflow definition discovery abilities and public PHP helpers.
+* Added read-only host composition recipe metadata discovery abilities and public PHP helpers.
 * Added Core governance handoff documentation, a catalog snapshot fixture, a permission matrix, and a schema boundary audit.
 * Hardened write-like contracts with `requires_approval`, explicit dry-run and commit defaults, and bounded idempotency keys.
 * Expanded smoke coverage for REST-exposed governance metadata and schemas.

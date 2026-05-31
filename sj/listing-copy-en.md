@@ -37,8 +37,8 @@ WordPress writes.
 
 - Register reusable read-only and proposal-oriented WordPress abilities.
 - Normalize ability schemas and annotations for safer agent consumption.
-- Provide built-in WordPress read, diagnostics, workflow discovery, and comment
-  helper abilities.
+- Provide built-in WordPress read, diagnostics, host composition recipe
+  discovery, and comment helper abilities.
 - Preserve compatibility-oriented `magick-ai/*` ability ids where needed.
 - Expose contracts that host plugins can govern through their own approval,
   preflight, and audit layers.
@@ -55,7 +55,8 @@ WordPress writes.
 
 ## Requirements
 
-- WordPress 7.0 or later with the Abilities API available.
+- WordPress 7.0 or later. This release intentionally targets the WordPress
+  Abilities API baseline available in WordPress 7.0+.
 - PHP 8.0 or later.
 
 ## Series Boundary
