@@ -54,6 +54,7 @@ Performance and caching rules are documented in [docs/performance-and-caching.md
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 unreleased observation line is tracked in [docs/release-0.5-unreleased-verification.md](docs/release-0.5-unreleased-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
+The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 
 ## Minimal Example
@@ -118,7 +119,13 @@ After activating the plugin with a Magick AI host plugin, open
 installed without a Magick AI host menu, open **Tools -> Abilities API
 Packages** instead.
 
-The page can:
+The default page shows package readiness and the registered ability catalog:
+
+- WordPress Abilities API support
+- registered ability count and demo ability state
+- ability category, risk, callback, and schema signals
+
+Advanced checks are kept behind disclosures and can:
 
 - verify whether the WordPress Abilities API is available
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce

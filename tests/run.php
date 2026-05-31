@@ -59,6 +59,34 @@ maa_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'a
 maa_assert_true( false !== strpos( $admin_test_page, "__( 'Magick AI Abilities', 'magick-ai-abilities' ),\n\t\t\t\t__( 'Abilities', 'magick-ai-abilities' )," ), 'admin test page registers the requested page and submenu titles when attached' );
 $old_admin_slug = 'magick-ai-abilities-' . 'test';
 maa_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
+foreach (
+	array(
+		'Ability package status',
+		'Registered Ability Catalog',
+		'Advanced Checks',
+		'REST endpoints and browser tests',
+		'Demo ability control',
+		'Raw ability ids',
+		'render_status_summary',
+		'render_ability_catalog',
+	) as $required
+) {
+	maa_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the focused ability status surface: ' . $required );
+}
+
+$admin_surface_standard = file_get_contents( __DIR__ . '/../docs/admin-surface-standard.md' );
+foreach (
+	array(
+		'ability-package status and smoke-test surface',
+		'registered ability count',
+		'per-ability signals',
+		'Core proposal approval',
+		'OpenClaw handoff',
+		'Cloud API key',
+	) as $required
+) {
+	maa_assert_true( false !== strpos( $admin_surface_standard, $required ), 'admin surface standard documents ability page boundary: ' . $required );
+}
 
 $main_plugin_header = file_get_contents( __DIR__ . '/../magick-ai-abilities.php' );
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );

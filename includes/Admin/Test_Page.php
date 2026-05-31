@@ -135,94 +135,80 @@ final class Test_Page {
 		?>
 		<div class="wrap magick-ai-abilities-admin">
 			<h1><?php echo esc_html__( 'Magick AI Abilities', 'magick-ai-abilities' ); ?></h1>
+			<p><?php echo esc_html__( 'Ability package status, schema visibility, and callback readiness for WordPress Abilities API.', 'magick-ai-abilities' ); ?></p>
 
-			<h2><?php echo esc_html__( 'Environment Check', 'magick-ai-abilities' ); ?></h2>
-			<table class="widefat striped" style="max-width: 960px;">
-				<tbody>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'WordPress Version', 'magick-ai-abilities' ); ?></th>
-						<td><?php echo esc_html( $status['wp_version'] ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Ability Registration', 'magick-ai-abilities' ); ?></th>
-						<td>
-							<?php if ( $status['has_ability_registration'] ) : ?>
-								<span style="color: #008a20;"><?php echo esc_html__( 'Available', 'magick-ai-abilities' ); ?></span>
-							<?php else : ?>
-								<span style="color: #b32d2e;"><?php echo esc_html__( 'Unavailable: wp_register_ability() was not found.', 'magick-ai-abilities' ); ?></span>
-							<?php endif; ?>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Category Registration', 'magick-ai-abilities' ); ?></th>
-						<td>
-							<?php if ( $status['has_category_registration'] ) : ?>
-								<span style="color: #008a20;"><?php echo esc_html__( 'Available', 'magick-ai-abilities' ); ?></span>
-							<?php else : ?>
-								<span style="color: #b32d2e;"><?php echo esc_html__( 'Unavailable: wp_register_ability_category() was not found.', 'magick-ai-abilities' ); ?></span>
-							<?php endif; ?>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'REST Routes', 'magick-ai-abilities' ); ?></th>
-						<td>
-							<?php if ( $status['has_rest_abilities_route'] && $status['has_rest_categories_route'] ) : ?>
-								<span style="color: #008a20;"><?php echo esc_html__( 'Available', 'magick-ai-abilities' ); ?></span>
-							<?php else : ?>
-								<span style="color: #b32d2e;"><?php echo esc_html__( 'Not discovered in the REST route map yet.', 'magick-ai-abilities' ); ?></span>
-							<?php endif; ?>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Current User', 'magick-ai-abilities' ); ?></th>
-						<td><?php echo esc_html( wp_get_current_user()->user_login ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Browser Auth', 'magick-ai-abilities' ); ?></th>
-						<td><?php echo esc_html__( 'The buttons below use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication such as application passwords.', 'magick-ai-abilities' ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Magick App Key', 'magick-ai-abilities' ); ?></th>
-						<td><?php echo esc_html__( 'Not used by wp-abilities/v1 endpoints.', 'magick-ai-abilities' ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'magick-ai-abilities' ); ?></th>
-						<td><code><?php echo esc_html( $abilities_url ); ?></code></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'magick-ai-abilities' ); ?></th>
-						<td><code><?php echo esc_html( $categories_url ); ?></code></td>
-					</tr>
-				</tbody>
-			</table>
+			<?php $this->render_status_summary( $status, $registered, $demo_enabled ); ?>
+			<?php $this->render_ability_catalog( $registered ); ?>
 
-			<h2><?php echo esc_html__( 'Demo Ability', 'magick-ai-abilities' ); ?></h2>
-			<form method="post" action="options.php" style="margin-bottom: 1rem;">
-				<?php settings_fields( 'magick_ai_abilities_test' ); ?>
-				<label>
-					<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DEMO_ENABLED ); ?>" value="1" <?php checked( $demo_enabled ); ?> />
-					<?php echo esc_html__( 'Enable demo read-only ability: magick-ai-abilities/site-summary', 'magick-ai-abilities' ); ?>
-				</label>
-				<?php submit_button( __( 'Save', 'magick-ai-abilities' ), 'secondary', 'submit', false ); ?>
-			</form>
+			<h2><?php echo esc_html__( 'Advanced Checks', 'magick-ai-abilities' ); ?></h2>
+			<details style="max-width: 960px; margin-bottom: 12px;">
+				<summary style="cursor: pointer;">
+					<strong><?php echo esc_html__( 'REST endpoints and browser tests', 'magick-ai-abilities' ); ?></strong>
+					<span style="color: #646970;"><?php echo esc_html__( 'Use the current wp-admin REST nonce for manual smoke checks.', 'magick-ai-abilities' ); ?></span>
+				</summary>
 
-			<h2><?php echo esc_html__( 'Browser REST Tests', 'magick-ai-abilities' ); ?></h2>
-			<p>
-				<button type="button" class="button button-primary" data-magick-ai-abilities-fetch="<?php echo esc_url( $abilities_url ); ?>">
-					<?php echo esc_html__( 'Fetch Abilities', 'magick-ai-abilities' ); ?>
-				</button>
-				<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $categories_url ); ?>">
-					<?php echo esc_html__( 'Fetch Categories', 'magick-ai-abilities' ); ?>
-				</button>
-				<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $demo_run_url ); ?>" <?php disabled( ! $demo_enabled ); ?>>
-					<?php echo esc_html__( 'Run Demo Ability', 'magick-ai-abilities' ); ?>
-				</button>
-			</p>
+				<table class="widefat striped" style="margin-top: 8px;">
+					<tbody>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Current User', 'magick-ai-abilities' ); ?></th>
+							<td><?php echo esc_html( wp_get_current_user()->user_login ); ?></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Browser Auth', 'magick-ai-abilities' ); ?></th>
+							<td><?php echo esc_html__( 'The buttons below use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication such as application passwords.', 'magick-ai-abilities' ); ?></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Magick App Key', 'magick-ai-abilities' ); ?></th>
+							<td><?php echo esc_html__( 'Not used by wp-abilities/v1 endpoints.', 'magick-ai-abilities' ); ?></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'magick-ai-abilities' ); ?></th>
+							<td><code><?php echo esc_html( $abilities_url ); ?></code></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'magick-ai-abilities' ); ?></th>
+							<td><code><?php echo esc_html( $categories_url ); ?></code></td>
+						</tr>
+					</tbody>
+				</table>
 
-			<textarea id="magick-ai-abilities-admin-output" readonly rows="18" style="width: 100%; max-width: 960px; font-family: monospace;"></textarea>
+				<p>
+					<button type="button" class="button button-primary" data-magick-ai-abilities-fetch="<?php echo esc_url( $abilities_url ); ?>">
+						<?php echo esc_html__( 'Fetch Abilities', 'magick-ai-abilities' ); ?>
+					</button>
+					<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $categories_url ); ?>">
+						<?php echo esc_html__( 'Fetch Categories', 'magick-ai-abilities' ); ?>
+					</button>
+					<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $demo_run_url ); ?>" <?php disabled( ! $demo_enabled ); ?>>
+						<?php echo esc_html__( 'Run Demo Ability', 'magick-ai-abilities' ); ?>
+					</button>
+				</p>
 
-			<h2><?php echo esc_html__( 'Toolkit Registered Abilities', 'magick-ai-abilities' ); ?></h2>
-			<pre style="max-width: 960px; overflow: auto; padding: 12px; background: #fff; border: 1px solid #c3c4c7;"><?php echo esc_html( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></pre>
+				<textarea id="magick-ai-abilities-admin-output" readonly rows="14" style="width: 100%; max-width: 960px; font-family: monospace;"></textarea>
+			</details>
+
+			<details style="max-width: 960px; margin-bottom: 12px;">
+				<summary style="cursor: pointer;">
+					<strong><?php echo esc_html__( 'Demo ability control', 'magick-ai-abilities' ); ?></strong>
+					<span style="color: #646970;"><?php echo esc_html__( 'Enable or disable the read-only smoke ability.', 'magick-ai-abilities' ); ?></span>
+				</summary>
+				<form method="post" action="options.php" style="margin-top: 8px;">
+					<?php settings_fields( 'magick_ai_abilities_test' ); ?>
+					<label>
+						<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DEMO_ENABLED ); ?>" value="1" <?php checked( $demo_enabled ); ?> />
+						<?php echo esc_html__( 'Enable demo read-only ability: magick-ai-abilities/site-summary', 'magick-ai-abilities' ); ?>
+					</label>
+					<?php submit_button( __( 'Save', 'magick-ai-abilities' ), 'secondary', 'submit', false ); ?>
+				</form>
+			</details>
+
+			<details style="max-width: 960px;">
+				<summary style="cursor: pointer;">
+					<strong><?php echo esc_html__( 'Raw ability ids', 'magick-ai-abilities' ); ?></strong>
+					<span style="color: #646970;"><?php echo esc_html__( 'Compatibility dump for catalog audits.', 'magick-ai-abilities' ); ?></span>
+				</summary>
+				<pre style="overflow: auto; padding: 12px; background: #fff; border: 1px solid #c3c4c7;"><?php echo esc_html( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></pre>
+			</details>
 		</div>
 
 		<script>
@@ -258,6 +244,85 @@ final class Test_Page {
 			});
 		})();
 		</script>
+		<?php
+	}
+
+	/**
+	 * Renders compact status for the ability package.
+	 *
+	 * @param array<string,mixed> $status Environment status.
+	 * @param array<string,mixed> $registered Registered abilities.
+	 * @param bool                $demo_enabled Whether demo ability is enabled.
+	 * @return void
+	 */
+	private function render_status_summary( array $status, array $registered, bool $demo_enabled ) {
+		?>
+		<h2><?php echo esc_html__( 'Status', 'magick-ai-abilities' ); ?></h2>
+		<table class="widefat fixed striped" style="max-width: 960px;">
+			<thead>
+				<tr>
+					<th scope="col"><?php echo esc_html__( 'WordPress', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Ability API', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'REST routes', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Registered abilities', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Demo ability', 'magick-ai-abilities' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><?php echo esc_html( (string) $status['wp_version'] ); ?></td>
+					<td><?php echo esc_html( $status['has_ability_registration'] && $status['has_category_registration'] ? __( 'available', 'magick-ai-abilities' ) : __( 'unavailable', 'magick-ai-abilities' ) ); ?></td>
+					<td><?php echo esc_html( $status['has_rest_abilities_route'] && $status['has_rest_categories_route'] ? __( 'available', 'magick-ai-abilities' ) : __( 'missing', 'magick-ai-abilities' ) ); ?></td>
+					<td><?php echo esc_html( (string) count( $registered ) ); ?></td>
+					<td><?php echo esc_html( $demo_enabled ? __( 'enabled', 'magick-ai-abilities' ) : __( 'disabled', 'magick-ai-abilities' ) ); ?></td>
+				</tr>
+			</tbody>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Renders a scannable registered ability catalog.
+	 *
+	 * @param array<string,array<string,mixed>> $registered Registered abilities.
+	 * @return void
+	 */
+	private function render_ability_catalog( array $registered ) {
+		ksort( $registered );
+		?>
+		<h2><?php echo esc_html__( 'Registered Ability Catalog', 'magick-ai-abilities' ); ?></h2>
+		<table class="widefat striped" style="max-width: 1100px;">
+			<thead>
+				<tr>
+					<th scope="col"><?php echo esc_html__( 'Ability ID', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Category', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Risk', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Callback', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Schemas', 'magick-ai-abilities' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php if ( empty( $registered ) ) : ?>
+					<tr>
+						<td colspan="5"><?php echo esc_html__( 'No abilities are registered by this package yet.', 'magick-ai-abilities' ); ?></td>
+					</tr>
+				<?php endif; ?>
+				<?php foreach ( $registered as $ability_id => $definition ) : ?>
+					<?php
+					$definition = is_array( $definition ) ? $definition : array();
+					$has_input  = is_array( $definition['input_schema'] ?? null );
+					$has_output = is_array( $definition['output_schema'] ?? null );
+					?>
+					<tr>
+						<td><code><?php echo esc_html( (string) $ability_id ); ?></code></td>
+						<td><code><?php echo esc_html( (string) ( $definition['category'] ?? '-' ) ); ?></code></td>
+						<td><code><?php echo esc_html( (string) ( $definition['risk_level'] ?? '-' ) ); ?></code></td>
+						<td><?php echo esc_html( is_callable( $definition['execute_callback'] ?? null ) ? __( 'available', 'magick-ai-abilities' ) : __( 'missing', 'magick-ai-abilities' ) ); ?></td>
+						<td><?php echo esc_html( sprintf( 'input:%s output:%s', $has_input ? 'yes' : 'no', $has_output ? 'yes' : 'no' ) ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 
