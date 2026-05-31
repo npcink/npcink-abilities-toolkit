@@ -48,8 +48,8 @@ Magick AI Abilities 和官方 WordPress AI、MCP、Abilities API 生态插件是
 
 ## 环境要求
 
-- WordPress 6.9 或更高版本，并且 Abilities API 可用。
-- PHP 7.2 或更高版本。
+- WordPress 7.0 或更高版本，并且 Abilities API 可用。
+- PHP 8.0 或更高版本。
 
 ## 系列插件边界
 

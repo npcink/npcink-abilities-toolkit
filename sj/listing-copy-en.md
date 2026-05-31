@@ -55,8 +55,8 @@ WordPress writes.
 
 ## Requirements
 
-- WordPress 6.9 or later with the Abilities API available.
-- PHP 7.2 or later.
+- WordPress 7.0 or later with the Abilities API available.
+- PHP 8.0 or later.
 
 ## Series Boundary
 
