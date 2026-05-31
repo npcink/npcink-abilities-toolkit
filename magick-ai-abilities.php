@@ -34,6 +34,7 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Content_In
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Page_Read_Methods.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Taxonomy_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Agent_Usage_Metadata.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
