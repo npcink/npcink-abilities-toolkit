@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Test_Page {
 	const OPTION_DEMO_ENABLED = 'magick_ai_abilities_demo_enabled';
 	const PARENT_MENU_SLUG    = 'magick-ai';
-	const MENU_SLUG           = 'magick-ai-abilities-test';
+	const MENU_SLUG           = 'magick-ai-abilities';
 
 	/**
 	 * Ability registrar.
@@ -79,8 +79,8 @@ final class Test_Page {
 		if ( $this->has_magick_parent_menu() ) {
 			add_submenu_page(
 				self::PARENT_MENU_SLUG,
-				__( 'Abilities API Packages', 'magick-ai-abilities' ),
-				__( 'Ability Packages', 'magick-ai-abilities' ),
+				__( 'Magick AI Abilities', 'magick-ai-abilities' ),
+				__( 'Abilities', 'magick-ai-abilities' ),
 				'manage_options',
 				self::MENU_SLUG,
 				array( $this, 'render' ),
@@ -90,7 +90,7 @@ final class Test_Page {
 		}
 
 		add_management_page(
-			__( 'Abilities API Packages', 'magick-ai-abilities' ),
+			__( 'Magick AI Abilities', 'magick-ai-abilities' ),
 			__( 'Abilities API Packages', 'magick-ai-abilities' ),
 			'manage_options',
 			self::MENU_SLUG,
@@ -133,8 +133,8 @@ final class Test_Page {
 		$demo_enabled   = $this->is_demo_enabled();
 		$registered     = $this->abilities->all();
 		?>
-		<div class="wrap magick-ai-abilities-test">
-			<h1><?php echo esc_html__( 'Abilities API Packages Test', 'magick-ai-abilities' ); ?></h1>
+		<div class="wrap magick-ai-abilities-admin">
+			<h1><?php echo esc_html__( 'Magick AI Abilities', 'magick-ai-abilities' ); ?></h1>
 
 			<h2><?php echo esc_html__( 'Environment Check', 'magick-ai-abilities' ); ?></h2>
 			<table class="widefat striped" style="max-width: 960px;">
@@ -219,7 +219,7 @@ final class Test_Page {
 				</button>
 			</p>
 
-			<textarea id="magick-ai-abilities-test-output" readonly rows="18" style="width: 100%; max-width: 960px; font-family: monospace;"></textarea>
+			<textarea id="magick-ai-abilities-admin-output" readonly rows="18" style="width: 100%; max-width: 960px; font-family: monospace;"></textarea>
 
 			<h2><?php echo esc_html__( 'Toolkit Registered Abilities', 'magick-ai-abilities' ); ?></h2>
 			<pre style="max-width: 960px; overflow: auto; padding: 12px; background: #fff; border: 1px solid #c3c4c7;"><?php echo esc_html( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></pre>
@@ -228,7 +228,7 @@ final class Test_Page {
 		<script>
 		(function () {
 			const nonce = <?php echo wp_json_encode( $nonce ); ?>;
-			const output = document.getElementById('magick-ai-abilities-test-output');
+			const output = document.getElementById('magick-ai-abilities-admin-output');
 
 			async function runRequest(url) {
 				output.value = 'Requesting ' + url + ' ...';

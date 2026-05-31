@@ -15,9 +15,9 @@ Use this shared Local site for repeatable manual and smoke verification:
 - Test admin password: `[REDACTED_SECRET]`
 - Installed plugin slug: `magick-ai-abilities`
 - Admin test page with a Magick AI host menu:
-  `https://magick-ai.local/wp-admin/admin.php?page=magick-ai-abilities-test`
+  `https://magick-ai.local/wp-admin/admin.php?page=magick-ai-abilities`
 - Standalone fallback admin test page:
-  `https://magick-ai.local/wp-admin/tools.php?page=magick-ai-abilities-test`
+  `https://magick-ai.local/wp-admin/tools.php?page=magick-ai-abilities`
 
 Verification status through 2026-05-30:
 

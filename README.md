@@ -114,7 +114,7 @@ cross-repo Core integration changes.
 ## Test Page
 
 After activating the plugin with a Magick AI host plugin, open
-**Magick AI -> Ability Packages** in wp-admin. When this standalone package is
+**Magick AI -> Abilities** in wp-admin. When this standalone package is
 installed without a Magick AI host menu, open **Tools -> Abilities API
 Packages** instead.
 

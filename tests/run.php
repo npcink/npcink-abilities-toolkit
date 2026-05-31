@@ -53,9 +53,12 @@ function maa_assert_array_omits_keys( $value, array $forbidden_keys, $path ) {
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
 maa_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Magick AI parent slug' );
+maa_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'magick-ai-abilities';" ), 'admin test page uses the canonical Abilities admin slug' );
 maa_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Magick AI menu' );
 maa_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-maa_assert_true( false !== strpos( $admin_test_page, 'Ability Packages' ), 'admin test page uses the shared submenu title when attached' );
+maa_assert_true( false !== strpos( $admin_test_page, "__( 'Magick AI Abilities', 'magick-ai-abilities' ),\n\t\t\t\t__( 'Abilities', 'magick-ai-abilities' )," ), 'admin test page registers the requested page and submenu titles when attached' );
+$old_admin_slug = 'magick-ai-abilities-' . 'test';
+maa_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
 
 $main_plugin_header = file_get_contents( __DIR__ . '/../magick-ai-abilities.php' );
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );
