@@ -143,6 +143,10 @@ if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 			'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
 		);
 		magick_ai_abilities_smoke_assert(
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-ops-diagnostics-detail' ),
+			'Authenticated abilities REST catalog contains the standalone ops diagnostics detail ability.'
+		);
+		magick_ai_abilities_smoke_assert(
 			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/list-workflow-recipes' ),
 			'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
 		);
@@ -159,7 +163,7 @@ if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai-abilities/list-workflow-recipes', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
+		foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai/get-test-content-inventory', 'magick-ai/build-test-content-cleanup-plan', 'magick-ai/build-content-inventory-fix-plan', 'magick-ai/build-media-inventory-fix-plan', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai-abilities/wp-ops-diagnostics-detail', 'magick-ai-abilities/list-workflow-recipes', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
 			magick_ai_abilities_smoke_assert(
 				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 				"Light profile disables optional ability {$disabled_ability_id}."
@@ -183,6 +187,9 @@ foreach (
 		'magick-ai/get-post-context',
 		'magick-ai/get-content-publishing-checklist',
 		'magick-ai/get-content-inventory-health',
+		'magick-ai/get-test-content-inventory',
+		'magick-ai/build-test-content-cleanup-plan',
+		'magick-ai/build-content-inventory-fix-plan',
 		'magick-ai/get-bulk-publishing-checklist',
 		'magick-ai/get-internal-link-opportunity-report',
 		'magick-ai/get-site-operations-dashboard',
@@ -192,6 +199,7 @@ foreach (
 		'magick-ai/get-old-article-refresh-context',
 		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-cleanup-opportunities',
+		'magick-ai/build-media-inventory-fix-plan',
 		'magick-ai/get-taxonomy-consolidation-suggestions',
 		'magick-ai/propose-post-taxonomy-terms',
 		'magick-ai/get-page-structure-health',
@@ -307,6 +315,21 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	$diagnostics_run_response = rest_do_request( $diagnostics_run_request );
 	magick_ai_abilities_smoke_assert( 200 === (int) $diagnostics_run_response->get_status(), 'Authenticated diagnostics ability run returns 200.' );
 
+	$ops_diagnostics_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/wp-ops-diagnostics-detail/run' );
+	$ops_diagnostics_run_request->set_query_params( array( 'input' => array( 'max_cron_events' => 5, 'max_plugins_per_group' => 5 ) ) );
+	$ops_diagnostics_run_response = rest_do_request( $ops_diagnostics_run_request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $ops_diagnostics_run_response->get_status(), 'Authenticated ops diagnostics detail ability run returns 200.' );
+	$ops_diagnostics_run_data = $ops_diagnostics_run_response->get_data();
+	magick_ai_abilities_smoke_assert( isset( $ops_diagnostics_run_data['plugins']['groups_included']['inactive'] ) && false === $ops_diagnostics_run_data['plugins']['groups_included']['inactive'], 'Ops diagnostics omits inactive plugin rows by default.' );
+	magick_ai_abilities_smoke_assert( isset( $ops_diagnostics_run_data['plugins']['max_plugins_per_group'] ) && 5 === (int) $ops_diagnostics_run_data['plugins']['max_plugins_per_group'], 'Ops diagnostics honors plugin group row bounds.' );
+	magick_ai_abilities_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['summary']['fatal_count'] ), 'Ops diagnostics returns error log severity summary without log contents.' );
+	magick_ai_abilities_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['source_summary'] ) && is_array( $ops_diagnostics_run_data['error_log']['source_summary'] ), 'Ops diagnostics returns error log source summary.' );
+	magick_ai_abilities_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['top_messages'] ) && is_array( $ops_diagnostics_run_data['error_log']['top_messages'] ), 'Ops diagnostics returns error log top message summary.' );
+	if ( ! empty( $ops_diagnostics_run_data['error_log']['source_summary'] ) ) {
+		$ops_diagnostics_first_source = reset( $ops_diagnostics_run_data['error_log']['source_summary'] );
+		magick_ai_abilities_smoke_assert( is_array( $ops_diagnostics_first_source ) && array_key_exists( 'message_fingerprint', $ops_diagnostics_first_source ), 'Ops diagnostics source summary includes message fingerprints when entries exist.' );
+	}
+
 	$workflow_recipes_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/list-workflow-recipes/run' );
 	$workflow_recipes_run_request->set_query_params( array( 'input' => array() ) );
 	$workflow_recipes_run_response = rest_do_request( $workflow_recipes_run_request );
@@ -388,6 +411,49 @@ $inventory_health_run_request->set_query_params(
 );
 $inventory_health_run_response = rest_do_request( $inventory_health_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $inventory_health_run_response->get_status(), 'Authenticated content inventory health ability run returns 200.' );
+
+$test_inventory_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-test-content-inventory/run' );
+$test_inventory_run_request->set_query_params(
+	array(
+		'input' => array(
+			'patterns' => array( 'Magick AI Abilities Smoke' ),
+			'per_page' => 10,
+		),
+	)
+);
+$test_inventory_run_response = rest_do_request( $test_inventory_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $test_inventory_run_response->get_status(), 'Authenticated test content inventory ability run returns 200.' );
+$test_inventory_run_data = $test_inventory_run_response->get_data();
+magick_ai_abilities_smoke_assert( true === ( $test_inventory_run_data['data']['detected'] ?? null ), 'Test content inventory detects smoke content.' );
+
+$test_cleanup_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-test-content-cleanup-plan/run' );
+$test_cleanup_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'patterns'    => array( 'Magick AI Abilities Smoke' ),
+			'max_actions' => 5,
+		),
+	)
+);
+$test_cleanup_plan_run_response = rest_do_request( $test_cleanup_plan_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $test_cleanup_plan_run_response->get_status(), 'Authenticated test content cleanup plan ability run returns 200.' );
+$test_cleanup_plan_run_data = $test_cleanup_plan_run_response->get_data();
+magick_ai_abilities_smoke_assert( false === ( $test_cleanup_plan_run_data['data']['commit_execution'] ?? null ), 'Test content cleanup plan does not execute commits.' );
+
+$content_fix_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-content-inventory-fix-plan/run' );
+$content_fix_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_ids'    => array( (int) $smoke_post_id ),
+			'issue_types' => array( 'seo_title', 'seo_description', 'featured_media' ),
+			'max_actions' => 5,
+		),
+	)
+);
+$content_fix_plan_run_response = rest_do_request( $content_fix_plan_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $content_fix_plan_run_response->get_status(), 'Authenticated content inventory fix plan ability run returns 200.' );
+$content_fix_plan_run_data = $content_fix_plan_run_response->get_data();
+magick_ai_abilities_smoke_assert( false === ( $content_fix_plan_run_data['data']['commit_execution'] ?? null ), 'Content inventory fix plan does not execute commits.' );
 
 $bulk_checklist_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-bulk-publishing-checklist/run' );
 $bulk_checklist_run_request->set_query_params(
@@ -535,6 +601,23 @@ $media_cleanup_run_request->set_query_params(
 );
 $media_cleanup_run_response = rest_do_request( $media_cleanup_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $media_cleanup_run_response->get_status(), 'Authenticated media cleanup opportunities ability run returns 200.' );
+
+$media_fix_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-media-inventory-fix-plan/run' );
+$media_fix_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'attachment_ids'  => array( (int) $smoke_attachment_id ),
+			'article_title'   => 'Magick AI Abilities Smoke',
+			'article_excerpt' => 'Smoke media metadata context.',
+			'focus_keyword'   => 'ability workflow',
+			'max_actions'     => 5,
+		),
+	)
+);
+$media_fix_plan_run_response = rest_do_request( $media_fix_plan_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $media_fix_plan_run_response->get_status(), 'Authenticated media inventory fix plan ability run returns 200.' );
+$media_fix_plan_run_data = $media_fix_plan_run_response->get_data();
+magick_ai_abilities_smoke_assert( false === ( $media_fix_plan_run_data['data']['commit_execution'] ?? null ), 'Media inventory fix plan does not execute commits.' );
 
 $seo_geo_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-seo-geo-readiness/run' );
 $seo_geo_run_request->set_query_params(

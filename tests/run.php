@@ -530,11 +530,15 @@ $migrated_read_ability_ids = array(
 	'magick-ai/inspect-page-structure',
 );
 	$new_read_ability_ids = array(
+		'magick-ai-abilities/wp-ops-diagnostics-detail',
 		'magick-ai-abilities/list-workflow-recipes',
 		'magick-ai-abilities/get-workflow-recipe',
 		'magick-ai/get-post-context',
 	'magick-ai/get-content-publishing-checklist',
 	'magick-ai/get-content-inventory-health',
+	'magick-ai/get-test-content-inventory',
+	'magick-ai/build-test-content-cleanup-plan',
+	'magick-ai/build-content-inventory-fix-plan',
 	'magick-ai/get-bulk-publishing-checklist',
 	'magick-ai/get-internal-link-opportunity-report',
 	'magick-ai/get-site-operations-dashboard',
@@ -544,6 +548,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-old-article-refresh-context',
 	'magick-ai/get-internal-link-graph-health',
 	'magick-ai/get-media-cleanup-opportunities',
+	'magick-ai/build-media-inventory-fix-plan',
 	'magick-ai/get-taxonomy-consolidation-suggestions',
 	'magick-ai/propose-post-taxonomy-terms',
 	'magick-ai/get-page-structure-health',
@@ -623,6 +628,57 @@ maa_assert_true( isset( $package_categories->all()['magick-ai-write'] ), 'core w
 maa_assert_true( isset( $package_categories->all()['magick-ai-abilities-diagnostics'] ), 'core read package registers the standalone diagnostics category' );
 maa_assert_true( isset( $package_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read package owns standalone wp-diagnostics-summary ability' );
 maa_assert_same( 'magick-ai-abilities-diagnostics', $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['category'], 'wp-diagnostics-summary uses standalone diagnostics category' );
+maa_assert_true( isset( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail'] ), 'core read package owns standalone wp-ops-diagnostics-detail ability' );
+maa_assert_same( 'magick-ai-abilities-diagnostics', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['category'], 'wp-ops-diagnostics-detail uses standalone diagnostics category' );
+maa_assert_true( false !== strpos( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['description'] ?? '', 'plugin' ), 'ops diagnostics description mentions plugin details' );
+maa_assert_same( 50, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['max_cron_events']['maximum'] ?? null, 'ops diagnostics bounds returned cron events' );
+maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_contents']['default'] ?? null, 'ops diagnostics does not include log contents by default' );
+maa_assert_true( ! isset( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_tail'] ), 'ops diagnostics uses one log contents control' );
+maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_inactive_plugins']['default'] ?? null, 'ops diagnostics omits inactive plugin rows by default' );
+maa_assert_same( true, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_plugin_updates']['default'] ?? null, 'ops diagnostics includes plugin update rows by default' );
+maa_assert_same( 500, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['max_plugins_per_group']['maximum'] ?? null, 'ops diagnostics bounds plugin rows per group' );
+maa_assert_same( 200, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['tail_lines']['maximum'] ?? null, 'ops diagnostics bounds returned log tail lines' );
+maa_assert_same( 10080, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['since_minutes']['maximum'] ?? null, 'ops diagnostics bounds log since window' );
+maa_assert_true( in_array( 'warning', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['severity']['items']['enum'] ?? array(), true ), 'ops diagnostics supports log severity filtering' );
+maa_assert_same( true, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_integrations']['default'] ?? null, 'ops diagnostics includes integration diagnostics by default' );
+maa_assert_true( in_array( 'plugins', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires plugins section' );
+maa_assert_true( in_array( 'current_user', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires current user section' );
+maa_assert_true( in_array( 'integrations', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires integrations section' );
+maa_assert_true( in_array( 'seo_summary', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires SEO summary section' );
+$parse_log_entry = new ReflectionMethod( $core_read_package, 'parse_diagnostics_log_entry' );
+$parse_log_entry->setAccessible( true );
+$summarize_log_sources = new ReflectionMethod( $core_read_package, 'summarize_diagnostics_log_sources' );
+$summarize_log_sources->setAccessible( true );
+$summarize_top_messages = new ReflectionMethod( $core_read_package, 'summarize_diagnostics_top_messages' );
+$summarize_top_messages->setAccessible( true );
+$plugin_log_entry = $parse_log_entry->invoke( $core_read_package, '[30-May-2026 10:39:34 UTC] PHP Deprecated: Test in /srv/app/public/wp-content/plugins/plugin-check/check.php on line 10' );
+$theme_log_entry = $parse_log_entry->invoke( $core_read_package, '[30-May-2026 10:40:34 UTC] PHP Warning: Test in /srv/app/public/wp-content/themes/twentytwentyfour/functions.php on line 20' );
+$phar_log_entry = $parse_log_entry->invoke( $core_read_package, '[30-May-2026 10:41:34 UTC] PHP Deprecated: Using null as an array offset is deprecated in phar:///tmp/wp-cli.phar/vendor/file.php on line 30' );
+$home_path_log_entry = $parse_log_entry->invoke( $core_read_package, '[30-May-2026 10:42:34 UTC] PHP Warning: mysqli_real_connect(): (HY000/2002): No such file or directory in /Users/muze/Local Sites/magick-ai/app/public/wp-includes/class-wpdb.php on line 1990' );
+maa_assert_same( 'plugin', $plugin_log_entry['source_type'] ?? '', 'ops diagnostics detects plugin log source type' );
+maa_assert_same( 'plugin-check', $plugin_log_entry['source_hint'] ?? '', 'ops diagnostics detects plugin log source hint' );
+maa_assert_same( 'Test', $plugin_log_entry['message_fingerprint'] ?? '', 'ops diagnostics fingerprints plugin log messages without path noise' );
+maa_assert_same( 'theme', $theme_log_entry['source_type'] ?? '', 'ops diagnostics detects theme log source type' );
+maa_assert_same( 'twentytwentyfour', $theme_log_entry['source_hint'] ?? '', 'ops diagnostics detects theme log source hint' );
+maa_assert_same( 'phar', $phar_log_entry['source_type'] ?? '', 'ops diagnostics detects phar log source type' );
+maa_assert_same( 'wp-cli', $phar_log_entry['source_hint'] ?? '', 'ops diagnostics detects wp-cli log source hint' );
+maa_assert_same( 'wp-cli.phar', $phar_log_entry['source_basename'] ?? '', 'ops diagnostics exposes safe phar basename hint' );
+maa_assert_same( 'wp-cli.phar', $phar_log_entry['phar_hint'] ?? '', 'ops diagnostics exposes safe phar hint' );
+maa_assert_same( 'Using null as an array offset is deprecated', $phar_log_entry['message_fingerprint'] ?? '', 'ops diagnostics fingerprints phar messages without path noise' );
+maa_assert_same( 'mysqli_real_connect(): (HY000/N): No such file or directory', $home_path_log_entry['message_fingerprint'] ?? '', 'ops diagnostics fingerprints home path messages without path noise' );
+$log_source_summary = $summarize_log_sources->invoke( $core_read_package, array( $plugin_log_entry, $plugin_log_entry, $theme_log_entry, $phar_log_entry ) );
+maa_assert_same( 'plugin', $log_source_summary[0]['source_type'] ?? '', 'ops diagnostics source summary sorts most frequent source first' );
+maa_assert_same( 'plugin-check', $log_source_summary[0]['source_hint'] ?? '', 'ops diagnostics source summary groups by source hint' );
+maa_assert_same( 'deprecated', $log_source_summary[0]['severity'] ?? '', 'ops diagnostics source summary groups by severity' );
+maa_assert_same( 'Test', $log_source_summary[0]['message_fingerprint'] ?? '', 'ops diagnostics source summary includes message fingerprints' );
+maa_assert_same( 2, $log_source_summary[0]['count'] ?? 0, 'ops diagnostics source summary counts repeated source entries' );
+$log_top_messages = $summarize_top_messages->invoke( $core_read_package, array( $phar_log_entry, $phar_log_entry, $plugin_log_entry ) );
+maa_assert_same( 'Using null as an array offset is deprecated', $log_top_messages[0]['fingerprint'] ?? '', 'ops diagnostics top messages sort repeated fingerprints first' );
+maa_assert_same( 'wp-cli.phar', $log_top_messages[0]['phar_hint'] ?? '', 'ops diagnostics top messages include safe phar hint' );
+maa_assert_same( 2, $log_top_messages[0]['count'] ?? 0, 'ops diagnostics top messages count repeated fingerprints' );
+maa_assert_true( isset( $package_abilities['magick-ai/list-posts']['input_schema']['properties']['modified_after'] ), 'list-posts supports modified date filtering' );
+maa_assert_true( isset( $package_abilities['magick-ai/list-posts']['input_schema']['properties']['taxonomy'] ), 'list-posts supports taxonomy filtering' );
+maa_assert_true( in_array( 'tree', $package_abilities['magick-ai/get-menu']['output_schema']['required'] ?? array(), true ), 'get-menu returns a menu tree' );
 foreach ( $migrated_read_ability_ids as $migrated_ability_id ) {
 	maa_assert_true( isset( $package_abilities[ $migrated_ability_id ] ), "core read package owns migrated {$migrated_ability_id} ability" );
 	maa_assert_package_read_ability_contract( $migrated_ability_id, $package_abilities[ $migrated_ability_id ] );
@@ -640,6 +696,15 @@ maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['project
 maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['input_schema']['properties']['include_blocks']['default'] ?? null, 'get-post-context includes blocks by default' );
 maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-checklist']['requires_confirm'], 'publishing checklist remains readonly' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/get-test-content-inventory']['input_schema']['properties']['per_page']['maximum'] ?? null, 'test content inventory scan is bounded to 100 items per section' );
+maa_assert_same( 100, $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'test content cleanup plan bounds planned actions' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['mode'] ), 'test content cleanup plan does not expose unused mode input' );
+maa_assert_same( 100, $package_abilities['magick-ai/build-content-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'content inventory fix plan bounds planned actions' );
+maa_assert_same( array( 'post.read' ), $package_abilities['magick-ai/build-content-inventory-fix-plan']['required_scopes'] ?? array(), 'content inventory fix plan remains a read-scope planning ability' );
+foreach ( array( 'magick-ai/get-test-content-inventory', 'magick-ai/build-test-content-cleanup-plan', 'magick-ai/build-content-inventory-fix-plan' ) as $planning_agent_usage_id ) {
+	maa_assert_true( ! empty( $package_abilities[ $planning_agent_usage_id ]['agent_usage']['when_to_use'] ), "{$planning_agent_usage_id} exposes agent usage guidance" );
+	maa_assert_true( ! empty( $package_abilities[ $planning_agent_usage_id ]['agent_usage']['stopping_points'] ), "{$planning_agent_usage_id} exposes agent stopping points" );
+}
 maa_assert_same( 50, $package_abilities['magick-ai/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
 maa_assert_same( 10, $package_abilities['magick-ai/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-site-operations-dashboard']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site operations dashboard is bounded to 100 posts per page' );
@@ -649,6 +714,10 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-content-refresh-opportun
 maa_assert_same( 100, $package_abilities['magick-ai/get-old-article-refresh-context']['input_schema']['properties']['per_page']['maximum'] ?? null, 'old article refresh context scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
+maa_assert_same( 100, $package_abilities['magick-ai/build-media-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'media inventory fix plan bounds planned actions' );
+maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-inventory-fix-plan']['required_scopes'] ?? array(), 'media inventory fix plan remains a read-scope planning ability' );
+maa_assert_true( ! empty( $package_abilities['magick-ai/build-media-inventory-fix-plan']['agent_usage']['when_to_use'] ), 'media inventory fix plan exposes agent usage guidance' );
+maa_assert_true( ! empty( $package_abilities['magick-ai/build-media-inventory-fix-plan']['agent_usage']['stopping_points'] ), 'media inventory fix plan exposes agent stopping points' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
@@ -668,22 +737,27 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-hando
 	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 	maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
+	maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['project_to_magick_catalog'], 'standalone ops diagnostics ability does not project into Magick AI by default' );
 	maa_assert_same( false, $package_abilities['magick-ai-abilities/list-workflow-recipes']['project_to_magick_catalog'], 'workflow recipe discovery ability does not project into Magick AI by default' );
+	maa_assert_same( 'wordpress_diagnostics', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['meta']['magick_ai_abilities']['pack'] ?? '', 'ops diagnostics detail is classified as WordPress diagnostics' );
 	maa_assert_same( 'magick-ai-abilities-workflows', $package_abilities['magick-ai-abilities/list-workflow-recipes']['category'], 'workflow recipe discovery uses standalone workflow category' );
 	maa_assert_same( 'workflow_definitions', $package_abilities['magick-ai-abilities/list-workflow-recipes']['meta']['magick_ai_abilities']['pack'] ?? '', 'workflow recipe discovery is classified as workflow definitions' );
-	maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
+maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
+maa_assert_same( 'content_operations', $package_abilities['magick-ai/build-content-inventory-fix-plan']['meta']['magick_ai_abilities']['pack'] ?? '', 'content inventory fix plan is classified as content operations' );
+maa_assert_same( 'media_governance', $package_abilities['magick-ai/build-media-inventory-fix-plan']['meta']['magick_ai_abilities']['pack'] ?? '', 'media inventory fix plan is classified as media governance' );
 maa_assert_same( 'taxonomy_governance', $package_abilities['magick-ai/propose-post-taxonomy-terms']['meta']['magick_ai_abilities']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
 	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
 	maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
 	maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
-	maa_assert_same( 'magick-ai-abilities/list-workflow-recipes', $core_read_definition_ids[2] ?? '', 'core read definitions keep workflow list third after provider split' );
-	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow get fourth after provider split' );
-	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[4] ?? '', 'core read definitions keep post types after workflow definitions' );
-	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[6] ?? '', 'core read definitions keep media governance order after provider split' );
-	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[74] ?? '', 'core read definitions keep URL resolver order after provider split' );
-	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[76] ?? '', 'core read definitions keep revision list last after provider split' );
+	maa_assert_same( 'magick-ai-abilities/wp-ops-diagnostics-detail', $core_read_definition_ids[2] ?? '', 'core read definitions keep ops diagnostics after diagnostics summary' );
+	maa_assert_same( 'magick-ai-abilities/list-workflow-recipes', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow list after diagnostics' );
+	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
+	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
+	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
+	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[79] ?? '', 'core read definitions keep URL resolver order after provider split' );
+	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[81] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -716,6 +790,7 @@ $filtered_read_abilities = $filtered_read_registrar->all();
 	maa_assert_true( isset( $filtered_read_abilities['magick-ai/site-info'] ), 'core read pack filter keeps generic site-info ability' );
 	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai/get-site-operations-dashboard'] ), 'core read pack filter removes operations helper ability' );
 	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-ops-diagnostics-detail'] ), 'core read pack filter removes ops diagnostics helper ability' );
 	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/list-workflow-recipes'] ), 'core read pack filter removes workflow definition discovery ability' );
 remove_all_filters( 'magick_ai_abilities_enabled_read_packs' );
 
@@ -1516,6 +1591,77 @@ $inventory_health_cached = $core_read_package->get_content_inventory_health(
 	)
 );
 maa_assert_same( true, $inventory_health_cached['meta']['cache_hit'] ?? null, 'get-content-inventory-health uses the bounded read cache on repeated calls' );
+$GLOBALS['maa_unit_style_posts'][79] = (object) array(
+	'ID'           => 79,
+	'post_title'   => 'Core Governance Comment Smoke',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => 'Temporary smoke content for local validation.',
+	'post_name'    => 'core-governance-comment-smoke',
+	'post_author'  => 7,
+	'post_modified' => '2026-05-30 10:00:00',
+);
+$test_inventory = $core_read_package->get_test_content_inventory(
+	array(
+		'patterns' => array( 'Core Governance' ),
+		'per_page' => 10,
+	)
+);
+maa_assert_same( true, $test_inventory['success'] ?? null, 'get-test-content-inventory returns a success envelope' );
+maa_assert_same( true, $test_inventory['data']['detected'] ?? null, 'get-test-content-inventory detects matching smoke content' );
+maa_assert_same( 'Core Governance', $test_inventory['data']['posts']['items'][0]['matched_pattern'] ?? '', 'get-test-content-inventory returns matched pattern' );
+$cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+	array(
+		'patterns'    => array( 'Core Governance' ),
+		'max_actions' => 5,
+	)
+);
+maa_assert_same( true, $cleanup_plan['success'] ?? null, 'build-test-content-cleanup-plan returns a success envelope' );
+maa_assert_same( 'magick-ai/trash-post', $cleanup_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'test content cleanup plan reuses trash-post' );
+maa_assert_same( false, $cleanup_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'test content cleanup plan does not execute commits' );
+$GLOBALS['maa_unit_style_posts'][80] = (object) array(
+	'ID'           => 80,
+	'post_title'   => 'Inventory Fix Candidate',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => 'Inventory fix candidate content with enough text to generate a deterministic excerpt and metadata description for review planning.',
+	'post_name'    => '',
+	'post_author'  => 7,
+	'post_modified' => '2026-05-30 11:00:00',
+);
+$content_fix_plan = $core_read_package->build_content_inventory_fix_plan(
+	array(
+		'post_ids'    => array( 80 ),
+		'issue_types' => array( 'seo_title', 'seo_description', 'slug', 'excerpt' ),
+	)
+);
+maa_assert_same( true, $content_fix_plan['success'] ?? null, 'build-content-inventory-fix-plan returns a success envelope' );
+maa_assert_same( true, $content_fix_plan['data']['requires_approval'] ?? null, 'content inventory fix plan requires approval' );
+maa_assert_same( 'magick-ai/set-post-seo-meta', $content_fix_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'content inventory fix plan reuses SEO write ability' );
+maa_assert_same( false, $content_fix_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'content inventory fix plan does not execute commits' );
+maa_assert_true( isset( $content_fix_plan['data']['preview'][0]['before']['seo_title'] ), 'content inventory fix plan returns before preview' );
+maa_assert_true( isset( $content_fix_plan['data']['preview'][0]['after_suggestion']['seo_title'] ), 'content inventory fix plan returns after suggestion preview' );
+$GLOBALS['maa_unit_style_posts'][81] = (object) array(
+	'ID'           => 81,
+	'post_title'   => '',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_excerpt' => 'Has excerpt.',
+	'post_content' => 'Inventory fix title candidate content with enough words to avoid unrelated body content warnings during planning.',
+	'post_name'    => 'inventory-fix-title-candidate',
+	'post_author'  => 7,
+	'post_modified' => '2026-05-30 11:10:00',
+);
+$title_fix_plan = $core_read_package->build_content_inventory_fix_plan(
+	array(
+		'post_ids'    => array( 81 ),
+		'issue_types' => array( 'title' ),
+	)
+);
+maa_assert_same( 'magick-ai/update-post', $title_fix_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'content inventory fix plan maps missing title to update-post' );
+maa_assert_same( array( 'title' ), $title_fix_plan['data']['write_actions'][0]['requires_input'] ?? array(), 'content inventory title plan requires a reviewed title input' );
 $bulk_checklist = $core_read_package->get_bulk_publishing_checklist(
 	array(
 		'post_ids' => array( 77, 78, 77 ),
@@ -1646,6 +1792,32 @@ $media_cleanup = $core_read_package->get_media_cleanup_opportunities(
 maa_assert_same( true, $media_cleanup['success'] ?? null, 'get-media-cleanup-opportunities returns a success envelope' );
 maa_assert_true( (int) ( $media_cleanup['data']['summary']['opportunity_count'] ?? 0 ) >= 1, 'get-media-cleanup-opportunities finds cleanup opportunities' );
 maa_assert_true( isset( $media_cleanup['data']['issue_counts']['possibly_unattached'] ), 'get-media-cleanup-opportunities counts unattached media' );
+$media_fix_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'  => array( 79 ),
+		'issue_types'     => array( 'missing_alt', 'missing_caption', 'missing_description', 'possibly_unattached' ),
+		'article_title'   => 'Workflow automation',
+		'article_excerpt' => 'Workflow automation improves repeatable editorial operations.',
+		'focus_keyword'   => 'workflow',
+	)
+);
+maa_assert_same( true, $media_fix_plan['success'] ?? null, 'build-media-inventory-fix-plan returns a success envelope' );
+maa_assert_same( true, $media_fix_plan['data']['requires_approval'] ?? null, 'media inventory fix plan requires approval' );
+maa_assert_same( false, $media_fix_plan['data']['commit_execution'] ?? null, 'media inventory fix plan does not execute commits' );
+maa_assert_same( 'magick-ai/update-media-details', $media_fix_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan reuses update-media-details' );
+maa_assert_same( false, $media_fix_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'media metadata plan action does not execute commits' );
+maa_assert_true( isset( $media_fix_plan['data']['preview'][0]['before']['alt'] ), 'media inventory fix plan returns before preview' );
+maa_assert_true( isset( $media_fix_plan['data']['preview'][0]['after_suggestion']['alt'] ), 'media inventory fix plan returns after suggestion preview' );
+maa_assert_same( 'magick-ai/delete-media-permanently', $media_fix_plan['data']['skipped_destructive_candidates'][0]['target_ability_id'] ?? '', 'media inventory fix plan skips destructive candidates by default' );
+$media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'              => array( 79 ),
+		'issue_types'                 => array( 'possibly_unattached' ),
+		'include_delete_candidates'   => true,
+	)
+);
+maa_assert_same( 'magick-ai/delete-media-permanently', $media_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan can explicitly map delete candidates' );
+maa_assert_same( 'high', $media_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'media delete candidate is marked high risk' );
 $seo_geo_readiness = $core_read_package->get_post_seo_geo_readiness(
 	array(
 		'post_id'       => 77,
@@ -2092,6 +2264,7 @@ foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id 
 	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'] ), "{$migrated_destructive_ability_id} catalog projection does not own host fallback policy" );
 }
 maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-diagnostics-summary'] ), 'catalog bridge does not project standalone diagnostics ability' );
+maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-ops-diagnostics-detail'] ), 'catalog bridge does not project standalone ops diagnostics ability' );
 
 $workflow_replay_path = __DIR__ . '/fixtures/agent-workflow-replay.json';
 $workflow_replay_json = file_get_contents( $workflow_replay_path );

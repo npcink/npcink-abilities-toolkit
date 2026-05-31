@@ -73,6 +73,7 @@ It disables optional workflow, diagnostics, write, destructive, and comment
 helper abilities, including:
 
 - `magick-ai-abilities/wp-diagnostics-summary`
+- `magick-ai-abilities/wp-ops-diagnostics-detail`
 - `magick-ai-abilities/list-workflow-recipes`
 - `magick-ai-abilities/get-workflow-recipe`
 - `magick-ai/get-site-operations-dashboard`

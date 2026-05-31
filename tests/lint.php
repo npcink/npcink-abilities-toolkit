@@ -15,11 +15,14 @@ $iterator = new RecursiveIteratorIterator(
 
 $files = array();
 foreach ( $iterator as $file ) {
-	if ( false !== strpos( $file->getPathname(), DIRECTORY_SEPARATOR . '.git' . DIRECTORY_SEPARATOR ) ) {
-		continue;
+	$path = $file->getPathname();
+	foreach ( array( '.git', 'vendor', 'node_modules', 'dist', 'build' ) as $excluded_dir ) {
+		if ( false !== strpos( $path, DIRECTORY_SEPARATOR . $excluded_dir . DIRECTORY_SEPARATOR ) ) {
+			continue 2;
+		}
 	}
 	if ( 'php' === strtolower( $file->getExtension() ) ) {
-		$files[] = $file->getPathname();
+		$files[] = $path;
 	}
 }
 

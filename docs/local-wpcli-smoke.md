@@ -12,15 +12,15 @@ Use this shared Local site for repeatable manual and smoke verification:
 - WP-CLI phar: `/tmp/wp-cli.phar`
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
-- Test admin password: `1`
+- Test admin password: `[REDACTED_SECRET]`
 - Installed plugin slug: `magick-ai-abilities`
 - Admin test page: `https://magick-ai.local/wp-admin/tools.php?page=magick-ai-abilities-test`
 
-Verification status through 2026-05-29:
+Verification status through 2026-05-30:
 
 - `curl -k -I https://magick-ai.local/` returned HTTP 200.
 - `https://magick-ai.local/wp-json/` exposed `/wp-abilities/v1`.
-- WP admin login with username `1` and password `1` succeeded.
+- WP admin login with username `1` and the local-only redacted password succeeded.
 - `wp plugin status magick-ai-abilities` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
 - `composer smoke:wp` passed with `Smoke OK: 98 assertions`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 117 assertions`
@@ -78,6 +78,32 @@ Verification status through 2026-05-29:
   `core_wordpress_read` definitions into a dedicated provider: default profile
   `Smoke OK: 162 assertions`, light `core_wordpress_read` profile
   `Smoke OK: 13 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed against
+  `https://magick-ai.local/` after expanding WordPress diagnostics: default
+  profile `Smoke OK: 200 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 15 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed again after completing the
+  diagnostics, content-filter, relationship-context, and integration-summary
+  batches: default profile `Smoke OK: 200 assertions`, light
+  `core_wordpress_read` profile `Smoke OK: 15 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed after adding ops diagnostics
+  plugin group controls and log severity summaries: default profile
+  `Smoke OK: 203 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 15 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed after adding error-log
+  `source_summary`: default profile `Smoke OK: 204 assertions`, light
+  `core_wordpress_read` profile `Smoke OK: 15 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed after adding content planning
+  abilities for test-content inventory, test-content cleanup plans, and content
+  inventory fix plans: default profile `Smoke OK: 213 assertions`, light
+  `core_wordpress_read` profile `Smoke OK: 18 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed after adding the media inventory
+  fix-plan ability: default profile `Smoke OK: 216 assertions`, light
+  `core_wordpress_read` profile `Smoke OK: 19 assertions`.
+- On 2026-05-30, `composer smoke:wp` passed after adding error-log message
+  fingerprints, top-message summaries, and safe PHAR basename hints: default
+  profile `Smoke OK: 218 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 19 assertions`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -107,14 +133,15 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 162 assertions
-Smoke OK: 13 assertions
+Smoke OK: 218 assertions
+Smoke OK: 19 assertions
 ```
 
 The default smoke profile verifies Abilities API availability, authenticated
-REST catalog access, the demo ability, the standalone diagnostics ability,
+REST catalog access, the demo ability, the standalone diagnostics abilities,
 migrated core read/comment/write/destructive ability registration, individual
-ability execution, workflow-chain execution, and anonymous REST blocking. The
-light profile verifies that a host can keep only generic `core_wordpress_read`
+ability execution, read-only content and media planning execution, workflow-chain
+execution, and anonymous REST blocking. The light profile verifies that a host
+can keep only generic `core_wordpress_read`
 abilities while disabling workflow helpers, diagnostics, write/destructive
 abilities, comment helpers, catalog bridge, admin test page, and cache hooks.

@@ -67,6 +67,7 @@ The initial set is:
 - `magick-ai-abilities/list-workflow-recipes`
 - `magick-ai-abilities/get-workflow-recipe`
 - `magick-ai-abilities/wp-diagnostics-summary`
+- `magick-ai-abilities/wp-ops-diagnostics-detail`
 - `magick-ai/get-article-publish-preflight-context`
 - `magick-ai/get-old-article-refresh-context`
 - `magick-ai/get-media-cleanup-opportunities`

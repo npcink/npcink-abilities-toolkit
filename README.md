@@ -195,8 +195,13 @@ The `magick-ai/*` ids are preserved for compatibility during the migration from 
 The standalone diagnostics package provides:
 
 - `magick-ai-abilities/wp-diagnostics-summary`
+- `magick-ai-abilities/wp-ops-diagnostics-detail`
 
-This ability returns a redacted WordPress-only environment summary for agents and other plugins. It reports site hosts, WordPress/PHP runtime details, active theme summary, plugin counts, REST/Abilities API availability, cron counts, and update counts. It intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error log contents, and external HTTP probes.
+The summary ability returns a redacted WordPress-only environment summary for agents and other plugins. It reports site hosts, WordPress/PHP runtime details including extension availability, active theme summary, active plugin details, current caller roles/capabilities, object cache status, rewrite/permalink status, HTTPS status, REST/Abilities API availability, cron counts, and update counts.
+
+The ops detail ability returns bounded follow-up diagnostics for support flows: plugin lists with slug/name/version/author/update status/requirements/dependencies/Magick AI hint, current caller identity plus local Magick AI permission inferences, PHP extensions, object cache and page-cache drop-in status, rewrite/permalink and HTTPS status, server summary, database version/count/size estimates, cron hook names and next-run times, error log availability plus severity counts, optional redacted and structured log contents when `include_log_contents` is true, custom post type summaries, role capability lists, widget/sidebar summaries, block-theme registry counts, search and integration hints, SEO meta-key/sitemap/robots hints, and SEO/security/performance summaries. Plugin row groups are bounded with `max_plugins_per_group`; inactive plugins are omitted by default and can be requested with `include_inactive_plugins`. Both diagnostics abilities intentionally omit Magick AI settings, MCP settings, API keys, database names, table prefixes, table names, filesystem paths, unredacted error log contents, cron argument values, and external HTTP probes.
+
+Related read abilities also expose operational context needed by support clients: `magick-ai/list-posts` supports author/date/modified/taxonomy/order filters, `magick-ai/get-post-context` includes template/status/SEO/media/block details, term lists can include bounded `sample_posts`, users include an `author_profile`, comments include their post context, media rows include attachment usage context, and `magick-ai/get-menu` returns both flat items and a nested tree.
 
 ## Built-In Workflow Definition Discovery
 

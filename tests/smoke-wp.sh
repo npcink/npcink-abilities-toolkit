@@ -9,6 +9,23 @@ WP_CLI_ERROR_REPORTING="${WP_CLI_ERROR_REPORTING:-}"
 WP_CLI_MYSQL_SOCKET="${WP_CLI_MYSQL_SOCKET:-}"
 PLUGIN_SLUG="${PLUGIN_SLUG:-magick-ai-abilities}"
 
+if [[ "$WP_CLI_BIN" != *.phar ]] && ! command -v "$WP_CLI_BIN" >/dev/null 2>&1; then
+	cat >&2 <<'EOF'
+WP-CLI was not found.
+
+Set WP_CLI to a wp-cli.phar path, or install a global `wp` command.
+For the shared Local site, use:
+
+WP_CLI=/tmp/wp-cli.phar \
+WP_CLI_PHP=/opt/homebrew/bin/php \
+WP_CLI_ERROR_REPORTING=8191 \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+composer smoke:wp
+EOF
+	exit 127
+fi
+
 wp_args=()
 if [[ -n "${WP_PATH:-}" ]]; then
 	wp_args+=(--path="$WP_PATH")
@@ -44,7 +61,9 @@ run_wp() {
 }
 
 run_wp core is-installed >/dev/null
-run_wp plugin activate "$PLUGIN_SLUG" >/dev/null
+if ! run_wp plugin is-active "$PLUGIN_SLUG" >/dev/null 2>&1; then
+	run_wp plugin activate "$PLUGIN_SLUG" >/dev/null
+fi
 run_wp option update magick_ai_abilities_demo_enabled 1 >/dev/null
 MAGICK_AI_ABILITIES_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
 

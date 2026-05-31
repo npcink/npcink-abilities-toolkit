@@ -28,5 +28,11 @@ jobs:
       - name: Validate composer metadata
         run: composer validate --no-check-publish
 
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
       - name: Run tests and lint
         run: composer test:all
+
+      - name: Run PHPStan
+        run: composer analyse:phpstan

@@ -7,6 +7,7 @@
 
 namespace Magick_AI_Abilities\Packages;
 
+use Magick_AI_Abilities\Packages\Read_Definitions\Agent_Usage_Metadata;
 use Magick_AI_Abilities\Packages\Read_Definitions\Core_WordPress_Read_Definitions;
 use Magick_AI_Abilities\Packages\Read_Definitions\WordPress_Diagnostics_Definitions;
 use Magick_AI_Abilities\Registry\Ability_Registrar;
@@ -259,6 +260,8 @@ final class Core_Read_Package {
 						'taxonomy'   => array( 'type' => 'string', 'default' => 'category' ),
 						'search'     => array( 'type' => 'string' ),
 						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
+						'include_sample_posts' => array( 'type' => 'boolean', 'default' => false ),
+						'sample_post_limit' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 3 ),
 						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 10 ),
 						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
 					),
@@ -278,6 +281,7 @@ final class Core_Read_Package {
 									'name'  => array( 'type' => 'string' ),
 									'slug'  => array( 'type' => 'string' ),
 									'count' => array( 'type' => 'integer' ),
+									'sample_posts' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 								),
 								'required'   => array( 'id', 'name' ),
 							),
@@ -301,6 +305,8 @@ final class Core_Read_Package {
 						'search'     => array( 'type' => 'string' ),
 						'parent'     => array( 'type' => 'integer', 'minimum' => 0 ),
 						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
+						'include_sample_posts' => array( 'type' => 'boolean', 'default' => false ),
+						'sample_post_limit' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 3 ),
 						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 20 ),
 						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
 					),
@@ -322,6 +328,7 @@ final class Core_Read_Package {
 									'slug'   => array( 'type' => 'string' ),
 									'parent' => array( 'type' => 'integer' ),
 									'count'  => array( 'type' => 'integer' ),
+									'sample_posts' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 								),
 								'required'   => array( 'id', 'name', 'slug' ),
 							),
@@ -1494,6 +1501,109 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_content_inventory_health' ),
 			),
+			'magick-ai/get-test-content-inventory' => array(
+				'label'            => __( 'Get Test Content Inventory', 'magick-ai-abilities' ),
+				'description'      => __( 'Detects bounded smoke, fixture, and test content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'taxonomy.read', 'comments.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'patterns'     => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+						'post_types'   => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'post', 'page' ) ),
+						'statuses'     => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'publish', 'draft', 'pending', 'future', 'private' ) ),
+						'include_posts' => array( 'type' => 'boolean', 'default' => true ),
+						'include_terms' => array( 'type' => 'boolean', 'default' => true ),
+						'include_comments' => array( 'type' => 'boolean', 'default' => true ),
+						'per_page'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_test_content_inventory' ),
+			),
+			'magick-ai/build-test-content-cleanup-plan' => array(
+				'label'            => __( 'Build Test Content Cleanup Plan', 'magick-ai-abilities' ),
+				'description'      => __( 'Builds a read-only cleanup plan for detected test content, mapping each candidate to existing governed write abilities without trashing or deleting anything.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'taxonomy.read', 'comments.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'patterns'        => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+						'post_types'      => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'post', 'page' ) ),
+						'statuses'        => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'publish', 'draft', 'pending', 'future', 'private' ) ),
+						'include_terms'   => array( 'type' => 'boolean', 'default' => true ),
+						'include_comments' => array( 'type' => 'boolean', 'default' => true ),
+						'per_page'        => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'max_actions'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_test_content_cleanup_plan' ),
+			),
+			'magick-ai/build-content-inventory-fix-plan' => array(
+				'label'            => __( 'Build Content Inventory Fix Plan', 'magick-ai-abilities' ),
+				'description'      => __( 'Maps bounded content inventory issues to reviewable fix actions that reuse existing governed write abilities without mutating posts.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_ids'     => array( 'type' => 'array', 'items' => array( 'type' => 'integer' ) ),
+						'post_type'    => array( 'type' => 'string', 'default' => 'post' ),
+						'status'       => array( 'type' => 'string', 'default' => 'any' ),
+						'issue_types'  => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'seo_title', 'seo_description', 'slug', 'excerpt', 'featured_media', 'content' ) ),
+						'per_page'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 20 ),
+						'page'         => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'max_actions'  => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'target_status' => array( 'type' => 'string', 'enum' => array( 'publish', 'future', 'draft' ), 'default' => 'publish' ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_content_inventory_fix_plan' ),
+			),
 			'magick-ai/get-bulk-publishing-checklist' => array(
 				'label'            => __( 'Get Bulk Publishing Checklist', 'magick-ai-abilities' ),
 				'description'      => __( 'Runs the read-only publishing checklist for a bounded list of posts and returns batch readiness totals.', 'magick-ai-abilities' ),
@@ -1806,6 +1916,44 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'get_media_cleanup_opportunities' ),
+			),
+			'magick-ai/build-media-inventory-fix-plan' => array(
+				'label'            => __( 'Build Media Inventory Fix Plan', 'magick-ai-abilities' ),
+				'description'      => __( 'Maps bounded media inventory issues to reviewable metadata and cleanup actions that reuse existing governed write abilities without mutating media.', 'magick-ai-abilities' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'attachment_ids'              => array( 'type' => 'array', 'maxItems' => 50, 'items' => array( 'type' => 'integer', 'minimum' => 1 ) ),
+						'mime_type'                   => array( 'type' => 'string' ),
+						'search'                      => array( 'type' => 'string' ),
+						'issue_types'                 => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'missing_alt', 'missing_caption', 'missing_description', 'missing_source', 'format_attention', 'possibly_unattached' ) ),
+						'article_title'               => array( 'type' => 'string' ),
+						'article_excerpt'             => array( 'type' => 'string' ),
+						'focus_keyword'               => array( 'type' => 'string' ),
+						'per_page'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 20 ),
+						'page'                        => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'max_actions'                 => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'include_delete_candidates'   => array( 'type' => 'boolean', 'default' => false ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_inventory_fix_plan' ),
 			),
 			'magick-ai/get-taxonomy-consolidation-suggestions' => array(
 				'label'            => __( 'Get Taxonomy Consolidation Suggestions', 'magick-ai-abilities' ),
@@ -2260,7 +2408,7 @@ final class Core_Read_Package {
 			WordPress_Diagnostics_Definitions::definitions( $this ),
 			$definitions
 		);
-		$definitions = $this->apply_agent_usage_metadata( $definitions );
+		$definitions = Agent_Usage_Metadata::apply( $definitions );
 
 		$ordered = array();
 		foreach ( array_keys( Core_Read_Pack_Classifier::known_pack_map() ) as $ability_id ) {
@@ -2271,67 +2419,6 @@ final class Core_Read_Package {
 		}
 
 			return $ordered + $definitions;
-		}
-
-		/**
-		 * Adds static agent usage guidance for priority entry/read abilities.
-		 *
-		 * @param array<string,array<string,mixed>> $definitions Ability definitions.
-		 * @return array<string,array<string,mixed>>
-		 */
-		private function apply_agent_usage_metadata( array $definitions ) {
-			$usage = array(
-				'magick-ai-abilities/list-workflow-recipes' => array(
-					'when_to_use'     => array( 'Discover supported host-side workflow recipes before choosing a multi-step path.' ),
-					'not_for'         => array( 'Do not use this to execute, schedule, approve, audit, or commit workflow steps.' ),
-					'best_for'        => array( 'Selecting the right entry ability for article, refresh, comment, diagnostics, or governance handoff work.' ),
-					'stopping_points' => array( 'After selecting a recipe, call the listed abilities through the host; this package does not run the workflow.' ),
-				),
-				'magick-ai-abilities/get-workflow-recipe' => array(
-					'when_to_use'     => array( 'Fetch one workflow recipe by recipe id or case id after discovery.' ),
-					'not_for'         => array( 'Do not use this as a workflow execution endpoint or approval record.' ),
-					'best_for'        => array( 'Reading required inputs, entry ability, expanded ability ids, and handoff boundaries for one workflow.' ),
-					'stopping_points' => array( 'Stop after reading the recipe; execution, approval, audit, retry, and final writes belong to the host.' ),
-				),
-				'magick-ai-abilities/wp-diagnostics-summary' => array(
-					'when_to_use'     => array( 'Inspect a redacted WordPress-only environment summary for support or readiness triage.' ),
-					'not_for'         => array( 'Do not use this for Magick AI settings, MCP settings, secrets, filesystem paths, database names, or external probes.' ),
-					'best_for'        => array( 'Checking REST, Abilities API, WordPress, PHP, theme, plugin, cron, and update context without leaking secrets.' ),
-					'stopping_points' => array( 'For runtime, cloud, MCP, or secret diagnostics, hand off to the owning host or operations addon.' ),
-				),
-				'magick-ai/get-article-publish-preflight-context' => array(
-					'when_to_use'     => array( 'Assemble read-only publish readiness, risk, workflow, and calendar context for one post.' ),
-					'not_for'         => array( 'Do not use this to schedule, publish, rewrite, or commit post changes.' ),
-					'best_for'        => array( 'Deciding whether a draft needs edits, review, scheduling, or a host-governed write proposal.' ),
-					'stopping_points' => array( 'Stop before any publish, schedule, metadata, or content mutation and request host/Core approval.' ),
-				),
-				'magick-ai/get-old-article-refresh-context' => array(
-					'when_to_use'     => array( 'Find stale or under-optimized articles and collect SEO/GEO, style, and link context.' ),
-					'not_for'         => array( 'Do not use this to rewrite posts, patch content, or change SEO metadata.' ),
-					'best_for'        => array( 'Choosing refresh candidates and preparing a host-owned optimization plan.' ),
-					'stopping_points' => array( 'Stop after candidate discovery; content generation, model calls, and writes belong to product or host workflows.' ),
-				),
-				'magick-ai/get-media-cleanup-opportunities' => array(
-					'when_to_use'     => array( 'Scan media for metadata gaps, source gaps, and likely unused assets.' ),
-					'not_for'         => array( 'Do not use this to update media metadata or delete attachments.' ),
-					'best_for'        => array( 'Building a review queue before media SEO enrichment or cleanup proposals.' ),
-					'stopping_points' => array( 'Stop before update-media-details or delete-media-permanently and require host/Core approval.' ),
-				),
-				'magick-ai/propose-post-taxonomy-terms' => array(
-					'when_to_use'     => array( 'Build a deterministic taxonomy assignment proposal using existing terms.' ),
-					'not_for'         => array( 'Do not use this to create terms, assign terms, delete terms, or mutate posts.' ),
-					'best_for'        => array( 'Preparing bounded dry-run input for a host-governed set-post-terms proposal.' ),
-					'stopping_points' => array( 'Stop at the returned proposal; final taxonomy writes require Core approval and host execution.' ),
-				),
-			);
-
-			foreach ( $usage as $ability_id => $agent_usage ) {
-				if ( isset( $definitions[ $ability_id ] ) ) {
-					$definitions[ $ability_id ]['agent_usage'] = $agent_usage;
-				}
-			}
-
-			return $definitions;
 		}
 
 		/**
@@ -2397,6 +2484,10 @@ final class Core_Read_Package {
 		$include_theme = ! array_key_exists( 'include_theme', $input ) || ! empty( $input['include_theme'] );
 		$include_cron = ! array_key_exists( 'include_cron', $input ) || ! empty( $input['include_cron'] );
 		$include_updates = ! array_key_exists( 'include_updates', $input ) || ! empty( $input['include_updates'] );
+		$include_current_user = ! array_key_exists( 'include_current_user', $input ) || ! empty( $input['include_current_user'] );
+		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
+		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
+		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
 
 		return array(
 			'summary_version' => 'v1',
@@ -2407,6 +2498,10 @@ final class Core_Read_Package {
 			'php'             => $this->build_php_diagnostics_summary(),
 			'theme'           => $include_theme ? $this->build_theme_diagnostics_summary() : array( 'included' => false ),
 			'plugins'         => $include_plugins ? $this->build_plugin_diagnostics_summary() : array( 'included' => false ),
+			'current_user'    => $include_current_user ? $this->build_current_user_diagnostics_summary() : array( 'included' => false ),
+			'object_cache'    => $include_object_cache ? $this->build_object_cache_diagnostics_summary() : array( 'included' => false ),
+			'rewrite'         => $include_rewrite ? $this->build_rewrite_diagnostics_summary() : array( 'included' => false ),
+			'https'           => $include_https ? $this->build_https_diagnostics_summary() : array( 'included' => false ),
 			'rest_api'        => $this->build_rest_api_diagnostics_summary(),
 			'abilities_api'   => $this->build_abilities_api_diagnostics_summary(),
 			'cron'            => $include_cron ? $this->build_cron_diagnostics_summary() : array( 'included' => false ),
@@ -2420,6 +2515,101 @@ final class Core_Read_Package {
 				'filesystem_paths',
 				'error_log_contents',
 				'external_http_probes',
+			),
+		);
+	}
+
+	/**
+	 * Returns bounded operations diagnostics without leaking raw secrets or paths.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>
+	 */
+	public function wp_ops_diagnostics_detail( $input = array() ) {
+		$input = is_array( $input ) ? $input : array();
+		$include_plugins = ! array_key_exists( 'include_plugins', $input ) || ! empty( $input['include_plugins'] );
+		$include_active_plugins = ! array_key_exists( 'include_active_plugins', $input ) || ! empty( $input['include_active_plugins'] );
+		$include_inactive_plugins = ! empty( $input['include_inactive_plugins'] );
+		$include_plugin_updates = ! array_key_exists( 'include_plugin_updates', $input ) || ! empty( $input['include_plugin_updates'] );
+		$include_must_use_plugins = ! array_key_exists( 'include_must_use_plugins', $input ) || ! empty( $input['include_must_use_plugins'] );
+		$include_dropins = ! array_key_exists( 'include_dropins', $input ) || ! empty( $input['include_dropins'] );
+		$include_current_user = ! array_key_exists( 'include_current_user', $input ) || ! empty( $input['include_current_user'] );
+		$include_php = ! array_key_exists( 'include_php', $input ) || ! empty( $input['include_php'] );
+		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
+		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
+		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
+		$include_server = ! array_key_exists( 'include_server', $input ) || ! empty( $input['include_server'] );
+		$include_database = ! array_key_exists( 'include_database', $input ) || ! empty( $input['include_database'] );
+		$include_cron_events = ! array_key_exists( 'include_cron_events', $input ) || ! empty( $input['include_cron_events'] );
+		$include_error_log = ! array_key_exists( 'include_error_log', $input ) || ! empty( $input['include_error_log'] );
+		$include_log_contents = ! empty( $input['include_log_contents'] );
+		$include_content_types = ! array_key_exists( 'include_content_types', $input ) || ! empty( $input['include_content_types'] );
+		$include_roles = ! array_key_exists( 'include_roles', $input ) || ! empty( $input['include_roles'] );
+		$include_widgets = ! array_key_exists( 'include_widgets', $input ) || ! empty( $input['include_widgets'] );
+		$include_block_theme = ! array_key_exists( 'include_block_theme', $input ) || ! empty( $input['include_block_theme'] );
+		$include_search = ! array_key_exists( 'include_search', $input ) || ! empty( $input['include_search'] );
+		$include_integrations = ! array_key_exists( 'include_integrations', $input ) || ! empty( $input['include_integrations'] );
+		$include_summaries = ! array_key_exists( 'include_summaries', $input ) || ! empty( $input['include_summaries'] );
+		$max_cron_events = isset( $input['max_cron_events'] ) ? absint( $input['max_cron_events'] ) : 20;
+		$max_cron_events = max( 1, min( 50, $max_cron_events ) );
+		$max_plugins_per_group = isset( $input['max_plugins_per_group'] ) ? absint( $input['max_plugins_per_group'] ) : 100;
+		$max_plugins_per_group = max( 1, min( 500, $max_plugins_per_group ) );
+		$tail_lines = isset( $input['tail_lines'] ) ? absint( $input['tail_lines'] ) : 50;
+		$tail_lines = max( 1, min( 200, $tail_lines ) );
+		$since_minutes = isset( $input['since_minutes'] ) ? absint( $input['since_minutes'] ) : 0;
+		$since_minutes = min( 10080, $since_minutes );
+		$severity_filter = $this->normalize_diagnostics_log_severity_filter( $input['severity'] ?? array() );
+
+		$plugins = $include_plugins ? $this->build_plugin_diagnostics_summary(
+			array(
+				'include_active'      => $include_active_plugins,
+				'include_inactive'    => $include_inactive_plugins,
+				'include_updates'     => $include_plugin_updates,
+				'include_must_use'    => $include_must_use_plugins,
+				'include_dropins'     => $include_dropins,
+				'max_plugins_per_group' => $max_plugins_per_group,
+			)
+		) : array( 'included' => false );
+		$current_user = $include_current_user ? $this->build_current_user_diagnostics_summary() : array( 'included' => false );
+		$php = $include_php ? $this->build_php_diagnostics_summary() : array( 'included' => false );
+		$object_cache = $include_object_cache ? $this->build_object_cache_diagnostics_summary() : array( 'included' => false );
+		$rewrite = $include_rewrite ? $this->build_rewrite_diagnostics_summary() : array( 'included' => false );
+		$https = $include_https ? $this->build_https_diagnostics_summary() : array( 'included' => false );
+		$updates = $this->build_updates_diagnostics_summary();
+		$cron_summary = $this->build_cron_diagnostics_summary();
+
+		return array(
+			'detail_version' => 'v1',
+			'generated_at'   => gmdate( 'Y-m-d\TH:i:s\Z' ),
+			'redacted'       => true,
+			'plugins'        => $plugins,
+			'current_user'   => $current_user,
+			'php'            => $php,
+			'object_cache'   => $object_cache,
+			'rewrite'        => $rewrite,
+			'https'          => $https,
+			'server'         => $include_server ? $this->build_server_diagnostics_detail() : array( 'included' => false ),
+			'database'       => $include_database ? $this->build_database_diagnostics_detail() : array( 'included' => false ),
+			'cron_events'    => $include_cron_events ? $this->build_cron_events_diagnostics_detail( $max_cron_events ) : array( 'included' => false ),
+			'error_log'      => $include_error_log ? $this->build_error_log_diagnostics_detail( $include_log_contents, $tail_lines, $since_minutes, $severity_filter ) : array( 'included' => false ),
+			'content_types'  => $include_content_types ? $this->build_content_type_diagnostics_detail() : array( 'included' => false ),
+			'roles'          => $include_roles ? $this->build_roles_diagnostics_detail() : array( 'included' => false ),
+			'widgets'        => $include_widgets ? $this->build_widgets_diagnostics_detail() : array( 'included' => false ),
+			'block_theme'    => $include_block_theme ? $this->build_block_theme_diagnostics_detail() : array( 'included' => false ),
+			'search'         => $include_search ? $this->build_search_diagnostics_detail() : array( 'included' => false ),
+			'integrations'   => $include_integrations ? $this->build_integrations_diagnostics_detail( $plugins ) : array( 'included' => false ),
+			'seo_summary'    => $include_summaries ? $this->build_seo_diagnostics_summary( $plugins, $rewrite ) : array( 'included' => false ),
+			'security_summary' => $include_summaries ? $this->build_security_diagnostics_summary( $https, $current_user ) : array( 'included' => false ),
+			'performance_summary' => $include_summaries ? $this->build_performance_diagnostics_summary( $object_cache, $php, $cron_summary, $updates ) : array( 'included' => false ),
+			'omitted'        => array(
+				'database_name',
+				'database_table_prefix',
+				'database_table_names',
+				'filesystem_paths',
+				$include_log_contents ? 'unredacted_error_log_contents' : 'error_log_contents',
+				'cron_event_args',
+				'user_password_hashes',
+				'api_keys',
 			),
 		);
 	}
@@ -2533,12 +2723,20 @@ final class Core_Read_Package {
 			if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
 				continue;
 			}
+			$attachment = get_post( $post_id );
+			$parent_id = is_object( $attachment ) ? absint( $attachment->post_parent ?? 0 ) : 0;
 			$items[] = array(
 				'id'        => $post_id,
 				'title'     => sanitize_text_field( (string) get_the_title( $post_id ) ),
 				'date'      => sanitize_text_field( (string) get_post_field( 'post_date', $post_id ) ),
 				'mime_type' => sanitize_text_field( (string) get_post_mime_type( $post_id ) ),
 				'url'       => esc_url_raw( (string) wp_get_attachment_url( $post_id ) ),
+				'attached_to' => $parent_id > 0 ? array(
+					'post_id'    => $parent_id,
+					'post_type'  => sanitize_key( (string) get_post_type( $parent_id ) ),
+					'post_title' => sanitize_text_field( (string) get_the_title( $parent_id ) ),
+				) : null,
+				'usage'     => $this->build_media_usage_context( $post_id ),
 				'edit_link' => get_edit_post_link( $post_id, 'raw' ),
 			);
 		}
@@ -2548,6 +2746,47 @@ final class Core_Read_Package {
 			'page'     => $page,
 			'per_page' => $per_page,
 			'items'    => $items,
+		);
+	}
+
+	/**
+	 * Builds bounded usage context for one attachment.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_usage_context( $attachment_id ) {
+		$attachment_id = absint( $attachment_id );
+		if ( $attachment_id <= 0 ) {
+			return array();
+		}
+
+		$featured_query = new \WP_Query(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+				'posts_per_page' => 5,
+				'fields'         => 'ids',
+				'meta_key'       => '_thumbnail_id',
+				'meta_value'     => $attachment_id,
+			)
+		);
+		$featured_posts = array();
+		foreach ( (array) $featured_query->posts as $post_id ) {
+			$post_id = absint( $post_id );
+			if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+				$featured_posts[] = array(
+					'post_id'    => $post_id,
+					'post_type'  => sanitize_key( (string) get_post_type( $post_id ) ),
+					'post_title' => sanitize_text_field( (string) get_the_title( $post_id ) ),
+				);
+			}
+		}
+
+		return array(
+			'featured_image_count' => (int) $featured_query->found_posts,
+			'featured_image_posts' => $featured_posts,
+			'content_reference_scan_run' => false,
 		);
 	}
 
@@ -2757,11 +2996,19 @@ final class Core_Read_Package {
 				continue;
 			}
 			$roles = is_array( $user->roles ?? null ) ? $user->roles : array();
+			$user_id = absint( $user->ID ?? 0 );
 			$items[] = array(
-				'id'           => absint( $user->ID ?? 0 ),
+				'id'           => $user_id,
 				'display_name' => sanitize_text_field( (string) ( $user->display_name ?? '' ) ),
 				'user_login'   => sanitize_user( (string) ( $user->user_login ?? '' ), true ),
 				'roles'        => array_values( array_map( 'sanitize_key', $roles ) ),
+				'author_profile' => array(
+					'user_nicename' => sanitize_title( (string) ( $user->user_nicename ?? '' ) ),
+					'url'           => esc_url_raw( (string) ( $user->user_url ?? '' ) ),
+					'description'   => sanitize_textarea_field( (string) get_user_meta( $user_id, 'description', true ) ),
+					'registered'    => sanitize_text_field( (string) ( $user->user_registered ?? '' ) ),
+					'post_counts'   => $this->build_user_author_post_counts( $user_id ),
+				),
 			);
 		}
 
@@ -2771,6 +3018,31 @@ final class Core_Read_Package {
 			'per_page' => $per_page,
 			'items'    => $items,
 		);
+	}
+
+	/**
+	 * Builds bounded author post counts for public post types.
+	 *
+	 * @param int $user_id User ID.
+	 * @return array<string,int>
+	 */
+	private function build_user_author_post_counts( $user_id ) {
+		$user_id = absint( $user_id );
+		if ( $user_id <= 0 || ! function_exists( 'count_user_posts' ) ) {
+			return array();
+		}
+
+		$post_types = function_exists( 'get_post_types' ) ? get_post_types( array( 'public' => true ), 'names' ) : array( 'post' );
+		$post_types = is_array( $post_types ) ? array_values( $post_types ) : array( 'post' );
+		$counts = array();
+		foreach ( array_slice( $post_types, 0, 20 ) as $post_type ) {
+			$post_type = sanitize_key( (string) $post_type );
+			if ( '' !== $post_type ) {
+				$counts[ $post_type ] = absint( count_user_posts( $user_id, $post_type, true ) );
+			}
+		}
+
+		return $counts;
 	}
 
 	/**
@@ -2808,13 +3080,20 @@ final class Core_Read_Package {
 				continue;
 			}
 			$comment_post_id = absint( $comment->comment_post_ID ?? 0 );
+			$comment_post = $comment_post_id > 0 ? get_post( $comment_post_id ) : null;
 			$items[] = array(
 				'id'         => absint( $comment->comment_ID ?? 0 ),
+				'parent_id'  => absint( $comment->comment_parent ?? 0 ),
 				'author'     => sanitize_text_field( (string) ( $comment->comment_author ?? '' ) ),
+				'author_user_id' => absint( $comment->user_id ?? 0 ),
 				'date'       => sanitize_text_field( (string) ( $comment->comment_date ?? '' ) ),
+				'date_gmt'   => sanitize_text_field( (string) ( $comment->comment_date_gmt ?? '' ) ),
 				'status'     => sanitize_key( (string) ( $comment->comment_approved ?? '' ) ),
+				'type'       => sanitize_key( (string) ( $comment->comment_type ?? '' ) ),
 				'post_id'    => $comment_post_id,
 				'post_title' => $comment_post_id > 0 ? sanitize_text_field( (string) get_the_title( $comment_post_id ) ) : '',
+				'post_type'  => is_object( $comment_post ) ? sanitize_key( (string) ( $comment_post->post_type ?? '' ) ) : '',
+				'post_status' => is_object( $comment_post ) ? sanitize_key( (string) ( $comment_post->post_status ?? '' ) ) : '',
 				'excerpt'    => wp_trim_words( wp_strip_all_tags( (string) ( $comment->comment_content ?? '' ) ), 20 ),
 			);
 		}
@@ -2926,7 +3205,40 @@ final class Core_Read_Package {
 				'count'       => absint( $menu->count ?? 0 ),
 			),
 			'items' => $items,
+			'tree'  => $this->build_menu_item_tree( $items ),
 		);
+	}
+
+	/**
+	 * Builds a nested menu item tree from flat menu rows.
+	 *
+	 * @param array<int,array<string,mixed>> $items Flat menu items.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_menu_item_tree( array $items ) {
+		$nodes = array();
+		foreach ( $items as $item ) {
+			$item = is_array( $item ) ? $item : array();
+			$id = absint( $item['id'] ?? 0 );
+			if ( $id <= 0 ) {
+				continue;
+			}
+			$item['children'] = array();
+			$nodes[ $id ] = $item;
+		}
+
+		$tree = array();
+		foreach ( $nodes as $id => &$node ) {
+			$parent_id = absint( $node['parent_id'] ?? 0 );
+			if ( $parent_id > 0 && isset( $nodes[ $parent_id ] ) ) {
+				$nodes[ $parent_id ]['children'][] = &$node;
+			} else {
+				$tree[] = &$node;
+			}
+		}
+		unset( $node );
+
+		return array_values( $tree );
 	}
 
 	/**
@@ -5717,10 +6029,32 @@ final class Core_Read_Package {
 	public function list_posts( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
-		$status = sanitize_key( (string) ( $input['status'] ?? $input['post_status'] ?? 'publish' ) );
+		$status_input = $input['status'] ?? $input['post_status'] ?? 'publish';
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
+		$author_id = absint( $input['author_id'] ?? 0 );
+		$orderby = sanitize_key( (string) ( $input['orderby'] ?? 'date' ) );
+		$order = strtoupper( sanitize_key( (string) ( $input['order'] ?? 'DESC' ) ) );
+		$date_after = sanitize_text_field( (string) ( $input['date_after'] ?? '' ) );
+		$date_before = sanitize_text_field( (string) ( $input['date_before'] ?? '' ) );
+		$modified_after = sanitize_text_field( (string) ( $input['modified_after'] ?? '' ) );
+		$modified_before = sanitize_text_field( (string) ( $input['modified_before'] ?? '' ) );
+		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? '' ) );
+		$term_id = absint( $input['term_id'] ?? 0 );
+		$term_slug = sanitize_title( (string) ( $input['term_slug'] ?? '' ) );
+
+		$statuses = is_array( $status_input ) ? $status_input : explode( ',', (string) $status_input );
+		$statuses = array_values( array_filter( array_map( 'sanitize_key', $statuses ) ) );
+		if ( empty( $statuses ) ) {
+			$statuses = array( 'publish' );
+		}
+		if ( ! in_array( $orderby, array( 'date', 'modified', 'title', 'id', 'menu_order', 'comment_count' ), true ) ) {
+			$orderby = 'date';
+		}
+		if ( ! in_array( $order, array( 'ASC', 'DESC' ), true ) ) {
+			$order = 'DESC';
+		}
 
 		if ( ! post_type_exists( $post_type ) ) {
 			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
@@ -5728,16 +6062,48 @@ final class Core_Read_Package {
 
 		$args = array(
 			'post_type'        => $post_type,
-			'post_status'      => '' !== $status ? $status : 'publish',
+			'post_status'      => 1 === count( $statuses ) ? $statuses[0] : $statuses,
 			'posts_per_page'   => $per_page,
 			'paged'            => $page,
-			'orderby'          => 'date',
-			'order'            => 'DESC',
+			'orderby'          => 'id' === $orderby ? 'ID' : $orderby,
+			'order'            => $order,
 			'fields'           => 'ids',
 			'suppress_filters' => false,
 		);
+		if ( $author_id > 0 ) {
+			$args['author'] = $author_id;
+		}
 		if ( '' !== $search ) {
 			$args['s'] = $search;
+		}
+		if ( '' !== $date_after || '' !== $date_before ) {
+			$args['date_query'] = array( array( 'column' => 'post_date' ) );
+			if ( '' !== $date_after ) {
+				$args['date_query'][0]['after'] = $date_after;
+			}
+			if ( '' !== $date_before ) {
+				$args['date_query'][0]['before'] = $date_before;
+			}
+		}
+		if ( '' !== $modified_after || '' !== $modified_before ) {
+			$args['date_query'] = is_array( $args['date_query'] ?? null ) ? $args['date_query'] : array();
+			$modified_query = array( 'column' => 'post_modified' );
+			if ( '' !== $modified_after ) {
+				$modified_query['after'] = $modified_after;
+			}
+			if ( '' !== $modified_before ) {
+				$modified_query['before'] = $modified_before;
+			}
+			$args['date_query'][] = $modified_query;
+		}
+		if ( '' !== $taxonomy && ( $term_id > 0 || '' !== $term_slug ) && taxonomy_exists( $taxonomy ) ) {
+			$args['tax_query'] = array(
+				array(
+					'taxonomy' => $taxonomy,
+					'field'    => $term_id > 0 ? 'term_id' : 'slug',
+					'terms'    => $term_id > 0 ? array( $term_id ) : array( $term_slug ),
+				),
+			);
 		}
 
 		$query = new \WP_Query( $args );
@@ -5748,16 +6114,22 @@ final class Core_Read_Package {
 			if ( ! $post || ! current_user_can( 'edit_post', $post_id ) ) {
 				continue;
 			}
-			$author_id = absint( $post->post_author ?? 0 );
+			$item_author_id = absint( $post->post_author ?? 0 );
 			$status_value = sanitize_key( (string) ( $post->post_status ?? '' ) );
 			$items[] = array(
 				'id'          => $post_id,
 				'title'       => sanitize_text_field( (string) get_the_title( $post_id ) ),
 				'status'      => $status_value,
 				'post_status' => $status_value,
+				'slug'        => $this->sanitize_metadata_slug( (string) ( $post->post_name ?? '' ) ),
 				'date'        => sanitize_text_field( (string) get_post_field( 'post_date', $post_id ) ),
+				'modified'    => sanitize_text_field( (string) get_post_field( 'post_modified', $post_id ) ),
 				'post_type'   => sanitize_key( (string) ( $post->post_type ?? '' ) ),
-				'author'      => $author_id > 0 ? sanitize_text_field( (string) get_the_author_meta( 'display_name', $author_id ) ) : '',
+				'author_id'   => $item_author_id,
+				'author'      => $item_author_id > 0 ? sanitize_text_field( (string) get_the_author_meta( 'display_name', $item_author_id ) ) : '',
+				'excerpt'     => wp_trim_words( wp_strip_all_tags( (string) ( $post->post_excerpt ?: $post->post_content ) ), 30 ),
+				'comment_count' => absint( $post->comment_count ?? 0 ),
+				'permalink'   => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
 				'edit_link'   => get_edit_post_link( $post_id, 'raw' ),
 			);
 		}
@@ -5766,6 +6138,21 @@ final class Core_Read_Package {
 			'total'    => (int) $query->found_posts,
 			'page'     => $page,
 			'per_page' => $per_page,
+			'filters'  => array(
+				'post_type'       => $post_type,
+				'status'          => $statuses,
+				'search'          => $search,
+				'author_id'       => $author_id,
+				'orderby'         => $orderby,
+				'order'           => $order,
+				'date_after'      => $date_after,
+				'date_before'     => $date_before,
+				'modified_after'  => $modified_after,
+				'modified_before' => $modified_before,
+				'taxonomy'        => $taxonomy,
+				'term_id'         => $term_id,
+				'term_slug'       => $term_slug,
+			),
 			'items'    => $items,
 		);
 	}
@@ -5855,6 +6242,13 @@ final class Core_Read_Package {
 		if ( $author_id > 0 && function_exists( 'get_the_author_meta' ) ) {
 			$author_name = sanitize_text_field( (string) get_the_author_meta( 'display_name', $author_id ) );
 		}
+		$template = function_exists( 'get_page_template_slug' ) ? sanitize_text_field( (string) get_page_template_slug( $post_id ) ) : '';
+		if ( '' === $template && function_exists( 'get_post_meta' ) ) {
+			$template = sanitize_text_field( (string) get_post_meta( $post_id, '_wp_page_template', true ) );
+		}
+		$seo_provider = $this->detect_seo_provider();
+		$seo_keys = $this->seo_meta_keys( $seo_provider );
+		$featured_media_id = function_exists( 'get_post_thumbnail_id' ) ? $this->absint_value( get_post_thumbnail_id( $post_id ) ) : 0;
 
 		$data = array(
 			'post'  => array(
@@ -5863,11 +6257,21 @@ final class Core_Read_Package {
 				'status'     => sanitize_key( (string) ( $post->post_status ?? '' ) ),
 				'post_type'  => sanitize_key( (string) ( $post->post_type ?? '' ) ),
 				'slug'       => $this->sanitize_metadata_slug( (string) ( $post->post_name ?? '' ) ),
+				'parent_id'  => $this->absint_value( $post->post_parent ?? 0 ),
+				'menu_order' => (int) ( $post->menu_order ?? 0 ),
 				'author_id'  => $author_id,
 				'author'     => $author_name,
 				'excerpt'    => sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) ),
 				'date'       => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+				'date_gmt'   => sanitize_text_field( (string) ( $post->post_date_gmt ?? '' ) ),
 				'modified'   => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'modified_gmt' => sanitize_text_field( (string) ( $post->post_modified_gmt ?? '' ) ),
+				'comment_status' => sanitize_key( (string) ( $post->comment_status ?? '' ) ),
+				'ping_status' => sanitize_key( (string) ( $post->ping_status ?? '' ) ),
+				'comment_count' => absint( $post->comment_count ?? 0 ),
+				'template'   => $template,
+				'format'     => function_exists( 'get_post_format' ) ? sanitize_key( (string) get_post_format( $post_id ) ) : '',
+				'featured_media_id' => $featured_media_id,
 				'permalink'  => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
 				'edit_link'  => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
 				'content'    => $include_content ? $content : '',
@@ -5880,6 +6284,13 @@ final class Core_Read_Package {
 				'image_count'           => substr_count( strtolower( $content ), '<img' ),
 				'block_count'           => count( $blocks ),
 				'reading_time_minutes'  => max( 1, (int) ceil( max( 1, str_word_count( $plain_text ) ) / 200 ) ),
+			),
+			'seo'   => array(
+				'provider'      => $seo_provider,
+				'title'         => $this->get_first_post_meta_text( $post_id, $seo_keys['title'] ?? '' ),
+				'description'   => $this->sanitize_metadata_text( $this->get_first_post_meta_text( $post_id, $seo_keys['description'] ?? '' ) ),
+				'focus_keyword' => $this->get_first_post_meta_text( $post_id, $seo_keys['focus_keyword'] ?? array( '_yoast_wpseo_focuskw', 'rank_math_focus_keyword', 'aioseo_keywords' ) ),
+				'meta_keys'     => $seo_keys,
 			),
 		);
 
@@ -5913,10 +6324,11 @@ final class Core_Read_Package {
 				'execution_mode'    => 'deterministic',
 				'included_sections' => array_values(
 					array_filter(
-						array(
-							'post',
-							'stats',
-							$include_terms ? 'terms' : '',
+							array(
+								'post',
+								'stats',
+								'seo',
+								$include_terms ? 'terms' : '',
 							$include_media ? 'media' : '',
 							$include_blocks ? 'blocks' : '',
 							$include_revisions ? 'revisions' : '',
@@ -6174,6 +6586,254 @@ final class Core_Read_Package {
 		);
 		$this->set_cached_read_response( $cache_key, $result, 'content_inventory_health' );
 		return $result;
+	}
+
+	/**
+	 * Detects smoke, fixture, and test content without mutating anything.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function get_test_content_inventory( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read test content inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$patterns = $this->normalize_test_content_patterns( $input['patterns'] ?? array() );
+		$post_types = $this->normalize_test_content_post_types( $input['post_types'] ?? array( 'post', 'page' ) );
+		$statuses = $this->normalize_test_content_statuses( $input['statuses'] ?? array( 'publish', 'draft', 'pending', 'future', 'private' ) );
+		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
+		$include_posts = ! array_key_exists( 'include_posts', $input ) || ! empty( $input['include_posts'] );
+		$include_terms = ! array_key_exists( 'include_terms', $input ) || ! empty( $input['include_terms'] );
+		$include_comments = ! array_key_exists( 'include_comments', $input ) || ! empty( $input['include_comments'] );
+
+		$posts = $include_posts ? $this->detect_test_content_posts( $patterns, $post_types, $statuses, $per_page ) : array( 'total' => 0, 'items' => array() );
+		$terms = $include_terms ? $this->detect_test_content_terms( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
+		$comments = $include_comments ? $this->detect_test_content_comments( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
+
+		$total = (int) ( $posts['total'] ?? 0 ) + (int) ( $terms['total'] ?? 0 ) + (int) ( $comments['total'] ?? 0 );
+
+		return $this->build_analysis_success_response(
+			array(
+				'included' => true,
+				'detected' => $total > 0,
+				'patterns' => $patterns,
+				'posts'    => $posts,
+				'terms'    => $terms,
+				'comments' => $comments,
+				'summary'  => array(
+					'total_detected' => $total,
+					'post_count'     => (int) ( $posts['total'] ?? 0 ),
+					'term_count'     => (int) ( $terms['total'] ?? 0 ),
+					'comment_count'  => (int) ( $comments['total'] ?? 0 ),
+				),
+			),
+			array(
+				'source'         => 'local_test_content_inventory',
+				'execution_mode' => 'deterministic',
+				'bounded'        => true,
+			),
+			'Test content inventory built.'
+		);
+	}
+
+	/**
+	 * Builds a cleanup plan for detected test content without executing writes.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_test_content_cleanup_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$inventory = $this->get_test_content_inventory(
+			array(
+				'patterns'         => $input['patterns'] ?? array(),
+				'post_types'       => $input['post_types'] ?? array( 'post', 'page' ),
+				'statuses'         => $input['statuses'] ?? array( 'publish', 'draft', 'pending', 'future', 'private' ),
+				'include_terms'    => ! array_key_exists( 'include_terms', $input ) || ! empty( $input['include_terms'] ),
+				'include_comments' => ! array_key_exists( 'include_comments', $input ) || ! empty( $input['include_comments'] ),
+				'per_page'         => $input['per_page'] ?? 50,
+			)
+		);
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $inventory ) ) {
+			return $inventory;
+		}
+
+		$data = is_array( $inventory['data'] ?? null ) ? $inventory['data'] : array();
+		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
+		$actions = array();
+		$preview = array(
+			'posts'    => array(),
+			'terms'    => array(),
+			'comments' => array(),
+		);
+
+		foreach ( (array) ( $data['posts']['items'] ?? array() ) as $post ) {
+			if ( count( $actions ) >= $max_actions || ! is_array( $post ) ) {
+				break;
+			}
+			$post_id = $this->absint_value( $post['post_id'] ?? 0 );
+			if ( $post_id <= 0 ) {
+				continue;
+			}
+			$actions[] = $this->build_plan_action(
+				'trash_test_post_' . $post_id,
+				'magick-ai/trash-post',
+				array( 'post_id' => $post_id ),
+				array( 'post.delete' ),
+				'medium',
+				'Move detected test post to trash after approval.'
+			);
+			$preview['posts'][] = $post;
+		}
+
+		foreach ( (array) ( $data['terms']['items'] ?? array() ) as $term ) {
+			if ( count( $actions ) >= $max_actions || ! is_array( $term ) ) {
+				break;
+			}
+			$term_id = $this->absint_value( $term['term_id'] ?? 0 );
+			$taxonomy = sanitize_key( (string) ( $term['taxonomy'] ?? '' ) );
+			if ( $term_id <= 0 || '' === $taxonomy || (int) ( $term['count'] ?? 0 ) > 0 ) {
+				continue;
+			}
+			$actions[] = $this->build_plan_action(
+				'delete_unused_test_term_' . $term_id,
+				'magick-ai/delete-term',
+				array(
+					'taxonomy' => $taxonomy,
+					'term_id'  => $term_id,
+				),
+				array( 'taxonomy.manage' ),
+				'high',
+				'Delete unused detected test term after approval.'
+			);
+			$preview['terms'][] = $term;
+		}
+
+		foreach ( (array) ( $data['comments']['items'] ?? array() ) as $comment ) {
+			if ( count( $actions ) >= $max_actions || ! is_array( $comment ) ) {
+				break;
+			}
+			$comment_id = $this->absint_value( $comment['comment_id'] ?? 0 );
+			if ( $comment_id <= 0 ) {
+				continue;
+			}
+			$actions[] = $this->build_plan_action(
+				'trash_test_comment_' . $comment_id,
+				'magick-ai/trash-comment',
+				array( 'comment_id' => $comment_id ),
+				array( 'comments.manage' ),
+				'medium',
+				'Move detected test comment to trash after approval.'
+			);
+			$preview['comments'][] = $comment;
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'batch_id'          => 'test_content_cleanup_' . gmdate( 'Ymd_His' ),
+				'requires_approval' => true,
+				'commit_execution'  => false,
+				'dry_run'           => true,
+				'action_count'      => count( $actions ),
+				'write_actions'     => $actions,
+				'preview'           => $preview,
+				'risk'              => array(
+					'level'  => empty( $preview['terms'] ) ? 'medium' : 'high',
+					'reason' => 'Posts and comments are trashable; term deletion is irreversible and only proposed for unused terms.',
+				),
+				'inventory_summary' => is_array( $data['summary'] ?? null ) ? $data['summary'] : array(),
+			),
+			array(
+				'source'         => 'local_test_content_cleanup_plan',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+			),
+			'Test content cleanup plan built.'
+		);
+	}
+
+	/**
+	 * Builds a read-only fix plan for content inventory issues.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_content_inventory_fix_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build content inventory fix plans.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$post_ids = is_array( $input['post_ids'] ?? null ) ? array_values( array_filter( array_map( array( $this, 'absint_value' ), $input['post_ids'] ) ) ) : array();
+		$post_ids = array_slice( array_values( array_unique( $post_ids ) ), 0, 50 );
+		if ( empty( $post_ids ) ) {
+			$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
+			$status = sanitize_key( (string) ( $input['status'] ?? 'any' ) );
+			$per_page = max( 1, min( 50, $this->absint_value( $input['per_page'] ?? 20 ) ) );
+			$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+			$query_result = $this->query_inventory_posts( $post_type, $status, $per_page, $page );
+			$post_ids = is_array( $query_result['post_ids'] ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query_result['post_ids'] ) ) : array();
+		}
+
+		$issue_types = $this->normalize_content_fix_issue_types( $input['issue_types'] ?? array() );
+		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
+		if ( ! in_array( $target_status, array( 'publish', 'future', 'draft' ), true ) ) {
+			$target_status = 'publish';
+		}
+		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
+		$actions = array();
+		$preview = array();
+		$issue_counts = array();
+
+		foreach ( $post_ids as $post_id ) {
+			if ( count( $actions ) >= $max_actions ) {
+				break;
+			}
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$post_plan = $this->build_post_inventory_fix_plan_rows( $post_id, $post, $issue_types, $target_status, $max_actions - count( $actions ) );
+			foreach ( (array) ( $post_plan['issues'] ?? array() ) as $issue ) {
+				$issue = sanitize_key( (string) $issue );
+				if ( '' !== $issue ) {
+					$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+				}
+			}
+			$actions = array_merge( $actions, (array) ( $post_plan['actions'] ?? array() ) );
+			if ( ! empty( $post_plan['preview'] ) ) {
+				$preview[] = $post_plan['preview'];
+			}
+		}
+
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'batch_id'          => 'content_inventory_fix_' . gmdate( 'Ymd_His' ),
+				'issue_types'       => $issue_types,
+				'post_ids'          => $post_ids,
+				'requires_approval' => true,
+				'commit_execution'  => false,
+				'dry_run'           => true,
+				'action_count'      => count( $actions ),
+				'issue_counts'      => $issue_counts,
+				'write_actions'     => $actions,
+				'preview'           => $preview,
+				'risk'              => array(
+					'level'  => 'medium',
+					'reason' => 'Plan maps issues to existing write abilities only; final writes require Core approval and host execution.',
+				),
+			),
+			array(
+				'source'         => 'local_content_inventory_fix_plan',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+			),
+			'Content inventory fix plan built.'
+		);
 	}
 
 	/**
@@ -7744,6 +8404,106 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds a read-only fix plan for media inventory issues.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_inventory_fix_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build media inventory fix plans.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_ids = is_array( $input['attachment_ids'] ?? null ) ? array_values( array_filter( array_map( array( $this, 'absint_value' ), $input['attachment_ids'] ) ) ) : array();
+		$attachment_ids = array_slice( array_values( array_unique( $attachment_ids ) ), 0, 50 );
+		if ( empty( $attachment_ids ) ) {
+			$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
+			$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
+			$per_page = max( 1, min( 50, $this->absint_value( $input['per_page'] ?? 20 ) ) );
+			$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+			$query_result = $this->query_media_inventory( $mime_type, $search, $per_page, $page );
+			$attachment_ids = is_array( $query_result['attachment_ids'] ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query_result['attachment_ids'] ) ) : array();
+		}
+
+		$issue_types = $this->normalize_media_fix_issue_types( $input['issue_types'] ?? array() );
+		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
+		$include_delete_candidates = ! empty( $input['include_delete_candidates'] );
+		$context = array(
+			'article_title'   => sanitize_text_field( (string) ( $input['article_title'] ?? '' ) ),
+			'article_excerpt' => $this->sanitize_metadata_text( (string) ( $input['article_excerpt'] ?? '' ) ),
+			'focus_keyword'   => sanitize_text_field( (string) ( $input['focus_keyword'] ?? '' ) ),
+		);
+		$actions = array();
+		$preview = array();
+		$manual_review = array();
+		$skipped_destructive_candidates = array();
+		$issue_counts = array();
+
+		foreach ( $attachment_ids as $attachment_id ) {
+			if ( count( $actions ) >= $max_actions ) {
+				break;
+			}
+			$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+				continue;
+			}
+
+			$row = $this->build_media_inventory_health_row( $attachment_id );
+			$parent_id = $this->absint_value( $attachment->post_parent ?? 0 );
+			if ( 0 === $parent_id ) {
+				$row['issues'][] = 'possibly_unattached';
+			}
+			$row['issues'] = array_values( array_unique( array_map( 'sanitize_key', (array) ( $row['issues'] ?? array() ) ) ) );
+			$row['issue_count'] = count( $row['issues'] );
+			$row['parent_post_id'] = $parent_id;
+
+			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates );
+			foreach ( (array) ( $post_plan['issues'] ?? array() ) as $issue ) {
+				$issue = sanitize_key( (string) $issue );
+				if ( '' !== $issue ) {
+					$issue_counts[ $issue ] = (int) ( $issue_counts[ $issue ] ?? 0 ) + 1;
+				}
+			}
+			$actions = array_merge( $actions, (array) ( $post_plan['actions'] ?? array() ) );
+			if ( ! empty( $post_plan['preview'] ) ) {
+				$preview[] = $post_plan['preview'];
+			}
+			$manual_review = array_merge( $manual_review, (array) ( $post_plan['manual_review'] ?? array() ) );
+			$skipped_destructive_candidates = array_merge( $skipped_destructive_candidates, (array) ( $post_plan['skipped_destructive_candidates'] ?? array() ) );
+		}
+
+		arsort( $issue_counts );
+
+		return $this->build_analysis_success_response(
+			array(
+				'batch_id'                       => 'media_inventory_fix_' . gmdate( 'Ymd_His' ),
+				'issue_types'                    => $issue_types,
+				'attachment_ids'                 => $attachment_ids,
+				'requires_approval'              => true,
+				'commit_execution'               => false,
+				'dry_run'                        => true,
+				'action_count'                   => count( $actions ),
+				'issue_counts'                   => $issue_counts,
+				'write_actions'                  => $actions,
+				'preview'                        => $preview,
+				'manual_review'                  => $manual_review,
+				'skipped_destructive_candidates' => $skipped_destructive_candidates,
+				'risk'                           => array(
+					'level'  => $include_delete_candidates ? 'high' : 'medium',
+					'reason' => $include_delete_candidates ? 'Metadata updates are reversible but media deletion is permanent and must be approved by the host.' : 'Default plan only proposes metadata updates and records permanent delete candidates without mapping them to write actions.',
+				),
+			),
+			array(
+				'source'         => 'local_media_inventory_fix_plan',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+			),
+			'Media inventory fix plan built.'
+		);
+	}
+
+	/**
 	 * Builds one deterministic SEO/GEO readiness snapshot for a post.
 	 *
 	 * @param mixed $input Input args.
@@ -8592,6 +9352,610 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Returns default test-content detection patterns.
+	 *
+	 * @return string[]
+	 */
+	private function default_test_content_patterns() {
+		return array(
+			'smoke',
+			'runtime smoke',
+			'core governance',
+			'taxonomy terms smoke',
+			'本地文章生产 smoke',
+			'core smoke candidate topic',
+			'core smoke current topic',
+		);
+	}
+
+	/**
+	 * Normalizes test-content patterns.
+	 *
+	 * @param mixed $patterns Raw patterns.
+	 * @return string[]
+	 */
+	private function normalize_test_content_patterns( $patterns ) {
+		$patterns = is_array( $patterns ) ? $patterns : array();
+		if ( empty( $patterns ) ) {
+			$patterns = $this->default_test_content_patterns();
+		}
+
+		$normalized = array();
+		foreach ( $patterns as $pattern ) {
+			$pattern = $this->sanitize_metadata_text( (string) $pattern );
+			if ( '' !== $pattern ) {
+				$normalized[] = $pattern;
+			}
+		}
+
+		return array_values( array_unique( $normalized ) );
+	}
+
+	/**
+	 * Normalizes test-content post types.
+	 *
+	 * @param mixed $post_types Raw post types.
+	 * @return string[]
+	 */
+	private function normalize_test_content_post_types( $post_types ) {
+		$post_types = is_array( $post_types ) ? $post_types : array( $post_types );
+		$normalized = array();
+		foreach ( $post_types as $post_type ) {
+			$post_type = sanitize_key( (string) $post_type );
+			if ( '' !== $post_type && ( ! function_exists( 'post_type_exists' ) || post_type_exists( $post_type ) ) ) {
+				$normalized[] = $post_type;
+			}
+		}
+
+		return ! empty( $normalized ) ? array_values( array_unique( $normalized ) ) : array( 'post', 'page' );
+	}
+
+	/**
+	 * Normalizes test-content post statuses.
+	 *
+	 * @param mixed $statuses Raw statuses.
+	 * @return string[]
+	 */
+	private function normalize_test_content_statuses( $statuses ) {
+		$statuses = is_array( $statuses ) ? $statuses : array( $statuses );
+		$normalized = array();
+		foreach ( $statuses as $status ) {
+			$status = sanitize_key( (string) $status );
+			if ( '' !== $status ) {
+				$normalized[] = $status;
+			}
+		}
+
+		return ! empty( $normalized ) ? array_values( array_unique( $normalized ) ) : array( 'publish', 'draft', 'pending', 'future', 'private' );
+	}
+
+	/**
+	 * Detects matching test posts.
+	 *
+	 * @param string[] $patterns Patterns.
+	 * @param string[] $post_types Post types.
+	 * @param string[] $statuses Post statuses.
+	 * @param int      $limit Max rows.
+	 * @return array<string,mixed>
+	 */
+	private function detect_test_content_posts( array $patterns, array $post_types, array $statuses, $limit ) {
+		$limit = max( 1, min( 100, $this->absint_value( $limit ) ) );
+		$candidates = array();
+		if ( class_exists( '\WP_Query' ) ) {
+			foreach ( $patterns as $pattern ) {
+				$query = new \WP_Query(
+					array(
+						'post_type'      => $post_types,
+						'post_status'    => $statuses,
+						'posts_per_page' => $limit,
+						'orderby'        => 'modified',
+						'order'          => 'DESC',
+						'fields'         => 'ids',
+						's'              => $pattern,
+					)
+				);
+				$candidates = array_merge( $candidates, is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array() );
+			}
+		} elseif ( function_exists( 'get_posts' ) ) {
+			foreach ( (array) get_posts(
+				array(
+					'post_type'      => $post_types,
+					'post_status'    => $statuses,
+					'posts_per_page' => $limit * max( 1, count( $patterns ) ),
+					'orderby'        => 'modified',
+					'order'          => 'DESC',
+				)
+			) as $post ) {
+				$candidates[] = is_object( $post ) ? $this->absint_value( $post->ID ?? 0 ) : $this->absint_value( $post );
+			}
+		}
+
+		$items = array();
+		foreach ( array_values( array_unique( array_filter( $candidates ) ) ) as $post_id ) {
+			if ( count( $items ) >= $limit ) {
+				break;
+			}
+			$post = get_post( $post_id );
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$haystack = implode(
+				' ',
+				array(
+					(string) ( $post->post_title ?? '' ),
+					(string) ( $post->post_name ?? '' ),
+					(string) ( $post->post_excerpt ?? '' ),
+					$this->trim_words_value( $this->strip_all_tags_value( (string) ( $post->post_content ?? '' ) ), 80 ),
+				)
+			);
+			$matched = $this->match_test_content_pattern( $haystack, $patterns );
+			if ( '' === $matched ) {
+				continue;
+			}
+			$items[] = array(
+				'post_id'         => $post_id,
+				'title'           => sanitize_text_field( (string) get_the_title( $post_id ) ),
+				'post_type'       => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'status'          => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'matched_pattern' => $matched,
+				'modified'        => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'edit_link'       => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+			);
+		}
+
+		return array(
+			'total' => count( $items ),
+			'items' => $items,
+		);
+	}
+
+	/**
+	 * Detects matching test terms.
+	 *
+	 * @param string[] $patterns Patterns.
+	 * @param int      $limit Max rows.
+	 * @return array<string,mixed>
+	 */
+	private function detect_test_content_terms( array $patterns, $limit ) {
+		if ( ! function_exists( 'get_terms' ) ) {
+			return array( 'total' => 0, 'items' => array() );
+		}
+
+		$limit = max( 1, min( 100, $this->absint_value( $limit ) ) );
+		$terms = get_terms(
+			array(
+				'taxonomy'   => function_exists( 'get_taxonomies' ) ? array_values( (array) get_taxonomies( array(), 'names' ) ) : array( 'category', 'post_tag' ),
+				'hide_empty' => false,
+				'number'     => $limit * max( 1, count( $patterns ) ),
+			)
+		);
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $terms ) ) {
+			return array( 'total' => 0, 'items' => array() );
+		}
+
+		$items = array();
+		foreach ( (array) $terms as $term ) {
+			if ( count( $items ) >= $limit || ! is_object( $term ) ) {
+				break;
+			}
+			$matched = $this->match_test_content_pattern( (string) ( $term->name ?? '' ) . ' ' . (string) ( $term->slug ?? '' ), $patterns );
+			if ( '' === $matched ) {
+				continue;
+			}
+			$items[] = array(
+				'term_id'         => $this->absint_value( $term->term_id ?? 0 ),
+				'taxonomy'        => sanitize_key( (string) ( $term->taxonomy ?? '' ) ),
+				'name'            => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+				'slug'            => $this->sanitize_metadata_slug( (string) ( $term->slug ?? '' ) ),
+				'count'           => $this->absint_value( $term->count ?? 0 ),
+				'matched_pattern' => $matched,
+			);
+		}
+
+		return array(
+			'total' => count( $items ),
+			'items' => $items,
+		);
+	}
+
+	/**
+	 * Detects matching test comments.
+	 *
+	 * @param string[] $patterns Patterns.
+	 * @param int      $limit Max rows.
+	 * @return array<string,mixed>
+	 */
+	private function detect_test_content_comments( array $patterns, $limit ) {
+		if ( ! function_exists( 'get_comments' ) ) {
+			return array( 'total' => 0, 'items' => array() );
+		}
+
+		$limit = max( 1, min( 100, $this->absint_value( $limit ) ) );
+		$comments = get_comments(
+			array(
+				'number' => $limit * max( 1, count( $patterns ) ),
+				'status' => 'all',
+			)
+		);
+		$items = array();
+		foreach ( (array) $comments as $comment ) {
+			if ( count( $items ) >= $limit || ! is_object( $comment ) ) {
+				break;
+			}
+			$matched = $this->match_test_content_pattern(
+				(string) ( $comment->comment_author ?? '' ) . ' ' . (string) ( $comment->comment_content ?? '' ),
+				$patterns
+			);
+			if ( '' === $matched ) {
+				continue;
+			}
+			$items[] = array(
+				'comment_id'      => $this->absint_value( $comment->comment_ID ?? 0 ),
+				'post_id'         => $this->absint_value( $comment->comment_post_ID ?? 0 ),
+				'author'          => sanitize_text_field( (string) ( $comment->comment_author ?? '' ) ),
+				'status'          => sanitize_key( (string) ( $comment->comment_approved ?? '' ) ),
+				'date'            => sanitize_text_field( (string) ( $comment->comment_date ?? '' ) ),
+				'matched_pattern' => $matched,
+				'excerpt'         => $this->trim_words_value( $this->strip_all_tags_value( (string) ( $comment->comment_content ?? '' ) ), 20 ),
+			);
+		}
+
+		return array(
+			'total' => count( $items ),
+			'items' => $items,
+		);
+	}
+
+	/**
+	 * Finds the first matching test-content pattern.
+	 *
+	 * @param string   $text Text to inspect.
+	 * @param string[] $patterns Patterns.
+	 * @return string
+	 */
+	private function match_test_content_pattern( $text, array $patterns ) {
+		$text = strtolower( (string) $text );
+		foreach ( $patterns as $pattern ) {
+			$pattern = (string) $pattern;
+			if ( '' !== $pattern && false !== strpos( $text, strtolower( $pattern ) ) ) {
+				return $pattern;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Normalizes requested content fix issue types.
+	 *
+	 * @param mixed $issue_types Raw issue types.
+	 * @return string[]
+	 */
+	private function normalize_content_fix_issue_types( $issue_types ) {
+		$allowed = array( 'title', 'content', 'slug', 'excerpt', 'featured_media', 'seo_title', 'seo_description' );
+		$issue_types = is_array( $issue_types ) ? $issue_types : array();
+		if ( empty( $issue_types ) ) {
+			$issue_types = array( 'seo_title', 'seo_description', 'slug', 'excerpt', 'featured_media', 'content' );
+		}
+		$normalized = array();
+		foreach ( $issue_types as $issue ) {
+			$issue = sanitize_key( (string) $issue );
+			if ( in_array( $issue, $allowed, true ) ) {
+				$normalized[] = $issue;
+			}
+		}
+
+		return ! empty( $normalized ) ? array_values( array_unique( $normalized ) ) : array( 'seo_title', 'seo_description' );
+	}
+
+	/**
+	 * Builds action rows for one post inventory fix plan.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param object   $post Post object.
+	 * @param string[] $issue_types Requested issue types.
+	 * @param string   $target_status Target status.
+	 * @param int      $remaining_slots Remaining action slots.
+	 * @return array<string,mixed>
+	 */
+	private function build_post_inventory_fix_plan_rows( $post_id, $post, array $issue_types, $target_status, $remaining_slots ) {
+		$post_id = $this->absint_value( $post_id );
+		$remaining_slots = max( 0, (int) $remaining_slots );
+		$checklist = $this->get_content_publishing_checklist(
+			array(
+				'post_id'       => $post_id,
+				'target_status' => $target_status,
+			)
+		);
+		$check_data = is_array( $checklist ) && is_array( $checklist['data'] ?? null ) ? $checklist['data'] : array();
+		$issues = array_values( array_unique( array_merge( (array) ( $check_data['missing'] ?? array() ), (array) ( $check_data['warnings'] ?? array() ) ) ) );
+		$issues = array_values(
+			array_filter(
+				array_map( 'sanitize_key', $issues ),
+				static function ( $issue ) use ( $issue_types ) {
+					return in_array( $issue, $issue_types, true );
+				}
+			)
+		);
+
+		$content = (string) ( $post->post_content ?? '' );
+		$plain_text = $this->strip_all_tags_value( $content );
+		$title = sanitize_text_field( (string) get_the_title( $post_id ) );
+		$excerpt = $this->sanitize_metadata_text( (string) ( $post->post_excerpt ?? '' ) );
+		$slug = $this->sanitize_metadata_slug( (string) ( $post->post_name ?? '' ) );
+		$seo_provider = $this->detect_seo_provider();
+		$seo_keys = $this->seo_meta_keys( $seo_provider );
+		$current_seo_title = $this->get_first_post_meta_text( $post_id, $seo_keys['title'] ?? '' );
+		$current_seo_description = $this->sanitize_metadata_text( $this->get_first_post_meta_text( $post_id, $seo_keys['description'] ?? '' ) );
+		$featured_media_id = function_exists( 'get_post_thumbnail_id' ) ? $this->absint_value( get_post_thumbnail_id( $post_id ) ) : 0;
+		$actions = array();
+		$after = array();
+
+		$seo_input = array( 'post_id' => $post_id );
+		if ( in_array( 'seo_title', $issues, true ) ) {
+			$seo_input['seo_title'] = $this->truncate_text( '' !== $title ? $title : 'Post ' . $post_id, 70 );
+			$after['seo_title'] = $seo_input['seo_title'];
+		}
+		if ( in_array( 'seo_description', $issues, true ) ) {
+			$description_source = '' !== $excerpt ? $excerpt : $this->trim_words_value( $plain_text, 28 );
+			$seo_input['seo_description'] = $this->truncate_text( $description_source, 155 );
+			$after['seo_description'] = $seo_input['seo_description'];
+		}
+		if ( count( $seo_input ) > 1 && count( $actions ) < $remaining_slots ) {
+			$actions[] = $this->build_plan_action( 'set_seo_meta_' . $post_id, 'magick-ai/set-post-seo-meta', $seo_input, array( 'post.write' ), 'medium', 'Fill missing SEO metadata.' );
+		}
+
+		if ( in_array( 'title', $issues, true ) && count( $actions ) < $remaining_slots ) {
+			$actions[] = $this->build_plan_action( 'set_title_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Provide a human-reviewed title before execution.', array( 'title' ) );
+		}
+
+		if ( in_array( 'slug', $issues, true ) && count( $actions ) < $remaining_slots ) {
+			$suggested_slug = $this->sanitize_metadata_slug( '' !== $title ? $title : 'post-' . $post_id );
+			if ( '' !== $suggested_slug ) {
+				$actions[] = $this->build_plan_action( 'set_slug_' . $post_id, 'magick-ai/set-post-slug', array( 'post_id' => $post_id, 'slug' => $suggested_slug ), array( 'post.write' ), 'medium', 'Set stable post slug.' );
+				$after['slug'] = $suggested_slug;
+			}
+		}
+
+		if ( in_array( 'excerpt', $issues, true ) && count( $actions ) < $remaining_slots ) {
+			$suggested_excerpt = $this->truncate_text( $this->trim_words_value( $plain_text, 34 ), 220 );
+			if ( '' !== $suggested_excerpt ) {
+				$actions[] = $this->build_plan_action( 'set_excerpt_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id, 'excerpt' => $suggested_excerpt ), array( 'post.write' ), 'medium', 'Fill missing post excerpt.' );
+				$after['excerpt'] = $suggested_excerpt;
+			}
+		}
+
+		if ( in_array( 'featured_media', $issues, true ) && count( $actions ) < $remaining_slots ) {
+			$actions[] = $this->build_plan_action( 'set_featured_media_' . $post_id, 'magick-ai/set-post-featured-image', array( 'post_id' => $post_id ), array( 'media.write' ), 'medium', 'Select an approved attachment or media URL before execution.', array( 'attachment_id_or_media_url' ) );
+		}
+
+		if ( in_array( 'content', $issues, true ) && count( $actions ) < $remaining_slots ) {
+			$actions[] = $this->build_plan_action( 'expand_content_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Generate or provide expanded content before execution.', array( 'content' ) );
+		}
+
+		return array(
+			'issues'  => $issues,
+			'actions' => $actions,
+			'preview' => empty( $actions ) ? array() : array(
+				'post_id' => $post_id,
+				'title'   => $title,
+				'before'  => array(
+					'title'             => $title,
+					'seo_title'         => $current_seo_title,
+					'seo_description'   => $current_seo_description,
+					'slug'              => $slug,
+					'excerpt'           => $excerpt,
+					'featured_media_id' => $featured_media_id,
+					'plain_text_length' => $this->strlen_value( $plain_text ),
+				),
+				'after_suggestion' => $after,
+				'issues'           => $issues,
+			),
+		);
+	}
+
+	/**
+	 * Normalizes requested media fix issue types.
+	 *
+	 * @param mixed $issue_types Raw issue types.
+	 * @return string[]
+	 */
+	private function normalize_media_fix_issue_types( $issue_types ) {
+		$allowed = array( 'missing_alt', 'missing_caption', 'missing_description', 'missing_source', 'format_attention', 'possibly_unattached' );
+		$issue_types = is_array( $issue_types ) ? $issue_types : array();
+		if ( empty( $issue_types ) ) {
+			$issue_types = $allowed;
+		}
+		$normalized = array();
+		foreach ( $issue_types as $issue ) {
+			$issue = sanitize_key( (string) $issue );
+			if ( in_array( $issue, $allowed, true ) ) {
+				$normalized[] = $issue;
+			}
+		}
+
+		return ! empty( $normalized ) ? array_values( array_unique( $normalized ) ) : array( 'missing_alt', 'missing_caption', 'missing_description' );
+	}
+
+	/**
+	 * Builds action rows for one media inventory fix plan.
+	 *
+	 * @param int                 $attachment_id Attachment ID.
+	 * @param array<string,mixed> $row Media inventory row.
+	 * @param string[]            $issue_types Requested issue types.
+	 * @param array<string,mixed> $context Planning context.
+	 * @param int                 $remaining_slots Remaining action slots.
+	 * @param bool                $include_delete_candidates Whether to map delete candidates.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_inventory_fix_plan_rows( $attachment_id, array $row, array $issue_types, array $context, $remaining_slots, $include_delete_candidates ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$remaining_slots = max( 0, (int) $remaining_slots );
+		$issues = array_values(
+			array_filter(
+				array_map( 'sanitize_key', (array) ( $row['issues'] ?? array() ) ),
+				static function ( $issue ) use ( $issue_types ) {
+					return in_array( $issue, $issue_types, true );
+				}
+			)
+		);
+		$actions = array();
+		$manual_review = array();
+		$skipped_destructive_candidates = array();
+		if ( empty( $issues ) || $attachment_id <= 0 ) {
+			return array(
+				'issues'                         => array(),
+				'actions'                        => array(),
+				'preview'                        => array(),
+				'manual_review'                  => array(),
+				'skipped_destructive_candidates' => array(),
+			);
+		}
+
+		$suggestions = $this->build_media_metadata_suggestions( $attachment_id, $row, $context );
+		$update_input = array( 'attachment_id' => $attachment_id );
+		$after = array();
+		if ( in_array( 'missing_alt', $issues, true ) && '' !== (string) ( $suggestions['alt'] ?? '' ) ) {
+			$update_input['alt'] = $suggestions['alt'];
+			$after['alt'] = $suggestions['alt'];
+		}
+		if ( in_array( 'missing_caption', $issues, true ) && '' !== (string) ( $suggestions['caption'] ?? '' ) ) {
+			$update_input['caption'] = $suggestions['caption'];
+			$after['caption'] = $suggestions['caption'];
+		}
+		if ( in_array( 'missing_description', $issues, true ) && '' !== (string) ( $suggestions['description'] ?? '' ) ) {
+			$update_input['description'] = $suggestions['description'];
+			$after['description'] = $suggestions['description'];
+		}
+		if ( count( $update_input ) > 1 && count( $actions ) < $remaining_slots ) {
+			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'magick-ai/update-media-details', $update_input, array( 'media.write' ), 'medium', 'Fill missing media SEO metadata.' );
+		}
+
+		if ( in_array( 'missing_source', $issues, true ) ) {
+			$manual_review[] = array(
+				'action_id'         => 'review_media_source_' . $attachment_id,
+				'attachment_id'     => $attachment_id,
+				'issue'             => 'missing_source',
+				'target_ability_id' => 'magick-ai/update-media-details',
+				'requires_input'    => array( 'source_page_url_or_attribution_text' ),
+				'proposal_ready'    => false,
+				'reason'            => 'Source and attribution metadata must come from a verified source, not a deterministic guess.',
+			);
+		}
+
+		if ( in_array( 'format_attention', $issues, true ) ) {
+			$manual_review[] = array(
+				'action_id'      => 'review_media_format_' . $attachment_id,
+				'attachment_id'  => $attachment_id,
+				'issue'          => 'format_attention',
+				'requires_input' => array( 'converted_asset_or_operator_decision' ),
+				'proposal_ready' => false,
+				'reason'         => 'No existing governed ability replaces or converts an attachment file in place.',
+			);
+		}
+
+		if ( in_array( 'possibly_unattached', $issues, true ) ) {
+			if ( $include_delete_candidates && count( $actions ) < $remaining_slots ) {
+				$actions[] = $this->build_plan_action( 'delete_unattached_media_' . $attachment_id, 'magick-ai/delete-media-permanently', array( 'attachment_id' => $attachment_id ), array( 'media.write' ), 'high', 'Permanently delete detected unattached media only after explicit host approval.' );
+			} else {
+				$skipped_destructive_candidates[] = array(
+					'attachment_id'     => $attachment_id,
+					'target_ability_id' => 'magick-ai/delete-media-permanently',
+					'issue'             => 'possibly_unattached',
+					'reason'            => 'Permanent deletion is excluded by default. Re-run with include_delete_candidates=true to include it in write_actions.',
+				);
+			}
+		}
+
+		return array(
+			'issues'  => $issues,
+			'actions' => $actions,
+			'preview' => empty( $actions ) && empty( $manual_review ) && empty( $skipped_destructive_candidates ) ? array() : array(
+				'attachment_id' => $attachment_id,
+				'title'         => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+				'mime_type'     => sanitize_text_field( (string) ( $row['mime_type'] ?? '' ) ),
+				'url'           => $this->esc_url_value( (string) ( $row['url'] ?? '' ) ),
+				'before'        => array(
+					'title'            => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+					'alt'              => sanitize_text_field( (string) ( $row['alt'] ?? '' ) ),
+					'caption'          => $this->sanitize_metadata_text( (string) ( $row['caption'] ?? '' ) ),
+					'description'      => $this->sanitize_metadata_text( (string) ( $row['description'] ?? '' ) ),
+					'source_page_url'  => $this->esc_url_value( (string) ( $row['source_page_url'] ?? '' ) ),
+					'attribution_text' => $this->sanitize_metadata_text( (string) ( $row['attribution_text'] ?? '' ) ),
+					'parent_post_id'   => $this->absint_value( $row['parent_post_id'] ?? 0 ),
+				),
+				'after_suggestion' => $after,
+				'issues'           => $issues,
+			),
+			'manual_review'                  => $manual_review,
+			'skipped_destructive_candidates' => $skipped_destructive_candidates,
+		);
+	}
+
+	/**
+	 * Builds deterministic media metadata suggestions.
+	 *
+	 * @param int                 $attachment_id Attachment ID.
+	 * @param array<string,mixed> $row Media row.
+	 * @param array<string,mixed> $context Planning context.
+	 * @return array<string,string>
+	 */
+	private function build_media_metadata_suggestions( $attachment_id, array $row, array $context ) {
+		$title = sanitize_text_field( (string) ( $row['title'] ?? '' ) );
+		$url = $this->esc_url_value( (string) ( $row['url'] ?? '' ) );
+		$url_path = '' !== $url ? (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( $url, PHP_URL_PATH ) : parse_url( $url, PHP_URL_PATH ) ) : '';
+		$file_name = '' !== $url_path ? $this->sanitize_file_name_value( (string) basename( $url_path ) ) : '';
+		$file_label = '' !== $file_name ? preg_replace( '/\.[^.]+$/', '', $file_name ) : '';
+		$file_label = sanitize_text_field( (string) str_replace( array( '-', '_' ), ' ', (string) $file_label ) );
+		$article_title = sanitize_text_field( (string) ( $context['article_title'] ?? '' ) );
+		$article_excerpt = $this->sanitize_metadata_text( (string) ( $context['article_excerpt'] ?? '' ) );
+		$focus_keyword = sanitize_text_field( (string) ( $context['focus_keyword'] ?? '' ) );
+		$seed = '' !== $title ? $title : ( '' !== $file_label ? $file_label : 'Media asset ' . $this->absint_value( $attachment_id ) );
+		$alt_parts = array_filter( array( $seed, '' !== $focus_keyword ? $focus_keyword : '', '' !== $article_title && $article_title !== $seed ? $article_title : '' ) );
+		$caption_seed = '' !== $article_excerpt ? $article_excerpt : ( '' !== $article_title ? $article_title : $seed );
+		$description_seed = trim( implode( ' ', array_filter( array( $caption_seed, '' !== $seed && false === strpos( $caption_seed, $seed ) ? $seed : '' ) ) ) );
+
+		return array(
+			'alt'         => $this->trim_media_seo_text( implode( ' - ', $alt_parts ), 140 ),
+			'caption'     => $this->trim_media_seo_text( $caption_seed, 160 ),
+			'description' => $this->trim_media_seo_text( $description_seed, 220 ),
+		);
+	}
+
+	/**
+	 * Builds one non-executing plan action row.
+	 *
+	 * @param string   $action_id Action id.
+	 * @param string   $ability_id Target ability id.
+	 * @param array<string,mixed> $input Target ability input.
+	 * @param string[] $required_scopes Required scopes.
+	 * @param string   $risk Risk level.
+	 * @param string   $reason Reason.
+	 * @param string[] $requires_input Fields still requiring caller input.
+	 * @return array<string,mixed>
+	 */
+	private function build_plan_action( $action_id, $ability_id, array $input, array $required_scopes, $risk, $reason, array $requires_input = array() ) {
+		return array(
+			'action_id'          => sanitize_key( (string) $action_id ),
+			'target_ability_id'  => sanitize_text_field( (string) $ability_id ),
+			'input'              => array_merge(
+				$input,
+				array(
+					'dry_run' => true,
+					'commit'  => false,
+				)
+			),
+			'requires_approval'  => true,
+			'commit_execution'   => false,
+			'required_scopes'    => array_values( array_map( 'sanitize_key', $required_scopes ) ),
+			'risk'               => sanitize_key( (string) $risk ),
+			'reason'             => sanitize_text_field( (string) $reason ),
+			'requires_input'     => array_values( array_map( 'sanitize_key', $requires_input ) ),
+			'proposal_ready'     => empty( $requires_input ),
+		);
+	}
+
+	/**
 	 * Queries media attachment ids for a bounded inventory scan.
 	 *
 	 * @param string $mime_type Mime type filter.
@@ -8848,7 +10212,13 @@ final class Core_Read_Package {
 			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
 		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
 		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_source_page_url', true ) ) : '';
+		if ( '' === $source_url && function_exists( 'get_post_meta' ) ) {
+			$source_url = $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_media_source_page_url', true ) );
+		}
 		$attribution = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_attribution_text', true ) ) : '';
+		if ( '' === $attribution && function_exists( 'get_post_meta' ) ) {
+			$attribution = $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_media_attribution_text', true ) );
+		}
 		$issues = array();
 		if ( '' === $alt && 0 === strpos( $mime_type, 'image/' ) ) {
 			$issues[] = 'missing_alt';
@@ -8874,6 +10244,8 @@ final class Core_Read_Package {
 			'alt'           => $alt,
 			'caption'       => $caption,
 			'description'   => $description,
+			'source_page_url' => $source_url,
+			'attribution_text' => $attribution,
 			'issue_count'   => count( $issues ),
 			'issues'        => $issues,
 			'edit_link'     => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $attachment_id, 'raw' ) ) : '',
@@ -9756,6 +11128,195 @@ final class Core_Read_Package {
 			'upload_max_filesize'       => sanitize_text_field( $upload_max_filesize ),
 			'upload_max_filesize_bytes' => $this->parse_ini_size_to_bytes( $upload_max_filesize ),
 			'wp_max_upload_size_bytes'  => function_exists( 'wp_max_upload_size' ) ? (int) wp_max_upload_size() : 0,
+			'extensions'                => $this->build_php_extension_diagnostics_summary(),
+		);
+	}
+
+	/**
+	 * Builds PHP extension diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_php_extension_diagnostics_summary() {
+		$loaded = function_exists( 'get_loaded_extensions' ) ? get_loaded_extensions() : array();
+		$loaded = is_array( $loaded ) ? array_map( 'strtolower', $loaded ) : array();
+		$loaded = array_values( array_unique( array_map( array( $this, 'sanitize_diagnostics_identifier' ), $loaded ) ) );
+		sort( $loaded );
+
+		$common = array( 'curl', 'dom', 'exif', 'fileinfo', 'gd', 'imagick', 'intl', 'json', 'mbstring', 'mysqli', 'openssl', 'pdo', 'simplexml', 'xml', 'zip' );
+		$common_status = array();
+		foreach ( $common as $extension ) {
+			$common_status[ $extension ] = in_array( $extension, $loaded, true );
+		}
+
+		return array(
+			'included'      => true,
+			'loaded_count'  => count( $loaded ),
+			'loaded'        => $loaded,
+			'common_status' => $common_status,
+		);
+	}
+
+	/**
+	 * Builds current caller capability diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_current_user_diagnostics_summary() {
+		$user = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
+		$user_id = is_object( $user ) && isset( $user->ID ) ? absint( $user->ID ) : ( function_exists( 'get_current_user_id' ) ? absint( get_current_user_id() ) : 0 );
+		$roles = is_object( $user ) && isset( $user->roles ) && is_array( $user->roles ) ? $user->roles : array();
+		$roles = array_values( array_unique( array_map( array( $this, 'sanitize_diagnostics_identifier' ), $roles ) ) );
+		sort( $roles );
+
+		$allcaps = is_object( $user ) && isset( $user->allcaps ) && is_array( $user->allcaps ) ? $user->allcaps : array();
+		$capabilities = array();
+		foreach ( $allcaps as $capability => $granted ) {
+			if ( ! $granted || ! is_string( $capability ) ) {
+				continue;
+			}
+			$capabilities[] = $this->sanitize_diagnostics_identifier( $capability );
+		}
+		$capabilities = array_values( array_unique( array_filter( $capabilities ) ) );
+		sort( $capabilities );
+
+		$common_capabilities = array( 'manage_options', 'activate_plugins', 'update_plugins', 'install_plugins', 'edit_users', 'list_users', 'edit_posts', 'publish_posts', 'upload_files', 'edit_theme_options', 'switch_themes', 'unfiltered_html' );
+		$common_status = array();
+		foreach ( $common_capabilities as $capability ) {
+			$common_status[ $capability ] = function_exists( 'current_user_can' ) ? (bool) current_user_can( $capability ) : false;
+		}
+
+		return array(
+			'included'            => true,
+			'user_id'             => $user_id,
+			'user_login'          => is_object( $user ) && isset( $user->user_login ) ? sanitize_text_field( (string) $user->user_login ) : '',
+			'display_name'        => is_object( $user ) && isset( $user->display_name ) ? sanitize_text_field( (string) $user->display_name ) : '',
+			'roles'               => $roles,
+			'capabilities'        => $capabilities,
+			'common_capabilities' => $common_status,
+			'magick_ai_permissions' => $this->build_magick_ai_permission_diagnostics_summary( $common_status ),
+		);
+	}
+
+	/**
+	 * Builds local capability inferences for Magick AI-facing operations.
+	 *
+	 * @param array<string,bool> $common_status Common current_user_can() results.
+	 * @return array<string,mixed>
+	 */
+	private function build_magick_ai_permission_diagnostics_summary( array $common_status ) {
+		$manage_options = (bool) ( $common_status['manage_options'] ?? false );
+		$edit_posts = (bool) ( $common_status['edit_posts'] ?? false );
+		$upload_files = (bool) ( $common_status['upload_files'] ?? false );
+
+		return array(
+			'policy_source'              => 'local_capability_inference',
+			'host_policy_verified'       => false,
+			'can_read_diagnostics'       => $manage_options,
+			'can_read_adapter_context'   => $manage_options || $edit_posts,
+			'can_run_read_abilities'     => $manage_options || $edit_posts || $upload_files,
+			'can_create_proposal'        => $manage_options || $edit_posts,
+			'can_approve_in_core'        => $manage_options,
+			'can_manage_magick_settings' => $manage_options,
+		);
+	}
+
+	/**
+	 * Builds external object cache diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_object_cache_diagnostics_summary() {
+		$dropin_path = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/object-cache.php' : '';
+		$advanced_cache_path = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/advanced-cache.php' : '';
+		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = is_array( $active_plugins ) ? array_map( 'strtolower', $active_plugins ) : array();
+		$known_cache_plugins = array(
+			'redis-cache/redis-cache.php'                         => 'redis_object_cache',
+			'w3-total-cache/w3-total-cache.php'                   => 'w3_total_cache',
+			'wp-super-cache/wp-cache.php'                         => 'wp_super_cache',
+			'wp-rocket/wp-rocket.php'                             => 'wp_rocket',
+			'litespeed-cache/litespeed-cache.php'                 => 'litespeed_cache',
+			'sg-cachepress/sg-cachepress.php'                     => 'siteground_optimizer',
+			'object-cache-pro/object-cache-pro.php'               => 'object_cache_pro',
+			'memcached-redux/memcached-redux.php'                 => 'memcached_redux',
+		);
+		$detected_cache_plugins = array();
+		foreach ( $known_cache_plugins as $plugin_file => $label ) {
+			if ( in_array( $plugin_file, $active_plugins, true ) ) {
+				$detected_cache_plugins[] = $label;
+			}
+		}
+		sort( $detected_cache_plugins );
+
+		return array(
+			'included'                => true,
+			'external_object_cache'   => function_exists( 'wp_using_ext_object_cache' ) ? (bool) wp_using_ext_object_cache() : null,
+			'object_cache_dropin'     => '' !== $dropin_path && file_exists( $dropin_path ),
+			'advanced_cache_dropin'   => '' !== $advanced_cache_path && file_exists( $advanced_cache_path ),
+			'known_cache_plugins'     => $detected_cache_plugins,
+			'wp_cache_available'      => function_exists( 'wp_cache_get' ) && function_exists( 'wp_cache_set' ),
+			'wp_cache_flush_runtime'  => function_exists( 'wp_cache_flush_runtime' ),
+			'wp_cache_supports'       => function_exists( 'wp_cache_supports' ),
+			'transient_count_estimate' => $this->estimate_transient_count(),
+		);
+	}
+
+	/**
+	 * Estimates transient option count without returning option names.
+	 *
+	 * @return int|null
+	 */
+	private function estimate_transient_count() {
+		global $wpdb;
+
+		if ( ! is_object( $wpdb ) || empty( $wpdb->options ) || ! method_exists( $wpdb, 'get_var' ) || ! method_exists( $wpdb, 'esc_like' ) || ! method_exists( $wpdb, 'prepare' ) ) {
+			return null;
+		}
+
+		$like = $wpdb->esc_like( '_transient_' ) . '%';
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
+
+		return null === $count ? null : absint( $count );
+	}
+
+	/**
+	 * Builds rewrite diagnostics without reading webserver config files.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_rewrite_diagnostics_summary() {
+		$permalink_structure = (string) get_option( 'permalink_structure', '' );
+		$rewrite_rules = get_option( 'rewrite_rules', array() );
+		$rewrite_rules = is_array( $rewrite_rules ) ? $rewrite_rules : array();
+
+		return array(
+			'included'            => true,
+			'permalink_mode'      => '' === $permalink_structure ? 'plain' : 'custom',
+			'permalink_structure' => sanitize_text_field( $permalink_structure ),
+			'rewrite_rules_count' => count( $rewrite_rules ),
+			'using_index_permalinks' => function_exists( 'got_url_rewrite' ) ? ! got_url_rewrite() && '' !== $permalink_structure : null,
+			'webserver_config_checked' => false,
+		);
+	}
+
+	/**
+	 * Builds HTTPS diagnostics without external HTTP probes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_https_diagnostics_summary() {
+		$home_scheme = function_exists( 'wp_parse_url' ) ? (string) wp_parse_url( home_url(), PHP_URL_SCHEME ) : (string) parse_url( home_url(), PHP_URL_SCHEME );
+		$site_scheme = function_exists( 'wp_parse_url' ) ? (string) wp_parse_url( site_url(), PHP_URL_SCHEME ) : (string) parse_url( site_url(), PHP_URL_SCHEME );
+
+		return array(
+			'included'          => true,
+			'is_ssl_request'    => function_exists( 'is_ssl' ) ? (bool) is_ssl() : null,
+			'home_url_https'    => 'https' === strtolower( $home_scheme ),
+			'site_url_https'    => 'https' === strtolower( $site_scheme ),
+			'wp_using_https'    => function_exists( 'wp_is_using_https' ) ? (bool) wp_is_using_https() : null,
+			'external_probe'    => false,
+			'mixed_content_scan' => false,
 		);
 	}
 
@@ -9788,10 +11349,18 @@ final class Core_Read_Package {
 	/**
 	 * Builds plugin count diagnostics summary.
 	 *
+	 * @param array<string,mixed> $options Plugin group output controls.
 	 * @return array<string,mixed>
 	 */
-	private function build_plugin_diagnostics_summary() {
+	private function build_plugin_diagnostics_summary( array $options = array() ) {
 		$this->load_plugin_admin_functions();
+
+		$include_active = ! array_key_exists( 'include_active', $options ) || ! empty( $options['include_active'] );
+		$include_inactive = ! empty( $options['include_inactive'] );
+		$include_updates = ! array_key_exists( 'include_updates', $options ) || ! empty( $options['include_updates'] );
+		$include_must_use = ! array_key_exists( 'include_must_use', $options ) || ! empty( $options['include_must_use'] );
+		$include_dropins = ! array_key_exists( 'include_dropins', $options ) || ! empty( $options['include_dropins'] );
+		$max_plugins_per_group = max( 1, min( 500, absint( $options['max_plugins_per_group'] ?? 100 ) ) );
 
 		$all_plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
 		$all_plugins = is_array( $all_plugins ) ? $all_plugins : array();
@@ -9801,14 +11370,190 @@ final class Core_Read_Package {
 		$network_active_plugins = is_array( $network_active_plugins ) ? $network_active_plugins : array();
 		$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : array();
 		$mu_plugins = is_array( $mu_plugins ) ? $mu_plugins : array();
+		$dropins = function_exists( 'get_dropins' ) ? get_dropins() : array();
+		$dropins = is_array( $dropins ) ? $dropins : array();
+		$active_lookup = array_flip( array_merge( $active_plugins, array_keys( $network_active_plugins ) ) );
+		$inactive_plugins = array();
+		foreach ( array_keys( $all_plugins ) as $plugin_file ) {
+			if ( ! isset( $active_lookup[ $plugin_file ] ) ) {
+				$inactive_plugins[] = $plugin_file;
+			}
+		}
+		$update_plugins = $include_updates && function_exists( 'get_site_transient' ) ? get_site_transient( 'update_plugins' ) : false;
+		$update_response = is_object( $update_plugins ) && isset( $update_plugins->response ) && is_array( $update_plugins->response )
+			? $update_plugins->response
+			: array();
+		$update_available_plugins = array_keys( $update_response );
 
 		return array(
 			'included'             => true,
+			'groups_included'      => array(
+				'active'                => $include_active,
+				'inactive'              => $include_inactive,
+				'update_available'      => $include_updates,
+				'must_use'              => $include_must_use,
+				'dropins'               => $include_dropins,
+			),
+			'max_plugins_per_group' => $max_plugins_per_group,
 			'available_count'      => count( $all_plugins ),
 			'active_count'         => count( $active_plugins ),
 			'network_active_count' => count( $network_active_plugins ),
+			'inactive_count'       => count( $inactive_plugins ),
+			'update_available_count' => count( $update_available_plugins ),
 			'mu_count'             => count( $mu_plugins ),
+			'dropin_count'         => count( $dropins ),
+			'active_returned_count' => $include_active ? min( count( $active_plugins ), $max_plugins_per_group ) : 0,
+			'inactive_returned_count' => $include_inactive ? min( count( $inactive_plugins ), $max_plugins_per_group ) : 0,
+			'update_available_returned_count' => $include_updates ? min( count( $update_available_plugins ), $max_plugins_per_group ) : 0,
+			'must_use_returned_count' => $include_must_use ? min( count( $mu_plugins ), $max_plugins_per_group ) : 0,
+			'dropin_returned_count' => $include_dropins ? min( count( $dropins ), $max_plugins_per_group ) : 0,
+			'active'               => $include_active ? $this->build_plugin_diagnostics_rows( $active_plugins, $all_plugins, 'active', $update_response, array(), $max_plugins_per_group ) : array(),
+			'network_active_plugins' => $include_active ? $this->build_plugin_diagnostics_rows( array_keys( $network_active_plugins ), $all_plugins, 'network_active', $update_response, array_keys( $network_active_plugins ), $max_plugins_per_group ) : array(),
+			'inactive'             => $include_inactive ? $this->build_plugin_diagnostics_rows( $inactive_plugins, $all_plugins, 'inactive', $update_response, array(), $max_plugins_per_group ) : array(),
+			'update_available'     => $include_updates ? $this->build_plugin_diagnostics_rows( $update_available_plugins, $all_plugins, 'update_available', $update_response, array(), $max_plugins_per_group ) : array(),
+			'must_use'             => $include_must_use ? $this->build_plugin_diagnostics_rows( array_keys( $mu_plugins ), $mu_plugins, 'must_use', array(), array(), $max_plugins_per_group ) : array(),
+			'dropins'              => $include_dropins ? $this->build_dropin_diagnostics_rows( $dropins, $max_plugins_per_group ) : array(),
 		);
+	}
+
+	/**
+	 * Builds bounded plugin rows without absolute filesystem paths.
+	 *
+	 * @param array<int|string,mixed>        $plugin_files Plugin file identifiers.
+	 * @param array<string,array<string,mixed>> $plugin_data Plugin metadata keyed by file.
+	 * @param string                         $status Plugin status.
+	 * @param array<string,mixed>            $update_response Update metadata keyed by plugin file.
+	 * @param array<int,string>              $network_active_plugins Network-active plugin files.
+	 * @param int                            $max_rows Maximum rows to return.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_plugin_diagnostics_rows( array $plugin_files, array $plugin_data, $status, array $update_response = array(), array $network_active_plugins = array(), $max_rows = 100 ) {
+		$rows = array();
+		$network_active_lookup = array_flip( $network_active_plugins );
+		$max_rows = max( 1, min( 500, absint( $max_rows ) ) );
+		foreach ( $plugin_files as $plugin_file ) {
+			if ( count( $rows ) >= $max_rows ) {
+				break;
+			}
+			$plugin_file = is_string( $plugin_file ) ? $plugin_file : '';
+			if ( '' === $plugin_file ) {
+				continue;
+			}
+
+			$data = isset( $plugin_data[ $plugin_file ] ) && is_array( $plugin_data[ $plugin_file ] )
+				? $plugin_data[ $plugin_file ]
+				: array();
+			$update = isset( $update_response[ $plugin_file ] ) && is_object( $update_response[ $plugin_file ] )
+				? $update_response[ $plugin_file ]
+				: null;
+			$dependencies = $this->parse_plugin_dependency_slugs( (string) ( $data['RequiresPlugins'] ?? '' ) );
+			$rows[] = array(
+				'slug'        => $this->derive_plugin_slug( $plugin_file ),
+				'plugin_file' => $this->redact_diagnostics_path_identifier( $plugin_file ),
+				'name'        => sanitize_text_field( (string) ( $data['Name'] ?? $data['Title'] ?? '' ) ),
+				'version'     => sanitize_text_field( (string) ( $data['Version'] ?? '' ) ),
+				'author'      => sanitize_text_field( wp_strip_all_tags( (string) ( $data['Author'] ?? '' ) ) ),
+				'status'      => sanitize_key( (string) $status ),
+				'network_active' => isset( $network_active_lookup[ $plugin_file ] ) || 'network_active' === $status,
+				'must_use'    => 'must_use' === $status,
+				'requires_wp' => sanitize_text_field( (string) ( $data['RequiresWP'] ?? '' ) ),
+				'requires_php' => sanitize_text_field( (string) ( $data['RequiresPHP'] ?? '' ) ),
+				'dependencies' => $dependencies,
+				'dependency_count' => count( $dependencies ),
+				'is_magick_ai' => $this->is_magick_ai_plugin_hint( $plugin_file, $data ),
+				'update_available' => is_object( $update ),
+				'latest_version'   => is_object( $update ) ? sanitize_text_field( (string) ( $update->new_version ?? '' ) ) : '',
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Builds bounded drop-in rows without absolute filesystem paths.
+	 *
+	 * @param array<string,array<string,mixed>> $dropins Drop-in metadata.
+	 * @param int                              $max_rows Maximum rows to return.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_dropin_diagnostics_rows( array $dropins, $max_rows = 100 ) {
+		$rows = array();
+		$max_rows = max( 1, min( 500, absint( $max_rows ) ) );
+		foreach ( $dropins as $dropin_file => $dropin ) {
+			if ( count( $rows ) >= $max_rows ) {
+				break;
+			}
+			$dropin = is_array( $dropin ) ? $dropin : array();
+			$rows[] = array(
+				'slug'        => $this->derive_plugin_slug( (string) $dropin_file ),
+				'plugin_file' => $this->redact_diagnostics_path_identifier( (string) $dropin_file ),
+				'name'        => sanitize_text_field( (string) ( $dropin['Name'] ?? $dropin_file ) ),
+				'status'      => 'dropin',
+				'dropin'      => true,
+				'is_magick_ai' => $this->is_magick_ai_plugin_hint( (string) $dropin_file, $dropin ),
+			);
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Derives a stable plugin slug from a plugin file identifier.
+	 *
+	 * @param string $plugin_file Plugin file identifier.
+	 * @return string
+	 */
+	private function derive_plugin_slug( $plugin_file ) {
+		$plugin_file = trim( (string) $plugin_file );
+		if ( '' === $plugin_file ) {
+			return '';
+		}
+
+		$slug = false !== strpos( $plugin_file, '/' ) ? dirname( $plugin_file ) : basename( $plugin_file, '.php' );
+		return $this->sanitize_diagnostics_identifier( $slug );
+	}
+
+	/**
+	 * Parses a comma-separated Requires Plugins header into bounded slugs.
+	 *
+	 * @param string $requires_plugins Requires Plugins header.
+	 * @return string[]
+	 */
+	private function parse_plugin_dependency_slugs( $requires_plugins ) {
+		$requires_plugins = trim( (string) $requires_plugins );
+		if ( '' === $requires_plugins ) {
+			return array();
+		}
+
+		$dependencies = array();
+		foreach ( explode( ',', $requires_plugins ) as $dependency ) {
+			$dependency = $this->sanitize_diagnostics_identifier( $dependency );
+			if ( '' !== $dependency ) {
+				$dependencies[] = $dependency;
+			}
+		}
+		$dependencies = array_values( array_unique( $dependencies ) );
+		sort( $dependencies );
+
+		return $dependencies;
+	}
+
+	/**
+	 * Detects whether plugin metadata likely belongs to the Magick AI family.
+	 *
+	 * @param string              $plugin_file Plugin file identifier.
+	 * @param array<string,mixed> $data Plugin metadata.
+	 * @return bool
+	 */
+	private function is_magick_ai_plugin_hint( $plugin_file, array $data ) {
+		$haystack = strtolower(
+			(string) $plugin_file . ' ' .
+			(string) ( $data['Name'] ?? '' ) . ' ' .
+			(string) ( $data['Title'] ?? '' ) . ' ' .
+			(string) ( $data['TextDomain'] ?? '' )
+		);
+
+		return false !== strpos( $haystack, 'magick-ai' ) || false !== strpos( $haystack, 'magick ai' );
 	}
 
 	/**
@@ -9907,6 +11652,1105 @@ final class Core_Read_Package {
 	}
 
 	/**
+	 * Builds server diagnostics without exposing filesystem paths.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_server_diagnostics_detail() {
+		$software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) $_SERVER['SERVER_SOFTWARE'] ) : '';
+		$document_root_present = ! empty( $_SERVER['DOCUMENT_ROOT'] );
+
+		return array(
+			'included'              => true,
+			'php_sapi'              => sanitize_text_field( (string) php_sapi_name() ),
+			'server_software'       => $software,
+			'os_family'             => PHP_OS_FAMILY,
+			'environment_type'      => function_exists( 'wp_get_environment_type' ) ? sanitize_key( (string) wp_get_environment_type() ) : 'production',
+			'home_url_host'         => sanitize_text_field( (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( home_url(), PHP_URL_HOST ) : parse_url( home_url(), PHP_URL_HOST ) ) ),
+			'site_url_host'         => sanitize_text_field( (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( site_url(), PHP_URL_HOST ) : parse_url( site_url(), PHP_URL_HOST ) ) ),
+			'document_root_present' => $document_root_present,
+			'document_root_redacted' => $document_root_present,
+		);
+	}
+
+	/**
+	 * Builds redacted database diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_database_diagnostics_detail() {
+		global $wpdb;
+
+		$available = is_object( $wpdb );
+		$version = '';
+		if ( $available && method_exists( $wpdb, 'db_version' ) ) {
+			$version = sanitize_text_field( (string) $wpdb->db_version() );
+		}
+		$server_info = '';
+		if ( $available && method_exists( $wpdb, 'db_server_info' ) ) {
+			$server_info = sanitize_text_field( (string) $wpdb->db_server_info() );
+		}
+
+		$tables = $this->read_database_table_status_rows();
+		$table_count = is_array( $tables ) ? count( $tables ) : null;
+		$total_size_bytes = 0;
+		if ( is_array( $tables ) ) {
+			foreach ( $tables as $table ) {
+				if ( is_array( $table ) ) {
+					$total_size_bytes += absint( $table['Data_length'] ?? 0 );
+					$total_size_bytes += absint( $table['Index_length'] ?? 0 );
+				} elseif ( is_object( $table ) ) {
+					$total_size_bytes += absint( $table->Data_length ?? 0 );
+					$total_size_bytes += absint( $table->Index_length ?? 0 );
+				}
+			}
+		}
+
+		$engine = 'unknown';
+		$engine_source = '' !== $server_info ? $server_info : $version;
+		if ( false !== stripos( $engine_source, 'mariadb' ) ) {
+			$engine = 'mariadb';
+		} elseif ( '' !== $engine_source ) {
+			$engine = 'mysql';
+		}
+
+		return array(
+			'included'                => true,
+			'available'               => $available,
+			'engine'                  => $engine,
+			'version'                 => $version,
+			'server_info'             => $server_info,
+			'table_count'             => $table_count,
+			'estimated_size_bytes'    => is_array( $tables ) ? $total_size_bytes : null,
+			'database_name_redacted'  => true,
+			'table_prefix_redacted'   => true,
+			'table_names_redacted'    => true,
+		);
+	}
+
+	/**
+	 * Reads database table status rows when WPDB is available.
+	 *
+	 * @return array<mixed>|null
+	 */
+	private function read_database_table_status_rows() {
+		global $wpdb;
+
+		if ( ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_results' ) ) {
+			return null;
+		}
+
+		$output_type = defined( 'ARRAY_A' ) ? ARRAY_A : 'ARRAY_A';
+		$rows = $wpdb->get_results( 'SHOW TABLE STATUS', $output_type );
+
+		return is_array( $rows ) ? $rows : null;
+	}
+
+	/**
+	 * Builds bounded cron event diagnostics.
+	 *
+	 * @param int $max_events Maximum number of events to include.
+	 * @return array<string,mixed>
+	 */
+	private function build_cron_events_diagnostics_detail( $max_events ) {
+		$total = 0;
+		$events = array();
+		$cron_array = function_exists( '_get_cron_array' ) ? _get_cron_array() : array();
+		$cron_array = is_array( $cron_array ) ? $cron_array : array();
+		ksort( $cron_array );
+
+		foreach ( $cron_array as $timestamp => $hooks ) {
+			$timestamp = absint( $timestamp );
+			if ( ! is_array( $hooks ) ) {
+				continue;
+			}
+			foreach ( $hooks as $hook => $instances ) {
+				if ( ! is_array( $instances ) ) {
+					continue;
+				}
+				foreach ( $instances as $instance ) {
+					++$total;
+					if ( count( $events ) >= $max_events ) {
+						continue;
+					}
+					$instance = is_array( $instance ) ? $instance : array();
+					$args = isset( $instance['args'] ) && is_array( $instance['args'] ) ? $instance['args'] : array();
+					$events[] = array(
+						'hook'         => sanitize_key( (string) $hook ),
+						'next_run_gmt' => $timestamp > 0 ? gmdate( 'Y-m-d H:i:s', $timestamp ) : '',
+						'schedule'     => sanitize_key( (string) ( $instance['schedule'] ?? '' ) ),
+						'interval'     => absint( $instance['interval'] ?? 0 ),
+						'args_count'   => count( $args ),
+					);
+				}
+			}
+		}
+
+		return array(
+			'included'               => true,
+			'disabled'               => defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON,
+			'scheduled_events_total' => $total,
+			'returned_events_count'  => count( $events ),
+			'events'                 => $events,
+			'args_redacted'          => true,
+		);
+	}
+
+	/**
+	 * Builds error log diagnostics, optionally tailing redacted contents.
+	 *
+	 * @param bool $include_contents Include a bounded tail of log contents.
+	 * @param int      $tail_lines Number of tail lines to include.
+	 * @param int      $since_minutes Only include parsed entries since this many minutes ago. Zero disables filtering.
+	 * @param string[] $severity_filter Severity filter.
+	 * @return array<string,mixed>
+	 */
+	private function build_error_log_diagnostics_detail( $include_contents = false, $tail_lines = 50, $since_minutes = 0, array $severity_filter = array() ) {
+		$wp_debug_log = defined( 'WP_DEBUG_LOG' ) ? WP_DEBUG_LOG : false;
+		$log_path = '';
+		if ( is_string( $wp_debug_log ) && '' !== $wp_debug_log ) {
+			$log_path = $wp_debug_log;
+		} elseif ( $wp_debug_log && defined( 'WP_CONTENT_DIR' ) ) {
+			$log_path = WP_CONTENT_DIR . '/debug.log';
+		} else {
+			$ini_error_log = (string) ini_get( 'error_log' );
+			$log_path = '' !== $ini_error_log ? $ini_error_log : '';
+		}
+
+		$exists = '' !== $log_path && file_exists( $log_path );
+		$readable = $exists && is_readable( $log_path );
+		$size_bytes = $exists ? filesize( $log_path ) : false;
+		$modified = $exists ? filemtime( $log_path ) : false;
+		$summary_entries = array();
+		$tail_entries = array();
+		if ( $readable ) {
+			$summary_entries = $this->read_redacted_log_tail_entries( $log_path, $tail_lines, $since_minutes, $severity_filter );
+			if ( $include_contents ) {
+				$tail_entries = $summary_entries;
+			}
+		}
+		$contents = array();
+		foreach ( $tail_entries as $entry ) {
+			$contents[] = (string) ( $entry['line'] ?? '' );
+		}
+
+		return array(
+			'included'              => true,
+			'wp_debug'              => defined( 'WP_DEBUG' ) ? (bool) WP_DEBUG : false,
+			'wp_debug_log'          => (bool) $wp_debug_log,
+			'php_log_configured'    => '' !== (string) ini_get( 'error_log' ),
+			'log_file_hint'         => '' !== $log_path ? $this->redact_diagnostics_path_identifier( $log_path ) : '',
+			'log_exists'            => $exists,
+			'log_readable'          => $readable,
+			'log_size_bytes'        => false === $size_bytes ? null : absint( $size_bytes ),
+			'log_modified_gmt'      => false === $modified ? '' : gmdate( 'Y-m-d H:i:s', absint( $modified ) ),
+			'contents_included'     => $include_contents && $readable,
+			'tail_lines_requested'  => absint( $tail_lines ),
+			'tail_lines_returned'   => count( $tail_entries ),
+			'since_minutes'         => absint( $since_minutes ),
+			'severity_filter'       => $severity_filter,
+			'contents_redacted'     => $include_contents,
+			'contents'              => $contents,
+			'tail_entries'          => $tail_entries,
+			'summary'               => $this->summarize_diagnostics_log_entries( $summary_entries ),
+			'source_summary'        => $this->summarize_diagnostics_log_sources( $summary_entries ),
+			'top_messages'          => $this->summarize_diagnostics_top_messages( $summary_entries ),
+		);
+	}
+
+	/**
+	 * Normalizes a diagnostics log severity filter.
+	 *
+	 * @param mixed $severity Severity input.
+	 * @return string[]
+	 */
+	private function normalize_diagnostics_log_severity_filter( $severity ) {
+		$allowed = array( 'fatal', 'error', 'warning', 'deprecated', 'notice', 'info', 'unknown' );
+		$values = is_array( $severity ) ? $severity : ( '' !== (string) $severity ? array( $severity ) : array() );
+		$normalized = array();
+		foreach ( $values as $value ) {
+			$value = sanitize_key( (string) $value );
+			if ( in_array( $value, $allowed, true ) ) {
+				$normalized[] = $value;
+			}
+		}
+		$normalized = array_values( array_unique( $normalized ) );
+		sort( $normalized );
+
+		return $normalized;
+	}
+
+	/**
+	 * Reads, redacts, parses, and filters a bounded tail from a log file.
+	 *
+	 * @param string   $path Log path.
+	 * @param int      $tail_lines Number of lines.
+	 * @param int      $since_minutes Only include parsed entries since this many minutes ago.
+	 * @param string[] $severity_filter Severity filter.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function read_redacted_log_tail_entries( $path, $tail_lines, $since_minutes = 0, array $severity_filter = array() ) {
+		$path = (string) $path;
+		$tail_lines = max( 1, min( 200, absint( $tail_lines ) ) );
+		if ( '' === $path || ! is_readable( $path ) ) {
+			return array();
+		}
+
+		$handle = fopen( $path, 'rb' );
+		if ( ! is_resource( $handle ) ) {
+			return array();
+		}
+		$size = filesize( $path );
+		$size = false === $size ? 0 : absint( $size );
+		$max_bytes = 262144;
+		if ( $size > $max_bytes ) {
+			fseek( $handle, -1 * $max_bytes, SEEK_END );
+		}
+		$contents = (string) stream_get_contents( $handle );
+		fclose( $handle );
+
+		$lines = preg_split( "/\r\n|\n|\r/", $contents );
+		$lines = is_array( $lines ) ? $lines : array();
+		$lines = array_values(
+			array_filter(
+				$lines,
+				static function ( $line ) {
+					return '' !== trim( (string) $line );
+				}
+			)
+		);
+		$lines = array_slice( $lines, -1 * $tail_lines );
+		$since_timestamp = absint( $since_minutes ) > 0 ? time() - ( absint( $since_minutes ) * 60 ) : 0;
+		$severity_lookup = array_flip( $severity_filter );
+		$entries = array();
+		foreach ( $lines as $line ) {
+			$entry = $this->parse_diagnostics_log_entry( $line );
+			if ( $since_timestamp > 0 && ! empty( $entry['timestamp_unix'] ) && absint( $entry['timestamp_unix'] ) < $since_timestamp ) {
+				continue;
+			}
+			if ( ! empty( $severity_lookup ) && ! isset( $severity_lookup[ $entry['severity'] ] ) ) {
+				continue;
+			}
+			unset( $entry['timestamp_unix'] );
+			$entries[] = $entry;
+		}
+
+		return $entries;
+	}
+
+	/**
+	 * Parses one log line into a redacted diagnostics entry.
+	 *
+	 * @param mixed $line Raw line.
+	 * @return array<string,mixed>
+	 */
+	private function parse_diagnostics_log_entry( $line ) {
+		$source = $this->detect_diagnostics_log_source( $line );
+		$redacted_line = $this->redact_diagnostics_log_line( $line );
+		$message = $redacted_line;
+		$timestamp_gmt = '';
+		$timestamp_unix = 0;
+		if ( preg_match( '/^\[([^\]]+)\]\s*(.*)$/', $redacted_line, $matches ) ) {
+			$parsed_timestamp = strtotime( (string) $matches[1] );
+			$timestamp_unix = false === $parsed_timestamp ? 0 : absint( $parsed_timestamp );
+			$timestamp_gmt = $timestamp_unix > 0 ? gmdate( 'Y-m-d H:i:s', $timestamp_unix ) : '';
+			$message = (string) $matches[2];
+		}
+
+		return array(
+			'timestamp_gmt'       => $timestamp_gmt,
+			'timestamp_unix'      => $timestamp_unix,
+			'severity'            => $this->detect_diagnostics_log_severity( $message ),
+			'source_type'         => $source['source_type'],
+			'source_hint'         => $source['source_hint'],
+			'source_basename'     => $source['source_basename'],
+			'phar_hint'           => $source['phar_hint'],
+			'message_fingerprint' => $this->fingerprint_diagnostics_log_message( $message ),
+			'message'             => sanitize_text_field( $message ),
+			'line'                => $redacted_line,
+		);
+	}
+
+	/**
+	 * Detects a safe source hint from a raw log line before path redaction.
+	 *
+	 * @param mixed $line Raw line.
+	 * @return array{source_type:string,source_hint:string,source_basename:string,phar_hint:string}
+	 */
+	private function detect_diagnostics_log_source( $line ) {
+		$line = str_replace( '\\', '/', (string) $line );
+		$lower = strtolower( $line );
+		$phar_basename = $this->detect_diagnostics_phar_basename( $line );
+
+		if ( preg_match( '#wp-content/(?:plugins|mu-plugins)/([^/\\s:\'"]+)#i', $line, $matches ) ) {
+			return array(
+				'source_type'     => 'plugin',
+				'source_hint'     => $this->sanitize_diagnostics_source_hint( $matches[1] ),
+				'source_basename' => '',
+				'phar_hint'       => '',
+			);
+		}
+
+		if ( preg_match( '#wp-content/themes/([^/\\s:\'"]+)#i', $line, $matches ) ) {
+			return array(
+				'source_type'     => 'theme',
+				'source_hint'     => $this->sanitize_diagnostics_source_hint( $matches[1] ),
+				'source_basename' => '',
+				'phar_hint'       => '',
+			);
+		}
+
+		if ( false !== strpos( $lower, 'plugin-check' ) || false !== strpos( $lower, 'plugin check' ) ) {
+			return array(
+				'source_type'     => 'plugin',
+				'source_hint'     => 'plugin-check',
+				'source_basename' => '',
+				'phar_hint'       => '',
+			);
+		}
+
+		if ( false !== strpos( $lower, 'wp-cli.phar' ) || false !== strpos( $lower, 'wp-cli' ) ) {
+			return array(
+				'source_type'     => 'phar',
+				'source_hint'     => 'wp-cli',
+				'source_basename' => '' !== $phar_basename ? $phar_basename : '',
+				'phar_hint'       => '' !== $phar_basename ? $phar_basename : '',
+			);
+		}
+
+		if ( false !== strpos( $lower, 'composer.phar' ) || false !== strpos( $lower, 'composer' ) ) {
+			return array(
+				'source_type'     => 'phar',
+				'source_hint'     => 'composer',
+				'source_basename' => '' !== $phar_basename ? $phar_basename : '',
+				'phar_hint'       => '' !== $phar_basename ? $phar_basename : '',
+			);
+		}
+
+		if ( preg_match( '#phar://[^\\s:\'"]*/([^/\\s:\'"]+\\.phar)#i', $line, $matches ) ) {
+			$source_basename = $this->sanitize_diagnostics_source_basename( $matches[1] );
+			return array(
+				'source_type'     => 'phar',
+				'source_hint'     => $this->sanitize_diagnostics_source_hint( preg_replace( '/\\.phar$/i', '', (string) $matches[1] ) ),
+				'source_basename' => $source_basename,
+				'phar_hint'       => $source_basename,
+			);
+		}
+
+		if (
+			false !== strpos( $lower, '/wp-includes/' )
+			|| false !== strpos( $lower, '/wp-admin/' )
+			|| false !== strpos( $lower, '/wp-load.php' )
+			|| false !== strpos( $lower, '/wp-settings.php' )
+		) {
+			return array(
+				'source_type'     => 'core',
+				'source_hint'     => 'wordpress-core',
+				'source_basename' => '',
+				'phar_hint'       => '',
+			);
+		}
+
+		return array(
+			'source_type'     => 'unknown',
+			'source_hint'     => 'unknown',
+			'source_basename' => '',
+			'phar_hint'       => '',
+		);
+	}
+
+	/**
+	 * Detects a safe PHAR basename hint without exposing its full path.
+	 *
+	 * @param string $line Raw log line.
+	 * @return string
+	 */
+	private function detect_diagnostics_phar_basename( $line ) {
+		if ( preg_match( '#(?:phar://)?[^\\s:\'"]*/([^/\\s:\'"]+\\.phar)#i', (string) $line, $matches ) ) {
+			return $this->sanitize_diagnostics_source_basename( $matches[1] );
+		}
+
+		if ( preg_match( '#\\b([a-z0-9_.-]+\\.phar)\\b#i', (string) $line, $matches ) ) {
+			return $this->sanitize_diagnostics_source_basename( $matches[1] );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Sanitizes a log source hint without exposing paths.
+	 *
+	 * @param mixed $value Raw source hint.
+	 * @return string
+	 */
+	private function sanitize_diagnostics_source_hint( $value ) {
+		$value = basename( str_replace( '\\', '/', (string) $value ) );
+		$value = $this->sanitize_diagnostics_identifier( $value );
+
+		return '' !== $value ? $value : 'unknown';
+	}
+
+	/**
+	 * Sanitizes a source basename hint without exposing paths.
+	 *
+	 * @param mixed $value Raw source basename.
+	 * @return string
+	 */
+	private function sanitize_diagnostics_source_basename( $value ) {
+		$value = basename( str_replace( '\\', '/', (string) $value ) );
+		$value = $this->sanitize_diagnostics_identifier( $value );
+
+		return '' !== $value ? $value : '';
+	}
+
+	/**
+	 * Builds a stable, redacted message fingerprint for aggregation.
+	 *
+	 * @param mixed $message Redacted log message.
+	 * @return string
+	 */
+	private function fingerprint_diagnostics_log_message( $message ) {
+		$fingerprint = sanitize_text_field( (string) $message );
+		$fingerprint = preg_replace( '/^PHP\\s+(?:Fatal\\s+error|Parse\\s+error|Recoverable\\s+fatal\\s+error|Deprecated|Warning|Notice|Strict\\s+Standards|Error):\\s*/i', '', $fingerprint );
+		$fingerprint = preg_replace( '/\\s+in\\s+(?:phar:\\/\\/\\[REDACTED_PATH\\]|\\[ABSPATH\\]|\\[HOME\\]|\\[TMP_PATH\\]|\\[PHP_FILE\\]).*?\\s+on\\s+line\\s+\\d+\\s*$/i', '', $fingerprint );
+		$fingerprint = preg_replace( '/\\s+on\\s+line\\s+\\d+\\s*$/i', '', $fingerprint );
+		$fingerprint = preg_replace( '/\\b\\d+\\b/', 'N', $fingerprint );
+		$fingerprint = preg_replace( '/\\s+/', ' ', $fingerprint );
+		$fingerprint = trim( is_string( $fingerprint ) ? $fingerprint : '' );
+		if ( '' === $fingerprint ) {
+			$fingerprint = 'unknown';
+		}
+
+		return substr( $fingerprint, 0, 160 );
+	}
+
+	/**
+	 * Detects severity from a redacted log message.
+	 *
+	 * @param string $message Redacted message.
+	 * @return string
+	 */
+	private function detect_diagnostics_log_severity( $message ) {
+		$message = strtolower( (string) $message );
+		if ( false !== strpos( $message, 'fatal error' ) || false !== strpos( $message, 'parse error' ) ) {
+			return 'fatal';
+		}
+		if ( false !== strpos( $message, 'deprecated' ) ) {
+			return 'deprecated';
+		}
+		if ( false !== strpos( $message, 'warning' ) ) {
+			return 'warning';
+		}
+		if ( false !== strpos( $message, 'notice' ) ) {
+			return 'notice';
+		}
+		if ( false !== strpos( $message, 'error' ) ) {
+			return 'error';
+		}
+		if ( false !== strpos( $message, 'info' ) ) {
+			return 'info';
+		}
+
+		return 'unknown';
+	}
+
+	/**
+	 * Summarizes returned log entries by severity.
+	 *
+	 * @param array<int,array<string,mixed>> $entries Parsed entries.
+	 * @return array<string,mixed>
+	 */
+	private function summarize_diagnostics_log_entries( array $entries ) {
+		$by_severity = array(
+			'fatal'      => 0,
+			'error'      => 0,
+			'warning'    => 0,
+			'deprecated' => 0,
+			'notice'     => 0,
+			'info'       => 0,
+			'unknown'    => 0,
+		);
+		$latest_by_severity = array(
+			'fatal'      => '',
+			'error'      => '',
+			'warning'    => '',
+			'deprecated' => '',
+			'notice'     => '',
+			'info'       => '',
+			'unknown'    => '',
+		);
+		foreach ( $entries as $entry ) {
+			$severity = sanitize_key( (string) ( $entry['severity'] ?? 'unknown' ) );
+			if ( ! isset( $by_severity[ $severity ] ) ) {
+				$severity = 'unknown';
+			}
+			++$by_severity[ $severity ];
+			$timestamp_gmt = sanitize_text_field( (string) ( $entry['timestamp_gmt'] ?? '' ) );
+			if ( '' !== $timestamp_gmt && ( '' === $latest_by_severity[ $severity ] || strcmp( $timestamp_gmt, $latest_by_severity[ $severity ] ) > 0 ) ) {
+				$latest_by_severity[ $severity ] = $timestamp_gmt;
+			}
+		}
+
+		return array(
+			'returned_lines' => count( $entries ),
+			'fatal_count'   => $by_severity['fatal'],
+			'error_count'   => $by_severity['error'],
+			'warning_count' => $by_severity['warning'],
+			'deprecated_count' => $by_severity['deprecated'],
+			'notice_count'  => $by_severity['notice'],
+			'info_count'    => $by_severity['info'],
+			'unknown_count' => $by_severity['unknown'],
+			'latest_fatal_at' => $latest_by_severity['fatal'],
+			'latest_error_at' => $latest_by_severity['error'],
+			'latest_warning_at' => $latest_by_severity['warning'],
+			'latest_deprecated_at' => $latest_by_severity['deprecated'],
+			'latest_notice_at' => $latest_by_severity['notice'],
+			'summary_source' => 'bounded_tail',
+			'by_severity'   => $by_severity,
+		);
+	}
+
+	/**
+	 * Summarizes returned log entries by safe source hint and severity.
+	 *
+	 * @param array<int,array<string,mixed>> $entries Parsed entries.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function summarize_diagnostics_log_sources( array $entries ) {
+		$summary = array();
+
+		foreach ( $entries as $entry ) {
+			$source_type = sanitize_key( (string) ( $entry['source_type'] ?? 'unknown' ) );
+			if ( ! in_array( $source_type, array( 'plugin', 'theme', 'core', 'phar', 'unknown' ), true ) ) {
+				$source_type = 'unknown';
+			}
+
+			$source_hint = $this->sanitize_diagnostics_source_hint( $entry['source_hint'] ?? 'unknown' );
+			$severity = sanitize_key( (string) ( $entry['severity'] ?? 'unknown' ) );
+			if ( ! in_array( $severity, array( 'fatal', 'error', 'warning', 'deprecated', 'notice', 'info', 'unknown' ), true ) ) {
+				$severity = 'unknown';
+			}
+
+			$message_fingerprint = sanitize_text_field( (string) ( $entry['message_fingerprint'] ?? 'unknown' ) );
+			$message_fingerprint = '' !== $message_fingerprint ? $message_fingerprint : 'unknown';
+			$source_basename = $this->sanitize_diagnostics_source_basename( $entry['source_basename'] ?? '' );
+			$phar_hint = $this->sanitize_diagnostics_source_basename( $entry['phar_hint'] ?? '' );
+
+			$key = $source_type . '|' . $source_hint . '|' . $severity . '|' . $message_fingerprint . '|' . $source_basename;
+			if ( ! isset( $summary[ $key ] ) ) {
+				$summary[ $key ] = array(
+					'source_type'         => $source_type,
+					'source_hint'         => $source_hint,
+					'severity'            => $severity,
+					'message_fingerprint' => $message_fingerprint,
+					'count'               => 0,
+					'latest_at'           => '',
+				);
+				if ( '' !== $source_basename ) {
+					$summary[ $key ]['source_basename'] = $source_basename;
+				}
+				if ( '' !== $phar_hint ) {
+					$summary[ $key ]['phar_hint'] = $phar_hint;
+				}
+			}
+
+			++$summary[ $key ]['count'];
+			$timestamp_gmt = sanitize_text_field( (string) ( $entry['timestamp_gmt'] ?? '' ) );
+			if ( '' !== $timestamp_gmt && ( '' === $summary[ $key ]['latest_at'] || strcmp( $timestamp_gmt, $summary[ $key ]['latest_at'] ) > 0 ) ) {
+				$summary[ $key ]['latest_at'] = $timestamp_gmt;
+			}
+		}
+
+		$summary = array_values( $summary );
+		usort(
+			$summary,
+			static function ( $left, $right ) {
+				$count_compare = (int) ( $right['count'] ?? 0 ) <=> (int) ( $left['count'] ?? 0 );
+				if ( 0 !== $count_compare ) {
+					return $count_compare;
+				}
+
+				return strcmp( (string) ( $right['latest_at'] ?? '' ), (string) ( $left['latest_at'] ?? '' ) );
+			}
+		);
+
+		return array_slice( $summary, 0, 20 );
+	}
+
+	/**
+	 * Summarizes returned log entries by message fingerprint and source.
+	 *
+	 * @param array<int,array<string,mixed>> $entries Parsed entries.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function summarize_diagnostics_top_messages( array $entries ) {
+		$summary = array();
+
+		foreach ( $entries as $entry ) {
+			$severity = sanitize_key( (string) ( $entry['severity'] ?? 'unknown' ) );
+			if ( ! in_array( $severity, array( 'fatal', 'error', 'warning', 'deprecated', 'notice', 'info', 'unknown' ), true ) ) {
+				$severity = 'unknown';
+			}
+
+			$fingerprint = sanitize_text_field( (string) ( $entry['message_fingerprint'] ?? 'unknown' ) );
+			$fingerprint = '' !== $fingerprint ? $fingerprint : 'unknown';
+			$source_type = sanitize_key( (string) ( $entry['source_type'] ?? 'unknown' ) );
+			if ( ! in_array( $source_type, array( 'plugin', 'theme', 'core', 'phar', 'unknown' ), true ) ) {
+				$source_type = 'unknown';
+			}
+			$source_hint = $this->sanitize_diagnostics_source_hint( $entry['source_hint'] ?? 'unknown' );
+			$source_basename = $this->sanitize_diagnostics_source_basename( $entry['source_basename'] ?? '' );
+			$phar_hint = $this->sanitize_diagnostics_source_basename( $entry['phar_hint'] ?? '' );
+
+			$key = $severity . '|' . $fingerprint . '|' . $source_type . '|' . $source_hint . '|' . $source_basename;
+			if ( ! isset( $summary[ $key ] ) ) {
+				$summary[ $key ] = array(
+					'severity'            => $severity,
+					'fingerprint'         => $fingerprint,
+					'message_fingerprint' => $fingerprint,
+					'count'               => 0,
+					'latest_at'           => '',
+					'source_type'         => $source_type,
+					'source_hint'         => $source_hint,
+				);
+				if ( '' !== $source_basename ) {
+					$summary[ $key ]['source_basename'] = $source_basename;
+				}
+				if ( '' !== $phar_hint ) {
+					$summary[ $key ]['phar_hint'] = $phar_hint;
+				}
+			}
+
+			++$summary[ $key ]['count'];
+			$timestamp_gmt = sanitize_text_field( (string) ( $entry['timestamp_gmt'] ?? '' ) );
+			if ( '' !== $timestamp_gmt && ( '' === $summary[ $key ]['latest_at'] || strcmp( $timestamp_gmt, $summary[ $key ]['latest_at'] ) > 0 ) ) {
+				$summary[ $key ]['latest_at'] = $timestamp_gmt;
+			}
+		}
+
+		$summary = array_values( $summary );
+		usort(
+			$summary,
+			static function ( $left, $right ) {
+				$count_compare = (int) ( $right['count'] ?? 0 ) <=> (int) ( $left['count'] ?? 0 );
+				if ( 0 !== $count_compare ) {
+					return $count_compare;
+				}
+
+				return strcmp( (string) ( $right['latest_at'] ?? '' ), (string) ( $left['latest_at'] ?? '' ) );
+			}
+		);
+
+		return array_slice( $summary, 0, 20 );
+	}
+
+	/**
+	 * Redacts sensitive tokens and absolute paths from one diagnostics log line.
+	 *
+	 * @param mixed $line Raw line.
+	 * @return string
+	 */
+	private function redact_diagnostics_log_line( $line ) {
+		$line = sanitize_text_field( (string) $line );
+		$line = preg_replace( '/([?&](?:key|token|secret|password|pass|pwd|api_key|apikey)=)[^\\s&]+/i', '$1[REDACTED]', $line );
+		$line = preg_replace( '/((?:api[_-]?key|token|secret|password|authorization)\\s*[=:]\\s*)[^\\s,;]+/i', '$1[REDACTED]', $line );
+		$line = preg_replace( '#phar://[^\\s\'"]+#', 'phar://[REDACTED_PATH]', $line );
+		$line = preg_replace( '#/(?:private/)?tmp/[^\\s:\']+#', '[TMP_PATH]', $line );
+		$line = preg_replace( '#/[^\\s:]+/wp-content/#', '[ABSPATH]/wp-content/', $line );
+		$line = preg_replace( '#/Users/[^\\s:]+/#', '[HOME]/', $line );
+		$line = preg_replace( '#/[^\\s:\']+\\.php#', '[PHP_FILE]', $line );
+
+		return is_string( $line ) ? $line : '';
+	}
+
+	/**
+	 * Builds custom post type diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_content_type_diagnostics_detail() {
+		$post_types = function_exists( 'get_post_types' ) ? get_post_types( array(), 'objects' ) : array();
+		$post_types = is_array( $post_types ) ? $post_types : array();
+		$items = array();
+		foreach ( $post_types as $post_type => $object ) {
+			if ( ! is_object( $object ) ) {
+				continue;
+			}
+			$items[] = array(
+				'name'         => sanitize_key( (string) $post_type ),
+				'label'        => sanitize_text_field( (string) ( $object->label ?? $post_type ) ),
+				'public'       => (bool) ( $object->public ?? false ),
+				'show_in_rest' => (bool) ( $object->show_in_rest ?? false ),
+				'hierarchical' => (bool) ( $object->hierarchical ?? false ),
+			);
+		}
+
+		return array(
+			'included'        => true,
+			'post_type_count' => count( $items ),
+			'post_types'      => $items,
+		);
+	}
+
+	/**
+	 * Builds role and capability diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_roles_diagnostics_detail() {
+		$wp_roles = function_exists( 'wp_roles' ) ? wp_roles() : null;
+		$roles = is_object( $wp_roles ) && isset( $wp_roles->roles ) && is_array( $wp_roles->roles ) ? $wp_roles->roles : array();
+		$items = array();
+		foreach ( $roles as $role_key => $role ) {
+			$role = is_array( $role ) ? $role : array();
+			$capabilities = array();
+			foreach ( (array) ( $role['capabilities'] ?? array() ) as $capability => $granted ) {
+				if ( $granted && is_string( $capability ) ) {
+					$capabilities[] = $this->sanitize_diagnostics_identifier( $capability );
+				}
+			}
+			$capabilities = array_values( array_unique( array_filter( $capabilities ) ) );
+			sort( $capabilities );
+			$items[] = array(
+				'role'         => sanitize_key( (string) $role_key ),
+				'name'         => sanitize_text_field( (string) ( $role['name'] ?? $role_key ) ),
+				'capabilities' => $capabilities,
+			);
+		}
+
+		return array(
+			'included'   => true,
+			'role_count' => count( $items ),
+			'roles'      => $items,
+		);
+	}
+
+	/**
+	 * Builds widget and sidebar diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_widgets_diagnostics_detail() {
+		global $wp_registered_sidebars, $wp_registered_widgets;
+
+		$sidebars = is_array( $wp_registered_sidebars ) ? $wp_registered_sidebars : array();
+		$widgets = is_array( $wp_registered_widgets ) ? $wp_registered_widgets : array();
+		$sidebar_items = array();
+		foreach ( $sidebars as $sidebar_id => $sidebar ) {
+			$sidebar = is_array( $sidebar ) ? $sidebar : array();
+			$sidebar_items[] = array(
+				'id'          => sanitize_key( (string) $sidebar_id ),
+				'name'        => sanitize_text_field( (string) ( $sidebar['name'] ?? $sidebar_id ) ),
+				'description' => sanitize_text_field( (string) ( $sidebar['description'] ?? '' ) ),
+			);
+		}
+
+		$widget_items = array();
+		foreach ( $widgets as $widget_id => $widget ) {
+			$widget = is_array( $widget ) ? $widget : array();
+			$widget_items[] = array(
+				'id'   => sanitize_key( (string) $widget_id ),
+				'name' => sanitize_text_field( (string) ( $widget['name'] ?? $widget_id ) ),
+			);
+			if ( count( $widget_items ) >= 100 ) {
+				break;
+			}
+		}
+
+		return array(
+			'included'                => true,
+			'sidebar_count'           => count( $sidebar_items ),
+			'sidebars'                => $sidebar_items,
+			'registered_widget_count' => count( $widgets ),
+			'widgets_returned_count'  => count( $widget_items ),
+			'widgets'                 => $widget_items,
+		);
+	}
+
+	/**
+	 * Builds block-theme related diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_block_theme_diagnostics_detail() {
+		$block_count = null;
+		$block_items = array();
+		if ( class_exists( '\WP_Block_Type_Registry' ) && method_exists( '\WP_Block_Type_Registry', 'get_instance' ) ) {
+			$registry = \WP_Block_Type_Registry::get_instance();
+			if ( is_object( $registry ) && method_exists( $registry, 'get_all_registered' ) ) {
+				$blocks = $registry->get_all_registered();
+				$block_count = is_array( $blocks ) ? count( $blocks ) : null;
+				if ( is_array( $blocks ) ) {
+					foreach ( array_keys( $blocks ) as $block_name ) {
+						$block_items[] = $this->sanitize_diagnostics_identifier( $block_name );
+						if ( count( $block_items ) >= 100 ) {
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$pattern_count = null;
+		$pattern_items = array();
+		if ( class_exists( '\WP_Block_Patterns_Registry' ) && method_exists( '\WP_Block_Patterns_Registry', 'get_instance' ) ) {
+			$registry = \WP_Block_Patterns_Registry::get_instance();
+			if ( is_object( $registry ) && method_exists( $registry, 'get_all_registered' ) ) {
+				$patterns = $registry->get_all_registered();
+				$pattern_count = is_array( $patterns ) ? count( $patterns ) : null;
+				if ( is_array( $patterns ) ) {
+					foreach ( $patterns as $pattern ) {
+						$pattern = is_array( $pattern ) ? $pattern : array();
+						$pattern_items[] = array(
+							'name'       => $this->sanitize_diagnostics_identifier( $pattern['name'] ?? '' ),
+							'title'      => sanitize_text_field( (string) ( $pattern['title'] ?? '' ) ),
+							'categories' => array_values( array_map( array( $this, 'sanitize_diagnostics_identifier' ), (array) ( $pattern['categories'] ?? array() ) ) ),
+						);
+						if ( count( $pattern_items ) >= 100 ) {
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		$style_variations = array();
+		if ( class_exists( '\WP_Theme_JSON_Resolver' ) && method_exists( '\WP_Theme_JSON_Resolver', 'get_style_variations' ) ) {
+			try {
+				$style_variations = \WP_Theme_JSON_Resolver::get_style_variations();
+			} catch ( \Throwable $error ) {
+				$style_variations = array();
+			}
+		}
+		$style_variations = is_array( $style_variations ) ? $style_variations : array();
+		$style_items = array();
+		foreach ( $style_variations as $variation ) {
+			$variation = is_array( $variation ) ? $variation : array();
+			$style_items[] = array(
+				'title' => sanitize_text_field( (string) ( $variation['title'] ?? '' ) ),
+			);
+			if ( count( $style_items ) >= 50 ) {
+				break;
+			}
+		}
+
+		return array(
+			'included'                 => true,
+			'is_block_theme'           => function_exists( 'wp_is_block_theme' ) ? (bool) wp_is_block_theme() : null,
+			'registered_block_count'   => $block_count,
+			'registered_blocks_returned_count' => count( $block_items ),
+			'registered_blocks'        => $block_items,
+			'registered_pattern_count' => $pattern_count,
+			'registered_patterns_returned_count' => count( $pattern_items ),
+			'registered_patterns'      => $pattern_items,
+			'global_style_variation_count' => count( $style_variations ),
+			'global_style_variations_returned_count' => count( $style_items ),
+			'global_style_variations'  => $style_items,
+			'global_styles_available'  => function_exists( 'wp_get_global_styles' ) || function_exists( 'wp_get_global_settings' ),
+			'global_styles_content_included' => false,
+		);
+	}
+
+	/**
+	 * Builds search diagnostics.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_search_diagnostics_detail() {
+		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = is_array( $active_plugins ) ? array_map( 'strtolower', $active_plugins ) : array();
+		$known_plugins = array(
+			'elasticpress/elasticpress.php' => 'elasticpress',
+			'relevanssi/relevanssi.php'     => 'relevanssi',
+			'searchwp/index.php'            => 'searchwp',
+			'woocommerce/woocommerce.php'   => 'woocommerce_product_search_possible',
+		);
+		$detected = array();
+		foreach ( $known_plugins as $plugin_file => $label ) {
+			if ( in_array( $plugin_file, $active_plugins, true ) ) {
+				$detected[] = $label;
+			}
+		}
+		if ( class_exists( '\ElasticPress' ) && ! in_array( 'elasticpress', $detected, true ) ) {
+			$detected[] = 'elasticpress';
+		}
+		if ( function_exists( 'relevanssi_do_query' ) && ! in_array( 'relevanssi', $detected, true ) ) {
+			$detected[] = 'relevanssi';
+		}
+		if ( class_exists( '\SearchWP' ) && ! in_array( 'searchwp', $detected, true ) ) {
+			$detected[] = 'searchwp';
+		}
+
+		sort( $detected );
+
+		return array(
+			'included'                  => true,
+			'core_search_available'     => true,
+			'known_search_integrations' => $detected,
+			'external_index_status'     => empty( $detected ) ? 'not_detected' : 'detected',
+			'index_health_verified'     => false,
+		);
+	}
+
+	/**
+	 * Builds integration compatibility diagnostics for common content plugins.
+	 *
+	 * @param array<string,mixed> $plugins Plugin diagnostics.
+	 * @return array<string,mixed>
+	 */
+	private function build_integrations_diagnostics_detail( array $plugins ) {
+		$active_plugin_files = $this->active_plugin_files_from_diagnostics( $plugins );
+		$known_integrations = array(
+			'woocommerce/woocommerce.php'                  => 'woocommerce',
+			'advanced-custom-fields/acf.php'               => 'acf',
+			'advanced-custom-fields-pro/acf.php'           => 'acf_pro',
+			'easy-digital-downloads/easy-digital-downloads.php' => 'easy_digital_downloads',
+			'memberpress/memberpress.php'                  => 'memberpress',
+			'learnpress/learnpress.php'                    => 'learnpress',
+			'tutor/tutor.php'                              => 'tutor_lms',
+		);
+		$detected = array();
+		foreach ( $known_integrations as $plugin_file => $label ) {
+			if ( in_array( $plugin_file, $active_plugin_files, true ) ) {
+				$detected[] = $label;
+			}
+		}
+		if ( class_exists( '\WooCommerce' ) && ! in_array( 'woocommerce', $detected, true ) ) {
+			$detected[] = 'woocommerce';
+		}
+		if ( function_exists( 'acf' ) && ! in_array( 'acf', $detected, true ) && ! in_array( 'acf_pro', $detected, true ) ) {
+			$detected[] = 'acf';
+		}
+		sort( $detected );
+
+		return array(
+			'included'             => true,
+			'detected'             => $detected,
+			'woocommerce_active'   => in_array( 'woocommerce', $detected, true ),
+			'acf_active'           => in_array( 'acf', $detected, true ) || in_array( 'acf_pro', $detected, true ),
+			'custom_post_types'    => $this->build_public_custom_post_type_names(),
+			'deep_plugin_state_checked' => false,
+		);
+	}
+
+	/**
+	 * Returns active plugin file identifiers from plugin diagnostics.
+	 *
+	 * @param array<string,mixed> $plugins Plugin diagnostics.
+	 * @return string[]
+	 */
+	private function active_plugin_files_from_diagnostics( array $plugins ) {
+		$active_plugin_files = array();
+		foreach ( (array) ( $plugins['active'] ?? array() ) as $plugin ) {
+			if ( is_array( $plugin ) && ! empty( $plugin['plugin_file'] ) ) {
+				$active_plugin_files[] = strtolower( (string) $plugin['plugin_file'] );
+			}
+		}
+
+		return array_values( array_unique( $active_plugin_files ) );
+	}
+
+	/**
+	 * Returns public custom post type names.
+	 *
+	 * @return string[]
+	 */
+	private function build_public_custom_post_type_names() {
+		$post_types = function_exists( 'get_post_types' ) ? get_post_types( array( 'public' => true ), 'names' ) : array();
+		$post_types = is_array( $post_types ) ? $post_types : array();
+		$names = array();
+		foreach ( $post_types as $post_type ) {
+			$post_type = sanitize_key( (string) $post_type );
+			if ( '' !== $post_type && ! in_array( $post_type, array( 'post', 'page', 'attachment' ), true ) ) {
+				$names[] = $post_type;
+			}
+		}
+		sort( $names );
+
+		return $names;
+	}
+
+	/**
+	 * Builds a compact SEO diagnostics summary.
+	 *
+	 * @param array<string,mixed> $plugins Plugin diagnostics.
+	 * @param array<string,mixed> $rewrite Rewrite diagnostics.
+	 * @return array<string,mixed>
+	 */
+	private function build_seo_diagnostics_summary( array $plugins, array $rewrite ) {
+		$active_plugin_files = $this->active_plugin_files_from_diagnostics( $plugins );
+
+		$seo_plugin_hints = array();
+		$known_seo_plugins = array(
+			'wordpress-seo/wp-seo.php'                    => 'yoast_seo',
+			'seo-by-rank-math/rank-math.php'              => 'rank_math',
+			'all-in-one-seo-pack/all_in_one_seo_pack.php' => 'aioseo',
+			'autodescription/autodescription.php'         => 'the_seo_framework',
+		);
+		foreach ( $known_seo_plugins as $plugin_file => $label ) {
+			if ( in_array( $plugin_file, $active_plugin_files, true ) ) {
+				$seo_plugin_hints[] = $label;
+			}
+		}
+
+		return array(
+			'included'           => true,
+			'site_title_present' => '' !== trim( (string) get_bloginfo( 'name' ) ),
+			'tagline_present'    => '' !== trim( (string) get_bloginfo( 'description' ) ),
+			'blog_public'        => (int) get_option( 'blog_public', 1 ),
+			'permalink_mode'     => sanitize_key( (string) ( $rewrite['permalink_mode'] ?? '' ) ),
+			'known_seo_plugins'  => $seo_plugin_hints,
+			'detected_provider'   => $this->detect_seo_provider(),
+			'meta_key_map'        => $this->seo_meta_keys( $this->detect_seo_provider() ),
+			'core_sitemap_available' => function_exists( 'wp_sitemaps_get_server' ),
+			'robots_txt_filter_available' => function_exists( 'has_filter' ) ? (bool) has_filter( 'robots_txt' ) : null,
+			'external_audit_run' => false,
+		);
+	}
+
+	/**
+	 * Builds a compact security diagnostics summary.
+	 *
+	 * @param array<string,mixed> $https HTTPS diagnostics.
+	 * @param array<string,mixed> $current_user Current user diagnostics.
+	 * @return array<string,mixed>
+	 */
+	private function build_security_diagnostics_summary( array $https, array $current_user ) {
+		return array(
+			'included'              => true,
+			'https_configured'      => ! empty( $https['home_url_https'] ) && ! empty( $https['site_url_https'] ),
+			'wp_debug_display'      => defined( 'WP_DEBUG_DISPLAY' ) ? (bool) WP_DEBUG_DISPLAY : false,
+			'users_can_register'    => (bool) get_option( 'users_can_register', false ),
+			'file_edit_disabled'    => defined( 'DISALLOW_FILE_EDIT' ) ? (bool) DISALLOW_FILE_EDIT : false,
+			'caller_manage_options' => (bool) ( $current_user['common_capabilities']['manage_options'] ?? false ),
+			'external_scan_run'     => false,
+		);
+	}
+
+	/**
+	 * Builds a compact performance diagnostics summary.
+	 *
+	 * @param array<string,mixed> $object_cache Object cache diagnostics.
+	 * @param array<string,mixed> $php PHP diagnostics.
+	 * @param array<string,mixed> $cron Cron diagnostics.
+	 * @param array<string,mixed> $updates Update diagnostics.
+	 * @return array<string,mixed>
+	 */
+	private function build_performance_diagnostics_summary( array $object_cache, array $php, array $cron, array $updates ) {
+		return array(
+			'included'               => true,
+			'external_object_cache'  => $object_cache['external_object_cache'] ?? null,
+			'object_cache_dropin'    => $object_cache['object_cache_dropin'] ?? null,
+			'memory_limit_bytes'     => absint( $php['memory_limit_bytes'] ?? 0 ),
+			'max_execution_time'     => absint( $php['max_execution_time'] ?? 0 ),
+			'cron_disabled'          => (bool) ( $cron['disabled'] ?? false ),
+			'scheduled_events_total' => absint( $cron['scheduled_events_total'] ?? 0 ),
+			'updates_total'          => absint( $updates['total'] ?? 0 ),
+			'profile_run'            => false,
+		);
+	}
+
+	/**
 	 * Loads plugin admin helpers if available.
 	 *
 	 * @return void
@@ -9938,6 +12782,60 @@ final class Core_Read_Package {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Sanitizes an identifier-like diagnostics value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	private function sanitize_diagnostics_identifier( $value ) {
+		$value = strtolower( trim( (string) $value ) );
+		$value = preg_replace( '/[^a-z0-9_\\-\\.\\/]/', '', $value );
+
+		return is_string( $value ) ? $value : '';
+	}
+
+	/**
+	 * Redacts absolute filesystem paths into relative hints.
+	 *
+	 * @param mixed $path Raw path or plugin identifier.
+	 * @return string
+	 */
+	private function redact_diagnostics_path_identifier( $path ) {
+		$path = str_replace( '\\', '/', trim( (string) $path ) );
+		if ( '' === $path ) {
+			return '';
+		}
+
+		$anchors = array();
+		foreach ( array( 'WP_PLUGIN_DIR', 'WPMU_PLUGIN_DIR', 'WP_CONTENT_DIR', 'ABSPATH' ) as $constant ) {
+			if ( defined( $constant ) ) {
+				$anchors[] = str_replace( '\\', '/', rtrim( (string) constant( $constant ), '/' ) );
+			}
+		}
+		foreach ( array_filter( $anchors ) as $anchor ) {
+			if ( 0 === strpos( $path, $anchor . '/' ) ) {
+				$path = ltrim( substr( $path, strlen( $anchor ) ), '/' );
+				break;
+			}
+		}
+
+		$known_segments = array( '/wp-content/plugins/', '/wp-content/mu-plugins/', '/wp-content/' );
+		foreach ( $known_segments as $segment ) {
+			$position = strpos( $path, $segment );
+			if ( false !== $position ) {
+				$path = substr( $path, $position + strlen( $segment ) );
+				break;
+			}
+		}
+
+		if ( 0 === strpos( $path, '/' ) ) {
+			$path = basename( $path );
+		}
+
+		return sanitize_text_field( $path );
 	}
 
 	/**
@@ -9982,6 +12880,8 @@ final class Core_Read_Package {
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
 		$parent = absint( $input['parent'] ?? 0 );
 		$hide_empty = ! empty( $input['hide_empty'] );
+		$include_sample_posts = ! empty( $input['include_sample_posts'] );
+		$sample_post_limit = max( 1, min( 5, absint( $input['sample_post_limit'] ?? 3 ) ) );
 		$per_page_max = $include_taxonomy ? 100 : 50;
 		$per_page_default = $include_taxonomy ? 20 : 10;
 		$per_page = max( 1, min( $per_page_max, absint( $input['per_page'] ?? $per_page_default ) ) );
@@ -10032,6 +12932,9 @@ final class Core_Read_Package {
 			if ( $include_taxonomy ) {
 				$row['parent'] = absint( $term->parent ?? 0 );
 			}
+			if ( $include_sample_posts ) {
+				$row['sample_posts'] = $this->build_term_sample_posts( $taxonomy, absint( $term->term_id ?? 0 ), $sample_post_limit );
+			}
 			$items[] = $row;
 		}
 
@@ -10046,6 +12949,62 @@ final class Core_Read_Package {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Builds bounded reverse post samples for a term.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 * @param int    $term_id Term ID.
+	 * @param int    $limit Maximum posts.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_term_sample_posts( $taxonomy, $term_id, $limit ) {
+		$taxonomy = sanitize_key( (string) $taxonomy );
+		$term_id = absint( $term_id );
+		$limit = max( 1, min( 5, absint( $limit ) ) );
+		if ( '' === $taxonomy || $term_id <= 0 ) {
+			return array();
+		}
+
+		$query = new \WP_Query(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+				'posts_per_page' => $limit,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'fields'         => 'ids',
+				'tax_query'      => array(
+					array(
+						'taxonomy' => $taxonomy,
+						'field'    => 'term_id',
+						'terms'    => array( $term_id ),
+					),
+				),
+			)
+		);
+
+		$posts = array();
+		foreach ( (array) $query->posts as $post_id ) {
+			$post_id = absint( $post_id );
+			if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$post = get_post( $post_id );
+			if ( ! is_object( $post ) ) {
+				continue;
+			}
+			$posts[] = array(
+				'id'        => $post_id,
+				'title'     => sanitize_text_field( (string) get_the_title( $post_id ) ),
+				'post_type' => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'status'    => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'date'      => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+			);
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -10582,6 +13541,33 @@ final class Core_Read_Package {
 			'title'       => '_yoast_wpseo_title',
 			'description' => '_yoast_wpseo_metadesc',
 		);
+	}
+
+	/**
+	 * Returns the first scalar post meta value from one key or a key list.
+	 *
+	 * @param int          $post_id Post ID.
+	 * @param string|string[] $keys Meta key or keys.
+	 * @return string
+	 */
+	private function get_first_post_meta_text( $post_id, $keys ) {
+		if ( ! function_exists( 'get_post_meta' ) ) {
+			return '';
+		}
+
+		$keys = is_array( $keys ) ? $keys : array( $keys );
+		foreach ( $keys as $key ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key ) {
+				continue;
+			}
+			$value = get_post_meta( absint( $post_id ), $key, true );
+			if ( is_scalar( $value ) && '' !== (string) $value ) {
+				return sanitize_text_field( (string) $value );
+			}
+		}
+
+		return '';
 	}
 
 	/**

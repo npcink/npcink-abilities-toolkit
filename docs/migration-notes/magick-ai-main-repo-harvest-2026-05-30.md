@@ -32,7 +32,7 @@ preview shapes, and documentation-only recipes.
 | Publish preflight | `magick-ai/get-article-publish-preflight-context`, `magick-ai/get-content-publishing-checklist`, `magick-ai/get-post-publish-risk-report`, `magick-ai/get-publishing-calendar-context` | Covered as read-only context and workflow recipe composition. |
 | Media inventory and media SEO handoff | `magick-ai/list-media`, `magick-ai/get-media-inventory-health`, `magick-ai/get-media-cleanup-opportunities`, `magick-ai/build-media-seo-assets`, `magick-ai/optimize-media-metadata`, `magick-ai/update-media-details` | Covered on read/proposal/dry-run surfaces. Host still owns model calls, batch selection, scheduling, and approved write execution. |
 | Page structure inspection | `magick-ai/inspect-page-structure`, `magick-ai/get-page-structure-health` | Covered as read-only WordPress context. |
-| Site diagnostics | `magick-ai-abilities/wp-diagnostics-summary`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Covered at the redacted WordPress-only level. Deep ops scans should stay in an ops addon or host product. |
+| Site diagnostics | `magick-ai-abilities/wp-diagnostics-summary`, `magick-ai-abilities/wp-ops-diagnostics-detail`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
 
 ## Absorb As Documentation Only
 

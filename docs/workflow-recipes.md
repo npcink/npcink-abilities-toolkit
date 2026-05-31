@@ -302,19 +302,22 @@ Goal: gather redacted WordPress-only diagnostics for support or agent triage.
 Ability sequence:
 
 1. `magick-ai-abilities/wp-diagnostics-summary`
-2. `magick-ai/site-info`
+2. `magick-ai-abilities/wp-ops-diagnostics-detail`
+3. `magick-ai/site-info`
 
 Handoff:
 
-- pass redacted runtime, theme, plugin, REST, Abilities API, cron, and update
-  summaries to the host or support flow.
+- pass redacted runtime, theme, plugin, caller capability, PHP extension, object
+  cache, rewrite, HTTPS, server, REST, Abilities API, cron, update, database
+  estimate, log-availability, content type, role, widget, block-theme, search,
+  SEO, security, and performance summaries to the host or support flow.
 
 Governance:
 
 - read-only;
 - diagnostics must not expose Magick AI settings, MCP settings, API keys,
-  database names, table prefixes, filesystem paths, error logs, or external HTTP
-  probes.
+  database names, table prefixes, table names, filesystem paths, unredacted
+  error log contents, cron argument values, or external HTTP probes.
 
 ## Validation
 

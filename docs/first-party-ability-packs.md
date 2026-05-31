@@ -35,6 +35,9 @@ Representative abilities:
 - `magick-ai/get-post`
 - `magick-ai/get-post-context`
 - `magick-ai/get-content-inventory-health`
+- `magick-ai/get-test-content-inventory`
+- `magick-ai/build-test-content-cleanup-plan`
+- `magick-ai/build-content-inventory-fix-plan`
 - `magick-ai/get-site-operations-dashboard`
 - `magick-ai/resolve-url-to-post`
 - `magick-ai/get-post-blocks`
@@ -42,6 +45,7 @@ Representative abilities:
 - `magick-ai/list-media`
 - `magick-ai/get-media-inventory-health`
 - `magick-ai/get-media-cleanup-opportunities`
+- `magick-ai/build-media-inventory-fix-plan`
 - `magick-ai/get-taxonomy-inventory-health`
 - `magick-ai/get-taxonomy-consolidation-suggestions`
 - `magick-ai/propose-post-taxonomy-terms`
@@ -169,6 +173,15 @@ flows, and local smoke checks.
 Abilities:
 
 - `magick-ai-abilities/wp-diagnostics-summary`
+- `magick-ai-abilities/wp-ops-diagnostics-detail`
+
+The detail ability is the support-facing follow-up surface for bounded plugin
+rows, caller permissions, log severity summaries, optional structured log
+contents, log source summaries with message fingerprints and safe PHAR basename
+hints, top repeated log messages, cache/rewrite/HTTPS, database/cron/server
+state, content type/role/widget/block-theme inventories, search/integration
+hints, and SEO/security/performance summaries. Inactive plugin rows are omitted
+by default and can be requested explicitly for deeper conflict diagnosis.
 
 ## Workflow Definition Pack
 

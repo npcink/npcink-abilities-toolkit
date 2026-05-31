@@ -28,6 +28,7 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | `magick-ai/get-old-article-refresh-context` | New standalone SEO/GEO Support Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-internal-link-graph-health` | New standalone SEO/GEO Support Pack internal-link graph audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-media-cleanup-opportunities` | New standalone Content Context Pack media cleanup opportunity ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/build-media-inventory-fix-plan` | New standalone Content Context Pack read-only media remediation planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-taxonomy-consolidation-suggestions` | New standalone Content Context Pack taxonomy consolidation suggestion ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-comment-action-priority-queue` | New standalone Comment Compliance Pack priority queue ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
 | `magick-ai/get-comment-compliance-handoff` | New standalone Comment Compliance Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
@@ -37,6 +38,9 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 | `magick-ai/build-article-workflow-context` | New standalone SEO/GEO Support Pack workflow context ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/get-publishing-calendar-context` | New standalone Publishing Pack read-support calendar ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 | `magick-ai/propose-post-taxonomy-terms` | New standalone taxonomy assignment proposal helper for existing terms | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/get-test-content-inventory` | New standalone Content Context Pack test-content inventory ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/build-test-content-cleanup-plan` | New standalone Content Context Pack read-only cleanup planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `magick-ai/build-content-inventory-fix-plan` | New standalone Content Context Pack read-only remediation planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
 
 ## Migrated in 0.1
 
@@ -156,6 +160,7 @@ These abilities are owned by this standalone plugin and are not migrated Magick 
 | Ability id | Purpose | Owner |
 | --- | --- | --- |
 | `magick-ai-abilities/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `magick-ai-abilities/wp-ops-diagnostics-detail` | Bounded redacted WordPress operations diagnostics for support flows | `Magick_AI_Abilities\Packages\Core_Read_Package` |
 | `magick-ai-abilities/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
 | `magick-ai-abilities/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
 
@@ -163,7 +168,7 @@ These abilities are owned by this standalone plugin and are not migrated Magick 
 
 These should be evaluated before write-like abilities:
 
-- additional low-risk WordPress diagnostics details that do not depend on Magick AI, MCP, runtime, database, filesystem, or operations state
+- additional low-risk WordPress diagnostics details that do not depend on Magick AI, MCP, runtime, raw database identifiers, filesystem paths, log contents, or operations state
 
 ## Later Proposal-Only Candidates
 
