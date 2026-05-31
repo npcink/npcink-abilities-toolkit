@@ -24,6 +24,8 @@
     "check:contracts": "@php scripts/check-ability-contracts.php",
     "check:consumer": "@php scripts/check-consumer-handoff.php",
     "check:catalog": "@php scripts/audit-ability-catalog.php tests/fixtures/core-governance-catalog-snapshot.json",
+    "check:plugin-package": "bash scripts/check-plugin-package.sh",
+    "check:plugin-package:local": "WP_CLI=/tmp/wp-cli.phar WP_CLI_PHP=/opt/homebrew/bin/php WP_CLI_ERROR_REPORTING=8191 WP_CLI_MYSQL_SOCKET=\"/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock\" WP_PATH=\"/Users/muze/Local Sites/magick-ai/app/public\" bash scripts/check-plugin-package.sh",
     "lint:php": "@php tests/lint.php",
     "analyse:phpstan": "phpstan analyse --memory-limit=512M",
     "perf:smoke": "@php tests/performance-smoke.php",
