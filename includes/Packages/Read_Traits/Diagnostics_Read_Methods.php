@@ -235,10 +235,23 @@ private function estimate_transient_count() {
 		return null;
 	}
 
+	$cache_key = 'transient_count_' . md5( (string) $wpdb->options . ':' . $this->get_read_cache_version() );
+	$cache_group = 'magick_ai_abilities_diagnostics';
+	if ( function_exists( 'wp_cache_get' ) ) {
+		$cached = wp_cache_get( $cache_key, $cache_group );
+		if ( is_array( $cached ) && array_key_exists( 'value', $cached ) ) {
+			return null === $cached['value'] ? null : absint( $cached['value'] );
+		}
+	}
+
 	$like = $wpdb->esc_like( '_transient_' ) . '%';
 	$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
+	$value = null === $count ? null : absint( $count );
+	if ( function_exists( 'wp_cache_set' ) ) {
+		wp_cache_set( $cache_key, array( 'value' => $value ), $cache_group, 300 );
+	}
 
-	return null === $count ? null : absint( $count );
+	return $value;
 }
 
 /**
@@ -701,10 +714,23 @@ private function read_database_table_status_rows() {
 		return null;
 	}
 
+	$cache_key = 'table_status_' . md5( (string) ( $wpdb->prefix ?? '' ) . ':' . $this->get_read_cache_version() );
+	$cache_group = 'magick_ai_abilities_diagnostics';
+	if ( function_exists( 'wp_cache_get' ) ) {
+		$cached = wp_cache_get( $cache_key, $cache_group );
+		if ( is_array( $cached ) && array_key_exists( 'rows', $cached ) ) {
+			return is_array( $cached['rows'] ) ? $cached['rows'] : null;
+		}
+	}
+
 	$output_type = defined( 'ARRAY_A' ) ? ARRAY_A : 'ARRAY_A';
 	$rows = $wpdb->get_results( 'SHOW TABLE STATUS', $output_type );
+	$rows = is_array( $rows ) ? $rows : null;
+	if ( function_exists( 'wp_cache_set' ) ) {
+		wp_cache_set( $cache_key, array( 'rows' => $rows ), $cache_group, 300 );
+	}
 
-	return is_array( $rows ) ? $rows : null;
+	return $rows;
 }
 
 /**
