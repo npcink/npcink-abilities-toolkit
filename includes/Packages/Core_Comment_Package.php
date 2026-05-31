@@ -1078,7 +1078,7 @@ final class Core_Comment_Package {
 	 * @return string
 	 */
 	private function strip_tags( $value ) {
-		return function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( (string) $value ) : strip_tags( (string) $value );
+		return wp_strip_all_tags( (string) $value );
 	}
 
 	/**

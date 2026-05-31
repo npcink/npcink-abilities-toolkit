@@ -3341,7 +3341,8 @@ final class Core_Read_Package {
 					'title'           => sanitize_text_field( (string) get_the_title( $post_id ) ),
 					'url'             => esc_url_raw( (string) get_permalink( $post_id ) ),
 					'anchor_text'     => $term,
-					'reason'          => sprintf( __( 'Existing site content related to "%s" can be used as supplemental reading.', 'magick-ai-abilities' ), $term ),
+						/* translators: %s: Related search term. */
+						'reason'          => sprintf( __( 'Existing site content related to "%s" can be used as supplemental reading.', 'magick-ai-abilities' ), $term ),
 					'relevance_score' => 0.72,
 				);
 				if ( count( $targets ) >= $max_targets ) {
@@ -4003,7 +4004,7 @@ final class Core_Read_Package {
 					'meta_key'         => '_mai_article_production_fingerprint',
 					'meta_value'       => $production_fingerprint,
 					'fields'           => 'ids',
-					'suppress_filters' => true,
+						'suppress_filters' => false,
 				)
 			);
 			$post_id = $this->absint_value( is_array( $posts ) ? ( $posts[0] ?? 0 ) : 0 );
@@ -4131,7 +4132,7 @@ final class Core_Read_Package {
 			'posts_per_page'   => $limit,
 			'orderby'          => 'date',
 			'order'            => 'DESC',
-			'suppress_filters' => true,
+				'suppress_filters' => false,
 		);
 		if ( 'author_recent' === $mode && $author_id > 0 ) {
 			$query_args['author'] = $author_id;
@@ -8933,7 +8934,7 @@ final class Core_Read_Package {
 		}
 
 		if ( $post_id <= 0 && '' === $slug && '' !== $url ) {
-			$path = parse_url( $url, PHP_URL_PATH );
+			$path = wp_parse_url( $url, PHP_URL_PATH );
 			$path = is_string( $path ) ? trim( $path ) : '';
 			$candidate_slug = sanitize_title( basename( trim( $path, '/' ) ) );
 			if ( '' !== $candidate_slug ) {
@@ -9903,7 +9904,7 @@ final class Core_Read_Package {
 	private function build_media_metadata_suggestions( $attachment_id, array $row, array $context ) {
 		$title = sanitize_text_field( (string) ( $row['title'] ?? '' ) );
 		$url = $this->esc_url_value( (string) ( $row['url'] ?? '' ) );
-		$url_path = '' !== $url ? (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( $url, PHP_URL_PATH ) : parse_url( $url, PHP_URL_PATH ) ) : '';
+			$url_path = '' !== $url ? (string) wp_parse_url( $url, PHP_URL_PATH ) : '';
 		$file_name = '' !== $url_path ? $this->sanitize_file_name_value( (string) basename( $url_path ) ) : '';
 		$file_label = '' !== $file_name ? preg_replace( '/\.[^.]+$/', '', $file_name ) : '';
 		$file_label = sanitize_text_field( (string) str_replace( array( '-', '_' ), ' ', (string) $file_label ) );
@@ -10392,7 +10393,8 @@ final class Core_Read_Package {
 					'url'             => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
 					'edit_link'       => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
 					'anchor_text'     => $term,
-					'reason'          => sprintf( __( 'Existing content is related to "%s" and can support the source post with contextual reading.', 'magick-ai-abilities' ), $term ),
+						/* translators: %s: Related term. */
+						'reason'          => sprintf( __( 'Existing content is related to "%s" and can support the source post with contextual reading.', 'magick-ai-abilities' ), $term ),
 					'relevance_score' => 0.72,
 				);
 				if ( count( $targets ) >= $max_targets ) {
@@ -11306,8 +11308,8 @@ final class Core_Read_Package {
 	 * @return array<string,mixed>
 	 */
 	private function build_https_diagnostics_summary() {
-		$home_scheme = function_exists( 'wp_parse_url' ) ? (string) wp_parse_url( home_url(), PHP_URL_SCHEME ) : (string) parse_url( home_url(), PHP_URL_SCHEME );
-		$site_scheme = function_exists( 'wp_parse_url' ) ? (string) wp_parse_url( site_url(), PHP_URL_SCHEME ) : (string) parse_url( site_url(), PHP_URL_SCHEME );
+		$home_scheme = (string) wp_parse_url( home_url(), PHP_URL_SCHEME );
+		$site_scheme = (string) wp_parse_url( site_url(), PHP_URL_SCHEME );
 
 		return array(
 			'included'          => true,
@@ -11657,7 +11659,7 @@ final class Core_Read_Package {
 	 * @return array<string,mixed>
 	 */
 	private function build_server_diagnostics_detail() {
-		$software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) $_SERVER['SERVER_SOFTWARE'] ) : '';
+		$software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( (string) wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
 		$document_root_present = ! empty( $_SERVER['DOCUMENT_ROOT'] );
 
 		return array(
@@ -11666,8 +11668,8 @@ final class Core_Read_Package {
 			'server_software'       => $software,
 			'os_family'             => PHP_OS_FAMILY,
 			'environment_type'      => function_exists( 'wp_get_environment_type' ) ? sanitize_key( (string) wp_get_environment_type() ) : 'production',
-			'home_url_host'         => sanitize_text_field( (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( home_url(), PHP_URL_HOST ) : parse_url( home_url(), PHP_URL_HOST ) ) ),
-			'site_url_host'         => sanitize_text_field( (string) ( function_exists( 'wp_parse_url' ) ? wp_parse_url( site_url(), PHP_URL_HOST ) : parse_url( site_url(), PHP_URL_HOST ) ) ),
+			'home_url_host'         => sanitize_text_field( (string) wp_parse_url( home_url(), PHP_URL_HOST ) ),
+			'site_url_host'         => sanitize_text_field( (string) wp_parse_url( site_url(), PHP_URL_HOST ) ),
 			'document_root_present' => $document_root_present,
 			'document_root_redacted' => $document_root_present,
 		);
@@ -11896,18 +11898,11 @@ final class Core_Read_Package {
 			return array();
 		}
 
-		$handle = fopen( $path, 'rb' );
-		if ( ! is_resource( $handle ) ) {
+		$max_bytes = 262144;
+		$contents = $this->read_diagnostics_log_contents( $path, $max_bytes );
+		if ( '' === $contents ) {
 			return array();
 		}
-		$size = filesize( $path );
-		$size = false === $size ? 0 : absint( $size );
-		$max_bytes = 262144;
-		if ( $size > $max_bytes ) {
-			fseek( $handle, -1 * $max_bytes, SEEK_END );
-		}
-		$contents = (string) stream_get_contents( $handle );
-		fclose( $handle );
 
 		$lines = preg_split( "/\r\n|\n|\r/", $contents );
 		$lines = is_array( $lines ) ? $lines : array();
@@ -11939,7 +11934,42 @@ final class Core_Read_Package {
 	}
 
 	/**
-	 * Parses one log line into a redacted diagnostics entry.
+	 * Reads bounded log contents through WordPress filesystem APIs.
+	 *
+	 * @param string $path Log path.
+	 * @param int    $max_bytes Maximum bytes to retain from the end.
+	 * @return string
+	 */
+	private function read_diagnostics_log_contents( $path, $max_bytes ) {
+		if ( ! function_exists( 'WP_Filesystem' ) && defined( 'ABSPATH' ) ) {
+			$wp_filesystem_file = ABSPATH . 'wp-admin/includes/file.php';
+			if ( is_readable( $wp_filesystem_file ) ) {
+				require_once $wp_filesystem_file;
+			}
+		}
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			return '';
+		}
+
+		global $wp_filesystem;
+		if ( ! is_object( $wp_filesystem ) ) {
+			WP_Filesystem();
+		}
+		if ( ! is_object( $wp_filesystem ) || ! method_exists( $wp_filesystem, 'get_contents' ) ) {
+			return '';
+		}
+
+		$contents = $wp_filesystem->get_contents( (string) $path );
+		if ( ! is_string( $contents ) ) {
+			return '';
+		}
+
+		$max_bytes = max( 1, absint( $max_bytes ) );
+		return strlen( $contents ) > $max_bytes ? substr( $contents, -1 * $max_bytes ) : $contents;
+	}
+
+		/**
+		 * Parses one log line into a redacted diagnostics entry.
 	 *
 	 * @param mixed $line Raw line.
 	 * @return array<string,mixed>
@@ -14100,9 +14130,7 @@ final class Core_Read_Package {
 	 * @return string
 	 */
 	private function normalize_plain_text( $value ) {
-		$text = function_exists( 'wp_strip_all_tags' )
-			? wp_strip_all_tags( (string) $value )
-			: strip_tags( (string) $value );
+		$text = wp_strip_all_tags( (string) $value );
 		$text = html_entity_decode( $text, ENT_QUOTES, 'UTF-8' );
 		$text = preg_replace( '/\s+/u', ' ', $text );
 		return trim( is_string( $text ) ? $text : '' );
@@ -14854,7 +14882,7 @@ final class Core_Read_Package {
 	 * @return string
 	 */
 	private function strip_all_tags_value( $value ) {
-		return function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( (string) $value ) : strip_tags( (string) $value );
+		return wp_strip_all_tags( (string) $value );
 	}
 
 	/**

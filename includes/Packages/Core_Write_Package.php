@@ -2161,7 +2161,7 @@ final class Core_Write_Package {
 
 		$content_payload = $this->normalize_content_input( $input, 'content' );
 		$content         = (string) ( $content_payload['content'] ?? '' );
-		$stripped        = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $content ) : strip_tags( $content );
+		$stripped        = wp_strip_all_tags( $content );
 		if ( '' === trim( (string) $stripped ) ) {
 			return new \WP_Error( 'magick_ai_abilities_comment_content_required', __( 'Reply content is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
 		}
@@ -2569,7 +2569,7 @@ final class Core_Write_Package {
 			return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
 		}
 
-		$path     = parse_url( $url, PHP_URL_PATH );
+		$path     = wp_parse_url( $url, PHP_URL_PATH );
 		$path     = is_string( $path ) ? $path : '';
 		$filename = sanitize_file_name( basename( $path ) );
 		if ( '' === $filename ) {
@@ -2904,7 +2904,7 @@ final class Core_Write_Package {
 	 */
 	private function strip_duplicate_title_heading( $content, $title ) {
 		$strip_tags = static function ( $value ) {
-			return function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( (string) $value ) : strip_tags( (string) $value );
+			return wp_strip_all_tags( (string) $value );
 		};
 		$title = trim( $strip_tags( (string) $title ) );
 		if ( '' === $title ) {
