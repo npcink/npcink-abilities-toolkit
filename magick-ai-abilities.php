@@ -30,6 +30,7 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Ability_Registrar.php'
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Integration/Magick_Catalog_Bridge.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Workflow/Workflow_Definition_Provider.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Page_Read_Methods.php';

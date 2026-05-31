@@ -482,6 +482,7 @@ require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.p
 require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
 require_once dirname( __DIR__ ) . '/includes/Workflow/Workflow_Definition_Provider.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Page_Read_Methods.php';
