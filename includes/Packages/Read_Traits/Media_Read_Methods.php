@@ -54,12 +54,13 @@ trait Media_Read_Methods {
 			if ( '' !== $date_to ) {
 				$args['date_query']['before'] = $date_to;
 			}
-		}
+			}
 
-		if ( ! empty( $input['has_empty_alt'] ) ) {
-			$args['meta_query'] = is_array( $args['meta_query'] ?? null ) ? $args['meta_query'] : array();
-			$args['meta_query'][] = array(
-				'relation' => 'OR',
+			if ( ! empty( $input['has_empty_alt'] ) ) {
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optional bounded media audit filter for missing attachment alt text.
+				$args['meta_query'] = is_array( $args['meta_query'] ?? null ) ? $args['meta_query'] : array();
+				$args['meta_query'][] = array(
+					'relation' => 'OR',
 				array(
 					'key'     => '_wp_attachment_image_alt',
 					'compare' => 'NOT EXISTS',
@@ -70,12 +71,13 @@ trait Media_Read_Methods {
 					'compare' => '=',
 				),
 			);
-		}
+			}
 
-		if ( ! empty( $input['has_empty_caption'] ) ) {
-			$args['meta_query'] = is_array( $args['meta_query'] ?? null ) ? $args['meta_query'] : array();
-			$args['meta_query'][] = array(
-				'relation' => 'OR',
+			if ( ! empty( $input['has_empty_caption'] ) ) {
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optional bounded media audit filter for missing attachment metadata.
+				$args['meta_query'] = is_array( $args['meta_query'] ?? null ) ? $args['meta_query'] : array();
+				$args['meta_query'][] = array(
+					'relation' => 'OR',
 				array(
 					'key'     => '_wp_attachment_metadata',
 					'compare' => 'NOT EXISTS',
@@ -133,16 +135,18 @@ trait Media_Read_Methods {
 			return array();
 		}
 
-		$featured_query = new \WP_Query(
-			array(
-				'post_type'      => 'any',
-				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
-				'posts_per_page' => 5,
-				'fields'         => 'ids',
-				'meta_key'       => '_thumbnail_id',
-				'meta_value'     => $attachment_id,
-			)
-		);
+			$featured_query = new \WP_Query(
+				array(
+					'post_type'      => 'any',
+					'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+					'posts_per_page' => 5,
+					'fields'         => 'ids',
+					// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Attachment usage context needs a bounded featured-image lookup by _thumbnail_id.
+					'meta_key'       => '_thumbnail_id',
+					'meta_value'     => $attachment_id,
+					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				)
+			);
 		$featured_posts = array();
 		foreach ( (array) $featured_query->posts as $post_id ) {
 			$post_id = absint( $post_id );

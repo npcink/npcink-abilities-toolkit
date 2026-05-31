@@ -242,12 +242,13 @@ private function estimate_transient_count() {
 		if ( is_array( $cached ) && array_key_exists( 'value', $cached ) ) {
 			return null === $cached['value'] ? null : absint( $cached['value'] );
 		}
-	}
+		}
 
-	$like = $wpdb->esc_like( '_transient_' ) . '%';
-	$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
-	$value = null === $count ? null : absint( $count );
-	if ( function_exists( 'wp_cache_set' ) ) {
+		$like = $wpdb->esc_like( '_transient_' ) . '%';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Diagnostics need a cached aggregate that WordPress does not expose through an API.
+		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s", $like ) );
+		$value = null === $count ? null : absint( $count );
+		if ( function_exists( 'wp_cache_set' ) ) {
 		wp_cache_set( $cache_key, array( 'value' => $value ), $cache_group, 300 );
 	}
 
@@ -721,12 +722,13 @@ private function read_database_table_status_rows() {
 		if ( is_array( $cached ) && array_key_exists( 'rows', $cached ) ) {
 			return is_array( $cached['rows'] ) ? $cached['rows'] : null;
 		}
-	}
+		}
 
-	$output_type = defined( 'ARRAY_A' ) ? ARRAY_A : 'ARRAY_A';
-	$rows = $wpdb->get_results( 'SHOW TABLE STATUS', $output_type );
-	$rows = is_array( $rows ) ? $rows : null;
-	if ( function_exists( 'wp_cache_set' ) ) {
+		$output_type = defined( 'ARRAY_A' ) ? ARRAY_A : 'ARRAY_A';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Diagnostics table-size summaries require SHOW TABLE STATUS and are cached for bounded reads.
+		$rows = $wpdb->get_results( 'SHOW TABLE STATUS', $output_type );
+		$rows = is_array( $rows ) ? $rows : null;
+		if ( function_exists( 'wp_cache_set' ) ) {
 		wp_cache_set( $cache_key, array( 'rows' => $rows ), $cache_group, 300 );
 	}
 

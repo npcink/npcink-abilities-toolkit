@@ -115,10 +115,12 @@ trait Article_Production_Read_Methods {
 					'posts_per_page'   => 1,
 					'orderby'          => 'ID',
 					'order'            => 'DESC',
+					// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Duplicate guard uses one bounded fingerprint lookup across existing article drafts.
 					'meta_key'         => '_mai_article_production_fingerprint',
 					'meta_value'       => $production_fingerprint,
+					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 					'fields'           => 'ids',
-						'suppress_filters' => false,
+					'suppress_filters' => false,
 				)
 			);
 			$post_id = $this->absint_value( is_array( $posts ) ? ( $posts[0] ?? 0 ) : 0 );

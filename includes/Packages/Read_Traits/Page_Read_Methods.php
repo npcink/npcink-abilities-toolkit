@@ -144,13 +144,14 @@ trait Page_Read_Methods {
 		}
 
 		$available_templates = $this->get_page_templates();
-		$result = array(
-			'id'                  => $page_id,
-			'title'               => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
-			'slug'                => sanitize_title( (string) ( $post->post_name ?? '' ) ),
-			'content'             => apply_filters( 'the_content', (string) ( $post->post_content ?? '' ) ),
-			'content_raw'         => (string) ( $post->post_content ?? '' ),
-			'excerpt'             => sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) ),
+			$result = array(
+				'id'                  => $page_id,
+				'title'               => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+				'slug'                => sanitize_title( (string) ( $post->post_name ?? '' ) ),
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- the_content is a WordPress core hook required for rendered page content.
+				'content'             => apply_filters( 'the_content', (string) ( $post->post_content ?? '' ) ),
+				'content_raw'         => (string) ( $post->post_content ?? '' ),
+				'excerpt'             => sanitize_textarea_field( (string) ( $post->post_excerpt ?? '' ) ),
 			'status'              => sanitize_key( (string) ( $post->post_status ?? '' ) ),
 			'template'            => $template,
 			'parent_id'           => absint( $post->post_parent ?? 0 ),

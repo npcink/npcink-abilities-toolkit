@@ -1223,12 +1223,13 @@ final class Core_Destructive_Package {
 					'operator' => 'NOT IN',
 				);
 			}
-			if ( count( $tax_query ) > 1 ) {
-				$tax_query['relation'] = 'AND';
+				if ( count( $tax_query ) > 1 ) {
+					$tax_query['relation'] = 'AND';
+				}
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Destructive plans honor user-selected taxonomy filters and are bounded by caller limits.
+				$args['tax_query'] = $tax_query;
 			}
-			$args['tax_query'] = $tax_query;
-		}
-		return $args;
+			return $args;
 	}
 
 	/**

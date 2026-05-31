@@ -867,12 +867,13 @@ trait Content_Refresh_SEO_Read_Methods {
 	private function query_internal_link_candidate_ids( $current_post_id, $term, $max_targets ) {
 		$args = array(
 			'post_type'      => 'any',
-			'post_status'    => array( 'publish' ),
-			'posts_per_page' => $max_targets,
-			's'              => $term,
-			'post__not_in'   => $current_post_id > 0 ? array( $current_post_id ) : array(),
-			'fields'         => 'ids',
-		);
+				'post_status'    => array( 'publish' ),
+				'posts_per_page' => $max_targets,
+				's'              => $term,
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Bounded candidate search must exclude the source post from its own internal-link targets.
+				'post__not_in'   => $current_post_id > 0 ? array( $current_post_id ) : array(),
+				'fields'         => 'ids',
+			);
 
 		if ( class_exists( '\WP_Query' ) ) {
 			$query = new \WP_Query( $args );

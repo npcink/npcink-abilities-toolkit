@@ -412,18 +412,20 @@ final class Core_WordPress_Read_Definitions {
 				'contract_version' => 'v1',
 				'source'           => 'official',
 				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
-						'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
-						'meta_key' => array( 'type' => 'string' ),
-						'single'   => array( 'type' => 'boolean', 'default' => true ),
-					),
+						'type'       => 'object',
+						'properties' => array(
+							'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
+							// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- This is a JSON schema property name, not a WP_Query argument.
+							'meta_key' => array( 'type' => 'string' ),
+							'single'   => array( 'type' => 'boolean', 'default' => true ),
+						),
 					'required'   => array( 'post_id' ),
 				),
 				'output_schema'    => array(
 					'type'       => 'object',
 					'properties' => array(
 						'post_id'  => array( 'type' => 'integer' ),
+						// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- This is a JSON schema property name, not a WP_Query argument.
 						'meta_key' => array( 'type' => 'string' ),
 						'value'    => array(),
 						'single'   => array( 'type' => 'boolean' ),

@@ -3107,6 +3107,7 @@ final class Core_Read_Package {
 					'post_status'    => array( 'publish' ),
 					'posts_per_page' => $max_targets,
 					's'              => $term,
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Bounded candidate search must exclude the source post from its own internal-link targets.
 					'post__not_in'   => $current_post_id > 0 ? array( $current_post_id ) : array(),
 					'fields'         => 'ids',
 				)
@@ -3374,12 +3375,13 @@ final class Core_Read_Package {
 			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post meta.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
 		}
 
-		if ( '' !== $meta_key ) {
-			return array(
-				'post_id'  => $post_id,
-				'meta_key' => $meta_key,
-				'value'    => get_post_meta( $post_id, $meta_key, $single ),
-				'single'   => $single,
+			if ( '' !== $meta_key ) {
+				return array(
+					'post_id'  => $post_id,
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Response field name mirrors the requested post meta key and is not a query argument.
+					'meta_key' => $meta_key,
+					'value'    => get_post_meta( $post_id, $meta_key, $single ),
+					'single'   => $single,
 			);
 		}
 
@@ -3472,12 +3474,13 @@ final class Core_Read_Package {
 			if ( '' !== $modified_before ) {
 				$modified_query['before'] = $modified_before;
 			}
-			$args['date_query'][] = $modified_query;
-		}
-		if ( '' !== $taxonomy && ( $term_id > 0 || '' !== $term_slug ) && taxonomy_exists( $taxonomy ) ) {
-			$args['tax_query'] = array(
-				array(
-					'taxonomy' => $taxonomy,
+				$args['date_query'][] = $modified_query;
+			}
+			if ( '' !== $taxonomy && ( $term_id > 0 || '' !== $term_slug ) && taxonomy_exists( $taxonomy ) ) {
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- This read endpoint exposes an explicitly requested bounded taxonomy filter.
+				$args['tax_query'] = array(
+					array(
+						'taxonomy' => $taxonomy,
 					'field'    => $term_id > 0 ? 'term_id' : 'slug',
 					'terms'    => $term_id > 0 ? array( $term_id ) : array( $term_slug ),
 				),
@@ -4507,12 +4510,13 @@ final class Core_Read_Package {
 				'post_type'      => 'any',
 				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
 				'posts_per_page' => $limit,
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-				'fields'         => 'ids',
-				'tax_query'      => array(
-					array(
-						'taxonomy' => $taxonomy,
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+					'fields'         => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Bounded sample posts are required context for taxonomy inventory reads.
+					'tax_query'      => array(
+						array(
+							'taxonomy' => $taxonomy,
 						'field'    => 'term_id',
 						'terms'    => array( $term_id ),
 					),
