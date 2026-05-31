@@ -59,6 +59,46 @@ function magick_ai_abilities_smoke_has_ability_name( $items, $name ) {
 }
 
 /**
+ * Fetches all ability catalog pages through REST.
+ *
+ * @param string $namespace Optional namespace filter.
+ * @param string $status_message Assertion message for the first page.
+ * @return array<int,mixed>
+ */
+function magick_ai_abilities_smoke_rest_catalog( $namespace, $status_message ) {
+	$items = array();
+	$page = 1;
+	$total_pages = 1;
+
+	do {
+		$request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' );
+		$request->set_param( 'per_page', 100 );
+		$request->set_param( 'page', $page );
+		if ( '' !== $namespace ) {
+			$request->set_param( 'namespace', $namespace );
+		}
+
+		$response = rest_do_request( $request );
+		if ( 1 === $page ) {
+			magick_ai_abilities_smoke_assert( 200 === (int) $response->get_status(), $status_message );
+		} else {
+			magick_ai_abilities_smoke_assert( 200 === (int) $response->get_status(), "Authenticated abilities REST catalog page {$page} returns 200." );
+		}
+
+		$data = $response->get_data();
+		if ( is_array( $data ) ) {
+			$items = array_merge( $items, $data );
+		}
+
+		$headers = $response->get_headers();
+		$total_pages = isset( $headers['X-WP-TotalPages'] ) ? max( 1, (int) $headers['X-WP-TotalPages'] ) : $total_pages;
+		++$page;
+	} while ( $page <= $total_pages );
+
+	return $items;
+}
+
+/**
  * Fetches one ability detail through REST.
  *
  * @param string $ability_id Ability id.
@@ -122,17 +162,8 @@ magick_ai_abilities_smoke_assert( $admin_id > 0, 'An administrator user is avail
 
 wp_set_current_user( $admin_id );
 
-$abilities_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' );
-$abilities_response = rest_do_request( $abilities_request );
-magick_ai_abilities_smoke_assert( 200 === (int) $abilities_response->get_status(), 'Authenticated abilities REST catalog returns 200.' );
-
-$provider_abilities_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities' );
-$provider_abilities_request->set_param( 'namespace', 'magick-ai-abilities' );
-$provider_abilities_request->set_param( 'per_page', 100 );
-$provider_abilities_response = rest_do_request( $provider_abilities_request );
-magick_ai_abilities_smoke_assert( 200 === (int) $provider_abilities_response->get_status(), 'Authenticated provider namespace REST catalog returns 200.' );
-
-$provider_abilities_data = $provider_abilities_response->get_data();
+$abilities_data = magick_ai_abilities_smoke_rest_catalog( '', 'Authenticated abilities REST catalog returns 200.' );
+$provider_abilities_data = magick_ai_abilities_smoke_rest_catalog( 'magick-ai-abilities', 'Authenticated provider namespace REST catalog returns 200.' );
 if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 	magick_ai_abilities_smoke_assert(
 		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/site-summary' ),
