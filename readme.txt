@@ -1,5 +1,5 @@
 === Magick AI Abilities ===
-Contributors: magick-ai
+Contributors: muze233
 Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
 Tested up to: 7.0
