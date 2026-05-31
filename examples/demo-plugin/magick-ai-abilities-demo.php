@@ -3,8 +3,8 @@
  * Plugin Name: Magick AI Abilities Demo
  * Description: Example provider plugin that registers abilities through Magick AI Abilities.
  * Version: 0.1.0
- * Requires at least: 6.9
- * Requires PHP: 7.2
+ * Requires at least: 7.0
+ * Requires PHP: 8.0
  * Author: Magick AI
  * Text Domain: magick-ai-abilities-demo
  *

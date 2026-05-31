@@ -3,8 +3,8 @@
  * Plugin Name: Magick AI Abilities
  * Description: Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.
  * Version: 0.4.0
- * Requires at least: 6.9
- * Requires PHP: 7.2
+ * Requires at least: 7.0
+ * Requires PHP: 8.0
  * Author: Magick AI
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

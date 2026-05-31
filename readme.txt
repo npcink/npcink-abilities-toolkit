@@ -1,9 +1,9 @@
 === Magick AI Abilities ===
 Contributors: magick-ai
 Tags: abilities api, agents, ai, automation
-Requires at least: 6.9
+Requires at least: 7.0
 Tested up to: 7.0
-Requires PHP: 7.2
+Requires PHP: 8.0
 Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -26,8 +26,8 @@ Workflow recipe definitions are available through read-only helpers and Abilitie
 
 == Requirements ==
 
-* WordPress 6.9 or later with the Abilities API available.
-* PHP 7.2 or later.
+* WordPress 7.0 or later with the Abilities API available.
+* PHP 8.0 or later.
 
 == Public API ==
 

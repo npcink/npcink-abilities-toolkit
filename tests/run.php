@@ -57,6 +57,10 @@ maa_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admi
 maa_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
 maa_assert_true( false !== strpos( $admin_test_page, 'Ability Packages' ), 'admin test page uses the shared submenu title when attached' );
 
+$main_plugin_header = file_get_contents( __DIR__ . '/../magick-ai-abilities.php' );
+maa_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );
+maa_assert_true( false !== strpos( $main_plugin_header, 'Requires PHP: 8.0' ), 'main plugin header requires PHP 8.0' );
+
 function maa_schema_contract_fingerprint( array $schema ) {
 	$properties = array();
 	foreach ( (array) ( $schema['properties'] ?? array() ) as $property_key => $property_schema ) {

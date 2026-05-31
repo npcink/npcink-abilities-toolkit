@@ -21,8 +21,8 @@ It does not own model routing, cloud execution, billing, quota, workflow runtime
 
 ## Requirements
 
-- WordPress 6.9+ with the Abilities API available
-- PHP 7.2+
+- WordPress 7.0+ with the Abilities API available
+- PHP 8.0+
 
 ## Public API
 
