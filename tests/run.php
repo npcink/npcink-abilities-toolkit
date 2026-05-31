@@ -51,6 +51,12 @@ function maa_assert_array_omits_keys( $value, array $forbidden_keys, $path ) {
 	}
 }
 
+$admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+maa_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Magick AI parent slug' );
+maa_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Magick AI menu' );
+maa_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
+maa_assert_true( false !== strpos( $admin_test_page, 'Ability Packages' ), 'admin test page uses the shared submenu title when attached' );
+
 function maa_schema_contract_fingerprint( array $schema ) {
 	$properties = array();
 	foreach ( (array) ( $schema['properties'] ?? array() ) as $property_key => $property_schema ) {

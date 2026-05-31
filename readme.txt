@@ -42,7 +42,7 @@ Workflow recipe definitions are available through read-only helpers and Abilitie
 
 == Test Page ==
 
-After activation, open Tools -> Abilities API Packages in wp-admin.
+After activation with a Magick AI host plugin, open Magick AI -> Ability Packages in wp-admin. When this standalone package is installed without a Magick AI host menu, open Tools -> Abilities API Packages instead.
 
 The page verifies Abilities API availability, fetches the authenticated REST ability and category catalogs, and can enable/run a demo readonly ability.
 

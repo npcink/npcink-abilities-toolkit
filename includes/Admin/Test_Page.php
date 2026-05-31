@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Test_Page {
 	const OPTION_DEMO_ENABLED = 'magick_ai_abilities_demo_enabled';
+	const PARENT_MENU_SLUG    = 'magick-ai';
 	const MENU_SLUG           = 'magick-ai-abilities-test';
 
 	/**
@@ -43,7 +44,7 @@ final class Test_Page {
 	 */
 	public function boot() {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_menu', array( $this, 'register_menu' ) );
+		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
 
 		if ( $this->is_demo_enabled() ) {
 			$this->register_demo_ability();
@@ -75,6 +76,19 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function register_menu() {
+		if ( $this->has_magick_parent_menu() ) {
+			add_submenu_page(
+				self::PARENT_MENU_SLUG,
+				__( 'Abilities API Packages', 'magick-ai-abilities' ),
+				__( 'Ability Packages', 'magick-ai-abilities' ),
+				'manage_options',
+				self::MENU_SLUG,
+				array( $this, 'render' ),
+				40
+			);
+			return;
+		}
+
 		add_management_page(
 			__( 'Abilities API Packages', 'magick-ai-abilities' ),
 			__( 'Abilities API Packages', 'magick-ai-abilities' ),
@@ -82,6 +96,23 @@ final class Test_Page {
 			self::MENU_SLUG,
 			array( $this, 'render' )
 		);
+	}
+
+	/**
+	 * Returns whether a Magick AI parent menu was registered by a host plugin.
+	 *
+	 * @return bool
+	 */
+	private function has_magick_parent_menu() {
+		global $menu;
+
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && self::PARENT_MENU_SLUG === $item[2] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
