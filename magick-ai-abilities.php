@@ -32,6 +32,7 @@ require_once MAGICK_AI_ABILITIES_DIR . 'includes/Workflow/Workflow_Definition_Pr
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
+require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Taxonomy_Read_Methods.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Agent_Usage_Metadata.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
 require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
