@@ -269,7 +269,7 @@ final class Core_Destructive_Package {
 					),
 					array( 'comment_id' )
 				),
-				'output_schema'   => $this->comment_output_schema( false ),
+				'output_schema'   => $this->comment_output_schema( true ),
 				'execute_callback' => array( $this, 'trash_comment' ),
 			),
 			'magick-ai/delete-media-permanently' => array(
