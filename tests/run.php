@@ -739,6 +739,7 @@ maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-che
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-test-content-inventory']['input_schema']['properties']['per_page']['maximum'] ?? null, 'test content inventory scan is bounded to 100 items per section' );
 maa_assert_same( 50, $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'test content cleanup plan bounds planned actions to Adapter batch execution limit' );
+maa_assert_same( true, $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['include_posts']['default'] ?? null, 'test content cleanup plan exposes include_posts control' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['mode'] ), 'test content cleanup plan does not expose unused mode input' );
 maa_assert_same( 100, $package_abilities['magick-ai/build-content-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'content inventory fix plan bounds planned actions' );
 maa_assert_same( array( 'post.read' ), $package_abilities['magick-ai/build-content-inventory-fix-plan']['required_scopes'] ?? array(), 'content inventory fix plan remains a read-scope planning ability' );
@@ -1652,6 +1653,31 @@ $test_inventory = $core_read_package->get_test_content_inventory(
 maa_assert_same( true, $test_inventory['success'] ?? null, 'get-test-content-inventory returns a success envelope' );
 maa_assert_same( true, $test_inventory['data']['detected'] ?? null, 'get-test-content-inventory detects matching smoke content' );
 maa_assert_same( 'Core Governance', $test_inventory['data']['posts']['items'][0]['matched_pattern'] ?? '', 'get-test-content-inventory returns matched pattern' );
+$GLOBALS['maa_unit_style_posts'][81] = (object) array(
+	'ID'           => 81,
+	'post_title'   => 'Core Plan Bridge Content Candidate',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => 'Temporary plan bridge fixture content for local validation.',
+	'post_name'    => 'core-plan-bridge-content-candidate',
+	'post_author'  => 7,
+	'post_modified' => '2026-05-30 10:30:00',
+);
+$default_test_inventory = $core_read_package->get_test_content_inventory(
+	array(
+		'per_page' => 10,
+	)
+);
+$default_plan_bridge_match = null;
+foreach ( (array) ( $default_test_inventory['data']['posts']['items'] ?? array() ) as $default_test_inventory_item ) {
+	if ( 81 === (int) ( $default_test_inventory_item['post_id'] ?? 0 ) ) {
+		$default_plan_bridge_match = $default_test_inventory_item;
+		break;
+	}
+}
+maa_assert_same( true, $default_test_inventory['data']['detected'] ?? null, 'get-test-content-inventory detects Core Plan Bridge fixtures by default' );
+maa_assert_same( 'core plan bridge content candidate', $default_plan_bridge_match['matched_pattern'] ?? '', 'get-test-content-inventory includes Core Plan Bridge fixture patterns by default' );
 $cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
 	array(
 		'patterns'    => array( 'Core Governance' ),
@@ -1663,6 +1689,29 @@ maa_assert_same( 'batch', $cleanup_plan['data']['proposal_mode'] ?? '', 'test co
 maa_assert_same( true, $cleanup_plan['data']['batch_approval'] ?? null, 'test content cleanup plan requests one approval for the generated action batch' );
 maa_assert_same( 'magick-ai/trash-post', $cleanup_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'test content cleanup plan reuses trash-post' );
 maa_assert_same( false, $cleanup_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'test content cleanup plan does not execute commits' );
+$default_cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+	array(
+		'max_actions' => 5,
+	)
+);
+$default_cleanup_plan_bridge_action = null;
+foreach ( (array) ( $default_cleanup_plan['data']['write_actions'] ?? array() ) as $default_cleanup_action ) {
+	if ( 81 === (int) ( $default_cleanup_action['input']['post_id'] ?? 0 ) ) {
+		$default_cleanup_plan_bridge_action = $default_cleanup_action;
+		break;
+	}
+}
+maa_assert_same( 'magick-ai/trash-post', $default_cleanup_plan_bridge_action['target_ability_id'] ?? '', 'test content cleanup plan includes Core Plan Bridge fixture posts by default' );
+$terms_only_cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+	array(
+		'include_posts'    => false,
+		'include_terms'    => false,
+		'include_comments' => false,
+		'max_actions'      => 5,
+	)
+);
+maa_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['preview']['posts'] ?? array() ) ), 'test content cleanup plan honors include_posts=false' );
+maa_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['write_actions'] ?? array() ) ), 'test content cleanup plan does not generate post actions when include_posts=false' );
 $GLOBALS['maa_unit_style_posts'][80] = (object) array(
 	'ID'           => 80,
 	'post_title'   => 'Inventory Fix Candidate',

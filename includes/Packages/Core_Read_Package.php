@@ -1564,6 +1564,7 @@ final class Core_Read_Package {
 						'patterns'        => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
 						'post_types'      => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'post', 'page' ) ),
 						'statuses'        => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'publish', 'draft', 'pending', 'future', 'private' ) ),
+						'include_posts'   => array( 'type' => 'boolean', 'default' => true ),
 						'include_terms'   => array( 'type' => 'boolean', 'default' => true ),
 						'include_comments' => array( 'type' => 'boolean', 'default' => true ),
 						'per_page'        => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),

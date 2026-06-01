@@ -221,6 +221,7 @@ trait Content_Inventory_Read_Methods {
 				'patterns'         => $input['patterns'] ?? array(),
 				'post_types'       => $input['post_types'] ?? array( 'post', 'page' ),
 				'statuses'         => $input['statuses'] ?? array( 'publish', 'draft', 'pending', 'future', 'private' ),
+				'include_posts'    => ! array_key_exists( 'include_posts', $input ) || ! empty( $input['include_posts'] ),
 				'include_terms'    => ! array_key_exists( 'include_terms', $input ) || ! empty( $input['include_terms'] ),
 				'include_comments' => ! array_key_exists( 'include_comments', $input ) || ! empty( $input['include_comments'] ),
 				'per_page'         => $input['per_page'] ?? 50,
@@ -422,6 +423,11 @@ trait Content_Inventory_Read_Methods {
 			'本地文章生产 smoke',
 			'core smoke candidate topic',
 			'core smoke current topic',
+			'core plan bridge content candidate',
+			'core plan bridge test cleanup candidate',
+			'core governance comment smoke',
+			'taxonomy terms smoke parent post',
+			'core plan bridge media candidate',
 		);
 	}
 
