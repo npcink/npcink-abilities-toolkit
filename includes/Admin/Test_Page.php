@@ -146,9 +146,7 @@ final class Test_Page {
 				if ( 'catalog' === $active_tab ) {
 					$this->render_ability_catalog( $registered );
 				} elseif ( 'smoke' === $active_tab ) {
-					$this->render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled );
-				} elseif ( 'advanced' === $active_tab ) {
-					$this->render_advanced_checks( $abilities_url, $categories_url, $registered );
+					$this->render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled, $registered );
 				} else {
 					$this->render_status_summary( $status, $registered, $demo_enabled );
 				}
@@ -191,6 +189,23 @@ final class Test_Page {
 					runRequest(button.getAttribute('data-magick-ai-abilities-fetch'));
 				});
 			});
+
+			document.querySelectorAll('[data-magick-ai-abilities-copy]').forEach(function (button) {
+				button.addEventListener('click', async function () {
+					const target = document.getElementById(button.getAttribute('data-magick-ai-abilities-copy'));
+					if (!target) {
+						return;
+					}
+
+					try {
+						await navigator.clipboard.writeText(target.value || target.textContent || '');
+						button.textContent = <?php echo wp_json_encode( __( 'Copied', 'magick-ai-abilities' ) ); ?>;
+					} catch (error) {
+						target.focus();
+						target.select();
+					}
+				});
+			});
 		})();
 		</script>
 		<?php
@@ -218,7 +233,6 @@ final class Test_Page {
 			'overview' => __( 'Overview', 'magick-ai-abilities' ),
 			'catalog'  => __( 'Catalog', 'magick-ai-abilities' ),
 			'smoke'    => __( 'Smoke tests', 'magick-ai-abilities' ),
-			'advanced' => __( 'Advanced', 'magick-ai-abilities' ),
 		);
 	}
 
@@ -315,6 +329,34 @@ final class Test_Page {
 				gap: 8px;
 			}
 
+			.magick-ai-abilities-filter {
+				align-items: end;
+				background: #fff;
+				border: 1px solid #c3c4c7;
+				display: grid;
+				gap: 12px;
+				grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr)) auto;
+				margin: 12px 0;
+				max-width: 1100px;
+				padding: 12px;
+			}
+
+			.magick-ai-abilities-filter label {
+				display: block;
+				font-weight: 600;
+			}
+
+			.magick-ai-abilities-filter input,
+			.magick-ai-abilities-filter select {
+				margin-top: 4px;
+				width: 100%;
+			}
+
+			.magick-ai-abilities-catalog-meta {
+				color: #646970;
+				margin: 12px 0;
+			}
+
 			.magick-ai-abilities-disclosure {
 				background: #fff;
 				border: 1px solid #c3c4c7;
@@ -370,6 +412,33 @@ final class Test_Page {
 				color: #d63638;
 				font-weight: 600;
 			}
+
+			.magick-ai-abilities-pagination {
+				margin-top: 12px;
+			}
+
+			.magick-ai-abilities-pagination .page-numbers {
+				background: #fff;
+				border: 1px solid #c3c4c7;
+				display: inline-block;
+				margin-right: 4px;
+				min-width: 28px;
+				padding: 4px 8px;
+				text-align: center;
+				text-decoration: none;
+			}
+
+			.magick-ai-abilities-pagination .current {
+				background: #2271b1;
+				border-color: #2271b1;
+				color: #fff;
+			}
+
+			@media (max-width: 782px) {
+				.magick-ai-abilities-filter {
+					grid-template-columns: 1fr;
+				}
+			}
 		</style>
 		<?php
 	}
@@ -398,7 +467,7 @@ final class Test_Page {
 		<?php $this->render_status_attention( $status, $registered ); ?>
 
 		<p class="description">
-			<?php echo esc_html__( 'This page is a package status and smoke-test surface. Catalog rows, REST endpoint values, and raw compatibility dumps are available from the tabs above.', 'magick-ai-abilities' ); ?>
+			<?php echo esc_html__( 'This page is a package status and smoke-test surface. Catalog rows are separate, and low-frequency REST details stay under Smoke tests.', 'magick-ai-abilities' ); ?>
 		</p>
 		<?php
 	}
@@ -466,11 +535,19 @@ final class Test_Page {
 	 */
 	private function render_ability_catalog( array $registered ) {
 		ksort( $registered );
-		$groups = $this->group_abilities_by_risk( $registered );
+		$filters       = $this->get_catalog_filters();
+		$filtered      = $this->filter_ability_catalog( $registered, $filters );
+		$total         = count( $filtered );
+		$per_page      = (int) $filters['per_page'];
+		$total_pages   = max( 1, (int) ceil( $total / $per_page ) );
+		$current_page  = min( (int) $filters['paged'], $total_pages );
+		$offset        = ( $current_page - 1 ) * $per_page;
+		$paged_results = array_slice( $filtered, $offset, $per_page, true );
+		$groups        = $this->group_abilities_by_risk( $paged_results );
 		?>
 		<h2><?php echo esc_html__( 'Registered Ability Catalog', 'magick-ai-abilities' ); ?></h2>
 		<p class="description">
-			<?php echo esc_html__( 'Catalog rows are grouped by risk and collapsed by default so readiness issues are easier to scan before opening details.', 'magick-ai-abilities' ); ?>
+			<?php echo esc_html__( 'Filter the catalog before opening grouped readiness details.', 'magick-ai-abilities' ); ?>
 		</p>
 
 		<?php if ( empty( $registered ) ) : ?>
@@ -483,6 +560,26 @@ final class Test_Page {
 			</table>
 			<?php return; ?>
 		<?php endif; ?>
+
+		<?php $this->render_catalog_filters( $registered, $filters ); ?>
+
+		<p class="magick-ai-abilities-catalog-meta">
+			<?php
+			if ( $total > 0 ) {
+				echo esc_html(
+					sprintf(
+						/* translators: 1: first visible row, 2: last visible row, 3: total filtered rows. */
+						__( 'Showing %1$d-%2$d of %3$d abilities.', 'magick-ai-abilities' ),
+						$offset + 1,
+						min( $offset + $per_page, $total ),
+						$total
+					)
+				);
+			} else {
+				echo esc_html__( 'No abilities match the current filters.', 'magick-ai-abilities' );
+			}
+			?>
+		</p>
 
 		<?php foreach ( $groups as $group_key => $abilities ) : ?>
 			<?php
@@ -518,6 +615,211 @@ final class Test_Page {
 				</div>
 			</details>
 		<?php endforeach; ?>
+
+		<?php $this->render_catalog_pagination( $current_page, $total_pages, $filters ); ?>
+		<?php
+	}
+
+	/**
+	 * Returns catalog request filters.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_catalog_filters() {
+		$allowed_per_page = array( 25, 50, 100 );
+		$allowed_risks    = array( '', 'read', 'write', 'destructive', 'other' );
+		$per_page         = isset( $_GET['maa_per_page'] ) ? absint( wp_unslash( $_GET['maa_per_page'] ) ) : 25; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$per_page         = in_array( $per_page, $allowed_per_page, true ) ? $per_page : 25;
+		$risk             = isset( $_GET['maa_risk'] ) ? sanitize_key( wp_unslash( $_GET['maa_risk'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		return array(
+			'query'    => isset( $_GET['maa_query'] ) ? sanitize_text_field( wp_unslash( $_GET['maa_query'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'risk'     => in_array( $risk, $allowed_risks, true ) ? $risk : '',
+			'category' => isset( $_GET['maa_category'] ) ? sanitize_key( wp_unslash( $_GET['maa_category'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'per_page' => $per_page,
+			'paged'    => isset( $_GET['maa_paged'] ) ? max( 1, absint( wp_unslash( $_GET['maa_paged'] ) ) ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		);
+	}
+
+	/**
+	 * Renders catalog filter controls.
+	 *
+	 * @param array<string,array<string,mixed>> $registered Registered abilities.
+	 * @param array<string,mixed>               $filters Active filters.
+	 * @return void
+	 */
+	private function render_catalog_filters( array $registered, array $filters ) {
+		$categories = $this->get_catalog_categories( $registered );
+		$base_url   = menu_page_url( self::MENU_SLUG, false );
+		?>
+		<form class="magick-ai-abilities-filter" method="get" action="<?php echo esc_url( $base_url ); ?>">
+			<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />
+			<input type="hidden" name="maa_tab" value="catalog" />
+			<input type="hidden" name="maa_paged" value="1" />
+
+			<label>
+				<?php echo esc_html__( 'Search', 'magick-ai-abilities' ); ?>
+				<input type="search" name="maa_query" value="<?php echo esc_attr( (string) $filters['query'] ); ?>" placeholder="<?php echo esc_attr__( 'Ability ID, category, or label', 'magick-ai-abilities' ); ?>" />
+			</label>
+
+			<label>
+				<?php echo esc_html__( 'Risk', 'magick-ai-abilities' ); ?>
+				<select name="maa_risk">
+					<option value=""><?php echo esc_html__( 'All risks', 'magick-ai-abilities' ); ?></option>
+					<option value="read" <?php selected( $filters['risk'], 'read' ); ?>><?php echo esc_html__( 'Read', 'magick-ai-abilities' ); ?></option>
+					<option value="write" <?php selected( $filters['risk'], 'write' ); ?>><?php echo esc_html__( 'Write', 'magick-ai-abilities' ); ?></option>
+					<option value="destructive" <?php selected( $filters['risk'], 'destructive' ); ?>><?php echo esc_html__( 'Destructive', 'magick-ai-abilities' ); ?></option>
+					<option value="other" <?php selected( $filters['risk'], 'other' ); ?>><?php echo esc_html__( 'Other', 'magick-ai-abilities' ); ?></option>
+				</select>
+			</label>
+
+			<label>
+				<?php echo esc_html__( 'Category', 'magick-ai-abilities' ); ?>
+				<select name="maa_category">
+					<option value=""><?php echo esc_html__( 'All categories', 'magick-ai-abilities' ); ?></option>
+					<?php foreach ( $categories as $category ) : ?>
+						<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
+							<?php echo esc_html( $category ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+
+			<label>
+				<?php echo esc_html__( 'Per page', 'magick-ai-abilities' ); ?>
+				<select name="maa_per_page">
+					<?php foreach ( array( 25, 50, 100 ) as $per_page ) : ?>
+						<option value="<?php echo esc_attr( (string) $per_page ); ?>" <?php selected( $filters['per_page'], $per_page ); ?>>
+							<?php echo esc_html( (string) $per_page ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+
+			<p class="magick-ai-abilities-actions">
+				<button type="submit" class="button button-primary"><?php echo esc_html__( 'Apply', 'magick-ai-abilities' ); ?></button>
+				<a class="button" href="<?php echo esc_url( add_query_arg( 'maa_tab', 'catalog', $base_url ) ); ?>"><?php echo esc_html__( 'Reset', 'magick-ai-abilities' ); ?></a>
+			</p>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Returns sorted categories for catalog filters.
+	 *
+	 * @param array<string,array<string,mixed>> $registered Registered abilities.
+	 * @return array<int,string>
+	 */
+	private function get_catalog_categories( array $registered ) {
+		$categories = array();
+
+		foreach ( $registered as $definition ) {
+			$definition = is_array( $definition ) ? $definition : array();
+			$category   = (string) ( $definition['category'] ?? '' );
+			if ( '' !== $category ) {
+				$categories[ $category ] = true;
+			}
+		}
+
+		$categories = array_keys( $categories );
+		sort( $categories );
+
+		return $categories;
+	}
+
+	/**
+	 * Filters registered abilities for catalog display.
+	 *
+	 * @param array<string,array<string,mixed>> $registered Registered abilities.
+	 * @param array<string,mixed>               $filters Active filters.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function filter_ability_catalog( array $registered, array $filters ) {
+		$query    = strtolower( (string) $filters['query'] );
+		$risk     = (string) $filters['risk'];
+		$category = (string) $filters['category'];
+		$filtered = array();
+
+		foreach ( $registered as $ability_id => $definition ) {
+			$definition          = is_array( $definition ) ? $definition : array();
+			$definition_risk     = (string) ( $definition['risk_level'] ?? 'other' );
+			$definition_category = (string) ( $definition['category'] ?? '' );
+
+			if ( '' !== $risk && $definition_risk !== $risk ) {
+				continue;
+			}
+
+			if ( '' !== $category && $definition_category !== $category ) {
+				continue;
+			}
+
+			if ( '' !== $query ) {
+				$haystack = strtolower(
+					implode(
+						' ',
+						array(
+							(string) $ability_id,
+							$definition_category,
+							(string) ( $definition['label'] ?? '' ),
+							(string) ( $definition['description'] ?? '' ),
+						)
+					)
+				);
+
+				if ( false === strpos( $haystack, $query ) ) {
+					continue;
+				}
+			}
+
+			$filtered[ $ability_id ] = $definition;
+		}
+
+		return $filtered;
+	}
+
+	/**
+	 * Renders catalog pagination.
+	 *
+	 * @param int                 $current_page Current page number.
+	 * @param int                 $total_pages Total page count.
+	 * @param array<string,mixed> $filters Active filters.
+	 * @return void
+	 */
+	private function render_catalog_pagination( $current_page, $total_pages, array $filters ) {
+		if ( $total_pages <= 1 ) {
+			return;
+		}
+
+		$base_url = add_query_arg(
+			array(
+				'maa_tab'      => 'catalog',
+				'maa_query'    => (string) $filters['query'],
+				'maa_risk'     => (string) $filters['risk'],
+				'maa_category' => (string) $filters['category'],
+				'maa_per_page' => (int) $filters['per_page'],
+				'maa_paged'    => '%#%',
+			),
+			menu_page_url( self::MENU_SLUG, false )
+		);
+		$base_url = str_replace( '%25%23%25', '%#%', $base_url );
+
+		$links = paginate_links(
+			array(
+				'base'      => $base_url,
+				'current'   => $current_page,
+				'total'     => $total_pages,
+				'prev_text' => __( 'Previous', 'magick-ai-abilities' ),
+				'next_text' => __( 'Next', 'magick-ai-abilities' ),
+			)
+		);
+
+		if ( empty( $links ) ) {
+			return;
+		}
+		?>
+		<div class="magick-ai-abilities-pagination">
+			<?php echo wp_kses_post( $links ); ?>
+		</div>
 		<?php
 	}
 
@@ -611,10 +913,11 @@ final class Test_Page {
 	 * @param string $abilities_url Abilities endpoint URL.
 	 * @param string $categories_url Categories endpoint URL.
 	 * @param string $demo_run_url Demo run endpoint URL.
-	 * @param bool   $demo_enabled Whether demo ability is enabled.
+	 * @param bool                $demo_enabled Whether demo ability is enabled.
+	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
 	 */
-	private function render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled ) {
+	private function render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled, array $registered ) {
 		?>
 		<h2><?php echo esc_html__( 'REST endpoints and browser tests', 'magick-ai-abilities' ); ?></h2>
 		<p class="description">
@@ -623,10 +926,6 @@ final class Test_Page {
 
 		<table class="widefat striped" style="max-width: 960px;">
 			<tbody>
-				<tr>
-					<th scope="row"><?php echo esc_html__( 'Current User', 'magick-ai-abilities' ); ?></th>
-					<td><?php echo esc_html( wp_get_current_user()->user_login ); ?></td>
-				</tr>
 				<tr>
 					<th scope="row"><?php echo esc_html__( 'Browser Auth', 'magick-ai-abilities' ); ?></th>
 					<td><?php echo esc_html__( 'Buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication such as application passwords.', 'magick-ai-abilities' ); ?></td>
@@ -664,6 +963,8 @@ final class Test_Page {
 				</form>
 			</div>
 		</details>
+
+		<?php $this->render_advanced_checks( $abilities_url, $categories_url, $registered ); ?>
 		<?php
 	}
 
@@ -695,10 +996,6 @@ final class Test_Page {
 							<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'magick-ai-abilities' ); ?></th>
 							<td><code><?php echo esc_html( $categories_url ); ?></code></td>
 						</tr>
-						<tr>
-							<th scope="row"><?php echo esc_html__( 'Magick App Key', 'magick-ai-abilities' ); ?></th>
-							<td><?php echo esc_html__( 'Not used by wp-abilities/v1 endpoints.', 'magick-ai-abilities' ); ?></td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
@@ -710,7 +1007,12 @@ final class Test_Page {
 				<span class="magick-ai-abilities-disclosure__meta"><?php echo esc_html__( 'Compatibility dump for catalog audits.', 'magick-ai-abilities' ); ?></span>
 			</summary>
 			<div class="magick-ai-abilities-disclosure__body">
-				<pre class="magick-ai-abilities-raw"><?php echo esc_html( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></pre>
+				<p class="magick-ai-abilities-actions">
+					<button type="button" class="button" data-magick-ai-abilities-copy="magick-ai-abilities-raw-ids">
+						<?php echo esc_html__( 'Copy IDs', 'magick-ai-abilities' ); ?>
+					</button>
+				</p>
+				<textarea id="magick-ai-abilities-raw-ids" class="magick-ai-abilities-raw" readonly rows="8"><?php echo esc_textarea( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></textarea>
 			</div>
 		</details>
 		<?php
