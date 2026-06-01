@@ -738,7 +738,7 @@ maa_assert_same( true, $package_abilities['magick-ai/get-post-context']['input_s
 maa_assert_same( false, $package_abilities['magick-ai/get-content-publishing-checklist']['requires_confirm'], 'publishing checklist remains readonly' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-test-content-inventory']['input_schema']['properties']['per_page']['maximum'] ?? null, 'test content inventory scan is bounded to 100 items per section' );
-maa_assert_same( 100, $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'test content cleanup plan bounds planned actions' );
+maa_assert_same( 50, $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'test content cleanup plan bounds planned actions to Adapter batch execution limit' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/build-test-content-cleanup-plan']['input_schema']['properties']['mode'] ), 'test content cleanup plan does not expose unused mode input' );
 maa_assert_same( 100, $package_abilities['magick-ai/build-content-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'content inventory fix plan bounds planned actions' );
 maa_assert_same( array( 'post.read' ), $package_abilities['magick-ai/build-content-inventory-fix-plan']['required_scopes'] ?? array(), 'content inventory fix plan remains a read-scope planning ability' );
@@ -1659,6 +1659,8 @@ $cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
 	)
 );
 maa_assert_same( true, $cleanup_plan['success'] ?? null, 'build-test-content-cleanup-plan returns a success envelope' );
+maa_assert_same( 'batch', $cleanup_plan['data']['proposal_mode'] ?? '', 'test content cleanup plan requests batch proposal intake' );
+maa_assert_same( true, $cleanup_plan['data']['batch_approval'] ?? null, 'test content cleanup plan requests one approval for the generated action batch' );
 maa_assert_same( 'magick-ai/trash-post', $cleanup_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'test content cleanup plan reuses trash-post' );
 maa_assert_same( false, $cleanup_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'test content cleanup plan does not execute commits' );
 $GLOBALS['maa_unit_style_posts'][80] = (object) array(

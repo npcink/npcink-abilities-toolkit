@@ -470,6 +470,8 @@ $test_cleanup_plan_run_response = rest_do_request( $test_cleanup_plan_run_reques
 magick_ai_abilities_smoke_assert( 200 === (int) $test_cleanup_plan_run_response->get_status(), 'Authenticated test content cleanup plan ability run returns 200.' );
 $test_cleanup_plan_run_data = $test_cleanup_plan_run_response->get_data();
 magick_ai_abilities_smoke_assert( false === ( $test_cleanup_plan_run_data['data']['commit_execution'] ?? null ), 'Test content cleanup plan does not execute commits.' );
+magick_ai_abilities_smoke_assert( 'batch' === (string) ( $test_cleanup_plan_run_data['data']['proposal_mode'] ?? '' ), 'Test content cleanup plan requests batch proposal mode.' );
+magick_ai_abilities_smoke_assert( true === (bool) ( $test_cleanup_plan_run_data['data']['batch_approval'] ?? false ), 'Test content cleanup plan requests one approval for the generated batch.' );
 
 $content_fix_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/build-content-inventory-fix-plan/run' );
 $content_fix_plan_run_request->set_query_params(

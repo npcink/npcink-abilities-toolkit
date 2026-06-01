@@ -231,7 +231,7 @@ trait Content_Inventory_Read_Methods {
 		}
 
 		$data = is_array( $inventory['data'] ?? null ) ? $inventory['data'] : array();
-		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
+		$max_actions = max( 1, min( 50, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
 		$actions = array();
 		$preview = array(
 			'posts'    => array(),
@@ -306,6 +306,8 @@ trait Content_Inventory_Read_Methods {
 				'requires_approval' => true,
 				'commit_execution'  => false,
 				'dry_run'           => true,
+				'proposal_mode'     => 'batch',
+				'batch_approval'    => true,
 				'action_count'      => count( $actions ),
 				'write_actions'     => $actions,
 				'preview'           => $preview,

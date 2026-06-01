@@ -1567,7 +1567,7 @@ final class Core_Read_Package {
 						'include_terms'   => array( 'type' => 'boolean', 'default' => true ),
 						'include_comments' => array( 'type' => 'boolean', 'default' => true ),
 						'per_page'        => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
-						'max_actions'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'max_actions'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 50 ),
 					),
 					'additionalProperties' => false,
 				),
