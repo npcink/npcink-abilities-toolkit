@@ -124,6 +124,19 @@ $main_plugin_header = file_get_contents( __DIR__ . '/../magick-ai-abilities.php'
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires PHP: 8.0' ), 'main plugin header requires PHP 8.0' );
 
+$readme = file_get_contents( __DIR__ . '/../README.md' );
+foreach (
+	array(
+		'first-party host-governed dry-run/write and destructive callbacks',
+		'host-governed WordPress write/destructive ability packages',
+		'Host-governed callbacks default to dry-run previews',
+		'A real commit requires approval context',
+		'admission, approval storage, audit truth, or final commit authorization',
+	) as $required
+) {
+	maa_assert_true( false !== strpos( $readme, $required ), 'README precisely scopes host-governed ability ownership: ' . $required );
+}
+
 function maa_schema_contract_fingerprint( array $schema ) {
 	$properties = array();
 	foreach ( (array) ( $schema['properties'] ?? array() ) as $property_key => $property_schema ) {

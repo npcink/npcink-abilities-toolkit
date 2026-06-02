@@ -13,11 +13,15 @@ This project owns the WordPress Abilities API registration layer:
 - ability categories
 - read-only ability registration
 - write-proposal ability registration
+- first-party host-governed dry-run/write and destructive callbacks
 - schema and metadata normalization
 - low-risk WordPress read ability packages
+- host-governed WordPress write/destructive ability packages
 - optional compatibility projection for Magick AI when Magick AI is installed
 
-It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
+Host-governed callbacks default to dry-run previews. A real commit requires approval context from Magick AI Core, Adapter, or another host runtime.
+
+It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, admission, approval storage, audit truth, or final commit authorization.
 
 ## Requirements
 
