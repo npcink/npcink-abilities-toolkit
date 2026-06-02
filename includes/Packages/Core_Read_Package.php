@@ -2312,6 +2312,18 @@ final class Core_Read_Package {
 						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
 						'preferred_format'           => array( 'type' => 'string', 'enum' => array( 'webp', 'avif', 'jpeg', 'png', 'original' ), 'default' => 'webp' ),
 						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'watermark'                  => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'          => array( 'type' => 'string', 'enum' => array( 'image' ), 'default' => 'image' ),
+								'artifact_id'   => array( 'type' => 'string' ),
+								'position'      => array( 'type' => 'string', 'enum' => array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), 'default' => 'bottom_right' ),
+								'opacity'       => array( 'type' => 'number', 'minimum' => 0, 'maximum' => 1, 'default' => 0.75 ),
+								'scale_percent' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 18 ),
+								'margin_px'     => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 1000, 'default' => 24 ),
+							),
+							'additionalProperties' => false,
+						),
 					),
 					'required'             => array( 'attachment_id' ),
 					'additionalProperties' => false,

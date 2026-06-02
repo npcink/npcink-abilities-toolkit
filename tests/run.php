@@ -949,6 +949,10 @@ maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-medi
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['required'] ?? array(), 'media derivative cloud request requires an attachment id' );
 maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media derivative cloud request exposes bounded preferred output formats' );
 maa_assert_same( 82, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['quality']['default'] ?? null, 'media derivative cloud request defaults to quality 82' );
+maa_assert_same( array( 'image' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['type']['enum'] ?? array(), 'media derivative cloud request supports image watermark plans' );
+maa_assert_same( array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded watermark positions' );
+maa_assert_same( 0.75, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['opacity']['default'] ?? null, 'media derivative cloud request defaults watermark opacity' );
+maa_assert_same( 18, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['scale_percent']['default'] ?? null, 'media derivative cloud request defaults watermark scale' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
@@ -2100,6 +2104,9 @@ maa_assert_same( true, $media_cloud_request['success'] ?? null, 'build-media-der
 maa_assert_same( true, $media_cloud_request['data']['readonly'] ?? null, 'media derivative cloud request is read-only' );
 maa_assert_same( 'media_derivative_cloud_request.v1', $media_cloud_request['data']['request_contract_version'] ?? '', 'media derivative cloud request exposes a versioned contract' );
 maa_assert_same( 'generate_optimized_media_derivative', $media_cloud_request['data']['cloud_job_payload']['job_type'] ?? '', 'media derivative cloud request targets derivative generation' );
+maa_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['target_format'] ?? '', 'media derivative cloud request exposes Cloud target format' );
+maa_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['max_width'] ?? 0, 'media derivative cloud request exposes Cloud max width' );
+maa_assert_same( 82, $media_cloud_request['data']['cloud_job_payload']['quality'] ?? 0, 'media derivative cloud request exposes Cloud quality' );
 maa_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['format'] ?? '', 'media derivative cloud request preserves preferred format' );
 maa_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['max_width'] ?? 0, 'media derivative cloud request preserves target max width' );
 maa_assert_same( true, $media_cloud_request['data']['cloud_execution']['source_upload_required'] ?? null, 'media derivative cloud request requires host-provided source upload' );
@@ -2108,6 +2115,31 @@ maa_assert_same( false, $media_cloud_request['data']['cloud_execution']['authori
 maa_assert_same( false, $media_cloud_request['data']['cloud_execution']['signed_headers_included'] ?? null, 'media derivative cloud request does not include signed headers' );
 maa_assert_same( 'local_wordpress_host', $media_cloud_request['data']['local_adoption']['final_write_owner'] ?? '', 'media derivative cloud request leaves final writes local' );
 maa_assert_same( false, $media_cloud_request['data']['local_adoption']['wordpress_write_included'] ?? null, 'media derivative cloud request does not write WordPress' );
+$media_cloud_request_with_watermark = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id'              => 79,
+		'target_max_width'           => 1600,
+		'large_file_threshold_bytes' => 524288,
+		'preferred_format'           => 'png',
+		'quality'                    => 90,
+		'watermark'                  => array(
+			'type'          => 'image',
+			'artifact_id'   => 'artifact_logo_123',
+			'position'      => 'top_right',
+			'opacity'       => 0.5,
+			'scale_percent' => 22,
+			'margin_px'     => 16,
+		),
+	)
+);
+maa_assert_same( true, $media_cloud_request_with_watermark['success'] ?? null, 'build-media-derivative-cloud-request accepts optional image watermark plans' );
+maa_assert_same( 'png', $media_cloud_request_with_watermark['data']['cloud_job_payload']['target_format'] ?? '', 'watermarked media derivative request exposes Cloud target format' );
+maa_assert_same( 'image', $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['type'] ?? '', 'watermarked media derivative request preserves watermark type' );
+maa_assert_same( 'artifact_logo_123', $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['artifact_id'] ?? '', 'watermarked media derivative request preserves watermark artifact reference' );
+maa_assert_same( 'top_right', $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['position'] ?? '', 'watermarked media derivative request preserves watermark position' );
+maa_assert_same( 0.5, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['opacity'] ?? null, 'watermarked media derivative request preserves watermark opacity' );
+maa_assert_same( 22, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['scale_percent'] ?? 0, 'watermarked media derivative request preserves watermark scale' );
+maa_assert_same( false, $media_cloud_request_with_watermark['data']['local_adoption']['wordpress_write_included'] ?? null, 'watermarked media derivative request still does not write WordPress' );
 $media_optimization_preview = $core_write_package->optimize_media_asset(
 	array(
 		'attachment_id'     => 79,

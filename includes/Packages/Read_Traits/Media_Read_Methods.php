@@ -849,6 +849,41 @@ trait Media_Read_Methods {
 		if ( $target_max_width <= 0 ) {
 			$target_max_width = 1920;
 		}
+		$watermark = $this->normalize_media_derivative_watermark( $input['watermark'] ?? array() );
+		if ( is_wp_error( $watermark ) ) {
+			return $watermark;
+		}
+
+		$cloud_job_payload = array(
+			'job_type'        => 'generate_optimized_media_derivative',
+			'target_format'   => $target_format,
+			'max_width'       => max( 320, min( 7680, $target_max_width ) ),
+			'quality'         => $quality,
+			'source_media_type' => 'image',
+			'source_asset'    => array(
+				'attachment_id'     => $attachment_id,
+				'title'             => sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ),
+				'mime_type'         => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
+				'source_format'     => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
+				'file_basename'     => $this->sanitize_file_name_value( (string) ( $inspection['file_basename'] ?? '' ) ),
+				'width'             => $this->absint_value( $inspection['width'] ?? 0 ),
+				'height'            => $this->absint_value( $inspection['height'] ?? 0 ),
+				'filesize_bytes'    => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+				'metadata_available' => ! empty( $inspection['metadata_available'] ),
+			),
+			'requested_derivative' => array(
+				'format'           => $target_format,
+				'max_width'        => max( 320, min( 7680, $target_max_width ) ),
+				'quality'          => $quality,
+				'preserve_original' => true,
+				'replace_original' => false,
+			),
+			'format_plan'     => $format_plan,
+			'warnings'        => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
+		);
+		if ( ! empty( $watermark ) ) {
+			$cloud_job_payload['watermark'] = $watermark;
+		}
 
 		return $this->build_analysis_success_response(
 			array(
@@ -856,29 +891,7 @@ trait Media_Read_Methods {
 				'attachment_id'            => $attachment_id,
 				'readonly'                 => true,
 				'proposal_only'            => true,
-				'cloud_job_payload'        => array(
-					'job_type'        => 'generate_optimized_media_derivative',
-					'source_asset'    => array(
-						'attachment_id'     => $attachment_id,
-						'title'             => sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ),
-						'mime_type'         => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
-						'source_format'     => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
-						'file_basename'     => $this->sanitize_file_name_value( (string) ( $inspection['file_basename'] ?? '' ) ),
-						'width'             => $this->absint_value( $inspection['width'] ?? 0 ),
-						'height'            => $this->absint_value( $inspection['height'] ?? 0 ),
-						'filesize_bytes'    => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
-						'metadata_available' => ! empty( $inspection['metadata_available'] ),
-					),
-					'requested_derivative' => array(
-						'format'           => $target_format,
-						'max_width'        => max( 320, min( 7680, $target_max_width ) ),
-						'quality'          => $quality,
-						'preserve_original' => true,
-						'replace_original' => false,
-					),
-					'format_plan'     => $format_plan,
-					'warnings'        => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
-				),
+				'cloud_job_payload'        => $cloud_job_payload,
 				'cloud_execution'          => array(
 					'owner'                  => 'magick_ai_cloud',
 					'transport_owner'        => 'host_or_cloud_addon',
@@ -909,6 +922,51 @@ trait Media_Read_Methods {
 			),
 			'Media derivative Cloud request built.'
 		);
+	}
+
+	/**
+	 * Normalizes an optional image watermark plan for Cloud derivative requests.
+	 *
+	 * @param mixed $watermark Raw watermark input.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function normalize_media_derivative_watermark( $watermark ) {
+		if ( ! is_array( $watermark ) || empty( $watermark ) ) {
+			return array();
+		}
+
+		$type = sanitize_key( (string) ( $watermark['type'] ?? 'image' ) );
+		if ( 'image' !== $type ) {
+			return new \WP_Error(
+				'magick_ai_abilities_media_derivative_watermark_type_invalid',
+				__( 'Only image watermarks are supported for Cloud media derivatives.', 'magick-ai-abilities' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$position = sanitize_key( (string) ( $watermark['position'] ?? 'bottom_right' ) );
+		if ( ! in_array( $position, array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), true ) ) {
+			$position = 'bottom_right';
+		}
+
+		$opacity = is_numeric( $watermark['opacity'] ?? null ) ? (float) $watermark['opacity'] : 0.75;
+		$opacity = max( 0.0, min( 1.0, $opacity ) );
+		$scale_percent = max( 1, min( 100, $this->absint_value( $watermark['scale_percent'] ?? 18 ) ) );
+		$margin_px = max( 0, min( 1000, $this->absint_value( $watermark['margin_px'] ?? 24 ) ) );
+		$artifact_id = sanitize_text_field( (string) ( $watermark['artifact_id'] ?? '' ) );
+
+		$normalized = array(
+			'type'          => 'image',
+			'position'      => $position,
+			'opacity'       => round( $opacity, 3 ),
+			'scale_percent' => $scale_percent,
+			'margin_px'     => $margin_px,
+		);
+		if ( '' !== $artifact_id ) {
+			$normalized['artifact_id'] = $artifact_id;
+		}
+
+		return $normalized;
 	}
 
 	/**
