@@ -15,6 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Stores and registers Abilities API abilities.
  */
 final class Ability_Registrar {
+	const CATALOG_STATE_OPTION      = 'magick_ai_abilities_catalog_observability_state';
+	const CATALOG_RATE_LIMIT_PREFIX = 'magick_ai_abilities_catalog_emit_';
+	const CATALOG_RATE_LIMIT_TTL    = 86400;
+
 	/**
 	 * Category registrar.
 	 *
@@ -54,6 +58,8 @@ final class Ability_Registrar {
 	 */
 	public function boot() {
 		add_action( 'wp_abilities_api_init', array( $this, 'register_with_wordpress' ), 10 );
+		add_action( 'magick_ai_abilities_refresh_catalog_observability', array( $this, 'emit_manual_catalog_refresh' ), 10, 1 );
+		add_action( 'shutdown', array( $this, 'emit_catalog_snapshot_if_changed' ), 100 );
 	}
 
 	/**
@@ -113,6 +119,47 @@ final class Ability_Registrar {
 	}
 
 	/**
+	 * Returns a stable fingerprint for the currently registered ability catalog.
+	 *
+	 * @return string
+	 */
+	public function catalog_fingerprint() {
+		$snapshot = array();
+		$abilities = $this->abilities;
+		ksort( $abilities, SORT_STRING );
+
+		foreach ( $abilities as $ability_id => $definition ) {
+			$snapshot[ $ability_id ] = $this->stable_catalog_definition( $ability_id, $definition );
+		}
+
+		return hash( 'sha256', $this->stable_json_encode( $snapshot ) );
+	}
+
+	/**
+	 * Emits a catalog changed event for explicit refresh requests.
+	 *
+	 * @param string $reason Refresh reason.
+	 * @return bool
+	 */
+	public function emit_manual_catalog_refresh( $reason = 'manual_refresh' ) {
+		$reason = sanitize_key( (string) $reason );
+		if ( '' === $reason ) {
+			$reason = 'manual_refresh';
+		}
+
+		return $this->emit_catalog_changed_if_needed( $reason, true );
+	}
+
+	/**
+	 * Emits a catalog changed event when the request registered a new catalog snapshot.
+	 *
+	 * @return bool
+	 */
+	public function emit_catalog_snapshot_if_changed() {
+		return $this->emit_catalog_changed_if_needed( 'catalog_changed', false );
+	}
+
+	/**
 	 * Registers queued abilities with WordPress.
 	 *
 	 * @return void
@@ -125,6 +172,8 @@ final class Ability_Registrar {
 		foreach ( $this->abilities as $ability_id => $definition ) {
 			$this->register_single_with_wordpress( $ability_id, $definition );
 		}
+
+		$this->emit_catalog_changed_if_needed( 'bootstrap', false );
 	}
 
 	/**
@@ -144,15 +193,6 @@ final class Ability_Registrar {
 		}
 
 		$this->abilities[ $ability_id ] = $normalized;
-
-		$this->emit_observability_event(
-			'abilities.ability.registered',
-			array(
-				'ability_id' => $ability_id,
-				'mode'       => $mode,
-				'status'     => 'ok',
-			)
-		);
 
 		if (
 			function_exists( 'wp_register_ability' )
@@ -207,15 +247,159 @@ final class Ability_Registrar {
 				'meta'                => $definition['meta'],
 			)
 		);
+	}
 
-		$this->emit_observability_event(
-			'abilities.ability.wordpress_registered',
-			array(
-				'ability_id' => $ability_id,
-				'mode'       => (string) ( $definition['mode'] ?? '' ),
-				'status'     => 'ok',
-			)
+	/**
+	 * Emits one local catalog snapshot event when the catalog changed or refresh is explicit.
+	 *
+	 * @param string $reason Event trigger reason.
+	 * @param bool   $force  Whether an explicit trigger should emit even when the hash is unchanged.
+	 * @return bool
+	 */
+	private function emit_catalog_changed_if_needed( $reason, $force ) {
+		if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+			return false;
+		}
+
+		$catalog_hash = $this->catalog_fingerprint();
+		$state        = function_exists( 'get_option' ) ? get_option( self::CATALOG_STATE_OPTION, array() ) : array();
+		$state        = is_array( $state ) ? $state : array();
+		$previous_hash = isset( $state['catalog_hash'] ) ? (string) $state['catalog_hash'] : '';
+		$previous_version = isset( $state['plugin_version'] ) ? (string) $state['plugin_version'] : '';
+		$current_version = defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? (string) MAGICK_AI_ABILITIES_VERSION : '';
+		$version_changed = '' !== $previous_version && '' !== $current_version && $previous_version !== $current_version;
+
+		if ( ! $force && ! $version_changed && $previous_hash === $catalog_hash ) {
+			return false;
+		}
+
+		$rate_limit_key = self::CATALOG_RATE_LIMIT_PREFIX . substr( hash( 'sha256', $catalog_hash . '|' . $current_version ), 0, 40 );
+		if ( ! $version_changed && function_exists( 'get_transient' ) && false !== get_transient( $rate_limit_key ) ) {
+			return false;
+		}
+
+		$emitted_at = gmdate( 'c' );
+		$payload    = array(
+			'plugin_slug'  => 'magick-ai-abilities',
+			'status'       => 'ok',
+			'event_kind'   => 'abilities.catalog.changed',
+			'ability_count' => count( $this->abilities ),
+			'catalog_hash' => $catalog_hash,
+			'source'       => 'local',
+			'reason'       => sanitize_key( (string) $reason ),
 		);
+
+		if ( '' !== $previous_hash && $previous_hash !== $catalog_hash ) {
+			$payload['previous_catalog_hash'] = $previous_hash;
+		}
+
+		$this->emit_observability_event( 'abilities.catalog.changed', $payload );
+
+		$new_state = array(
+			'catalog_hash'   => $catalog_hash,
+			'emitted_at'     => $emitted_at,
+			'plugin_version' => $current_version,
+			'reason'         => sanitize_key( (string) $reason ),
+		);
+		if ( function_exists( 'update_option' ) ) {
+			update_option( self::CATALOG_STATE_OPTION, $new_state, false );
+		}
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( $rate_limit_key, $emitted_at, self::CATALOG_RATE_LIMIT_TTL );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns the safe, stable catalog fields used for fingerprinting.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Normalized ability definition.
+	 * @return array<string,mixed>
+	 */
+	private function stable_catalog_definition( $ability_id, array $definition ) {
+		$stable = array(
+			'ability_id'                => $ability_id,
+			'mode'                      => (string) ( $definition['mode'] ?? '' ),
+			'source'                    => (string) ( $definition['source'] ?? '' ),
+			'category'                  => (string) ( $definition['category'] ?? '' ),
+			'risk_level'                => (string) ( $definition['risk_level'] ?? '' ),
+			'label'                     => (string) ( $definition['label'] ?? '' ),
+			'description'               => (string) ( $definition['description'] ?? '' ),
+			'input_schema'              => is_array( $definition['input_schema'] ?? null ) ? $definition['input_schema'] : array(),
+			'output_schema'             => is_array( $definition['output_schema'] ?? null ) ? $definition['output_schema'] : array(),
+			'annotations'               => is_array( $definition['annotations'] ?? null ) ? $definition['annotations'] : array(),
+			'requires_confirm'          => ! empty( $definition['requires_confirm'] ),
+			'requires_approval'         => ! empty( $definition['requires_approval'] ),
+			'required_scope'            => (string) ( $definition['required_scope'] ?? '' ),
+			'required_scopes'           => is_array( $definition['required_scopes'] ?? null ) ? array_values( $definition['required_scopes'] ) : array(),
+			'contract_version'          => (string) ( $definition['contract_version'] ?? '' ),
+			'deprecated'                => ! empty( $definition['deprecated'] ),
+			'successor'                 => (string) ( $definition['successor'] ?? '' ),
+			'project_to_magick_catalog' => ! empty( $definition['project_to_magick_catalog'] ),
+		);
+
+		return $this->stable_normalize_value( $stable );
+	}
+
+	/**
+	 * Normalizes arrays into stable JSON-friendly values.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return mixed
+	 */
+	private function stable_normalize_value( $value ) {
+		if ( is_object( $value ) ) {
+			return null;
+		}
+
+		if ( ! is_array( $value ) ) {
+			return $value;
+		}
+
+		if ( ! $this->is_list_array( $value ) ) {
+			ksort( $value, SORT_STRING );
+		}
+
+		$normalized = array();
+		foreach ( $value as $key => $child ) {
+			$normalized[ $key ] = $this->stable_normalize_value( $child );
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Encodes data to JSON for hashing.
+	 *
+	 * @param mixed $value Value to encode.
+	 * @return string
+	 */
+	private function stable_json_encode( $value ) {
+		$json = function_exists( 'wp_json_encode' )
+			? wp_json_encode( $value, JSON_UNESCAPED_SLASHES )
+			: json_encode( $value, JSON_UNESCAPED_SLASHES );
+
+		return is_string( $json ) ? $json : '';
+	}
+
+	/**
+	 * Returns whether an array is list-like.
+	 *
+	 * @param array<mixed> $value Array to inspect.
+	 * @return bool
+	 */
+	private function is_list_array( array $value ) {
+		$index = 0;
+		foreach ( $value as $key => $_child ) {
+			if ( $key !== $index ) {
+				return false;
+			}
+			++$index;
+		}
+
+		return true;
 	}
 
 	/**

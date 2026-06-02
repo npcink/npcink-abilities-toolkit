@@ -72,6 +72,17 @@ function maa_assert_array_omits_keys( $value, array $forbidden_keys, $path ) {
 	}
 }
 
+function maa_observability_events_of_kind( array $events, $event_kind ) {
+	return array_values(
+		array_filter(
+			$events,
+			static function ( $event ) use ( $event_kind ) {
+				return is_array( $event ) && (string) ( $event['event_kind'] ?? '' ) === (string) $event_kind;
+			}
+		)
+	);
+}
+
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
 maa_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Magick AI parent slug' );
 maa_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'magick-ai-abilities';" ), 'admin test page uses the canonical Abilities admin slug' );
@@ -426,6 +437,110 @@ $host_write = $registrar->all()['acme/host-write'];
 maa_assert_same( 'write_host', $host_write['mode'], 'host-governed write mode is preserved' );
 maa_assert_same( 'write', $host_write['risk_level'], 'host-governed write risk is write' );
 maa_assert_same( true, $host_write['requires_confirm'], 'host-governed write requires confirmation' );
+
+$GLOBALS['maa_unit_options'] = array();
+$GLOBALS['maa_unit_transients'] = array();
+$GLOBALS['maa_unit_registered_abilities'] = array();
+$GLOBALS['maa_unit_observability_events'] = array();
+add_action(
+	'magick_ai_observability_event',
+	static function ( $event ) {
+		$GLOBALS['maa_unit_observability_events'][] = $event;
+	}
+);
+
+$observability_categories = new Category_Registrar();
+$observability_registrar = new Ability_Registrar( $observability_categories, $contract_normalizer );
+maa_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/observable-summary',
+		array(
+			'label'            => 'Observable Summary',
+			'description'      => 'Returns observable summary.',
+			'category'         => 'acme-observability',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'meta'             => array(
+				'secret'  => 'must-not-leak',
+				'payload' => array( 'raw' => true ),
+			),
+			'execute_callback' => static function () {
+				return array( 'ok' => true );
+			},
+		)
+	),
+	'observability registrar accepts test ability'
+);
+$first_hash = $observability_registrar->catalog_fingerprint();
+$observability_registrar->register_with_wordpress();
+$catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
+maa_assert_same( 1, count( $catalog_events ), 'first bootstrap emits one catalog changed event' );
+maa_assert_same( 'magick-ai-abilities', $catalog_events[0]['plugin_slug'] ?? '', 'catalog event carries plugin slug' );
+maa_assert_same( 'ok', $catalog_events[0]['status'] ?? '', 'catalog event status is ok' );
+maa_assert_same( 'local', $catalog_events[0]['source'] ?? '', 'catalog event source remains local' );
+maa_assert_same( 1, $catalog_events[0]['ability_count'] ?? 0, 'catalog event carries ability count' );
+maa_assert_same( $first_hash, $catalog_events[0]['catalog_hash'] ?? '', 'catalog event carries current catalog hash' );
+maa_assert_array_omits_keys( $catalog_events[0], array( 'definition', 'execute_callback', 'permission_callback', 'callback', 'secret', 'payload' ), 'catalog event payload' );
+
+$GLOBALS['maa_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
+maa_assert_same( 1, count( $catalog_events ), 'repeated bootstrap does not repeat catalog changed event for the same hash' );
+maa_assert_same( 0, count( maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.ability.registered' ) ), 'ability add no longer emits per-ability registered events' );
+maa_assert_same( 0, count( maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.ability.wordpress_registered' ) ), 'WordPress registration no longer emits per-ability events' );
+
+maa_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/observable-detail',
+		array(
+			'label'            => 'Observable Detail',
+			'description'      => 'Returns observable detail.',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'execute_callback' => static function () {
+				return array( 'detail' => true );
+			},
+		)
+	),
+	'observability registrar accepts changed catalog ability'
+);
+$changed_hash = $observability_registrar->catalog_fingerprint();
+maa_assert_true( $first_hash !== $changed_hash, 'catalog hash changes when ability catalog changes' );
+$GLOBALS['maa_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
+maa_assert_same( 2, count( $catalog_events ), 'changed catalog hash emits one additional catalog changed event' );
+maa_assert_same( $changed_hash, $catalog_events[1]['catalog_hash'] ?? '', 'changed catalog event carries new hash' );
+maa_assert_same( $first_hash, $catalog_events[1]['previous_catalog_hash'] ?? '', 'changed catalog event carries previous hash' );
+$GLOBALS['maa_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
+maa_assert_same( 2, count( $catalog_events ), 'same changed catalog hash is rate limited after first emit' );
+
+$GLOBALS['maa_unit_options'][ Ability_Registrar::CATALOG_STATE_OPTION ] = array(
+	'catalog_hash'   => $changed_hash,
+	'emitted_at'     => '2026-06-01T00:00:00+00:00',
+	'plugin_version' => '0.0.0-old',
+	'reason'         => 'bootstrap',
+);
+$old_version_rate_limit_key = Ability_Registrar::CATALOG_RATE_LIMIT_PREFIX . substr( hash( 'sha256', $changed_hash . '|0.0.0-old' ), 0, 40 );
+$GLOBALS['maa_unit_transients'][ $old_version_rate_limit_key ] = '2026-06-01T00:00:00+00:00';
+$GLOBALS['maa_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
+maa_assert_same( 3, count( $catalog_events ), 'version change emits catalog changed even when old hash transient exists' );
+maa_assert_same( $changed_hash, $catalog_events[2]['catalog_hash'] ?? '', 'version-change catalog event keeps unchanged hash' );
+maa_assert_true( ! isset( $catalog_events[2]['previous_catalog_hash'] ), 'version-change same-hash catalog event omits previous hash' );
+maa_assert_same( MAGICK_AI_ABILITIES_VERSION, $GLOBALS['maa_unit_options'][ Ability_Registrar::CATALOG_STATE_OPTION ]['plugin_version'] ?? '', 'version-change emit updates catalog state version' );
+
+$callback = $GLOBALS['maa_unit_registered_abilities']['acme/observable-summary']['execute_callback'] ?? null;
+maa_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
+$callback_result = call_user_func( $callback, array() );
+maa_assert_same( array( 'ok' => true ), $callback_result, 'observed callback returns original result' );
+$callback_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.callback.completed' );
+maa_assert_same( 1, count( $callback_events ), 'callback execution still emits behavior observability event' );
+maa_assert_same( 'acme/observable-summary', $callback_events[0]['ability_id'] ?? '', 'callback event carries ability id' );
+maa_assert_same( 'ok', $callback_events[0]['status'] ?? '', 'callback event carries successful status' );
 
 $bridge = new Magick_Catalog_Bridge( $registrar );
 $catalog = $bridge->filter_catalog( array(), array() );

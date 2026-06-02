@@ -151,6 +151,55 @@ if ( ! function_exists( 'add_action' ) ) {
 	}
 }
 
+if ( ! function_exists( 'do_action' ) ) {
+	function do_action( $hook_name, ...$args ) {
+		if ( ! isset( $GLOBALS['maa_unit_action_counts'] ) || ! is_array( $GLOBALS['maa_unit_action_counts'] ) ) {
+			$GLOBALS['maa_unit_action_counts'] = array();
+		}
+		if ( ! isset( $GLOBALS['maa_unit_current_actions'] ) || ! is_array( $GLOBALS['maa_unit_current_actions'] ) ) {
+			$GLOBALS['maa_unit_current_actions'] = array();
+		}
+
+		$hook_name = (string) $hook_name;
+		$GLOBALS['maa_unit_action_counts'][ $hook_name ] = (int) ( $GLOBALS['maa_unit_action_counts'][ $hook_name ] ?? 0 ) + 1;
+		$GLOBALS['maa_unit_current_actions'][] = $hook_name;
+
+		$actions = isset( $GLOBALS['maa_unit_actions'][ $hook_name ] ) && is_array( $GLOBALS['maa_unit_actions'][ $hook_name ] )
+			? $GLOBALS['maa_unit_actions'][ $hook_name ]
+			: array();
+		foreach ( $actions as $callback ) {
+			if ( is_callable( $callback ) ) {
+				call_user_func_array( $callback, $args );
+			}
+		}
+
+		array_pop( $GLOBALS['maa_unit_current_actions'] );
+	}
+}
+
+if ( ! function_exists( 'doing_action' ) ) {
+	function doing_action( $hook_name = null ) {
+		$current = isset( $GLOBALS['maa_unit_current_actions'] ) && is_array( $GLOBALS['maa_unit_current_actions'] )
+			? $GLOBALS['maa_unit_current_actions']
+			: array();
+		if ( null === $hook_name ) {
+			return ! empty( $current );
+		}
+
+		return in_array( (string) $hook_name, $current, true );
+	}
+}
+
+if ( ! function_exists( 'did_action' ) ) {
+	function did_action( $hook_name ) {
+		$counts = isset( $GLOBALS['maa_unit_action_counts'] ) && is_array( $GLOBALS['maa_unit_action_counts'] )
+			? $GLOBALS['maa_unit_action_counts']
+			: array();
+
+		return (int) ( $counts[ (string) $hook_name ] ?? 0 );
+	}
+}
+
 if ( ! function_exists( 'remove_all_filters' ) ) {
 	function remove_all_filters( $hook_name ) {
 		if ( isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) ) {
@@ -460,6 +509,17 @@ if ( ! function_exists( 'get_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'update_option' ) ) {
+	function update_option( $name, $value, $autoload = null ) {
+		unset( $autoload );
+		if ( ! isset( $GLOBALS['maa_unit_options'] ) || ! is_array( $GLOBALS['maa_unit_options'] ) ) {
+			$GLOBALS['maa_unit_options'] = array();
+		}
+		$GLOBALS['maa_unit_options'][ (string) $name ] = $value;
+		return true;
+	}
+}
+
 if ( ! function_exists( 'get_transient' ) ) {
 	function get_transient( $name ) {
 		$transients = isset( $GLOBALS['maa_unit_transients'] ) && is_array( $GLOBALS['maa_unit_transients'] )
@@ -476,6 +536,27 @@ if ( ! function_exists( 'set_transient' ) ) {
 			$GLOBALS['maa_unit_transients'] = array();
 		}
 		$GLOBALS['maa_unit_transients'][ $name ] = $value;
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_has_ability' ) ) {
+	function wp_has_ability( $ability_id ) {
+		$registered = isset( $GLOBALS['maa_unit_registered_abilities'] ) && is_array( $GLOBALS['maa_unit_registered_abilities'] )
+			? $GLOBALS['maa_unit_registered_abilities']
+			: array();
+
+		return array_key_exists( (string) $ability_id, $registered );
+	}
+}
+
+if ( ! function_exists( 'wp_register_ability' ) ) {
+	function wp_register_ability( $ability_id, array $args ) {
+		if ( ! isset( $GLOBALS['maa_unit_registered_abilities'] ) || ! is_array( $GLOBALS['maa_unit_registered_abilities'] ) ) {
+			$GLOBALS['maa_unit_registered_abilities'] = array();
+		}
+		$GLOBALS['maa_unit_registered_abilities'][ (string) $ability_id ] = $args;
+
 		return true;
 	}
 }

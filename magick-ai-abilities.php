@@ -63,3 +63,14 @@ add_action(
 	},
 	0
 );
+
+if ( function_exists( 'register_activation_hook' ) ) {
+	register_activation_hook(
+		__FILE__,
+		static function () {
+			$plugin = Magick_AI_Abilities\Plugin::instance();
+			$plugin->boot();
+			$plugin->abilities()->emit_manual_catalog_refresh( 'activation' );
+		}
+	);
+}

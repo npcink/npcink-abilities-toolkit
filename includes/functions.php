@@ -119,6 +119,18 @@ if ( ! function_exists( 'magick_ai_abilities_get_registered' ) ) {
 	}
 }
 
+if ( ! function_exists( 'magick_ai_abilities_refresh_catalog_observability' ) ) {
+	/**
+	 * Emits the local catalog changed event for a manual catalog refresh.
+	 *
+	 * @param string $reason Refresh reason.
+	 * @return bool
+	 */
+	function magick_ai_abilities_refresh_catalog_observability( $reason = 'manual_refresh' ) {
+		return Magick_AI_Abilities\Plugin::instance()->abilities()->emit_manual_catalog_refresh( $reason );
+	}
+}
+
 if ( ! function_exists( 'magick_ai_abilities_get_workflow_definitions' ) ) {
 	/**
 	 * Returns read-only workflow recipe definitions for host discovery.
