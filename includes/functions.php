@@ -9,6 +9,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+	/**
+	 * Emits a local-only observability event for optional Cloud Addon collection.
+	 *
+	 * This function never sends data off-site. The Cloud Addon may subscribe to
+	 * magick_ai_observability_event when monitoring is explicitly enabled.
+	 *
+	 * @param array<string,mixed> $event Event payload.
+	 * @return void
+	 */
+	function magick_ai_abilities_emit_observability_event( array $event ) {
+		if ( ! function_exists( 'do_action' ) ) {
+			return;
+		}
+
+		$payload = array_merge(
+			array(
+				'schema_version' => '2026-06-01',
+				'plugin_slug'    => 'magick-ai-abilities',
+				'plugin_version' => defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '',
+				'source'         => 'local',
+				'emitted_at'     => gmdate( 'c' ),
+			),
+			$event
+		);
+
+		do_action( 'magick_ai_observability_event', $payload );
+	}
+}
+
 if ( ! function_exists( 'magick_ai_abilities_register_category' ) ) {
 	/**
 	 * Registers a WordPress Abilities API category.

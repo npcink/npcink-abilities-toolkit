@@ -145,6 +145,15 @@ final class Ability_Registrar {
 
 		$this->abilities[ $ability_id ] = $normalized;
 
+		$this->emit_observability_event(
+			'abilities.ability.registered',
+			array(
+				'ability_id' => $ability_id,
+				'mode'       => $mode,
+				'status'     => 'ok',
+			)
+		);
+
 		if (
 			function_exists( 'wp_register_ability' )
 			&& (
@@ -193,10 +202,97 @@ final class Ability_Registrar {
 				'category'            => $definition['category'],
 				'input_schema'        => $definition['input_schema'],
 				'output_schema'       => $definition['output_schema'],
-				'execute_callback'    => $definition['execute_callback'],
+				'execute_callback'    => $this->observed_execute_callback( $ability_id, $definition ),
 				'permission_callback' => $definition['permission_callback'],
 				'meta'                => $definition['meta'],
 			)
 		);
+
+		$this->emit_observability_event(
+			'abilities.ability.wordpress_registered',
+			array(
+				'ability_id' => $ability_id,
+				'mode'       => (string) ( $definition['mode'] ?? '' ),
+				'status'     => 'ok',
+			)
+		);
+	}
+
+	/**
+	 * Wraps ability execution with metadata-only local observability.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Normalized ability definition.
+	 * @return callable
+	 */
+	private function observed_execute_callback( $ability_id, array $definition ) {
+		$callback = $definition['execute_callback'];
+		$mode     = (string) ( $definition['mode'] ?? '' );
+
+		return function ( ...$args ) use ( $ability_id, $callback, $mode ) {
+			$started = microtime( true );
+
+			try {
+				$result  = call_user_func_array( $callback, $args );
+				$is_error = function_exists( 'is_wp_error' ) && is_wp_error( $result );
+				$this->emit_observability_event(
+					'abilities.callback.completed',
+					array(
+						'ability_id' => $ability_id,
+						'mode'       => $mode,
+						'status'     => $is_error ? 'error' : 'ok',
+						'error_code' => $is_error ? (string) $result->get_error_code() : '',
+						'latency_ms' => $this->elapsed_ms( $started ),
+					)
+				);
+
+				return $result;
+			} catch ( \Throwable $exception ) {
+				$this->emit_observability_event(
+					'abilities.callback.completed',
+					array(
+						'ability_id' => $ability_id,
+						'mode'       => $mode,
+						'status'     => 'error',
+						'error_code' => get_class( $exception ),
+						'latency_ms' => $this->elapsed_ms( $started ),
+					)
+				);
+
+				throw $exception;
+			}
+		};
+	}
+
+	/**
+	 * Emits a local observability event when the public helper is available.
+	 *
+	 * @param string              $event_kind Event kind.
+	 * @param array<string,mixed> $payload Event details.
+	 * @return void
+	 */
+	private function emit_observability_event( $event_kind, array $payload ) {
+		if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+			return;
+		}
+
+		magick_ai_abilities_emit_observability_event(
+			array_merge(
+				array(
+					'event_kind' => $event_kind,
+				),
+				$payload
+			)
+		);
+	}
+
+	/**
+	 * Returns elapsed milliseconds.
+	 *
+	 * @param float $started Start time.
+	 * @return int
+	 */
+	private function elapsed_ms( $started ) {
+		return max( 0, (int) round( ( microtime( true ) - $started ) * 1000 ) );
 	}
 }
