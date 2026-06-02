@@ -685,6 +685,17 @@ $permission_matrix_doc = file_get_contents( __DIR__ . '/../docs/permission-matri
 maa_assert_true( is_string( $permission_matrix_doc ) && false !== strpos( $permission_matrix_doc, 'Dry-run previews must still pass the same WordPress permission checks' ), 'permission matrix documents dry-run permission boundary' );
 $schema_audit_doc = file_get_contents( __DIR__ . '/../docs/schema-boundary-audit.md' );
 maa_assert_true( is_string( $schema_audit_doc ) && false !== strpos( $schema_audit_doc, 'REST ability details expose' ), 'schema boundary audit documents REST exposure verification' );
+$smoke_wp = file_get_contents( __DIR__ . '/smoke-wp.php' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'register_shutdown_function' ), 'WordPress smoke runs fixture cleanup on shutdown' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_post_fixture' ), 'WordPress smoke registers post fixtures for cleanup' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_comment_fixture' ), 'WordPress smoke registers comment fixtures for cleanup' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_attachment_fixture' ), 'WordPress smoke registers media fixtures for cleanup' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_term_fixture' ), 'WordPress smoke registers taxonomy term fixtures for cleanup' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_post' ), 'WordPress smoke permanently deletes post fixtures' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_comment' ), 'WordPress smoke permanently deletes comment fixtures' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_attachment' ), 'WordPress smoke permanently deletes media fixtures' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_term' ), 'WordPress smoke deletes taxonomy term fixtures' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'Smoke media fixture is deleted after smoke.' ), 'WordPress smoke asserts media fixtures are gone at the end' );
 $core_consumer_example = file_get_contents( __DIR__ . '/../examples/core-governance-consumer.php' );
 maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, 'magick_ai_abilities_get_registered' ), 'core governance consumer example uses ability discovery' );
 maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, "'ability_id' => \$ability_id" ), 'core governance consumer example prepares a real ability proposal payload' );

@@ -18,6 +18,13 @@ $magick_ai_abilities_smoke_profile = sanitize_key( (string) ( getenv( 'MAGICK_AI
 if ( '' === $magick_ai_abilities_smoke_profile ) {
 	$magick_ai_abilities_smoke_profile = 'default';
 }
+$magick_ai_abilities_smoke_run_id                 = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : uniqid( 'smoke-', true );
+$magick_ai_abilities_smoke_pattern                = 'Magick AI Abilities Smoke ' . $magick_ai_abilities_smoke_run_id;
+$magick_ai_abilities_smoke_post_fixture_ids       = array();
+$magick_ai_abilities_smoke_comment_fixture_ids    = array();
+$magick_ai_abilities_smoke_attachment_fixture_ids = array();
+$magick_ai_abilities_smoke_term_fixtures          = array();
+$magick_ai_abilities_smoke_cleanup_completed      = false;
 
 /**
  * Asserts a smoke-test condition.
@@ -36,6 +43,142 @@ function magick_ai_abilities_smoke_assert( $condition, $message ) {
 
 	echo "[ok] {$message}\n";
 }
+
+/**
+ * Registers a post fixture for cleanup even when the smoke test fails.
+ *
+ * @param int $post_id Post id.
+ * @return void
+ */
+function magick_ai_abilities_smoke_register_post_fixture( $post_id ) {
+	global $magick_ai_abilities_smoke_post_fixture_ids;
+
+	$post_id = (int) $post_id;
+	if ( $post_id <= 0 ) {
+		return;
+	}
+
+	$magick_ai_abilities_smoke_post_fixture_ids[ $post_id ] = true;
+}
+
+/**
+ * Registers a comment fixture for cleanup even when the smoke test fails.
+ *
+ * @param int $comment_id Comment id.
+ * @return void
+ */
+function magick_ai_abilities_smoke_register_comment_fixture( $comment_id ) {
+	global $magick_ai_abilities_smoke_comment_fixture_ids;
+
+	$comment_id = (int) $comment_id;
+	if ( $comment_id <= 0 ) {
+		return;
+	}
+
+	$magick_ai_abilities_smoke_comment_fixture_ids[ $comment_id ] = true;
+}
+
+/**
+ * Registers a media fixture for cleanup even when the smoke test fails.
+ *
+ * @param int $attachment_id Attachment post id.
+ * @return void
+ */
+function magick_ai_abilities_smoke_register_attachment_fixture( $attachment_id ) {
+	global $magick_ai_abilities_smoke_attachment_fixture_ids;
+
+	$attachment_id = (int) $attachment_id;
+	if ( $attachment_id <= 0 ) {
+		return;
+	}
+
+	$magick_ai_abilities_smoke_attachment_fixture_ids[ $attachment_id ] = true;
+}
+
+/**
+ * Registers a taxonomy term fixture for cleanup even when the smoke test fails.
+ *
+ * @param int    $term_id Term id.
+ * @param string $taxonomy Taxonomy id.
+ * @return void
+ */
+function magick_ai_abilities_smoke_register_term_fixture( $term_id, $taxonomy ) {
+	global $magick_ai_abilities_smoke_term_fixtures;
+
+	$term_id  = (int) $term_id;
+	$taxonomy = (string) $taxonomy;
+	if ( $term_id <= 0 || '' === $taxonomy ) {
+		return;
+	}
+
+	$magick_ai_abilities_smoke_term_fixtures[ $taxonomy . ':' . $term_id ] = array(
+		'term_id'  => $term_id,
+		'taxonomy' => $taxonomy,
+	);
+}
+
+/**
+ * Deletes registered smoke fixtures.
+ *
+ * @return void
+ */
+function magick_ai_abilities_smoke_cleanup_fixtures() {
+	global $magick_ai_abilities_smoke_post_fixture_ids, $magick_ai_abilities_smoke_comment_fixture_ids, $magick_ai_abilities_smoke_attachment_fixture_ids, $magick_ai_abilities_smoke_term_fixtures, $magick_ai_abilities_smoke_cleanup_completed;
+
+	if ( $magick_ai_abilities_smoke_cleanup_completed ) {
+		return;
+	}
+
+	$magick_ai_abilities_smoke_cleanup_completed = true;
+
+	foreach ( array_keys( (array) $magick_ai_abilities_smoke_comment_fixture_ids ) as $comment_id ) {
+		$comment_id = (int) $comment_id;
+		if ( $comment_id <= 0 || ! get_comment( $comment_id ) ) {
+			continue;
+		}
+
+		if ( false === wp_delete_comment( $comment_id, true ) ) {
+			fwrite( STDERR, '[warn] failed to delete smoke comment fixture ' . $comment_id . "\n" );
+		}
+	}
+
+	foreach ( array_keys( (array) $magick_ai_abilities_smoke_attachment_fixture_ids ) as $attachment_id ) {
+		$attachment_id = (int) $attachment_id;
+		if ( $attachment_id <= 0 || 'attachment' !== get_post_type( $attachment_id ) ) {
+			continue;
+		}
+
+		if ( false === wp_delete_attachment( $attachment_id, true ) ) {
+			fwrite( STDERR, '[warn] failed to delete smoke attachment fixture ' . $attachment_id . "\n" );
+		}
+	}
+
+	foreach ( array_keys( (array) $magick_ai_abilities_smoke_post_fixture_ids ) as $post_id ) {
+		$post_id = (int) $post_id;
+		if ( $post_id <= 0 || false === get_post_type( $post_id ) ) {
+			continue;
+		}
+
+		if ( false === wp_delete_post( $post_id, true ) ) {
+			fwrite( STDERR, '[warn] failed to delete smoke post fixture ' . $post_id . "\n" );
+		}
+	}
+
+	foreach ( (array) $magick_ai_abilities_smoke_term_fixtures as $term_fixture ) {
+		$term_id  = (int) ( $term_fixture['term_id'] ?? 0 );
+		$taxonomy = (string) ( $term_fixture['taxonomy'] ?? '' );
+		if ( $term_id <= 0 || '' === $taxonomy || ! term_exists( $term_id, $taxonomy ) ) {
+			continue;
+		}
+
+		$deleted = wp_delete_term( $term_id, $taxonomy );
+		if ( is_wp_error( $deleted ) || false === $deleted ) {
+			fwrite( STDERR, '[warn] failed to delete smoke term fixture ' . $taxonomy . ':' . $term_id . "\n" );
+		}
+	}
+}
+
+register_shutdown_function( 'magick_ai_abilities_smoke_cleanup_fixtures' );
 
 /**
  * Checks whether a REST collection response contains an ability name.
@@ -386,17 +529,18 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	magick_ai_abilities_smoke_assert( 'magick-ai/get-comment-compliance-handoff' === (string) ( $workflow_recipe_run_data['entrypoint_ability_id'] ?? '' ), 'Workflow recipe detail returns comment handoff entrypoint.' );
 
 	$smoke_post_id = wp_insert_post(
-	array(
-		'post_type'    => 'post',
-		'post_status'  => 'draft',
-		'post_title'   => 'Magick AI Abilities Smoke Context Post',
-		'post_content' => '<!-- wp:paragraph --><p>This local smoke post verifies the post context and publishing checklist abilities.</p><!-- /wp:paragraph -->',
-		'post_excerpt' => 'Smoke context post.',
-	),
-	true
-);
-magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_post_id ) && (int) $smoke_post_id > 0, 'Temporary smoke post is available for post-context ability runs.' );
-update_post_meta( (int) $smoke_post_id, '_magick_ai_smoke_search_marker', 'local smoke metadata search marker' );
+		array(
+			'post_type'    => 'post',
+			'post_status'  => 'draft',
+			'post_title'   => $magick_ai_abilities_smoke_pattern . ' Context Post',
+			'post_content' => '<!-- wp:paragraph --><p>This local smoke post verifies the post context and publishing checklist abilities.</p><!-- /wp:paragraph -->',
+			'post_excerpt' => 'Smoke context post.',
+		),
+		true
+	);
+	magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_post_id ) && (int) $smoke_post_id > 0, 'Temporary smoke post is available for post-context ability runs.' );
+	magick_ai_abilities_smoke_register_post_fixture( (int) $smoke_post_id );
+	update_post_meta( (int) $smoke_post_id, '_magick_ai_smoke_search_marker', 'local smoke metadata search marker' );
 
 $post_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-context/run' );
 $post_context_run_request->set_query_params(
@@ -460,12 +604,13 @@ $smoke_candidate_id = wp_insert_post(
 	array(
 		'post_type'    => 'post',
 		'post_status'  => 'publish',
-		'post_title'   => 'Magick AI Abilities Smoke Internal Link Candidate',
+		'post_title'   => $magick_ai_abilities_smoke_pattern . ' Internal Link Candidate',
 		'post_content' => '<p>This published smoke post provides a related ability workflow candidate for internal link opportunity checks.</p>',
 	),
 	true
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_candidate_id ) && (int) $smoke_candidate_id > 0, 'Temporary smoke candidate post is available for internal-link ability runs.' );
+magick_ai_abilities_smoke_register_post_fixture( (int) $smoke_candidate_id );
 
 $inventory_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-inventory-health/run' );
 $inventory_health_run_request->set_query_params(
@@ -484,7 +629,7 @@ $test_inventory_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abil
 $test_inventory_run_request->set_query_params(
 	array(
 		'input' => array(
-			'patterns' => array( 'Magick AI Abilities Smoke' ),
+			'patterns' => array( $magick_ai_abilities_smoke_pattern ),
 			'per_page' => 10,
 		),
 	)
@@ -498,7 +643,7 @@ $test_cleanup_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/a
 $test_cleanup_plan_run_request->set_query_params(
 	array(
 		'input' => array(
-			'patterns'    => array( 'Magick AI Abilities Smoke' ),
+			'patterns'    => array( $magick_ai_abilities_smoke_pattern ),
 			'max_actions' => 5,
 		),
 	)
@@ -639,7 +784,7 @@ $smoke_attachment_id = wp_insert_post(
 	array(
 		'post_type'      => 'attachment',
 		'post_status'    => 'inherit',
-		'post_title'     => 'Magick AI Abilities Smoke Media Asset',
+		'post_title'     => $magick_ai_abilities_smoke_pattern . ' Media Asset',
 		'post_mime_type' => 'image/jpeg',
 		'post_excerpt'   => '',
 		'post_content'   => '',
@@ -647,6 +792,7 @@ $smoke_attachment_id = wp_insert_post(
 	true
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_attachment_id ) && (int) $smoke_attachment_id > 0, 'Temporary smoke media asset is available for media inventory ability runs.' );
+magick_ai_abilities_smoke_register_attachment_fixture( (int) $smoke_attachment_id );
 update_post_meta( (int) $smoke_attachment_id, '_wp_attached_file', '2026/06/magick-ai-abilities-smoke-media-asset.jpg' );
 update_post_meta(
 	(int) $smoke_attachment_id,
@@ -756,7 +902,7 @@ $media_fix_plan_run_request->set_query_params(
 	array(
 		'input' => array(
 			'attachment_ids'  => array( (int) $smoke_attachment_id ),
-			'article_title'   => 'Magick AI Abilities Smoke',
+			'article_title'   => $magick_ai_abilities_smoke_pattern,
 			'article_excerpt' => 'Smoke media metadata context.',
 			'focus_keyword'   => 'ability workflow',
 			'max_actions'     => 5,
@@ -819,7 +965,7 @@ $taxonomy_consolidation_run_response = rest_do_request( $taxonomy_consolidation_
 magick_ai_abilities_smoke_assert( 200 === (int) $taxonomy_consolidation_run_response->get_status(), 'Authenticated taxonomy consolidation suggestions ability run returns 200.' );
 
 $smoke_tag_result = function_exists( 'wp_insert_term' )
-	? wp_insert_term( 'Ability Workflow Smoke', 'post_tag' )
+	? wp_insert_term( 'Ability Workflow Smoke ' . $magick_ai_abilities_smoke_run_id, 'post_tag' )
 	: new WP_Error( 'missing_wp_insert_term', 'wp_insert_term unavailable.' );
 $smoke_tag_created = ! is_wp_error( $smoke_tag_result );
 if ( is_wp_error( $smoke_tag_result ) && 'term_exists' === (string) $smoke_tag_result->get_error_code() ) {
@@ -829,6 +975,9 @@ if ( is_wp_error( $smoke_tag_result ) && 'term_exists' === (string) $smoke_tag_r
 	$smoke_tag_id = (int) ( is_array( $smoke_tag_result ) ? ( $smoke_tag_result['term_id'] ?? 0 ) : 0 );
 }
 magick_ai_abilities_smoke_assert( $smoke_tag_id > 0, 'Temporary smoke tag is available for taxonomy proposal ability runs.' );
+if ( ! empty( $smoke_tag_created ) ) {
+	magick_ai_abilities_smoke_register_term_fixture( (int) $smoke_tag_id, 'post_tag' );
+}
 
 $post_taxonomy_proposal_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/propose-post-taxonomy-terms/run' );
 $post_taxonomy_proposal_run_request->set_query_params(
@@ -864,12 +1013,13 @@ $smoke_page_id = wp_insert_post(
 	array(
 		'post_type'    => 'page',
 		'post_status'  => 'publish',
-		'post_title'   => 'Magick AI Abilities Smoke Structure Page',
+		'post_title'   => $magick_ai_abilities_smoke_pattern . ' Structure Page',
 		'post_content' => '<p>This local smoke page verifies page structure health.</p>',
 	),
 	true
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_page_id ) && (int) $smoke_page_id > 0, 'Temporary smoke page is available for page structure ability runs.' );
+magick_ai_abilities_smoke_register_post_fixture( (int) $smoke_page_id );
 
 $page_structure_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-page-structure-health/run' );
 $page_structure_run_request->set_query_params(
@@ -941,13 +1091,14 @@ $publishing_calendar_run_data = $publishing_calendar_run_response->get_data();
 $smoke_comment_id = wp_insert_comment(
 	array(
 		'comment_post_ID'      => (int) $smoke_post_id,
-		'comment_author'       => 'Magick AI Abilities Smoke',
+		'comment_author'       => $magick_ai_abilities_smoke_pattern,
 		'comment_author_email' => 'smoke@example.test',
 		'comment_content'      => '@admin please check this smoke comment queue item.',
 		'comment_approved'     => '0',
 	)
 );
 magick_ai_abilities_smoke_assert( (int) $smoke_comment_id > 0, 'Temporary smoke comment is available for comment queue ability runs.' );
+magick_ai_abilities_smoke_register_comment_fixture( (int) $smoke_comment_id );
 
 $comment_queue_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-comment-queue-health/run' );
 $comment_queue_health_run_request->set_query_params(
@@ -1054,13 +1205,14 @@ magick_ai_abilities_smoke_assert(
 	'Comment compliance workflow detects the smoke mention reply trigger.'
 );
 
-wp_delete_comment( (int) $smoke_comment_id, true );
-wp_delete_post( (int) $smoke_page_id, true );
-wp_delete_post( (int) $smoke_attachment_id, true );
-wp_delete_post( (int) $smoke_candidate_id, true );
-wp_delete_post( (int) $smoke_post_id, true );
-if ( ! empty( $smoke_tag_created ) && function_exists( 'wp_delete_term' ) ) {
-	wp_delete_term( (int) $smoke_tag_id, 'post_tag' );
+magick_ai_abilities_smoke_cleanup_fixtures();
+magick_ai_abilities_smoke_assert( null === get_comment( (int) $smoke_comment_id ), 'Smoke comment fixture is deleted after smoke.' );
+magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_page_id ), 'Smoke page fixture is deleted after smoke.' );
+magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_attachment_id ), 'Smoke media fixture is deleted after smoke.' );
+magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_candidate_id ), 'Smoke candidate post fixture is deleted after smoke.' );
+magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_post_id ), 'Smoke context post fixture is deleted after smoke.' );
+if ( ! empty( $smoke_tag_created ) ) {
+	magick_ai_abilities_smoke_assert( 0 === (int) term_exists( (int) $smoke_tag_id, 'post_tag' ), 'Smoke tag fixture is deleted after smoke.' );
 }
 
 wp_set_current_user( 0 );
