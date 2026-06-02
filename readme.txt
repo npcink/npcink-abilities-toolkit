@@ -52,6 +52,8 @@ The plugin includes migrated low-risk WordPress read abilities, deterministic co
 
 It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
 
+It also includes `magick-ai/search-posts` and `magick-ai/search-post-meta`, bounded local WordPress search helpers for keyword and explicit post-meta discovery. These are read-only helpers and do not call external search indexes or mutate content.
+
 It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only host composition recipe metadata discovery abilities. These expose metadata only and do not execute workflow runtime behavior.
 
 Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `magick-ai-core`.

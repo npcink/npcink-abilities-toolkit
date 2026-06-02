@@ -188,7 +188,7 @@ if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 	}
 
 if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
-	foreach ( array( 'magick-ai/site-info', 'magick-ai/get-post', 'magick-ai/list-posts' ) as $expected_core_read_id ) {
+	foreach ( array( 'magick-ai/site-info', 'magick-ai/get-post', 'magick-ai/list-posts', 'magick-ai/search-posts', 'magick-ai/search-post-meta' ) as $expected_core_read_id ) {
 		magick_ai_abilities_smoke_assert(
 			! function_exists( 'wp_has_ability' ) || wp_has_ability( $expected_core_read_id ),
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
@@ -269,6 +269,7 @@ foreach (
 			'magick-ai/list-menus',
 			'magick-ai/get-menu',
 			'magick-ai/search-posts',
+			'magick-ai/search-post-meta',
 			'magick-ai/resolve-internal-link-targets',
 			'magick-ai/build-inline-image-blocks',
 			'magick-ai/build-media-seo-assets',
@@ -392,6 +393,7 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	true
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_post_id ) && (int) $smoke_post_id > 0, 'Temporary smoke post is available for post-context ability runs.' );
+update_post_meta( (int) $smoke_post_id, '_magick_ai_smoke_search_marker', 'local smoke metadata search marker' );
 
 $post_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-post-context/run' );
 $post_context_run_request->set_query_params(
@@ -406,6 +408,38 @@ $post_context_run_request->set_query_params(
 $post_context_run_response = rest_do_request( $post_context_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $post_context_run_response->get_status(), 'Authenticated post context ability run returns 200.' );
 $post_context_run_data = $post_context_run_response->get_data();
+
+$search_posts_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/search-posts/run' );
+$search_posts_run_request->set_query_params(
+	array(
+		'input' => array(
+			'search'    => 'context',
+			'post_types' => array( 'post' ),
+			'statuses'  => array( 'draft' ),
+			'per_page'  => 5,
+		),
+	)
+);
+$search_posts_run_response = rest_do_request( $search_posts_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $search_posts_run_response->get_status(), 'Authenticated post keyword search ability run returns 200.' );
+$search_posts_run_data = $search_posts_run_response->get_data();
+magick_ai_abilities_smoke_assert( ! empty( $search_posts_run_data['items'] ), 'Post keyword search returns the local smoke post candidate.' );
+
+$search_meta_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/search-post-meta/run' );
+$search_meta_run_request->set_query_params(
+	array(
+		'input' => array(
+			'search'    => 'metadata search marker',
+			'meta_keys' => array( '_magick_ai_smoke_search_marker' ),
+			'statuses'  => array( 'draft' ),
+			'per_page'  => 5,
+		),
+	)
+);
+$search_meta_run_response = rest_do_request( $search_meta_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $search_meta_run_response->get_status(), 'Authenticated post meta search ability run returns 200.' );
+$search_meta_run_data = $search_meta_run_response->get_data();
+magick_ai_abilities_smoke_assert( ! empty( $search_meta_run_data['items'][0]['matched_meta_keys'] ), 'Post meta search returns matched meta keys.' );
 
 $publishing_checklist_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-content-publishing-checklist/run' );
 $publishing_checklist_run_request->set_query_params(

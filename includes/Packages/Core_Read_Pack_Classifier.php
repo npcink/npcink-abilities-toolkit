@@ -89,6 +89,7 @@ final class Core_Read_Pack_Classifier {
 			'magick-ai/get-post-stats'                          => 'core_wordpress_read',
 			'magick-ai/list-revisions'                          => 'core_wordpress_read',
 			'magick-ai/get-post-meta'                           => 'core_wordpress_read',
+			'magick-ai/search-post-meta'                        => 'core_wordpress_read',
 			'magick-ai/list-pages'                              => 'page_governance',
 			'magick-ai/get-page'                                => 'page_governance',
 			'magick-ai/inspect-page-structure'                  => 'page_governance',

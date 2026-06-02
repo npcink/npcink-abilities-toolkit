@@ -62,6 +62,18 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Checking active plugins, optional plugin groups, caller roles/capabilities, PHP extensions, cache and rewrite state, HTTPS, server/database summaries, cron hooks, bounded log severity summaries, content types, roles, widgets, block-theme registries, search integrations, SEO/security/performance summaries, and common plugin integrations.' ),
 				'stopping_points' => array( 'Stop at redacted local evidence; log review, database repair, external index checks, runtime/MCP/cloud diagnosis, and final remediation belong to the host or operator.' ),
 			),
+			'magick-ai/search-posts' => array(
+				'when_to_use'     => array( 'Find local WordPress post candidates by keyword across posts, pages, or selected post types before reading a full context bundle.' ),
+				'not_for'         => array( 'Do not use this for external search indexes, web crawling, semantic retrieval, final editorial decisions, or post mutation.' ),
+				'best_for'        => array( 'Bounded keyword search with post type, status, author, date, modified date, and taxonomy filters; follow with get-post-context for details.' ),
+				'stopping_points' => array( 'Stop after candidate ids and summaries are selected; read details with get-post-context and route all writes through host-governed abilities.' ),
+			),
+			'magick-ai/search-post-meta' => array(
+				'when_to_use'     => array( 'Find local WordPress post candidates by explicitly named metadata keys such as SEO title, SEO description, or focus keyword.' ),
+				'not_for'         => array( 'Do not use this to inspect arbitrary secrets, passwords, tokens, API keys, unbounded metadata, or to mutate metadata.' ),
+				'best_for'        => array( 'Narrow exact or contains matching over up to ten non-sensitive meta keys, followed by get-post-context with scoped meta_keys when details are needed.' ),
+				'stopping_points' => array( 'Stop after matched post ids and bounded meta excerpts; final metadata changes require host-governed write abilities.' ),
+			),
 			'magick-ai/get-test-content-inventory' => array(
 				'when_to_use'     => array( 'Detect bounded smoke, fixture, or test content before cleanup planning or before interpreting content, taxonomy, comment, and operations diagnostics.' ),
 				'not_for'         => array( 'Do not use this to trash posts, delete terms, delete comments, or mutate detected test content.' ),

@@ -59,6 +59,7 @@ Representative abilities:
 - `magick-ai/list-menus`
 - `magick-ai/get-menu`
 - `magick-ai/search-posts`
+- `magick-ai/search-post-meta`
 - `magick-ai/get-post-stats`
 - `magick-ai/list-revisions`
 - `magick-ai/get-post-meta`

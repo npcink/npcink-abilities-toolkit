@@ -24,29 +24,43 @@ trait Post_Primitives_Read_Methods {
 	public function search_posts( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
-		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
-		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
+		$post_type_filter = $this->normalize_post_type_filter( $input['post_types'] ?? ( $input['post_type'] ?? 'post' ) );
+		$statuses = $this->normalize_post_status_filter( $input['statuses'] ?? ( $input['status'] ?? 'publish' ) );
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
+		$author_id = absint( $input['author_id'] ?? 0 );
+		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? '' ) );
+		$term_id = absint( $input['term_id'] ?? 0 );
+		$term_slug = sanitize_title( (string) ( $input['term_slug'] ?? '' ) );
+		$date_after = sanitize_text_field( (string) ( $input['date_after'] ?? '' ) );
+		$date_before = sanitize_text_field( (string) ( $input['date_before'] ?? '' ) );
+		$modified_after = sanitize_text_field( (string) ( $input['modified_after'] ?? '' ) );
+		$modified_before = sanitize_text_field( (string) ( $input['modified_before'] ?? '' ) );
 
 		if ( '' === $search ) {
 			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
 		}
-		if ( ! post_type_exists( $post_type ) ) {
+		if ( empty( $post_type_filter ) ) {
 			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
 		}
 
-		$query = new \WP_Query(
-			array(
-				'post_type'      => $post_type,
-				'post_status'    => '' !== $status ? $status : 'publish',
-				's'              => $search,
-				'posts_per_page' => $per_page,
-				'paged'          => $page,
-				'orderby'        => 'relevance',
-				'order'          => 'DESC',
-			)
+		$args = array(
+			'post_type'        => $post_type_filter,
+			'post_status'      => 1 === count( $statuses ) ? $statuses[0] : $statuses,
+			's'                => $search,
+			'posts_per_page'   => $per_page,
+			'paged'            => $page,
+			'orderby'          => 'relevance',
+			'order'            => 'DESC',
+			'suppress_filters' => false,
 		);
+		if ( $author_id > 0 ) {
+			$args['author'] = $author_id;
+		}
+		$this->append_post_date_query_filters( $args, $date_after, $date_before, $modified_after, $modified_before );
+		$this->append_post_tax_query_filter( $args, $taxonomy, $term_id, $term_slug );
+
+		$query = new \WP_Query( $args );
 
 		$items = array();
 		foreach ( $query->posts as $post ) {
@@ -57,15 +71,23 @@ trait Post_Primitives_Read_Methods {
 			if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
 				continue;
 			}
+			$status_value = sanitize_key( (string) ( $post->post_status ?? '' ) );
+			$type_value = sanitize_key( (string) ( $post->post_type ?? '' ) );
 			$items[] = array(
-				'id'        => $post_id,
-				'title'     => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
-				'slug'      => sanitize_title( (string) ( $post->post_name ?? '' ) ),
-				'status'    => sanitize_key( (string) ( $post->post_status ?? '' ) ),
-				'type'      => sanitize_key( (string) ( $post->post_type ?? '' ) ),
-				'author_id' => absint( $post->post_author ?? 0 ),
-				'date'      => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
-				'excerpt'   => wp_trim_words( wp_strip_all_tags( (string) ( $post->post_content ?? '' ) ), 30 ),
+				'id'             => $post_id,
+				'title'          => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+				'slug'           => sanitize_title( (string) ( $post->post_name ?? '' ) ),
+				'status'         => $status_value,
+				'post_status'    => $status_value,
+				'type'           => $type_value,
+				'post_type'      => $type_value,
+				'author_id'      => absint( $post->post_author ?? 0 ),
+				'date'           => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+				'modified'       => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'excerpt'        => wp_trim_words( wp_strip_all_tags( (string) ( $post->post_excerpt ?: $post->post_content ) ), 30 ),
+				'permalink'      => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
+				'edit_link'      => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+				'matched_fields' => $this->detect_post_search_matched_fields( $post, $search ),
 			);
 		}
 
@@ -73,6 +95,19 @@ trait Post_Primitives_Read_Methods {
 			'total'    => (int) $query->found_posts,
 			'page'     => $page,
 			'per_page' => $per_page,
+			'filters'  => array(
+				'search'          => $search,
+				'post_type'       => $post_type_filter,
+				'status'          => $statuses,
+				'author_id'       => $author_id,
+				'taxonomy'        => $taxonomy,
+				'term_id'         => $term_id,
+				'term_slug'       => $term_slug,
+				'date_after'      => $date_after,
+				'date_before'     => $date_before,
+				'modified_after'  => $modified_after,
+				'modified_before' => $modified_before,
+			),
 			'items'    => $items,
 		);
 	}
@@ -217,6 +252,104 @@ trait Post_Primitives_Read_Methods {
 		return array(
 			'post_id' => $post_id,
 			'items'   => $items,
+		);
+	}
+
+	/**
+	 * Searches explicitly named post meta keys.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function search_post_meta( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
+		$meta_keys = $this->normalize_search_meta_keys( $input['meta_keys'] ?? array() );
+		$match = sanitize_key( (string) ( $input['match'] ?? 'contains' ) );
+		$post_type_filter = $this->normalize_post_type_filter( $input['post_types'] ?? ( $input['post_type'] ?? 'post' ) );
+		$statuses = $this->normalize_post_status_filter( $input['statuses'] ?? ( $input['status'] ?? 'publish' ) );
+		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
+		$page = max( 1, absint( $input['page'] ?? 1 ) );
+
+		if ( '' === $search ) {
+			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( empty( $meta_keys ) ) {
+			return new \WP_Error( 'magick_ai_abilities_meta_keys_required', __( 'At least one non-sensitive meta key is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( empty( $post_type_filter ) ) {
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( ! in_array( $match, array( 'contains', 'exact' ), true ) ) {
+			$match = 'contains';
+		}
+
+		$meta_query = array( 'relation' => 'OR' );
+		foreach ( $meta_keys as $meta_key ) {
+			$meta_query[] = array(
+				'key'     => $meta_key,
+				'value'   => $search,
+				'compare' => 'exact' === $match ? '=' : 'LIKE',
+			);
+		}
+
+		$args = array(
+			'post_type'        => $post_type_filter,
+			'post_status'      => 1 === count( $statuses ) ? $statuses[0] : $statuses,
+			'posts_per_page'   => $per_page,
+			'paged'            => $page,
+			'orderby'          => 'date',
+			'order'            => 'DESC',
+			'suppress_filters' => false,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Bounded explicit-key metadata search is the purpose of this read-only ability.
+			'meta_query'       => $meta_query,
+		);
+
+		$query = new \WP_Query( $args );
+		$items = array();
+		foreach ( $query->posts as $post ) {
+			if ( ! is_object( $post ) ) {
+				continue;
+			}
+			$post_id = absint( $post->ID ?? 0 );
+			if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
+				continue;
+			}
+			$matched_meta = $this->collect_search_matched_meta( $post_id, $meta_keys, $search, $match );
+			if ( empty( $matched_meta ) ) {
+				continue;
+			}
+			$status_value = sanitize_key( (string) ( $post->post_status ?? '' ) );
+			$items[] = array(
+				'id'                => $post_id,
+				'title'             => sanitize_text_field( (string) get_the_title( $post_id ) ),
+				'slug'              => sanitize_title( (string) ( $post->post_name ?? '' ) ),
+				'status'            => $status_value,
+				'post_status'       => $status_value,
+				'post_type'         => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'author_id'         => absint( $post->post_author ?? 0 ),
+				'date'              => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
+				'modified'          => sanitize_text_field( (string) ( $post->post_modified ?? '' ) ),
+				'excerpt'           => wp_trim_words( wp_strip_all_tags( (string) ( $post->post_excerpt ?: $post->post_content ) ), 30 ),
+				'permalink'         => function_exists( 'get_permalink' ) ? $this->esc_url_value( (string) get_permalink( $post_id ) ) : '',
+				'edit_link'         => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
+				'matched_meta_keys' => array_values( array_map( 'sanitize_key', array_column( $matched_meta, 'key' ) ) ),
+				'matched_meta'      => $matched_meta,
+			);
+		}
+
+		return array(
+			'total'    => (int) $query->found_posts,
+			'page'     => $page,
+			'per_page' => $per_page,
+			'filters'  => array(
+				'search'    => $search,
+				'meta_keys' => $meta_keys,
+				'match'     => $match,
+				'post_type' => $post_type_filter,
+				'status'    => $statuses,
+			),
+			'items'    => $items,
 		);
 	}
 
@@ -1102,6 +1235,247 @@ trait Post_Primitives_Read_Methods {
 		}
 
 		return $meta;
+	}
+
+	/**
+	 * Normalizes one post type filter for WP_Query.
+	 *
+	 * @param mixed $raw Raw post type input.
+	 * @return string|string[]
+	 */
+	private function normalize_post_type_filter( $raw ) {
+		$raw_items = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
+		$post_types = array();
+		foreach ( $raw_items as $item ) {
+			$post_type = sanitize_key( (string) $item );
+			if ( '' === $post_type ) {
+				continue;
+			}
+			if ( 'any' === $post_type ) {
+				return 'any';
+			}
+			if ( post_type_exists( $post_type ) ) {
+				$post_types[] = $post_type;
+			}
+		}
+		$post_types = array_values( array_unique( $post_types ) );
+
+		if ( empty( $post_types ) ) {
+			return array();
+		}
+
+		return 1 === count( $post_types ) ? $post_types[0] : $post_types;
+	}
+
+	/**
+	 * Normalizes post status input for WP_Query.
+	 *
+	 * @param mixed $raw Raw status input.
+	 * @return string[]
+	 */
+	private function normalize_post_status_filter( $raw ) {
+		$raw_items = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
+		$statuses = array_values(
+			array_unique(
+				array_filter(
+					array_map(
+						static function ( $item ) {
+							return sanitize_key( (string) $item );
+						},
+						$raw_items
+					)
+				)
+			)
+		);
+
+		return empty( $statuses ) ? array( 'publish' ) : $statuses;
+	}
+
+	/**
+	 * Appends bounded date and modified date filters.
+	 *
+	 * @param array<string,mixed> $args Query args.
+	 * @param string              $date_after Publish date lower bound.
+	 * @param string              $date_before Publish date upper bound.
+	 * @param string              $modified_after Modified date lower bound.
+	 * @param string              $modified_before Modified date upper bound.
+	 * @return void
+	 */
+	private function append_post_date_query_filters( array &$args, $date_after, $date_before, $modified_after, $modified_before ) {
+		if ( '' !== $date_after || '' !== $date_before ) {
+			$args['date_query'] = array( array( 'column' => 'post_date' ) );
+			if ( '' !== $date_after ) {
+				$args['date_query'][0]['after'] = $date_after;
+			}
+			if ( '' !== $date_before ) {
+				$args['date_query'][0]['before'] = $date_before;
+			}
+		}
+		if ( '' !== $modified_after || '' !== $modified_before ) {
+			$args['date_query'] = is_array( $args['date_query'] ?? null ) ? $args['date_query'] : array();
+			$modified_query = array( 'column' => 'post_modified' );
+			if ( '' !== $modified_after ) {
+				$modified_query['after'] = $modified_after;
+			}
+			if ( '' !== $modified_before ) {
+				$modified_query['before'] = $modified_before;
+			}
+			$args['date_query'][] = $modified_query;
+		}
+	}
+
+	/**
+	 * Appends an explicit taxonomy filter when valid.
+	 *
+	 * @param array<string,mixed> $args Query args.
+	 * @param string              $taxonomy Taxonomy.
+	 * @param int                 $term_id Term id.
+	 * @param string              $term_slug Term slug.
+	 * @return void
+	 */
+	private function append_post_tax_query_filter( array &$args, $taxonomy, $term_id, $term_slug ) {
+		if ( '' === $taxonomy || ( $term_id <= 0 && '' === $term_slug ) ) {
+			return;
+		}
+		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- This read endpoint exposes an explicitly requested bounded taxonomy filter.
+		$args['tax_query'] = array(
+			array(
+				'taxonomy' => $taxonomy,
+				'field'    => $term_id > 0 ? 'term_id' : 'slug',
+				'terms'    => $term_id > 0 ? array( $term_id ) : array( $term_slug ),
+			),
+		);
+	}
+
+	/**
+	 * Detects which local post fields contain the search term.
+	 *
+	 * @param object $post Post object.
+	 * @param string $search Search term.
+	 * @return string[]
+	 */
+	private function detect_post_search_matched_fields( $post, $search ) {
+		$fields = array(
+			'title'   => (string) ( $post->post_title ?? '' ),
+			'slug'    => (string) ( $post->post_name ?? '' ),
+			'excerpt' => (string) ( $post->post_excerpt ?? '' ),
+			'content' => wp_strip_all_tags( (string) ( $post->post_content ?? '' ) ),
+		);
+		$matched = array();
+		foreach ( $fields as $field => $value ) {
+			if ( $this->contains_text_ci( $value, $search ) ) {
+				$matched[] = $field;
+			}
+		}
+
+		return $matched;
+	}
+
+	/**
+	 * Normalizes explicit meta keys for search and removes sensitive keys.
+	 *
+	 * @param mixed $raw Raw meta key list.
+	 * @return string[]
+	 */
+	private function normalize_search_meta_keys( $raw ) {
+		$raw_items = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
+		$keys = array();
+		foreach ( $raw_items as $item ) {
+			$key = sanitize_key( (string) $item );
+			if ( '' === $key || $this->is_sensitive_search_meta_key( $key ) ) {
+				continue;
+			}
+			$keys[] = $key;
+		}
+
+		return array_slice( array_values( array_unique( $keys ) ), 0, 10 );
+	}
+
+	/**
+	 * Checks whether a meta key is unsafe to expose through search excerpts.
+	 *
+	 * @param string $key Meta key.
+	 * @return bool
+	 */
+	private function is_sensitive_search_meta_key( $key ) {
+		$key = strtolower( (string) $key );
+		foreach ( array( 'password', 'passwd', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key', 'client_secret', 'auth', 'credential' ) as $marker ) {
+			if ( false !== strpos( $key, $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Collects matched meta rows for one post.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param string[] $meta_keys Explicit meta keys.
+	 * @param string   $search Search term.
+	 * @param string   $match Match mode.
+	 * @return array<int,array<string,string>>
+	 */
+	private function collect_search_matched_meta( $post_id, array $meta_keys, $search, $match ) {
+		$matched = array();
+		foreach ( $meta_keys as $meta_key ) {
+			$values = $this->normalize_search_meta_value_list( get_post_meta( $post_id, $meta_key, false ) );
+			foreach ( $values as $value ) {
+				if ( ! $this->search_meta_value_matches( $value, $search, $match ) ) {
+					continue;
+				}
+				$matched[] = array(
+					'key'     => $meta_key,
+					'excerpt' => $this->truncate_text( $this->sanitize_metadata_text( $value ), 160 ),
+				);
+				break;
+			}
+		}
+
+		return $matched;
+	}
+
+	/**
+	 * Normalizes meta values into scalar text rows.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string[]
+	 */
+	private function normalize_search_meta_value_list( $value ) {
+		$items = is_array( $value ) ? $value : array( $value );
+		$values = array();
+		foreach ( $items as $item ) {
+			if ( is_array( $item ) || is_object( $item ) ) {
+				$encoded = function_exists( 'wp_json_encode' ) ? wp_json_encode( $item ) : json_encode( $item );
+				$item = is_string( $encoded ) ? $encoded : '';
+			}
+			if ( is_scalar( $item ) && '' !== (string) $item ) {
+				$values[] = (string) $item;
+			}
+		}
+
+		return $values;
+	}
+
+	/**
+	 * Checks one meta value against the search term.
+	 *
+	 * @param string $value Meta value.
+	 * @param string $search Search term.
+	 * @param string $match Match mode.
+	 * @return bool
+	 */
+	private function search_meta_value_matches( $value, $search, $match ) {
+		if ( 'exact' === $match ) {
+			return (string) $value === (string) $search;
+		}
+
+		return $this->contains_text_ci( $value, $search );
 	}
 
 	/**

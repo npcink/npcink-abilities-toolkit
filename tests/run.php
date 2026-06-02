@@ -580,6 +580,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-test-content-inventory',
 	'magick-ai/build-test-content-cleanup-plan',
 	'magick-ai/build-content-inventory-fix-plan',
+	'magick-ai/search-post-meta',
 	'magick-ai/get-bulk-publishing-checklist',
 	'magick-ai/get-internal-link-opportunity-report',
 	'magick-ai/get-site-operations-dashboard',
@@ -719,6 +720,16 @@ maa_assert_same( 'wp-cli.phar', $log_top_messages[0]['phar_hint'] ?? '', 'ops di
 maa_assert_same( 2, $log_top_messages[0]['count'] ?? 0, 'ops diagnostics top messages count repeated fingerprints' );
 maa_assert_true( isset( $package_abilities['magick-ai/list-posts']['input_schema']['properties']['modified_after'] ), 'list-posts supports modified date filtering' );
 maa_assert_true( isset( $package_abilities['magick-ai/list-posts']['input_schema']['properties']['taxonomy'] ), 'list-posts supports taxonomy filtering' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['input_schema']['properties']['post_types'] ), 'search-posts supports multiple post types' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['input_schema']['properties']['statuses'] ), 'search-posts supports multiple statuses' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['input_schema']['properties']['taxonomy'] ), 'search-posts supports taxonomy filtering' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['input_schema']['properties']['modified_after'] ), 'search-posts supports modified date filtering' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['output_schema']['properties']['filters'] ), 'search-posts returns applied filters' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-posts']['output_schema']['properties']['items']['items']['properties']['matched_fields'] ), 'search-posts returns matched field hints' );
+maa_assert_same( array( 'search', 'meta_keys' ), $package_abilities['magick-ai/search-post-meta']['input_schema']['required'] ?? array(), 'search-post-meta requires search and explicit meta keys' );
+maa_assert_same( 10, $package_abilities['magick-ai/search-post-meta']['input_schema']['properties']['meta_keys']['maxItems'] ?? null, 'search-post-meta bounds meta key count' );
+maa_assert_same( false, $package_abilities['magick-ai/search-post-meta']['input_schema']['additionalProperties'] ?? null, 'search-post-meta rejects undeclared inputs' );
+maa_assert_true( isset( $package_abilities['magick-ai/search-post-meta']['output_schema']['properties']['items']['items']['properties']['matched_meta_keys'] ), 'search-post-meta returns matched meta keys' );
 maa_assert_true( in_array( 'tree', $package_abilities['magick-ai/get-menu']['output_schema']['required'] ?? array(), true ), 'get-menu returns a menu tree' );
 foreach ( $migrated_read_ability_ids as $migrated_ability_id ) {
 	maa_assert_true( isset( $package_abilities[ $migrated_ability_id ] ), "core read package owns migrated {$migrated_ability_id} ability" );
@@ -798,8 +809,8 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
 	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
 	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
-	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[79] ?? '', 'core read definitions keep URL resolver order after provider split' );
-	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[81] ?? '', 'core read definitions keep revision list last after provider split' );
+	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[80] ?? '', 'core read definitions keep URL resolver order after provider split' );
+	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[82] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
