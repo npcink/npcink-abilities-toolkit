@@ -135,6 +135,9 @@ trait Media_Read_Methods {
 			return array();
 		}
 
+		$featured_posts = array();
+		$featured_count = 0;
+		if ( class_exists( '\WP_Query' ) ) {
 			$featured_query = new \WP_Query(
 				array(
 					'post_type'      => 'any',
@@ -147,22 +150,31 @@ trait Media_Read_Methods {
 					// phpcs:enable WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				)
 			);
-		$featured_posts = array();
-		foreach ( (array) $featured_query->posts as $post_id ) {
-			$post_id = absint( $post_id );
-			if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
-				$featured_posts[] = array(
-					'post_id'    => $post_id,
-					'post_type'  => sanitize_key( (string) get_post_type( $post_id ) ),
-					'post_title' => sanitize_text_field( (string) get_the_title( $post_id ) ),
-				);
+			$featured_count = (int) $featured_query->found_posts;
+			foreach ( (array) $featured_query->posts as $post_id ) {
+				$post_id = absint( $post_id );
+				if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
+					$featured_posts[] = array(
+						'post_id'    => $post_id,
+						'post_type'  => sanitize_key( (string) get_post_type( $post_id ) ),
+						'post_status' => sanitize_key( (string) get_post_status( $post_id ) ),
+						'post_title' => sanitize_text_field( (string) get_the_title( $post_id ) ),
+					);
+				}
 			}
+		} else {
+			$featured_posts = $this->find_media_featured_image_references( $attachment_id, 5 );
+			$featured_count = count( $featured_posts );
 		}
 
+		$content_posts = $this->find_media_content_references( $attachment_id, 10 );
+
 		return array(
-			'featured_image_count' => (int) $featured_query->found_posts,
+			'featured_image_count' => $featured_count,
 			'featured_image_posts' => $featured_posts,
-			'content_reference_scan_run' => false,
+			'content_reference_count' => count( $content_posts ),
+			'content_reference_posts' => $content_posts,
+			'content_reference_scan_run' => true,
 		);
 	}
 
@@ -755,6 +767,9 @@ trait Media_Read_Methods {
 		$issue_types = $this->normalize_media_fix_issue_types( $input['issue_types'] ?? array() );
 		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
 		$include_delete_candidates = ! empty( $input['include_delete_candidates'] );
+		$include_trash_parent_media = ! empty( $input['include_trash_parent_media'] );
+		$include_unattached_test_media = ! empty( $input['include_unattached_test_media'] );
+		$test_content_patterns = $this->normalize_test_content_patterns( array() );
 		$context = array(
 			'article_title'   => sanitize_text_field( (string) ( $input['article_title'] ?? '' ) ),
 			'article_excerpt' => $this->sanitize_metadata_text( (string) ( $input['article_excerpt'] ?? '' ) ),
@@ -780,11 +795,19 @@ trait Media_Read_Methods {
 			if ( 0 === $parent_id ) {
 				$row['issues'][] = 'possibly_unattached';
 			}
+			$parent = $parent_id > 0 ? get_post( $parent_id ) : null;
+			$parent_status = is_object( $parent ) ? sanitize_key( (string) ( $parent->post_status ?? '' ) ) : '';
+			if ( 'trash' === $parent_status ) {
+				$row['issues'][] = 'possibly_unattached';
+			}
 			$row['issues'] = array_values( array_unique( array_map( 'sanitize_key', (array) ( $row['issues'] ?? array() ) ) ) );
 			$row['issue_count'] = count( $row['issues'] );
 			$row['parent_post_id'] = $parent_id;
+			$row['parent_post_status'] = $parent_status;
+			$row['parent_post_title'] = is_object( $parent ) ? sanitize_text_field( (string) ( $parent->post_title ?? '' ) ) : '';
+			$row['post_name'] = sanitize_title( (string) ( $attachment->post_name ?? '' ) );
 
-			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates );
+			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates, $include_trash_parent_media, $include_unattached_test_media, $test_content_patterns );
 			foreach ( (array) ( $post_plan['issues'] ?? array() ) as $issue ) {
 				$issue = sanitize_key( (string) $issue );
 				if ( '' !== $issue ) {
@@ -895,9 +918,12 @@ trait Media_Read_Methods {
 	 * @param array<string,mixed> $context Planning context.
 	 * @param int                 $remaining_slots Remaining action slots.
 	 * @param bool                $include_delete_candidates Whether to map delete candidates.
+	 * @param bool                $include_trash_parent_media Whether trash-parent test media can map to delete actions.
+	 * @param bool                $include_unattached_test_media Whether parentless test media can map to delete actions.
+	 * @param string[]            $test_content_patterns Test content patterns.
 	 * @return array<string,mixed>
 	 */
-	private function build_media_inventory_fix_plan_rows( $attachment_id, array $row, array $issue_types, array $context, $remaining_slots, $include_delete_candidates ) {
+	private function build_media_inventory_fix_plan_rows( $attachment_id, array $row, array $issue_types, array $context, $remaining_slots, $include_delete_candidates, $include_trash_parent_media = false, $include_unattached_test_media = false, array $test_content_patterns = array() ) {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$remaining_slots = max( 0, (int) $remaining_slots );
 		$issues = array_values(
@@ -964,14 +990,19 @@ trait Media_Read_Methods {
 		}
 
 		if ( in_array( 'possibly_unattached', $issues, true ) ) {
-			if ( $include_delete_candidates && count( $actions ) < $remaining_slots ) {
+			$delete_policy = $include_delete_candidates
+				? $this->media_delete_candidate_policy( $attachment_id, $row, $include_trash_parent_media, $include_unattached_test_media, $test_content_patterns )
+				: array( 'allowed' => false, 'blocked_reason' => 'delete_candidates_not_enabled', 'checks' => array() );
+			if ( $include_delete_candidates && ! empty( $delete_policy['allowed'] ) && count( $actions ) < $remaining_slots ) {
 				$actions[] = $this->build_plan_action( 'delete_unattached_media_' . $attachment_id, 'magick-ai/delete-media-permanently', array( 'attachment_id' => $attachment_id ), array( 'media.write' ), 'high', 'Permanently delete detected unattached media only after explicit host approval.' );
 			} else {
 				$skipped_destructive_candidates[] = array(
 					'attachment_id'     => $attachment_id,
 					'target_ability_id' => 'magick-ai/delete-media-permanently',
 					'issue'             => 'possibly_unattached',
-					'reason'            => 'Permanent deletion is excluded by default. Re-run with include_delete_candidates=true to include it in write_actions.',
+					'blocked_reason'    => $include_delete_candidates ? (string) ( $delete_policy['blocked_reason'] ?? 'media_delete_policy_not_satisfied' ) : 'delete_candidates_not_enabled',
+					'policy_checks'     => is_array( $delete_policy['checks'] ?? null ) ? $delete_policy['checks'] : array(),
+					'reason'            => $include_delete_candidates ? 'Permanent deletion is limited to explicitly opted-in test media with no live content references.' : 'Permanent deletion is excluded by default. Re-run with include_delete_candidates=true plus include_trash_parent_media=true or include_unattached_test_media=true to include eligible test media in write_actions.',
 				);
 			}
 		}
@@ -980,11 +1011,14 @@ trait Media_Read_Methods {
 			'issues'  => $issues,
 			'actions' => $actions,
 			'preview' => empty( $actions ) && empty( $manual_review ) && empty( $skipped_destructive_candidates ) ? array() : array(
-				'attachment_id' => $attachment_id,
-				'title'         => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
-				'mime_type'     => sanitize_text_field( (string) ( $row['mime_type'] ?? '' ) ),
-				'url'           => $this->esc_url_value( (string) ( $row['url'] ?? '' ) ),
-				'before'        => array(
+				'attachment_id'       => $attachment_id,
+				'title'               => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+				'mime_type'           => sanitize_text_field( (string) ( $row['mime_type'] ?? '' ) ),
+				'url'                 => $this->esc_url_value( (string) ( $row['url'] ?? '' ) ),
+				'parent_post_id'      => $this->absint_value( $row['parent_post_id'] ?? 0 ),
+				'parent_post_status' => sanitize_key( (string) ( $row['parent_post_status'] ?? '' ) ),
+				'parent_post_title'  => sanitize_text_field( (string) ( $row['parent_post_title'] ?? '' ) ),
+				'before'              => array(
 					'title'            => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
 					'alt'              => sanitize_text_field( (string) ( $row['alt'] ?? '' ) ),
 					'caption'          => $this->sanitize_metadata_text( (string) ( $row['caption'] ?? '' ) ),
@@ -998,6 +1032,206 @@ trait Media_Read_Methods {
 			),
 			'manual_review'                  => $manual_review,
 			'skipped_destructive_candidates' => $skipped_destructive_candidates,
+		);
+	}
+
+	/**
+	 * Evaluates the narrow permanent media delete policy.
+	 *
+	 * @param int                 $attachment_id Attachment ID.
+	 * @param array<string,mixed> $row Media row.
+	 * @param bool                $include_trash_parent_media Whether trash-parent test media can be deleted.
+	 * @param bool                $include_unattached_test_media Whether parentless test media can be deleted.
+	 * @param string[]            $test_content_patterns Test content patterns.
+	 * @return array<string,mixed>
+	 */
+	private function media_delete_candidate_policy( $attachment_id, array $row, $include_trash_parent_media, $include_unattached_test_media, array $test_content_patterns ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$test_content_patterns = ! empty( $test_content_patterns ) ? $test_content_patterns : $this->normalize_test_content_patterns( array() );
+		$parent_title = sanitize_text_field( (string) ( $row['parent_post_title'] ?? '' ) );
+		$media_haystack = implode(
+			' ',
+			array(
+				sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+				sanitize_title( (string) ( $row['post_name'] ?? '' ) ),
+				$this->esc_url_value( (string) ( $row['url'] ?? '' ) ),
+			)
+		);
+		$usage = $this->build_media_usage_context( $attachment_id );
+		$live_reference_count = (int) ( $usage['featured_image_count'] ?? 0 ) + (int) ( $usage['content_reference_count'] ?? 0 );
+		$checks = array(
+			'include_trash_parent_media' => (bool) $include_trash_parent_media,
+			'include_unattached_test_media' => (bool) $include_unattached_test_media,
+			'parent_post_id'             => $this->absint_value( $row['parent_post_id'] ?? 0 ),
+			'parent_status'              => sanitize_key( (string) ( $row['parent_post_status'] ?? '' ) ),
+			'parent_matches_test_content' => $this->text_matches_test_content_patterns( $parent_title, $test_content_patterns ),
+			'media_matches_test_content' => $this->text_matches_test_content_patterns( $media_haystack, $test_content_patterns ),
+			'live_reference_count'       => $live_reference_count,
+			'usage'                      => $usage,
+		);
+
+		if ( $checks['parent_post_id'] <= 0 ) {
+			if ( empty( $checks['include_unattached_test_media'] ) ) {
+				return array( 'allowed' => false, 'blocked_reason' => 'unattached_test_media_not_enabled', 'checks' => $checks );
+			}
+			if ( empty( $checks['media_matches_test_content'] ) ) {
+				return array( 'allowed' => false, 'blocked_reason' => 'media_not_test_content', 'checks' => $checks );
+			}
+			if ( $live_reference_count > 0 ) {
+				return array( 'allowed' => false, 'blocked_reason' => 'referenced_by_live_content', 'checks' => $checks );
+			}
+
+			return array( 'allowed' => true, 'blocked_reason' => '', 'checks' => $checks );
+		}
+
+		if ( empty( $checks['include_trash_parent_media'] ) ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'trash_parent_media_not_enabled', 'checks' => $checks );
+		}
+		if ( 'trash' !== $checks['parent_status'] ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'parent_not_trash', 'checks' => $checks );
+		}
+		if ( empty( $checks['parent_matches_test_content'] ) ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'parent_not_test_content', 'checks' => $checks );
+		}
+		if ( empty( $checks['media_matches_test_content'] ) ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'media_not_test_content', 'checks' => $checks );
+		}
+		if ( $live_reference_count > 0 ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'referenced_by_live_content', 'checks' => $checks );
+		}
+
+		return array( 'allowed' => true, 'blocked_reason' => '', 'checks' => $checks );
+	}
+
+	/**
+	 * Checks whether text contains one of the default test-content patterns.
+	 *
+	 * @param string   $text Text to inspect.
+	 * @param string[] $patterns Test content patterns.
+	 * @return bool
+	 */
+	private function text_matches_test_content_patterns( $text, array $patterns ) {
+		$text = strtolower( $this->sanitize_metadata_text( (string) $text ) );
+		if ( '' === $text ) {
+			return false;
+		}
+
+		foreach ( $patterns as $pattern ) {
+			$pattern = strtolower( $this->sanitize_metadata_text( (string) $pattern ) );
+			if ( '' !== $pattern && false !== strpos( $text, $pattern ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Finds live content references to an attachment in post bodies.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @param int $limit Maximum rows.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function find_media_content_references( $attachment_id, $limit ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$limit = max( 1, (int) $limit );
+		$url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
+			? array_values( $GLOBALS['maa_unit_style_posts'] )
+			: ( function_exists( 'get_posts' ) ? get_posts( array( 'post_type' => 'any', 'post_status' => array( 'publish', 'future', 'draft', 'pending', 'private' ), 'posts_per_page' => 50 ) ) : array() );
+		$references = array();
+
+		foreach ( $posts as $post ) {
+			if ( ! is_object( $post ) || 'attachment' === sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+				continue;
+			}
+			if ( ! in_array( sanitize_key( (string) ( $post->post_status ?? '' ) ), array( 'publish', 'future', 'draft', 'pending', 'private' ), true ) ) {
+				continue;
+			}
+			$content = (string) ( $post->post_content ?? '' );
+			if ( ! $this->media_content_contains_reference( $content, $attachment_id, $url ) ) {
+				continue;
+			}
+			$references[] = $this->media_reference_post_row( $post );
+			if ( count( $references ) >= $limit ) {
+				break;
+			}
+		}
+
+		return $references;
+	}
+
+	/**
+	 * Finds live featured-image references to an attachment for unit fallback.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @param int $limit Maximum rows.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function find_media_featured_image_references( $attachment_id, $limit ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$limit = max( 1, (int) $limit );
+		$references = array();
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? array_values( $GLOBALS['maa_unit_style_posts'] ) : array();
+
+		foreach ( $posts as $post ) {
+			if ( ! is_object( $post ) || 'attachment' === sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+				continue;
+			}
+			if ( ! in_array( sanitize_key( (string) ( $post->post_status ?? '' ) ), array( 'publish', 'future', 'draft', 'pending', 'private' ), true ) ) {
+				continue;
+			}
+			$post_id = $this->absint_value( $post->ID ?? 0 );
+			if ( $attachment_id !== $this->absint_value( $GLOBALS['maa_unit_post_meta'][ $post_id ]['_thumbnail_id'] ?? 0 ) ) {
+				continue;
+			}
+			$references[] = $this->media_reference_post_row( $post );
+			if ( count( $references ) >= $limit ) {
+				break;
+			}
+		}
+
+		return $references;
+	}
+
+	/**
+	 * Checks common WordPress content references for an attachment.
+	 *
+	 * @param string $content Post content.
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $url Attachment URL.
+	 * @return bool
+	 */
+	private function media_content_contains_reference( $content, $attachment_id, $url ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$content = (string) $content;
+		if ( $attachment_id <= 0 || '' === $content ) {
+			return false;
+		}
+
+		foreach ( array( 'wp-image-' . $attachment_id, '"id":' . $attachment_id, "'id':" . $attachment_id, 'data-id="' . $attachment_id . '"', 'data-id=\'' . $attachment_id . '\'' ) as $needle ) {
+			if ( false !== strpos( $content, $needle ) ) {
+				return true;
+			}
+		}
+
+		return '' !== $url && false !== strpos( $content, $url );
+	}
+
+	/**
+	 * Builds a safe post row for media reference diagnostics.
+	 *
+	 * @param object $post Post object.
+	 * @return array<string,mixed>
+	 */
+	private function media_reference_post_row( $post ) {
+		$post_id = $this->absint_value( $post->ID ?? 0 );
+		return array(
+			'post_id'     => $post_id,
+			'post_type'   => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+			'post_status' => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+			'post_title'  => sanitize_text_field( (string) ( $post->post_title ?? ( function_exists( 'get_the_title' ) ? get_the_title( $post_id ) : '' ) ) ),
 		);
 	}
 

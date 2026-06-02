@@ -1955,6 +1955,8 @@ final class Core_Read_Package {
 						'page'                        => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
 						'max_actions'                 => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
 						'include_delete_candidates'   => array( 'type' => 'boolean', 'default' => false ),
+						'include_trash_parent_media'  => array( 'type' => 'boolean', 'default' => false ),
+						'include_unattached_test_media' => array( 'type' => 'boolean', 'default' => false ),
 					),
 					'additionalProperties' => false,
 				),

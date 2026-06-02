@@ -768,6 +768,7 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-old-article-refresh-cont
 maa_assert_same( 100, $package_abilities['magick-ai/get-internal-link-graph-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'internal link graph health scan is bounded to 100 posts per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
 maa_assert_same( 100, $package_abilities['magick-ai/build-media-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'media inventory fix plan bounds planned actions' );
+maa_assert_same( false, $package_abilities['magick-ai/build-media-inventory-fix-plan']['input_schema']['properties']['include_trash_parent_media']['default'] ?? null, 'media inventory fix plan keeps trash-parent delete opt-in disabled by default' );
 maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-inventory-fix-plan']['required_scopes'] ?? array(), 'media inventory fix plan remains a read-scope planning ability' );
 maa_assert_true( ! empty( $package_abilities['magick-ai/build-media-inventory-fix-plan']['agent_usage']['when_to_use'] ), 'media inventory fix plan exposes agent usage guidance' );
 maa_assert_true( ! empty( $package_abilities['magick-ai/build-media-inventory-fix-plan']['agent_usage']['stopping_points'] ), 'media inventory fix plan exposes agent stopping points' );
@@ -1875,6 +1876,7 @@ $GLOBALS['maa_unit_style_posts'][79] = (object) array(
 	'post_content'   => '',
 	'post_name'      => 'workflow-diagram-image',
 	'post_author'    => 7,
+	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
 );
 $media_health = $core_read_package->get_media_inventory_health(
@@ -1912,6 +1914,7 @@ maa_assert_same( false, $media_fix_plan['data']['write_actions'][0]['commit_exec
 maa_assert_true( isset( $media_fix_plan['data']['preview'][0]['before']['alt'] ), 'media inventory fix plan returns before preview' );
 maa_assert_true( isset( $media_fix_plan['data']['preview'][0]['after_suggestion']['alt'] ), 'media inventory fix plan returns after suggestion preview' );
 maa_assert_same( 'magick-ai/delete-media-permanently', $media_fix_plan['data']['skipped_destructive_candidates'][0]['target_ability_id'] ?? '', 'media inventory fix plan skips destructive candidates by default' );
+maa_assert_same( 'delete_candidates_not_enabled', $media_fix_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan explains default destructive skip reason' );
 $media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
 		'attachment_ids'              => array( 79 ),
@@ -1919,8 +1922,127 @@ $media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 		'include_delete_candidates'   => true,
 	)
 );
-maa_assert_same( 'magick-ai/delete-media-permanently', $media_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan can explicitly map delete candidates' );
-maa_assert_same( 'high', $media_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'media delete candidate is marked high risk' );
+maa_assert_same( 0, count( (array) ( $media_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan does not map delete candidates without unattached test-media opt-in' );
+maa_assert_same( 'unattached_test_media_not_enabled', $media_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit parentless test-media opt-in for destructive media deletes' );
+$media_parentless_delete_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'              => array( 79 ),
+		'issue_types'                 => array( 'possibly_unattached' ),
+		'include_delete_candidates'   => true,
+		'include_trash_parent_media'  => true,
+	)
+);
+maa_assert_same( 0, count( (array) ( $media_parentless_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan does not map parentless media to delete actions' );
+maa_assert_same( 'unattached_test_media_not_enabled', $media_parentless_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit unattached test-media opt-in for parentless destructive media deletes' );
+$GLOBALS['maa_unit_style_posts'][96] = (object) array(
+	'ID'             => 96,
+	'post_title'     => 'Playwright Native Media ALT 1776483949900',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'playwright-native-media-alt-1776483949900',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/png',
+);
+$media_parentless_test_delete_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'                 => array( 96 ),
+		'issue_types'                    => array( 'possibly_unattached' ),
+		'include_delete_candidates'      => true,
+		'include_unattached_test_media'  => true,
+	)
+);
+maa_assert_same( 'magick-ai/delete-media-permanently', $media_parentless_test_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible parentless test media to delete action only with explicit opt-in' );
+$GLOBALS['maa_unit_style_posts'][91] = (object) array(
+	'ID'           => 91,
+	'post_title'   => 'Runtime Smoke Media Parent',
+	'post_status'  => 'trash',
+	'post_type'    => 'post',
+	'post_content' => 'Runtime smoke parent post for media cleanup policy.',
+	'post_name'    => 'runtime-smoke-media-parent',
+	'post_author'  => 7,
+	'post_parent'  => 0,
+);
+$GLOBALS['maa_unit_style_posts'][92] = (object) array(
+	'ID'             => 92,
+	'post_title'     => 'Runtime Smoke Media Image',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'runtime-smoke-media-image',
+	'post_author'    => 7,
+	'post_parent'    => 91,
+	'post_mime_type' => 'image/jpeg',
+);
+$eligible_media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'              => array( 92 ),
+		'issue_types'                 => array( 'possibly_unattached' ),
+		'include_delete_candidates'   => true,
+		'include_trash_parent_media'  => true,
+	)
+);
+maa_assert_same( 'magick-ai/delete-media-permanently', $eligible_media_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible trash-parent test media to delete action' );
+maa_assert_same( 'high', $eligible_media_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'eligible media delete candidate is marked high risk' );
+maa_assert_same( 'trash', $eligible_media_delete_plan['data']['preview'][0]['parent_post_status'] ?? '', 'eligible media delete policy records trashed parent status in preview' );
+$GLOBALS['maa_unit_style_posts'][93] = (object) array(
+	'ID'             => 93,
+	'post_title'     => 'Production Diagram Image',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'production-diagram-image',
+	'post_author'    => 7,
+	'post_parent'    => 91,
+	'post_mime_type' => 'image/jpeg',
+);
+$blocked_media_title_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'              => array( 93 ),
+		'issue_types'                 => array( 'possibly_unattached' ),
+		'include_delete_candidates'   => true,
+		'include_trash_parent_media'  => true,
+	)
+);
+maa_assert_same( 0, count( (array) ( $blocked_media_title_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks trash-parent media whose own title is not test content' );
+maa_assert_same( 'media_not_test_content', $blocked_media_title_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports media test-pattern policy failure' );
+$GLOBALS['maa_unit_style_posts'][94] = (object) array(
+	'ID'             => 94,
+	'post_title'     => 'Runtime Smoke Referenced Image',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'runtime-smoke-referenced-image',
+	'post_author'    => 7,
+	'post_parent'    => 91,
+	'post_mime_type' => 'image/jpeg',
+);
+$GLOBALS['maa_unit_style_posts'][95] = (object) array(
+	'ID'           => 95,
+	'post_title'   => 'Editorial Draft',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_content' => '<!-- wp:image {"id":94} --><figure class="wp-block-image"><img class="wp-image-94" /></figure><!-- /wp:image -->',
+	'post_name'    => 'editorial-draft',
+	'post_author'  => 7,
+	'post_parent'  => 0,
+);
+$referenced_media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
+	array(
+		'attachment_ids'              => array( 94 ),
+		'issue_types'                 => array( 'possibly_unattached' ),
+		'include_delete_candidates'   => true,
+		'include_trash_parent_media'  => true,
+	)
+);
+maa_assert_same( 0, count( (array) ( $referenced_media_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks trash-parent media referenced by live content' );
+maa_assert_same( 'referenced_by_live_content', $referenced_media_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports live reference policy failure' );
+maa_assert_true( (int) ( $referenced_media_delete_plan['data']['skipped_destructive_candidates'][0]['policy_checks']['live_reference_count'] ?? 0 ) >= 1, 'media inventory fix plan records live reference count for blocked media delete' );
 $seo_geo_readiness = $core_read_package->get_post_seo_geo_readiness(
 	array(
 		'post_id'       => 77,
