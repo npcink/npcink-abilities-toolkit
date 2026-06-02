@@ -428,7 +428,8 @@ trait Content_Inventory_Read_Methods {
 			'core governance comment smoke',
 			'taxonomy terms smoke parent post',
 			'core plan bridge media candidate',
-			'playwright native media',
+			'playwright native media alt',
+			'playwright native media apply',
 			'content assistant test image',
 		);
 	}
