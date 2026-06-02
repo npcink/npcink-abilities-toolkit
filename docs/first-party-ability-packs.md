@@ -45,6 +45,7 @@ Representative abilities:
 - `magick-ai/list-media`
 - `magick-ai/get-media-inventory-health`
 - `magick-ai/inspect-media-asset`
+- `magick-ai/build-media-derivative-cloud-request`
 - `magick-ai/get-media-cleanup-opportunities`
 - `magick-ai/build-media-inventory-fix-plan`
 - `magick-ai/get-taxonomy-inventory-health`

@@ -621,6 +621,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-publishing-calendar-context',
 	'magick-ai/get-media-inventory-health',
 	'magick-ai/inspect-media-asset',
+	'magick-ai/build-media-derivative-cloud-request',
 	'magick-ai/get-post-seo-geo-readiness',
 	'magick-ai/get-site-topic-coverage-report',
 	'magick-ai/get-taxonomy-inventory-health',
@@ -805,6 +806,10 @@ maa_assert_same( array( 'replace', 'rollback' ), $package_abilities['magick-ai/r
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
 maa_assert_same( 1920, $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['target_max_width']['default'] ?? null, 'inspect-media-asset defaults to a 1920px max width target' );
 maa_assert_same( array( 'webp', 'avif', 'original' ), $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'inspect-media-asset exposes bounded preferred output formats' );
+maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['required_scopes'] ?? array(), 'media derivative cloud request remains a read-scope planning ability' );
+maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['required'] ?? array(), 'media derivative cloud request requires an attachment id' );
+maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media derivative cloud request exposes bounded preferred output formats' );
+maa_assert_same( 82, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['quality']['default'] ?? null, 'media derivative cloud request defaults to quality 82' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
@@ -1943,6 +1948,27 @@ maa_assert_same( true, $media_inspection['data']['format_plan']['should_convert'
 maa_assert_same( true, $media_inspection['data']['format_plan']['should_resize'] ?? null, 'inspect-media-asset recommends resizing over-wide images' );
 maa_assert_same( true, $media_inspection['data']['format_plan']['should_compress'] ?? null, 'inspect-media-asset recommends compression for large images' );
 maa_assert_same( 'webp', $media_inspection['data']['format_plan']['recommended_format'] ?? '', 'inspect-media-asset recommends WebP by default' );
+$media_cloud_request = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id'              => 79,
+		'target_max_width'           => 1920,
+		'large_file_threshold_bytes' => 524288,
+		'preferred_format'           => 'webp',
+		'quality'                    => 82,
+	)
+);
+maa_assert_same( true, $media_cloud_request['success'] ?? null, 'build-media-derivative-cloud-request returns a success envelope' );
+maa_assert_same( true, $media_cloud_request['data']['readonly'] ?? null, 'media derivative cloud request is read-only' );
+maa_assert_same( 'media_derivative_cloud_request.v1', $media_cloud_request['data']['request_contract_version'] ?? '', 'media derivative cloud request exposes a versioned contract' );
+maa_assert_same( 'generate_optimized_media_derivative', $media_cloud_request['data']['cloud_job_payload']['job_type'] ?? '', 'media derivative cloud request targets derivative generation' );
+maa_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['format'] ?? '', 'media derivative cloud request preserves preferred format' );
+maa_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['max_width'] ?? 0, 'media derivative cloud request preserves target max width' );
+maa_assert_same( true, $media_cloud_request['data']['cloud_execution']['source_upload_required'] ?? null, 'media derivative cloud request requires host-provided source upload' );
+maa_assert_same( false, $media_cloud_request['data']['cloud_execution']['credentials_included'] ?? null, 'media derivative cloud request does not include credentials' );
+maa_assert_same( false, $media_cloud_request['data']['cloud_execution']['authorization_included'] ?? null, 'media derivative cloud request does not include authorization headers' );
+maa_assert_same( false, $media_cloud_request['data']['cloud_execution']['signed_headers_included'] ?? null, 'media derivative cloud request does not include signed headers' );
+maa_assert_same( 'local_wordpress_host', $media_cloud_request['data']['local_adoption']['final_write_owner'] ?? '', 'media derivative cloud request leaves final writes local' );
+maa_assert_same( false, $media_cloud_request['data']['local_adoption']['wordpress_write_included'] ?? null, 'media derivative cloud request does not write WordPress' );
 $media_optimization_preview = $core_write_package->optimize_media_asset(
 	array(
 		'attachment_id'     => 79,
@@ -2073,9 +2099,10 @@ maa_assert_true( isset( $media_fix_plan['data']['preview'][0]['after_suggestion'
 maa_assert_same( true, $media_fix_plan['data']['manual_review'][0]['format_plan']['should_convert'] ?? null, 'media inventory fix plan carries format inspection recommendations into manual review' );
 maa_assert_same( 'legacy_image_format', $media_fix_plan['data']['manual_review'][0]['format_governance']['detected_reason'] ?? '', 'media inventory fix plan records a format attention detected reason' );
 maa_assert_same( 'generate_optimized_derivative', $media_fix_plan['data']['manual_review'][0]['format_governance']['suggested_operation'] ?? '', 'media inventory fix plan suggests a lightweight future operation for format attention' );
-maa_assert_same( 'magick-ai/optimize-media-asset', $media_fix_plan['data']['manual_review'][0]['format_governance']['target_future_ability'] ?? '', 'media inventory fix plan points format attention at a future asset ability without mapping it' );
+maa_assert_same( 'magick-ai/build-media-derivative-cloud-request', $media_fix_plan['data']['manual_review'][0]['format_governance']['target_future_ability'] ?? '', 'media inventory fix plan points format attention at the read-only Cloud request planner without mapping it' );
 maa_assert_same( false, $media_fix_plan['data']['manual_review'][0]['format_governance']['write_action_generated'] ?? null, 'media inventory fix plan keeps format attention read-only' );
 maa_assert_same( 'high', $media_fix_plan['data']['manual_review'][0]['format_governance']['estimated_risk'] ?? '', 'media inventory fix plan marks format asset work as high risk' );
+maa_assert_same( 0, maa_count_plan_actions_for_ability( (array) ( $media_fix_plan['data']['write_actions'] ?? array() ), 'magick-ai/build-media-derivative-cloud-request' ), 'media inventory fix plan does not map format attention to the Cloud request planner as a write action' );
 maa_assert_same( 0, maa_count_plan_actions_for_ability( (array) ( $media_fix_plan['data']['write_actions'] ?? array() ), 'magick-ai/optimize-media-asset' ), 'media inventory fix plan does not map format attention to optimize-media-asset' );
 maa_assert_same( 0, maa_count_plan_actions_for_ability( (array) ( $media_fix_plan['data']['write_actions'] ?? array() ), 'magick-ai/convert-media-format' ), 'media inventory fix plan does not map format attention to convert-media-format' );
 maa_assert_same( 0, maa_count_plan_actions_for_ability( (array) ( $media_fix_plan['data']['write_actions'] ?? array() ), 'magick-ai/replace-media-file' ), 'media inventory fix plan does not map format attention to replace-media-file' );

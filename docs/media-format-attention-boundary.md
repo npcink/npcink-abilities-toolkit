@@ -26,7 +26,8 @@ The media inventory fix plan may include read-only diagnostics such as:
   or `large_file`;
 - suggested operation labels such as `generate_optimized_derivative`,
   `compress`, or `consider_format_conversion`;
-- a future target ability hint;
+- a future target ability hint such as
+  `magick-ai/build-media-derivative-cloud-request`;
 - explicit `write_action_generated=false`;
 - high-risk classification for file-asset work.
 
@@ -36,6 +37,23 @@ format work is not metadata-only.
 It must not map `format_attention` directly to asset write abilities from the
 read-only fix plan. Hosts may use the diagnostic output to start a separate
 approval flow.
+
+## Current Abilities-Side Cloud Handoff
+
+`magick-ai/build-media-derivative-cloud-request` is the local abilities-side
+handoff for Cloud derivative processing. It is intentionally read-only:
+
+- it inspects the attachment and builds a bounded
+  `generate_optimized_media_derivative` request contract;
+- it does not upload the source file;
+- it does not call Cloud;
+- it does not include credentials, Authorization headers, signed headers,
+  callback URLs, or presigned source URLs;
+- it does not write WordPress media records or attachment metadata.
+
+The Cloud addon or host transport layer owns upload, signing, and dispatch. The
+Cloud worker owns derivative generation. The local WordPress host owns final
+approval, recording, replacement, rollback, and metadata writes.
 
 ## Future Ability Shape
 
@@ -67,4 +85,3 @@ Recommended rollout order:
 - Do not introduce queue, cache, CDN, or rollback ownership into the read-only
   inventory path.
 - Treat actual file mutation as high risk and host-approved.
-
