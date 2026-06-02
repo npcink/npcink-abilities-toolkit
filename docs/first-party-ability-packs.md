@@ -44,6 +44,7 @@ Representative abilities:
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
 - `magick-ai/get-media-inventory-health`
+- `magick-ai/inspect-media-asset`
 - `magick-ai/get-media-cleanup-opportunities`
 - `magick-ai/build-media-inventory-fix-plan`
 - `magick-ai/get-taxonomy-inventory-health`
@@ -67,6 +68,10 @@ Representative abilities:
 - `magick-ai/get-page`
 - `magick-ai/inspect-page-structure`
 - `magick-ai/get-page-structure-health`
+
+For media `format_attention` handling, keep inventory plans read-only and use
+[Media Format Attention Boundary](media-format-attention-boundary.md) before
+adding file-asset write actions.
 
 ## Publishing Pack
 
@@ -99,6 +104,8 @@ Representative write abilities:
 - `magick-ai/set-post-terms`
 - `magick-ai/update-media-details`
 - `magick-ai/upload-media-from-url`
+- `magick-ai/optimize-media-asset`
+- `magick-ai/replace-media-file`
 - `magick-ai/set-post-featured-image`
 - `magick-ai/schedule-post`
 - `magick-ai/publish-post`

@@ -239,6 +239,7 @@ foreach (
 		'magick-ai/build-article-workflow-context',
 		'magick-ai/get-publishing-calendar-context',
 		'magick-ai/get-media-inventory-health',
+		'magick-ai/inspect-media-asset',
 		'magick-ai/get-post-seo-geo-readiness',
 		'magick-ai/get-site-topic-coverage-report',
 		'magick-ai/get-taxonomy-inventory-health',
@@ -311,6 +312,8 @@ foreach (
 		'magick-ai/set-post-terms',
 		'magick-ai/update-media-details',
 		'magick-ai/upload-media-from-url',
+		'magick-ai/optimize-media-asset',
+		'magick-ai/replace-media-file',
 		'magick-ai/set-post-featured-image',
 		'magick-ai/schedule-post',
 		'magick-ai/publish-post',
@@ -644,6 +647,17 @@ $smoke_attachment_id = wp_insert_post(
 	true
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_attachment_id ) && (int) $smoke_attachment_id > 0, 'Temporary smoke media asset is available for media inventory ability runs.' );
+update_post_meta( (int) $smoke_attachment_id, '_wp_attached_file', '2026/06/magick-ai-abilities-smoke-media-asset.jpg' );
+update_post_meta(
+	(int) $smoke_attachment_id,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 2600,
+		'height'   => 1400,
+		'file'     => '2026/06/magick-ai-abilities-smoke-media-asset.jpg',
+		'filesize' => 900000,
+	)
+);
 
 $media_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-media-inventory-health/run' );
 $media_health_run_request->set_query_params(
@@ -656,6 +670,74 @@ $media_health_run_request->set_query_params(
 );
 $media_health_run_response = rest_do_request( $media_health_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $media_health_run_response->get_status(), 'Authenticated media inventory health ability run returns 200.' );
+
+$media_inspect_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/inspect-media-asset/run' );
+$media_inspect_run_request->set_query_params(
+	array(
+		'input' => array(
+			'attachment_id' => (int) $smoke_attachment_id,
+		),
+	)
+);
+$media_inspect_run_response = rest_do_request( $media_inspect_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $media_inspect_run_response->get_status(), 'Authenticated media asset inspection ability run returns 200.' );
+$media_inspect_run_data = $media_inspect_run_response->get_data();
+magick_ai_abilities_smoke_assert( true === ( $media_inspect_run_data['meta']['readonly'] ?? null ), 'Media asset inspection remains read-only.' );
+
+$media_optimize_run_request = new WP_REST_Request( 'POST', '/wp-abilities/v1/abilities/magick-ai/optimize-media-asset/run' );
+$media_optimize_run_request->set_header( 'Content-Type', 'application/json' );
+$media_optimize_run_request->set_body(
+	wp_json_encode(
+		array(
+			'input' => array(
+				'attachment_id' => (int) $smoke_attachment_id,
+				'dry_run'       => true,
+			),
+		)
+	)
+);
+$media_optimize_run_response = rest_do_request( $media_optimize_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $media_optimize_run_response->get_status(), 'Authenticated media asset optimization dry-run ability run returns 200.' );
+$media_optimize_run_data = $media_optimize_run_response->get_data();
+magick_ai_abilities_smoke_assert( true === ( $media_optimize_run_data['dry_run'] ?? null ), 'Media asset optimization defaults to governed dry-run.' );
+magick_ai_abilities_smoke_assert( false === ( $media_optimize_run_data['replace_original'] ?? null ), 'Media asset optimization dry-run does not replace originals.' );
+update_post_meta(
+	(int) $smoke_attachment_id,
+	'_magick_ai_media_optimized_derivatives',
+	array(
+		array(
+			'format'           => 'webp',
+			'mime_type'        => 'image/webp',
+			'file_basename'    => 'magick-ai-abilities-smoke-media-asset-optimized.webp',
+			'relative_file'    => '2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp',
+			'url'              => content_url( 'uploads/2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp' ),
+			'width'            => 1920,
+			'height'           => 1034,
+			'quality'          => 82,
+			'filesize_bytes'   => 300000,
+			'generated_at_gmt' => gmdate( 'c' ),
+		),
+	)
+);
+$media_replace_run_request = new WP_REST_Request( 'POST', '/wp-abilities/v1/abilities/magick-ai/replace-media-file/run' );
+$media_replace_run_request->set_header( 'Content-Type', 'application/json' );
+$media_replace_run_request->set_body(
+	wp_json_encode(
+		array(
+			'input' => array(
+				'attachment_id'                 => (int) $smoke_attachment_id,
+				'derivative_relative_file'      => '2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp',
+				'expected_current_relative_file' => '2026/06/magick-ai-abilities-smoke-media-asset.jpg',
+				'dry_run'                       => true,
+			),
+		)
+	)
+);
+$media_replace_run_response = rest_do_request( $media_replace_run_request );
+magick_ai_abilities_smoke_assert( 200 === (int) $media_replace_run_response->get_status(), 'Authenticated media file replacement dry-run ability run returns 200.' );
+$media_replace_run_data = $media_replace_run_response->get_data();
+magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['dry_run'] ?? null ), 'Media file replacement defaults to governed dry-run.' );
+magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['original_preserved'] ?? null ), 'Media file replacement plans a preserved backup.' );
 
 $media_cleanup_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-media-cleanup-opportunities/run' );
 $media_cleanup_run_request->set_query_params(

@@ -26,6 +26,8 @@ the corresponding WordPress operation.
 | `magick-ai/set-post-terms` | `write` | `edit_posts` | `taxonomy.manage` |
 | `magick-ai/update-media-details` | `write` | `upload_files` | `media.write` |
 | `magick-ai/upload-media-from-url` | `write` | `upload_files` | `media.write` |
+| `magick-ai/optimize-media-asset` | `write` | `upload_files` | `media.write` |
+| `magick-ai/replace-media-file` | `write` | `upload_files` | `media.write` |
 | `magick-ai/set-post-featured-image` | `write` | `edit_posts` | `media.write` |
 | `magick-ai/schedule-post` | `write` | `publish_posts` | `post.write` |
 | `magick-ai/publish-post` | `write` | `publish_posts` | `post.write` |

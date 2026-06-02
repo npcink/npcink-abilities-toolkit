@@ -223,7 +223,7 @@ if ( ! function_exists( 'wp_update_post' ) ) {
 		if ( $post_id <= 0 || ! isset( $GLOBALS['maa_unit_style_posts'][ $post_id ] ) ) {
 			return new WP_Error( 'not_found', 'Post not found.' );
 		}
-		foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_author' ) as $field ) {
+		foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_author', 'post_mime_type' ) as $field ) {
 			if ( array_key_exists( $field, $postarr ) ) {
 				$GLOBALS['maa_unit_style_posts'][ $post_id ]->{$field} = $postarr[ $field ];
 			}
@@ -259,6 +259,38 @@ if ( ! function_exists( 'get_post_meta' ) ) {
 			return $value[0] ?? '';
 		}
 		return $value;
+	}
+}
+
+if ( ! function_exists( 'get_post_mime_type' ) ) {
+	function get_post_mime_type( $post_id ) {
+		$post = get_post( (int) $post_id );
+		return is_object( $post ) ? (string) ( $post->post_mime_type ?? '' ) : '';
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_url' ) ) {
+	function wp_get_attachment_url( $attachment_id ) {
+		$post = get_post( (int) $attachment_id );
+		$file = (string) get_post_meta( (int) $attachment_id, '_wp_attached_file', true );
+		if ( '' === $file && is_object( $post ) ) {
+			$file = (string) ( $post->post_name ?? 'attachment-' . (int) $attachment_id );
+		}
+		$file = ltrim( str_replace( '\\', '/', $file ), '/' );
+		return 'https://example.test/wp-content/uploads/' . $file;
+	}
+}
+
+if ( ! function_exists( 'wp_get_attachment_metadata' ) ) {
+	function wp_get_attachment_metadata( $attachment_id ) {
+		$metadata = $GLOBALS['maa_unit_post_meta'][ (int) $attachment_id ]['_wp_attachment_metadata'] ?? false;
+		return is_array( $metadata ) ? $metadata : false;
+	}
+}
+
+if ( ! function_exists( 'get_attached_file' ) ) {
+	function get_attached_file( $attachment_id ) {
+		return (string) get_post_meta( (int) $attachment_id, '_wp_attached_file', true );
 	}
 }
 

@@ -354,6 +354,25 @@ trait Media_Read_Methods {
 			}
 
 			$image_origin = $this->infer_media_image_origin( $asset );
+			$source_type = $this->normalize_media_source_type(
+				$asset['source_type'] ?? '',
+				$this->infer_media_source_type( $asset, $image_origin )
+			);
+			$source_metadata = $this->media_source_metadata_with_defaults(
+				array(
+					'source_type'       => $source_type,
+					'source_page_url'   => $source_page_url,
+					'photographer_name' => $photographer_name,
+					'attribution_text'  => $attribution_text,
+					'license'           => $license,
+					'copyright_notice'  => $copyright_notice,
+				)
+			);
+			$source_type = $source_metadata['source_type'];
+			$source_page_url = $source_metadata['source_page_url'];
+			$photographer_name = $source_metadata['photographer_name'];
+			$attribution_text = $source_metadata['attribution_text'];
+			$copyright_notice = $source_metadata['copyright_notice'];
 			$strategy = 'manual_context';
 			if ( 'ai_generated' === $image_origin ) {
 				$strategy = 'ai_context';
@@ -429,6 +448,7 @@ trait Media_Read_Methods {
 				'provider'                     => array(
 					'hint'             => $provider_hint,
 					'provider_title'   => $provider_title,
+					'source_type'      => $source_type,
 					'source_page_url'  => $source_page_url,
 					'photographer_name' => $photographer_name,
 					'attribution_text' => $attribution_text,
@@ -442,8 +462,13 @@ trait Media_Read_Methods {
 					'alt'         => $recommended_alt,
 					'caption'     => $recommended_caption,
 					'description' => $recommended_description,
+					'source_type' => $source_type,
+					'source_page_url' => $source_page_url,
+					'photographer_name' => $photographer_name,
+					'attribution_text' => $attribution_text,
+					'copyright_notice' => $copyright_notice,
 				),
-				'attribution_persisted'        => 'public_free' === $image_origin && '' !== $attribution_text,
+				'attribution_persisted'        => in_array( $source_type, array( 'stock', 'external' ), true ) && '' !== $attribution_text,
 				'format_plan'                  => array(
 					'should_convert'     => $needs_format_attention,
 					'recommended_format' => $needs_format_attention ? 'webp' : sanitize_key( (string) preg_replace( '#^.*/#', '', $mime_type ) ),
@@ -742,6 +767,151 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Inspects one media attachment without modifying files or metadata.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function inspect_media_asset( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect media assets.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_not_found', __( 'Attachment not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect this media asset.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$inspection = $this->build_media_format_inspection(
+			$attachment_id,
+			array(
+				'target_max_width'           => $input['target_max_width'] ?? 1920,
+				'large_file_threshold_bytes' => $input['large_file_threshold_bytes'] ?? 524288,
+				'preferred_format'           => $input['preferred_format'] ?? 'webp',
+			)
+		);
+
+		return $this->build_analysis_success_response(
+			$inspection,
+			array(
+				'source'         => 'local_media_asset_inspection',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+			),
+			'Media asset inspection built.'
+		);
+	}
+
+	/**
+	 * Builds a Cloud derivative request contract without transport side effects.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_derivative_cloud_request( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media derivative requests.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_not_found', __( 'Attachment not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare a derivative request for this media asset.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$preferred_format = sanitize_key( (string) ( $input['preferred_format'] ?? 'webp' ) );
+		if ( ! in_array( $preferred_format, array( 'webp', 'avif', 'jpeg', 'png', 'original' ), true ) ) {
+			$preferred_format = 'webp';
+		}
+		$quality = max( 1, min( 100, $this->absint_value( $input['quality'] ?? 82 ) ) );
+		$inspection = $this->build_media_format_inspection(
+			$attachment_id,
+			array(
+				'target_max_width'           => $input['target_max_width'] ?? 1920,
+				'large_file_threshold_bytes' => $input['large_file_threshold_bytes'] ?? 524288,
+				'preferred_format'           => $preferred_format,
+			)
+		);
+		$format_plan = is_array( $inspection['format_plan'] ?? null ) ? $inspection['format_plan'] : array();
+		$target_format = 'original' === $preferred_format
+			? sanitize_key( (string) ( $inspection['source_format'] ?? 'original' ) )
+			: $preferred_format;
+		$target_max_width = $this->absint_value( $format_plan['recommended_max_width'] ?? $input['target_max_width'] ?? 1920 );
+		if ( $target_max_width <= 0 ) {
+			$target_max_width = 1920;
+		}
+
+		return $this->build_analysis_success_response(
+			array(
+				'request_contract_version' => 'media_derivative_cloud_request.v1',
+				'attachment_id'            => $attachment_id,
+				'readonly'                 => true,
+				'proposal_only'            => true,
+				'cloud_job_payload'        => array(
+					'job_type'        => 'generate_optimized_media_derivative',
+					'source_asset'    => array(
+						'attachment_id'     => $attachment_id,
+						'title'             => sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ),
+						'mime_type'         => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
+						'source_format'     => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
+						'file_basename'     => $this->sanitize_file_name_value( (string) ( $inspection['file_basename'] ?? '' ) ),
+						'width'             => $this->absint_value( $inspection['width'] ?? 0 ),
+						'height'            => $this->absint_value( $inspection['height'] ?? 0 ),
+						'filesize_bytes'    => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+						'metadata_available' => ! empty( $inspection['metadata_available'] ),
+					),
+					'requested_derivative' => array(
+						'format'           => $target_format,
+						'max_width'        => max( 320, min( 7680, $target_max_width ) ),
+						'quality'          => $quality,
+						'preserve_original' => true,
+						'replace_original' => false,
+					),
+					'format_plan'     => $format_plan,
+					'warnings'        => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
+				),
+				'cloud_execution'          => array(
+					'owner'                  => 'magick_ai_cloud',
+					'transport_owner'        => 'host_or_cloud_addon',
+					'credentials_included'    => false,
+					'authorization_included'  => false,
+					'signed_headers_included' => false,
+					'source_upload_required'  => true,
+					'callback_included'       => false,
+					'artifact_ttl_required'   => true,
+				),
+				'local_adoption'           => array(
+					'owner'                  => 'local_wordpress_host',
+					'final_write_owner'      => 'local_wordpress_host',
+					'approval_required'      => true,
+					'wordpress_write_included' => false,
+					'suggested_next_step'    => 'Show the Cloud derivative result as a local proposal before recording, attaching, or replacing any WordPress media file.',
+				),
+				'risk'                     => array(
+					'level'  => 'read',
+					'reason' => 'This ability only prepares a bounded Cloud request contract. File generation, artifact transport, and WordPress adoption are separate host-governed steps.',
+				),
+			),
+			array(
+				'source'         => 'local_media_derivative_cloud_request',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+				'plan_only'      => true,
+			),
+			'Media derivative Cloud request built.'
+		);
+	}
+
+	/**
 	 * Builds a read-only fix plan for media inventory issues.
 	 *
 	 * @param mixed $input Input args.
@@ -962,30 +1132,57 @@ trait Media_Read_Methods {
 			$update_input['description'] = $suggestions['description'];
 			$after['description'] = $suggestions['description'];
 		}
-		if ( count( $update_input ) > 1 && count( $actions ) < $remaining_slots ) {
-			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'magick-ai/update-media-details', $update_input, array( 'media.write' ), 'medium', 'Fill missing media SEO metadata.' );
+		if ( in_array( 'missing_source', $issues, true ) ) {
+			$source_metadata = $this->media_source_metadata_with_defaults(
+				array(
+					'source_type'       => $row['source_type'] ?? '',
+					'source_page_url'   => $row['source_page_url'] ?? '',
+					'photographer_name' => $row['photographer_name'] ?? '',
+					'attribution_text'  => $row['attribution_text'] ?? '',
+					'copyright_notice'  => $row['copyright_notice'] ?? '',
+				)
+			);
+			if ( $this->media_source_metadata_has_coverage( $source_metadata ) && count( $actions ) < $remaining_slots ) {
+				foreach ( array( 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
+					if ( '' !== (string) ( $source_metadata[ $field ] ?? '' ) ) {
+						$update_input[ $field ] = $source_metadata[ $field ];
+						$after[ $field ] = $source_metadata[ $field ];
+					}
+				}
+			} else {
+				$manual_review[] = array(
+					'action_id'         => 'review_media_source_' . $attachment_id,
+					'attachment_id'     => $attachment_id,
+					'issue'             => 'missing_source',
+					'target_ability_id' => 'magick-ai/update-media-details',
+					'requires_input'    => array( 'source_type', 'source_page_url_or_attribution_text' ),
+					'proposal_ready'    => false,
+					'reason'            => 'Source and attribution metadata must come from a verified source, not a deterministic guess.',
+				);
+			}
 		}
 
-		if ( in_array( 'missing_source', $issues, true ) ) {
-			$manual_review[] = array(
-				'action_id'         => 'review_media_source_' . $attachment_id,
-				'attachment_id'     => $attachment_id,
-				'issue'             => 'missing_source',
-				'target_ability_id' => 'magick-ai/update-media-details',
-				'requires_input'    => array( 'source_page_url_or_attribution_text' ),
-				'proposal_ready'    => false,
-				'reason'            => 'Source and attribution metadata must come from a verified source, not a deterministic guess.',
-			);
+		if ( count( $update_input ) > 1 && count( $actions ) < $remaining_slots ) {
+			$summary = array_key_exists( 'source_type', $update_input )
+				? 'Fill missing media SEO and source metadata.'
+				: 'Fill missing media SEO metadata.';
+			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'magick-ai/update-media-details', $update_input, array( 'media.write' ), 'medium', $summary );
 		}
 
 		if ( in_array( 'format_attention', $issues, true ) ) {
+			$format_inspection = is_array( $row['format_inspection'] ?? null ) ? $row['format_inspection'] : $this->build_media_format_inspection( $attachment_id, array() );
+			$format_plan = is_array( $format_inspection['format_plan'] ?? null ) ? $format_inspection['format_plan'] : array();
+			$warnings = is_array( $format_inspection['warnings'] ?? null ) ? $format_inspection['warnings'] : array();
 			$manual_review[] = array(
-				'action_id'      => 'review_media_format_' . $attachment_id,
-				'attachment_id'  => $attachment_id,
-				'issue'          => 'format_attention',
-				'requires_input' => array( 'converted_asset_or_operator_decision' ),
-				'proposal_ready' => false,
-				'reason'         => 'No existing governed ability replaces or converts an attachment file in place.',
+				'action_id'         => 'review_media_format_' . $attachment_id,
+				'attachment_id'     => $attachment_id,
+				'issue'             => 'format_attention',
+				'format_plan'       => $format_plan,
+				'warnings'          => $warnings,
+				'format_governance' => $this->build_media_format_manual_review_context( $format_plan, $warnings ),
+				'requires_input'    => array( 'optimized_derivative_or_operator_decision' ),
+				'proposal_ready'    => false,
+				'reason'            => 'Format attention is a file-asset concern. The media inventory fix plan records read-only diagnostics and does not map it to a write action.',
 			);
 		}
 
@@ -1023,8 +1220,11 @@ trait Media_Read_Methods {
 					'alt'              => sanitize_text_field( (string) ( $row['alt'] ?? '' ) ),
 					'caption'          => $this->sanitize_metadata_text( (string) ( $row['caption'] ?? '' ) ),
 					'description'      => $this->sanitize_metadata_text( (string) ( $row['description'] ?? '' ) ),
+					'source_type'      => $this->normalize_media_source_type( $row['source_type'] ?? '' ),
 					'source_page_url'  => $this->esc_url_value( (string) ( $row['source_page_url'] ?? '' ) ),
+					'photographer_name' => sanitize_text_field( (string) ( $row['photographer_name'] ?? '' ) ),
 					'attribution_text' => $this->sanitize_metadata_text( (string) ( $row['attribution_text'] ?? '' ) ),
+					'copyright_notice' => $this->sanitize_metadata_text( (string) ( $row['copyright_notice'] ?? '' ) ),
 					'parent_post_id'   => $this->absint_value( $row['parent_post_id'] ?? 0 ),
 				),
 				'after_suggestion' => $after,
@@ -1340,14 +1540,17 @@ trait Media_Read_Methods {
 			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
 			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
 		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
+		$source_type = function_exists( 'get_post_meta' ) ? $this->normalize_media_source_type( get_post_meta( $attachment_id, '_magick_ai_media_source_type', true ) ) : '';
 		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_source_page_url', true ) ) : '';
 		if ( '' === $source_url && function_exists( 'get_post_meta' ) ) {
 			$source_url = $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_media_source_page_url', true ) );
 		}
+		$photographer_name = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_magick_ai_media_photographer_name', true ) ) : '';
 		$attribution = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_attribution_text', true ) ) : '';
 		if ( '' === $attribution && function_exists( 'get_post_meta' ) ) {
 			$attribution = $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_media_attribution_text', true ) );
 		}
+		$copyright_notice = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_media_copyright_notice', true ) ) : '';
 		$issues = array();
 		if ( '' === $alt && 0 === strpos( $mime_type, 'image/' ) ) {
 			$issues[] = 'missing_alt';
@@ -1358,10 +1561,18 @@ trait Media_Read_Methods {
 		if ( '' === $description ) {
 			$issues[] = 'missing_description';
 		}
-		if ( '' === $source_url && '' === $attribution ) {
+		if ( ! $this->media_source_metadata_has_coverage(
+			array(
+				'source_type'      => $source_type,
+				'source_page_url'  => $source_url,
+				'attribution_text' => $attribution,
+				'copyright_notice' => $copyright_notice,
+			)
+		) ) {
 			$issues[] = 'missing_source';
 		}
-		if ( '' !== $mime_type && 0 === strpos( $mime_type, 'image/' ) && false === strpos( $mime_type, 'webp' ) && false === strpos( $mime_type, 'avif' ) ) {
+		$format_inspection = $this->build_media_format_inspection( $attachment_id, array() );
+		if ( ! empty( $format_inspection['format_plan']['needs_attention'] ) ) {
 			$issues[] = 'format_attention';
 		}
 
@@ -1373,12 +1584,268 @@ trait Media_Read_Methods {
 			'alt'           => $alt,
 			'caption'       => $caption,
 			'description'   => $description,
+			'source_type'   => $source_type,
 			'source_page_url' => $source_url,
+			'photographer_name' => $photographer_name,
 			'attribution_text' => $attribution,
+			'copyright_notice' => $copyright_notice,
+			'format_inspection' => $format_inspection,
 			'issue_count'   => count( $issues ),
 			'issues'        => $issues,
 			'edit_link'     => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $attachment_id, 'raw' ) ) : '',
 		);
+	}
+
+	/**
+	 * Builds a read-only media format inspection payload.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $args Inspection options.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_format_inspection( $attachment_id, array $args ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		$mime_type = function_exists( 'get_post_mime_type' )
+			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
+			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
+		$url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+		$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : array();
+		if ( ! is_array( $metadata ) && function_exists( 'get_post_meta' ) ) {
+			$metadata = get_post_meta( $attachment_id, '_wp_attachment_metadata', true );
+		}
+		$metadata = is_array( $metadata ) ? $metadata : array();
+		$attached_file = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
+		$file_basename = $this->resolve_media_file_basename( $metadata, $attached_file, $url );
+		$width = $this->absint_value( $metadata['width'] ?? 0 );
+		$height = $this->absint_value( $metadata['height'] ?? 0 );
+		$filesize_bytes = $this->resolve_media_filesize_bytes( $metadata, $attached_file );
+		$target_max_width = max( 320, min( 7680, $this->absint_value( $args['target_max_width'] ?? 1920 ) ) );
+		$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $args['large_file_threshold_bytes'] ?? 524288 ) ) );
+		$preferred_format = sanitize_key( (string) ( $args['preferred_format'] ?? 'webp' ) );
+		if ( ! in_array( $preferred_format, array( 'webp', 'avif', 'original' ), true ) ) {
+			$preferred_format = 'webp';
+		}
+		$source_format = $this->resolve_media_source_format( $mime_type, $file_basename );
+		$is_image = 0 === strpos( $mime_type, 'image/' );
+		$is_modern_format = in_array( $source_format, array( 'webp', 'avif' ), true );
+		$is_convertible_raster = $is_image && in_array( $source_format, array( 'jpeg', 'jpg', 'png' ), true );
+		$should_convert = $is_convertible_raster && ! $is_modern_format && 'original' !== $preferred_format;
+		$should_resize = $is_image && $width > $target_max_width;
+		$should_compress = $is_image && $filesize_bytes >= $large_file_threshold && in_array( $source_format, array( 'jpeg', 'jpg', 'png', 'webp' ), true );
+		$warnings = array();
+		if ( $should_convert ) {
+			$warnings[] = 'legacy_image_format';
+		}
+		if ( $should_resize ) {
+			$warnings[] = 'image_too_wide';
+		}
+		if ( $should_compress ) {
+			$warnings[] = 'large_file';
+		}
+		if ( $is_image && ( 0 === $width || 0 === $height ) ) {
+			$warnings[] = 'missing_dimensions';
+		}
+		if ( $is_image && 0 === $filesize_bytes ) {
+			$warnings[] = 'missing_filesize';
+		}
+		$needs_attention = $should_convert || $should_resize || $should_compress;
+		$recommended_format = $should_convert ? $preferred_format : ( '' !== $source_format ? $source_format : 'original' );
+
+		return array(
+			'attachment_id'     => $attachment_id,
+			'title'             => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '',
+			'mime_type'         => $mime_type,
+			'source_format'     => $source_format,
+			'url'               => $url,
+			'file_basename'     => $file_basename,
+			'width'             => $width,
+			'height'            => $height,
+			'filesize_bytes'    => $filesize_bytes,
+			'metadata_available' => ! empty( $metadata ),
+			'format_plan'       => array(
+				'needs_attention'            => $needs_attention,
+				'should_convert'             => $should_convert,
+				'should_resize'              => $should_resize,
+				'should_compress'            => $should_compress,
+				'should_generate_derivative' => $needs_attention,
+				'recommended_format'         => $recommended_format,
+				'recommended_max_width'      => $should_resize ? $target_max_width : $width,
+				'preserve_original'          => true,
+				'replace_original'           => false,
+				'recommended_operation'      => $needs_attention ? 'generate_optimized_derivative' : 'keep_current_asset',
+				'reason'                     => $this->build_media_format_reason( $should_convert, $should_resize, $should_compress, $source_format, $filesize_bytes, $width, $target_max_width ),
+			),
+			'warnings'          => $warnings,
+			'summary'           => array(
+				'is_image'                   => $is_image,
+				'target_max_width'           => $target_max_width,
+				'large_file_threshold_bytes' => $large_file_threshold,
+				'preferred_format'           => $preferred_format,
+			),
+		);
+	}
+
+	/**
+	 * Resolves a safe media file basename for reporting.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @param string              $attached_file Attached file path.
+	 * @param string              $url Attachment URL.
+	 * @return string
+	 */
+	private function resolve_media_file_basename( array $metadata, $attached_file, $url ) {
+		$file = sanitize_text_field( (string) ( $metadata['file'] ?? '' ) );
+		if ( '' === $file && '' !== (string) $attached_file ) {
+			$file = (string) $attached_file;
+		}
+		if ( '' === $file && '' !== (string) $url ) {
+			$file = (string) wp_parse_url( (string) $url, PHP_URL_PATH );
+		}
+
+		return $this->sanitize_file_name_value( (string) basename( $file ) );
+	}
+
+	/**
+	 * Resolves media file size without exposing the file path.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @param string              $attached_file Attached file path.
+	 * @return int
+	 */
+	private function resolve_media_filesize_bytes( array $metadata, $attached_file ) {
+		$metadata_size = $this->absint_value( $metadata['filesize'] ?? $metadata['file_size'] ?? 0 );
+		if ( $metadata_size > 0 ) {
+			return $metadata_size;
+		}
+		if ( '' !== (string) $attached_file && is_readable( (string) $attached_file ) ) {
+			$size = filesize( (string) $attached_file );
+			return false === $size ? 0 : $this->absint_value( $size );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Resolves source format from MIME type or file extension.
+	 *
+	 * @param string $mime_type MIME type.
+	 * @param string $file_basename File basename.
+	 * @return string
+	 */
+	private function resolve_media_source_format( $mime_type, $file_basename ) {
+		$mime_type = strtolower( sanitize_text_field( (string) $mime_type ) );
+		$map = array(
+			'image/jpeg'    => 'jpeg',
+			'image/jpg'     => 'jpeg',
+			'image/png'     => 'png',
+			'image/webp'    => 'webp',
+			'image/avif'    => 'avif',
+			'image/gif'     => 'gif',
+			'image/svg+xml' => 'svg',
+		);
+		if ( isset( $map[ $mime_type ] ) ) {
+			return $map[ $mime_type ];
+		}
+		$extension = strtolower( pathinfo( (string) $file_basename, PATHINFO_EXTENSION ) );
+		$extension = sanitize_key( $extension );
+		return 'jpg' === $extension ? 'jpeg' : $extension;
+	}
+
+	/**
+	 * Builds a concise human-readable format recommendation reason.
+	 *
+	 * @param bool   $should_convert Whether conversion is recommended.
+	 * @param bool   $should_resize Whether resizing is recommended.
+	 * @param bool   $should_compress Whether compression is recommended.
+	 * @param string $source_format Source format.
+	 * @param int    $filesize_bytes File size.
+	 * @param int    $width Width.
+	 * @param int    $target_max_width Target max width.
+	 * @return string
+	 */
+	private function build_media_format_reason( $should_convert, $should_resize, $should_compress, $source_format, $filesize_bytes, $width, $target_max_width ) {
+		$reasons = array();
+		if ( $should_convert ) {
+			$reasons[] = 'Current image uses legacy ' . sanitize_key( (string) $source_format ) . ' encoding.';
+		}
+		if ( $should_resize ) {
+			$reasons[] = 'Image width ' . $this->absint_value( $width ) . ' exceeds target max width ' . $this->absint_value( $target_max_width ) . '.';
+		}
+		if ( $should_compress ) {
+			$reasons[] = 'File size ' . $this->absint_value( $filesize_bytes ) . ' bytes exceeds the configured threshold.';
+		}
+		if ( empty( $reasons ) ) {
+			return 'Current asset format can continue to be used.';
+		}
+
+		return implode( ' ', $reasons );
+	}
+
+	/**
+	 * Builds read-only governance guidance for format-attention manual review.
+	 *
+	 * @param array<string,mixed> $format_plan Format plan.
+	 * @param string[]            $warnings Format warning keys.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_format_manual_review_context( array $format_plan, array $warnings ) {
+		$warnings = array_values(
+			array_filter(
+				array_map( 'sanitize_key', $warnings ),
+				static function ( $warning ) {
+					return '' !== $warning;
+				}
+			)
+		);
+		$should_resize = ! empty( $format_plan['should_resize'] );
+		$should_compress = ! empty( $format_plan['should_compress'] );
+		$should_convert = ! empty( $format_plan['should_convert'] );
+		$target_future_ability = 'manual_review';
+		if ( $should_resize || $should_compress ) {
+			$target_future_ability = 'magick-ai/build-media-derivative-cloud-request';
+		} elseif ( $should_convert ) {
+			$target_future_ability = 'magick-ai/build-media-derivative-cloud-request';
+		}
+
+		return array(
+			'detected_reason'        => $warnings[0] ?? 'format_review_requested',
+			'detected_reasons'       => $warnings,
+			'suggested_operation'    => $this->suggest_media_format_operation( $format_plan ),
+			'target_future_ability'  => $target_future_ability,
+			'future_ability_options' => array(
+				'magick-ai/build-media-derivative-cloud-request',
+				'magick-ai/optimize-media-asset',
+				'magick-ai/replace-media-file',
+			),
+			'write_action_generated' => false,
+			'estimated_risk'         => 'high',
+			'boundary'               => 'read_only_manual_review',
+			'reason'                 => 'Asset resize, compression, conversion, or replacement changes files and must stay out of the media inventory metadata fix action path.',
+		);
+	}
+
+	/**
+	 * Chooses a concise operation label for format-attention review.
+	 *
+	 * @param array<string,mixed> $format_plan Format plan.
+	 * @return string
+	 */
+	private function suggest_media_format_operation( array $format_plan ) {
+		$should_resize = ! empty( $format_plan['should_resize'] );
+		$should_compress = ! empty( $format_plan['should_compress'] );
+		$should_convert = ! empty( $format_plan['should_convert'] );
+		if ( $should_resize || ( $should_compress && $should_convert ) ) {
+			return 'generate_optimized_derivative';
+		}
+		if ( $should_compress ) {
+			return 'compress';
+		}
+		if ( $should_convert ) {
+			return 'consider_format_conversion';
+		}
+
+		return 'manual_review';
 	}
 
 	/**
@@ -1423,6 +1890,7 @@ trait Media_Read_Methods {
 				'alt'                     => sanitize_text_field( (string) ( $asset['alt'] ?? '' ) ),
 				'caption'                 => sanitize_textarea_field( (string) ( $asset['caption'] ?? '' ) ),
 				'description'             => sanitize_textarea_field( (string) ( $asset['description'] ?? '' ) ),
+				'source_type'             => $this->normalize_media_source_type( $asset['source_type'] ?? '' ),
 				'image_origin'            => sanitize_key( (string) ( $asset['image_origin'] ?? '' ) ),
 				'generated_prompt'        => sanitize_textarea_field( (string) ( $asset['generated_prompt'] ?? '' ) ),
 				'image_profile'           => sanitize_key( (string) ( $asset['image_profile'] ?? '' ) ),
@@ -1545,6 +2013,120 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Normalizes media source type.
+	 *
+	 * @param mixed  $value Source type.
+	 * @param string $fallback Fallback source type.
+	 * @return string
+	 */
+	private function normalize_media_source_type( $value, $fallback = '' ) {
+		$value    = sanitize_key( (string) $value );
+		$fallback = sanitize_key( (string) $fallback );
+		$allowed  = array( 'owned', 'ai_generated', 'stock', 'external', 'test' );
+		if ( in_array( $value, $allowed, true ) ) {
+			return $value;
+		}
+		return in_array( $fallback, $allowed, true ) ? $fallback : '';
+	}
+
+	/**
+	 * Infers canonical source type from explicit fields and provider hints.
+	 *
+	 * @param array<string,mixed> $asset Media descriptor.
+	 * @param string              $image_origin Image origin.
+	 * @return string
+	 */
+	private function infer_media_source_type( array $asset, $image_origin ) {
+		$explicit = $this->normalize_media_source_type( $asset['source_type'] ?? '' );
+		if ( '' !== $explicit ) {
+			return $explicit;
+		}
+		$image_origin = sanitize_key( (string) $image_origin );
+		if ( 'ai_generated' === $image_origin ) {
+			return 'ai_generated';
+		}
+		$provider_hint = sanitize_key( (string) ( $asset['provider_hint'] ?? '' ) );
+		if ( in_array( $provider_hint, array( 'pexels', 'openverse', 'unsplash', 'pixabay', 'public_free', 'stock' ), true ) ) {
+			return 'stock';
+		}
+		$source_page_url = $this->esc_url_value( (string) ( $asset['source_page_url'] ?? '' ) );
+		if ( '' !== $source_page_url ) {
+			return 'external';
+		}
+		return 'owned';
+	}
+
+	/**
+	 * Adds conservative source metadata defaults for known source types.
+	 *
+	 * @param array<string,mixed> $metadata Source metadata.
+	 * @return array<string,string>
+	 */
+	private function media_source_metadata_with_defaults( array $metadata ) {
+		$source_type = $this->normalize_media_source_type( $metadata['source_type'] ?? '' );
+		$source_page_url = $this->esc_url_value( (string) ( $metadata['source_page_url'] ?? '' ) );
+		$photographer_name = sanitize_text_field( (string) ( $metadata['photographer_name'] ?? '' ) );
+		$attribution_text = $this->sanitize_metadata_text( (string) ( $metadata['attribution_text'] ?? '' ) );
+		$license = sanitize_text_field( (string) ( $metadata['license'] ?? $metadata['license_policy'] ?? '' ) );
+		$copyright_notice = $this->sanitize_metadata_text( (string) ( $metadata['copyright_notice'] ?? '' ) );
+
+		if ( 'ai_generated' === $source_type ) {
+			if ( '' === $attribution_text ) {
+				$attribution_text = 'AI-generated by site operator';
+			}
+			if ( '' === $copyright_notice ) {
+				$copyright_notice = 'Generated asset for this site';
+			}
+		} elseif ( in_array( $source_type, array( 'stock', 'external' ), true ) && '' === $attribution_text ) {
+			$parts = array();
+			if ( '' !== $source_page_url ) {
+				$parts[] = 'Source: ' . $source_page_url;
+			}
+			if ( '' !== $photographer_name ) {
+				$parts[] = 'Author: ' . $photographer_name;
+			}
+			if ( '' !== $license ) {
+				$parts[] = 'License: ' . $license;
+			}
+			$attribution_text = implode( '; ', $parts );
+		} elseif ( 'owned' === $source_type && '' === $copyright_notice ) {
+			$copyright_notice = 'Owned asset for this site';
+		} elseif ( 'test' === $source_type && '' === $copyright_notice ) {
+			$copyright_notice = 'Test media asset for this site';
+		}
+
+		return array(
+			'source_type'       => $source_type,
+			'source_page_url'   => $source_page_url,
+			'photographer_name' => $photographer_name,
+			'attribution_text'  => $attribution_text,
+			'copyright_notice'  => $copyright_notice,
+		);
+	}
+
+	/**
+	 * Returns whether source metadata is sufficient for inventory health.
+	 *
+	 * @param array<string,mixed> $metadata Source metadata.
+	 * @return bool
+	 */
+	private function media_source_metadata_has_coverage( array $metadata ) {
+		$source_type = $this->normalize_media_source_type( $metadata['source_type'] ?? '' );
+		$source_page_url = $this->esc_url_value( (string) ( $metadata['source_page_url'] ?? '' ) );
+		$attribution_text = $this->sanitize_metadata_text( (string) ( $metadata['attribution_text'] ?? '' ) );
+		$copyright_notice = $this->sanitize_metadata_text( (string) ( $metadata['copyright_notice'] ?? '' ) );
+
+		if ( in_array( $source_type, array( 'stock', 'external' ), true ) ) {
+			return '' !== $source_page_url || '' !== $attribution_text;
+		}
+		if ( in_array( $source_type, array( 'ai_generated', 'owned', 'test' ), true ) ) {
+			return '' !== $attribution_text || '' !== $copyright_notice;
+		}
+
+		return '' !== $source_page_url || '' !== $attribution_text || '' !== $copyright_notice;
+	}
+
+	/**
 	 * Builds one canonical media SEO asset row.
 	 *
 	 * @param array<string,mixed> $descriptor Media descriptor.
@@ -1555,6 +2137,20 @@ trait Media_Read_Methods {
 	 */
 	private function build_media_seo_asset_row( array $descriptor, array $upload_row, $fallback_role, $vision_allowed ) {
 		$image_origin = $this->infer_media_image_origin( $descriptor );
+		$source_type = $this->normalize_media_source_type(
+			$descriptor['source_type'] ?? '',
+			$this->infer_media_source_type( $descriptor, $image_origin )
+		);
+		$source_metadata = $this->media_source_metadata_with_defaults(
+			array(
+				'source_type'       => $source_type,
+				'source_page_url'   => $this->esc_url_value( (string) ( $descriptor['source_page_url'] ?? '' ) ),
+				'photographer_name' => sanitize_text_field( (string) ( $descriptor['photographer_name'] ?? '' ) ),
+				'attribution_text'  => $this->sanitize_metadata_text( (string) ( $descriptor['attribution_text'] ?? '' ) ),
+				'license'           => sanitize_text_field( (string) ( $descriptor['license'] ?? $descriptor['license_policy'] ?? '' ) ),
+				'copyright_notice'  => $this->sanitize_metadata_text( (string) ( $descriptor['copyright_notice'] ?? '' ) ),
+			)
+		);
 
 		return array(
 			'attachment_id'           => $this->absint_value( $upload_row['attachment_id'] ?? 0 ),
@@ -1563,6 +2159,7 @@ trait Media_Read_Methods {
 			'alt'                     => sanitize_text_field( (string) ( $descriptor['alt'] ?? '' ) ),
 			'caption'                 => $this->sanitize_metadata_text( (string) ( $descriptor['caption'] ?? '' ) ),
 			'description'             => $this->sanitize_metadata_text( (string) ( $descriptor['description'] ?? '' ) ),
+			'source_type'             => $source_metadata['source_type'],
 			'image_origin'            => $image_origin,
 			'generated_prompt'        => $this->sanitize_metadata_text( (string) ( $descriptor['prompt'] ?? '' ) ),
 			'image_profile'           => sanitize_key( (string) ( $descriptor['model_profile'] ?? '' ) ),
@@ -1570,10 +2167,10 @@ trait Media_Read_Methods {
 			'provider_hint'           => sanitize_key( (string) ( $descriptor['provider_hint'] ?? '' ) ),
 			'provider_title'          => sanitize_text_field( (string) ( $descriptor['provider_title'] ?? '' ) ),
 			'provider_description'    => $this->sanitize_metadata_text( (string) ( $descriptor['provider_description'] ?? '' ) ),
-			'source_page_url'         => $this->esc_url_value( (string) ( $descriptor['source_page_url'] ?? '' ) ),
-			'photographer_name'       => sanitize_text_field( (string) ( $descriptor['photographer_name'] ?? '' ) ),
-			'attribution_text'        => $this->sanitize_metadata_text( (string) ( $descriptor['attribution_text'] ?? '' ) ),
-			'copyright_notice'        => $this->sanitize_metadata_text( (string) ( $descriptor['copyright_notice'] ?? '' ) ),
+			'source_page_url'         => $source_metadata['source_page_url'],
+			'photographer_name'       => $source_metadata['photographer_name'],
+			'attribution_text'        => $source_metadata['attribution_text'],
+			'copyright_notice'        => $source_metadata['copyright_notice'],
 			'section_heading'         => sanitize_text_field( (string) ( $descriptor['section_heading'] ?? '' ) ),
 			'section_summary'         => $this->sanitize_metadata_text( (string) ( $descriptor['section_summary'] ?? '' ) ),
 			'file_name'               => $this->sanitize_file_name_value( (string) ( $upload_row['file_name'] ?? '' ) ),
@@ -1591,6 +2188,13 @@ trait Media_Read_Methods {
 		$image_origin = sanitize_key( (string) ( $asset['image_origin'] ?? '' ) );
 		if ( in_array( $image_origin, array( 'ai_generated', 'public_free', 'manual_upload' ), true ) ) {
 			return $image_origin;
+		}
+		$source_type = $this->normalize_media_source_type( $asset['source_type'] ?? '' );
+		if ( 'ai_generated' === $source_type ) {
+			return 'ai_generated';
+		}
+		if ( in_array( $source_type, array( 'stock', 'external' ), true ) ) {
+			return 'public_free';
 		}
 
 		$generated_prompt = $this->sanitize_metadata_text( (string) ( $asset['generated_prompt'] ?? $asset['prompt'] ?? '' ) );

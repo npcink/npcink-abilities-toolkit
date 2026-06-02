@@ -531,6 +531,10 @@ final class Core_Write_Package {
 						'alt'               => $text,
 						'caption'           => $text,
 						'description'       => $text,
+						'source_type'       => array(
+							'type' => 'string',
+							'enum' => array( 'owned', 'ai_generated', 'stock', 'external', 'test' ),
+						),
 						'source_page_url'   => $text,
 						'photographer_name' => $text,
 						'attribution_text'  => $text,
@@ -546,6 +550,7 @@ final class Core_Write_Package {
 						'alt'               => array( 'type' => 'string' ),
 						'caption'           => array( 'type' => 'string' ),
 						'description'       => array( 'type' => 'string' ),
+						'source_type'       => array( 'type' => 'string' ),
 						'source_page_url'   => array( 'type' => 'string' ),
 						'photographer_name' => array( 'type' => 'string' ),
 						'attribution_text'  => array( 'type' => 'string' ),
@@ -573,6 +578,15 @@ final class Core_Write_Package {
 						'alt'               => $text,
 						'caption'           => $text,
 						'description'       => $text,
+						'source_type'       => array(
+							'type'    => 'string',
+							'enum'    => array( 'owned', 'ai_generated', 'stock', 'external', 'test' ),
+							'default' => 'external',
+						),
+						'source_page_url'   => $text,
+						'photographer_name' => $text,
+						'attribution_text'  => $text,
+						'copyright_notice'  => $text,
 						'attach_to_post_id' => array( 'type' => 'integer', 'minimum' => 1 ),
 					),
 					array( 'url' )
@@ -583,12 +597,93 @@ final class Core_Write_Package {
 						'url'               => array( 'type' => 'string' ),
 						'sizes'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'attach_to_post_id' => array( 'type' => 'integer' ),
+						'source_type'       => array( 'type' => 'string' ),
+						'source_page_url'   => array( 'type' => 'string' ),
+						'photographer_name' => array( 'type' => 'string' ),
+						'attribution_text'  => array( 'type' => 'string' ),
+						'copyright_notice'  => array( 'type' => 'string' ),
 						'edit_link'         => array( 'type' => 'string' ),
 						'dry_run'           => array( 'type' => 'boolean' ),
 					),
 					array( 'attachment_id', 'url', 'dry_run' )
 				),
 				'execute_callback' => array( $this, 'upload_media_from_url' ),
+			),
+			'magick-ai/optimize-media-asset' => array(
+				'label'           => __( 'Optimize Media Asset', 'magick-ai-abilities' ),
+				'description'     => __( 'Generates an optimized derivative for one image attachment after host approval, preserving the original file.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'upload_files',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'attachment_id'    => array( 'type' => 'integer', 'minimum' => 1 ),
+						'target_max_width' => array( 'type' => 'integer', 'minimum' => 320, 'maximum' => 7680, 'default' => 1920 ),
+						'preferred_format' => array( 'type' => 'string', 'enum' => array( 'webp', 'jpeg', 'png' ), 'default' => 'webp' ),
+						'quality'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'derivative_suffix' => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'optimized' ),
+					),
+					array( 'attachment_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'attachment_id'       => array( 'type' => 'integer' ),
+						'optimized'           => array( 'type' => 'boolean' ),
+						'original_preserved'  => array( 'type' => 'boolean' ),
+						'replace_original'    => array( 'type' => 'boolean' ),
+						'source'              => array( 'type' => 'object', 'additionalProperties' => true ),
+						'derivative'          => array( 'type' => 'object', 'additionalProperties' => true ),
+						'derivatives'         => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+						'edit_link'           => array( 'type' => 'string' ),
+						'preview'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'             => array( 'type' => 'boolean' ),
+					),
+					array( 'attachment_id', 'optimized', 'original_preserved', 'replace_original', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'optimize_media_asset' ),
+			),
+			'magick-ai/replace-media-file' => array(
+				'label'           => __( 'Replace Media File', 'magick-ai-abilities' ),
+				'description'     => __( 'Replaces one attachment main file with a previously generated optimized derivative after host approval, with backup and rollback metadata.', 'magick-ai-abilities' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'upload_files',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'attachment_id'                 => array( 'type' => 'integer', 'minimum' => 1 ),
+						'mode'                          => array( 'type' => 'string', 'enum' => array( 'replace', 'rollback' ), 'default' => 'replace' ),
+						'derivative_relative_file'      => array( 'type' => 'string', 'minLength' => 1 ),
+						'replacement_id'                => array( 'type' => 'string', 'minLength' => 1 ),
+						'expected_current_relative_file' => array( 'type' => 'string' ),
+						'expected_current_mime_type'    => array( 'type' => 'string' ),
+						'expected_derivative_mime_type' => array( 'type' => 'string' ),
+						'backup_suffix'                 => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'magick-ai-backup' ),
+					),
+					array( 'attachment_id' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'attachment_id'      => array( 'type' => 'integer' ),
+						'mode'               => array( 'type' => 'string' ),
+						'replaced'           => array( 'type' => 'boolean' ),
+						'rolled_back'        => array( 'type' => 'boolean' ),
+						'original_preserved' => array( 'type' => 'boolean' ),
+						'replacement_id'     => array( 'type' => 'string' ),
+						'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
+						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+						'edit_link'          => array( 'type' => 'string' ),
+						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'            => array( 'type' => 'boolean' ),
+					),
+					array( 'attachment_id', 'mode', 'replaced', 'rolled_back', 'original_preserved', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'replace_media_file' ),
 			),
 			'magick-ai/set-post-featured-image' => array(
 				'label'           => __( 'Set Post Featured Image', 'magick-ai-abilities' ),
@@ -1681,13 +1776,16 @@ final class Core_Write_Package {
 		$current = $this->media_snapshot( $attachment );
 		$next    = $current;
 		$changes = array();
-		foreach ( array( 'title', 'alt', 'caption', 'description', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
+		foreach ( array( 'title', 'alt', 'caption', 'description', 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
 			if ( ! array_key_exists( $field, $input ) ) {
 				continue;
 			}
 			$value = 'source_page_url' === $field ? esc_url_raw( (string) $input[ $field ] ) : sanitize_textarea_field( (string) $input[ $field ] );
 			if ( in_array( $field, array( 'title', 'alt', 'photographer_name' ), true ) ) {
 				$value = sanitize_text_field( (string) $input[ $field ] );
+			}
+			if ( 'source_type' === $field ) {
+				$value = $this->normalize_media_source_type( $input[ $field ] ?? '' );
 			}
 			$next[ $field ]    = $value;
 			$changes[ $field ] = array( 'before' => (string) ( $current[ $field ] ?? '' ), 'after' => $value );
@@ -1738,6 +1836,7 @@ final class Core_Write_Package {
 			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $next['alt'] );
 		}
 		$meta_keys = array(
+			'source_type'       => '_magick_ai_media_source_type',
 			'source_page_url'   => '_magick_ai_media_source_page_url',
 			'photographer_name' => '_magick_ai_media_photographer_name',
 			'attribution_text'  => '_magick_ai_media_attribution_text',
@@ -1785,11 +1884,31 @@ final class Core_Write_Package {
 		$alt         = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
 		$caption     = sanitize_textarea_field( (string) ( $input['caption'] ?? '' ) );
 		$description = sanitize_textarea_field( (string) ( $input['description'] ?? '' ) );
+		$source_type = $this->normalize_media_source_type( $input['source_type'] ?? 'external', 'external' );
+		$source_page_url = esc_url_raw( (string) ( $input['source_page_url'] ?? $url ) );
+		$photographer_name = sanitize_text_field( (string) ( $input['photographer_name'] ?? '' ) );
+		$attribution_text = sanitize_textarea_field( (string) ( $input['attribution_text'] ?? '' ) );
+		$copyright_notice = sanitize_textarea_field( (string) ( $input['copyright_notice'] ?? '' ) );
+		$source_metadata = $this->media_source_metadata_with_defaults(
+			array(
+				'source_type'       => $source_type,
+				'source_page_url'   => $source_page_url,
+				'photographer_name' => $photographer_name,
+				'attribution_text'  => $attribution_text,
+				'copyright_notice'  => $copyright_notice,
+			),
+			$url
+		);
 		$payload     = array(
 			'attachment_id'     => 0,
 			'url'               => $url,
 			'sizes'             => array(),
 			'attach_to_post_id' => $attach_to_post_id,
+			'source_type'       => $source_metadata['source_type'],
+			'source_page_url'   => $source_metadata['source_page_url'],
+			'photographer_name' => $source_metadata['photographer_name'],
+			'attribution_text'  => $source_metadata['attribution_text'],
+			'copyright_notice'  => $source_metadata['copyright_notice'],
 			'preview'           => array(
 				'action'            => 'upload_media_from_url',
 				'url'               => $url,
@@ -1827,15 +1946,163 @@ final class Core_Write_Package {
 		if ( '' !== $alt ) {
 			update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt );
 		}
+		$this->update_media_source_metadata( $attachment_id, $source_metadata );
 
 		return array(
 			'attachment_id'     => $attachment_id,
 			'url'               => (string) wp_get_attachment_url( $attachment_id ),
 			'sizes'             => $this->attachment_sizes( $attachment_id ),
 			'attach_to_post_id' => $attach_to_post_id,
+			'source_type'       => $source_metadata['source_type'],
+			'source_page_url'   => $source_metadata['source_page_url'],
+			'photographer_name' => $source_metadata['photographer_name'],
+			'attribution_text'  => $source_metadata['attribution_text'],
+			'copyright_notice'  => $source_metadata['copyright_notice'],
 			'edit_link'         => $this->edit_link( $attachment_id ),
 			'dry_run'           => false,
 		);
+	}
+
+	/**
+	 * Generates one optimized derivative while preserving the original asset.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function optimize_media_asset( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = absint( $input['attachment_id'] ?? 0 );
+		$attachment = $this->get_media_attachment( $attachment_id );
+		if ( is_wp_error( $attachment ) ) {
+			return $attachment;
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize this media asset.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$plan = $this->build_media_optimization_plan( $attachment_id, $input );
+		if ( is_wp_error( $plan ) ) {
+			return $plan;
+		}
+		$payload = array(
+			'attachment_id'      => $attachment_id,
+			'optimized'          => false,
+			'original_preserved' => true,
+			'replace_original'   => false,
+			'source'             => $plan['source'],
+			'derivative'         => $plan['derivative'],
+			'derivatives'        => $this->get_media_optimized_derivatives( $attachment_id ),
+			'edit_link'          => $this->edit_link( $attachment_id ),
+			'preview'            => array(
+				'action'            => 'optimize_media_asset',
+				'attachment_id'     => $attachment_id,
+				'preferred_format'  => $plan['derivative']['format'],
+				'target_max_width'  => $plan['derivative']['width'],
+				'preserve_original' => true,
+				'replace_original'  => false,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/optimize-media-asset', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$result = $this->generate_media_optimized_derivative( $attachment_id, $plan );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		$derivatives = $this->append_media_optimized_derivative( $attachment_id, $result );
+
+		$payload['optimized'] = true;
+		$payload['derivative'] = $result;
+		$payload['derivatives'] = $derivatives;
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
+	 * Replaces or rolls back one attachment main file through recorded local files.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function replace_media_file( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace media files.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = absint( $input['attachment_id'] ?? 0 );
+		$attachment = $this->get_media_attachment( $attachment_id );
+		if ( is_wp_error( $attachment ) ) {
+			return $attachment;
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace this media file.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$mode = sanitize_key( (string) ( $input['mode'] ?? 'replace' ) );
+		if ( ! in_array( $mode, array( 'replace', 'rollback' ), true ) ) {
+			$mode = 'replace';
+		}
+		$plan = 'rollback' === $mode
+			? $this->build_media_file_rollback_plan( $attachment_id, $input )
+			: $this->build_media_file_replacement_plan( $attachment_id, $input );
+		if ( is_wp_error( $plan ) ) {
+			return $plan;
+		}
+
+		$payload = array(
+			'attachment_id'      => $attachment_id,
+			'mode'               => $mode,
+			'replaced'           => false,
+			'rolled_back'        => false,
+			'original_preserved' => true,
+			'replacement_id'     => (string) ( $plan['replacement_id'] ?? '' ),
+			'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+			'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
+			'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
+			'edit_link'          => $this->edit_link( $attachment_id ),
+			'preview'            => array(
+				'action'          => 'rollback' === $mode ? 'rollback_media_file' : 'replace_media_file',
+				'attachment_id'   => $attachment_id,
+				'replacement_id'  => (string) ( $plan['replacement_id'] ?? '' ),
+				'backup_created'  => 'replace' === $mode,
+				'rollback_ready'  => 'rollback' === $mode,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/replace-media-file', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+
+		$result = 'rollback' === $mode
+			? $this->execute_media_file_rollback( $attachment_id, $plan )
+			: $this->execute_media_file_replacement( $attachment_id, $plan );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$payload['replaced'] = ! empty( $result['replaced'] );
+		$payload['rolled_back'] = ! empty( $result['rolled_back'] );
+		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
+		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
 	}
 
 	/**
@@ -2243,6 +2510,12 @@ final class Core_Write_Package {
 				'best_for'        => array( 'Applying reviewed media SEO or attribution improvements to one existing attachment.' ),
 				'stopping_points' => array( 'Default to dry_run; final media metadata writes require host approval context and idempotency protection.' ),
 			),
+			'magick-ai/optimize-media-asset' => array(
+				'when_to_use'     => array( 'Prepare or commit an approved optimized derivative for one existing image attachment.' ),
+				'not_for'         => array( 'Do not use this to replace the original attachment file, upload remote media, or delete media.' ),
+				'best_for'        => array( 'Generating a smaller derivative after inspect-media-asset reports format, size, or width attention.' ),
+				'stopping_points' => array( 'Default to dry_run; final derivative generation requires host approval context and preserves the original file.' ),
+			),
 			'magick-ai/approve-comment' => array(
 				'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
 				'not_for'         => array( 'Do not use this to generate replies, spam comments, trash comments, or moderate without human policy review.' ),
@@ -2642,6 +2915,769 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Builds an internal optimization plan plus safe public preview fields.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function build_media_optimization_plan( $attachment_id, array $input ) {
+		$attachment_id = absint( $attachment_id );
+		$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : array();
+		$metadata = is_array( $metadata ) ? $metadata : array();
+		$source_file = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
+		$source_url = function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+		$mime_type = function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '';
+		if ( '' !== $mime_type && 0 !== strpos( $mime_type, 'image/' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_not_image', __( 'Only image attachments can be optimized.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$width = absint( $metadata['width'] ?? 0 );
+		$height = absint( $metadata['height'] ?? 0 );
+		$target_max_width = max( 320, min( 7680, absint( $input['target_max_width'] ?? 1920 ) ) );
+		$target_width = $width > 0 ? min( $width, $target_max_width ) : $target_max_width;
+		$target_height = ( $width > 0 && $height > 0 && $target_width < $width )
+			? max( 1, (int) round( ( $height / $width ) * $target_width ) )
+			: $height;
+		$format = sanitize_key( (string) ( $input['preferred_format'] ?? 'webp' ) );
+		if ( ! in_array( $format, array( 'webp', 'jpeg', 'png' ), true ) ) {
+			$format = 'webp';
+		}
+		$quality = max( 1, min( 100, absint( $input['quality'] ?? 82 ) ) );
+		$suffix = sanitize_key( (string) ( $input['derivative_suffix'] ?? 'optimized' ) );
+		if ( '' === $suffix ) {
+			$suffix = 'optimized';
+		}
+		$suffix = substr( $suffix, 0, 48 );
+		$extension = $this->media_extension_for_format( $format );
+		$target_mime = $this->media_mime_for_format( $format );
+		$source_basename = $this->media_source_basename( $metadata, $source_file, $source_url, $attachment_id );
+		$base_name = preg_replace( '/\.[^.]+$/', '', $source_basename );
+		$base_name = $this->sanitize_media_file_name( '' !== (string) $base_name ? (string) $base_name : 'attachment-' . $attachment_id );
+		$derivative_basename = $this->sanitize_media_file_name( $base_name . '-' . $suffix . '.' . $extension );
+		$relative_dir = $this->media_relative_dir( $metadata );
+		$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $derivative_basename : $derivative_basename;
+
+		return array(
+			'_source_file' => $source_file,
+			'_relative_dir' => $relative_dir,
+			'source'       => array(
+				'attachment_id'  => $attachment_id,
+				'mime_type'      => $mime_type,
+				'url'            => $source_url,
+				'file_basename'  => $source_basename,
+				'width'          => $width,
+				'height'         => $height,
+				'filesize_bytes' => ( '' !== $source_file && is_readable( $source_file ) ) ? absint( filesize( $source_file ) ) : absint( $metadata['filesize'] ?? 0 ),
+			),
+			'derivative'   => array(
+				'format'          => $format,
+				'mime_type'       => $target_mime,
+				'file_basename'   => $derivative_basename,
+				'relative_file'   => $relative_file,
+				'url'             => $this->media_url_for_relative_file( $relative_file ),
+				'width'           => $target_width,
+				'height'          => $target_height,
+				'quality'         => $quality,
+				'filesize_bytes'  => 0,
+				'generated_at_gmt' => '',
+			),
+		);
+	}
+
+	/**
+	 * Generates an optimized derivative from a prepared plan.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Optimization plan.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function generate_media_optimized_derivative( $attachment_id, array $plan ) {
+		$attachment_id = absint( $attachment_id );
+		$source_file = (string) ( $plan['_source_file'] ?? '' );
+		if ( '' === $source_file || ! is_readable( $source_file ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_source_file_unavailable', __( 'The source attachment file is unavailable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( ! function_exists( 'wp_get_image_editor' ) && defined( 'ABSPATH' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+		}
+		if ( ! function_exists( 'wp_get_image_editor' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_image_editor_unavailable', __( 'WordPress image editor is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		$editor = wp_get_image_editor( $source_file );
+		if ( is_wp_error( $editor ) ) {
+			return $editor;
+		}
+		$derivative = is_array( $plan['derivative'] ?? null ) ? $plan['derivative'] : array();
+		$source = is_array( $plan['source'] ?? null ) ? $plan['source'] : array();
+		$target_width = absint( $derivative['width'] ?? 0 );
+		$source_width = absint( $source['width'] ?? 0 );
+		if ( $target_width > 0 && $source_width > 0 && $target_width < $source_width ) {
+			$resized = $editor->resize( $target_width, null, false );
+			if ( is_wp_error( $resized ) ) {
+				return $resized;
+			}
+		}
+		if ( method_exists( $editor, 'set_quality' ) ) {
+			$editor->set_quality( absint( $derivative['quality'] ?? 82 ) );
+		}
+
+		$destination_dir = dirname( $source_file );
+		if ( ! is_dir( $destination_dir ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_directory_unavailable', __( 'The attachment directory is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+		$basename = $this->sanitize_media_file_name( (string) ( $derivative['file_basename'] ?? 'attachment-' . $attachment_id . '-optimized.webp' ) );
+		if ( function_exists( 'wp_unique_filename' ) ) {
+			$basename = wp_unique_filename( $destination_dir, $basename );
+		}
+		$destination = trailingslashit( $destination_dir ) . $basename;
+		$saved = $editor->save( $destination, (string) ( $derivative['mime_type'] ?? 'image/webp' ) );
+		if ( is_wp_error( $saved ) ) {
+			return $saved;
+		}
+		if ( ! is_array( $saved ) || empty( $saved['path'] ) || ! is_readable( (string) $saved['path'] ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_derivative_failed', __( 'Optimized derivative file was not created.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		$relative_dir = sanitize_text_field( (string) ( $plan['_relative_dir'] ?? '' ) );
+		$saved_basename = $this->sanitize_media_file_name( basename( (string) $saved['path'] ) );
+		$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $saved_basename : $saved_basename;
+		return array(
+			'format'           => sanitize_key( (string) ( $derivative['format'] ?? '' ) ),
+			'mime_type'        => sanitize_text_field( (string) ( $saved['mime-type'] ?? $derivative['mime_type'] ?? '' ) ),
+			'file_basename'    => $saved_basename,
+			'relative_file'    => $relative_file,
+			'url'              => $this->media_url_for_relative_file( $relative_file ),
+			'width'            => absint( $saved['width'] ?? $derivative['width'] ?? 0 ),
+			'height'           => absint( $saved['height'] ?? $derivative['height'] ?? 0 ),
+			'quality'          => absint( $derivative['quality'] ?? 82 ),
+			'filesize_bytes'   => absint( filesize( (string) $saved['path'] ) ),
+			'generated_at_gmt' => gmdate( 'c' ),
+		);
+	}
+
+	/**
+	 * Returns recorded optimized derivatives.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_media_optimized_derivatives( $attachment_id ) {
+		$attachment_id = absint( $attachment_id );
+		if ( isset( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_optimized_derivatives'] ) && is_array( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_optimized_derivatives'] ) ) {
+			return array_values( array_filter( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_optimized_derivatives'], 'is_array' ) );
+		}
+		$derivatives = function_exists( 'get_post_meta' ) ? get_post_meta( absint( $attachment_id ), '_magick_ai_media_optimized_derivatives', true ) : array();
+		return is_array( $derivatives ) ? array_values( array_filter( $derivatives, 'is_array' ) ) : array();
+	}
+
+	/**
+	 * Appends one optimized derivative record to attachment metadata.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $derivative Derivative record.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function append_media_optimized_derivative( $attachment_id, array $derivative ) {
+		$derivatives = $this->get_media_optimized_derivatives( $attachment_id );
+		$derivatives[] = $derivative;
+		$derivatives = array_slice( $derivatives, -20 );
+		if ( function_exists( 'update_post_meta' ) ) {
+			update_post_meta( absint( $attachment_id ), '_magick_ai_media_optimized_derivatives', $derivatives );
+			update_post_meta( absint( $attachment_id ), '_magick_ai_media_latest_optimized_derivative', $derivative );
+		}
+
+		return $derivatives;
+	}
+
+	/**
+	 * Builds a replacement plan from a recorded optimized derivative.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function build_media_file_replacement_plan( $attachment_id, array $input ) {
+		$attachment_id = absint( $attachment_id );
+		$current = $this->current_media_file_state( $attachment_id );
+		if ( is_wp_error( $current ) ) {
+			return $current;
+		}
+		$expected_error = $this->validate_media_expected_state( $current, $input );
+		if ( is_wp_error( $expected_error ) ) {
+			return $expected_error;
+		}
+
+		$derivative_relative = $this->normalize_media_relative_file( (string) ( $input['derivative_relative_file'] ?? '' ) );
+		if ( '' === $derivative_relative ) {
+			return new \WP_Error( 'magick_ai_abilities_derivative_required', __( 'A derivative_relative_file is required for media file replacement.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$derivative = $this->find_media_optimized_derivative( $attachment_id, $derivative_relative );
+		if ( empty( $derivative ) ) {
+			return new \WP_Error( 'magick_ai_abilities_derivative_not_recorded', __( 'The requested derivative is not recorded for this attachment.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$expected_derivative_mime = sanitize_text_field( (string) ( $input['expected_derivative_mime_type'] ?? '' ) );
+		if ( '' !== $expected_derivative_mime && $expected_derivative_mime !== (string) ( $derivative['mime_type'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_derivative_mime_mismatch', __( 'The derivative MIME type did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+
+		$replacement_id = 'media_replace_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . $derivative_relative . '|' . microtime( true ) ), 0, 8 );
+		$backup_suffix = sanitize_key( (string) ( $input['backup_suffix'] ?? 'magick-ai-backup' ) );
+		$backup_suffix = '' !== $backup_suffix ? substr( $backup_suffix, 0, 48 ) : 'magick-ai-backup';
+		$backup_relative = $this->backup_relative_file_for_current_media( $current, $replacement_id, $backup_suffix );
+		$after = $this->media_file_state_from_derivative( $attachment_id, $derivative );
+
+		return array(
+			'replacement_id' => $replacement_id,
+			'before'         => $this->public_media_file_state( $current ),
+			'after'          => $after,
+			'backup'         => array(
+				'relative_file' => $backup_relative,
+				'url'           => $this->media_url_for_relative_file( $backup_relative ),
+				'mime_type'     => (string) ( $current['mime_type'] ?? '' ),
+				'width'         => absint( $current['width'] ?? 0 ),
+				'height'        => absint( $current['height'] ?? 0 ),
+			),
+			'_current'       => $current,
+			'_derivative'    => $derivative,
+			'_backup_relative_file' => $backup_relative,
+		);
+	}
+
+	/**
+	 * Builds a rollback plan from replacement history.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function build_media_file_rollback_plan( $attachment_id, array $input ) {
+		$attachment_id = absint( $attachment_id );
+		$current = $this->current_media_file_state( $attachment_id );
+		if ( is_wp_error( $current ) ) {
+			return $current;
+		}
+		$expected_error = $this->validate_media_expected_state( $current, $input );
+		if ( is_wp_error( $expected_error ) ) {
+			return $expected_error;
+		}
+		$replacement_id = sanitize_text_field( (string) ( $input['replacement_id'] ?? '' ) );
+		if ( '' === $replacement_id ) {
+			return new \WP_Error( 'magick_ai_abilities_replacement_id_required', __( 'A replacement_id is required for rollback.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		$history = $this->find_media_file_replacement_history( $attachment_id, $replacement_id );
+		if ( empty( $history ) ) {
+			return new \WP_Error( 'magick_ai_abilities_replacement_not_found', __( 'Replacement history was not found for rollback.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+		}
+		$backup = is_array( $history['backup'] ?? null ) ? $history['backup'] : array();
+		$backup_relative = $this->normalize_media_relative_file( (string) ( $backup['relative_file'] ?? '' ) );
+		if ( '' === $backup_relative ) {
+			return new \WP_Error( 'magick_ai_abilities_backup_unavailable', __( 'Replacement backup metadata is unavailable.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+		$after = array(
+			'relative_file'   => $backup_relative,
+			'url'             => $this->media_url_for_relative_file( $backup_relative ),
+			'mime_type'       => sanitize_text_field( (string) ( $backup['mime_type'] ?? '' ) ),
+			'file_basename'   => $this->sanitize_media_file_name( basename( $backup_relative ) ),
+			'width'           => absint( $backup['width'] ?? 0 ),
+			'height'          => absint( $backup['height'] ?? 0 ),
+			'filesize_bytes'  => absint( $backup['filesize_bytes'] ?? 0 ),
+		);
+
+		return array(
+			'replacement_id' => $replacement_id,
+			'before'         => $this->public_media_file_state( $current ),
+			'after'          => $after,
+			'backup'         => $backup,
+			'_current'       => $current,
+			'_history'       => $history,
+			'_backup_relative_file' => $backup_relative,
+		);
+	}
+
+	/**
+	 * Executes a file replacement by switching the attachment pointer.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Replacement plan.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function execute_media_file_replacement( $attachment_id, array $plan ) {
+		$attachment_id = absint( $attachment_id );
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
+		$current_path = (string) ( $current['file_path'] ?? '' );
+		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
+		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
+		$derivative_relative = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
+		$derivative_path = $this->media_uploads_path_for_relative_file( $derivative_relative );
+		if ( '' === $current_path || ! is_readable( $current_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'The current attachment file is unavailable for backup.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+		if ( '' === $derivative_path || ! is_readable( $derivative_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_derivative_file_unavailable', __( 'The derivative file is unavailable for replacement.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+		$backup_dir_ready = function_exists( 'wp_mkdir_p' )
+			? wp_mkdir_p( dirname( $backup_path ) )
+			: ( is_dir( dirname( $backup_path ) ) || mkdir( dirname( $backup_path ), 0755, true ) );
+		if ( '' === $backup_path || ! $backup_dir_ready || ! copy( $current_path, $backup_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+		$after['filesize_bytes'] = absint( filesize( $derivative_path ) );
+		$backup = is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array();
+		$backup['filesize_bytes'] = absint( filesize( $backup_path ) );
+		$updated = $this->update_media_file_pointer( $attachment_id, $derivative_relative, (string) ( $after['mime_type'] ?? '' ), $after );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		$this->append_media_file_replacement_history(
+			$attachment_id,
+			array(
+				'replacement_id'     => (string) ( $plan['replacement_id'] ?? '' ),
+				'status'             => 'active',
+				'replaced_at_gmt'    => gmdate( 'c' ),
+				'rolled_back_at_gmt' => '',
+				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+				'after'              => $after,
+				'backup'             => $backup,
+			)
+		);
+
+		return array(
+			'replaced' => true,
+			'rolled_back' => false,
+			'after'    => $after,
+			'backup'   => $backup,
+		);
+	}
+
+	/**
+	 * Executes rollback to a previously recorded backup.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Rollback plan.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function execute_media_file_rollback( $attachment_id, array $plan ) {
+		$attachment_id = absint( $attachment_id );
+		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
+		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
+		if ( '' === $backup_path || ! is_readable( $backup_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_backup_file_unavailable', __( 'The backup file is unavailable for rollback.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+		$after['filesize_bytes'] = absint( filesize( $backup_path ) );
+		$updated = $this->update_media_file_pointer( $attachment_id, $backup_relative, (string) ( $after['mime_type'] ?? '' ), $after );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		$this->mark_media_file_replacement_rolled_back( $attachment_id, (string) ( $plan['replacement_id'] ?? '' ) );
+
+		return array(
+			'replaced'    => false,
+			'rolled_back' => true,
+			'after'       => $after,
+			'backup'      => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+		);
+	}
+
+	/**
+	 * Returns current attachment file state with internal path for commit checks.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function current_media_file_state( $attachment_id ) {
+		$attachment_id = absint( $attachment_id );
+		$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : array();
+		$metadata = is_array( $metadata ) ? $metadata : array();
+		$relative_file = $this->normalize_media_relative_file( function_exists( 'get_post_meta' ) ? (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) : '' );
+		if ( '' === $relative_file ) {
+			$relative_file = $this->normalize_media_relative_file( (string) ( $metadata['file'] ?? '' ) );
+		}
+		$file_path = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
+		if ( '' === $file_path && '' !== $relative_file ) {
+			$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
+		}
+		$mime_type = function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '';
+		if ( '' === $relative_file && '' === $file_path ) {
+			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'Current attachment file metadata is unavailable.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+
+		return array(
+			'relative_file'   => $relative_file,
+			'url'             => '' !== $relative_file ? $this->media_url_for_relative_file( $relative_file ) : ( function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '' ),
+			'file_basename'   => $this->sanitize_media_file_name( basename( '' !== $relative_file ? $relative_file : $file_path ) ),
+			'file_path'       => $file_path,
+			'mime_type'       => $mime_type,
+			'width'           => absint( $metadata['width'] ?? 0 ),
+			'height'          => absint( $metadata['height'] ?? 0 ),
+			'filesize_bytes'  => ( '' !== $file_path && is_readable( $file_path ) ) ? absint( filesize( $file_path ) ) : absint( $metadata['filesize'] ?? 0 ),
+			'metadata'        => $metadata,
+		);
+	}
+
+	/**
+	 * Validates optional optimistic preflight fields.
+	 *
+	 * @param array<string,mixed> $current Current state.
+	 * @param array<string,mixed> $input Input args.
+	 * @return true|\WP_Error
+	 */
+	private function validate_media_expected_state( array $current, array $input ) {
+		$expected_relative = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? '' ) );
+		if ( '' !== $expected_relative && $expected_relative !== (string) ( $current['relative_file'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+		$expected_mime = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? '' ) );
+		if ( '' !== $expected_mime && $expected_mime !== (string) ( $current['mime_type'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Builds safe public state from an internal media file state.
+	 *
+	 * @param array<string,mixed> $state Internal state.
+	 * @return array<string,mixed>
+	 */
+	private function public_media_file_state( array $state ) {
+		return array(
+			'relative_file'  => $this->normalize_media_relative_file( (string) ( $state['relative_file'] ?? '' ) ),
+			'url'            => esc_url_raw( (string) ( $state['url'] ?? '' ) ),
+			'file_basename'  => $this->sanitize_media_file_name( (string) ( $state['file_basename'] ?? '' ) ),
+			'mime_type'      => sanitize_text_field( (string) ( $state['mime_type'] ?? '' ) ),
+			'width'          => absint( $state['width'] ?? 0 ),
+			'height'         => absint( $state['height'] ?? 0 ),
+			'filesize_bytes' => absint( $state['filesize_bytes'] ?? 0 ),
+		);
+	}
+
+	/**
+	 * Builds target state from a recorded derivative.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $derivative Derivative row.
+	 * @return array<string,mixed>
+	 */
+	private function media_file_state_from_derivative( $attachment_id, array $derivative ) {
+		$relative_file = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
+		return array(
+			'relative_file'  => $relative_file,
+			'url'            => $this->media_url_for_relative_file( $relative_file ),
+			'file_basename'  => $this->sanitize_media_file_name( basename( $relative_file ) ),
+			'mime_type'      => sanitize_text_field( (string) ( $derivative['mime_type'] ?? '' ) ),
+			'width'          => absint( $derivative['width'] ?? 0 ),
+			'height'         => absint( $derivative['height'] ?? 0 ),
+			'filesize_bytes' => absint( $derivative['filesize_bytes'] ?? 0 ),
+			'attachment_id'  => absint( $attachment_id ),
+		);
+	}
+
+	/**
+	 * Finds one recorded optimized derivative by relative file.
+	 *
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $relative_file Relative file.
+	 * @return array<string,mixed>
+	 */
+	private function find_media_optimized_derivative( $attachment_id, $relative_file ) {
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		foreach ( $this->get_media_optimized_derivatives( $attachment_id ) as $derivative ) {
+			if ( $relative_file === $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) ) ) {
+				return $derivative;
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Returns replacement history records.
+	 *
+	 * @param int $attachment_id Attachment id.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_media_file_replacement_history( $attachment_id ) {
+		$attachment_id = absint( $attachment_id );
+		if ( isset( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_file_replacement_history'] ) && is_array( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_file_replacement_history'] ) ) {
+			return array_values( array_filter( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_magick_ai_media_file_replacement_history'], 'is_array' ) );
+		}
+		$history = function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_magick_ai_media_file_replacement_history', true ) : array();
+		return is_array( $history ) ? array_values( array_filter( $history, 'is_array' ) ) : array();
+	}
+
+	/**
+	 * Finds one replacement history record.
+	 *
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $replacement_id Replacement id.
+	 * @return array<string,mixed>
+	 */
+	private function find_media_file_replacement_history( $attachment_id, $replacement_id ) {
+		$replacement_id = sanitize_text_field( (string) $replacement_id );
+		foreach ( $this->get_media_file_replacement_history( $attachment_id ) as $record ) {
+			if ( $replacement_id === (string) ( $record['replacement_id'] ?? '' ) ) {
+				return $record;
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Appends one replacement history record.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $record History record.
+	 * @return void
+	 */
+	private function append_media_file_replacement_history( $attachment_id, array $record ) {
+		$history = $this->get_media_file_replacement_history( $attachment_id );
+		$history[] = $record;
+		$history = array_slice( $history, -20 );
+		if ( function_exists( 'update_post_meta' ) ) {
+			update_post_meta( absint( $attachment_id ), '_magick_ai_media_file_replacement_history', $history );
+			update_post_meta( absint( $attachment_id ), '_magick_ai_media_latest_file_replacement', $record );
+		}
+	}
+
+	/**
+	 * Marks a replacement history record rolled back.
+	 *
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $replacement_id Replacement id.
+	 * @return void
+	 */
+	private function mark_media_file_replacement_rolled_back( $attachment_id, $replacement_id ) {
+		$replacement_id = sanitize_text_field( (string) $replacement_id );
+		$history = $this->get_media_file_replacement_history( $attachment_id );
+		foreach ( $history as &$record ) {
+			if ( $replacement_id === (string) ( $record['replacement_id'] ?? '' ) ) {
+				$record['status'] = 'rolled_back';
+				$record['rolled_back_at_gmt'] = gmdate( 'c' );
+			}
+		}
+		unset( $record );
+		if ( function_exists( 'update_post_meta' ) ) {
+			update_post_meta( absint( $attachment_id ), '_magick_ai_media_file_replacement_history', $history );
+		}
+	}
+
+	/**
+	 * Updates attachment file pointer and metadata.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param string              $relative_file Uploads-relative file.
+	 * @param string              $mime_type MIME type.
+	 * @param array<string,mixed> $state Public file state.
+	 * @return true|\WP_Error
+	 */
+	private function update_media_file_pointer( $attachment_id, $relative_file, $mime_type, array $state ) {
+		$attachment_id = absint( $attachment_id );
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
+		if ( '' === $relative_file || '' === $file_path ) {
+			return new \WP_Error( 'magick_ai_abilities_replacement_path_invalid', __( 'Replacement file path is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+		if ( function_exists( 'update_post_meta' ) ) {
+			update_post_meta( $attachment_id, '_wp_attached_file', $relative_file );
+		}
+		$update_args = array(
+			'ID'             => $attachment_id,
+			'post_mime_type' => sanitize_text_field( (string) $mime_type ),
+		);
+		$updated = wp_update_post( $update_args, true );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		$metadata = array(
+			'file'     => $relative_file,
+			'width'    => absint( $state['width'] ?? 0 ),
+			'height'   => absint( $state['height'] ?? 0 ),
+			'filesize' => absint( $state['filesize_bytes'] ?? 0 ),
+			'sizes'    => array(),
+		);
+		if ( function_exists( 'wp_generate_attachment_metadata' ) || defined( 'ABSPATH' ) ) {
+			if ( ! function_exists( 'wp_generate_attachment_metadata' ) && defined( 'ABSPATH' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/image.php';
+			}
+			if ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
+				$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
+				if ( is_array( $generated ) && ! empty( $generated ) ) {
+					$metadata = $generated;
+				}
+			}
+		}
+		if ( function_exists( 'update_post_meta' ) ) {
+			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Builds a backup relative file beside the current file.
+	 *
+	 * @param array<string,mixed> $current Current media state.
+	 * @param string              $replacement_id Replacement id.
+	 * @param string              $backup_suffix Backup suffix.
+	 * @return string
+	 */
+	private function backup_relative_file_for_current_media( array $current, $replacement_id, $backup_suffix ) {
+		$current_relative = $this->normalize_media_relative_file( (string) ( $current['relative_file'] ?? '' ) );
+		$dir = dirname( $current_relative );
+		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$basename = $this->sanitize_media_file_name( basename( $current_relative ) );
+		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
+		$extension = pathinfo( $basename, PATHINFO_EXTENSION );
+		$backup_name = $this->sanitize_media_file_name( (string) $stem . '-' . sanitize_key( (string) $backup_suffix ) . '-' . sanitize_key( (string) $replacement_id ) . ( '' !== $extension ? '.' . $extension : '' ) );
+		return '' !== $dir ? $dir . '/' . $backup_name : $backup_name;
+	}
+
+	/**
+	 * Normalizes an uploads-relative media file.
+	 *
+	 * @param string $relative_file Relative file.
+	 * @return string
+	 */
+	private function normalize_media_relative_file( $relative_file ) {
+		$relative_file = ltrim( str_replace( '\\', '/', sanitize_text_field( (string) $relative_file ) ), '/' );
+		if ( '' === $relative_file || false !== strpos( $relative_file, '../' ) || '..' === $relative_file || 0 === strpos( $relative_file, '/' ) ) {
+			return '';
+		}
+		return $relative_file;
+	}
+
+	/**
+	 * Resolves an uploads-relative file to an absolute path.
+	 *
+	 * @param string $relative_file Relative file.
+	 * @return string
+	 */
+	private function media_uploads_path_for_relative_file( $relative_file ) {
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		if ( '' === $relative_file ) {
+			return '';
+		}
+		if ( ! function_exists( 'wp_upload_dir' ) ) {
+			return '';
+		}
+		$upload_dir = wp_upload_dir();
+		$basedir = is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ?? '' ) : '';
+		if ( '' === $basedir ) {
+			return '';
+		}
+		return $this->trailingslashit_value( $basedir ) . $relative_file;
+	}
+
+	/**
+	 * Returns a source basename without exposing absolute paths.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @param string              $source_file Source file path.
+	 * @param string              $source_url Source URL.
+	 * @param int                 $attachment_id Attachment id.
+	 * @return string
+	 */
+	private function media_source_basename( array $metadata, $source_file, $source_url, $attachment_id ) {
+		$file = sanitize_text_field( (string) ( $metadata['file'] ?? '' ) );
+		if ( '' === $file && '' !== (string) $source_file ) {
+			$file = (string) $source_file;
+		}
+		if ( '' === $file && '' !== (string) $source_url ) {
+			$file = (string) wp_parse_url( (string) $source_url, PHP_URL_PATH );
+		}
+		$basename = $this->sanitize_media_file_name( basename( $file ) );
+		return '' !== $basename ? $basename : 'attachment-' . absint( $attachment_id );
+	}
+
+	/**
+	 * Returns the metadata-relative upload directory.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @return string
+	 */
+	private function media_relative_dir( array $metadata ) {
+		$file = sanitize_text_field( (string) ( $metadata['file'] ?? '' ) );
+		$dir = '' !== $file ? dirname( str_replace( '\\', '/', $file ) ) : '';
+		return '.' !== $dir ? trim( $dir, '/' ) : '';
+	}
+
+	/**
+	 * Builds a public URL for one uploads-relative derivative file.
+	 *
+	 * @param string $relative_file Uploads-relative file.
+	 * @return string
+	 */
+	private function media_url_for_relative_file( $relative_file ) {
+		$relative_file = ltrim( str_replace( '\\', '/', sanitize_text_field( (string) $relative_file ) ), '/' );
+		if ( '' === $relative_file || ! function_exists( 'wp_upload_dir' ) ) {
+			return '';
+		}
+		$upload_dir = wp_upload_dir();
+		$baseurl = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+		return '' !== $baseurl ? $this->trailingslashit_value( $baseurl ) . $relative_file : '';
+	}
+
+	/**
+	 * Adds a trailing slash without requiring the WordPress helper in unit tests.
+	 *
+	 * @param string $value Path or URL.
+	 * @return string
+	 */
+	private function trailingslashit_value( $value ) {
+		return rtrim( (string) $value, "/\\" ) . '/';
+	}
+
+	/**
+	 * Returns a MIME type for an optimized format.
+	 *
+	 * @param string $format Format.
+	 * @return string
+	 */
+	private function media_mime_for_format( $format ) {
+		$format = sanitize_key( (string) $format );
+		if ( 'jpeg' === $format ) {
+			return 'image/jpeg';
+		}
+		if ( 'png' === $format ) {
+			return 'image/png';
+		}
+		return 'image/webp';
+	}
+
+	/**
+	 * Returns a file extension for an optimized format.
+	 *
+	 * @param string $format Format.
+	 * @return string
+	 */
+	private function media_extension_for_format( $format ) {
+		$format = sanitize_key( (string) $format );
+		return 'jpeg' === $format ? 'jpg' : ( in_array( $format, array( 'webp', 'png' ), true ) ? $format : 'webp' );
+	}
+
+	/**
+	 * Sanitizes file names in WordPress and isolated test runtimes.
+	 *
+	 * @param string $file_name Raw file name.
+	 * @return string
+	 */
+	private function sanitize_media_file_name( $file_name ) {
+		if ( function_exists( 'sanitize_file_name' ) ) {
+			return sanitize_file_name( (string) $file_name );
+		}
+
+		return preg_replace( '/[^A-Za-z0-9._-]/', '', basename( (string) $file_name ) );
+	}
+
+	/**
 	 * Builds one media details snapshot.
 	 *
 	 * @param object $attachment Attachment object.
@@ -2654,11 +3690,96 @@ final class Core_Write_Package {
 			'alt'               => function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '',
 			'caption'           => sanitize_textarea_field( (string) ( $attachment->post_excerpt ?? '' ) ),
 			'description'       => sanitize_textarea_field( (string) ( $attachment->post_content ?? '' ) ),
+			'source_type'       => function_exists( 'get_post_meta' ) ? $this->normalize_media_source_type( get_post_meta( $attachment_id, '_magick_ai_media_source_type', true ) ) : '',
 			'source_page_url'   => function_exists( 'get_post_meta' ) ? esc_url_raw( (string) get_post_meta( $attachment_id, '_magick_ai_media_source_page_url', true ) ) : '',
 			'photographer_name' => function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_magick_ai_media_photographer_name', true ) ) : '',
 			'attribution_text'  => function_exists( 'get_post_meta' ) ? sanitize_textarea_field( (string) get_post_meta( $attachment_id, '_magick_ai_media_attribution_text', true ) ) : '',
 			'copyright_notice'  => function_exists( 'get_post_meta' ) ? sanitize_textarea_field( (string) get_post_meta( $attachment_id, '_magick_ai_media_copyright_notice', true ) ) : '',
 		);
+	}
+
+	/**
+	 * Normalizes media source type.
+	 *
+	 * @param mixed  $value Source type value.
+	 * @param string $fallback Fallback source type.
+	 * @return string
+	 */
+	private function normalize_media_source_type( $value, $fallback = '' ) {
+		$value    = sanitize_key( (string) $value );
+		$fallback = sanitize_key( (string) $fallback );
+		$allowed  = array( 'owned', 'ai_generated', 'stock', 'external', 'test' );
+		if ( in_array( $value, $allowed, true ) ) {
+			return $value;
+		}
+		return in_array( $fallback, $allowed, true ) ? $fallback : '';
+	}
+
+	/**
+	 * Adds conservative source defaults for uploads where the operator supplied
+	 * no richer attribution text.
+	 *
+	 * @param array<string,mixed> $metadata Source metadata.
+	 * @param string              $fallback_url Fallback source URL.
+	 * @return array<string,string>
+	 */
+	private function media_source_metadata_with_defaults( array $metadata, $fallback_url ) {
+		$source_type = $this->normalize_media_source_type( $metadata['source_type'] ?? '', 'external' );
+		$source_page_url = esc_url_raw( (string) ( $metadata['source_page_url'] ?? $fallback_url ) );
+		$photographer_name = sanitize_text_field( (string) ( $metadata['photographer_name'] ?? '' ) );
+		$attribution_text = sanitize_textarea_field( (string) ( $metadata['attribution_text'] ?? '' ) );
+		$copyright_notice = sanitize_textarea_field( (string) ( $metadata['copyright_notice'] ?? '' ) );
+
+		if ( 'ai_generated' === $source_type ) {
+			if ( '' === $attribution_text ) {
+				$attribution_text = 'AI-generated by site operator';
+			}
+			if ( '' === $copyright_notice ) {
+				$copyright_notice = 'Generated asset for this site';
+			}
+		} elseif ( 'stock' === $source_type || 'external' === $source_type ) {
+			if ( '' === $attribution_text && '' !== $source_page_url ) {
+				$attribution_text = 'Source: ' . $source_page_url;
+			}
+		} elseif ( 'owned' === $source_type && '' === $copyright_notice ) {
+			$copyright_notice = 'Owned asset for this site';
+		} elseif ( 'test' === $source_type && '' === $copyright_notice ) {
+			$copyright_notice = 'Test media asset for this site';
+		}
+
+		return array(
+			'source_type'       => $source_type,
+			'source_page_url'   => $source_page_url,
+			'photographer_name' => $photographer_name,
+			'attribution_text'  => $attribution_text,
+			'copyright_notice'  => $copyright_notice,
+		);
+	}
+
+	/**
+	 * Persists media source metadata.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $metadata Source metadata.
+	 * @return void
+	 */
+	private function update_media_source_metadata( $attachment_id, array $metadata ) {
+		$attachment_id = absint( $attachment_id );
+		$meta_keys = array(
+			'source_type'       => '_magick_ai_media_source_type',
+			'source_page_url'   => '_magick_ai_media_source_page_url',
+			'photographer_name' => '_magick_ai_media_photographer_name',
+			'attribution_text'  => '_magick_ai_media_attribution_text',
+			'copyright_notice'  => '_magick_ai_media_copyright_notice',
+		);
+		foreach ( $meta_keys as $field => $meta_key ) {
+			$value = (string) ( $metadata[ $field ] ?? '' );
+			if ( '' === $value ) {
+				delete_post_meta( $attachment_id, $meta_key );
+			} else {
+				update_post_meta( $attachment_id, $meta_key, $value );
+			}
+		}
 	}
 
 	/**
