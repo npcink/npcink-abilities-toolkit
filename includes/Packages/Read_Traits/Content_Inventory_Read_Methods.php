@@ -232,7 +232,7 @@ trait Content_Inventory_Read_Methods {
 		}
 
 		$data = is_array( $inventory['data'] ?? null ) ? $inventory['data'] : array();
-		$max_actions = max( 1, min( 50, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
+		$max_actions = max( 1, min( 200, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
 		$actions = array();
 		$preview = array(
 			'posts'    => array(),
