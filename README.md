@@ -47,6 +47,7 @@ The independent-project split and Magick AI integration boundary are documented 
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
+The article workflow ability map is documented in [docs/article-workflow-abilities-v1.md](docs/article-workflow-abilities-v1.md).
 Static agent and MCP usage guidance rules are documented in [docs/agent-usage-metadata.md](docs/agent-usage-metadata.md).
 The Core governance handoff rules are documented in [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md).
 The Core handoff catalog snapshot, permission matrix, and schema boundary audit

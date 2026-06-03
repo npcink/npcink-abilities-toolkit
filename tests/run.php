@@ -172,6 +172,24 @@ foreach (
 ) {
 	maa_assert_true( false !== strpos( $readme, $required ), 'README precisely scopes host-governed ability ownership: ' . $required );
 }
+maa_assert_true( false !== strpos( $readme, 'docs/article-workflow-abilities-v1.md' ), 'README links the article workflow ability map.' );
+
+$article_workflow_doc = file_get_contents( __DIR__ . '/../docs/article-workflow-abilities-v1.md' );
+foreach (
+	array(
+		'article_draft_v1',
+		'workflow/wordpress_article_draft',
+		'article_assistant_workbench',
+		'magick-ai/create-draft',
+		'does not provide a cloud writer',
+		'Toolbox owns the operator workbench',
+		'Core owns proposal intake',
+		'OpenClaw benefits from the same map without receiving a special bypass',
+		'Cloud Addon should not implement cloud article writing',
+	) as $required
+) {
+	maa_assert_true( false !== strpos( $article_workflow_doc, $required ), 'article workflow ability map preserves boundary: ' . $required );
+}
 
 function maa_schema_contract_fingerprint( array $schema ) {
 	$properties = array();
