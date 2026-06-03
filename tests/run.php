@@ -817,6 +817,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/resolve-internal-link-targets',
 	'magick-ai/build-inline-image-blocks',
 	'magick-ai/build-media-seo-assets',
+	'magick-ai/build-media-derivative-batch-plan',
 	'magick-ai/geo-analyze',
 	'magick-ai/optimize-media-metadata',
 	'magick-ai/position-inline-image-blocks',
@@ -1076,6 +1077,12 @@ maa_assert_same( array( 'image' ), $package_abilities['magick-ai/build-media-der
 maa_assert_same( array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded watermark positions' );
 maa_assert_same( 0.75, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['opacity']['default'] ?? null, 'media derivative cloud request defaults watermark opacity' );
 maa_assert_same( 18, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['scale_percent']['default'] ?? null, 'media derivative cloud request defaults watermark scale' );
+maa_assert_true( isset( $package_abilities['magick-ai/build-media-derivative-batch-plan'] ), 'media derivative batch plan is registered as a read-only planning ability' );
+maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['required_scopes'] ?? array(), 'media derivative batch plan remains a read-scope planning ability' );
+maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
+maa_assert_same( 50, $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['max_items']['maximum'] ?? null, 'media derivative batch plan bounds candidates to 50 items' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
@@ -2263,6 +2270,121 @@ maa_assert_same( 'top_right', $media_cloud_request_with_watermark['data']['cloud
 maa_assert_same( 0.5, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['opacity'] ?? null, 'watermarked media derivative request preserves watermark opacity' );
 maa_assert_same( 22, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['scale_percent'] ?? 0, 'watermarked media derivative request preserves watermark scale' );
 maa_assert_same( false, $media_cloud_request_with_watermark['data']['local_adoption']['wordpress_write_included'] ?? null, 'watermarked media derivative request still does not write WordPress' );
+$GLOBALS['maa_unit_style_posts'][84] = (object) array(
+	'ID'             => 84,
+	'post_title'     => 'April Campaign JPEG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'april-campaign-jpeg',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/jpeg',
+	'post_date'      => '2026-04-12 10:00:00',
+);
+update_post_meta(
+	84,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1800,
+		'height'   => 1000,
+		'file'     => '2026/04/april-campaign-jpeg.jpg',
+		'filesize' => 700000,
+	)
+);
+update_post_meta( 84, '_wp_attached_file', '2026/04/april-campaign-jpeg.jpg' );
+$GLOBALS['maa_unit_style_posts'][85] = (object) array(
+	'ID'             => 85,
+	'post_title'     => 'April Existing PNG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'april-existing-png',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/png',
+	'post_date'      => '2026-04-18 09:00:00',
+);
+update_post_meta(
+	85,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1600,
+		'height'   => 900,
+		'file'     => '2026/04/april-existing-png.png',
+		'filesize' => 600000,
+	)
+);
+update_post_meta( 85, '_wp_attached_file', '2026/04/april-existing-png.png' );
+$GLOBALS['maa_unit_style_posts'][86] = (object) array(
+	'ID'             => 86,
+	'post_title'     => 'May Campaign JPEG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'may-campaign-jpeg',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/jpeg',
+	'post_date'      => '2026-05-02 10:00:00',
+);
+update_post_meta(
+	86,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1700,
+		'height'   => 950,
+		'file'     => '2026/05/may-campaign-jpeg.jpg',
+		'filesize' => 650000,
+	)
+);
+update_post_meta( 86, '_wp_attached_file', '2026/05/may-campaign-jpeg.jpg' );
+$media_derivative_batch_plan = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'date_from'     => '2026-04-01',
+		'date_to'       => '2026-04-30 23:59:59',
+		'target_format' => 'png',
+		'max_items'     => 10,
+	)
+);
+maa_assert_same( true, $media_derivative_batch_plan['success'] ?? null, 'media derivative batch plan returns a success envelope' );
+maa_assert_same( true, $media_derivative_batch_plan['data']['readonly'] ?? null, 'media derivative batch plan is read-only' );
+maa_assert_same( 'dry_run', $media_derivative_batch_plan['data']['plan_mode'] ?? '', 'media derivative batch plan returns a dry-run plan mode' );
+maa_assert_same( false, $media_derivative_batch_plan['data']['commit_execution'] ?? null, 'media derivative batch plan does not execute commits' );
+maa_assert_same( true, $media_derivative_batch_plan['data']['requires_approval'] ?? null, 'media derivative batch plan requires approval before adoption' );
+maa_assert_same( 1, $media_derivative_batch_plan['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan selects one April JPEG candidate for PNG conversion' );
+maa_assert_same( 84, $media_derivative_batch_plan['data']['candidates'][0]['attachment_id'] ?? 0, 'media derivative batch plan candidate comes from the April date range' );
+maa_assert_same( 'png', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_input']['preferred_format'] ?? '', 'media derivative batch plan prepares PNG single-image request input' );
+maa_assert_same( 'magick-ai/build-media-derivative-cloud-request', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_ability'] ?? '', 'media derivative batch plan points to the existing single-image cloud request ability' );
+maa_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan skips images already in the target format' );
+maa_assert_array_omits_keys( $media_derivative_batch_plan['data'], array( 'write_actions', 'wordpress_write_decision', 'approval_decision', 'commit' ), 'media derivative batch plan output' );
+$media_derivative_batch_plan_bounded = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids' => array( 84, 86 ),
+		'target_format'  => 'png',
+		'max_items'      => 1,
+	)
+);
+maa_assert_same( 1, $media_derivative_batch_plan_bounded['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan enforces max_items' );
+$media_derivative_batch_plan_excluded = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids'  => array( 84 ),
+		'target_format'   => 'png',
+		'exclude_formats' => array( 'jpeg' ),
+	)
+);
+maa_assert_same( 0, $media_derivative_batch_plan_excluded['data']['summary']['candidate_count'] ?? 1, 'media derivative batch plan honors excluded source formats' );
+maa_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan explains excluded source formats' );
+$media_derivative_batch_plan_invalid = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids' => array( 84 ),
+		'target_format'  => 'tiff',
+	)
+);
+maa_assert_true( is_wp_error( $media_derivative_batch_plan_invalid ) && 'magick_ai_abilities_media_derivative_target_format_invalid' === $media_derivative_batch_plan_invalid->get_error_code(), 'media derivative batch plan rejects invalid target formats' );
 $media_optimization_preview = $core_write_package->optimize_media_asset(
 	array(
 		'attachment_id'     => 79,

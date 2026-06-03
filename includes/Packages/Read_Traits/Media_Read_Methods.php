@@ -925,6 +925,195 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Builds a bounded read-only batch plan for Cloud media derivative previews.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_derivative_batch_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media derivative batch plans.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$target_format = sanitize_key( (string) ( $input['target_format'] ?? $input['preferred_format'] ?? 'webp' ) );
+		if ( ! in_array( $target_format, array( 'webp', 'avif', 'jpeg', 'png', 'original' ), true ) ) {
+			return new \WP_Error(
+				'magick_ai_abilities_media_derivative_target_format_invalid',
+				__( 'Unsupported media derivative target format.', 'magick-ai-abilities' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$watermark = $this->normalize_media_derivative_watermark( $input['watermark'] ?? array() );
+		if ( is_wp_error( $watermark ) ) {
+			return $watermark;
+		}
+
+		$max_items = max( 1, min( 50, $this->absint_value( $input['max_items'] ?? 20 ) ) );
+		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? 'image' ) );
+		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
+		$date_from = sanitize_text_field( (string) ( $input['date_from'] ?? '' ) );
+		$date_to = sanitize_text_field( (string) ( $input['date_to'] ?? '' ) );
+		$exclude_formats = $this->normalize_media_derivative_format_list( $input['exclude_formats'] ?? array() );
+		$target_max_width = max( 320, min( 7680, $this->absint_value( $input['target_max_width'] ?? 1920 ) ) );
+		$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $input['large_file_threshold_bytes'] ?? 524288 ) ) );
+		$quality = max( 1, min( 100, $this->absint_value( $input['quality'] ?? 82 ) ) );
+		$min_width = $this->absint_value( $input['min_width'] ?? 0 );
+		$min_height = $this->absint_value( $input['min_height'] ?? 0 );
+		$min_filesize_bytes = $this->absint_value( $input['min_filesize_bytes'] ?? 0 );
+		$max_filesize_bytes = $this->absint_value( $input['max_filesize_bytes'] ?? 0 );
+
+		$explicit_ids = is_array( $input['attachment_ids'] ?? null )
+			? array_slice( array_values( array_unique( array_filter( array_map( array( $this, 'absint_value' ), $input['attachment_ids'] ) ) ) ), 0, 100 )
+			: array();
+		$query_result = array( 'attachment_ids' => $explicit_ids, 'total' => count( $explicit_ids ) );
+		if ( empty( $explicit_ids ) ) {
+			$query_result = $this->query_media_derivative_batch_inventory( $mime_type, $search, $date_from, $date_to, max( $max_items * 4, 50 ), $page );
+		}
+
+		$candidates = array();
+		$skipped = array();
+		$scanned_count = 0;
+		$attachment_ids = is_array( $query_result['attachment_ids'] ?? null )
+			? array_values( array_map( array( $this, 'absint_value' ), $query_result['attachment_ids'] ) )
+			: array();
+
+		foreach ( $attachment_ids as $attachment_id ) {
+			if ( count( $candidates ) >= $max_items ) {
+				break;
+			}
+			++$scanned_count;
+			$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'attachment_not_found', array() );
+				continue;
+			}
+			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'permission_denied', array() );
+				continue;
+			}
+
+			$inspection = $this->build_media_format_inspection(
+				$attachment_id,
+				array(
+					'target_max_width'           => $target_max_width,
+					'large_file_threshold_bytes' => $large_file_threshold,
+					'preferred_format'           => in_array( $target_format, array( 'webp', 'avif', 'original' ), true ) ? $target_format : 'webp',
+				)
+			);
+			$skip_reason = $this->resolve_media_derivative_batch_skip_reason(
+				$inspection,
+				array(
+					'target_format'        => $target_format,
+					'exclude_formats'      => $exclude_formats,
+					'min_width'            => $min_width,
+					'min_height'           => $min_height,
+					'min_filesize_bytes'   => $min_filesize_bytes,
+					'max_filesize_bytes'   => $max_filesize_bytes,
+				)
+			);
+			if ( '' !== $skip_reason ) {
+				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, $skip_reason, $inspection );
+				continue;
+			}
+
+			$cloud_request_input = array(
+				'attachment_id'              => $attachment_id,
+				'target_max_width'           => $target_max_width,
+				'large_file_threshold_bytes' => $large_file_threshold,
+				'preferred_format'           => $target_format,
+				'quality'                    => $quality,
+			);
+			if ( ! empty( $watermark ) ) {
+				$cloud_request_input['watermark'] = $watermark;
+			}
+
+			$candidates[] = array(
+				'attachment_id'          => $attachment_id,
+				'title'                  => sanitize_text_field( (string) ( $inspection['title'] ?? '' ) ),
+				'mime_type'              => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
+				'source_format'          => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
+				'target_format'          => $target_format,
+				'url'                    => $this->esc_url_value( (string) ( $inspection['url'] ?? '' ) ),
+				'width'                  => $this->absint_value( $inspection['width'] ?? 0 ),
+				'height'                 => $this->absint_value( $inspection['height'] ?? 0 ),
+				'filesize_bytes'         => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+				'warnings'               => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
+				'cloud_request_ability'  => 'magick-ai/build-media-derivative-cloud-request',
+				'cloud_request_input'    => $cloud_request_input,
+				'proposal_required'      => true,
+				'preview_required'       => true,
+			);
+		}
+
+		$total = $this->absint_value( $query_result['total'] ?? count( $attachment_ids ) );
+
+		return $this->build_analysis_success_response(
+			array(
+				'plan_contract_version' => 'media_derivative_batch_plan.v1',
+				'readonly'              => true,
+				'plan_mode'             => 'dry_run',
+				'requires_approval'     => true,
+				'commit_execution'      => false,
+				'filters'               => array(
+					'mime_type'                  => $mime_type,
+					'search'                     => $search,
+					'date_from'                  => $date_from,
+					'date_to'                    => $date_to,
+					'target_format'              => $target_format,
+					'exclude_formats'            => $exclude_formats,
+					'target_max_width'           => $target_max_width,
+					'large_file_threshold_bytes' => $large_file_threshold,
+					'quality'                    => $quality,
+					'min_width'                  => $min_width,
+					'min_height'                 => $min_height,
+					'min_filesize_bytes'         => $min_filesize_bytes,
+					'max_filesize_bytes'         => $max_filesize_bytes,
+					'max_items'                  => $max_items,
+					'page'                       => $page,
+				),
+				'summary'               => array(
+					'total_matched'       => $total,
+					'scanned_count'       => $scanned_count,
+					'candidate_count'     => count( $candidates ),
+					'skipped_count'       => count( $skipped ),
+					'truncated'           => count( $candidates ) >= $max_items && $total > $scanned_count,
+					'cloud_calls_included' => false,
+				),
+				'candidates'            => $candidates,
+				'skipped'               => $skipped,
+				'execution_plan'        => array(
+					'steps' => array(
+						'Review candidates and skipped reasons.',
+						'For each candidate, call magick-ai/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
+						'Preview non-expired derivative artifacts through the local same-origin preview route.',
+						'Submit Core proposal payloads for magick-ai/adopt-cloud-media-derivative only after review.',
+						'Approve and execute through Core; run reference repair planning when hard-coded URLs or settings references remain.',
+					),
+					'batch_size_recommendation' => min( $max_items, 20 ),
+					'proposal_strategy'         => 'small_reviewed_batches',
+				),
+				'boundary'              => array(
+					'owner'                    => 'local_wordpress_host',
+					'cloud_owner'              => 'runtime_derivative_generation_only',
+					'proposal_created'         => false,
+					'approval_decision_included' => false,
+					'canonical_media_truth_included' => false,
+				),
+			),
+			array(
+				'source'         => 'local_media_derivative_batch_plan',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+				'plan_only'      => true,
+			),
+			'Media derivative batch plan built.'
+		);
+	}
+
+	/**
 	 * Normalizes an optional image watermark plan for Cloud derivative requests.
 	 *
 	 * @param mixed $watermark Raw watermark input.
@@ -967,6 +1156,179 @@ trait Media_Read_Methods {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Normalizes source format exclusion input for derivative batch planning.
+	 *
+	 * @param mixed $formats Raw format list.
+	 * @return string[]
+	 */
+	private function normalize_media_derivative_format_list( $formats ) {
+		if ( ! is_array( $formats ) ) {
+			$formats = '' !== (string) $formats ? array( $formats ) : array();
+		}
+
+		$allowed = array( 'webp', 'avif', 'jpeg', 'jpg', 'png', 'gif', 'svg', 'ico', 'pdf', 'original' );
+		$normalized = array();
+		foreach ( $formats as $format ) {
+			$format = sanitize_key( (string) $format );
+			if ( 'jpg' === $format ) {
+				$format = 'jpeg';
+			}
+			if ( in_array( $format, $allowed, true ) && ! in_array( $format, $normalized, true ) ) {
+				$normalized[] = $format;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Queries media attachment ids for a bounded derivative batch plan.
+	 *
+	 * @param string $mime_type Mime type filter.
+	 * @param string $search Search term.
+	 * @param string $date_from Date lower bound.
+	 * @param string $date_to Date upper bound.
+	 * @param int    $per_page Per page.
+	 * @param int    $page Page.
+	 * @return array<string,mixed>
+	 */
+	private function query_media_derivative_batch_inventory( $mime_type, $search, $date_from, $date_to, $per_page, $page ) {
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_status'    => 'inherit',
+			'posts_per_page' => max( 1, min( 200, $this->absint_value( $per_page ) ) ),
+			'paged'          => max( 1, $this->absint_value( $page ) ),
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+			'fields'         => 'ids',
+		);
+		if ( '' !== $mime_type ) {
+			$args['post_mime_type'] = $mime_type;
+		}
+		if ( '' !== $search ) {
+			$args['s'] = $search;
+		}
+		if ( '' !== $date_from || '' !== $date_to ) {
+			$args['date_query'] = array();
+			if ( '' !== $date_from ) {
+				$args['date_query']['after'] = $date_from;
+			}
+			if ( '' !== $date_to ) {
+				$args['date_query']['before'] = $date_to;
+			}
+			$args['date_query']['inclusive'] = true;
+		}
+
+		if ( class_exists( '\WP_Query' ) ) {
+			$query = new \WP_Query( $args );
+			return array(
+				'attachment_ids' => is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array(),
+				'total'          => (int) ( $query->found_posts ?? 0 ),
+			);
+		}
+
+		$attachments = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
+			? array_values( $GLOBALS['maa_unit_style_posts'] )
+			: array();
+		$filtered = array();
+		$date_from_ts = '' !== $date_from ? strtotime( $date_from ) : false;
+		$date_to_ts = '' !== $date_to ? strtotime( $date_to ) : false;
+		foreach ( $attachments as $attachment ) {
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+				continue;
+			}
+			$current_mime = sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) );
+			if ( '' !== $mime_type && false === strpos( $current_mime, $mime_type ) ) {
+				continue;
+			}
+			$title = sanitize_text_field( (string) ( $attachment->post_title ?? '' ) );
+			if ( '' !== $search && false === stripos( $title, $search ) ) {
+				continue;
+			}
+			$post_date = sanitize_text_field( (string) ( $attachment->post_date ?? '' ) );
+			$post_ts = '' !== $post_date ? strtotime( $post_date ) : false;
+			if ( false !== $date_from_ts && ( false === $post_ts || $post_ts < $date_from_ts ) ) {
+				continue;
+			}
+			if ( false !== $date_to_ts && ( false === $post_ts || $post_ts > $date_to_ts ) ) {
+				continue;
+			}
+			$filtered[] = $this->absint_value( $attachment->ID ?? 0 );
+		}
+
+		$offset = ( max( 1, $this->absint_value( $page ) ) - 1 ) * max( 1, $this->absint_value( $per_page ) );
+		return array(
+			'attachment_ids' => array_slice( array_filter( $filtered ), $offset, max( 1, $this->absint_value( $per_page ) ) ),
+			'total'          => count( $filtered ),
+		);
+	}
+
+	/**
+	 * Resolves why a media derivative batch row should be skipped.
+	 *
+	 * @param array<string,mixed> $inspection Media inspection.
+	 * @param array<string,mixed> $policy Batch policy.
+	 * @return string
+	 */
+	private function resolve_media_derivative_batch_skip_reason( array $inspection, array $policy ) {
+		$mime_type = sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) );
+		$source_format = sanitize_key( (string) ( $inspection['source_format'] ?? '' ) );
+		$target_format = sanitize_key( (string) ( $policy['target_format'] ?? '' ) );
+		$exclude_formats = is_array( $policy['exclude_formats'] ?? null ) ? $policy['exclude_formats'] : array();
+		$width = $this->absint_value( $inspection['width'] ?? 0 );
+		$height = $this->absint_value( $inspection['height'] ?? 0 );
+		$filesize_bytes = $this->absint_value( $inspection['filesize_bytes'] ?? 0 );
+
+		if ( 0 !== strpos( $mime_type, 'image/' ) ) {
+			return 'not_image';
+		}
+		if ( ! in_array( $source_format, array( 'jpeg', 'png', 'webp', 'avif' ), true ) ) {
+			return 'unsupported_source_format';
+		}
+		if ( in_array( $source_format, $exclude_formats, true ) ) {
+			return 'source_format_excluded';
+		}
+		if ( 'original' !== $target_format && $source_format === $target_format ) {
+			return 'already_target_format';
+		}
+		if ( $this->absint_value( $policy['min_width'] ?? 0 ) > 0 && $width < $this->absint_value( $policy['min_width'] ?? 0 ) ) {
+			return 'below_min_width';
+		}
+		if ( $this->absint_value( $policy['min_height'] ?? 0 ) > 0 && $height < $this->absint_value( $policy['min_height'] ?? 0 ) ) {
+			return 'below_min_height';
+		}
+		if ( $this->absint_value( $policy['min_filesize_bytes'] ?? 0 ) > 0 && $filesize_bytes < $this->absint_value( $policy['min_filesize_bytes'] ?? 0 ) ) {
+			return 'below_min_filesize';
+		}
+		if ( $this->absint_value( $policy['max_filesize_bytes'] ?? 0 ) > 0 && $filesize_bytes > $this->absint_value( $policy['max_filesize_bytes'] ?? 0 ) ) {
+			return 'above_max_filesize';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Builds one skipped row for derivative batch plans.
+	 *
+	 * @param int                 $attachment_id Attachment ID.
+	 * @param string              $reason Skip reason.
+	 * @param array<string,mixed> $inspection Media inspection.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_derivative_batch_skip_row( $attachment_id, $reason, array $inspection ) {
+		return array(
+			'attachment_id'  => $this->absint_value( $attachment_id ),
+			'reason'         => sanitize_key( (string) $reason ),
+			'title'          => sanitize_text_field( (string) ( $inspection['title'] ?? '' ) ),
+			'mime_type'      => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
+			'source_format'  => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
+			'width'          => $this->absint_value( $inspection['width'] ?? 0 ),
+			'height'         => $this->absint_value( $inspection['height'] ?? 0 ),
+			'filesize_bytes' => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+		);
 	}
 
 	/**

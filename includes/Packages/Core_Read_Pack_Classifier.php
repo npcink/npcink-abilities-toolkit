@@ -130,6 +130,7 @@ final class Core_Read_Pack_Classifier {
 			'magick-ai/list-post-revisions'                     => 'core_wordpress_read',
 			'magick-ai/inspect-media-asset'                     => 'media_governance',
 			'magick-ai/build-media-derivative-cloud-request'    => 'media_governance',
+			'magick-ai/build-media-derivative-batch-plan'       => 'media_governance',
 		);
 	}
 
