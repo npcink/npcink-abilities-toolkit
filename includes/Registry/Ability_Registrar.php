@@ -283,6 +283,7 @@ final class Ability_Registrar {
 			'plugin_slug'  => 'magick-ai-abilities',
 			'status'       => 'ok',
 			'event_kind'   => 'abilities.catalog.changed',
+			'event_id'     => $this->catalog_event_id( $catalog_hash, $current_version, (string) $reason ),
 			'ability_count' => count( $this->abilities ),
 			'catalog_hash' => $catalog_hash,
 			'source'       => 'local',
@@ -414,33 +415,43 @@ final class Ability_Registrar {
 		$mode     = (string) ( $definition['mode'] ?? '' );
 
 		return function ( ...$args ) use ( $ability_id, $callback, $mode ) {
-			$started = microtime( true );
+			$started    = microtime( true );
+			$started_id = $this->started_event_component( $started );
 
 			try {
 				$result  = call_user_func_array( $callback, $args );
 				$is_error = function_exists( 'is_wp_error' ) && is_wp_error( $result );
+				if ( $is_error ) {
+					$this->emit_callback_failed_event(
+						$ability_id,
+						$mode,
+						$started,
+						$started_id,
+						$this->wp_error_status_detail( $result )
+					);
+
+					return $result;
+				}
+
 				$this->emit_observability_event(
 					'abilities.callback.completed',
 					array(
 						'ability_id' => $ability_id,
+						'event_id'   => $this->callback_event_id( 'abilities.callback.completed', $ability_id, $mode, $started_id, 'ok', '' ),
 						'mode'       => $mode,
-						'status'     => $is_error ? 'error' : 'ok',
-						'error_code' => $is_error ? (string) $result->get_error_code() : '',
+						'status'     => 'ok',
 						'latency_ms' => $this->elapsed_ms( $started ),
 					)
 				);
 
 				return $result;
 			} catch ( \Throwable $exception ) {
-				$this->emit_observability_event(
-					'abilities.callback.completed',
-					array(
-						'ability_id' => $ability_id,
-						'mode'       => $mode,
-						'status'     => 'error',
-						'error_code' => get_class( $exception ),
-						'latency_ms' => $this->elapsed_ms( $started ),
-					)
+				$this->emit_callback_failed_event(
+					$ability_id,
+					$mode,
+					$started,
+					$started_id,
+					$this->exception_status_detail( $exception )
 				);
 
 				throw $exception;
@@ -468,6 +479,98 @@ final class Ability_Registrar {
 				$payload
 			)
 		);
+	}
+
+	/**
+	 * Emits a metadata-only callback failure event.
+	 *
+	 * @param string $ability_id    Ability id.
+	 * @param string $mode          Registration mode.
+	 * @param float  $started       Callback start time.
+	 * @param string $started_id    Stable start-time id component.
+	 * @param string $status_detail Short redacted diagnostic label.
+	 * @return void
+	 */
+	private function emit_callback_failed_event( $ability_id, $mode, $started, $started_id, $status_detail ) {
+		$error_code = 'abilities.callback_error';
+		$this->emit_observability_event(
+			'abilities.callback.failed',
+			array(
+				'ability_id'     => $ability_id,
+				'event_id'       => $this->callback_event_id( 'abilities.callback.failed', $ability_id, $mode, $started_id, 'error', $error_code ),
+				'mode'           => $mode,
+				'status'         => 'error',
+				'error_code'     => $error_code,
+				'status_detail'  => $status_detail,
+				'latency_ms'     => $this->elapsed_ms( $started ),
+			)
+		);
+	}
+
+	/**
+	 * Builds a stable, metadata-only event id for catalog events.
+	 *
+	 * @param string $catalog_hash Catalog fingerprint.
+	 * @param string $version      Plugin version.
+	 * @param string $reason       Trigger reason.
+	 * @return string
+	 */
+	private function catalog_event_id( $catalog_hash, $version, $reason ) {
+		return 'catalog_' . substr( hash( 'sha256', implode( '|', array( $version, $catalog_hash, sanitize_key( (string) $reason ) ) ) ), 0, 32 );
+	}
+
+	/**
+	 * Builds a stable, metadata-only event id for callback events.
+	 *
+	 * @param string $event_kind Event kind.
+	 * @param string $ability_id Ability id.
+	 * @param string $mode       Registration mode.
+	 * @param string $started_id Start-time id component.
+	 * @param string $status     Event status.
+	 * @param string $error_code Error code, when applicable.
+	 * @return string
+	 */
+	private function callback_event_id( $event_kind, $ability_id, $mode, $started_id, $status, $error_code ) {
+		$hash = hash( 'sha256', implode( '|', array( $event_kind, $ability_id, $mode, $started_id, $status, $error_code ) ) );
+
+		return 'ability_cb_' . substr( $hash, 0, 32 );
+	}
+
+	/**
+	 * Converts a start time into an id-safe component.
+	 *
+	 * @param float $started Start time.
+	 * @return string
+	 */
+	private function started_event_component( $started ) {
+		return str_replace( '.', '', sprintf( '%.6F', $started ) );
+	}
+
+	/**
+	 * Returns a short redacted status detail for WP_Error results.
+	 *
+	 * @param \WP_Error $error WordPress error object.
+	 * @return string
+	 */
+	private function wp_error_status_detail( $error ) {
+		if ( method_exists( $error, 'get_error_code' ) ) {
+			return sanitize_key( (string) $error->get_error_code() );
+		}
+
+		return 'wp_error';
+	}
+
+	/**
+	 * Returns a short redacted status detail for thrown exceptions.
+	 *
+	 * @param \Throwable $exception Exception.
+	 * @return string
+	 */
+	private function exception_status_detail( \Throwable $exception ) {
+		$class = str_replace( '\\', '_', get_class( $exception ) );
+		$class = sanitize_key( $class );
+
+		return '' !== $class ? $class : 'throwable';
 	}
 
 	/**

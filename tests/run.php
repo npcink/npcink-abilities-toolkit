@@ -83,6 +83,42 @@ function maa_observability_events_of_kind( array $events, $event_kind ) {
 	);
 }
 
+function maa_assert_event_has_safe_event_id( array $event, $prefix, $message ) {
+	$event_id = (string) ( $event['event_id'] ?? '' );
+	maa_assert_true( 0 === strpos( $event_id, $prefix ), "{$message} event_id uses {$prefix} prefix" );
+	maa_assert_true( 1 === preg_match( '/^[a-z0-9_]+$/', $event_id ), "{$message} event_id uses bounded id characters" );
+}
+
+function maa_assert_observability_event_is_metadata_only( array $event, $message ) {
+	maa_assert_array_omits_keys(
+		$event,
+		array(
+			'args',
+			'auth',
+			'authorization',
+			'callback',
+			'callback_input',
+			'content',
+			'cookie',
+			'definition',
+			'execute_callback',
+			'input',
+			'nonce',
+			'payload',
+			'payload_json',
+			'permission_callback',
+			'prompt',
+			'raw',
+			'raw_callback_input',
+			'request',
+			'response',
+			'secret',
+			'token',
+		),
+		$message
+	);
+}
+
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
 maa_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Magick AI parent slug' );
 maa_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'magick-ai-abilities';" ), 'admin test page uses the canonical Abilities admin slug' );
@@ -484,6 +520,36 @@ maa_assert_true(
 	),
 	'observability registrar accepts test ability'
 );
+maa_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/observable-wp-error',
+		array(
+			'label'            => 'Observable WP Error',
+			'description'      => 'Returns observable WP error.',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'execute_callback' => static function () {
+				return new WP_Error( 'acme_callback_failed', 'Raw error message should not be emitted.', array( 'payload_json' => 'must-not-leak' ) );
+			},
+		)
+	),
+	'observability registrar accepts WP_Error callback ability'
+);
+maa_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/observable-exception',
+		array(
+			'label'            => 'Observable Exception',
+			'description'      => 'Throws observable exception.',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'execute_callback' => static function () {
+				throw new RuntimeException( 'Raw exception message should not be emitted.' );
+			},
+		)
+	),
+	'observability registrar accepts throwing callback ability'
+);
 $first_hash = $observability_registrar->catalog_fingerprint();
 $observability_registrar->register_with_wordpress();
 $catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
@@ -491,9 +557,10 @@ maa_assert_same( 1, count( $catalog_events ), 'first bootstrap emits one catalog
 maa_assert_same( 'magick-ai-abilities', $catalog_events[0]['plugin_slug'] ?? '', 'catalog event carries plugin slug' );
 maa_assert_same( 'ok', $catalog_events[0]['status'] ?? '', 'catalog event status is ok' );
 maa_assert_same( 'local', $catalog_events[0]['source'] ?? '', 'catalog event source remains local' );
-maa_assert_same( 1, $catalog_events[0]['ability_count'] ?? 0, 'catalog event carries ability count' );
+maa_assert_same( 3, $catalog_events[0]['ability_count'] ?? 0, 'catalog event carries ability count' );
 maa_assert_same( $first_hash, $catalog_events[0]['catalog_hash'] ?? '', 'catalog event carries current catalog hash' );
-maa_assert_array_omits_keys( $catalog_events[0], array( 'definition', 'execute_callback', 'permission_callback', 'callback', 'secret', 'payload' ), 'catalog event payload' );
+maa_assert_event_has_safe_event_id( $catalog_events[0], 'catalog_', 'catalog event' );
+maa_assert_observability_event_is_metadata_only( $catalog_events[0], 'catalog event payload' );
 
 $GLOBALS['maa_unit_registered_abilities'] = array();
 $observability_registrar->register_with_wordpress();
@@ -548,12 +615,50 @@ maa_assert_same( MAGICK_AI_ABILITIES_VERSION, $GLOBALS['maa_unit_options'][ Abil
 
 $callback = $GLOBALS['maa_unit_registered_abilities']['acme/observable-summary']['execute_callback'] ?? null;
 maa_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
-$callback_result = call_user_func( $callback, array() );
+$callback_result = call_user_func( $callback, array( 'raw_callback_input' => 'super-secret-callback-input' ) );
 maa_assert_same( array( 'ok' => true ), $callback_result, 'observed callback returns original result' );
 $callback_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.callback.completed' );
 maa_assert_same( 1, count( $callback_events ), 'callback execution still emits behavior observability event' );
 maa_assert_same( 'acme/observable-summary', $callback_events[0]['ability_id'] ?? '', 'callback event carries ability id' );
 maa_assert_same( 'ok', $callback_events[0]['status'] ?? '', 'callback event carries successful status' );
+maa_assert_event_has_safe_event_id( $callback_events[0], 'ability_cb_', 'callback completed event' );
+maa_assert_observability_event_is_metadata_only( $callback_events[0], 'callback completed event payload' );
+maa_assert_true( false === strpos( wp_json_encode( $callback_events[0] ), 'super-secret-callback-input' ), 'callback completed event omits raw callback input values' );
+
+$wp_error_callback = $GLOBALS['maa_unit_registered_abilities']['acme/observable-wp-error']['execute_callback'] ?? null;
+maa_assert_true( is_callable( $wp_error_callback ), 'registered WP_Error ability keeps callable observed execute callback' );
+$wp_error_result = call_user_func( $wp_error_callback, array( 'payload_json' => 'super-secret-callback-input' ) );
+maa_assert_true( is_wp_error( $wp_error_result ), 'observed WP_Error callback returns original error result' );
+$failed_callback_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.callback.failed' );
+maa_assert_same( 1, count( $failed_callback_events ), 'WP_Error callback emits one failed callback event' );
+maa_assert_same( 'acme/observable-wp-error', $failed_callback_events[0]['ability_id'] ?? '', 'WP_Error failed event carries ability id' );
+maa_assert_same( 'error', $failed_callback_events[0]['status'] ?? '', 'WP_Error failed event carries error status' );
+maa_assert_same( 'abilities.callback_error', $failed_callback_events[0]['error_code'] ?? '', 'WP_Error failed event uses stable error code' );
+maa_assert_same( 'acme_callback_failed', $failed_callback_events[0]['status_detail'] ?? '', 'WP_Error failed event carries redacted status detail' );
+maa_assert_event_has_safe_event_id( $failed_callback_events[0], 'ability_cb_', 'WP_Error failed event' );
+maa_assert_observability_event_is_metadata_only( $failed_callback_events[0], 'WP_Error failed event payload' );
+maa_assert_true( false === strpos( wp_json_encode( $failed_callback_events[0] ), 'super-secret-callback-input' ), 'WP_Error failed event omits raw callback input values' );
+maa_assert_true( false === strpos( wp_json_encode( $failed_callback_events[0] ), 'Raw error message should not be emitted.' ), 'WP_Error failed event omits raw error message' );
+
+$exception_callback = $GLOBALS['maa_unit_registered_abilities']['acme/observable-exception']['execute_callback'] ?? null;
+maa_assert_true( is_callable( $exception_callback ), 'registered exception ability keeps callable observed execute callback' );
+try {
+	call_user_func( $exception_callback, array( 'payload_json' => 'super-secret-callback-input' ) );
+	maa_assert_true( false, 'observed exception callback rethrows original exception' );
+} catch ( RuntimeException $exception ) {
+	maa_assert_same( 'Raw exception message should not be emitted.', $exception->getMessage(), 'observed exception callback rethrows original exception message locally' );
+}
+$failed_callback_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.callback.failed' );
+maa_assert_same( 2, count( $failed_callback_events ), 'throwing callback emits one additional failed callback event' );
+maa_assert_same( 'acme/observable-exception', $failed_callback_events[1]['ability_id'] ?? '', 'exception failed event carries ability id' );
+maa_assert_same( 'abilities.callback_error', $failed_callback_events[1]['error_code'] ?? '', 'exception failed event uses stable error code' );
+maa_assert_same( 'runtimeexception', $failed_callback_events[1]['status_detail'] ?? '', 'exception failed event carries redacted exception class' );
+maa_assert_event_has_safe_event_id( $failed_callback_events[1], 'ability_cb_', 'exception failed event' );
+maa_assert_observability_event_is_metadata_only( $failed_callback_events[1], 'exception failed event payload' );
+maa_assert_true( false === strpos( wp_json_encode( $failed_callback_events[1] ), 'super-secret-callback-input' ), 'exception failed event omits raw callback input values' );
+maa_assert_true( false === strpos( wp_json_encode( $failed_callback_events[1] ), 'Raw exception message should not be emitted.' ), 'exception failed event omits raw exception message' );
+$callback_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.callback.completed' );
+maa_assert_same( 1, count( $callback_events ), 'failed callbacks do not add completed callback events' );
 
 $bridge = new Magick_Catalog_Bridge( $registrar );
 $catalog = $bridge->filter_catalog( array(), array() );
