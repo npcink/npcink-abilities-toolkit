@@ -27,6 +27,19 @@ Recommended host artifact: `article_assistant_workbench`
 
 Final governed write ability: `magick-ai/create-draft`
 
+## Complexity Budget
+
+Abilities should keep this recipe as reusable callback composition, not a
+writing product. The current budget is one local article recipe, deterministic
+read/review helpers, and one host-governed draft write callback.
+
+It is not a writing product.
+
+Do not add Abilities-owned article generation, Cloud article generation,
+prompt-library, scheduler, batch writing, or workflow runtime behavior for this
+recipe. If a host uses external model text, that text must return as a
+reviewable artifact before Core proposal intake.
+
 ## Ability Map
 
 | Stage | Ability | Owner | Notes |
@@ -59,6 +72,12 @@ Those names imply Abilities owns writing generation, cloud execution, batch
 runtime, or workflow orchestration. Hosts can still compose read, review,
 style, media, and write callbacks scientifically, then hand proposal-ready
 plans to Core.
+
+Also avoid softer aliases such as article generator, autonomous writer, hosted
+article drafting, or Cloud writing assistant. Those labels create the same
+product expectation even when the code path still returns dry-run artifacts.
+
+Avoid hosted article drafting.
 
 ## Adapter and OpenClaw
 

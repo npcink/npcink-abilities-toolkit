@@ -184,6 +184,10 @@ foreach (
 		'does not provide a cloud writer',
 		'Toolbox owns the operator workbench',
 		'Core owns proposal intake',
+		'Complexity Budget',
+		'not a writing product',
+		'Do not add Abilities-owned article generation',
+		'hosted article drafting',
 		'OpenClaw benefits from the same map without receiving a special bypass',
 		'Cloud Addon should not implement cloud article writing',
 	) as $required
