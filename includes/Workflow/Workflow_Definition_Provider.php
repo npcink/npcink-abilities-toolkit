@@ -23,7 +23,7 @@ final class Workflow_Definition_Provider {
 	public static function manifest() {
 		return array(
 			'schema_version' => 'v1',
-			'purpose'        => 'AI consumer task replay and workflow definition cases for the first three workflow bundle entry points.',
+			'purpose'        => 'AI consumer task replay and workflow definition cases for local host-side ability recipes.',
 			'cases'          => self::definitions(),
 		);
 	}
@@ -35,7 +35,51 @@ final class Workflow_Definition_Provider {
 	 */
 	public static function definitions() {
 		return array(
-			'article_publish_preflight'      => array(
+			'article_draft'             => array(
+				'definition_kind'                => 'workflow_recipe',
+				'contract_version'               => 'v1',
+				'title'                          => 'Article draft handoff',
+				'natural_tasks'                  => array(
+					'Prepare a reviewed article draft plan.',
+					'Compose article metadata, links, media SEO, and review signals before creating a draft.',
+					'Build a local article draft handoff without using cloud writing.',
+				),
+				'preferred_ability_id'           => 'magick-ai/compose-article-draft-result',
+				'entrypoint_ability_id'          => 'magick-ai/compose-article-draft-result',
+				'expanded_ability_ids'           => array(
+					'magick-ai/resolve-post-metadata-plan',
+					'magick-ai/resolve-internal-link-targets',
+					'magick-ai/build-inline-image-blocks',
+					'magick-ai/build-media-seo-assets',
+					'magick-ai/review-article-output-light',
+					'magick-ai/compose-article-draft-result',
+				),
+				'recipe_id'                      => 'workflow/wordpress_article_draft',
+				'recipe_aliases'                 => array( 'article_draft_v1' ),
+				'required_scope'                 => 'cap.text.extract',
+				'required_inputs'                => array(),
+				'expected_sections'              => array(
+					'article',
+					'draft',
+					'metadata_plan_resolution',
+					'review',
+					'handoff',
+				),
+				'handoff'                        => array(
+					'kind'        => 'suggestion',
+					'owner'       => 'host',
+					'next_action' => 'review_local_article_draft_then_request_core_approval_for_create_draft',
+				),
+				'failure_policy'                 => 'fail_closed',
+				'disallowed_default_ability_ids' => array(
+					'magick-ai/create-draft',
+					'magick-ai/update-post',
+					'magick-ai/patch-post-content',
+					'magick-ai/publish-post',
+				),
+				'host_governed_write_boundary'   => true,
+			),
+			'article_publish_preflight' => array(
 				'definition_kind'                => 'workflow_recipe',
 				'contract_version'               => 'v1',
 				'title'                          => 'Article publish preflight',
@@ -168,6 +212,9 @@ final class Workflow_Definition_Provider {
 		$id = (string) $id;
 		foreach ( self::definitions() as $case_id => $definition ) {
 			if ( $id === $case_id || $id === (string) ( $definition['recipe_id'] ?? '' ) ) {
+				return $definition;
+			}
+			if ( isset( $definition['recipe_aliases'] ) && is_array( $definition['recipe_aliases'] ) && in_array( $id, $definition['recipe_aliases'], true ) ) {
 				return $definition;
 			}
 		}

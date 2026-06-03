@@ -3031,6 +3031,24 @@ maa_assert_true( is_array( $workflow_replay['cases'] ?? null ), 'agent workflow 
 $forbidden_workflow_definition_fields = \Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::forbidden_field_keys();
 maa_assert_array_omits_keys( $workflow_replay, $forbidden_workflow_definition_fields, 'agent workflow replay fixture' );
 $expected_workflow_replay_cases = array(
+	'article_draft'                  => array(
+		'ability_id'         => 'magick-ai/compose-article-draft-result',
+		'recipe_id'          => 'workflow/wordpress_article_draft',
+		'recipe_aliases'     => array( 'article_draft_v1' ),
+		'required_scope'     => 'cap.text.extract',
+		'required_inputs'    => array(),
+		'expected_sections'  => array( 'article', 'draft', 'metadata_plan_resolution', 'review', 'handoff' ),
+		'expanded_abilities' => array(
+			'magick-ai/resolve-post-metadata-plan',
+			'magick-ai/resolve-internal-link-targets',
+			'magick-ai/build-inline-image-blocks',
+			'magick-ai/build-media-seo-assets',
+			'magick-ai/review-article-output-light',
+			'magick-ai/compose-article-draft-result',
+		),
+		'handoff_kind'       => 'suggestion',
+		'disallowed_default' => array( 'magick-ai/create-draft', 'magick-ai/update-post', 'magick-ai/patch-post-content', 'magick-ai/publish-post' ),
+	),
 	'article_publish_preflight'      => array(
 		'ability_id'         => 'magick-ai/get-article-publish-preflight-context',
 		'recipe_id'          => 'workflow/wordpress_article_publish_preflight',
@@ -3080,7 +3098,7 @@ $expected_workflow_replay_cases = array(
 		'disallowed_default' => array( 'magick-ai/approve-comment', 'magick-ai/reply-comment', 'magick-ai/spam-comment', 'magick-ai/trash-comment' ),
 	),
 );
-maa_assert_same( array_keys( $expected_workflow_replay_cases ), array_keys( $workflow_replay['cases'] ), 'agent workflow replay fixture keeps the three approved stabilization cases in order' );
+maa_assert_same( array_keys( $expected_workflow_replay_cases ), array_keys( $workflow_replay['cases'] ), 'agent workflow replay fixture keeps the approved local recipe cases in order' );
 foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
 	$case = $workflow_replay['cases'][ $case_id ] ?? array();
 	maa_assert_true( is_array( $case ), "agent workflow replay case {$case_id} is an object" );
@@ -3091,6 +3109,9 @@ foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
 	maa_assert_same( $expected_case['ability_id'], $case['preferred_ability_id'] ?? '', "agent workflow replay case {$case_id} prefers the bundle ability" );
 	maa_assert_same( $expected_case['ability_id'], $case['entrypoint_ability_id'] ?? '', "agent workflow replay case {$case_id} exposes the preferred bundle as entrypoint" );
 	maa_assert_same( $expected_case['recipe_id'], $case['recipe_id'] ?? '', "agent workflow replay case {$case_id} keeps the recipe id" );
+	if ( isset( $expected_case['recipe_aliases'] ) ) {
+		maa_assert_same( $expected_case['recipe_aliases'], $case['recipe_aliases'] ?? array(), "agent workflow replay case {$case_id} keeps recipe aliases" );
+	}
 	maa_assert_same( $expected_case['required_scope'], $case['required_scope'] ?? '', "agent workflow replay case {$case_id} keeps the required scope" );
 	maa_assert_same( $expected_case['required_inputs'], $case['required_inputs'] ?? array(), "agent workflow replay case {$case_id} keeps required inputs" );
 	maa_assert_same( $expected_case['expected_sections'], $case['expected_sections'] ?? array(), "agent workflow replay case {$case_id} keeps expected output sections" );
@@ -3123,6 +3144,8 @@ foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
 
 $workflow_list = call_user_func( $package_abilities['magick-ai-abilities/list-workflow-recipes']['execute_callback'], array() );
 maa_assert_same( $workflow_manifest, $workflow_list, 'workflow recipe discovery ability returns provider manifest' );
+$workflow_draft_alias = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'article_draft_v1' ) );
+maa_assert_same( $workflow_manifest['cases']['article_draft'], $workflow_draft_alias, 'workflow recipe detail ability resolves article_draft_v1 alias' );
 $workflow_get = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/wordpress_comment_compliance_handoff' ) );
 maa_assert_same( $workflow_manifest['cases']['comment_compliance_handoff'], $workflow_get, 'workflow recipe detail ability resolves recipe id' );
 $workflow_missing = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
