@@ -2535,10 +2535,6 @@ final class Core_Write_Package {
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
-		if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_cloud_addon_unavailable', __( 'Cloud Addon artifact download is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-		}
-
 		$materialized = $this->materialize_cloud_media_derivative_artifact( $attachment_id, $plan );
 		if ( is_wp_error( $materialized ) ) {
 			return $materialized;
@@ -3776,7 +3772,19 @@ final class Core_Write_Package {
 	 */
 	private function materialize_cloud_media_derivative_artifact( $attachment_id, array $plan ) {
 		$artifact = is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array();
-		$download = magick_ai_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+		$download = apply_filters(
+			'magick_ai_abilities_cloud_media_derivative_artifact_download',
+			null,
+			$artifact,
+			(string) ( $plan['replacement_id'] ?? '' ),
+			absint( $attachment_id )
+		);
+		if ( null === $download ) {
+			if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_cloud_addon_unavailable', __( 'Cloud Addon artifact download is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			$download = magick_ai_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+		}
 		if ( is_wp_error( $download ) ) {
 			return $download;
 		}

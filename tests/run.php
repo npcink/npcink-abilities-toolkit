@@ -22,6 +22,7 @@ use Magick_AI_Abilities\Registry\Contract_Normalizer;
 use Magick_AI_Abilities\Registry\Schema_Normalizer;
 
 $assertions = 0;
+$core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
 
 function maa_assert_true( $condition, $message ) {
 	global $assertions;
@@ -955,12 +956,15 @@ maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'registe
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_post_fixture' ), 'WordPress smoke registers post fixtures for cleanup' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_comment_fixture' ), 'WordPress smoke registers comment fixtures for cleanup' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_attachment_fixture' ), 'WordPress smoke registers media fixtures for cleanup' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, '_magick_ai_abilities_smoke_fixture_run_id' ), 'WordPress smoke tags media fixtures with a run id' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_known_media_fixture_leak_ids' ), 'WordPress smoke detects reserved-prefix media leaks' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'magick_ai_abilities_smoke_register_term_fixture' ), 'WordPress smoke registers taxonomy term fixtures for cleanup' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_post' ), 'WordPress smoke permanently deletes post fixtures' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_comment' ), 'WordPress smoke permanently deletes comment fixtures' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_attachment' ), 'WordPress smoke permanently deletes media fixtures' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'wp_delete_term' ), 'WordPress smoke deletes taxonomy term fixtures' );
 maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'Smoke media fixture is deleted after smoke.' ), 'WordPress smoke asserts media fixtures are gone at the end' );
+maa_assert_true( is_string( $smoke_wp ) && false !== strpos( $smoke_wp, 'Smoke leaves no registered or reserved-prefix media fixtures behind.' ), 'WordPress smoke asserts no reserved-prefix media fixtures remain at the end' );
 $core_consumer_example = file_get_contents( __DIR__ . '/../examples/core-governance-consumer.php' );
 maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, 'magick_ai_abilities_get_registered' ), 'core governance consumer example uses ability discovery' );
 maa_assert_true( is_string( $core_consumer_example ) && false !== strpos( $core_consumer_example, "'ability_id' => \$ability_id" ), 'core governance consumer example prepares a real ability proposal payload' );
@@ -2391,6 +2395,7 @@ maa_assert_same( 'magick-ai/update-media-details', $media_optimization_plan['dat
 maa_assert_same( 'magick-ai/adopt-cloud-media-derivative', $media_optimization_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media optimization plan includes Cloud derivative adoption action' );
 maa_assert_same( false, $media_optimization_plan['data']['commit_execution'] ?? null, 'media optimization plan does not execute commits' );
 maa_assert_same( true, $media_optimization_plan['meta']['readonly'] ?? null, 'media optimization plan remains read-only' );
+maa_assert_true( false !== strpos( $core_write_package_source, 'magick_ai_abilities_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative exposes a bounded artifact download filter for integration smoke tests' );
 	$GLOBALS['maa_unit_style_posts'][88] = (object) array(
 		'ID'           => 88,
 		'post_title'   => 'Rename Reference Candidate',

@@ -88,11 +88,110 @@ function magick_ai_abilities_smoke_register_attachment_fixture( $attachment_id )
 	global $magick_ai_abilities_smoke_attachment_fixture_ids;
 
 	$attachment_id = (int) $attachment_id;
-	if ( $attachment_id <= 0 ) {
+	if ( $attachment_id <= 0 || 'attachment' !== get_post_type( $attachment_id ) ) {
 		return;
 	}
 
 	$magick_ai_abilities_smoke_attachment_fixture_ids[ $attachment_id ] = true;
+	update_post_meta( $attachment_id, '_magick_ai_abilities_smoke_fixture_run_id', magick_ai_abilities_smoke_run_id() );
+}
+
+/**
+ * Returns the current smoke run id.
+ *
+ * @return string
+ */
+function magick_ai_abilities_smoke_run_id() {
+	global $magick_ai_abilities_smoke_run_id;
+
+	return (string) $magick_ai_abilities_smoke_run_id;
+}
+
+/**
+ * Finds attachment fixtures tagged with the current run id.
+ *
+ * @return int[]
+ */
+function magick_ai_abilities_smoke_current_run_attachment_ids() {
+	return array_values(
+		array_unique(
+			array_filter(
+				array_map(
+					'absint',
+					get_posts(
+						array(
+							'fields'         => 'ids',
+							'meta_key'       => '_magick_ai_abilities_smoke_fixture_run_id',
+							'meta_value'     => magick_ai_abilities_smoke_run_id(),
+							'post_status'    => 'inherit',
+							'post_type'      => 'attachment',
+							'posts_per_page' => -1,
+						)
+					)
+				)
+			)
+		)
+	);
+}
+
+/**
+ * Finds reserved-prefix smoke media attachments.
+ *
+ * @return int[]
+ */
+function magick_ai_abilities_smoke_known_media_fixture_leak_ids() {
+	global $wpdb;
+
+	$ids      = array();
+	$prefixes = array(
+		'Npcink Abilities Toolkit Smoke ',
+		'npcink-abilities-toolkit-smoke-media-asset',
+	);
+
+	foreach ( $prefixes as $prefix ) {
+		$like = '%' . $wpdb->esc_like( $prefix ) . '%';
+		$rows = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT p.ID
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm
+					ON p.ID = pm.post_id
+					AND pm.meta_key = '_wp_attached_file'
+				WHERE p.post_type = 'attachment'
+					AND (
+						p.post_title LIKE %s
+						OR p.post_name LIKE %s
+						OR p.guid LIKE %s
+						OR pm.meta_value LIKE %s
+					)",
+				$like,
+				$like,
+				$like,
+				$like
+			)
+		);
+		$ids  = array_merge( $ids, array_map( 'absint', is_array( $rows ) ? $rows : array() ) );
+	}
+
+	return array_values( array_unique( array_filter( $ids ) ) );
+}
+
+/**
+ * Asserts no known smoke media fixture remains in the media library.
+ *
+ * @return void
+ */
+function magick_ai_abilities_smoke_assert_no_media_fixture_leaks() {
+	$leaks = array_values(
+		array_unique(
+			array_merge(
+				magick_ai_abilities_smoke_current_run_attachment_ids(),
+				magick_ai_abilities_smoke_known_media_fixture_leak_ids()
+			)
+		)
+	);
+
+	magick_ai_abilities_smoke_assert( empty( $leaks ), 'Smoke leaves no registered or reserved-prefix media fixtures behind.' );
 }
 
 /**
@@ -142,7 +241,18 @@ function magick_ai_abilities_smoke_cleanup_fixtures() {
 		}
 	}
 
-	foreach ( array_keys( (array) $magick_ai_abilities_smoke_attachment_fixture_ids ) as $attachment_id ) {
+	$attachment_ids = array_values(
+		array_unique(
+			array_filter(
+				array_merge(
+					array_map( 'absint', array_keys( (array) $magick_ai_abilities_smoke_attachment_fixture_ids ) ),
+					magick_ai_abilities_smoke_current_run_attachment_ids(),
+					magick_ai_abilities_smoke_known_media_fixture_leak_ids()
+				)
+			)
+		)
+	);
+	foreach ( $attachment_ids as $attachment_id ) {
 		$attachment_id = (int) $attachment_id;
 		if ( $attachment_id <= 0 || 'attachment' !== get_post_type( $attachment_id ) ) {
 			continue;
@@ -1237,6 +1347,7 @@ magick_ai_abilities_smoke_cleanup_fixtures();
 magick_ai_abilities_smoke_assert( null === get_comment( (int) $smoke_comment_id ), 'Smoke comment fixture is deleted after smoke.' );
 magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_page_id ), 'Smoke page fixture is deleted after smoke.' );
 magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_attachment_id ), 'Smoke media fixture is deleted after smoke.' );
+magick_ai_abilities_smoke_assert_no_media_fixture_leaks();
 magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_candidate_id ), 'Smoke candidate post fixture is deleted after smoke.' );
 magick_ai_abilities_smoke_assert( false === get_post_type( (int) $smoke_post_id ), 'Smoke context post fixture is deleted after smoke.' );
 if ( ! empty( $smoke_tag_created ) ) {
