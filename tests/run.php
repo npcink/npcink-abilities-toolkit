@@ -1085,7 +1085,7 @@ maa_assert_same( 'external', $package_abilities['magick-ai/upload-media-from-url
 maa_assert_true( isset( $package_abilities['magick-ai/upload-media-from-url']['input_schema']['properties']['file_name'] ), 'upload-media-from-url accepts an approved custom media file name' );
 maa_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'optimize-media-asset exposes bounded derivative formats' );
 maa_assert_same( 82, $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
-maa_assert_same( array( 'replace', 'rollback' ), $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode']['enum'] ?? array(), 'replace-media-file exposes bounded replacement modes' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode'] ), 'replace-media-file does not expose media restore modes' );
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
 maa_assert_true( isset( $package_abilities['magick-ai/list-media-backups'] ), 'list-media-backups is registered as a read-only media history ability' );
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/list-media-backups']['input_schema']['required'] ?? array(), 'list-media-backups requires attachment id' );
@@ -2863,17 +2863,25 @@ maa_assert_same( true, $media_restore_preview['dry_run'] ?? null, 'restore-media
 maa_assert_same( false, $media_restore_preview['restored'] ?? null, 'restore-media-backup dry-run does not switch files' );
 maa_assert_same( '2026/06/workflow-diagram-image.jpg', $media_restore_preview['after']['relative_file'] ?? '', 'restore-media-backup targets the original public media path' );
 maa_assert_true( false !== strpos( (string) ( $media_restore_preview['current_backup']['relative_file'] ?? '' ), 'magick-ai-restore-backup' ), 'restore-media-backup plans a backup of the current main file before restore' );
-$media_rollback_preview = $core_write_package->replace_media_file(
+update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
+$GLOBALS['maa_unit_style_posts'][79]->post_mime_type = 'image/jpeg';
+update_post_meta(
+	79,
+	'_wp_attachment_metadata',
 	array(
-		'attachment_id'  => 79,
-		'mode'           => 'rollback',
-		'replacement_id' => 'media_replace_unit',
+		'width'    => 2600,
+		'height'   => 1400,
+		'file'     => '2026/06/workflow-diagram-image.jpg',
+		'filesize' => 900000,
+		'sizes'    => array(
+			'medium' => array(
+				'file'   => 'workflow-diagram-image-300x162.jpg',
+				'width'  => 300,
+				'height' => 162,
+			),
+		),
 	)
 );
-maa_assert_same( true, $media_rollback_preview['dry_run'] ?? null, 'replace-media-file rollback defaults to dry-run preview' );
-maa_assert_same( false, $media_rollback_preview['rolled_back'] ?? null, 'replace-media-file rollback dry-run does not switch files' );
-maa_assert_same( 'rollback', $media_rollback_preview['mode'] ?? '', 'replace-media-file supports rollback mode' );
-maa_assert_same( 'magick-ai-backups/2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg', $media_rollback_preview['after']['relative_file'] ?? '', 'replace-media-file rollback targets recorded backup file' );
 $GLOBALS['maa_unit_style_posts'][83] = (object) array(
 	'ID'           => 83,
 	'post_title'   => 'Media Reference Repair Candidate',

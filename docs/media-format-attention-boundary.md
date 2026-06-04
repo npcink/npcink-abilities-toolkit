@@ -79,11 +79,13 @@ contracts:
 - `magick-ai/convert-media-format`: format conversion such as WebP or AVIF.
   This should start as derivative generation, not direct replacement.
 - `magick-ai/replace-media-file`: highest-risk path for switching an
-  attachment file. Require backup, rollback, approval, and strict preview.
+  attachment file to an approved derivative. Require backup, approval, and
+  strict preview.
 - `magick-ai/list-media-backups`: read-only backup history discovery for one
   attachment before any restore proposal is prepared.
-- `magick-ai/restore-media-backup`: host-approved rollback path that restores an
-  attachment pointer to a recorded backup file from replacement history.
+- `magick-ai/restore-media-backup`: host-approved restore path that copies a
+  recorded backup back to the original attachment path, restoring the original
+  public media URL.
 - `magick-ai/adopt-cloud-media-derivative`: approved local adoption path for a
   non-expired Cloud derivative artifact. Require artifact evidence, backup,
   rollback metadata, and host approval before commit.
@@ -93,7 +95,7 @@ Recommended rollout order:
 1. Read-only inspection and inventory diagnostics.
 2. Dry-run derivative preview that does not replace the original.
 3. Host-approved commit for derivative generation.
-4. Separate replacement or rollback flow only after backup and cache behavior
+4. Separate replacement and restore flows only after backup and cache behavior
    are documented.
 
 ## Guardrails
