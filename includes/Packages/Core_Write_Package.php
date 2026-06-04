@@ -729,8 +729,9 @@ final class Core_Write_Package {
 						'replacement_id'     => array( 'type' => 'string' ),
 						'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
-						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
-						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+								'current_backup'     => array( 'type' => 'object', 'additionalProperties' => true ),
+								'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
 						'dry_run'            => array( 'type' => 'boolean' ),
@@ -738,6 +739,44 @@ final class Core_Write_Package {
 					array( 'attachment_id', 'mode', 'replaced', 'rolled_back', 'original_preserved', 'dry_run' )
 					),
 					'execute_callback' => array( $this, 'replace_media_file' ),
+				),
+				'magick-ai/restore-media-backup' => array(
+					'label'           => __( 'Restore Media Backup', 'npcink-abilities-toolkit' ),
+					'description'     => __( 'Restores one attachment main file pointer to a recorded media operation backup after host approval.', 'npcink-abilities-toolkit' ),
+					'category'        => 'magick-ai-write',
+					'capability'      => 'upload_files',
+					'required_scopes' => array( 'media.write' ),
+					'channels'        => array( 'agent', 'mcp' ),
+					'meta'            => $this->write_meta(),
+					'input_schema'    => $this->schema(
+						array(
+							'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
+								'backup_id'                      => array( 'type' => 'string', 'minLength' => 1 ),
+								'expected_current_relative_file' => array( 'type' => 'string' ),
+								'expected_current_mime_type'     => array( 'type' => 'string' ),
+								'target_conflict_mode'           => array( 'type' => 'string', 'enum' => array( 'fail', 'overwrite' ), 'default' => 'fail' ),
+							),
+							array( 'attachment_id', 'backup_id' )
+						),
+					'output_schema'   => $this->schema(
+						array(
+							'attachment_id'      => array( 'type' => 'integer' ),
+							'backup_id'          => array( 'type' => 'string' ),
+							'replacement_id'     => array( 'type' => 'string' ),
+							'restored'           => array( 'type' => 'boolean' ),
+							'rolled_back'        => array( 'type' => 'boolean' ),
+							'original_preserved' => array( 'type' => 'boolean' ),
+							'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
+							'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
+							'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+							'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+							'edit_link'          => array( 'type' => 'string' ),
+							'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'dry_run'            => array( 'type' => 'boolean' ),
+						),
+						array( 'attachment_id', 'backup_id', 'restored', 'rolled_back', 'original_preserved', 'dry_run' )
+					),
+					'execute_callback' => array( $this, 'restore_media_backup' ),
 				),
 				'magick-ai/rename-media-file' => array(
 					'label'           => __( 'Rename Media File', 'npcink-abilities-toolkit' ),
@@ -808,6 +847,8 @@ final class Core_Write_Package {
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'artifact'           => array( 'type' => 'object', 'additionalProperties' => true ),
+						'proposed_filename'  => array( 'type' => 'string' ),
+						'filename_policy'    => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -2309,6 +2350,81 @@ final class Core_Write_Package {
 		}
 
 		/**
+		 * Restores one attachment pointer to a recorded media backup.
+		 *
+		 * @param mixed $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		public function restore_media_backup( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to restore media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$attachment_id = absint( $input['attachment_id'] ?? 0 );
+			$attachment = $this->get_media_attachment( $attachment_id );
+			if ( is_wp_error( $attachment ) ) {
+				return $attachment;
+			}
+			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to restore this media file.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$backup_id = sanitize_text_field( (string) ( $input['backup_id'] ?? '' ) );
+			if ( '' === $backup_id ) {
+				return new \WP_Error( 'magick_ai_abilities_backup_id_required', __( 'A backup_id is required for media backup restore.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$plan = $this->build_media_backup_restore_plan( $attachment_id, $input );
+			if ( is_wp_error( $plan ) ) {
+				return $plan;
+			}
+
+			$payload = array(
+				'attachment_id'      => $attachment_id,
+				'backup_id'          => $backup_id,
+				'replacement_id'     => (string) ( $plan['replacement_id'] ?? '' ),
+				'restored'           => false,
+				'rolled_back'        => false,
+				'original_preserved' => true,
+				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+				'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
+				'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+				'current_backup'     => is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array(),
+				'history'            => $this->get_media_file_replacement_history( $attachment_id ),
+				'edit_link'          => $this->edit_link( $attachment_id ),
+				'preview'            => array(
+					'action'         => 'restore_media_backup',
+					'attachment_id'  => $attachment_id,
+					'backup_id'      => $backup_id,
+					'restore_ready'  => true,
+					'target_file'    => (string) ( $plan['_target_relative_file'] ?? '' ),
+				),
+			);
+			if ( $this->should_dry_run( $input ) ) {
+				return $this->dry_run_payload( $payload );
+			}
+			$allowed = $this->assert_commit_allowed( 'magick-ai/restore-media-backup', $input );
+			if ( is_wp_error( $allowed ) ) {
+				return $allowed;
+			}
+
+			$result = $this->execute_media_backup_restore( $attachment_id, $plan );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$payload['restored'] = ! empty( $result['rolled_back'] );
+			$payload['rolled_back'] = ! empty( $result['rolled_back'] );
+			$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
+			$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+			$payload['current_backup'] = is_array( $result['current_backup'] ?? null ) ? $result['current_backup'] : $payload['current_backup'];
+			$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
+			$payload['dry_run'] = false;
+			unset( $payload['preview'] );
+			return $payload;
+		}
+
+		/**
 		 * Renames one attachment main file within its current uploads directory.
 		 *
 		 * @param mixed $input Input args.
@@ -2409,6 +2525,8 @@ final class Core_Write_Package {
 			'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
 			'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
 			'artifact'           => is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array(),
+			'proposed_filename'  => $this->sanitize_media_file_name( (string) ( $plan['proposed_filename'] ?? '' ) ),
+			'filename_policy'    => is_array( $plan['filename_policy'] ?? null ) ? $this->sanitize_payload( $plan['filename_policy'] ) : array(),
 			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
 			'edit_link'          => $this->edit_link( $attachment_id ),
 			'preview'            => array(
@@ -2876,12 +2994,18 @@ final class Core_Write_Package {
 					'best_for'        => array( 'Applying a reviewed filename from a host/OpenClaw naming policy after inspecting current file hashes and path evidence.' ),
 					'stopping_points' => array( 'Default to dry_run; final commit requires host approval context, optimistic current-file checks, backup, and rollback metadata.' ),
 				),
+				'magick-ai/restore-media-backup' => array(
+					'when_to_use'     => array( 'Prepare or commit restoring one attachment pointer to a recorded media backup after list-media-backups identifies the backup id.' ),
+					'not_for'         => array( 'Do not use this for site-level backup restore, arbitrary file copies, media deletion, or bypassing Core approval.' ),
+					'best_for'        => array( 'Rolling back a reviewed media replacement, Cloud derivative adoption, or rename using existing backup metadata.' ),
+					'stopping_points' => array( 'Default to dry_run; final restore requires host approval context and optimistic current-file checks when available.' ),
+				),
 				'magick-ai/approve-comment' => array(
 					'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
 					'not_for'         => array( 'Do not use this to generate replies, spam comments, trash comments, or moderate without human policy review.' ),
 					'best_for'        => array( 'Executing a reviewed approve action that was prepared by comment compliance handoff context.' ),
 					'stopping_points' => array( 'Default to dry_run; final comment status changes require host approval context and idempotency protection.' ),
-			),
+				),
 		);
 
 		if ( isset( $usage[ $ability_id ] ) ) {
@@ -2924,6 +3048,27 @@ final class Core_Write_Package {
 			$schema['required'] = $required;
 		}
 		return $schema;
+	}
+
+	/**
+	 * Sanitizes a bounded mixed payload for public preview output.
+	 *
+	 * @param mixed $payload Raw payload.
+	 * @return mixed
+	 */
+	private function sanitize_payload( $payload ) {
+		if ( is_array( $payload ) ) {
+			$clean = array();
+			foreach ( $payload as $key => $value ) {
+				$clean_key = is_string( $key ) ? sanitize_key( $key ) : (int) $key;
+				$clean[ $clean_key ] = $this->sanitize_payload( $value );
+			}
+			return $clean;
+		}
+		if ( is_bool( $payload ) || is_int( $payload ) || is_float( $payload ) || null === $payload ) {
+			return $payload;
+		}
+		return sanitize_text_field( (string) $payload );
 	}
 
 	/**
@@ -3508,7 +3653,11 @@ final class Core_Write_Package {
 		$backup_suffix = sanitize_key( (string) ( $input['backup_suffix'] ?? 'magick-ai-cloud-backup' ) );
 		$backup_suffix = '' !== $backup_suffix ? substr( $backup_suffix, 0, 48 ) : 'magick-ai-cloud-backup';
 		$backup_relative = $this->backup_relative_file_for_current_media( $current, $replacement_id, $backup_suffix );
-		$derivative = $this->cloud_artifact_derivative_state( $attachment_id, $current, $artifact, (string) ( $input['file_name'] ?? '' ) );
+		$reviewed_file_name = $this->sanitize_media_file_name( (string) ( $input['file_name'] ?? '' ) );
+		if ( '' === $reviewed_file_name ) {
+			$reviewed_file_name = $this->sanitize_media_file_name( (string) ( $artifact['suggested_filename'] ?? '' ) );
+		}
+		$derivative = $this->cloud_artifact_derivative_state( $attachment_id, $current, $artifact, $reviewed_file_name );
 		$after = $this->media_file_state_from_derivative( $attachment_id, $derivative );
 
 		return array(
@@ -3523,6 +3672,14 @@ final class Core_Write_Package {
 				'height'        => absint( $current['height'] ?? 0 ),
 			),
 			'artifact'       => $artifact,
+			'proposed_filename' => $reviewed_file_name,
+			'filename_policy' => array(
+				'owner'                          => 'wordpress_write_ability_final',
+				'proposed_filename'              => $reviewed_file_name,
+				'final_sanitize_unique_required' => true,
+				'preserve_attachment_metadata'   => true,
+				'source'                         => '' !== (string) ( $input['file_name'] ?? '' ) ? 'reviewed_input' : 'cloud_artifact_suggestion',
+			),
 			'_current'       => $current,
 			'_derivative'    => $derivative,
 			'_backup_relative_file' => $backup_relative,
@@ -3575,6 +3732,8 @@ final class Core_Write_Package {
 			'filesize_bytes'      => absint( $artifact['filesize_bytes'] ?? 0 ),
 			'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? $artifact['sha256'] ?? '' ) ),
 			'sha256'              => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
+			'suggested_filename'  => $this->sanitize_media_file_name( (string) ( $artifact['suggested_filename'] ?? '' ) ),
+			'filename_basis'      => is_array( $artifact['filename_basis'] ?? null ) ? $this->sanitize_payload( $artifact['filename_basis'] ) : array(),
 			'processing_warnings' => array_values( array_filter( array_map( 'sanitize_text_field', (array) ( $artifact['processing_warnings'] ?? array() ) ) ) ),
 		);
 	}
@@ -3838,7 +3997,7 @@ final class Core_Write_Package {
 	 * @param array<string,mixed> $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	private function build_media_file_rollback_plan( $attachment_id, array $input ) {
+		private function build_media_file_rollback_plan( $attachment_id, array $input ) {
 		$attachment_id = absint( $attachment_id );
 		$current = $this->current_media_file_state( $attachment_id );
 		if ( is_wp_error( $current ) ) {
@@ -3879,11 +4038,94 @@ final class Core_Write_Package {
 			'_current'       => $current,
 			'_history'       => $history,
 			'_backup_relative_file' => $backup_relative,
-		);
-	}
+			);
+		}
 
-	/**
-	 * Executes a file replacement by switching the attachment pointer.
+		/**
+		 * Builds a restore plan that copies a recorded backup back to its original path.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param array<string,mixed> $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		private function build_media_backup_restore_plan( $attachment_id, array $input ) {
+			$attachment_id = absint( $attachment_id );
+			$current = $this->current_media_file_state( $attachment_id );
+			if ( is_wp_error( $current ) ) {
+				return $current;
+			}
+			$expected_error = $this->validate_media_expected_state( $current, $input );
+			if ( is_wp_error( $expected_error ) ) {
+				return $expected_error;
+			}
+
+			$backup_id = sanitize_text_field( (string) ( $input['backup_id'] ?? '' ) );
+			if ( '' === $backup_id ) {
+				return new \WP_Error( 'magick_ai_abilities_backup_id_required', __( 'A backup_id is required for media backup restore.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$history = $this->find_media_file_replacement_history( $attachment_id, $backup_id );
+			if ( empty( $history ) ) {
+				return new \WP_Error( 'magick_ai_abilities_replacement_not_found', __( 'Replacement history was not found for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+
+			$backup = is_array( $history['backup'] ?? null ) ? $history['backup'] : array();
+			$backup_relative = $this->normalize_media_relative_file( (string) ( $backup['relative_file'] ?? '' ) );
+			$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
+			if ( '' === $backup_relative || '' === $backup_path || ! is_readable( $backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_backup_file_unavailable', __( 'The backup file is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			$original = is_array( $history['before'] ?? null ) ? $history['before'] : array();
+			$target_relative = $this->normalize_media_relative_file( (string) ( $original['relative_file'] ?? '' ) );
+			$target_path = $this->media_uploads_path_for_relative_file( $target_relative );
+			if ( '' === $target_relative || '' === $target_path ) {
+				return new \WP_Error( 'magick_ai_abilities_restore_target_unavailable', __( 'The original media file path is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			$conflict_mode = sanitize_key( (string) ( $input['target_conflict_mode'] ?? 'fail' ) );
+			$conflict_mode = in_array( $conflict_mode, array( 'fail', 'overwrite' ), true ) ? $conflict_mode : 'fail';
+			if ( file_exists( $target_path ) && 'overwrite' !== $conflict_mode && md5_file( $target_path ) !== md5_file( $backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			$restore_id = 'media_restore_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . $backup_id . '|' . $target_relative . '|' . microtime( true ) ), 0, 8 );
+			$current_backup_relative = $this->backup_relative_file_for_current_media( $current, $restore_id, 'magick-ai-restore-backup' );
+			$after = array(
+				'relative_file'  => $target_relative,
+				'url'            => $this->media_url_for_relative_file( $target_relative ),
+				'file_basename'  => $this->sanitize_media_file_name( basename( $target_relative ) ),
+				'mime_type'      => sanitize_text_field( (string) ( $backup['mime_type'] ?? $original['mime_type'] ?? '' ) ),
+				'width'          => absint( $backup['width'] ?? $original['width'] ?? 0 ),
+				'height'         => absint( $backup['height'] ?? $original['height'] ?? 0 ),
+				'filesize_bytes' => absint( filesize( $backup_path ) ),
+			);
+
+			return array(
+				'replacement_id' => $backup_id,
+				'restore_id'     => $restore_id,
+				'conflict_mode'  => $conflict_mode,
+				'before'         => $this->public_media_file_state( $current ),
+				'after'          => $after,
+				'backup'         => $backup,
+				'current_backup' => array(
+					'relative_file' => $current_backup_relative,
+					'url'           => $this->media_url_for_relative_file( $current_backup_relative ),
+					'mime_type'     => (string) ( $current['mime_type'] ?? '' ),
+					'width'         => absint( $current['width'] ?? 0 ),
+					'height'        => absint( $current['height'] ?? 0 ),
+				),
+				'_current'       => $current,
+				'_history'       => $history,
+				'_backup_relative_file' => $backup_relative,
+				'_backup_path'   => $backup_path,
+				'_target_relative_file' => $target_relative,
+				'_target_path'   => $target_path,
+				'_current_backup_relative_file' => $current_backup_relative,
+			);
+		}
+
+		/**
+		 * Executes a file replacement by switching the attachment pointer.
 	 *
 	 * @param int                 $attachment_id Attachment id.
 	 * @param array<string,mixed> $plan Replacement plan.
@@ -3997,6 +4239,74 @@ final class Core_Write_Package {
 				'renamed' => true,
 				'after'   => $after,
 				'backup'  => $backup,
+			);
+		}
+
+		/**
+		 * Executes an approved restore by copying a backup to its original path.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param array<string,mixed> $plan Restore plan.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		private function execute_media_backup_restore( $attachment_id, array $plan ) {
+			$attachment_id = absint( $attachment_id );
+			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+			$current_path = (string) ( $current['file_path'] ?? '' );
+			$backup_path = (string) ( $plan['_backup_path'] ?? '' );
+			$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
+			$target_path = (string) ( $plan['_target_path'] ?? '' );
+			$current_backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_current_backup_relative_file'] ?? '' ) );
+			$current_backup_path = $this->media_uploads_path_for_relative_file( $current_backup_relative );
+			if ( '' === $current_path || ! is_readable( $current_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'The current attachment file is unavailable for restore backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' === $backup_path || ! is_readable( $backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_backup_file_unavailable', __( 'The backup file is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' === $target_relative || '' === $target_path ) {
+				return new \WP_Error( 'magick_ai_abilities_restore_target_unavailable', __( 'The original media file path is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( file_exists( $target_path ) && 'overwrite' !== (string) ( $plan['conflict_mode'] ?? 'fail' ) && md5_file( $target_path ) !== md5_file( $backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' === $current_backup_path || ! $this->ensure_media_directory( dirname( $current_backup_path ) ) || ! copy( $current_path, $current_backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			}
+			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! copy( $backup_path, $target_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_restore_failed', __( 'The backup file could not be restored to the original path.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			}
+
+			$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+			$after['filesize_bytes'] = absint( filesize( $target_path ) );
+			$current_backup = is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array();
+			$current_backup['filesize_bytes'] = absint( filesize( $current_backup_path ) );
+			$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $after );
+			if ( is_wp_error( $updated ) ) {
+				return $updated;
+			}
+			$this->mark_media_file_replacement_rolled_back( $attachment_id, (string) ( $plan['replacement_id'] ?? '' ) );
+			$this->append_media_file_replacement_history(
+				$attachment_id,
+				array(
+					'replacement_id'     => (string) ( $plan['restore_id'] ?? '' ),
+					'operation'          => 'restore_media_backup',
+					'status'             => 'active',
+					'replaced_at_gmt'    => gmdate( 'c' ),
+					'rolled_back_at_gmt' => '',
+					'restored_from'      => (string) ( $plan['replacement_id'] ?? '' ),
+					'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+					'after'              => $after,
+					'backup'             => $current_backup,
+				)
+			);
+
+			return array(
+				'restored'       => true,
+				'rolled_back'    => true,
+				'after'          => $after,
+				'backup'         => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+				'current_backup' => $current_backup,
 			);
 		}
 
@@ -4343,7 +4653,7 @@ final class Core_Write_Package {
 		}
 
 		/**
-		 * Builds a backup relative file beside the current file.
+		 * Builds a backup relative file in the dedicated uploads backup directory.
 		 *
 		 * @param array<string,mixed> $current Current media state.
 	 * @param string              $replacement_id Replacement id.
@@ -4352,13 +4662,14 @@ final class Core_Write_Package {
 	 */
 	private function backup_relative_file_for_current_media( array $current, $replacement_id, $backup_suffix ) {
 		$current_relative = $this->normalize_media_relative_file( (string) ( $current['relative_file'] ?? '' ) );
-		$dir = dirname( $current_relative );
-		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$current_dir = dirname( $current_relative );
+		$current_dir = '.' !== $current_dir ? trim( $current_dir, '/' ) : '';
+		$backup_dir = 'magick-ai-backups' . ( '' !== $current_dir ? '/' . $current_dir : '' );
 		$basename = $this->sanitize_media_file_name( basename( $current_relative ) );
 		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
 		$extension = pathinfo( $basename, PATHINFO_EXTENSION );
 		$backup_name = $this->sanitize_media_file_name( (string) $stem . '-' . sanitize_key( (string) $backup_suffix ) . '-' . sanitize_key( (string) $replacement_id ) . ( '' !== $extension ? '.' . $extension : '' ) );
-		return '' !== $dir ? $dir . '/' . $backup_name : $backup_name;
+		return $backup_dir . '/' . $backup_name;
 	}
 
 	/**
@@ -4473,7 +4784,7 @@ final class Core_Write_Package {
 		if ( function_exists( 'wp_mkdir_p' ) && wp_mkdir_p( $directory ) ) {
 			return true;
 		}
-		return false;
+		return mkdir( $directory, 0755, true ) || is_dir( $directory );
 	}
 
 	/**

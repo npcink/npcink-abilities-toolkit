@@ -46,6 +46,7 @@ Representative abilities:
 - `magick-ai/resolve-media-attachment-by-url`
 - `magick-ai/get-media-inventory-health`
 - `magick-ai/inspect-media-asset`
+- `magick-ai/list-media-backups`
 - `magick-ai/build-media-derivative-cloud-request`
 - `magick-ai/build-media-optimization-plan`
 - `magick-ai/build-media-rename-plan`
@@ -110,6 +111,7 @@ Representative write abilities:
 - `magick-ai/upload-media-from-url`
 - `magick-ai/optimize-media-asset`
 - `magick-ai/replace-media-file`
+- `magick-ai/restore-media-backup`
 - `magick-ai/rename-media-file`
 - `magick-ai/adopt-cloud-media-derivative`
 - `magick-ai/set-post-featured-image`
@@ -120,7 +122,9 @@ Representative write abilities:
 Media filename policy: `magick-ai/upload-media-from-url` and
 `magick-ai/adopt-cloud-media-derivative` may accept an approved `file_name` for
 new local media files. `magick-ai/rename-media-file` may rename an existing
-attachment main file within its current uploads directory after approval.
+attachment main file within its current uploads directory after approval; use
+`magick-ai/build-media-rename-plan` so exact post-content references to the old
+uploads URL are patched in the same governed proposal.
 `magick-ai/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 
