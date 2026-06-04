@@ -152,6 +152,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/get-post-blocks`
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
+- `magick-ai/resolve-media-attachment-by-url`
 - `magick-ai/list-terms`
 - `magick-ai/list-taxonomy-terms`
 - `magick-ai/list-categories`

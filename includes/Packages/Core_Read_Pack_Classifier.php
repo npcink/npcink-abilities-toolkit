@@ -53,6 +53,7 @@ final class Core_Read_Pack_Classifier {
 				'magick-ai/list-post-types'                         => 'core_wordpress_read',
 			'magick-ai/list-taxonomies'                         => 'core_wordpress_read',
 			'magick-ai/list-media'                              => 'media_governance',
+			'magick-ai/resolve-media-attachment-by-url'         => 'media_governance',
 			'magick-ai/list-terms'                              => 'taxonomy_governance',
 			'magick-ai/list-taxonomy-terms'                     => 'taxonomy_governance',
 			'magick-ai/list-categories'                         => 'taxonomy_governance',

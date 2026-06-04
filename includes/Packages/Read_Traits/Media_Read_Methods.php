@@ -124,6 +124,94 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Resolves a same-site uploads URL to bounded attachment candidates.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function resolve_media_attachment_by_url( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to resolve media attachments.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+		}
+
+		$raw_url = trim( (string) ( $input['url'] ?? '' ) );
+		$max_candidates = max( 1, min( 20, $this->absint_value( $input['max_candidates'] ?? 10 ) ) );
+		$normalized = $this->normalize_media_attachment_resolution_url( $raw_url );
+		if ( is_wp_error( $normalized ) ) {
+			return $normalized;
+		}
+
+		$relative_file = (string) ( $normalized['requested_relative_file'] ?? '' );
+		$candidates = $this->find_media_attachment_url_resolution_candidates( $relative_file, $max_candidates );
+		$strong_matches = array_values(
+			array_filter(
+				$candidates,
+				static function ( $candidate ) {
+					return is_array( $candidate ) && (int) ( $candidate['match_score'] ?? 0 ) >= 90;
+				}
+			)
+		);
+
+		$attachment_id = 0;
+		$match_status = 'not_found';
+		$resolution_quality = 'none';
+		$warnings = array();
+
+		if ( 1 === count( $strong_matches ) ) {
+			$attachment_id = $this->absint_value( $strong_matches[0]['attachment_id'] ?? 0 );
+			$match_status = 'resolved';
+			$resolution_quality = 'metadata_size_file' === (string) ( $strong_matches[0]['match_type'] ?? '' ) ? 'size_variant' : 'exact';
+		} elseif ( count( $strong_matches ) > 1 ) {
+			$match_status = 'ambiguous';
+			$resolution_quality = 'candidate';
+			$warnings[] = 'multiple_strong_matches';
+		} elseif ( ! empty( $candidates ) ) {
+			$match_status = 'candidate';
+			$resolution_quality = 'candidate';
+			$warnings[] = 'filename_candidate_requires_inspection';
+		} else {
+			$warnings[] = 'no_attachment_candidate_found';
+		}
+
+		$data = array(
+			'resolver_contract_version' => 'media_attachment_url_resolution.v1',
+			'readonly'                  => true,
+			'input_url'                 => $raw_url,
+			'normalized_url'            => (string) ( $normalized['normalized_url'] ?? '' ),
+			'uploads_base_url'          => (string) ( $normalized['uploads_base_url'] ?? '' ),
+			'requested_relative_file'   => $relative_file,
+			'match_status'              => $match_status,
+			'resolution_quality'        => $resolution_quality,
+			'candidates'                => $candidates,
+			'warnings'                  => $warnings,
+			'boundary'                  => array(
+				'owner'                       => 'local_wordpress_host',
+				'readonly'                    => true,
+				'wordpress_write_included'    => false,
+				'proposal_created'            => false,
+				'approval_decision_included'  => false,
+				'canonical_media_truth_included' => false,
+				'suggested_next_step'         => 'Use the resolved attachment_id only after reviewing match evidence; if ambiguous, inspect candidates before creating any Core proposal.',
+			),
+		);
+		if ( $attachment_id > 0 ) {
+			$data['attachment_id'] = $attachment_id;
+		}
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_media_attachment_url_resolution',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+				'plan_only'      => true,
+			),
+			'Media attachment URL resolution completed.'
+		);
+	}
+
+	/**
 	 * Builds bounded usage context for one attachment.
 	 *
 	 * @param int $attachment_id Attachment ID.
@@ -1521,6 +1609,368 @@ trait Media_Read_Methods {
 			'caption'     => $this->trim_media_seo_text( $caption_seed, 160 ),
 			'description' => $this->trim_media_seo_text( $description_seed, 220 ),
 		);
+	}
+
+	/**
+	 * Normalizes and validates a media URL resolver input.
+	 *
+	 * @param string $raw_url Raw URL.
+	 * @return array<string,string>|\WP_Error
+	 */
+	private function normalize_media_attachment_resolution_url( $raw_url ) {
+		$raw_url = trim( (string) $raw_url );
+		if ( '' === $raw_url ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'A media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$uploads_base_url = $this->media_upload_base_url();
+		$base_parts = $this->parse_url_value( $uploads_base_url );
+		if ( empty( $base_parts['scheme'] ) || empty( $base_parts['host'] ) || empty( $base_parts['path'] ) ) {
+			return new \WP_Error( 'magick_ai_abilities_upload_base_unavailable', __( 'The local uploads base URL is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		}
+
+		$normalized_url = $raw_url;
+		if ( 0 === strpos( $raw_url, '/' ) && 0 !== strpos( $raw_url, '//' ) ) {
+			$normalized_url = (string) $base_parts['scheme'] . '://' . (string) $base_parts['host'] . $raw_url;
+		}
+		$normalized_url = $this->esc_url_value( $normalized_url );
+		$url_parts = $this->parse_url_value( $normalized_url );
+		if ( empty( $url_parts['scheme'] ) || empty( $url_parts['host'] ) || empty( $url_parts['path'] ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_invalid', __( 'The media URL must be an absolute same-site uploads URL or a root-relative uploads URL.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$base_host = strtolower( (string) $base_parts['host'] );
+		$url_host = strtolower( (string) $url_parts['host'] );
+		if ( $base_host !== $url_host ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_external', __( 'Only local uploads URLs can be resolved to media attachments.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$base_path = rtrim( $this->normalize_url_path( (string) $base_parts['path'] ), '/' ) . '/';
+		$url_path = $this->normalize_url_path( (string) $url_parts['path'] );
+		if ( 0 !== strpos( $url_path, $base_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_not_uploads', __( 'Only URLs under the local uploads directory can be resolved.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		$relative_file = ltrim( rawurldecode( substr( $url_path, strlen( $base_path ) ) ), '/' );
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		if ( '' === $relative_file || false !== strpos( $relative_file, '..' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_url_path_invalid', __( 'The uploads URL path is not a valid media file path.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		}
+
+		return array(
+			'normalized_url'          => (string) $url_parts['scheme'] . '://' . (string) $url_parts['host'] . $url_path,
+			'uploads_base_url'        => rtrim( $uploads_base_url, '/' ),
+			'requested_relative_file' => $relative_file,
+		);
+	}
+
+	/**
+	 * Returns the local uploads base URL.
+	 *
+	 * @return string
+	 */
+	private function media_upload_base_url() {
+		if ( function_exists( 'wp_get_upload_dir' ) ) {
+			$uploads = wp_get_upload_dir();
+			if ( is_array( $uploads ) && ! empty( $uploads['baseurl'] ) ) {
+				return $this->esc_url_value( (string) $uploads['baseurl'] );
+			}
+		}
+		if ( function_exists( 'wp_upload_dir' ) ) {
+			$uploads = wp_upload_dir();
+			if ( is_array( $uploads ) && ! empty( $uploads['baseurl'] ) ) {
+				return $this->esc_url_value( (string) $uploads['baseurl'] );
+			}
+		}
+
+		return 'https://example.test/wp-content/uploads';
+	}
+
+	/**
+	 * Parses a URL with a WordPress fallback.
+	 *
+	 * @param string $url URL.
+	 * @return array<string,mixed>
+	 */
+	private function parse_url_value( $url ) {
+		$parts = function_exists( 'wp_parse_url' ) ? wp_parse_url( (string) $url ) : parse_url( (string) $url );
+		return is_array( $parts ) ? $parts : array();
+	}
+
+	/**
+	 * Normalizes a URL path for comparisons.
+	 *
+	 * @param string $path URL path.
+	 * @return string
+	 */
+	private function normalize_url_path( $path ) {
+		$path = '/' . ltrim( str_replace( '\\', '/', (string) $path ), '/' );
+		return preg_replace( '#/+#', '/', $path );
+	}
+
+	/**
+	 * Normalizes an uploads-relative media file path.
+	 *
+	 * @param string $file Relative file path.
+	 * @return string
+	 */
+	private function normalize_media_relative_file( $file ) {
+		$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
+		return preg_replace( '#/+#', '/', $file );
+	}
+
+	/**
+	 * Finds bounded attachment candidates for an uploads-relative file path.
+	 *
+	 * @param string $relative_file Requested uploads-relative file.
+	 * @param int    $max_candidates Maximum candidates.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function find_media_attachment_url_resolution_candidates( $relative_file, $max_candidates ) {
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		$max_candidates = max( 1, min( 20, $this->absint_value( $max_candidates ) ) );
+		$ids = $this->media_attachment_ids_for_relative_file( $relative_file );
+		$search_ids = $this->media_attachment_ids_for_url_filename( $relative_file, max( $max_candidates * 3, 20 ) );
+		$ids = array_values( array_unique( array_filter( array_merge( $ids, $search_ids ) ) ) );
+
+		$candidates = array();
+		foreach ( $ids as $attachment_id ) {
+			$attachment_id = $this->absint_value( $attachment_id );
+			if ( $attachment_id <= 0 || ! current_user_can( 'edit_post', $attachment_id ) ) {
+				continue;
+			}
+			$candidate = $this->build_media_attachment_url_resolution_candidate( $attachment_id, $relative_file );
+			if ( ! empty( $candidate ) ) {
+				$candidates[] = $candidate;
+			}
+		}
+
+		usort(
+			$candidates,
+			static function ( $a, $b ) {
+				return (int) ( $b['match_score'] ?? 0 ) <=> (int) ( $a['match_score'] ?? 0 );
+			}
+		);
+
+		return array_slice( $candidates, 0, $max_candidates );
+	}
+
+	/**
+	 * Finds attachment ids whose primary attached file exactly matches.
+	 *
+	 * @param string $relative_file Relative file.
+	 * @return int[]
+	 */
+	private function media_attachment_ids_for_relative_file( $relative_file ) {
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		if ( '' === $relative_file ) {
+			return array();
+		}
+
+		if ( class_exists( '\WP_Query' ) ) {
+			$query = new \WP_Query(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'inherit',
+					'posts_per_page' => 20,
+					'fields'         => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Exact attachment lookup by canonical _wp_attached_file for a bounded read-only resolver.
+					'meta_query'     => array(
+						array(
+							'key'   => '_wp_attached_file',
+							'value' => $relative_file,
+						),
+					),
+				)
+			);
+			return is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array();
+		}
+
+		return $this->scan_unit_attachment_ids_for_relative_file( $relative_file );
+	}
+
+	/**
+	 * Finds candidate attachment ids by filename stem.
+	 *
+	 * @param string $relative_file Relative file.
+	 * @param int    $limit Limit.
+	 * @return int[]
+	 */
+	private function media_attachment_ids_for_url_filename( $relative_file, $limit ) {
+		$limit = max( 1, min( 60, $this->absint_value( $limit ) ) );
+		$basename = basename( $relative_file );
+		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
+		$original_stem = preg_replace( '/-\d+x\d+$/', '', (string) $stem );
+		$search = sanitize_text_field( '' !== (string) $original_stem ? (string) $original_stem : (string) $stem );
+		$query = $this->query_media_inventory( 'image', $search, $limit, 1 );
+		$ids = is_array( $query['attachment_ids'] ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query['attachment_ids'] ) ) : array();
+		if ( class_exists( '\WP_Query' ) && '' !== $search ) {
+			$file_query = new \WP_Query(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'inherit',
+					'post_mime_type' => 'image',
+					'posts_per_page' => $limit,
+					'fields'         => 'ids',
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Bounded read-only filename-stem lookup for resolving uploads size variants to parent attachments.
+					'meta_query'     => array(
+						array(
+							'key'     => '_wp_attached_file',
+							'value'   => $search,
+							'compare' => 'LIKE',
+						),
+					),
+				)
+			);
+			$ids = array_values( array_unique( array_merge( $ids, is_array( $file_query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $file_query->posts ) ) : array() ) ) );
+		} else {
+			$ids = array_values( array_unique( array_merge( $ids, $this->scan_unit_attachment_ids_for_filename( $basename, $search, $limit ) ) ) );
+		}
+		return array_slice( array_filter( $ids ), 0, $limit );
+	}
+
+	/**
+	 * Builds one URL resolution candidate row.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $requested_relative_file Requested relative file.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_attachment_url_resolution_candidate( $attachment_id, $requested_relative_file ) {
+		$attachment_id = $this->absint_value( $attachment_id );
+		$attachment = get_post( $attachment_id );
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			return array();
+		}
+
+		$current_relative = function_exists( 'get_post_meta' ) ? $this->normalize_media_relative_file( (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) ) : '';
+		$current_url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+		$metadata_paths = $this->media_attachment_metadata_relative_paths( $attachment_id, $current_relative );
+
+		$match_type = 'filename_candidate';
+		$match_score = 40;
+		$matched_relative = $current_relative;
+		if ( $requested_relative_file === $current_relative ) {
+			$match_type = 'attached_file';
+			$match_score = 100;
+		} elseif ( in_array( $requested_relative_file, (array) ( $metadata_paths['original'] ?? array() ), true ) ) {
+			$match_type = 'metadata_original_file';
+			$match_score = 95;
+			$matched_relative = $requested_relative_file;
+		} elseif ( in_array( $requested_relative_file, (array) ( $metadata_paths['sizes'] ?? array() ), true ) ) {
+			$match_type = 'metadata_size_file';
+			$match_score = 90;
+			$matched_relative = $requested_relative_file;
+		} elseif ( basename( $requested_relative_file ) === basename( $current_relative ) ) {
+			$match_type = 'basename_match';
+			$match_score = 60;
+		}
+
+		return array(
+			'attachment_id'         => $attachment_id,
+			'title'                 => sanitize_text_field( (string) get_the_title( $attachment_id ) ),
+			'mime_type'             => function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ),
+			'url'                   => $current_url,
+			'relative_file'         => $current_relative,
+			'matched_relative_file' => $matched_relative,
+			'match_type'            => $match_type,
+			'match_score'           => $match_score,
+			'evidence'              => array(
+				'requested_relative_file' => $requested_relative_file,
+				'primary_attached_file'   => $current_relative,
+				'metadata_original_files' => array_values( (array) ( $metadata_paths['original'] ?? array() ) ),
+				'metadata_size_files'     => array_slice( array_values( (array) ( $metadata_paths['sizes'] ?? array() ) ), 0, 20 ),
+				'edit_allowed'            => current_user_can( 'edit_post', $attachment_id ),
+			),
+			'edit_link'             => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $attachment_id, 'raw' ) ) : '',
+		);
+	}
+
+	/**
+	 * Returns original and size variant relative paths from attachment metadata.
+	 *
+	 * @param int    $attachment_id Attachment ID.
+	 * @param string $current_relative Current attached file.
+	 * @return array<string,array<int,string>>
+	 */
+	private function media_attachment_metadata_relative_paths( $attachment_id, $current_relative ) {
+		$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : false;
+		$metadata = is_array( $metadata ) ? $metadata : array();
+		$current_relative = $this->normalize_media_relative_file( $current_relative );
+		$base_dir = '' !== $current_relative ? dirname( $current_relative ) : '';
+		$base_dir = '.' === $base_dir ? '' : $base_dir;
+		$original = array_filter(
+			array_unique(
+				array_map(
+					array( $this, 'normalize_media_relative_file' ),
+					array(
+						$current_relative,
+						(string) ( $metadata['file'] ?? '' ),
+						(string) ( $metadata['original_image'] ?? '' ),
+					)
+				)
+			)
+		);
+		$sizes = array();
+		foreach ( is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array() as $size ) {
+			if ( ! is_array( $size ) || empty( $size['file'] ) ) {
+				continue;
+			}
+			$file = $this->normalize_media_relative_file( (string) $size['file'] );
+			$sizes[] = '' !== $base_dir ? $base_dir . '/' . $file : $file;
+		}
+
+		return array(
+			'original' => array_values( $original ),
+			'sizes'   => array_values( array_unique( array_filter( $sizes ) ) ),
+		);
+	}
+
+	/**
+	 * Test fallback for exact relative file lookups.
+	 *
+	 * @param string $relative_file Relative file.
+	 * @return int[]
+	 */
+	private function scan_unit_attachment_ids_for_relative_file( $relative_file ) {
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? $GLOBALS['maa_unit_style_posts'] : array();
+		$ids = array();
+		foreach ( $posts as $post ) {
+			if ( ! is_object( $post ) || 'attachment' !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+				continue;
+			}
+			$attachment_id = $this->absint_value( $post->ID ?? 0 );
+			$current = function_exists( 'get_post_meta' ) ? $this->normalize_media_relative_file( (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) ) : '';
+			if ( $relative_file === $current ) {
+				$ids[] = $attachment_id;
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * Test fallback for filename candidate lookups.
+	 *
+	 * @param string $basename Basename.
+	 * @param string $search Search stem.
+	 * @param int    $limit Limit.
+	 * @return int[]
+	 */
+	private function scan_unit_attachment_ids_for_filename( $basename, $search, $limit ) {
+		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? $GLOBALS['maa_unit_style_posts'] : array();
+		$ids = array();
+		foreach ( $posts as $post ) {
+			if ( count( $ids ) >= $limit || ! is_object( $post ) || 'attachment' !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+				continue;
+			}
+			$attachment_id = $this->absint_value( $post->ID ?? 0 );
+			$current = function_exists( 'get_post_meta' ) ? $this->normalize_media_relative_file( (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) ) : '';
+			$title = sanitize_text_field( (string) ( $post->post_title ?? '' ) );
+			if ( basename( $current ) === $basename || ( '' !== $search && false !== stripos( $title . ' ' . $current, $search ) ) ) {
+				$ids[] = $attachment_id;
+			}
+		}
+		return $ids;
 	}
 
 	/**

@@ -799,6 +799,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-post-blocks',
 	'magick-ai/list-post-revisions',
 	'magick-ai/list-media',
+	'magick-ai/resolve-media-attachment-by-url',
 	'magick-ai/list-terms',
 	'magick-ai/list-taxonomy-terms',
 	'magick-ai/list-categories',
@@ -1070,6 +1071,12 @@ maa_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['magick-ai/o
 maa_assert_same( 82, $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
 maa_assert_same( array( 'replace', 'rollback' ), $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode']['enum'] ?? array(), 'replace-media-file exposes bounded replacement modes' );
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
+maa_assert_true( isset( $package_abilities['magick-ai/resolve-media-attachment-by-url'] ), 'resolve-media-attachment-by-url is registered as a read-only media resolver' );
+maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/resolve-media-attachment-by-url']['required_scopes'] ?? array(), 'resolve-media-attachment-by-url remains a read-scope ability' );
+maa_assert_same( array( 'url' ), $package_abilities['magick-ai/resolve-media-attachment-by-url']['input_schema']['required'] ?? array(), 'resolve-media-attachment-by-url requires a URL' );
+maa_assert_same( 20, $package_abilities['magick-ai/resolve-media-attachment-by-url']['input_schema']['properties']['max_candidates']['maximum'] ?? null, 'resolve-media-attachment-by-url bounds candidates to 20' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/resolve-media-attachment-by-url']['input_schema']['properties']['commit'] ), 'resolve-media-attachment-by-url does not expose a commit control' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/resolve-media-attachment-by-url']['input_schema']['properties']['dry_run'] ), 'resolve-media-attachment-by-url does not expose write dry_run control' );
 maa_assert_same( 1920, $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['target_max_width']['default'] ?? null, 'inspect-media-asset defaults to a 1920px max width target' );
 maa_assert_same( array( 'webp', 'avif', 'original' ), $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'inspect-media-asset exposes bounded preferred output formats' );
 maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['required_scopes'] ?? array(), 'media derivative cloud request remains a read-scope planning ability' );
@@ -1118,8 +1125,9 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
 	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
 	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
-	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[80] ?? '', 'core read definitions keep URL resolver order after provider split' );
-	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[82] ?? '', 'core read definitions keep revision list last after provider split' );
+	maa_assert_same( 'magick-ai/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
+	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[81] ?? '', 'core read definitions keep URL resolver order after provider split' );
+	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[83] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -2201,9 +2209,40 @@ update_post_meta(
 		'height'   => 1400,
 		'file'     => '2026/06/workflow-diagram-image.jpg',
 		'filesize' => 900000,
+		'sizes'    => array(
+			'medium' => array(
+				'file'   => 'workflow-diagram-image-300x162.jpg',
+				'width'  => 300,
+				'height' => 162,
+			),
+		),
 	)
 );
 update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
+$media_url_resolution = $core_read_package->resolve_media_attachment_by_url(
+	array(
+		'url' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
+	)
+);
+maa_assert_same( true, $media_url_resolution['success'] ?? null, 'resolve-media-attachment-by-url returns a success envelope for exact uploads URLs' );
+maa_assert_same( true, $media_url_resolution['data']['readonly'] ?? null, 'resolve-media-attachment-by-url is read-only' );
+maa_assert_same( 'resolved', $media_url_resolution['data']['match_status'] ?? '', 'resolve-media-attachment-by-url resolves one exact attachment match' );
+maa_assert_same( 79, $media_url_resolution['data']['attachment_id'] ?? 0, 'resolve-media-attachment-by-url returns the matched attachment id' );
+maa_assert_same( false, $media_url_resolution['data']['boundary']['wordpress_write_included'] ?? null, 'resolve-media-attachment-by-url does not write WordPress data' );
+$media_size_url_resolution = $core_read_package->resolve_media_attachment_by_url(
+	array(
+		'url' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg',
+	)
+);
+maa_assert_same( true, $media_size_url_resolution['success'] ?? null, 'resolve-media-attachment-by-url returns a success envelope for metadata size URLs' );
+maa_assert_same( 79, $media_size_url_resolution['data']['attachment_id'] ?? 0, 'resolve-media-attachment-by-url resolves a metadata size URL to the parent attachment' );
+maa_assert_same( 'metadata_size_file', $media_size_url_resolution['data']['candidates'][0]['match_type'] ?? '', 'resolve-media-attachment-by-url records size variant evidence' );
+$external_media_url_resolution = $core_read_package->resolve_media_attachment_by_url(
+	array(
+		'url' => 'https://cdn.example.invalid/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
+	)
+);
+maa_assert_true( is_wp_error( $external_media_url_resolution ) && 'magick_ai_abilities_media_url_external' === $external_media_url_resolution->get_error_code(), 'resolve-media-attachment-by-url rejects external uploads-looking URLs' );
 $media_inspection = $core_read_package->inspect_media_asset(
 	array(
 		'attachment_id'              => 79,
