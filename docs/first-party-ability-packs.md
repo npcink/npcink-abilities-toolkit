@@ -47,6 +47,8 @@ Representative abilities:
 - `magick-ai/get-media-inventory-health`
 - `magick-ai/inspect-media-asset`
 - `magick-ai/build-media-derivative-cloud-request`
+- `magick-ai/build-media-optimization-plan`
+- `magick-ai/build-media-rename-plan`
 - `magick-ai/get-media-cleanup-opportunities`
 - `magick-ai/build-media-inventory-fix-plan`
 - `magick-ai/get-taxonomy-inventory-health`
@@ -108,6 +110,7 @@ Representative write abilities:
 - `magick-ai/upload-media-from-url`
 - `magick-ai/optimize-media-asset`
 - `magick-ai/replace-media-file`
+- `magick-ai/rename-media-file`
 - `magick-ai/adopt-cloud-media-derivative`
 - `magick-ai/set-post-featured-image`
 - `magick-ai/schedule-post`
@@ -116,8 +119,10 @@ Representative write abilities:
 
 Media filename policy: `magick-ai/upload-media-from-url` and
 `magick-ai/adopt-cloud-media-derivative` may accept an approved `file_name` for
-new local media files. `magick-ai/update-media-details` updates metadata only
-and must not physically rename existing attachment files.
+new local media files. `magick-ai/rename-media-file` may rename an existing
+attachment main file within its current uploads directory after approval.
+`magick-ai/update-media-details` updates metadata only and must not physically
+rename existing attachment files.
 
 Representative read-only publishing support abilities:
 

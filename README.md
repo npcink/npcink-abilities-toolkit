@@ -182,6 +182,8 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `magick-ai/optimize-media-metadata`
 - `magick-ai/inspect-media-asset`
 - `magick-ai/build-media-derivative-cloud-request`
+- `magick-ai/build-media-optimization-plan`
+- `magick-ai/build-media-rename-plan`
 - `magick-ai/position-inline-image-blocks`
 - `magick-ai/build-article-optimization-report`
 - `magick-ai/seo-report-context`

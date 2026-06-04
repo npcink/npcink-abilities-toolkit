@@ -698,11 +698,11 @@ final class Core_Write_Package {
 				),
 				'execute_callback' => array( $this, 'optimize_media_asset' ),
 			),
-			'magick-ai/replace-media-file' => array(
-				'label'           => __( 'Replace Media File', 'npcink-abilities-toolkit' ),
-				'description'     => __( 'Replaces one attachment main file with a previously generated optimized derivative after host approval, with backup and rollback metadata.', 'npcink-abilities-toolkit' ),
-				'category'        => 'magick-ai-write',
-				'capability'      => 'upload_files',
+				'magick-ai/replace-media-file' => array(
+					'label'           => __( 'Replace Media File', 'npcink-abilities-toolkit' ),
+					'description'     => __( 'Replaces one attachment main file with a previously generated optimized derivative after host approval, with backup and rollback metadata.', 'npcink-abilities-toolkit' ),
+					'category'        => 'magick-ai-write',
+					'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
 				'channels'        => array( 'agent', 'mcp' ),
 				'meta'            => $this->write_meta(),
@@ -736,13 +736,52 @@ final class Core_Write_Package {
 						'dry_run'            => array( 'type' => 'boolean' ),
 					),
 					array( 'attachment_id', 'mode', 'replaced', 'rolled_back', 'original_preserved', 'dry_run' )
+					),
+					'execute_callback' => array( $this, 'replace_media_file' ),
 				),
-				'execute_callback' => array( $this, 'replace_media_file' ),
-			),
-			'magick-ai/adopt-cloud-media-derivative' => array(
-				'label'           => __( 'Adopt Cloud Media Derivative', 'npcink-abilities-toolkit' ),
-				'description'     => __( 'Adopts one approved short-lived Cloud derivative artifact as the attachment main file, with local backup and rollback metadata.', 'npcink-abilities-toolkit' ),
-				'category'        => 'magick-ai-write',
+				'magick-ai/rename-media-file' => array(
+					'label'           => __( 'Rename Media File', 'npcink-abilities-toolkit' ),
+					'description'     => __( 'Renames one attachment main file within its current uploads directory after host approval, preserving a backup and rollback metadata.', 'npcink-abilities-toolkit' ),
+					'category'        => 'magick-ai-write',
+					'capability'      => 'upload_files',
+					'required_scopes' => array( 'media.write' ),
+					'channels'        => array( 'agent', 'mcp' ),
+					'meta'            => $this->write_meta(),
+					'input_schema'    => $this->schema(
+						array(
+							'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
+							'target_file_name'               => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 120 ),
+							'expected_current_relative_file' => array( 'type' => 'string' ),
+							'expected_current_mime_type'     => array( 'type' => 'string' ),
+							'expected_current_md5'           => array( 'type' => 'string', 'minLength' => 32, 'maxLength' => 36 ),
+							'expected_current_sha256'        => array( 'type' => 'string', 'minLength' => 64, 'maxLength' => 71 ),
+							'conflict_mode'                  => array( 'type' => 'string', 'enum' => array( 'fail', 'unique' ), 'default' => 'fail' ),
+							'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'magick-ai-rename-backup' ),
+						),
+						array( 'attachment_id', 'target_file_name' )
+					),
+					'output_schema'   => $this->schema(
+						array(
+							'attachment_id'      => array( 'type' => 'integer' ),
+							'renamed'            => array( 'type' => 'boolean' ),
+							'original_preserved' => array( 'type' => 'boolean' ),
+							'rename_id'          => array( 'type' => 'string' ),
+							'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
+							'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
+							'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+							'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+							'edit_link'          => array( 'type' => 'string' ),
+							'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'dry_run'            => array( 'type' => 'boolean' ),
+						),
+						array( 'attachment_id', 'renamed', 'original_preserved', 'dry_run' )
+					),
+					'execute_callback' => array( $this, 'rename_media_file' ),
+				),
+				'magick-ai/adopt-cloud-media-derivative' => array(
+					'label'           => __( 'Adopt Cloud Media Derivative', 'npcink-abilities-toolkit' ),
+					'description'     => __( 'Adopts one approved short-lived Cloud derivative artifact as the attachment main file, with local backup and rollback metadata.', 'npcink-abilities-toolkit' ),
+					'category'        => 'magick-ai-write',
 				'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
 				'channels'        => array( 'agent', 'mcp' ),
@@ -2198,11 +2237,11 @@ final class Core_Write_Package {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function replace_media_file( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace media files.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
-		}
+		public function replace_media_file( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace media files.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
 
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
 		$attachment = $this->get_media_attachment( $attachment_id );
@@ -2265,14 +2304,80 @@ final class Core_Write_Package {
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
-		unset( $payload['preview'] );
-		return $payload;
-	}
+			unset( $payload['preview'] );
+			return $payload;
+		}
 
-	/**
-	 * Adopts one short-lived Cloud derivative artifact as a local media replacement.
-	 *
-	 * @param mixed $input Input args.
+		/**
+		 * Renames one attachment main file within its current uploads directory.
+		 *
+		 * @param mixed $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		public function rename_media_file( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to rename media files.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$attachment_id = absint( $input['attachment_id'] ?? 0 );
+			$attachment = $this->get_media_attachment( $attachment_id );
+			if ( is_wp_error( $attachment ) ) {
+				return $attachment;
+			}
+			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to rename this media file.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$plan = $this->build_media_file_rename_plan( $attachment_id, $input );
+			if ( is_wp_error( $plan ) ) {
+				return $plan;
+			}
+
+			$payload = array(
+				'attachment_id'      => $attachment_id,
+				'renamed'            => false,
+				'original_preserved' => true,
+				'rename_id'          => (string) ( $plan['rename_id'] ?? '' ),
+				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+				'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
+				'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+				'history'            => $this->get_media_file_replacement_history( $attachment_id ),
+				'edit_link'          => $this->edit_link( $attachment_id ),
+				'preview'            => array(
+					'action'         => 'rename_media_file',
+					'attachment_id'  => $attachment_id,
+					'rename_id'      => (string) ( $plan['rename_id'] ?? '' ),
+					'backup_created' => true,
+					'conflict_mode'  => sanitize_key( (string) ( $plan['conflict_mode'] ?? 'fail' ) ),
+				),
+			);
+			if ( $this->should_dry_run( $input ) ) {
+				return $this->dry_run_payload( $payload );
+			}
+			$allowed = $this->assert_commit_allowed( 'magick-ai/rename-media-file', $input );
+			if ( is_wp_error( $allowed ) ) {
+				return $allowed;
+			}
+
+			$result = $this->execute_media_file_rename( $attachment_id, $plan );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$payload['renamed'] = ! empty( $result['renamed'] );
+			$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
+			$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+			$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
+			$payload['dry_run'] = false;
+			unset( $payload['preview'] );
+			return $payload;
+		}
+
+		/**
+		 * Adopts one short-lived Cloud derivative artifact as a local media replacement.
+		 *
+		 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function adopt_cloud_media_derivative( $input ) {
@@ -2759,17 +2864,23 @@ final class Core_Write_Package {
 				'best_for'        => array( 'Generating a smaller derivative after inspect-media-asset reports format, size, or width attention.' ),
 				'stopping_points' => array( 'Default to dry_run; final derivative generation requires host approval context and preserves the original file.' ),
 			),
-			'magick-ai/adopt-cloud-media-derivative' => array(
-				'when_to_use'     => array( 'Prepare or commit approved adoption of one non-expired Cloud derivative artifact as an attachment main file.' ),
-				'not_for'         => array( 'Do not use this to preview artifacts, create Cloud derivatives, accept arbitrary replacement URLs, or bypass Core approval.' ),
-				'best_for'        => array( 'Replacing an attachment after an operator reviewed the Cloud derivative preview and Core approved local adoption.' ),
-				'stopping_points' => array( 'Default to dry_run; final commit requires host approval context, artifact evidence, local backup, and rollback metadata.' ),
-			),
-			'magick-ai/approve-comment' => array(
-				'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
-				'not_for'         => array( 'Do not use this to generate replies, spam comments, trash comments, or moderate without human policy review.' ),
-				'best_for'        => array( 'Executing a reviewed approve action that was prepared by comment compliance handoff context.' ),
-				'stopping_points' => array( 'Default to dry_run; final comment status changes require host approval context and idempotency protection.' ),
+				'magick-ai/adopt-cloud-media-derivative' => array(
+					'when_to_use'     => array( 'Prepare or commit approved adoption of one non-expired Cloud derivative artifact as an attachment main file.' ),
+					'not_for'         => array( 'Do not use this to preview artifacts, create Cloud derivatives, accept arbitrary replacement URLs, or bypass Core approval.' ),
+					'best_for'        => array( 'Replacing an attachment after an operator reviewed the Cloud derivative preview and Core approved local adoption.' ),
+					'stopping_points' => array( 'Default to dry_run; final commit requires host approval context, artifact evidence, local backup, and rollback metadata.' ),
+				),
+				'magick-ai/rename-media-file' => array(
+					'when_to_use'     => array( 'Prepare or commit an approved main attachment file rename within the current uploads directory.' ),
+					'not_for'         => array( 'Do not use this to change media content, convert formats, move files between directories, rename generated size files, or bypass Core approval.' ),
+					'best_for'        => array( 'Applying a reviewed filename from a host/OpenClaw naming policy after inspecting current file hashes and path evidence.' ),
+					'stopping_points' => array( 'Default to dry_run; final commit requires host approval context, optimistic current-file checks, backup, and rollback metadata.' ),
+				),
+				'magick-ai/approve-comment' => array(
+					'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
+					'not_for'         => array( 'Do not use this to generate replies, spam comments, trash comments, or moderate without human policy review.' ),
+					'best_for'        => array( 'Executing a reviewed approve action that was prepared by comment compliance handoff context.' ),
+					'stopping_points' => array( 'Default to dry_run; final comment status changes require host approval context and idempotency protection.' ),
 			),
 		);
 
@@ -3575,11 +3686,11 @@ final class Core_Write_Package {
 	 * @param array<string,mixed> $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	private function build_media_file_replacement_plan( $attachment_id, array $input ) {
-		$attachment_id = absint( $attachment_id );
-		$current = $this->current_media_file_state( $attachment_id );
-		if ( is_wp_error( $current ) ) {
-			return $current;
+		private function build_media_file_replacement_plan( $attachment_id, array $input ) {
+			$attachment_id = absint( $attachment_id );
+			$current = $this->current_media_file_state( $attachment_id );
+			if ( is_wp_error( $current ) ) {
+				return $current;
 		}
 		$expected_error = $this->validate_media_expected_state( $current, $input );
 		if ( is_wp_error( $expected_error ) ) {
@@ -3618,14 +3729,112 @@ final class Core_Write_Package {
 			),
 			'_current'       => $current,
 			'_derivative'    => $derivative,
-			'_backup_relative_file' => $backup_relative,
-		);
-	}
+				'_backup_relative_file' => $backup_relative,
+			);
+		}
 
-	/**
-	 * Builds a rollback plan from replacement history.
-	 *
-	 * @param int                 $attachment_id Attachment id.
+		/**
+		 * Builds a governed rename plan for the current attachment main file.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param array<string,mixed> $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		private function build_media_file_rename_plan( $attachment_id, array $input ) {
+			$attachment_id = absint( $attachment_id );
+			$current = $this->current_media_file_state( $attachment_id );
+			if ( is_wp_error( $current ) ) {
+				return $current;
+			}
+			$expected_error = $this->validate_media_expected_state( $current, $input );
+			if ( is_wp_error( $expected_error ) ) {
+				return $expected_error;
+			}
+			$hash_error = $this->validate_media_expected_hashes( $current, $input );
+			if ( is_wp_error( $hash_error ) ) {
+				return $hash_error;
+			}
+
+			$current_relative = $this->normalize_media_relative_file( (string) ( $current['relative_file'] ?? '' ) );
+			$current_path = (string) ( $current['file_path'] ?? '' );
+			if ( '' === $current_relative || '' === $current_path ) {
+				return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'Current attachment file metadata is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			$raw_target = trim( (string) ( $input['target_file_name'] ?? '' ) );
+			if ( '' === $raw_target || basename( str_replace( '\\', '/', $raw_target ) ) !== $raw_target ) {
+				return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name must be a file basename, not a path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$target_basename = $this->sanitize_media_file_name( $raw_target );
+			if ( '' === $target_basename ) {
+				return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name is invalid after sanitization.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+
+			$current_basename = $this->sanitize_media_file_name( basename( $current_relative ) );
+			$current_extension = strtolower( pathinfo( $current_basename, PATHINFO_EXTENSION ) );
+			$target_extension = strtolower( pathinfo( $target_basename, PATHINFO_EXTENSION ) );
+			if ( '' === $target_extension && '' !== $current_extension ) {
+				$target_basename .= '.' . $current_extension;
+				$target_extension = $current_extension;
+			}
+			if ( '' !== $current_extension && $target_extension !== $current_extension ) {
+				return new \WP_Error( 'magick_ai_abilities_target_extension_mismatch', __( 'Target file extension must match the current media file extension.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( $target_basename === $current_basename ) {
+				return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'Target file name matches the current file name.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+
+			$dir = dirname( $current_relative );
+			$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+			$target_dir = dirname( $current_path );
+			$conflict_mode = sanitize_key( (string) ( $input['conflict_mode'] ?? 'fail' ) );
+			$conflict_mode = in_array( $conflict_mode, array( 'fail', 'unique' ), true ) ? $conflict_mode : 'fail';
+			$target_path = $this->trailingslashit_value( $target_dir ) . $target_basename;
+			if ( file_exists( $target_path ) ) {
+				if ( 'unique' !== $conflict_mode ) {
+					return new \WP_Error( 'magick_ai_abilities_target_file_exists', __( 'Target media file already exists.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+				}
+				$target_basename = $this->unique_media_basename( $target_dir, $target_basename );
+			}
+
+			$target_relative = '' !== $dir ? $dir . '/' . $target_basename : $target_basename;
+			$target_path = $this->media_uploads_path_for_relative_file( $target_relative );
+			$rename_id = 'media_rename_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . $current_relative . '|' . $target_relative . '|' . microtime( true ) ), 0, 8 );
+			$backup_suffix = sanitize_key( (string) ( $input['backup_suffix'] ?? 'magick-ai-rename-backup' ) );
+			$backup_suffix = '' !== $backup_suffix ? substr( $backup_suffix, 0, 48 ) : 'magick-ai-rename-backup';
+			$backup_relative = $this->backup_relative_file_for_current_media( $current, $rename_id, $backup_suffix );
+			$hashes = $this->media_content_hashes_for_state( $current );
+			$before = $this->public_media_file_state( $current );
+			$before['content_hashes'] = $hashes;
+			$after = $before;
+			$after['relative_file'] = $target_relative;
+			$after['url'] = $this->media_url_for_relative_file( $target_relative );
+			$after['file_basename'] = $target_basename;
+
+			return array(
+				'rename_id'      => $rename_id,
+				'conflict_mode'  => $conflict_mode,
+				'before'         => $before,
+				'after'          => $after,
+				'backup'         => array(
+					'relative_file' => $backup_relative,
+					'url'           => $this->media_url_for_relative_file( $backup_relative ),
+					'mime_type'     => (string) ( $current['mime_type'] ?? '' ),
+					'width'         => absint( $current['width'] ?? 0 ),
+					'height'        => absint( $current['height'] ?? 0 ),
+					'content_hashes' => $hashes,
+				),
+				'_current'       => $current,
+				'_target_relative_file' => $target_relative,
+				'_target_path'   => $target_path,
+				'_backup_relative_file' => $backup_relative,
+			);
+		}
+
+		/**
+		 * Builds a rollback plan from replacement history.
+		 *
+		 * @param int                 $attachment_id Attachment id.
 	 * @param array<string,mixed> $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
@@ -3680,11 +3889,11 @@ final class Core_Write_Package {
 	 * @param array<string,mixed> $plan Replacement plan.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	private function execute_media_file_replacement( $attachment_id, array $plan ) {
-		$attachment_id = absint( $attachment_id );
-		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
-		$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
-		$current_path = (string) ( $current['file_path'] ?? '' );
+		private function execute_media_file_replacement( $attachment_id, array $plan ) {
+			$attachment_id = absint( $attachment_id );
+			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+			$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
+			$current_path = (string) ( $current['file_path'] ?? '' );
 		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
 		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
 		$derivative_relative = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
@@ -3725,14 +3934,76 @@ final class Core_Write_Package {
 			'replaced' => true,
 			'rolled_back' => false,
 			'after'    => $after,
-			'backup'   => $backup,
-		);
-	}
+				'backup'   => $backup,
+			);
+		}
 
-	/**
-	 * Executes rollback to a previously recorded backup.
-	 *
-	 * @param int                 $attachment_id Attachment id.
+		/**
+		 * Executes an approved main media file rename.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param array<string,mixed> $plan Rename plan.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		private function execute_media_file_rename( $attachment_id, array $plan ) {
+			$attachment_id = absint( $attachment_id );
+			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+			$current_path = (string) ( $current['file_path'] ?? '' );
+			$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
+			$target_path = (string) ( $plan['_target_path'] ?? '' );
+			$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
+			$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
+			if ( '' === $current_path || ! is_readable( $current_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'The current attachment file is unavailable for rename.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' === $target_relative || '' === $target_path ) {
+				return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target media file path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( file_exists( $target_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_target_file_exists', __( 'Target media file already exists.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' === $backup_path || ! $this->ensure_media_directory( dirname( $backup_path ) ) || ! copy( $current_path, $backup_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			}
+			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! rename( $current_path, $target_path ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_rename_failed', __( 'The current attachment file could not be renamed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			}
+
+			$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+			$after['filesize_bytes'] = absint( filesize( $target_path ) );
+			$backup = is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array();
+			$backup['filesize_bytes'] = absint( filesize( $backup_path ) );
+			$pointer_state = $after;
+			$pointer_state['_metadata'] = $this->renamed_media_metadata( is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array(), $target_relative, $after );
+			$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $pointer_state );
+			if ( is_wp_error( $updated ) ) {
+				return $updated;
+			}
+			$this->append_media_file_replacement_history(
+				$attachment_id,
+				array(
+					'replacement_id'     => (string) ( $plan['rename_id'] ?? '' ),
+					'operation'          => 'rename_media_file',
+					'status'             => 'active',
+					'replaced_at_gmt'    => gmdate( 'c' ),
+					'rolled_back_at_gmt' => '',
+					'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+					'after'              => $after,
+					'backup'             => $backup,
+				)
+			);
+
+			return array(
+				'renamed' => true,
+				'after'   => $after,
+				'backup'  => $backup,
+			);
+		}
+
+		/**
+		 * Executes rollback to a previously recorded backup.
+		 *
+		 * @param int                 $attachment_id Attachment id.
 	 * @param array<string,mixed> $plan Rollback plan.
 	 * @return array<string,mixed>|\WP_Error
 	 */
@@ -3805,23 +4076,78 @@ final class Core_Write_Package {
 	 * @param array<string,mixed> $input Input args.
 	 * @return true|\WP_Error
 	 */
-	private function validate_media_expected_state( array $current, array $input ) {
-		$expected_relative = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? '' ) );
-		if ( '' !== $expected_relative && $expected_relative !== (string) ( $current['relative_file'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-		}
+		private function validate_media_expected_state( array $current, array $input ) {
+			$expected_relative = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? '' ) );
+			if ( '' !== $expected_relative && $expected_relative !== (string) ( $current['relative_file'] ?? '' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
 		$expected_mime = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? '' ) );
 		if ( '' !== $expected_mime && $expected_mime !== (string) ( $current['mime_type'] ?? '' ) ) {
 			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
-		return true;
-	}
+			return true;
+		}
 
-	/**
-	 * Builds safe public state from an internal media file state.
-	 *
-	 * @param array<string,mixed> $state Internal state.
+		/**
+		 * Validates optional expected content hashes for optimistic media writes.
+		 *
+		 * @param array<string,mixed> $current Current state.
+		 * @param array<string,mixed> $input Input args.
+		 * @return true|\WP_Error
+		 */
+		private function validate_media_expected_hashes( array $current, array $input ) {
+			$raw_expected_md5 = trim( (string) ( $input['expected_current_md5'] ?? '' ) );
+			$raw_expected_sha256 = trim( (string) ( $input['expected_current_sha256'] ?? '' ) );
+			$expected_md5 = $this->normalize_media_md5( $raw_expected_md5 );
+			$expected_sha256 = $this->normalize_media_sha256( $raw_expected_sha256 );
+			if ( '' !== $raw_expected_md5 && '' === $expected_md5 ) {
+				return new \WP_Error( 'magick_ai_abilities_expected_md5_invalid', __( 'The expected current MD5 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( '' !== $raw_expected_sha256 && '' === $expected_sha256 ) {
+				return new \WP_Error( 'magick_ai_abilities_expected_sha256_invalid', __( 'The expected current SHA-256 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( '' === $expected_md5 && '' === $expected_sha256 ) {
+				return true;
+			}
+			$hashes = $this->media_content_hashes_for_state( $current );
+			if ( '' !== $expected_md5 && $expected_md5 !== (string) ( $hashes['md5'] ?? '' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_current_md5_mismatch', __( 'The current media file MD5 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( '' !== $expected_sha256 && $expected_sha256 !== (string) ( $hashes['sha256'] ?? '' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_current_sha256_mismatch', __( 'The current media file SHA-256 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			return true;
+		}
+
+		/**
+		 * Builds content hashes for an internal media file state.
+		 *
+		 * @param array<string,mixed> $state Internal state.
+		 * @return array<string,mixed>
+		 */
+		private function media_content_hashes_for_state( array $state ) {
+			$file_path = (string) ( $state['file_path'] ?? '' );
+			if ( '' === $file_path || ! is_readable( $file_path ) ) {
+				return array(
+					'available' => false,
+					'md5'       => '',
+					'sha256'    => '',
+				);
+			}
+
+			return array(
+				'available' => true,
+				'md5'       => (string) md5_file( $file_path ),
+				'sha256'    => (string) hash_file( 'sha256', $file_path ),
+			);
+		}
+
+		/**
+		 * Builds safe public state from an internal media file state.
+		 *
+		 * @param array<string,mixed> $state Internal state.
 	 * @return array<string,mixed>
 	 */
 	private function public_media_file_state( array $state ) {
@@ -3974,30 +4300,52 @@ final class Core_Write_Package {
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
-		$metadata = array(
-			'file'     => $relative_file,
-			'width'    => absint( $state['width'] ?? 0 ),
-			'height'   => absint( $state['height'] ?? 0 ),
-			'filesize' => absint( $state['filesize_bytes'] ?? 0 ),
-			'sizes'    => array(),
-		);
-		if ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
-			$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
-			if ( is_array( $generated ) && ! empty( $generated ) ) {
-				$metadata = $generated;
+			$metadata = array(
+				'file'     => $relative_file,
+				'width'    => absint( $state['width'] ?? 0 ),
+				'height'   => absint( $state['height'] ?? 0 ),
+				'filesize' => absint( $state['filesize_bytes'] ?? 0 ),
+				'sizes'    => array(),
+			);
+			if ( is_array( $state['_metadata'] ?? null ) ) {
+				$metadata = $state['_metadata'];
+			} elseif ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
+				$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
+				if ( is_array( $generated ) && ! empty( $generated ) ) {
+					$metadata = $generated;
+				}
 			}
-		}
 		if ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
 		}
 
-		return true;
-	}
+			return true;
+		}
 
-	/**
-	 * Builds a backup relative file beside the current file.
-	 *
-	 * @param array<string,mixed> $current Current media state.
+		/**
+		 * Preserves attachment metadata when only the main file basename changes.
+		 *
+		 * @param array<string,mixed> $metadata Existing metadata.
+		 * @param string              $relative_file New uploads-relative main file.
+		 * @param array<string,mixed> $state Public file state.
+		 * @return array<string,mixed>
+		 */
+		private function renamed_media_metadata( array $metadata, $relative_file, array $state ) {
+			$metadata['file'] = $this->normalize_media_relative_file( $relative_file );
+			$metadata['width'] = absint( $metadata['width'] ?? $state['width'] ?? 0 );
+			$metadata['height'] = absint( $metadata['height'] ?? $state['height'] ?? 0 );
+			$metadata['filesize'] = absint( $state['filesize_bytes'] ?? $metadata['filesize'] ?? 0 );
+			if ( ! isset( $metadata['sizes'] ) || ! is_array( $metadata['sizes'] ) ) {
+				$metadata['sizes'] = array();
+			}
+
+			return $metadata;
+		}
+
+		/**
+		 * Builds a backup relative file beside the current file.
+		 *
+		 * @param array<string,mixed> $current Current media state.
 	 * @param string              $replacement_id Replacement id.
 	 * @param string              $backup_suffix Backup suffix.
 	 * @return string
@@ -4195,17 +4543,31 @@ final class Core_Write_Package {
 	 * @param string $value Raw checksum value.
 	 * @return string
 	 */
-	private function normalize_media_sha256( $value ) {
-		$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
-		if ( 0 === strpos( $value, 'sha256:' ) ) {
-			$value = substr( $value, 7 );
+		private function normalize_media_sha256( $value ) {
+			$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
+			if ( 0 === strpos( $value, 'sha256:' ) ) {
+				$value = substr( $value, 7 );
+			}
+			return 1 === preg_match( '/^[a-f0-9]{64}$/', $value ) ? $value : '';
 		}
-		return 1 === preg_match( '/^[a-f0-9]{64}$/', $value ) ? $value : '';
-	}
 
-	/**
-	 * Returns a unique file basename without requiring WordPress helpers in tests.
-	 *
+		/**
+		 * Normalizes MD5 values from caller optimistic checks.
+		 *
+		 * @param string $value Raw checksum value.
+		 * @return string
+		 */
+		private function normalize_media_md5( $value ) {
+			$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
+			if ( 0 === strpos( $value, 'md5:' ) ) {
+				$value = substr( $value, 4 );
+			}
+			return 1 === preg_match( '/^[a-f0-9]{32}$/', $value ) ? $value : '';
+		}
+
+		/**
+		 * Returns a unique file basename without requiring WordPress helpers in tests.
+		 *
 	 * @param string $directory Directory path.
 	 * @param string $basename Desired basename.
 	 * @return string

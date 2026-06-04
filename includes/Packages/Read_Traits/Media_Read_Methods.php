@@ -1024,181 +1024,599 @@ trait Media_Read_Methods {
 			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media derivative batch plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
-		$target_format = sanitize_key( (string) ( $input['target_format'] ?? $input['preferred_format'] ?? 'webp' ) );
-		if ( ! in_array( $target_format, array( 'webp', 'avif', 'jpeg', 'png', 'original' ), true ) ) {
-			return new \WP_Error(
-				'magick_ai_abilities_media_derivative_target_format_invalid',
-				__( 'Unsupported media derivative target format.', 'npcink-abilities-toolkit' ),
-				array( 'status' => 400 )
-			);
+	$target_format = sanitize_key( (string) ( $input['target_format'] ?? $input['preferred_format'] ?? 'webp' ) );
+	if ( ! in_array( $target_format, array( 'webp', 'avif', 'jpeg', 'png', 'original' ), true ) ) {
+		return new \WP_Error(
+			'magick_ai_abilities_media_derivative_target_format_invalid',
+			__( 'Unsupported media derivative target format.', 'npcink-abilities-toolkit' ),
+			array( 'status' => 400 )
+		);
+	}
+
+	$watermark = $this->normalize_media_derivative_watermark( $input['watermark'] ?? array() );
+	if ( is_wp_error( $watermark ) ) {
+		return $watermark;
+	}
+
+	$max_items = max( 1, min( 50, $this->absint_value( $input['max_items'] ?? 20 ) ) );
+	$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
+	$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? 'image' ) );
+	$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
+	$date_from = sanitize_text_field( (string) ( $input['date_from'] ?? '' ) );
+	$date_to = sanitize_text_field( (string) ( $input['date_to'] ?? '' ) );
+	$exclude_formats = $this->normalize_media_derivative_format_list( $input['exclude_formats'] ?? array() );
+	$target_max_width = max( 320, min( 7680, $this->absint_value( $input['target_max_width'] ?? 1920 ) ) );
+	$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $input['large_file_threshold_bytes'] ?? 524288 ) ) );
+	$quality = max( 1, min( 100, $this->absint_value( $input['quality'] ?? 82 ) ) );
+	$min_width = $this->absint_value( $input['min_width'] ?? 0 );
+	$min_height = $this->absint_value( $input['min_height'] ?? 0 );
+	$min_filesize_bytes = $this->absint_value( $input['min_filesize_bytes'] ?? 0 );
+	$max_filesize_bytes = $this->absint_value( $input['max_filesize_bytes'] ?? 0 );
+
+	$explicit_ids = is_array( $input['attachment_ids'] ?? null )
+		? array_slice( array_values( array_unique( array_filter( array_map( array( $this, 'absint_value' ), $input['attachment_ids'] ) ) ) ), 0, 100 )
+		: array();
+	$query_result = array( 'attachment_ids' => $explicit_ids, 'total' => count( $explicit_ids ) );
+	if ( empty( $explicit_ids ) ) {
+		$query_result = $this->query_media_derivative_batch_inventory( $mime_type, $search, $date_from, $date_to, max( $max_items * 4, 50 ), $page );
+	}
+
+	$candidates = array();
+	$skipped = array();
+	$scanned_count = 0;
+	$attachment_ids = is_array( $query_result['attachment_ids'] ?? null )
+		? array_values( array_map( array( $this, 'absint_value' ), $query_result['attachment_ids'] ) )
+		: array();
+
+	foreach ( $attachment_ids as $attachment_id ) {
+		if ( count( $candidates ) >= $max_items ) {
+			break;
+		}
+		++$scanned_count;
+		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'attachment_not_found', array() );
+			continue;
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'permission_denied', array() );
+			continue;
 		}
 
-		$watermark = $this->normalize_media_derivative_watermark( $input['watermark'] ?? array() );
-		if ( is_wp_error( $watermark ) ) {
-			return $watermark;
-		}
-
-		$max_items = max( 1, min( 50, $this->absint_value( $input['max_items'] ?? 20 ) ) );
-		$page = max( 1, $this->absint_value( $input['page'] ?? 1 ) );
-		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? 'image' ) );
-		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
-		$date_from = sanitize_text_field( (string) ( $input['date_from'] ?? '' ) );
-		$date_to = sanitize_text_field( (string) ( $input['date_to'] ?? '' ) );
-		$exclude_formats = $this->normalize_media_derivative_format_list( $input['exclude_formats'] ?? array() );
-		$target_max_width = max( 320, min( 7680, $this->absint_value( $input['target_max_width'] ?? 1920 ) ) );
-		$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $input['large_file_threshold_bytes'] ?? 524288 ) ) );
-		$quality = max( 1, min( 100, $this->absint_value( $input['quality'] ?? 82 ) ) );
-		$min_width = $this->absint_value( $input['min_width'] ?? 0 );
-		$min_height = $this->absint_value( $input['min_height'] ?? 0 );
-		$min_filesize_bytes = $this->absint_value( $input['min_filesize_bytes'] ?? 0 );
-		$max_filesize_bytes = $this->absint_value( $input['max_filesize_bytes'] ?? 0 );
-
-		$explicit_ids = is_array( $input['attachment_ids'] ?? null )
-			? array_slice( array_values( array_unique( array_filter( array_map( array( $this, 'absint_value' ), $input['attachment_ids'] ) ) ) ), 0, 100 )
-			: array();
-		$query_result = array( 'attachment_ids' => $explicit_ids, 'total' => count( $explicit_ids ) );
-		if ( empty( $explicit_ids ) ) {
-			$query_result = $this->query_media_derivative_batch_inventory( $mime_type, $search, $date_from, $date_to, max( $max_items * 4, 50 ), $page );
-		}
-
-		$candidates = array();
-		$skipped = array();
-		$scanned_count = 0;
-		$attachment_ids = is_array( $query_result['attachment_ids'] ?? null )
-			? array_values( array_map( array( $this, 'absint_value' ), $query_result['attachment_ids'] ) )
-			: array();
-
-		foreach ( $attachment_ids as $attachment_id ) {
-			if ( count( $candidates ) >= $max_items ) {
-				break;
-			}
-			++$scanned_count;
-			$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
-			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'attachment_not_found', array() );
-				continue;
-			}
-			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'permission_denied', array() );
-				continue;
-			}
-
-			$inspection = $this->build_media_format_inspection(
-				$attachment_id,
-				array(
-					'target_max_width'           => $target_max_width,
-					'large_file_threshold_bytes' => $large_file_threshold,
-					'preferred_format'           => in_array( $target_format, array( 'webp', 'avif', 'original' ), true ) ? $target_format : 'webp',
-				)
-			);
-			$skip_reason = $this->resolve_media_derivative_batch_skip_reason(
-				$inspection,
-				array(
-					'target_format'        => $target_format,
-					'exclude_formats'      => $exclude_formats,
-					'min_width'            => $min_width,
-					'min_height'           => $min_height,
-					'min_filesize_bytes'   => $min_filesize_bytes,
-					'max_filesize_bytes'   => $max_filesize_bytes,
-				)
-			);
-			if ( '' !== $skip_reason ) {
-				$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, $skip_reason, $inspection );
-				continue;
-			}
-
-			$cloud_request_input = array(
-				'attachment_id'              => $attachment_id,
+		$inspection = $this->build_media_format_inspection(
+			$attachment_id,
+			array(
 				'target_max_width'           => $target_max_width,
 				'large_file_threshold_bytes' => $large_file_threshold,
-				'preferred_format'           => $target_format,
-				'quality'                    => $quality,
-			);
-			if ( ! empty( $watermark ) ) {
-				$cloud_request_input['watermark'] = $watermark;
-			}
-
-			$candidates[] = array(
-				'attachment_id'          => $attachment_id,
-				'title'                  => sanitize_text_field( (string) ( $inspection['title'] ?? '' ) ),
-				'mime_type'              => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
-				'source_format'          => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
-				'target_format'          => $target_format,
-				'url'                    => $this->esc_url_value( (string) ( $inspection['url'] ?? '' ) ),
-				'width'                  => $this->absint_value( $inspection['width'] ?? 0 ),
-				'height'                 => $this->absint_value( $inspection['height'] ?? 0 ),
-				'filesize_bytes'         => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
-				'warnings'               => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
-				'cloud_request_ability'  => 'magick-ai/build-media-derivative-cloud-request',
-				'cloud_request_input'    => $cloud_request_input,
-				'proposal_required'      => true,
-				'preview_required'       => true,
-			);
+				'preferred_format'           => in_array( $target_format, array( 'webp', 'avif', 'original' ), true ) ? $target_format : 'webp',
+			)
+		);
+		$skip_reason = $this->resolve_media_derivative_batch_skip_reason(
+			$inspection,
+			array(
+				'target_format'        => $target_format,
+				'exclude_formats'      => $exclude_formats,
+				'min_width'            => $min_width,
+				'min_height'           => $min_height,
+				'min_filesize_bytes'   => $min_filesize_bytes,
+				'max_filesize_bytes'   => $max_filesize_bytes,
+			)
+		);
+		if ( '' !== $skip_reason ) {
+			$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, $skip_reason, $inspection );
+			continue;
 		}
 
-		$total = $this->absint_value( $query_result['total'] ?? count( $attachment_ids ) );
+		$cloud_request_input = array(
+			'attachment_id'              => $attachment_id,
+			'target_max_width'           => $target_max_width,
+			'large_file_threshold_bytes' => $large_file_threshold,
+			'preferred_format'           => $target_format,
+			'quality'                    => $quality,
+		);
+		if ( ! empty( $watermark ) ) {
+			$cloud_request_input['watermark'] = $watermark;
+		}
+
+		$candidates[] = array(
+			'attachment_id'          => $attachment_id,
+			'title'                  => sanitize_text_field( (string) ( $inspection['title'] ?? '' ) ),
+			'mime_type'              => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
+			'source_format'          => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
+			'target_format'          => $target_format,
+			'url'                    => $this->esc_url_value( (string) ( $inspection['url'] ?? '' ) ),
+			'width'                  => $this->absint_value( $inspection['width'] ?? 0 ),
+			'height'                 => $this->absint_value( $inspection['height'] ?? 0 ),
+			'filesize_bytes'         => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+			'warnings'               => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
+			'cloud_request_ability'  => 'magick-ai/build-media-derivative-cloud-request',
+			'cloud_request_input'    => $cloud_request_input,
+			'proposal_required'      => true,
+			'preview_required'       => true,
+		);
+	}
+
+	$total = $this->absint_value( $query_result['total'] ?? count( $attachment_ids ) );
+
+	return $this->build_analysis_success_response(
+		array(
+			'plan_contract_version' => 'media_derivative_batch_plan.v1',
+			'readonly'              => true,
+			'plan_mode'             => 'dry_run',
+			'requires_approval'     => true,
+			'commit_execution'      => false,
+			'filters'               => array(
+				'mime_type'                  => $mime_type,
+				'search'                     => $search,
+				'date_from'                  => $date_from,
+				'date_to'                    => $date_to,
+				'target_format'              => $target_format,
+				'exclude_formats'            => $exclude_formats,
+				'target_max_width'           => $target_max_width,
+				'large_file_threshold_bytes' => $large_file_threshold,
+				'quality'                    => $quality,
+				'min_width'                  => $min_width,
+				'min_height'                 => $min_height,
+				'min_filesize_bytes'         => $min_filesize_bytes,
+				'max_filesize_bytes'         => $max_filesize_bytes,
+				'max_items'                  => $max_items,
+				'page'                       => $page,
+			),
+			'summary'               => array(
+				'total_matched'       => $total,
+				'scanned_count'       => $scanned_count,
+				'candidate_count'     => count( $candidates ),
+				'skipped_count'       => count( $skipped ),
+				'truncated'           => count( $candidates ) >= $max_items && $total > $scanned_count,
+				'cloud_calls_included' => false,
+			),
+			'candidates'            => $candidates,
+			'skipped'               => $skipped,
+			'execution_plan'        => array(
+				'steps' => array(
+					'Review candidates and skipped reasons.',
+					'For each candidate, call magick-ai/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
+					'Preview non-expired derivative artifacts through the local same-origin preview route.',
+					'Submit Core proposal payloads for magick-ai/adopt-cloud-media-derivative only after review.',
+					'Approve and execute through Core; run reference repair planning when hard-coded URLs or settings references remain.',
+				),
+				'batch_size_recommendation' => min( $max_items, 20 ),
+				'proposal_strategy'         => 'small_reviewed_batches',
+			),
+			'boundary'              => array(
+				'owner'                    => 'local_wordpress_host',
+				'cloud_owner'              => 'runtime_derivative_generation_only',
+				'proposal_created'         => false,
+				'approval_decision_included' => false,
+				'canonical_media_truth_included' => false,
+			),
+		),
+		array(
+			'source'         => 'local_media_derivative_batch_plan',
+			'execution_mode' => 'deterministic',
+			'readonly'       => true,
+			'plan_only'      => true,
+		),
+			'Media derivative batch plan built.'
+		);
+	}
+
+	/**
+	 * Builds a read-only one-attachment media optimization plan for Core batch approval.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+		public function build_media_optimization_plan( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media optimization plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+		if ( $attachment_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$attachment = get_post( $attachment_id );
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare an optimization plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$metadata_input = $this->normalize_media_optimization_metadata_input( $attachment_id, $input['media_details_input'] ?? array() );
+		if ( is_wp_error( $metadata_input ) ) {
+			return $metadata_input;
+		}
+
+		$artifact = $this->normalize_media_optimization_derivative_artifact( $input['derivative_artifact'] ?? array() );
+		if ( is_wp_error( $artifact ) ) {
+			return $artifact;
+		}
+
+		$current = $this->build_media_inventory_health_row( $attachment_id );
+		$current_relative_file = $this->normalize_media_relative_file( (string) ( function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_wp_attached_file', true ) : '' ) );
+		$current_mime_type = sanitize_text_field( (string) ( $current['mime_type'] ?? ( function_exists( 'get_post_mime_type' ) ? get_post_mime_type( $attachment_id ) : '' ) ) );
+		$expected_current_relative_file = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? $current_relative_file ) );
+		$expected_current_mime_type = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? $current_mime_type ) );
+		$expected_derivative_mime_type = sanitize_text_field( (string) ( $input['expected_derivative_mime_type'] ?? ( $artifact['mime_type'] ?? '' ) ) );
+
+		$metadata_action = $this->build_plan_action(
+			'update_media_details_' . $attachment_id,
+			'magick-ai/update-media-details',
+			$metadata_input,
+			array( 'media.write' ),
+			'medium',
+			'Apply reviewed media SEO and source metadata as part of one media optimization approval.'
+		);
+		$derivative_input = array(
+			'attachment_id'       => $attachment_id,
+			'derivative_artifact' => $artifact,
+		);
+		if ( '' !== $expected_current_relative_file ) {
+			$derivative_input['expected_current_relative_file'] = $expected_current_relative_file;
+		}
+		if ( '' !== $expected_current_mime_type ) {
+			$derivative_input['expected_current_mime_type'] = $expected_current_mime_type;
+		}
+		if ( '' !== $expected_derivative_mime_type ) {
+			$derivative_input['expected_derivative_mime_type'] = $expected_derivative_mime_type;
+		}
+		$derivative_action = $this->build_plan_action(
+			'adopt_cloud_media_derivative_' . $attachment_id,
+			'magick-ai/adopt-cloud-media-derivative',
+			$derivative_input,
+			array( 'media.write' ),
+			'medium',
+			'Adopt the reviewed Cloud derivative artifact as the attachment main file after Core approval.'
+		);
+
+		$metadata_preview = array(
+			'before' => array(
+				'title'       => sanitize_text_field( (string) ( $current['title'] ?? '' ) ),
+				'alt'         => sanitize_text_field( (string) ( $current['alt'] ?? '' ) ),
+				'caption'     => $this->sanitize_metadata_text( (string) ( $current['caption'] ?? '' ) ),
+				'description' => $this->sanitize_metadata_text( (string) ( $current['description'] ?? '' ) ),
+				'source_type' => $this->normalize_media_source_type( $current['source_type'] ?? '' ),
+			),
+			'after'  => array_diff_key( $metadata_input, array( 'attachment_id' => true ) ),
+		);
+		$derivative_preview = array(
+			'before' => array(
+				'relative_file'  => $current_relative_file,
+				'mime_type'      => $current_mime_type,
+				'filesize_bytes' => $this->absint_value( $current['filesize_bytes'] ?? 0 ),
+			),
+			'after'  => array(
+				'artifact_id'    => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
+				'mime_type'      => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
+				'width'          => $this->absint_value( $artifact['width'] ?? 0 ),
+				'height'         => $this->absint_value( $artifact['height'] ?? 0 ),
+				'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
+			),
+		);
 
 		return $this->build_analysis_success_response(
 			array(
-				'plan_contract_version' => 'media_derivative_batch_plan.v1',
-				'readonly'              => true,
-				'plan_mode'             => 'dry_run',
-				'requires_approval'     => true,
-				'commit_execution'      => false,
-				'filters'               => array(
-					'mime_type'                  => $mime_type,
-					'search'                     => $search,
-					'date_from'                  => $date_from,
-					'date_to'                    => $date_to,
-					'target_format'              => $target_format,
-					'exclude_formats'            => $exclude_formats,
-					'target_max_width'           => $target_max_width,
-					'large_file_threshold_bytes' => $large_file_threshold,
-					'quality'                    => $quality,
-					'min_width'                  => $min_width,
-					'min_height'                 => $min_height,
-					'min_filesize_bytes'         => $min_filesize_bytes,
-					'max_filesize_bytes'         => $max_filesize_bytes,
-					'max_items'                  => $max_items,
-					'page'                       => $page,
-				),
-				'summary'               => array(
-					'total_matched'       => $total,
-					'scanned_count'       => $scanned_count,
-					'candidate_count'     => count( $candidates ),
-					'skipped_count'       => count( $skipped ),
-					'truncated'           => count( $candidates ) >= $max_items && $total > $scanned_count,
-					'cloud_calls_included' => false,
-				),
-				'candidates'            => $candidates,
-				'skipped'               => $skipped,
-				'execution_plan'        => array(
-					'steps' => array(
-						'Review candidates and skipped reasons.',
-						'For each candidate, call magick-ai/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
-						'Preview non-expired derivative artifacts through the local same-origin preview route.',
-						'Submit Core proposal payloads for magick-ai/adopt-cloud-media-derivative only after review.',
-						'Approve and execute through Core; run reference repair planning when hard-coded URLs or settings references remain.',
+				'artifact_type'       => 'media_optimization_plan',
+				'version'             => 1,
+				'batch_id'            => 'media_optimization_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
+				'attachment_id'       => $attachment_id,
+				'optimization_goal'   => 'image_seo_and_derivative_adoption',
+				'requires_approval'   => true,
+				'dry_run'             => true,
+				'commit_execution'    => false,
+				'proposal_mode'       => 'batch',
+				'batch_approval'      => true,
+				'action_count'        => 2,
+				'metadata_preview'    => $metadata_preview,
+				'derivative_preview'  => $derivative_preview,
+				'preview'             => array(
+					array(
+						'attachment_id'       => $attachment_id,
+						'before'              => array(
+							'metadata'   => $metadata_preview['before'],
+							'derivative' => $derivative_preview['before'],
+						),
+						'after_suggestion'    => array(
+							'metadata'   => $metadata_preview['after'],
+							'derivative' => $derivative_preview['after'],
+						),
 					),
-					'batch_size_recommendation' => min( $max_items, 20 ),
-					'proposal_strategy'         => 'small_reviewed_batches',
 				),
-				'boundary'              => array(
-					'owner'                    => 'local_wordpress_host',
-					'cloud_owner'              => 'runtime_derivative_generation_only',
-					'proposal_created'         => false,
-					'approval_decision_included' => false,
-					'canonical_media_truth_included' => false,
+				'write_actions'       => array( $metadata_action, $derivative_action ),
+				'risk'                => array(
+					'level'  => 'medium',
+					'reason' => 'One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval.',
 				),
 			),
 			array(
-				'source'         => 'local_media_derivative_batch_plan',
+				'source'         => 'local_media_optimization_plan',
 				'execution_mode' => 'deterministic',
 				'readonly'       => true,
 				'plan_only'      => true,
 			),
-			'Media derivative batch plan built.'
+			'Media optimization plan built.'
 		);
+	}
+
+	/**
+	 * Builds a read-only media rename plan for Core approval.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_rename_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media rename plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+		if ( $attachment_id <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$attachment = get_post( $attachment_id );
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare a rename plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$inspection = $this->build_media_format_inspection(
+			$attachment_id,
+			array(
+				'target_max_width'           => 1920,
+				'large_file_threshold_bytes' => 524288,
+				'preferred_format'           => 'webp',
+			)
+		);
+		$current_relative_file = $this->normalize_media_relative_file( (string) ( $inspection['current_relative_file'] ?? '' ) );
+		$current_mime_type = sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) );
+		$current_basename = $this->sanitize_file_name_value( (string) ( $inspection['file_basename'] ?? basename( $current_relative_file ) ) );
+		$current_extension = strtolower( pathinfo( $current_basename, PATHINFO_EXTENSION ) );
+		$target_file_name = $this->normalize_media_rename_target_file_name( (string) ( $input['target_file_name'] ?? '' ), $current_extension );
+		if ( is_wp_error( $target_file_name ) ) {
+			return $target_file_name;
+		}
+		if ( $target_file_name === $current_basename ) {
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'Target file name matches the current file name.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$target_extension = strtolower( pathinfo( $target_file_name, PATHINFO_EXTENSION ) );
+		if ( '' !== $current_extension && $target_extension !== $current_extension ) {
+			return new \WP_Error( 'magick_ai_abilities_target_extension_mismatch', __( 'Target file extension must match the current media file extension.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$content_hashes = is_array( $inspection['content_hashes'] ?? null ) ? $inspection['content_hashes'] : array();
+		$raw_expected_current_md5 = (string) ( $input['expected_current_md5'] ?? ( $content_hashes['md5'] ?? '' ) );
+		$raw_expected_current_sha256 = (string) ( $input['expected_current_sha256'] ?? ( $content_hashes['sha256'] ?? '' ) );
+		$expected_current_md5 = $this->normalize_media_md5_value( $raw_expected_current_md5 );
+		$expected_current_sha256 = $this->normalize_media_sha256_value( $raw_expected_current_sha256 );
+		if ( array_key_exists( 'expected_current_md5', $input ) && '' !== trim( $raw_expected_current_md5 ) && '' === $expected_current_md5 ) {
+			return new \WP_Error( 'magick_ai_abilities_expected_md5_invalid', __( 'The expected current MD5 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( array_key_exists( 'expected_current_sha256', $input ) && '' !== trim( $raw_expected_current_sha256 ) && '' === $expected_current_sha256 ) {
+			return new \WP_Error( 'magick_ai_abilities_expected_sha256_invalid', __( 'The expected current SHA-256 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( array_key_exists( 'expected_current_md5', $input ) && '' !== $expected_current_md5 && $expected_current_md5 !== (string) ( $content_hashes['md5'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_current_md5_mismatch', __( 'The current media file MD5 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( array_key_exists( 'expected_current_sha256', $input ) && '' !== $expected_current_sha256 && $expected_current_sha256 !== (string) ( $content_hashes['sha256'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_current_sha256_mismatch', __( 'The current media file SHA-256 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+
+		$expected_current_relative_file = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? $current_relative_file ) );
+		if ( array_key_exists( 'expected_current_relative_file', $input ) && '' !== $expected_current_relative_file && $expected_current_relative_file !== $current_relative_file ) {
+			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		$expected_current_mime_type = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? $current_mime_type ) );
+		if ( array_key_exists( 'expected_current_mime_type', $input ) && '' !== $expected_current_mime_type && $expected_current_mime_type !== $current_mime_type ) {
+			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+
+		$conflict_mode = sanitize_key( (string) ( $input['conflict_mode'] ?? 'fail' ) );
+		$conflict_mode = in_array( $conflict_mode, array( 'fail', 'unique' ), true ) ? $conflict_mode : 'fail';
+		$rename_input = array(
+			'attachment_id'       => $attachment_id,
+			'target_file_name'    => $target_file_name,
+			'conflict_mode'       => $conflict_mode,
+		);
+		if ( '' !== $expected_current_relative_file ) {
+			$rename_input['expected_current_relative_file'] = $expected_current_relative_file;
+		}
+		if ( '' !== $expected_current_mime_type ) {
+			$rename_input['expected_current_mime_type'] = $expected_current_mime_type;
+		}
+		if ( '' !== $expected_current_md5 ) {
+			$rename_input['expected_current_md5'] = $expected_current_md5;
+		}
+		if ( '' !== $expected_current_sha256 ) {
+			$rename_input['expected_current_sha256'] = $expected_current_sha256;
+		}
+		$rename_action = $this->build_plan_action(
+			'rename_media_file_' . $attachment_id,
+			'magick-ai/rename-media-file',
+			$rename_input,
+			array( 'media.write' ),
+			'medium',
+			'Rename the attachment main file after reviewed host/OpenClaw filename policy approval.'
+		);
+
+		$dir = dirname( $current_relative_file );
+		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$target_relative_file = '' !== $dir ? $dir . '/' . $target_file_name : $target_file_name;
+
+		return $this->build_analysis_success_response(
+			array(
+				'artifact_type'       => 'media_rename_plan',
+				'version'             => 1,
+				'batch_id'            => 'media_rename_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
+				'attachment_id'       => $attachment_id,
+				'requires_approval'   => true,
+				'dry_run'             => true,
+				'commit_execution'    => false,
+				'proposal_mode'       => 'single',
+				'batch_approval'      => false,
+				'action_count'        => 1,
+				'preview'             => array(
+					'before' => array(
+						'relative_file'  => $current_relative_file,
+						'file_basename'  => $current_basename,
+						'mime_type'      => $current_mime_type,
+						'content_hashes' => $content_hashes,
+					),
+					'after_suggestion' => array(
+						'relative_file' => $target_relative_file,
+						'file_basename' => $target_file_name,
+						'mime_type'     => $current_mime_type,
+					),
+				),
+				'write_actions'       => array( $rename_action ),
+				'risk'                => array(
+					'level'  => 'medium',
+					'reason' => 'Renaming an attachment main file changes its public URL and requires Core approval.',
+				),
+			),
+			array(
+				'source'         => 'local_media_rename_plan',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+				'plan_only'      => true,
+			),
+			'Media rename plan built.'
+		);
+	}
+
+	/**
+	 * Normalizes a reviewed target basename for media rename plans.
+	 *
+	 * @param string $target_file_name Raw target file name.
+	 * @param string $current_extension Current file extension.
+	 * @return string|\WP_Error
+	 */
+	private function normalize_media_rename_target_file_name( $target_file_name, $current_extension ) {
+		$raw_target = trim( (string) $target_file_name );
+		if ( '' === $raw_target || basename( str_replace( '\\', '/', $raw_target ) ) !== $raw_target ) {
+			return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name must be a file basename, not a path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$target_file_name = $this->sanitize_file_name_value( $raw_target );
+		if ( '' === $target_file_name ) {
+			return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name is invalid after sanitization.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$current_extension = strtolower( sanitize_key( (string) $current_extension ) );
+		if ( '' === pathinfo( $target_file_name, PATHINFO_EXTENSION ) && '' !== $current_extension ) {
+			$target_file_name .= '.' . $current_extension;
+		}
+
+		return $target_file_name;
+	}
+
+	/**
+	 * Normalizes MD5 values for read-only rename plans.
+	 *
+	 * @param string $value Raw checksum value.
+	 * @return string
+	 */
+	private function normalize_media_md5_value( $value ) {
+		$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
+		if ( 0 === strpos( $value, 'md5:' ) ) {
+			$value = substr( $value, 4 );
+		}
+
+		return 1 === preg_match( '/^[a-f0-9]{32}$/', $value ) ? $value : '';
+	}
+
+	/**
+	 * Normalizes SHA-256 values for read-only rename plans.
+	 *
+	 * @param string $value Raw checksum value.
+	 * @return string
+	 */
+	private function normalize_media_sha256_value( $value ) {
+		$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
+		if ( 0 === strpos( $value, 'sha256:' ) ) {
+			$value = substr( $value, 7 );
+		}
+
+		return 1 === preg_match( '/^[a-f0-9]{64}$/', $value ) ? $value : '';
+	}
+
+	/**
+	 * Normalizes reviewed media metadata input for a media optimization plan.
+	 *
+	 * @param int   $attachment_id Attachment id.
+	 * @param mixed $input Raw metadata input.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function normalize_media_optimization_metadata_input( $attachment_id, $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$metadata = array( 'attachment_id' => $this->absint_value( $attachment_id ) );
+		foreach ( array( 'title', 'alt', 'caption', 'description', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
+			if ( ! array_key_exists( $field, $input ) ) {
+				continue;
+			}
+			$value = 'source_page_url' === $field
+				? $this->esc_url_value( (string) $input[ $field ] )
+				: $this->sanitize_metadata_text( (string) $input[ $field ] );
+			if ( in_array( $field, array( 'title', 'alt', 'photographer_name' ), true ) ) {
+				$value = sanitize_text_field( (string) $input[ $field ] );
+			}
+			if ( '' !== $value ) {
+				$metadata[ $field ] = $value;
+			}
+		}
+
+		if ( array_key_exists( 'source_type', $input ) ) {
+			$source_type = $this->normalize_media_source_type( $input['source_type'] ?? '' );
+			if ( '' !== $source_type ) {
+				$metadata['source_type'] = $source_type;
+			}
+		}
+
+		if ( count( $metadata ) <= 1 ) {
+			return new \WP_Error(
+				'magick_ai_abilities_media_optimization_metadata_required',
+				__( 'Media optimization plans require at least one reviewed media metadata field.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Normalizes Cloud derivative artifact evidence for a media optimization plan.
+	 *
+	 * @param mixed $artifact Raw artifact.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function normalize_media_optimization_derivative_artifact( $artifact ) {
+		$artifact = is_array( $artifact ) ? $artifact : array();
+		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) );
+		if ( '' === $artifact_id ) {
+			return new \WP_Error(
+				'magick_ai_abilities_media_optimization_artifact_required',
+				__( 'Media optimization plans require derivative_artifact evidence.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$normalized = array( 'artifact_id' => $artifact_id );
+		foreach ( array( 'run_id', 'expires_at', 'mime_type', 'format', 'checksum', 'sha256', 'download_url' ) as $field ) {
+			if ( array_key_exists( $field, $artifact ) && '' !== (string) $artifact[ $field ] ) {
+				$normalized[ $field ] = sanitize_text_field( (string) $artifact[ $field ] );
+			}
+		}
+		foreach ( array( 'width', 'height', 'filesize_bytes' ) as $field ) {
+			if ( array_key_exists( $field, $artifact ) ) {
+				$normalized[ $field ] = $this->absint_value( $artifact[ $field ] );
+			}
+		}
+
+		return $normalized;
 	}
 
 	/**
@@ -3276,15 +3694,20 @@ trait Media_Read_Methods {
 		if ( ! is_array( $metadata ) && function_exists( 'get_post_meta' ) ) {
 			$metadata = get_post_meta( $attachment_id, '_wp_attachment_metadata', true );
 		}
-		$metadata = is_array( $metadata ) ? $metadata : array();
-		$attached_file = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
-		$file_basename = $this->resolve_media_file_basename( $metadata, $attached_file, $url );
-		$width = $this->absint_value( $metadata['width'] ?? 0 );
-		$height = $this->absint_value( $metadata['height'] ?? 0 );
-		$filesize_bytes = $this->resolve_media_filesize_bytes( $metadata, $attached_file );
-		$target_max_width = max( 320, min( 7680, $this->absint_value( $args['target_max_width'] ?? 1920 ) ) );
-		$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $args['large_file_threshold_bytes'] ?? 524288 ) ) );
-		$preferred_format = sanitize_key( (string) ( $args['preferred_format'] ?? 'webp' ) );
+			$metadata = is_array( $metadata ) ? $metadata : array();
+			$attached_file = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
+			$current_relative_file = $this->normalize_media_relative_file( (string) ( function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_wp_attached_file', true ) : ( $metadata['file'] ?? '' ) ) );
+			if ( '' === $current_relative_file ) {
+				$current_relative_file = $this->normalize_media_relative_file( (string) ( $metadata['file'] ?? '' ) );
+			}
+			$media_file_path = $this->resolve_media_file_path( $attached_file, $current_relative_file );
+			$file_basename = $this->resolve_media_file_basename( $metadata, $attached_file, $url );
+			$width = $this->absint_value( $metadata['width'] ?? 0 );
+			$height = $this->absint_value( $metadata['height'] ?? 0 );
+			$filesize_bytes = $this->resolve_media_filesize_bytes( $metadata, $media_file_path );
+			$target_max_width = max( 320, min( 7680, $this->absint_value( $args['target_max_width'] ?? 1920 ) ) );
+			$large_file_threshold = max( 102400, min( 104857600, $this->absint_value( $args['large_file_threshold_bytes'] ?? 524288 ) ) );
+			$preferred_format = sanitize_key( (string) ( $args['preferred_format'] ?? 'webp' ) );
 		if ( ! in_array( $preferred_format, array( 'webp', 'avif', 'original' ), true ) ) {
 			$preferred_format = 'webp';
 		}
@@ -3317,14 +3740,16 @@ trait Media_Read_Methods {
 		return array(
 			'attachment_id'     => $attachment_id,
 			'title'             => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '',
-			'mime_type'         => $mime_type,
-			'source_format'     => $source_format,
-			'url'               => $url,
-			'file_basename'     => $file_basename,
-			'width'             => $width,
-			'height'            => $height,
-			'filesize_bytes'    => $filesize_bytes,
-			'metadata_available' => ! empty( $metadata ),
+				'mime_type'         => $mime_type,
+				'source_format'     => $source_format,
+				'url'               => $url,
+				'current_relative_file' => $current_relative_file,
+				'file_basename'     => $file_basename,
+				'width'             => $width,
+				'height'            => $height,
+				'filesize_bytes'    => $filesize_bytes,
+				'content_hashes'    => $this->resolve_media_content_hashes( $media_file_path ),
+				'metadata_available' => ! empty( $metadata ),
 			'format_plan'       => array(
 				'needs_attention'            => $needs_attention,
 				'should_convert'             => $should_convert,
@@ -3375,22 +3800,70 @@ trait Media_Read_Methods {
 	 * @param string              $attached_file Attached file path.
 	 * @return int
 	 */
-	private function resolve_media_filesize_bytes( array $metadata, $attached_file ) {
-		$metadata_size = $this->absint_value( $metadata['filesize'] ?? $metadata['file_size'] ?? 0 );
-		if ( $metadata_size > 0 ) {
-			return $metadata_size;
-		}
+		private function resolve_media_filesize_bytes( array $metadata, $attached_file ) {
+			$metadata_size = $this->absint_value( $metadata['filesize'] ?? $metadata['file_size'] ?? 0 );
+			if ( $metadata_size > 0 ) {
+				return $metadata_size;
+			}
 		if ( '' !== (string) $attached_file && is_readable( (string) $attached_file ) ) {
 			$size = filesize( (string) $attached_file );
 			return false === $size ? 0 : $this->absint_value( $size );
 		}
 
-		return 0;
-	}
+			return 0;
+		}
 
-	/**
-	 * Resolves source format from MIME type or file extension.
-	 *
+		/**
+		 * Resolves a readable media path without exposing it in ability output.
+		 *
+		 * @param string $attached_file Attached file path or relative file.
+		 * @param string $relative_file Uploads-relative file.
+		 * @return string
+		 */
+		private function resolve_media_file_path( $attached_file, $relative_file ) {
+			$attached_file = (string) $attached_file;
+			if ( '' !== $attached_file && is_readable( $attached_file ) ) {
+				return $attached_file;
+			}
+			$relative_file = $this->normalize_media_relative_file( $relative_file );
+			if ( '' === $relative_file || ! function_exists( 'wp_upload_dir' ) ) {
+				return '';
+			}
+			$upload_dir = wp_upload_dir();
+			$basedir = is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ?? '' ) : '';
+			if ( '' === $basedir ) {
+				return '';
+			}
+			$candidate = rtrim( $basedir, "/\\" ) . '/' . $relative_file;
+			return is_readable( $candidate ) ? $candidate : '';
+		}
+
+		/**
+		 * Resolves bounded content hashes for the current media file.
+		 *
+		 * @param string $file_path Internal file path.
+		 * @return array<string,mixed>
+		 */
+		private function resolve_media_content_hashes( $file_path ) {
+			$file_path = (string) $file_path;
+			if ( '' === $file_path || ! is_readable( $file_path ) ) {
+				return array(
+					'available' => false,
+					'md5'       => '',
+					'sha256'    => '',
+				);
+			}
+
+			return array(
+				'available' => true,
+				'md5'       => (string) md5_file( $file_path ),
+				'sha256'    => (string) hash_file( 'sha256', $file_path ),
+			);
+		}
+
+		/**
+		 * Resolves source format from MIME type or file extension.
+		 *
 	 * @param string $mime_type MIME type.
 	 * @param string $file_basename File basename.
 	 * @return string

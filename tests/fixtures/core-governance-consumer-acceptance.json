@@ -33,6 +33,7 @@
         "magick-ai/get-media-inventory-health",
         "magick-ai/get-media-cleanup-opportunities",
         "magick-ai/inspect-media-asset",
+        "magick-ai/build-media-rename-plan",
         "magick-ai/build-media-seo-assets",
         "magick-ai/optimize-media-metadata"
       ],
@@ -40,6 +41,7 @@
         "magick-ai/update-media-details",
         "magick-ai/optimize-media-asset",
         "magick-ai/replace-media-file",
+        "magick-ai/rename-media-file",
         "magick-ai/delete-media-permanently"
       ]
     },

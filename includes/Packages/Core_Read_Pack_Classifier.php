@@ -133,6 +133,8 @@ final class Core_Read_Pack_Classifier {
 			'magick-ai/build-media-settings-reference-repair-plan' => 'media_governance',
 			'magick-ai/inspect-media-asset'                     => 'media_governance',
 			'magick-ai/build-media-derivative-cloud-request'    => 'media_governance',
+			'magick-ai/build-media-optimization-plan'           => 'media_governance',
+			'magick-ai/build-media-rename-plan'                 => 'media_governance',
 			'magick-ai/build-media-derivative-batch-plan'       => 'media_governance',
 		);
 	}

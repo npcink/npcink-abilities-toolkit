@@ -110,16 +110,28 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Building a review queue before media SEO enrichment or cleanup proposals.' ),
 				'stopping_points' => array( 'Stop before update-media-details or delete-media-permanently and require host/Core approval.' ),
 			),
-			'magick-ai/build-media-inventory-fix-plan' => array(
-				'when_to_use'     => array( 'Turn bounded media inventory issues such as missing alt text, captions, descriptions, source gaps, format attention, or unattached candidates into a dry-run remediation plan.' ),
-				'not_for'         => array( 'Do not use this to upload files, update attachment metadata, set featured images, delete media, or override destructive gating.' ),
-				'best_for'        => array( 'Mapping media health findings to existing governed media write abilities with reviewable preview, skipped destructive candidates, and commit_execution=false.' ),
-				'stopping_points' => array( 'Stop at proposal-ready plan output; destructive candidates must remain gated and final writes require Core/host approval plus commit-preflight.' ),
-			),
-			'magick-ai/propose-post-taxonomy-terms' => array(
-				'when_to_use'     => array( 'Build a deterministic taxonomy assignment proposal using existing terms.' ),
-				'not_for'         => array( 'Do not use this to create terms, assign terms, delete terms, or mutate posts.' ),
-				'best_for'        => array( 'Preparing bounded dry-run input for a host-governed set-post-terms proposal.' ),
+				'magick-ai/build-media-inventory-fix-plan' => array(
+					'when_to_use'     => array( 'Turn bounded media inventory issues such as missing alt text, captions, descriptions, source gaps, format attention, or unattached candidates into a dry-run remediation plan.' ),
+					'not_for'         => array( 'Do not use this to upload files, update attachment metadata, set featured images, delete media, or override destructive gating.' ),
+					'best_for'        => array( 'Mapping media health findings to existing governed media write abilities with reviewable preview, skipped destructive candidates, and commit_execution=false.' ),
+					'stopping_points' => array( 'Stop at proposal-ready plan output; destructive candidates must remain gated and final writes require Core/host approval plus commit-preflight.' ),
+				),
+					'magick-ai/build-media-optimization-plan' => array(
+						'when_to_use'     => array( 'Combine reviewed media SEO metadata and a reviewed Cloud derivative artifact into one dry-run attachment optimization plan.' ),
+						'not_for'         => array( 'Do not use this to call Cloud, preview artifacts, approve proposals, replace files, update metadata, or execute WordPress writes.' ),
+						'best_for'        => array( 'Preparing one Core batch proposal for the user intent "optimize this media item" with metadata and derivative adoption actions.' ),
+						'stopping_points' => array( 'Stop at proposal-ready write_actions; Core/host owns proposal creation, approval, commit-preflight, audit, and final execution.' ),
+					),
+					'magick-ai/build-media-rename-plan' => array(
+						'when_to_use'     => array( 'Turn a reviewed target media basename into a proposal-ready rename-media-file action.' ),
+						'not_for'         => array( 'Do not use this to choose naming policy, compute generated names without caller intent, mutate WordPress, or move files between directories.' ),
+						'best_for'        => array( 'OpenClaw or host workflows that already selected a target file name and need Core proposal input with current file/hash guards.' ),
+						'stopping_points' => array( 'Stop at proposal-ready write_actions; final rename requires Core/host approval and commit-preflight.' ),
+					),
+					'magick-ai/propose-post-taxonomy-terms' => array(
+						'when_to_use'     => array( 'Build a deterministic taxonomy assignment proposal using existing terms.' ),
+						'not_for'         => array( 'Do not use this to create terms, assign terms, delete terms, or mutate posts.' ),
+						'best_for'        => array( 'Preparing bounded dry-run input for a host-governed set-post-terms proposal.' ),
 				'stopping_points' => array( 'Stop at the returned proposal; final taxonomy writes require Core approval and host execution.' ),
 			),
 		);

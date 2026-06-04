@@ -374,9 +374,10 @@ foreach (
 		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-cleanup-opportunities',
 		'magick-ai/build-media-inventory-fix-plan',
-		'magick-ai/build-media-reference-repair-plan',
-		'magick-ai/build-media-settings-reference-repair-plan',
-		'magick-ai/get-taxonomy-consolidation-suggestions',
+			'magick-ai/build-media-reference-repair-plan',
+			'magick-ai/build-media-settings-reference-repair-plan',
+			'magick-ai/build-media-rename-plan',
+			'magick-ai/get-taxonomy-consolidation-suggestions',
 		'magick-ai/propose-post-taxonomy-terms',
 		'magick-ai/get-page-structure-health',
 		'magick-ai/get-seo-geo-gap-report',
@@ -458,9 +459,10 @@ foreach (
 		'magick-ai/update-media-details',
 		'magick-ai/patch-setting-value',
 		'magick-ai/upload-media-from-url',
-		'magick-ai/optimize-media-asset',
-		'magick-ai/replace-media-file',
-		'magick-ai/adopt-cloud-media-derivative',
+			'magick-ai/optimize-media-asset',
+			'magick-ai/replace-media-file',
+			'magick-ai/rename-media-file',
+			'magick-ai/adopt-cloud-media-derivative',
 		'magick-ai/set-post-featured-image',
 		'magick-ai/schedule-post',
 		'magick-ai/publish-post',
@@ -885,11 +887,31 @@ $media_replace_run_request->set_body(
 );
 $media_replace_run_response = rest_do_request( $media_replace_run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $media_replace_run_response->get_status(), 'Authenticated media file replacement dry-run ability run returns 200.' );
-$media_replace_run_data = $media_replace_run_response->get_data();
-magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['dry_run'] ?? null ), 'Media file replacement defaults to governed dry-run.' );
-magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['original_preserved'] ?? null ), 'Media file replacement plans a preserved backup.' );
+	$media_replace_run_data = $media_replace_run_response->get_data();
+	magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['dry_run'] ?? null ), 'Media file replacement defaults to governed dry-run.' );
+	magick_ai_abilities_smoke_assert( true === ( $media_replace_run_data['original_preserved'] ?? null ), 'Media file replacement plans a preserved backup.' );
 
-$media_cleanup_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-media-cleanup-opportunities/run' );
+	$media_rename_run_request = new WP_REST_Request( 'POST', '/wp-abilities/v1/abilities/magick-ai/rename-media-file/run' );
+	$media_rename_run_request->set_header( 'Content-Type', 'application/json' );
+	$media_rename_run_request->set_body(
+		wp_json_encode(
+			array(
+				'input' => array(
+					'attachment_id'                  => (int) $smoke_attachment_id,
+					'target_file_name'               => 'npcink-abilities-toolkit-smoke-media-asset-renamed.jpg',
+					'expected_current_relative_file' => '2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg',
+					'dry_run'                       => true,
+				),
+			)
+		)
+	);
+	$media_rename_run_response = rest_do_request( $media_rename_run_request );
+	magick_ai_abilities_smoke_assert( 200 === (int) $media_rename_run_response->get_status(), 'Authenticated media file rename dry-run ability run returns 200.' );
+	$media_rename_run_data = $media_rename_run_response->get_data();
+	magick_ai_abilities_smoke_assert( true === ( $media_rename_run_data['dry_run'] ?? null ), 'Media file rename defaults to governed dry-run.' );
+	magick_ai_abilities_smoke_assert( false === ( $media_rename_run_data['renamed'] ?? null ), 'Media file rename dry-run does not move files.' );
+
+	$media_cleanup_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai/get-media-cleanup-opportunities/run' );
 $media_cleanup_run_request->set_query_params(
 	array(
 		'input' => array(
