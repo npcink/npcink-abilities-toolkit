@@ -627,6 +627,7 @@ final class Core_Write_Package {
 					array(
 						'url'               => array( 'type' => 'string', 'format' => 'uri', 'minLength' => 1 ),
 						'title'             => $text,
+						'file_name'         => array( 'type' => 'string', 'maxLength' => 120 ),
 						'alt'               => $text,
 						'caption'           => $text,
 						'description'       => $text,
@@ -647,6 +648,7 @@ final class Core_Write_Package {
 					array(
 						'attachment_id'     => array( 'type' => 'integer' ),
 						'url'               => array( 'type' => 'string' ),
+						'file_name'         => array( 'type' => 'string' ),
 						'sizes'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'attach_to_post_id' => array( 'type' => 'integer' ),
 						'source_type'       => array( 'type' => 'string' ),
@@ -752,6 +754,7 @@ final class Core_Write_Package {
 						'expected_current_relative_file' => array( 'type' => 'string' ),
 						'expected_current_mime_type'     => array( 'type' => 'string' ),
 						'expected_derivative_mime_type'  => array( 'type' => 'string' ),
+						'file_name'                      => array( 'type' => 'string', 'maxLength' => 120 ),
 						'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'magick-ai-cloud-backup' ),
 					),
 					array( 'attachment_id', 'derivative_artifact' )
@@ -2038,6 +2041,7 @@ final class Core_Write_Package {
 		}
 
 		$title       = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
+		$file_name   = $this->sanitize_media_file_name( (string) ( $input['file_name'] ?? '' ) );
 		$alt         = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
 		$caption     = sanitize_textarea_field( (string) ( $input['caption'] ?? '' ) );
 		$description = sanitize_textarea_field( (string) ( $input['description'] ?? '' ) );
@@ -2059,6 +2063,7 @@ final class Core_Write_Package {
 		$payload     = array(
 			'attachment_id'     => 0,
 			'url'               => $url,
+			'file_name'         => $file_name,
 			'sizes'             => array(),
 			'attach_to_post_id' => $attach_to_post_id,
 			'source_type'       => $source_metadata['source_type'],
@@ -2069,6 +2074,7 @@ final class Core_Write_Package {
 			'preview'           => array(
 				'action'            => 'upload_media_from_url',
 				'url'               => $url,
+				'file_name'         => $file_name,
 				'attach_to_post_id' => $attach_to_post_id,
 			),
 		);
@@ -2080,7 +2086,7 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 
-		$attachment_id = $this->upload_media_asset_from_url( $url, $attach_to_post_id, $title );
+		$attachment_id = $this->upload_media_asset_from_url( $url, $attach_to_post_id, $title, $file_name );
 		if ( is_wp_error( $attachment_id ) ) {
 			return $attachment_id;
 		}
@@ -2108,6 +2114,7 @@ final class Core_Write_Package {
 		return array(
 			'attachment_id'     => $attachment_id,
 			'url'               => (string) wp_get_attachment_url( $attachment_id ),
+			'file_name'         => function_exists( 'get_attached_file' ) ? $this->sanitize_media_file_name( basename( (string) get_attached_file( $attachment_id ) ) ) : '',
 			'sizes'             => $this->attachment_sizes( $attachment_id ),
 			'attach_to_post_id' => $attach_to_post_id,
 			'source_type'       => $source_metadata['source_type'],
@@ -3015,7 +3022,7 @@ final class Core_Write_Package {
 	 * @param string $title Optional attachment title.
 	 * @return int|\WP_Error
 	 */
-	private function upload_media_asset_from_url( $url, $attach_to_post_id = 0, $title = '' ) {
+	private function upload_media_asset_from_url( $url, $attach_to_post_id = 0, $title = '', $file_name = '' ) {
 		$url = esc_url_raw( (string) $url );
 		if ( '' === $url ) {
 			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -3086,7 +3093,10 @@ final class Core_Write_Package {
 
 		$path     = wp_parse_url( $url, PHP_URL_PATH );
 		$path     = is_string( $path ) ? $path : '';
-		$filename = sanitize_file_name( basename( $path ) );
+		$filename = $this->sanitize_media_file_name( (string) $file_name );
+		if ( '' === $filename ) {
+			$filename = sanitize_file_name( basename( $path ) );
+		}
 		if ( '' === $filename ) {
 			$filename = 'remote-media-' . gmdate( 'YmdHis' );
 		}
@@ -3387,7 +3397,7 @@ final class Core_Write_Package {
 		$backup_suffix = sanitize_key( (string) ( $input['backup_suffix'] ?? 'magick-ai-cloud-backup' ) );
 		$backup_suffix = '' !== $backup_suffix ? substr( $backup_suffix, 0, 48 ) : 'magick-ai-cloud-backup';
 		$backup_relative = $this->backup_relative_file_for_current_media( $current, $replacement_id, $backup_suffix );
-		$derivative = $this->cloud_artifact_derivative_state( $attachment_id, $current, $artifact );
+		$derivative = $this->cloud_artifact_derivative_state( $attachment_id, $current, $artifact, (string) ( $input['file_name'] ?? '' ) );
 		$after = $this->media_file_state_from_derivative( $attachment_id, $derivative );
 
 		return array(
@@ -3466,16 +3476,19 @@ final class Core_Write_Package {
 	 * @param array<string,mixed> $artifact Normalized artifact.
 	 * @return array<string,mixed>
 	 */
-	private function cloud_artifact_derivative_state( $attachment_id, array $current, array $artifact ) {
+	private function cloud_artifact_derivative_state( $attachment_id, array $current, array $artifact, $file_name = '' ) {
 		$current_relative = $this->normalize_media_relative_file( (string) ( $current['relative_file'] ?? '' ) );
 		$dir = dirname( $current_relative );
 		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
 		$basename = $this->sanitize_media_file_name( basename( $current_relative ) );
-		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
+		$custom_basename = $this->sanitize_media_file_name( (string) $file_name );
+		$stem = '' !== $custom_basename ? preg_replace( '/\.[^.]+$/', '', $custom_basename ) : preg_replace( '/\.[^.]+$/', '', $basename );
 		$stem = '' !== (string) $stem ? $stem : 'attachment-' . absint( $attachment_id );
 		$artifact_key = substr( sanitize_key( (string) ( $artifact['artifact_id'] ?? '' ) ), 0, 16 );
 		$extension = $this->media_extension_for_mime( (string) ( $artifact['mime_type'] ?? '' ) );
-		$file_basename = $this->sanitize_media_file_name( (string) $stem . '-magick-ai-cloud-' . $artifact_key . '.' . $extension );
+		$file_basename = '' !== $custom_basename
+			? $this->sanitize_media_file_name( (string) $stem . '.' . $extension )
+			: $this->sanitize_media_file_name( (string) $stem . '-magick-ai-cloud-' . $artifact_key . '.' . $extension );
 		$relative_file = '' !== $dir ? $dir . '/' . $file_basename : $file_basename;
 
 		return array(

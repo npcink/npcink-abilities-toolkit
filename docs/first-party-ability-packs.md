@@ -114,6 +114,11 @@ Representative write abilities:
 - `magick-ai/publish-post`
 - `magick-ai/restore-post`
 
+Media filename policy: `magick-ai/upload-media-from-url` and
+`magick-ai/adopt-cloud-media-derivative` may accept an approved `file_name` for
+new local media files. `magick-ai/update-media-details` updates metadata only
+and must not physically rename existing attachment files.
+
 Representative read-only publishing support abilities:
 
 - `magick-ai/get-content-publishing-checklist`
