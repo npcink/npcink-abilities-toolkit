@@ -1207,11 +1207,11 @@ trait Media_Read_Methods {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-		public function build_media_optimization_plan( $input ) {
-			$input = is_array( $input ) ? $input : array();
-			if ( ! current_user_can( 'upload_files' ) ) {
-				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media optimization plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
-			}
+	public function build_media_optimization_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media optimization plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
