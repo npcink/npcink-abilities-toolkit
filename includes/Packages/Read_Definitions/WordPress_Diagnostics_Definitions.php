@@ -23,10 +23,10 @@ final class WordPress_Diagnostics_Definitions {
 	 */
 	public static function definitions( $callbacks ) {
 		return array(
-			'magick-ai-abilities/wp-diagnostics-summary' => array(
-				'label'            => __( 'WordPress Diagnostics Summary', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a redacted local WordPress diagnostics summary without Magick AI, MCP, filesystem path, database name, or secret details.', 'magick-ai-abilities' ),
-				'category'         => 'magick-ai-abilities-diagnostics',
+			'npcink-abilities-toolkit/wp-diagnostics-summary' => array(
+				'label'            => __( 'WordPress Diagnostics Summary', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a redacted local WordPress diagnostics summary without Magick AI, MCP, filesystem path, database name, or secret details.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-diagnostics',
 				'capability'       => 'manage_options',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -72,10 +72,10 @@ final class WordPress_Diagnostics_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'wp_diagnostics_summary' ),
 			),
-			'magick-ai-abilities/wp-ops-diagnostics-detail' => array(
-				'label'            => __( 'WordPress Operations Diagnostics Detail', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns bounded local WordPress operations diagnostics with plugin, caller capability, PHP, cache, rewrite, HTTPS, server, database, cron, structured log, content type, role, widget, block-theme, search, integration, SEO, security, and performance details.', 'magick-ai-abilities' ),
-				'category'         => 'magick-ai-abilities-diagnostics',
+			'npcink-abilities-toolkit/wp-ops-diagnostics-detail' => array(
+				'label'            => __( 'WordPress Operations Diagnostics Detail', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns bounded local WordPress operations diagnostics with plugin, caller capability, PHP, cache, rewrite, HTTPS, server, database, cron, structured log, content type, role, widget, block-theme, search, integration, SEO, security, and performance details.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-diagnostics',
 				'capability'       => 'manage_options',
 				'contract_version' => 'v1',
 				'source'           => 'official',

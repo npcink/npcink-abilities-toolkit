@@ -24,7 +24,7 @@ trait Content_Inventory_Read_Methods {
 	public function get_content_inventory_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -32,7 +32,7 @@ trait Content_Inventory_Read_Methods {
 			$post_type = 'post';
 		}
 		if ( function_exists( 'post_type_exists' ) && ! post_type_exists( $post_type ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$status = sanitize_key( (string) ( $input['status'] ?? 'any' ) );
@@ -167,7 +167,7 @@ trait Content_Inventory_Read_Methods {
 	public function get_test_content_inventory( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read test content inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read test content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$patterns = $this->normalize_test_content_patterns( $input['patterns'] ?? array() );
@@ -336,7 +336,7 @@ trait Content_Inventory_Read_Methods {
 	public function build_content_inventory_fix_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build content inventory fix plans.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build content inventory fix plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_ids = is_array( $input['post_ids'] ?? null ) ? array_values( array_filter( array_map( array( $this, 'absint_value' ), $input['post_ids'] ) ) ) : array();

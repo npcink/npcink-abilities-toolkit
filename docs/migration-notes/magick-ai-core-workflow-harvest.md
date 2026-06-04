@@ -14,7 +14,7 @@ Use this split when rewriting any harvested workflow:
 
 | Destination | Owns | Does not own |
 | --- | --- | --- |
-| `magick-ai-abilities` | WordPress Abilities API definitions, schemas, callbacks, dry-run previews, and documentation-only recipes. | Workflow execution state, approval records, Agent Gateway projection, model routing, Settings UI. |
+| `npcink-abilities-toolkit` | WordPress Abilities API definitions, schemas, callbacks, dry-run previews, and documentation-only recipes. | Workflow execution state, approval records, Agent Gateway projection, model routing, Settings UI. |
 | `magick-ai-content-assistant` | Article, media, and comment product UX, defaults, editor flows, preview/apply screens, and model-assisted content experience. | Generic Abilities API package ownership or Magick AI governance internals. |
 | Magick AI Core | Approval, audit, apply guard, app auth, quota, trace, Open Platform governance, and host runtime policy. | Content product workflows, reusable WordPress ability packages, generic writing/SEO/comment automation as a product surface. |
 
@@ -230,7 +230,7 @@ Useful value:
 
 Rewrite as:
 
-- diagnostics: `magick-ai-abilities/wp-diagnostics-summary` and
+- diagnostics: `npcink-abilities-toolkit/wp-diagnostics-summary` and
   `magick-ai/site-info`;
 - page structure: `magick-ai/inspect-page-structure` and
   `magick-ai/get-page-structure-health`;

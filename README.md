@@ -1,4 +1,4 @@
-# Magick AI Abilities
+# Npcink Abilities Toolkit
 
 Standalone WordPress Abilities API plugin for packaging and registering agent-callable abilities.
 
@@ -135,7 +135,7 @@ Advanced checks are kept behind disclosures and can:
 - verify whether the WordPress Abilities API is available
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce
 - fetch `/wp-json/wp-abilities/v1/categories`
-- enable and run a demo read-only ability: `magick-ai-abilities/site-summary`
+- enable and run a demo read-only ability: `npcink-abilities-toolkit/site-summary`
 
 ## Built-In WordPress Read and Comment Packages
 
@@ -212,8 +212,8 @@ The `magick-ai/*` ids are preserved for compatibility during the migration from 
 
 The standalone diagnostics package provides:
 
-- `magick-ai-abilities/wp-diagnostics-summary`
-- `magick-ai-abilities/wp-ops-diagnostics-detail`
+- `npcink-abilities-toolkit/wp-diagnostics-summary`
+- `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 
 The summary ability returns a redacted WordPress-only environment summary for agents and other plugins. It reports site hosts, WordPress/PHP runtime details including extension availability, active theme summary, active plugin details, current caller roles/capabilities, object cache status, rewrite/permalink status, HTTPS status, REST/Abilities API availability, cron counts, and update counts.
 
@@ -225,8 +225,8 @@ Related read abilities also expose operational context needed by support clients
 
 The standalone workflow definition package provides:
 
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`
 
 These abilities return read-only recipe definitions for host-side ability composition. They do not execute workflow steps, schedule work, approve writes, route models, select prompts, audit runs, or commit final WordPress writes.
 

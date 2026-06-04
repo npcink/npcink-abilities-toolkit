@@ -37,8 +37,8 @@ Before tagging `0.4.0`, the release owner should verify:
   - `magick_ai_abilities_get_workflow_definitions()`
   - `magick_ai_abilities_get_workflow_definition( $recipe_id )`
 - Added read-only Abilities API discovery abilities:
-  - `magick-ai-abilities/list-workflow-recipes`
-  - `magick-ai-abilities/get-workflow-recipe`
+  - `npcink-abilities-toolkit/list-workflow-recipes`
+  - `npcink-abilities-toolkit/get-workflow-recipe`
 - Kept workflow definitions declarative only: no runtime state, scheduling,
   retries, queues, model routing, prompt ownership, approval store, audit store,
   quota, or final WordPress write authority.
@@ -71,14 +71,14 @@ Before tagging `0.4.0`, the release owner should verify:
 | `composer smoke:wp` full profile | Pass | `Smoke OK: 193 assertions`; includes REST detail checks for governance metadata and schemas. |
 | `composer smoke:wp` light profile | Pass | `Smoke OK: 14 assertions`; workflow definition discovery is disabled in the light profile. |
 | `magick-ai-core composer test:all` | Pass | PHP lint and static contracts passed. |
-| `magick-ai-core composer smoke:wp` | Pass | Core discovered capabilities from `magick-ai-abilities` and found shared workflow definitions at runtime. |
+| `magick-ai-core composer smoke:wp` | Pass | Core discovered capabilities from `npcink-abilities-toolkit` and found shared workflow definitions at runtime. |
 
 ## Package Evidence
 
-- Package path: `dist/magick-ai-abilities-0.4.0.zip`
+- Package path: `dist/npcink-abilities-toolkit-0.4.0.zip`
 - Package inspection: `unzip -Z1` reports 60 files and 17 directories under the
-  `magick-ai-abilities/` prefix.
-- Version inspection: packaged `magick-ai-abilities.php` reports
+  `npcink-abilities-toolkit/` prefix.
+- Version inspection: packaged `npcink-abilities-toolkit.php` reports
   `Version: 0.4.0` and `MAGICK_AI_ABILITIES_VERSION` is `0.4.0`; packaged
   `readme.txt` reports `Stable tag: 0.4.0`.
 
@@ -101,7 +101,7 @@ WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
-MAGICK_AI_ABILITIES_PATH="/Users/muze/gitee/magick-ai-abilities" \
+MAGICK_AI_ABILITIES_PATH="/Users/muze/gitee/npcink-abilities-toolkit" \
 composer smoke:wp
 ```
 

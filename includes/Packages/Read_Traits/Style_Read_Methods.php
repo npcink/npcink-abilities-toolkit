@@ -207,7 +207,7 @@ trait Style_Read_Methods {
 			)
 		);
 		if ( is_array( $baseline ) ) {
-			$baseline['message'] = __( 'Site style baseline built.', 'magick-ai-abilities' );
+			$baseline['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
 			$baseline['meta']['source'] = 'local_site_style_baseline';
 			return $baseline;
 		}

@@ -7,7 +7,7 @@ Date: 2026-05-30.
 Source: `/Users/muze/gitee/magick-ai-root/magick-ai` content, media, comment,
 batch, settings, provider, and Agent Gateway cleanup candidates.
 
-This checkpoint records what `magick-ai-abilities` should absorb from the main
+This checkpoint records what `npcink-abilities-toolkit` should absorb from the main
 repo and what it should reject. It is intentionally a contract note, not a new
 ability batch.
 
@@ -32,7 +32,7 @@ preview shapes, and documentation-only recipes.
 | Publish preflight | `magick-ai/get-article-publish-preflight-context`, `magick-ai/get-content-publishing-checklist`, `magick-ai/get-post-publish-risk-report`, `magick-ai/get-publishing-calendar-context` | Covered as read-only context and workflow recipe composition. |
 | Media inventory and media SEO handoff | `magick-ai/list-media`, `magick-ai/get-media-inventory-health`, `magick-ai/get-media-cleanup-opportunities`, `magick-ai/build-media-seo-assets`, `magick-ai/optimize-media-metadata`, `magick-ai/update-media-details` | Covered on read/proposal/dry-run surfaces. Host still owns model calls, batch selection, scheduling, and approved write execution. |
 | Page structure inspection | `magick-ai/inspect-page-structure`, `magick-ai/get-page-structure-health` | Covered as read-only WordPress context. |
-| Site diagnostics | `magick-ai-abilities/wp-diagnostics-summary`, `magick-ai-abilities/wp-ops-diagnostics-detail`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
+| Site diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
 
 ## Absorb As Documentation Only
 
@@ -62,7 +62,7 @@ For each surface, preserve only:
 
 ## Do Not Absorb
 
-Do not move these main repo concepts into `magick-ai-abilities`:
+Do not move these main repo concepts into `npcink-abilities-toolkit`:
 
 - Agent Gateway catalogs, task templates, tool projection, or app auth;
 - MCP runtime, MCP governance, server routing, or approval/audit correlation;

@@ -27,7 +27,7 @@ if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
 		$payload = array_merge(
 			array(
 				'schema_version' => '2026-06-01',
-				'plugin_slug'    => 'magick-ai-abilities',
+				'plugin_slug'    => 'npcink-abilities-toolkit',
 				'plugin_version' => defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '',
 				'source'         => 'local',
 				'emitted_at'     => gmdate( 'c' ),

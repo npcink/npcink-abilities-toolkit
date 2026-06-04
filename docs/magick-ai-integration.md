@@ -1,10 +1,10 @@
 # Magick AI Integration Contract
 
-`magick-ai-abilities` is a standalone WordPress Abilities API plugin. The Magick AI plugin is an optional consumer, not the owner or runtime host of this project.
+`npcink-abilities-toolkit` is a standalone WordPress Abilities API plugin. The Magick AI plugin is an optional consumer, not the owner or runtime host of this project.
 
 The same registered abilities must remain usable by other plugins and clients through the standard WordPress Abilities API.
 
-Minimum recommended `magick-ai-abilities` version for this contract: `0.3.0`.
+Minimum recommended `npcink-abilities-toolkit` version for this contract: `0.3.0`.
 Magick AI should update its own integration contract whenever it requires a
 newer version.
 
@@ -73,7 +73,7 @@ Magick AI owns only its consuming runtime:
 
 ## Failure Modes
 
-- Missing `magick-ai-abilities`: Magick AI should report the package as a
+- Missing `npcink-abilities-toolkit`: Magick AI should report the package as a
   missing dependency for migrated generic WordPress ability ids.
 - Missing WordPress Abilities API: Magick AI should disable `wp_ability`
   execution and report the WordPress version/API requirement.
@@ -112,7 +112,7 @@ The independent-project split rules are recorded in [magick-ai-project-split-con
 
 ## Minimum Version Matrix
 
-| Consumer need | Minimum `magick-ai-abilities` version |
+| Consumer need | Minimum `npcink-abilities-toolkit` version |
 | --- | --- |
 | Public registration helpers, migrated baseline read/write/destructive abilities, and optional Magick AI projection | `0.2.0` |
 | Host-selectable package/sub-pack gating, thin Magick projection defaults, projection-row filter, and explicit read/comment sub-pack maps | `0.3.0` |

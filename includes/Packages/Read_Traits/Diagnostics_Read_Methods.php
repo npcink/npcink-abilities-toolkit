@@ -567,7 +567,7 @@ private function build_abilities_api_diagnostics_summary() {
 		'has_ability_available'               => function_exists( 'wp_has_ability' ),
 		'get_category_available'              => function_exists( 'wp_get_ability_category' ),
 		'has_category_available'              => function_exists( 'wp_has_ability_category' ),
-		'diagnostics_summary_registered'      => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'magick-ai-abilities/wp-diagnostics-summary' ) : null,
+		'diagnostics_summary_registered'      => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'npcink-abilities-toolkit/wp-diagnostics-summary' ) : null,
 		'legacy_site_info_registered'         => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'magick-ai/site-info' ) : null,
 	);
 }
@@ -928,12 +928,6 @@ private function read_redacted_log_tail_entries( $path, $tail_lines, $since_minu
  * @return string
  */
 private function read_diagnostics_log_contents( $path, $max_bytes ) {
-	if ( ! function_exists( 'WP_Filesystem' ) && defined( 'ABSPATH' ) ) {
-		$wp_filesystem_file = ABSPATH . 'wp-admin/includes/file.php';
-		if ( is_readable( $wp_filesystem_file ) ) {
-			require_once $wp_filesystem_file;
-		}
-	}
 	if ( ! function_exists( 'WP_Filesystem' ) ) {
 		return '';
 	}
@@ -1775,11 +1769,6 @@ private function build_performance_diagnostics_summary( array $object_cache, arr
 private function load_plugin_admin_functions() {
 	if ( function_exists( 'get_plugins' ) && function_exists( 'get_mu_plugins' ) ) {
 		return;
-	}
-
-	$plugin_file = defined( 'ABSPATH' ) ? ABSPATH . 'wp-admin/includes/plugin.php' : '';
-	if ( is_string( $plugin_file ) && '' !== $plugin_file && file_exists( $plugin_file ) ) {
-		require_once $plugin_file;
 	}
 }
 

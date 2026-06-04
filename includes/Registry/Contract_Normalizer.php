@@ -129,7 +129,7 @@ final class Contract_Normalizer {
 				: false,
 			'label'               => isset( $definition['label'] ) ? sanitize_text_field( (string) $definition['label'] ) : $ability_id,
 			'description'         => isset( $definition['description'] ) ? sanitize_text_field( (string) $definition['description'] ) : '',
-			'category'            => isset( $definition['category'] ) ? sanitize_key( (string) $definition['category'] ) : ( $is_write ? 'magick-ai-abilities-write' : 'magick-ai-abilities-read' ),
+			'category'            => isset( $definition['category'] ) ? sanitize_key( (string) $definition['category'] ) : ( $is_write ? 'npcink-abilities-toolkit-write' : 'npcink-abilities-toolkit-read' ),
 			'input_schema'        => $input_schema,
 			'output_schema'       => $output_schema,
 			'execute_callback'    => isset( $definition['execute_callback'] ) && is_callable( $definition['execute_callback'] )
@@ -173,7 +173,7 @@ final class Contract_Normalizer {
 	public function missing_execute_callback() {
 		return new \WP_Error(
 			'magick_ai_abilities_missing_execute_callback',
-			__( 'Ability execute callback is not configured.', 'magick-ai-abilities' ),
+			__( 'Ability execute callback is not configured.', 'npcink-abilities-toolkit' ),
 			array( 'status' => 500 )
 		);
 	}
@@ -204,18 +204,18 @@ final class Contract_Normalizer {
 		$schema['properties']['dry_run'] = array(
 			'type'        => 'boolean',
 			'default'     => true,
-			'description' => __( 'When true, return a host-governed preview without mutating WordPress.', 'magick-ai-abilities' ),
+			'description' => __( 'When true, return a host-governed preview without mutating WordPress.', 'npcink-abilities-toolkit' ),
 		);
 		$schema['properties']['commit'] = array(
 			'type'        => 'boolean',
 			'default'     => false,
-			'description' => __( 'When true, attempt the final commit. Host approval context is still required.', 'magick-ai-abilities' ),
+			'description' => __( 'When true, attempt the final commit. Host approval context is still required.', 'npcink-abilities-toolkit' ),
 		);
 		$schema['properties']['idempotency_key'] = array(
 			'type'        => 'string',
 			'minLength'   => 1,
 			'maxLength'   => 190,
-			'description' => __( 'Optional host-provided idempotency key for audit and replay correlation.', 'magick-ai-abilities' ),
+			'description' => __( 'Optional host-provided idempotency key for audit and replay correlation.', 'npcink-abilities-toolkit' ),
 		);
 		return $schema;
 	}

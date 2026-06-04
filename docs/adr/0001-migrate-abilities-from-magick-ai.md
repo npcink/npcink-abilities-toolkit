@@ -12,13 +12,13 @@ The Magick AI plugin contains a large `includes/abilities` surface with mixed re
 - Write-like ability schemas and callbacks.
 - Magick AI runtime bridges, Agent Gateway exposure, scopes, quota, audit, observability, model routing, workflow runtime, and final write governance.
 
-The standalone `magick-ai-abilities` plugin should become the Abilities API capability-package plugin. The Magick AI plugin should become a consumer and operations/governance surface, reducing day-to-day ability-definition development pressure in the main plugin.
+The standalone `npcink-abilities-toolkit` plugin should become the Abilities API capability-package plugin. The Magick AI plugin should become a consumer and operations/governance surface, reducing day-to-day ability-definition development pressure in the main plugin.
 
 ## Decision
 
-Migrate Abilities API package ownership into `magick-ai-abilities`, but do not move Magick AI control-plane ownership.
+Migrate Abilities API package ownership into `npcink-abilities-toolkit`, but do not move Magick AI control-plane ownership.
 
-`magick-ai-abilities` owns:
+`npcink-abilities-toolkit` owns:
 
 - Abilities API categories.
 - Ability definitions and schemas.
@@ -38,7 +38,7 @@ The Magick AI plugin owns:
 
 ## First Migration Batch
 
-The first low-risk batch moves these WordPress read-only abilities into `magick-ai-abilities` while preserving legacy ability ids for compatibility:
+The first low-risk batch moves these WordPress read-only abilities into `npcink-abilities-toolkit` while preserving legacy ability ids for compatibility:
 
 - `magick-ai/site-info`
 - `magick-ai/list-post-types`

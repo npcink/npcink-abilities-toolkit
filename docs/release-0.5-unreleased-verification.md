@@ -44,7 +44,7 @@ directly.
 
 ## Current Decision
 
-Keep `magick-ai-abilities` in freeze/observe mode:
+Keep `npcink-abilities-toolkit` in freeze/observe mode:
 
 - do not add another fourth-batch ability from candidate lists alone;
 - treat the main Magick AI repo cleanup list as harvest input, not as an
@@ -62,7 +62,7 @@ coverage and records that no new ability batch is open from those signals alone.
 
 ## Open Gaps
 
-No active `magick-ai-abilities` schema, metadata, or ability contract gap is
+No active `npcink-abilities-toolkit` schema, metadata, or ability contract gap is
 open for the taxonomy terms preview handoff.
 
 Future work should start from a failed or incomplete host workflow proof, not

@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: Magick AI Abilities Demo
- * Description: Example provider plugin that registers abilities through Magick AI Abilities.
+ * Plugin Name: Npcink Abilities Toolkit Demo
+ * Description: Example provider plugin that registers abilities through Npcink Abilities Toolkit.
  * Version: 0.1.0
  * Requires at least: 7.0
  * Requires PHP: 8.0
- * Author: Magick AI
- * Text Domain: magick-ai-abilities-demo
+ * Author: Npcink
+ * Text Domain: npcink-abilities-toolkit-demo
  *
  * @package MagickAIAbilitiesDemo
  */
@@ -26,8 +26,8 @@ add_action(
 			magick_ai_abilities_register_category(
 				'acme-demo',
 				array(
-					'label'       => __( 'ACME Demo Abilities', 'magick-ai-abilities-demo' ),
-					'description' => __( 'Example abilities provided by a standalone plugin.', 'magick-ai-abilities-demo' ),
+					'label'       => __( 'ACME Demo Abilities', 'npcink-abilities-toolkit-demo' ),
+					'description' => __( 'Example abilities provided by a standalone plugin.', 'npcink-abilities-toolkit-demo' ),
 				)
 			);
 		}
@@ -35,8 +35,8 @@ add_action(
 		magick_ai_abilities_register_readonly(
 			'acme/content-inventory-summary',
 			array(
-				'label'          => __( 'Content Inventory Summary', 'magick-ai-abilities-demo' ),
-				'description'    => __( 'Returns counts of common public content types for testing agent discovery.', 'magick-ai-abilities-demo' ),
+				'label'          => __( 'Content Inventory Summary', 'npcink-abilities-toolkit-demo' ),
+				'description'    => __( 'Returns counts of common public content types for testing agent discovery.', 'npcink-abilities-toolkit-demo' ),
 				'category'       => 'acme-demo',
 				'capability'     => 'edit_posts',
 				'required_scope' => 'cap.content.read',
@@ -66,8 +66,8 @@ add_action(
 		magick_ai_abilities_register_readonly(
 			'acme/projected-site-summary',
 			array(
-				'label'                     => __( 'Projected Site Summary', 'magick-ai-abilities-demo' ),
-				'description'               => __( 'Shows how a provider plugin explicitly opts into Magick AI compatibility projection.', 'magick-ai-abilities-demo' ),
+				'label'                     => __( 'Projected Site Summary', 'npcink-abilities-toolkit-demo' ),
+				'description'               => __( 'Shows how a provider plugin explicitly opts into Magick AI compatibility projection.', 'npcink-abilities-toolkit-demo' ),
 				'category'                  => 'acme-demo',
 				'capability'                => 'manage_options',
 				'required_scope'            => 'cap.site.read',
@@ -96,8 +96,8 @@ add_action(
 		magick_ai_abilities_register_write_proposal(
 			'acme/create-draft-proposal',
 			array(
-				'label'            => __( 'Create Draft Proposal', 'magick-ai-abilities-demo' ),
-				'description'      => __( 'Builds a draft proposal without creating a post.', 'magick-ai-abilities-demo' ),
+				'label'            => __( 'Create Draft Proposal', 'npcink-abilities-toolkit-demo' ),
+				'description'      => __( 'Builds a draft proposal without creating a post.', 'npcink-abilities-toolkit-demo' ),
 				'category'         => 'acme-demo',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.content.write',

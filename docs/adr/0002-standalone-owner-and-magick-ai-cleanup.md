@@ -5,7 +5,7 @@ Date: 2026-05-27
 
 ## Context
 
-`magick-ai-abilities` has moved beyond being a Magick AI helper module. It is now the standalone WordPress Abilities API capability-package plugin:
+`npcink-abilities-toolkit` has moved beyond being a Magick AI helper module. It is now the standalone WordPress Abilities API capability-package plugin:
 
 - It should provide reusable WordPress abilities for Magick AI and other plugins.
 - It should own generic ability contracts, schemas, categories, registration helpers, and WordPress-only callbacks.
@@ -20,9 +20,9 @@ The current Magick AI product is still in development and has no production user
 
 ## Decision
 
-Make `magick-ai-abilities` the primary owner of the migrated generic WordPress ability packages.
+Make `npcink-abilities-toolkit` the primary owner of the migrated generic WordPress ability packages.
 
-For the current development stage, Magick AI will no longer keep fallback copies of migrated read-only ability configs or callbacks. Sites that need those generic abilities should install and activate `magick-ai-abilities`.
+For the current development stage, Magick AI will no longer keep fallback copies of migrated read-only ability configs or callbacks. Sites that need those generic abilities should install and activate `npcink-abilities-toolkit`.
 
 Magick AI keeps only abilities that are still part of its own runtime, governance, or operations surface.
 
@@ -99,7 +99,7 @@ Remove the old Magick AI callback/config files that existed only for the migrate
 - `includes/abilities/config-tools/comment.php`
 - `includes/abilities/config-tools/registry/comment.php`
 
-Deleting `config-pages.php` also removes the old `magick-ai/create-page` and `magick-ai/update-page` placeholders from Magick AI. They are not migrated into `magick-ai-abilities` in this batch because they are write-like page management abilities and did not have valid Magick AI callback ownership at cleanup time. Future generic page-write support should be redesigned as proposal-only abilities before any standalone migration.
+Deleting `config-pages.php` also removes the old `magick-ai/create-page` and `magick-ai/update-page` placeholders from Magick AI. They are not migrated into `npcink-abilities-toolkit` in this batch because they are write-like page management abilities and did not have valid Magick AI callback ownership at cleanup time. Future generic page-write support should be redesigned as proposal-only abilities before any standalone migration.
 
 Keep `magick-ai/site-diagnostics` in Magick AI because it currently includes Magick AI, MCP, runtime, filesystem, database, REST-probe, and operations-state details.
 
@@ -107,7 +107,7 @@ Keep `magick-ai/site-diagnostics` in Magick AI because it currently includes Mag
 
 Do not migrate Magick AI write/destructive abilities as one unreviewed bulk move.
 
-`magick-ai-abilities` may own generic WordPress write abilities when they remain host-governed. Direct clients get discovery and dry-run previews; final commit requires approval context from a host runtime. In that model, `magick-ai-abilities` owns the generic WordPress callback and mutation, while Magick AI or another host owns admission, approval, audit, and execution context.
+`npcink-abilities-toolkit` may own generic WordPress write abilities when they remain host-governed. Direct clients get discovery and dry-run previews; final commit requires approval context from a host runtime. In that model, `npcink-abilities-toolkit` owns the generic WordPress callback and mutation, while Magick AI or another host owns admission, approval, audit, and execution context.
 
 The first host-governed write migration includes:
 
@@ -143,7 +143,7 @@ The first host-governed destructive migration includes:
 - `magick-ai/trash-post`
 - `magick-ai/delete-post-permanently`
 
-`magick-ai-abilities` may also later own generic WordPress proposal abilities, such as:
+`npcink-abilities-toolkit` may also later own generic WordPress proposal abilities, such as:
 
 - draft proposal generation
 - page/post update proposal generation
@@ -160,7 +160,7 @@ But final write ownership remains in the host runtime that provides:
 - commit authorization context
 - rollback or incident response hooks
 
-For Magick AI, that host runtime is the Magick AI plugin, not `magick-ai-abilities`. `magick-ai-abilities` executes only the generic WordPress mutation after the host has authorized the commit.
+For Magick AI, that host runtime is the Magick AI plugin, not `npcink-abilities-toolkit`. `npcink-abilities-toolkit` executes only the generic WordPress mutation after the host has authorized the commit.
 
 The Magick AI cleanup for the first host-governed write migration also removes the old local callback functions for:
 
@@ -195,10 +195,10 @@ The Magick AI cleanup for the first host-governed write migration also removes t
 ## Consequences
 
 - Magick AI's Abilities surface becomes smaller and more operations-focused.
-- `magick-ai-abilities` becomes the development home for generic WordPress ability packages.
-- After the current cleanup pass, Magick AI and `magick-ai-abilities` have no duplicate `magick-ai/*` package ability ids in their local registries.
+- `npcink-abilities-toolkit` becomes the development home for generic WordPress ability packages.
+- After the current cleanup pass, Magick AI and `npcink-abilities-toolkit` have no duplicate `magick-ai/*` package ability ids in their local registries.
 - The remaining Magick AI-owned abilities are runtime/model, bridge, MCP resource, workflow-semantic, or operations-diagnostics abilities; moving those would require a separate semantic/runtime extraction decision, not a continuation of this pure WordPress package migration.
 - Duplicate registration guards in Magick AI are no longer the main compatibility mechanism for migrated read-only abilities.
 - Accidental reintroduction of migrated read-only ability configs should be caught by review, smoke tests, and inventory checks rather than silently deferred.
-- Magick AI unit tests that directly require deleted ability package files should be retired or ported to `magick-ai-abilities` tests.
+- Magick AI unit tests that directly require deleted ability package files should be retired or ported to `npcink-abilities-toolkit` tests.
 - If a future deployment needs backwards-compatible fallback behavior, that should be an explicit new ADR and release-mode decision, not the default development posture.

@@ -2,7 +2,7 @@
 
 Status: active guidance.
 
-`magick-ai-abilities` supports a full default profile and a narrow light profile.
+`npcink-abilities-toolkit` supports a full default profile and a narrow light profile.
 Hosts should choose explicitly instead of treating the full built-in surface as
 the only safe deployment shape.
 
@@ -72,10 +72,10 @@ This profile keeps generic read abilities such as `magick-ai/site-info`,
 It disables optional workflow, diagnostics, write, destructive, and comment
 helper abilities, including:
 
-- `magick-ai-abilities/wp-diagnostics-summary`
-- `magick-ai-abilities/wp-ops-diagnostics-detail`
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
+- `npcink-abilities-toolkit/wp-diagnostics-summary`
+- `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`
 - `magick-ai/get-site-operations-dashboard`
 - `magick-ai/get-comment-queue-health`
 - `magick-ai/create-draft`

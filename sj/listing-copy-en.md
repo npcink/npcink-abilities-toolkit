@@ -2,7 +2,7 @@
 
 ## Plugin Name
 
-Magick AI Abilities
+Npcink Abilities Toolkit
 
 ## Short Description
 
@@ -14,7 +14,7 @@ abilities api, agents, ai, automation, developer tools
 
 ## Description
 
-Magick AI Abilities provides reusable ability packages and callback contracts for
+Npcink Abilities Toolkit provides reusable ability packages and callback contracts for
 the WordPress Abilities API.
 
 It helps plugin authors and host runtimes expose safe, agent-callable WordPress
@@ -24,11 +24,12 @@ normalization, built-in WordPress read abilities, proposal-oriented write
 abilities, diagnostics abilities, and optional compatibility projection for
 Magick AI hosts.
 
-This plugin is part of the Magick AI plugin family, but it remains useful on its
-own. It can be consumed directly by clients that use the WordPress Abilities API
-or by host plugins that need a stable ability catalog.
+This plugin is independently published by Npcink and remains useful on its own.
+It can be consumed directly by clients that use the WordPress Abilities API or
+by host plugins that need a stable ability catalog, including optional Magick AI
+hosts.
 
-Magick AI Abilities complements official WordPress AI, MCP, and Abilities API
+Npcink Abilities Toolkit complements official WordPress AI, MCP, and Abilities API
 ecosystem plugins. It is not a model client, MCP transport, cloud runtime,
 workflow engine, billing system, quota system, or final approval layer for
 WordPress writes.
@@ -59,11 +60,11 @@ WordPress writes.
   Abilities API baseline available in WordPress 7.0+.
 - PHP 8.0 or later.
 
-## Series Boundary
+## Integration Boundary
 
-In the Magick AI plugin family:
+In a Magick AI host setup:
 
-- Magick AI Abilities owns ability definitions and callbacks.
+- Npcink Abilities Toolkit owns ability definitions and callbacks.
 - Magick AI Core owns governance, approval, preflight, and audit.
 - Magick AI Adapter owns OpenClaw channel adaptation.
 - Magick AI Cloud Addon owns cloud service connection.

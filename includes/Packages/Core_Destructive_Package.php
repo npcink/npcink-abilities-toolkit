@@ -52,8 +52,8 @@ final class Core_Destructive_Package {
 		$this->categories->add(
 			'magick-ai-write',
 			array(
-				'label'       => __( 'WordPress Write Abilities', 'magick-ai-abilities' ),
-				'description' => __( 'Host-governed WordPress write and destructive abilities with dry-run previews and external approval.', 'magick-ai-abilities' ),
+				'label'       => __( 'WordPress Write Abilities', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Host-governed WordPress write and destructive abilities with dry-run previews and external approval.', 'npcink-abilities-toolkit' ),
 			)
 		);
 
@@ -77,8 +77,8 @@ final class Core_Destructive_Package {
 
 		return array(
 			'magick-ai/delete-term'              => array(
-				'label'           => __( 'Delete Term', 'magick-ai-abilities' ),
-				'description'     => __( 'Deletes a taxonomy term after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Delete Term', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Deletes a taxonomy term after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'manage_categories',
 				'required_scopes' => array( 'taxonomy.manage' ),
@@ -103,8 +103,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'delete_term' ),
 			),
 			'magick-ai/merge-terms'              => array(
-				'label'           => __( 'Merge Terms', 'magick-ai-abilities' ),
-				'description'     => __( 'Moves objects from source terms to a target term, then deletes source terms after host approval.', 'magick-ai-abilities' ),
+				'label'           => __( 'Merge Terms', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Moves objects from source terms to a target term, then deletes source terms after host approval.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'manage_categories',
 				'required_scopes' => array( 'taxonomy.manage' ),
@@ -139,8 +139,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'merge_terms' ),
 			),
 			'magick-ai/bulk-update-post-terms'   => array(
-				'label'           => __( 'Bulk Update Post Terms', 'magick-ai-abilities' ),
-				'description'     => __( 'Bulk updates post or page taxonomy terms after host approval, with computed dry-run previews and per-post before/after audit.', 'magick-ai-abilities' ),
+				'label'           => __( 'Bulk Update Post Terms', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Bulk updates post or page taxonomy terms after host approval, with computed dry-run previews and per-post before/after audit.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'taxonomy.manage', 'post.write' ),
@@ -239,8 +239,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'bulk_update_post_terms' ),
 			),
 			'magick-ai/spam-comment'             => array(
-				'label'           => __( 'Spam Comment', 'magick-ai-abilities' ),
-				'description'     => __( 'Marks one comment as spam after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Spam Comment', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Marks one comment as spam after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'moderate_comments',
 				'required_scopes' => array( 'comments.manage' ),
@@ -256,8 +256,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'spam_comment' ),
 			),
 			'magick-ai/trash-comment'            => array(
-				'label'           => __( 'Trash Comment', 'magick-ai-abilities' ),
-				'description'     => __( 'Moves one comment to trash after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Trash Comment', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Moves one comment to trash after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'moderate_comments',
 				'required_scopes' => array( 'comments.manage' ),
@@ -273,8 +273,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'trash_comment' ),
 			),
 			'magick-ai/delete-media-permanently' => array(
-				'label'           => __( 'Delete Media Permanently', 'magick-ai-abilities' ),
-				'description'     => __( 'Permanently deletes one media attachment after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Delete Media Permanently', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Permanently deletes one media attachment after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'delete_posts',
 				'required_scopes' => array( 'media.write' ),
@@ -298,8 +298,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'delete_media_permanently' ),
 			),
 			'magick-ai/trash-post'               => array(
-				'label'           => __( 'Trash Post', 'magick-ai-abilities' ),
-				'description'     => __( 'Moves one post to trash after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Trash Post', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Moves one post to trash after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'delete_posts',
 				'required_scopes' => array( 'post.delete' ),
@@ -322,8 +322,8 @@ final class Core_Destructive_Package {
 				'execute_callback' => array( $this, 'trash_post' ),
 			),
 			'magick-ai/delete-post-permanently'  => array(
-				'label'           => __( 'Delete Post Permanently', 'magick-ai-abilities' ),
-				'description'     => __( 'Permanently deletes one post after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Delete Post Permanently', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Permanently deletes one post after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'delete_posts',
 				'required_scopes' => array( 'post.delete' ),
@@ -394,7 +394,7 @@ final class Core_Destructive_Package {
 			return $deleted;
 		}
 		if ( false === $deleted ) {
-			return new \WP_Error( 'magick_ai_abilities_term_delete_failed', __( 'Term deletion failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_delete_failed', __( 'Term deletion failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$payload['deleted'] = true;
@@ -418,7 +418,7 @@ final class Core_Destructive_Package {
 		$target_term_id = absint( $input['target_term_id'] ?? 0 );
 		$target_term    = $this->get_term_object( $target_term_id, $taxonomy );
 		if ( is_wp_error( $target_term ) ) {
-			return new \WP_Error( 'magick_ai_abilities_target_term_not_found', __( 'Target term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_target_term_not_found', __( 'Target term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		$cap_check = $this->check_taxonomy_capability( $taxonomy, 'manage_terms' );
 		if ( is_wp_error( $cap_check ) ) {
@@ -440,7 +440,7 @@ final class Core_Destructive_Package {
 			)
 		);
 		if ( empty( $source_term_ids ) ) {
-			return new \WP_Error( 'magick_ai_abilities_source_terms_required', __( 'At least one source term is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_source_terms_required', __( 'At least one source term is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$valid_source_ids = array();
@@ -451,7 +451,7 @@ final class Core_Destructive_Package {
 		}
 		$valid_source_ids = array_values( array_unique( $valid_source_ids ) );
 		if ( empty( $valid_source_ids ) ) {
-			return new \WP_Error( 'magick_ai_abilities_source_terms_not_found', __( 'Source terms were not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_source_terms_not_found', __( 'Source terms were not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$payload = array(
@@ -523,7 +523,7 @@ final class Core_Destructive_Package {
 
 		$taxonomy = (string) $validated['taxonomy'];
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$cap_check = $this->check_taxonomy_capability( $taxonomy, 'assign_terms' );
 		if ( is_wp_error( $cap_check ) ) {
@@ -544,7 +544,7 @@ final class Core_Destructive_Package {
 		$missing_term_labels = is_array( $resolve_result['missing'] ?? null ) ? $resolve_result['missing'] : array();
 		$operation           = (string) $validated['operation'];
 		if ( empty( $resolved_term_ids ) && 'replace' !== $operation ) {
-			return new \WP_Error( 'magick_ai_abilities_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$query = new \WP_Query( $this->bulk_post_terms_query_args( $validated ) );
@@ -563,7 +563,7 @@ final class Core_Destructive_Package {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				$skipped[] = array(
 					'post_id' => $post_id,
-					'reason'  => __( 'Current user cannot edit this post.', 'magick-ai-abilities' ),
+					'reason'  => __( 'Current user cannot edit this post.', 'npcink-abilities-toolkit' ),
 				);
 				continue;
 			}
@@ -595,17 +595,17 @@ final class Core_Destructive_Package {
 		if ( $matched_count >= absint( $validated['limit'] ?? 50 ) ) {
 			$warnings[] = sprintf(
 				/* translators: %d: query limit. */
-				__( 'Matched post count reached limit (%d); more matching posts may exist.', 'magick-ai-abilities' ),
+				__( 'Matched post count reached limit (%d); more matching posts may exist.', 'npcink-abilities-toolkit' ),
 				absint( $validated['limit'] ?? 50 )
 			);
 		}
 		if ( empty( $resolved_term_ids ) && 'replace' === $operation ) {
-			$warnings[] = __( 'Replace operation has no valid terms; matching posts will have these terms cleared.', 'magick-ai-abilities' );
+			$warnings[] = __( 'Replace operation has no valid terms; matching posts will have these terms cleared.', 'npcink-abilities-toolkit' );
 		}
 		if ( ! empty( $missing_term_labels ) ) {
 			$warnings[] = sprintf(
 				/* translators: %s: comma-separated term labels. */
-				__( 'These terms will be created during approved commit: %s', 'magick-ai-abilities' ),
+				__( 'These terms will be created during approved commit: %s', 'npcink-abilities-toolkit' ),
 				implode( ', ', $missing_term_labels )
 			);
 		}
@@ -745,7 +745,7 @@ final class Core_Destructive_Package {
 		$input         = is_array( $input ) ? $input : array();
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment    = $this->get_media_attachment( $attachment_id );
 		if ( is_wp_error( $attachment ) && ! $this->should_dry_run( $input ) ) {
@@ -765,7 +765,7 @@ final class Core_Destructive_Package {
 			return $attachment;
 		}
 		if ( ! current_user_can( 'delete_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to delete this attachment.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to delete this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$payload = array(
@@ -793,7 +793,7 @@ final class Core_Destructive_Package {
 			return $deleted;
 		}
 		if ( ! $deleted ) {
-			return new \WP_Error( 'magick_ai_abilities_media_delete_failed', __( 'Attachment deletion failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_delete_failed', __( 'Attachment deletion failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$payload['deleted'] = true;
@@ -835,7 +835,7 @@ final class Core_Destructive_Package {
 
 		$result = wp_trash_post( $post_id );
 		if ( ! $result ) {
-			return new \WP_Error( 'magick_ai_abilities_trash_failed', __( 'Post trash failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_trash_failed', __( 'Post trash failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$payload['trashed'] = true;
@@ -877,7 +877,7 @@ final class Core_Destructive_Package {
 
 		$result = wp_delete_post( $post_id, true );
 		if ( ! $result ) {
-			return new \WP_Error( 'magick_ai_abilities_delete_failed', __( 'Post deletion failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_delete_failed', __( 'Post deletion failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$payload['deleted'] = true;
@@ -1021,7 +1021,7 @@ final class Core_Destructive_Package {
 
 		return new \WP_Error(
 			'magick_ai_abilities_host_approval_required',
-			__( 'This destructive ability requires approval from a host runtime before commit.', 'magick-ai-abilities' ),
+			__( 'This destructive ability requires approval from a host runtime before commit.', 'npcink-abilities-toolkit' ),
 			array(
 				'status'       => 403,
 				'ability_id'   => $ability_id,
@@ -1092,14 +1092,14 @@ final class Core_Destructive_Package {
 	private function get_comment_for_write( $comment_id ) {
 		$comment_id = absint( $comment_id );
 		if ( $comment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_invalid', __( 'Comment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_invalid', __( 'Comment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$comment = get_comment( $comment_id );
 		if ( ! $comment ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_not_found', __( 'Comment was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_not_found', __( 'Comment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'moderate_comments' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to moderate comments.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to moderate comments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return $comment;
 	}
@@ -1113,7 +1113,7 @@ final class Core_Destructive_Package {
 	private function validate_bulk_post_terms_input( array $input ) {
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'post_type only supports post and page.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'post_type only supports post and page.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post_status = sanitize_key( (string) ( $input['post_status'] ?? 'publish' ) );
 		if ( ! in_array( $post_status, array( 'publish', 'draft', 'pending', 'future', 'any' ), true ) ) {
@@ -1121,11 +1121,11 @@ final class Core_Destructive_Package {
 		}
 		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'post_tag' ) );
 		if ( ! in_array( $taxonomy, array( 'category', 'post_tag' ), true ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'taxonomy only supports category and post_tag.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'taxonomy only supports category and post_tag.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$operation = sanitize_key( (string) ( $input['operation'] ?? 'add' ) );
 		if ( ! in_array( $operation, array( 'add', 'replace', 'remove' ), true ) ) {
-			return new \WP_Error( 'magick_ai_abilities_operation_invalid', __( 'operation only supports add, replace, and remove.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_operation_invalid', __( 'operation only supports add, replace, and remove.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$limit = min( 200, max( 1, absint( $input['limit'] ?? 50 ) ) );
 		$sample_limit = min( 50, max( 1, absint( $input['sample_limit'] ?? 20 ) ) );
@@ -1393,7 +1393,7 @@ final class Core_Destructive_Package {
 	private function valid_taxonomy( $taxonomy ) {
 		$taxonomy = sanitize_key( (string) $taxonomy );
 		if ( '' === $taxonomy || ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		return $taxonomy;
 	}
@@ -1411,7 +1411,7 @@ final class Core_Destructive_Package {
 			? sanitize_key( (string) $taxonomy_object->cap->{$cap_key} )
 			: 'manage_categories';
 		if ( '' !== $capability && ! current_user_can( $capability ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission for this taxonomy operation.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission for this taxonomy operation.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return true;
 	}
@@ -1426,11 +1426,11 @@ final class Core_Destructive_Package {
 	private function get_term_object( $term_id, $taxonomy ) {
 		$term_id = absint( $term_id );
 		if ( $term_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_term_invalid', __( 'Term ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_invalid', __( 'Term ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$term = get_term( $term_id, $taxonomy );
 		if ( ! $term || is_wp_error( $term ) ) {
-			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		return $term;
 	}
@@ -1444,11 +1444,11 @@ final class Core_Destructive_Package {
 	private function get_media_attachment( $attachment_id ) {
 		$attachment_id = absint( $attachment_id );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment = get_post( $attachment_id );
 		if ( ! $attachment || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		return $attachment;
 	}
@@ -1462,14 +1462,14 @@ final class Core_Destructive_Package {
 	private function get_deletable_post( $post_id ) {
 		$post_id = absint( $post_id );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'delete_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to delete this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to delete this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return $post;
 	}

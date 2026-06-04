@@ -114,4 +114,4 @@ if ( ! empty( $failures ) ) {
 	exit( 1 );
 }
 
-echo "magick-ai-abilities project boundary: ok\n";
+echo "npcink-abilities-toolkit project boundary: ok\n";

@@ -3,7 +3,7 @@
 Status: active handoff guide.
 
 This guide is the documentation-only handoff contract between
-`magick-ai-abilities` and `magick-ai-core`. It tells Core, product plugins, and
+`npcink-abilities-toolkit` and `magick-ai-core`. It tells Core, product plugins, and
 future agents which first-party abilities are ready for Core governance
 proposals and which operation surfaces are intentionally deferred.
 
@@ -12,7 +12,7 @@ surface, or a product feature roadmap inside Core.
 
 ## Ownership Boundary
 
-`magick-ai-abilities` owns:
+`npcink-abilities-toolkit` owns:
 
 - stable WordPress Abilities API ids;
 - ability categories, schemas, annotations, risk metadata, and callbacks;
@@ -49,7 +49,7 @@ short-name mapping layer for them in Core or Abilities.
 
 | Core governance intent | Current ability ids | Status | Core handling |
 | --- | --- | --- | --- |
-| `site/read` | `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard`, `magick-ai-abilities/wp-diagnostics-summary`, `magick-ai-abilities/wp-ops-diagnostics-detail` | Ready. | Treat as read-only intake and discovery context. Core may list or classify these abilities, but no proposal is required unless a host chooses to record review activity. |
+| `site/read` | `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard`, `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | Ready. | Treat as read-only intake and discovery context. Core may list or classify these abilities, but no proposal is required unless a host chooses to record review activity. |
 | `content/draft-preview` | `magick-ai/create-draft` | Ready as a host-governed write ability. | Use the real ability id in proposals. Preview/dry-run output belongs to the ability or host runtime. Final write remains gated by Core approval and commit preflight. |
 | `seo/metadata-preview` | `magick-ai/resolve-post-metadata-plan`, `magick-ai/set-post-seo-meta` | Ready. | Use read helper output for planning and the write ability id for proposals. Core must not invent SEO workflow orchestration. |
 | `taxonomy/terms-preview` | `magick-ai/propose-post-taxonomy-terms`, `magick-ai/set-post-terms` | Ready as a proposal-to-write handoff. | Use the proposal helper to resolve existing terms and build a bounded `set-post-terms` dry-run input. Core must still govern approval and final commit preflight. |

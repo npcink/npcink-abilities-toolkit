@@ -64,10 +64,10 @@ most likely. This avoids adding maintenance weight to all abilities at once.
 
 The initial set is:
 
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
-- `magick-ai-abilities/wp-diagnostics-summary`
-- `magick-ai-abilities/wp-ops-diagnostics-detail`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`
+- `npcink-abilities-toolkit/wp-diagnostics-summary`
+- `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 - `magick-ai/get-article-publish-preflight-context`
 - `magick-ai/get-old-article-refresh-context`
 - `magick-ai/get-media-cleanup-opportunities`

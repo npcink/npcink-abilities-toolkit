@@ -70,29 +70,29 @@ final class Core_Read_Package {
 		$this->categories->add(
 			'magick-ai-data',
 			array(
-				'label'       => __( 'WordPress Read Abilities', 'magick-ai-abilities' ),
-				'description' => __( 'Read-only WordPress site, content, and structure abilities.', 'magick-ai-abilities' ),
+				'label'       => __( 'WordPress Read Abilities', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Read-only WordPress site, content, and structure abilities.', 'npcink-abilities-toolkit' ),
 			)
 		);
 		$this->categories->add(
 			'magick-ai-pages',
 			array(
-				'label'       => __( 'WordPress Page Abilities', 'magick-ai-abilities' ),
-				'description' => __( 'Read-only WordPress page discovery and inspection abilities.', 'magick-ai-abilities' ),
+				'label'       => __( 'WordPress Page Abilities', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Read-only WordPress page discovery and inspection abilities.', 'npcink-abilities-toolkit' ),
 			)
 		);
 			$this->categories->add(
-				'magick-ai-abilities-diagnostics',
+				'npcink-abilities-toolkit-diagnostics',
 				array(
-					'label'       => __( 'WordPress Diagnostics', 'magick-ai-abilities' ),
-					'description' => __( 'Redacted WordPress environment diagnostics for Abilities API clients.', 'magick-ai-abilities' ),
+					'label'       => __( 'WordPress Diagnostics', 'npcink-abilities-toolkit' ),
+					'description' => __( 'Redacted WordPress environment diagnostics for Abilities API clients.', 'npcink-abilities-toolkit' ),
 				)
 			);
 			$this->categories->add(
-				'magick-ai-abilities-workflows',
+				'npcink-abilities-toolkit-workflows',
 				array(
-					'label'       => __( 'Workflow Recipe Definitions', 'magick-ai-abilities' ),
-					'description' => __( 'Read-only workflow recipe definitions for host-side ability composition.', 'magick-ai-abilities' ),
+					'label'       => __( 'Workflow Recipe Definitions', 'npcink-abilities-toolkit' ),
+					'description' => __( 'Read-only workflow recipe definitions for host-side ability composition.', 'npcink-abilities-toolkit' ),
 				)
 			);
 
@@ -171,10 +171,10 @@ final class Core_Read_Package {
 	 */
 		public function definitions() {
 			$definitions = array(
-				'magick-ai-abilities/list-workflow-recipes' => array(
-					'label'            => __( 'List Workflow Recipes', 'magick-ai-abilities' ),
-					'description'      => __( 'Returns read-only workflow recipe definitions for host-side ability composition without executing workflow steps.', 'magick-ai-abilities' ),
-					'category'         => 'magick-ai-abilities-workflows',
+				'npcink-abilities-toolkit/list-workflow-recipes' => array(
+					'label'            => __( 'List Workflow Recipes', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Returns read-only workflow recipe definitions for host-side ability composition without executing workflow steps.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-workflows',
 					'capability'       => 'manage_options',
 					'contract_version' => 'v1',
 					'source'           => 'official',
@@ -194,10 +194,10 @@ final class Core_Read_Package {
 					),
 					'execute_callback' => array( $this, 'list_workflow_recipes' ),
 				),
-				'magick-ai-abilities/get-workflow-recipe'  => array(
-					'label'            => __( 'Get Workflow Recipe', 'magick-ai-abilities' ),
-					'description'      => __( 'Returns one read-only workflow recipe definition by recipe id or case id without executing workflow steps.', 'magick-ai-abilities' ),
-					'category'         => 'magick-ai-abilities-workflows',
+				'npcink-abilities-toolkit/get-workflow-recipe'  => array(
+					'label'            => __( 'Get Workflow Recipe', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Returns one read-only workflow recipe definition by recipe id or case id without executing workflow steps.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-workflows',
 					'capability'       => 'manage_options',
 					'contract_version' => 'v1',
 					'source'           => 'official',
@@ -216,8 +216,8 @@ final class Core_Read_Package {
 					'execute_callback' => array( $this, 'get_workflow_recipe' ),
 				),
 				'magick-ai/list-media'      => array(
-				'label'            => __( 'List Media', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated list of media library attachments.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Media', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated list of media library attachments.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'contract_version' => 'v1',
@@ -262,8 +262,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_media' ),
 			),
 			'magick-ai/list-terms'      => array(
-				'label'            => __( 'List Terms', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated list of terms for a taxonomy.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Terms', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated list of terms for a taxonomy.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
@@ -306,8 +306,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_terms' ),
 			),
 			'magick-ai/list-taxonomy-terms' => array(
-				'label'            => __( 'List Taxonomy Terms', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated term list for one taxonomy, including parent information.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Taxonomy Terms', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated term list for one taxonomy, including parent information.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
@@ -353,8 +353,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_taxonomy_terms' ),
 			),
 			'magick-ai/list-categories' => array(
-				'label'            => __( 'List Categories', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated list of post categories.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Categories', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated list of post categories.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
@@ -384,8 +384,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_categories' ),
 			),
 			'magick-ai/list-tags'       => array(
-				'label'            => __( 'List Tags', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated list of post tags.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Tags', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated list of post tags.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
@@ -415,8 +415,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_tags' ),
 			),
 			'magick-ai/get-term'        => array(
-				'label'            => __( 'Get Term', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns details for one taxonomy term by id or slug.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Term', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns details for one taxonomy term by id or slug.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
@@ -445,8 +445,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_term' ),
 			),
 			'magick-ai/list-comments'   => array(
-				'label'            => __( 'List Comments', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a paginated list of comments.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Comments', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a paginated list of comments.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'moderate_comments',
 				'contract_version' => 'v1',
@@ -488,8 +488,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_comments' ),
 			),
 			'magick-ai/resolve-internal-link-targets' => array(
-				'label'            => __( 'Resolve Internal Link Targets', 'magick-ai-abilities' ),
-				'description'      => __( 'Finds local published content that can serve as internal-link targets for a post draft or optimization workflow.', 'magick-ai-abilities' ),
+				'label'            => __( 'Resolve Internal Link Targets', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Finds local published content that can serve as internal-link targets for a post draft or optimization workflow.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -534,8 +534,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'resolve_internal_link_targets' ),
 			),
 			'magick-ai/build-inline-image-blocks' => array(
-				'label'            => __( 'Build Inline Image Blocks', 'magick-ai-abilities' ),
-				'description'      => __( 'Converts uploaded inline image rows into append-ready Gutenberg image blocks without writing post content.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Inline Image Blocks', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Converts uploaded inline image rows into append-ready Gutenberg image blocks without writing post content.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.generate',
@@ -570,8 +570,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_inline_image_blocks' ),
 			),
 			'magick-ai/build-media-seo-assets' => array(
-				'label'            => __( 'Build Media SEO Assets', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a canonical media SEO enrichment asset list from article media workflow upload outputs.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Media SEO Assets', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a canonical media SEO enrichment asset list from article media workflow upload outputs.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -603,8 +603,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_media_seo_assets' ),
 			),
 			'magick-ai/geo-analyze' => array(
-				'label'            => __( 'GEO Analysis', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds deterministic GEO and AI visibility issues, recommendations, and evidence from article text.', 'magick-ai-abilities' ),
+				'label'            => __( 'GEO Analysis', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds deterministic GEO and AI visibility issues, recommendations, and evidence from article text.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -636,8 +636,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'geo_analyze' ),
 			),
 			'magick-ai/optimize-media-metadata' => array(
-				'label'            => __( 'Optimize Media Metadata', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds deterministic media title, alt, caption, description, source, and disclosure suggestions from article and media context.', 'magick-ai-abilities' ),
+				'label'            => __( 'Optimize Media Metadata', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds deterministic media title, alt, caption, description, source, and disclosure suggestions from article and media context.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -670,8 +670,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'optimize_media_metadata' ),
 			),
 			'magick-ai/position-inline-image-blocks' => array(
-				'label'            => __( 'Position Inline Image Blocks', 'magick-ai-abilities' ),
-				'description'      => __( 'Places generated inline image blocks after matching paragraph, heading, or anchor targets and falls back to append.', 'magick-ai-abilities' ),
+				'label'            => __( 'Position Inline Image Blocks', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Places generated inline image blocks after matching paragraph, heading, or anchor targets and falls back to append.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'post.read',
@@ -706,8 +706,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'position_inline_image_blocks' ),
 			),
 			'magick-ai/build-article-optimization-report' => array(
-				'label'            => __( 'Build Article Optimization Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Composes SEO, GEO, internal-link, and media optimization sections into one deterministic report.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Optimization Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Composes SEO, GEO, internal-link, and media optimization sections into one deterministic report.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -742,8 +742,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_optimization_report' ),
 			),
 			'magick-ai/seo-report-context' => array(
-				'label'            => __( 'Build SEO Report Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds lightweight deterministic SEO issues and recommendations for article optimization workflows.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build SEO Report Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds lightweight deterministic SEO issues and recommendations for article optimization workflows.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -775,8 +775,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_seo_report_context' ),
 			),
 			'magick-ai/read-post-optimization-context' => array(
-				'label'            => __( 'Read Post Optimization Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Reads a post title, excerpt, content, slug, categories, tags, SEO fields, template, and format snapshot for article optimization workflows.', 'magick-ai-abilities' ),
+				'label'            => __( 'Read Post Optimization Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Reads a post title, excerpt, content, slug, categories, tags, SEO fields, template, and format snapshot for article optimization workflows.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -807,8 +807,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'read_post_optimization_context' ),
 			),
 			'magick-ai/build-article-single-optimization-suggest' => array(
-				'label'            => __( 'Build Article Single Optimization Suggest', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds one canonical single-article optimization suggestion envelope for title, taxonomy, excerpt, slug, SEO, content, and GEO improvements.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Single Optimization Suggest', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds one canonical single-article optimization suggestion envelope for title, taxonomy, excerpt, slug, SEO, content, and GEO improvements.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -849,8 +849,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_single_optimization_suggest' ),
 			),
 			'magick-ai/build-article-optimization-apply-plan' => array(
-				'label'            => __( 'Build Article Optimization Apply Plan', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds one conservative apply plan from the read-only article optimization report without applying writes.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Optimization Apply Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds one conservative apply plan from the read-only article optimization report without applying writes.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -885,8 +885,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_optimization_apply_plan' ),
 			),
 			'magick-ai/compose-article-optimization-apply-result' => array(
-				'label'            => __( 'Compose Article Optimization Apply Result', 'magick-ai-abilities' ),
-				'description'      => __( 'Composes report, apply plan, safe apply result, and remaining advisory changes into one deterministic envelope.', 'magick-ai-abilities' ),
+				'label'            => __( 'Compose Article Optimization Apply Result', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Composes report, apply plan, safe apply result, and remaining advisory changes into one deterministic envelope.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.text.extract',
@@ -919,8 +919,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'compose_article_optimization_apply_result' ),
 			),
 			'magick-ai/extract-reference-post-style' => array(
-				'label'            => __( 'Extract Reference Post Style', 'magick-ai-abilities' ),
-				'description'      => __( 'Reads reference posts and returns a compact writing-style profile for article workflows.', 'magick-ai-abilities' ),
+				'label'            => __( 'Extract Reference Post Style', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Reads reference posts and returns a compact writing-style profile for article workflows.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.write',
@@ -967,8 +967,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'extract_reference_post_style' ),
 			),
 			'magick-ai/extract-style-baseline' => array(
-				'label'            => __( 'Extract Site Style Baseline', 'magick-ai-abilities' ),
-				'description'      => __( 'Extracts a lightweight site-wide or author-specific writing-style baseline from recent posts.', 'magick-ai-abilities' ),
+				'label'            => __( 'Extract Site Style Baseline', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Extracts a lightweight site-wide or author-specific writing-style baseline from recent posts.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.write',
@@ -1015,8 +1015,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'extract_style_baseline' ),
 			),
 			'magick-ai/build-article-production-fingerprint' => array(
-				'label'            => __( 'Build Article Production Fingerprint', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a stable lightweight production fingerprint for article dedupe and result summaries.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Production Fingerprint', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a stable lightweight production fingerprint for article dedupe and result summaries.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.generate',
@@ -1059,8 +1059,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_production_fingerprint' ),
 			),
 			'magick-ai/check-article-production-duplicate' => array(
-				'label'            => __( 'Check Article Production Duplicate', 'magick-ai-abilities' ),
-				'description'      => __( 'Checks whether a lightweight article production fingerprint already exists on a post.', 'magick-ai-abilities' ),
+				'label'            => __( 'Check Article Production Duplicate', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Checks whether a lightweight article production fingerprint already exists on a post.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.write',
@@ -1087,8 +1087,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'check_article_production_duplicate' ),
 			),
 			'magick-ai/review-article-output-light' => array(
-				'label'            => __( 'Review Article Output Light', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds lightweight local article quality, style, image, and AI-risk review signals without model calls.', 'magick-ai-abilities' ),
+				'label'            => __( 'Review Article Output Light', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds lightweight local article quality, style, image, and AI-risk review signals without model calls.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.generate',
@@ -1125,8 +1125,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'review_article_output_light' ),
 			),
 			'magick-ai/compose-article-production-result' => array(
-				'label'            => __( 'Compose Article Production Result', 'magick-ai-abilities' ),
-				'description'      => __( 'Summarizes the article production mainline with result mode, degraded reasons, fingerprint, handoff, and next action.', 'magick-ai-abilities' ),
+				'label'            => __( 'Compose Article Production Result', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Summarizes the article production mainline with result mode, degraded reasons, fingerprint, handoff, and next action.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.extract',
@@ -1161,8 +1161,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'compose_article_production_result' ),
 			),
 			'magick-ai/compose-article-draft-result' => array(
-				'label'            => __( 'Compose Article Draft Result', 'magick-ai-abilities' ),
-				'description'      => __( 'Composes one canonical draft workflow result with draft content, metadata resolution, shared SEO/GEO review, and handoff hints.', 'magick-ai-abilities' ),
+				'label'            => __( 'Compose Article Draft Result', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Composes one canonical draft workflow result with draft content, metadata resolution, shared SEO/GEO review, and handoff hints.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.extract',
@@ -1198,8 +1198,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'compose_article_draft_result' ),
 			),
 			'magick-ai/resolve-article-publication-decision' => array(
-				'label'            => __( 'Resolve Article Publication Decision', 'magick-ai-abilities' ),
-				'description'      => __( 'Resolves a deterministic article publish, schedule, review, or draft handoff after quality and duplicate checks.', 'magick-ai-abilities' ),
+				'label'            => __( 'Resolve Article Publication Decision', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Resolves a deterministic article publish, schedule, review, or draft handoff after quality and duplicate checks.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.extract',
@@ -1237,8 +1237,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'resolve_article_publication_decision' ),
 			),
 			'magick-ai/build-article-style-profile' => array(
-				'label'            => __( 'Build Article Style Profile', 'magick-ai-abilities' ),
-				'description'      => __( 'Merges baseline, reference, and explicit writing-style hints into one lightweight article style profile.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Style Profile', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Merges baseline, reference, and explicit writing-style hints into one lightweight article style profile.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.text.generate',
@@ -1274,8 +1274,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_style_profile' ),
 			),
 			'magick-ai/list-pages'      => array(
-				'label'            => __( 'List Pages', 'magick-ai-abilities' ),
-				'description'      => __( 'Lists WordPress pages with status, parent, search, sorting, and pagination filters.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Pages', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Lists WordPress pages with status, parent, search, sorting, and pagination filters.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-pages',
 				'capability'       => 'edit_pages',
 				'contract_version' => 'v1',
@@ -1307,8 +1307,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_pages' ),
 			),
 			'magick-ai/get-page'        => array(
-				'label'            => __( 'Get Page', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a single WordPress page, including content, template, hierarchy, author, and optional meta.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Page', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a single WordPress page, including content, template, hierarchy, author, and optional meta.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-pages',
 				'capability'       => 'edit_pages',
 				'contract_version' => 'v1',
@@ -1354,8 +1354,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_page' ),
 			),
 			'magick-ai/inspect-page-structure' => array(
-				'label'            => __( 'Inspect Page Structure', 'magick-ai-abilities' ),
-				'description'      => __( 'Inspects WordPress page hierarchy, template usage, and orphaned parent relationships without modifying pages.', 'magick-ai-abilities' ),
+				'label'            => __( 'Inspect Page Structure', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Inspects WordPress page hierarchy, template usage, and orphaned parent relationships without modifying pages.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-pages',
 				'capability'       => 'edit_pages',
 				'contract_version' => 'v1',
@@ -1384,8 +1384,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'inspect_page_structure' ),
 			),
 			'magick-ai/list-pages-tree' => array(
-				'label'            => __( 'List Pages Tree', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a hierarchical page tree for navigation and site-structure review.', 'magick-ai-abilities' ),
+				'label'            => __( 'List Pages Tree', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a hierarchical page tree for navigation and site-structure review.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_pages',
 				'contract_version' => 'v1',
@@ -1425,8 +1425,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_pages_tree' ),
 			),
 			'magick-ai/get-content-publishing-checklist' => array(
-				'label'            => __( 'Get Content Publishing Checklist', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a deterministic pre-publish readiness checklist for one post or page without applying changes.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Content Publishing Checklist', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a deterministic pre-publish readiness checklist for one post or page without applying changes.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1470,8 +1470,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_content_publishing_checklist' ),
 			),
 			'magick-ai/get-content-inventory-health' => array(
-				'label'            => __( 'Get Content Inventory Health', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded content inventory and summarizes missing titles, thin content, excerpt gaps, media gaps, SEO metadata gaps, and stale content.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Content Inventory Health', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded content inventory and summarizes missing titles, thin content, excerpt gaps, media gaps, SEO metadata gaps, and stale content.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1516,8 +1516,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_content_inventory_health' ),
 			),
 			'magick-ai/get-test-content-inventory' => array(
-				'label'            => __( 'Get Test Content Inventory', 'magick-ai-abilities' ),
-				'description'      => __( 'Detects bounded smoke, fixture, and test content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Test Content Inventory', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Detects bounded smoke, fixture, and test content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1550,8 +1550,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_test_content_inventory' ),
 			),
 			'magick-ai/build-test-content-cleanup-plan' => array(
-				'label'            => __( 'Build Test Content Cleanup Plan', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a read-only cleanup plan for detected test content, mapping each candidate to existing governed write abilities without trashing or deleting anything.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Test Content Cleanup Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a read-only cleanup plan for detected test content, mapping each candidate to existing governed write abilities without trashing or deleting anything.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1585,8 +1585,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_test_content_cleanup_plan' ),
 			),
 			'magick-ai/build-content-inventory-fix-plan' => array(
-				'label'            => __( 'Build Content Inventory Fix Plan', 'magick-ai-abilities' ),
-				'description'      => __( 'Maps bounded content inventory issues to reviewable fix actions that reuse existing governed write abilities without mutating posts.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Content Inventory Fix Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Maps bounded content inventory issues to reviewable fix actions that reuse existing governed write abilities without mutating posts.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1620,8 +1620,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_content_inventory_fix_plan' ),
 			),
 			'magick-ai/get-bulk-publishing-checklist' => array(
-				'label'            => __( 'Get Bulk Publishing Checklist', 'magick-ai-abilities' ),
-				'description'      => __( 'Runs the read-only publishing checklist for a bounded list of posts and returns batch readiness totals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Bulk Publishing Checklist', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Runs the read-only publishing checklist for a bounded list of posts and returns batch readiness totals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1667,8 +1667,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_bulk_publishing_checklist' ),
 			),
 			'magick-ai/get-internal-link-opportunity-report' => array(
-				'label'            => __( 'Get Internal Link Opportunity Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a post-id based internal-link opportunity report with candidate targets, anchor suggestions, and placement hints.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Internal Link Opportunity Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a post-id based internal-link opportunity report with candidate targets, anchor suggestions, and placement hints.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1708,8 +1708,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_internal_link_opportunity_report' ),
 			),
 			'magick-ai/get-site-operations-dashboard' => array(
-				'label'            => __( 'Get Site Operations Dashboard', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a bounded read-only site operations dashboard for content status, inventory issues, taxonomy health, comments, and media signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Site Operations Dashboard', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a bounded read-only site operations dashboard for content status, inventory issues, taxonomy health, comments, and media signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1738,8 +1738,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_site_operations_dashboard' ),
 			),
 			'magick-ai/get-post-publish-risk-report' => array(
-				'label'            => __( 'Get Post Publish Risk Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a read-only publish risk report for one post from checklist, SEO/GEO, revision, and internal-link signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Post Publish Risk Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a read-only publish risk report for one post from checklist, SEO/GEO, revision, and internal-link signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1769,8 +1769,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_post_publish_risk_report' ),
 			),
 			'magick-ai/get-article-publish-preflight-context' => array(
-				'label'            => __( 'Get Article Publish Preflight Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Aggregates post context, publishing checklist, publish risk, workflow context, and calendar context for host-side publish preflight workflows without writing.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Article Publish Preflight Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Aggregates post context, publishing checklist, publish risk, workflow context, and calendar context for host-side publish preflight workflows without writing.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1802,8 +1802,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_article_publish_preflight_context' ),
 			),
 			'magick-ai/get-content-refresh-opportunities' => array(
-				'label'            => __( 'Get Content Refresh Opportunities', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded content set and returns stale, thin, SEO-light, answer-light, and low-link refresh opportunities.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Content Refresh Opportunities', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded content set and returns stale, thin, SEO-light, answer-light, and low-link refresh opportunities.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1835,8 +1835,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_content_refresh_opportunities' ),
 			),
 			'magick-ai/get-old-article-refresh-context' => array(
-				'label'            => __( 'Get Old Article Refresh Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, internal-link graph health, and optional selected-post link opportunities for host-side old article refresh workflows.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Old Article Refresh Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, internal-link graph health, and optional selected-post link opportunities for host-side old article refresh workflows.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1870,8 +1870,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_old_article_refresh_context' ),
 			),
 			'magick-ai/get-internal-link-graph-health' => array(
-				'label'            => __( 'Get Internal Link Graph Health', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded content set and summarizes outgoing links, incoming links, orphan posts, and candidate internal-link pairs.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Internal Link Graph Health', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded content set and summarizes outgoing links, incoming links, orphan posts, and candidate internal-link pairs.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1903,8 +1903,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_internal_link_graph_health' ),
 			),
 			'magick-ai/get-media-cleanup-opportunities' => array(
-				'label'            => __( 'Get Media Cleanup Opportunities', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded media inventory and returns cleanup opportunities for metadata gaps, source gaps, and likely unused assets.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Media Cleanup Opportunities', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded media inventory and returns cleanup opportunities for metadata gaps, source gaps, and likely unused assets.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -1933,8 +1933,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_media_cleanup_opportunities' ),
 			),
 			'magick-ai/build-media-inventory-fix-plan' => array(
-				'label'            => __( 'Build Media Inventory Fix Plan', 'magick-ai-abilities' ),
-				'description'      => __( 'Maps bounded media inventory issues to reviewable metadata and cleanup actions that reuse existing governed write abilities without mutating media.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Media Inventory Fix Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Maps bounded media inventory issues to reviewable metadata and cleanup actions that reuse existing governed write abilities without mutating media.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -1972,9 +1972,89 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_media_inventory_fix_plan' ),
 			),
+			'magick-ai/build-media-reference-repair-plan' => array(
+				'label'            => __( 'Build Media Reference Repair Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans post content for hard-coded URLs to a previously replaced media file and builds governed patch-post-content actions without mutating posts.', 'npcink-abilities-toolkit' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'attachment_id'      => array( 'type' => 'integer', 'minimum' => 1 ),
+						'replacement_id'     => array( 'type' => 'string' ),
+						'old_url'            => array( 'type' => 'string' ),
+						'new_url'            => array( 'type' => 'string' ),
+						'old_relative_file'  => array( 'type' => 'string' ),
+						'new_relative_file'  => array( 'type' => 'string' ),
+						'max_posts'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 20 ),
+						'max_replacements_per_post' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 20 ),
+					),
+					'required'             => array( 'attachment_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_reference_repair_plan' ),
+			),
+			'magick-ai/build-media-settings-reference-repair-plan' => array(
+				'label'            => __( 'Build Media Settings Reference Repair Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans selected WordPress options and theme mods for hard-coded URLs to a previously replaced media file and builds governed exact replacement actions without mutating settings.', 'npcink-abilities-toolkit' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'manage_options',
+				'required_scope'   => 'site.read',
+				'required_scopes'  => array( 'site.read', 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'attachment_id'              => array( 'type' => 'integer', 'minimum' => 1 ),
+						'replacement_id'             => array( 'type' => 'string' ),
+						'old_url'                    => array( 'type' => 'string' ),
+						'new_url'                    => array( 'type' => 'string' ),
+						'old_relative_file'          => array( 'type' => 'string' ),
+						'new_relative_file'          => array( 'type' => 'string' ),
+						'option_names'               => array( 'type' => 'array', 'maxItems' => 50, 'items' => array( 'type' => 'string' ) ),
+						'theme_mod_names'            => array( 'type' => 'array', 'maxItems' => 50, 'items' => array( 'type' => 'string' ) ),
+						'include_theme_mods'         => array( 'type' => 'boolean', 'default' => true ),
+						'max_settings'               => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
+						'max_replacements_per_setting' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 20 ),
+						'excluded_formats'           => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'svg', 'gif', 'ico', 'pdf' ) ),
+						'min_width'                  => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 7680, 'default' => 64 ),
+						'min_height'                 => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 7680, 'default' => 64 ),
+						'min_filesize_bytes'         => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
+						'excluded_filename_patterns' => array( 'type' => 'array', 'items' => array( 'type' => 'string' ), 'default' => array( 'logo', 'favicon', 'icon', 'brand', 'payment', 'placeholder' ) ),
+					),
+					'required'             => array( 'attachment_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_settings_reference_repair_plan' ),
+			),
 			'magick-ai/get-taxonomy-consolidation-suggestions' => array(
-				'label'            => __( 'Get Taxonomy Consolidation Suggestions', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans taxonomy terms and suggests read-only consolidation candidates for empty, duplicate, similar, and unused terms.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Taxonomy Consolidation Suggestions', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans taxonomy terms and suggests read-only consolidation candidates for empty, duplicate, similar, and unused terms.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'required_scope'   => 'taxonomy.read',
@@ -2004,8 +2084,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_taxonomy_consolidation_suggestions' ),
 			),
 			'magick-ai/propose-post-taxonomy-terms' => array(
-				'label'            => __( 'Propose Post Taxonomy Terms', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a deterministic post taxonomy assignment proposal from existing terms without mutating the post or creating terms.', 'magick-ai-abilities' ),
+				'label'            => __( 'Propose Post Taxonomy Terms', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a deterministic post taxonomy assignment proposal from existing terms without mutating the post or creating terms.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'taxonomy.read',
@@ -2049,8 +2129,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'propose_post_taxonomy_terms' ),
 			),
 			'magick-ai/get-page-structure-health' => array(
-				'label'            => __( 'Get Page Structure Health', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans one page or a bounded page set and reports heading, CTA, content depth, and block structure health.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Page Structure Health', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans one page or a bounded page set and reports heading, CTA, content depth, and block structure health.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-pages',
 				'capability'       => 'edit_pages',
 				'required_scope'   => 'page.read',
@@ -2079,8 +2159,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_page_structure_health' ),
 			),
 			'magick-ai/get-seo-geo-gap-report' => array(
-				'label'            => __( 'Get SEO GEO Gap Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a bounded SEO/GEO gap report from topic coverage, refresh opportunities, answer structure, and SEO metadata signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get SEO GEO Gap Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a bounded SEO/GEO gap report from topic coverage, refresh opportunities, answer structure, and SEO metadata signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2111,8 +2191,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_seo_geo_gap_report' ),
 			),
 			'magick-ai/get-site-style-baseline' => array(
-				'label'            => __( 'Get Site Style Baseline', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a compact read-only site-wide or author-specific writing style baseline from recent posts.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Site Style Baseline', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a compact read-only site-wide or author-specific writing style baseline from recent posts.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2141,8 +2221,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_site_style_baseline' ),
 			),
 			'magick-ai/build-article-workflow-context' => array(
-				'label'            => __( 'Build Article Workflow Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds one read-only context bundle for article refresh, publish, or new-article workflows without model routing.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Article Workflow Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds one read-only context bundle for article refresh, publish, or new-article workflows without model routing.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2171,8 +2251,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'build_article_workflow_context' ),
 			),
 			'magick-ai/get-publishing-calendar-context' => array(
-				'label'            => __( 'Get Publishing Calendar Context', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns scheduled posts, draft backlog, pending review items, and near-term publishing cadence context.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Publishing Calendar Context', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns scheduled posts, draft backlog, pending review items, and near-term publishing cadence context.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2201,8 +2281,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_publishing_calendar_context' ),
 			),
 			'magick-ai/get-media-inventory-health' => array(
-				'label'            => __( 'Get Media Inventory Health', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Media Inventory Health', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded media inventory and summarizes missing alt text, captions, descriptions, source metadata, and format attention.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -2245,8 +2325,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_media_inventory_health' ),
 			),
 			'magick-ai/inspect-media-asset' => array(
-				'label'            => __( 'Inspect Media Asset', 'magick-ai-abilities' ),
-				'description'      => __( 'Inspects one attachment file and returns read-only format, size, dimension, and optimization recommendations.', 'magick-ai-abilities' ),
+				'label'            => __( 'Inspect Media Asset', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Inspects one attachment file and returns read-only format, size, dimension, and optimization recommendations.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -2296,8 +2376,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'inspect_media_asset' ),
 			),
 			'magick-ai/build-media-derivative-cloud-request' => array(
-				'label'            => __( 'Build Media Derivative Cloud Request', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a read-only request contract for a host or Cloud addon to generate an optimized media derivative without uploading, calling Cloud, or mutating WordPress.', 'magick-ai-abilities' ),
+				'label'            => __( 'Build Media Derivative Cloud Request', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a read-only request contract for a host or Cloud addon to generate an optimized media derivative without uploading, calling Cloud, or mutating WordPress.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',
@@ -2353,9 +2433,89 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_media_derivative_cloud_request' ),
 			),
+			'magick-ai/build-media-derivative-batch-plan' => array(
+				'label'            => __( 'Build Media Derivative Batch Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a bounded read-only plan for batch Cloud media derivative previews from local media filters without calling Cloud, creating proposals, or mutating WordPress.', 'npcink-abilities-toolkit' ),
+				'category'         => 'magick-ai-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'attachment_ids'             => array(
+							'type'     => 'array',
+							'maxItems' => 100,
+							'items'    => array( 'type' => 'integer', 'minimum' => 1 ),
+						),
+						'mime_type'                  => array( 'type' => 'string', 'default' => 'image' ),
+						'search'                     => array( 'type' => 'string' ),
+						'date_from'                  => array( 'type' => 'string' ),
+						'date_to'                    => array( 'type' => 'string' ),
+						'target_format'              => array( 'type' => 'string', 'enum' => array( 'webp', 'avif', 'jpeg', 'png', 'original' ), 'default' => 'webp' ),
+						'exclude_formats'            => array(
+							'type'    => 'array',
+							'default' => array(),
+							'items'   => array( 'type' => 'string', 'enum' => array( 'webp', 'avif', 'jpeg', 'jpg', 'png', 'gif', 'svg', 'ico', 'pdf', 'original' ) ),
+						),
+						'target_max_width'           => array( 'type' => 'integer', 'minimum' => 320, 'maximum' => 7680, 'default' => 1920 ),
+						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
+						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'min_width'                  => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
+						'min_height'                 => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
+						'min_filesize_bytes'         => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
+						'max_filesize_bytes'         => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
+						'max_items'                  => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 20 ),
+						'page'                       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
+						'watermark'                  => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'          => array( 'type' => 'string', 'enum' => array( 'image' ), 'default' => 'image' ),
+								'artifact_id'   => array( 'type' => 'string' ),
+								'position'      => array( 'type' => 'string', 'enum' => array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), 'default' => 'bottom_right' ),
+								'opacity'       => array( 'type' => 'number', 'minimum' => 0, 'maximum' => 1, 'default' => 0.75 ),
+								'scale_percent' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 18 ),
+								'margin_px'     => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 1000, 'default' => 24 ),
+							),
+							'additionalProperties' => false,
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'plan_contract_version' => array( 'type' => 'string' ),
+								'readonly'              => array( 'type' => 'boolean' ),
+								'plan_mode'             => array( 'type' => 'string' ),
+								'requires_approval'     => array( 'type' => 'boolean' ),
+								'commit_execution'      => array( 'type' => 'boolean' ),
+								'filters'               => array( 'type' => 'object', 'additionalProperties' => true ),
+								'summary'               => array( 'type' => 'object', 'additionalProperties' => true ),
+								'candidates'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'skipped'               => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+								'execution_plan'        => array( 'type' => 'object', 'additionalProperties' => true ),
+								'boundary'              => array( 'type' => 'object', 'additionalProperties' => true ),
+							),
+							'required'             => array( 'plan_contract_version', 'readonly', 'plan_mode', 'requires_approval', 'commit_execution', 'summary', 'candidates', 'skipped', 'execution_plan', 'boundary' ),
+							'additionalProperties' => true,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_derivative_batch_plan' ),
+			),
 			'magick-ai/get-post-seo-geo-readiness' => array(
-				'label'            => __( 'Get Post SEO GEO Readiness', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns one deterministic SEO/GEO readiness snapshot for a post, including metadata, content-depth, question, and media signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Post SEO GEO Readiness', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns one deterministic SEO/GEO readiness snapshot for a post, including metadata, content-depth, question, and media signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2396,8 +2556,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_post_seo_geo_readiness' ),
 			),
 			'magick-ai/get-site-topic-coverage-report' => array(
-				'label'            => __( 'Get Site Topic Coverage Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Builds a bounded site topic coverage summary from post titles, terms, and content snippets without model routing.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Site Topic Coverage Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a bounded site topic coverage summary from post titles, terms, and content snippets without model routing.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2439,8 +2599,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_site_topic_coverage_report' ),
 			),
 			'magick-ai/get-taxonomy-inventory-health' => array(
-				'label'            => __( 'Get Taxonomy Inventory Health', 'magick-ai-abilities' ),
-				'description'      => __( 'Scans a bounded taxonomy term inventory and summarizes empty, unused, duplicate, and hierarchy attention signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Taxonomy Inventory Health', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Scans a bounded taxonomy term inventory and summarizes empty, unused, duplicate, and hierarchy attention signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'manage_categories',
 				'required_scope'   => 'taxonomy.read',
@@ -2484,8 +2644,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_taxonomy_inventory_health' ),
 			),
 			'magick-ai/get-revision-change-risk-report' => array(
-				'label'            => __( 'Get Revision Change Risk Report', 'magick-ai-abilities' ),
-				'description'      => __( 'Reads recent revisions for one post and summarizes title, content length, block count, and recency change-risk signals.', 'magick-ai-abilities' ),
+				'label'            => __( 'Get Revision Change Risk Report', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Reads recent revisions for one post and summarizes title, content length, block count, and recency change-risk signals.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -2567,7 +2727,7 @@ final class Core_Read_Package {
 			$recipe_id = isset( $input['recipe_id'] ) ? sanitize_text_field( (string) $input['recipe_id'] ) : '';
 			$recipe    = Workflow_Definition_Provider::get( $recipe_id );
 			if ( null === $recipe ) {
-				return new \WP_Error( 'magick_ai_abilities_workflow_recipe_not_found', __( 'Workflow recipe definition was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+				return new \WP_Error( 'magick_ai_abilities_workflow_recipe_not_found', __( 'Workflow recipe definition was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 
 			return $recipe;
@@ -2752,7 +2912,7 @@ final class Core_Read_Package {
 		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
 
 		if ( ! post_type_exists( $post_type ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$query = new \WP_Query(
@@ -2780,7 +2940,7 @@ final class Core_Read_Package {
 		$content = wp_strip_all_tags( (string) ( $input['content'] ?? '' ) );
 		$content = trim( (string) preg_replace( '/\s+/', ' ', $content ) );
 		if ( '' === $content ) {
-			return new \WP_Error( 'magick_ai_abilities_excerpt_content_required', __( 'Content is required to generate an excerpt proposal.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_excerpt_content_required', __( 'Content is required to generate an excerpt proposal.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$style = sanitize_key( (string) ( $input['style'] ?? 'neutral' ) );
@@ -2795,7 +2955,7 @@ final class Core_Read_Package {
 
 		return array(
 			'proposal_text' => $this->truncate_text( $content, $max_chars ),
-			'explain'       => __( 'Local read-only excerpt proposal generated from explicit content input.', 'magick-ai-abilities' ),
+			'explain'       => __( 'Local read-only excerpt proposal generated from explicit content input.', 'npcink-abilities-toolkit' ),
 			'meta'          => array(
 				'source'    => 'local_readonly_proposal',
 				'style'     => $style,
@@ -2855,7 +3015,7 @@ final class Core_Read_Package {
 				'source'         => 'local_post_metadata_plan_resolution',
 				'execution_mode' => 'deterministic',
 			),
-			'message' => __( 'Post metadata plan resolved.', 'magick-ai-abilities' ),
+			'message' => __( 'Post metadata plan resolved.', 'npcink-abilities-toolkit' ),
 		);
 	}
 
@@ -3007,7 +3167,7 @@ final class Core_Read_Package {
 			$menu = wp_get_nav_menu_object( $menu_slug );
 		}
 		if ( ! $menu || ! is_object( $menu ) ) {
-			return new \WP_Error( 'magick_ai_abilities_menu_not_found', __( 'Menu was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_menu_not_found', __( 'Menu was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$items = array();

@@ -55,7 +55,7 @@ trait Internal_Link_Read_Methods {
 					'url'             => esc_url_raw( (string) get_permalink( $post_id ) ),
 					'anchor_text'     => $term,
 						/* translators: %s: Related search term. */
-						'reason'          => sprintf( __( 'Existing site content related to "%s" can be used as supplemental reading.', 'magick-ai-abilities' ), $term ),
+						'reason'          => sprintf( __( 'Existing site content related to "%s" can be used as supplemental reading.', 'npcink-abilities-toolkit' ), $term ),
 					'relevance_score' => 0.72,
 				);
 				if ( count( $targets ) >= $max_targets ) {
@@ -70,7 +70,7 @@ trait Internal_Link_Read_Methods {
 				'target_post_id' => $this->absint_value( $target['post_id'] ?? 0 ),
 				'target_url'     => esc_url_raw( (string) ( $target['url'] ?? '' ) ),
 				'anchor_text'    => sanitize_text_field( (string) ( $target['anchor_text'] ?? '' ) ),
-				'placement_hint' => __( 'Insert one internal link after the first paragraph that explains the core concept.', 'magick-ai-abilities' ),
+				'placement_hint' => __( 'Insert one internal link after the first paragraph that explains the core concept.', 'npcink-abilities-toolkit' ),
 				'reason'         => $this->sanitize_metadata_text( (string) ( $target['reason'] ?? '' ) ),
 			);
 		}
@@ -80,7 +80,7 @@ trait Internal_Link_Read_Methods {
 			'data'    => array(
 				'targets'        => array_values( $targets ),
 				'placement_plan' => $placement_plan,
-				'no_link_zones'  => '' !== $content ? array( __( 'Keep titles, opening summaries, and CTA paragraphs link-free to avoid diluting the main answer.', 'magick-ai-abilities' ) ) : array(),
+				'no_link_zones'  => '' !== $content ? array( __( 'Keep titles, opening summaries, and CTA paragraphs link-free to avoid diluting the main answer.', 'npcink-abilities-toolkit' ) ) : array(),
 				'summary'        => array(
 					'candidate_count' => count( $targets ),
 					'placement_count' => count( $placement_plan ),
@@ -91,7 +91,7 @@ trait Internal_Link_Read_Methods {
 				'source'         => 'local_internal_link_inventory',
 				'execution_mode' => 'deterministic',
 			),
-			'message' => __( 'Internal link targets resolved.', 'magick-ai-abilities' ),
+			'message' => __( 'Internal link targets resolved.', 'npcink-abilities-toolkit' ),
 		);
 	}
 }

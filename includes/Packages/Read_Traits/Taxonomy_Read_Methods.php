@@ -74,7 +74,7 @@ trait Taxonomy_Read_Methods {
 		$slug = sanitize_title( (string) ( $input['slug'] ?? '' ) );
 
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$term = null;
@@ -85,7 +85,7 @@ trait Taxonomy_Read_Methods {
 		}
 
 		if ( ! $term || is_wp_error( $term ) || ! is_object( $term ) ) {
-			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		return array(
@@ -108,7 +108,7 @@ trait Taxonomy_Read_Methods {
 	public function get_taxonomy_consolidation_suggestions( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'manage_categories' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy consolidation suggestions.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy consolidation suggestions.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'post_tag' ) );
@@ -116,7 +116,7 @@ trait Taxonomy_Read_Methods {
 			$taxonomy = 'post_tag';
 		}
 		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$hide_empty = ! empty( $input['hide_empty'] );
@@ -149,7 +149,7 @@ trait Taxonomy_Read_Methods {
 					'priority'  => 'medium',
 					'term_ids'  => array( (int) $row['term_id'] ),
 					'terms'     => array( $row['name'] ),
-					'reason'    => __( 'Term has no associated content in the current scan.', 'magick-ai-abilities' ),
+					'reason'    => __( 'Term has no associated content in the current scan.', 'npcink-abilities-toolkit' ),
 				);
 			}
 		}
@@ -163,7 +163,7 @@ trait Taxonomy_Read_Methods {
 				'priority' => 'high',
 				'term_ids' => array_values( array_map( 'intval', array_column( $rows, 'term_id' ) ) ),
 				'terms'    => array_values( array_map( 'strval', array_column( $rows, 'name' ) ) ),
-				'reason'   => __( 'Terms normalize to the same consolidation key.', 'magick-ai-abilities' ),
+				'reason'   => __( 'Terms normalize to the same consolidation key.', 'npcink-abilities-toolkit' ),
 			);
 		}
 
@@ -197,14 +197,14 @@ trait Taxonomy_Read_Methods {
 		$input   = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_required', __( 'A valid post_id is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_required', __( 'A valid post_id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = function_exists( 'get_post' ) ? get_post( $post_id ) : null;
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect taxonomy proposals for this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect taxonomy proposals for this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'post_tag' ) );
@@ -212,7 +212,7 @@ trait Taxonomy_Read_Methods {
 			$taxonomy = 'post_tag';
 		}
 		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$mode = sanitize_key( (string) ( $input['mode'] ?? 'append' ) );
@@ -223,7 +223,7 @@ trait Taxonomy_Read_Methods {
 		$candidate_term_ids = $this->normalize_limited_positive_ids( $input['candidate_term_ids'] ?? array(), 20 );
 		$candidate_terms    = $this->normalize_limited_text_list( $input['candidate_terms'] ?? array(), 20 );
 		if ( empty( $candidate_term_ids ) && empty( $candidate_terms ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_candidates_required', __( 'At least one candidate term id or term name is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_candidates_required', __( 'At least one candidate term id or term name is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$query_result  = $this->query_taxonomy_inventory_terms( $taxonomy, false, 100, 1 );
@@ -260,7 +260,7 @@ trait Taxonomy_Read_Methods {
 		$matched_terms = array_values( $matched_terms );
 		$matched_ids   = array_values( array_map( 'intval', array_column( $matched_terms, 'term_id' ) ) );
 		if ( empty( $matched_ids ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_no_matches', __( 'No candidate terms matched existing taxonomy terms.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_no_matches', __( 'No candidate terms matched existing taxonomy terms.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		if ( 'replace' === $mode ) {
@@ -323,7 +323,7 @@ trait Taxonomy_Read_Methods {
 	public function get_taxonomy_inventory_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'manage_categories' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy inventory.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read taxonomy inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'category' ) );
@@ -331,7 +331,7 @@ trait Taxonomy_Read_Methods {
 			$taxonomy = 'category';
 		}
 		if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$hide_empty = ! empty( $input['hide_empty'] );
@@ -792,7 +792,7 @@ trait Taxonomy_Read_Methods {
 		$offset = ( $page - 1 ) * $per_page;
 
 		if ( ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$args = array(

@@ -19,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Test_Page {
 	const OPTION_DEMO_ENABLED = 'magick_ai_abilities_demo_enabled';
 	const PARENT_MENU_SLUG    = 'magick-ai';
-	const MENU_SLUG           = 'magick-ai-abilities';
+	const MENU_SLUG           = 'npcink-abilities-toolkit';
+	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
 
 	/**
 	 * Ability registrar.
@@ -45,6 +46,7 @@ final class Test_Page {
 	public function boot() {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		if ( $this->is_demo_enabled() ) {
 			$this->register_demo_ability();
@@ -71,6 +73,40 @@ final class Test_Page {
 	}
 
 	/**
+	 * Enqueues the admin page assets.
+	 *
+	 * @param string $hook_suffix Current admin page hook suffix.
+	 * @return void
+	 */
+	public function enqueue_assets( $hook_suffix ) {
+		$allowed_hooks = array(
+			self::PARENT_MENU_SLUG . '_page_' . self::MENU_SLUG,
+			'tools_page_' . self::MENU_SLUG,
+		);
+		if ( ! in_array( (string) $hook_suffix, $allowed_hooks, true ) ) {
+			return;
+		}
+
+		$handle  = 'npcink-abilities-toolkit-admin';
+		$version = defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '1.0.0';
+
+		wp_enqueue_style(
+			$handle,
+			plugins_url( 'assets/admin.css', MAGICK_AI_ABILITIES_FILE ),
+			array(),
+			$version
+		);
+
+		wp_enqueue_script(
+			$handle,
+			plugins_url( 'assets/admin.js', MAGICK_AI_ABILITIES_FILE ),
+			array(),
+			$version,
+			true
+		);
+	}
+
+	/**
 	 * Adds the Tools submenu page.
 	 *
 	 * @return void
@@ -79,8 +115,8 @@ final class Test_Page {
 		if ( $this->has_magick_parent_menu() ) {
 			add_submenu_page(
 				self::PARENT_MENU_SLUG,
-				__( 'Magick AI Abilities', 'magick-ai-abilities' ),
-				__( 'Abilities', 'magick-ai-abilities' ),
+				__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),
+				__( 'Abilities', 'npcink-abilities-toolkit' ),
 				'manage_options',
 				self::MENU_SLUG,
 				array( $this, 'render' ),
@@ -90,8 +126,8 @@ final class Test_Page {
 		}
 
 		add_management_page(
-			__( 'Magick AI Abilities', 'magick-ai-abilities' ),
-			__( 'Abilities API Packages', 'magick-ai-abilities' ),
+			__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),
+			__( 'Abilities API Packages', 'npcink-abilities-toolkit' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render' )
@@ -122,26 +158,24 @@ final class Test_Page {
 	 */
 	public function render() {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'magick-ai-abilities' ) );
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'npcink-abilities-toolkit' ) );
 		}
 
 		$abilities_url  = rest_url( 'wp-abilities/v1/abilities' );
 		$categories_url = rest_url( 'wp-abilities/v1/categories' );
-		$demo_run_url   = rest_url( 'wp-abilities/v1/magick-ai-abilities/site-summary/run' );
-		$nonce          = wp_create_nonce( 'wp_rest' );
+		$demo_run_url   = rest_url( 'wp-abilities/v1/npcink-abilities-toolkit/site-summary/run' );
 		$status         = $this->get_environment_status();
 		$demo_enabled   = $this->is_demo_enabled();
 		$registered     = $this->abilities->all();
 		$active_tab     = $this->get_active_tab();
 		?>
-		<div class="wrap magick-ai-abilities-admin">
-			<h1><?php echo esc_html__( 'Magick AI Abilities', 'magick-ai-abilities' ); ?></h1>
-			<p><?php echo esc_html__( 'Ability package status, schema visibility, and callback readiness for WordPress Abilities API.', 'magick-ai-abilities' ); ?></p>
+		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>">
+			<h1><?php echo esc_html__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ); ?></h1>
+			<p><?php echo esc_html__( 'Ability package status, schema visibility, and callback readiness for WordPress Abilities API.', 'npcink-abilities-toolkit' ); ?></p>
 
-			<?php $this->render_admin_styles(); ?>
 			<?php $this->render_tab_nav( $active_tab ); ?>
 
-			<div class="magick-ai-abilities-tab-panel">
+			<div class="npcink-abilities-toolkit-tab-panel">
 				<?php
 				if ( 'catalog' === $active_tab ) {
 					$this->render_ability_catalog( $registered );
@@ -153,61 +187,6 @@ final class Test_Page {
 				?>
 			</div>
 		</div>
-
-		<script>
-		(function () {
-			const nonce = <?php echo wp_json_encode( $nonce ); ?>;
-			const output = document.getElementById('magick-ai-abilities-admin-output');
-
-			async function runRequest(url) {
-				if (!output) {
-					return;
-				}
-
-				output.value = 'Requesting ' + url + ' ...';
-				try {
-					const response = await fetch(url, {
-						credentials: 'same-origin',
-						headers: {
-							'X-WP-Nonce': nonce,
-							'Accept': 'application/json'
-						}
-					});
-					const text = await response.text();
-					let body = text;
-					try {
-						body = JSON.stringify(JSON.parse(text), null, 2);
-					} catch (error) {}
-					output.value = 'HTTP ' + response.status + '\\n\\n' + body;
-				} catch (error) {
-					output.value = String(error && error.message ? error.message : error);
-				}
-			}
-
-			document.querySelectorAll('[data-magick-ai-abilities-fetch]').forEach(function (button) {
-				button.addEventListener('click', function () {
-					runRequest(button.getAttribute('data-magick-ai-abilities-fetch'));
-				});
-			});
-
-			document.querySelectorAll('[data-magick-ai-abilities-copy]').forEach(function (button) {
-				button.addEventListener('click', async function () {
-					const target = document.getElementById(button.getAttribute('data-magick-ai-abilities-copy'));
-					if (!target) {
-						return;
-					}
-
-					try {
-						await navigator.clipboard.writeText(target.value || target.textContent || '');
-						button.textContent = <?php echo wp_json_encode( __( 'Copied', 'magick-ai-abilities' ) ); ?>;
-					} catch (error) {
-						target.focus();
-						target.select();
-					}
-				});
-			});
-		})();
-		</script>
 		<?php
 	}
 
@@ -218,7 +197,11 @@ final class Test_Page {
 	 */
 	private function get_active_tab() {
 		$tabs = array_keys( $this->get_tabs() );
-		$tab  = isset( $_GET['maa_tab'] ) ? sanitize_key( wp_unslash( $_GET['maa_tab'] ) ) : 'overview'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $this->has_valid_admin_request_nonce() ) {
+			return 'overview';
+		}
+
+		$tab = $this->get_admin_query_arg( 'maa_tab', 'overview' );
 
 		return in_array( $tab, $tabs, true ) ? $tab : 'overview';
 	}
@@ -230,9 +213,9 @@ final class Test_Page {
 	 */
 	private function get_tabs() {
 		return array(
-			'overview' => __( 'Overview', 'magick-ai-abilities' ),
-			'catalog'  => __( 'Catalog', 'magick-ai-abilities' ),
-			'smoke'    => __( 'Smoke tests', 'magick-ai-abilities' ),
+			'overview' => __( 'Overview', 'npcink-abilities-toolkit' ),
+			'catalog'  => __( 'Catalog', 'npcink-abilities-toolkit' ),
+			'smoke'    => __( 'Smoke tests', 'npcink-abilities-toolkit' ),
 		);
 	}
 
@@ -245,9 +228,9 @@ final class Test_Page {
 	private function render_tab_nav( $active_tab ) {
 		$base_url = menu_page_url( self::MENU_SLUG, false );
 		?>
-		<nav class="nav-tab-wrapper magick-ai-abilities-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'magick-ai-abilities' ); ?>">
+		<nav class="nav-tab-wrapper npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
 			<?php foreach ( $this->get_tabs() as $tab => $label ) : ?>
-				<a class="nav-tab <?php echo $active_tab === $tab ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'maa_tab', $tab, $base_url ) ); ?>">
+				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'maa_tab', $tab, $base_url ) ) ); ?>">
 					<?php echo esc_html( $label ); ?>
 				</a>
 			<?php endforeach; ?>
@@ -256,191 +239,47 @@ final class Test_Page {
 	}
 
 	/**
-	 * Renders admin page utility styles.
+	 * Adds the admin request nonce to an internal admin URL.
 	 *
-	 * @return void
+	 * @param string $url Admin URL.
+	 * @return string
 	 */
-	private function render_admin_styles() {
-		?>
-		<style>
-			.magick-ai-abilities-admin {
-				max-width: 1180px;
-			}
+	private function add_admin_request_nonce( $url ) {
+		return add_query_arg( 'maa_nonce', wp_create_nonce( self::ADMIN_REQUEST_ACTION ), $url );
+	}
 
-			.magick-ai-abilities-tabs {
-				margin-top: 16px;
-			}
+	/**
+	 * Returns whether the current admin request has a valid page nonce.
+	 *
+	 * @return bool
+	 */
+	private function has_valid_admin_request_nonce() {
+		$nonce = filter_input( INPUT_GET, 'maa_nonce', FILTER_UNSAFE_RAW );
+		if ( ! is_string( $nonce ) || '' === $nonce ) {
+			return false;
+		}
 
-			.magick-ai-abilities-tab-panel {
-				padding-top: 16px;
-			}
+		return (bool) wp_verify_nonce( sanitize_text_field( $nonce ), self::ADMIN_REQUEST_ACTION );
+	}
 
-			.magick-ai-abilities-summary {
-				display: grid;
-				gap: 12px;
-				grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-				margin: 12px 0 16px;
-				max-width: 960px;
-			}
+	/**
+	 * Returns a sanitized admin query arg when the page nonce is valid.
+	 *
+	 * @param string $key Query arg key.
+	 * @param string $default Default value.
+	 * @return string
+	 */
+	private function get_admin_query_arg( $key, $default = '' ) {
+		if ( ! $this->has_valid_admin_request_nonce() ) {
+			return $default;
+		}
 
-			.magick-ai-abilities-status {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				border-left-width: 4px;
-				padding: 12px;
-			}
+		$value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW );
+		if ( ! is_string( $value ) ) {
+			return $default;
+		}
 
-			.magick-ai-abilities-status.is-ok {
-				border-left-color: #00a32a;
-			}
-
-			.magick-ai-abilities-status.is-warning,
-			.magick-ai-abilities-status.is-inactive {
-				border-left-color: #dba617;
-			}
-
-			.magick-ai-abilities-status.is-error {
-				border-left-color: #d63638;
-			}
-
-			.magick-ai-abilities-status__label {
-				color: #646970;
-				display: block;
-				font-size: 12px;
-				margin-bottom: 4px;
-			}
-
-			.magick-ai-abilities-status__value {
-				display: block;
-				font-size: 18px;
-				font-weight: 600;
-				line-height: 1.25;
-			}
-
-			.magick-ai-abilities-status__detail {
-				color: #646970;
-				display: block;
-				margin-top: 6px;
-			}
-
-			.magick-ai-abilities-actions {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 8px;
-			}
-
-			.magick-ai-abilities-filter {
-				align-items: end;
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				display: grid;
-				gap: 12px;
-				grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(140px, 1fr)) auto;
-				margin: 12px 0;
-				max-width: 1100px;
-				padding: 12px;
-			}
-
-			.magick-ai-abilities-filter label {
-				display: block;
-				font-weight: 600;
-			}
-
-			.magick-ai-abilities-filter input,
-			.magick-ai-abilities-filter select {
-				margin-top: 4px;
-				width: 100%;
-			}
-
-			.magick-ai-abilities-catalog-meta {
-				color: #646970;
-				margin: 12px 0;
-			}
-
-			.magick-ai-abilities-disclosure {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				margin-bottom: 12px;
-				max-width: 1100px;
-			}
-
-			.magick-ai-abilities-disclosure summary {
-				cursor: pointer;
-				padding: 12px;
-			}
-
-			.magick-ai-abilities-disclosure summary:hover {
-				background: #f6f7f7;
-			}
-
-			.magick-ai-abilities-disclosure__meta {
-				color: #646970;
-				display: block;
-				margin-top: 2px;
-			}
-
-			.magick-ai-abilities-disclosure__body {
-				border-top: 1px solid #dcdcde;
-				padding: 12px;
-			}
-
-			.magick-ai-abilities-output,
-			.magick-ai-abilities-raw {
-				box-sizing: border-box;
-				font-family: monospace;
-				width: 100%;
-			}
-
-			.magick-ai-abilities-output {
-				max-width: 960px;
-			}
-
-			.magick-ai-abilities-raw {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				margin: 0;
-				overflow: auto;
-				padding: 12px;
-			}
-
-			.magick-ai-abilities-ready {
-				color: #00a32a;
-				font-weight: 600;
-			}
-
-			.magick-ai-abilities-missing {
-				color: #d63638;
-				font-weight: 600;
-			}
-
-			.magick-ai-abilities-pagination {
-				margin-top: 12px;
-			}
-
-			.magick-ai-abilities-pagination .page-numbers {
-				background: #fff;
-				border: 1px solid #c3c4c7;
-				display: inline-block;
-				margin-right: 4px;
-				min-width: 28px;
-				padding: 4px 8px;
-				text-align: center;
-				text-decoration: none;
-			}
-
-			.magick-ai-abilities-pagination .current {
-				background: #2271b1;
-				border-color: #2271b1;
-				color: #fff;
-			}
-
-			@media (max-width: 782px) {
-				.magick-ai-abilities-filter {
-					grid-template-columns: 1fr;
-				}
-			}
-		</style>
-		<?php
+		return sanitize_text_field( $value );
 	}
 
 	/**
@@ -455,19 +294,19 @@ final class Test_Page {
 		$ability_api_ready = $status['has_ability_registration'] && $status['has_category_registration'];
 		$rest_ready        = $status['has_rest_abilities_route'] && $status['has_rest_categories_route'];
 		?>
-		<h2><?php echo esc_html__( 'Status', 'magick-ai-abilities' ); ?></h2>
-		<div class="magick-ai-abilities-summary" role="list">
-			<?php $this->render_status_tile( __( 'WordPress', 'magick-ai-abilities' ), (string) $status['wp_version'], 'ok', __( 'Runtime version detected.', 'magick-ai-abilities' ) ); ?>
-			<?php $this->render_status_tile( __( 'Ability API', 'magick-ai-abilities' ), $ability_api_ready ? __( 'available', 'magick-ai-abilities' ) : __( 'unavailable', 'magick-ai-abilities' ), $ability_api_ready ? 'ok' : 'error', __( 'Registration functions and categories.', 'magick-ai-abilities' ) ); ?>
-			<?php $this->render_status_tile( __( 'REST routes', 'magick-ai-abilities' ), $rest_ready ? __( 'available', 'magick-ai-abilities' ) : __( 'missing', 'magick-ai-abilities' ), $rest_ready ? 'ok' : 'error', __( 'Discovery endpoints for clients.', 'magick-ai-abilities' ) ); ?>
-			<?php $this->render_status_tile( __( 'Registered abilities', 'magick-ai-abilities' ), (string) count( $registered ), empty( $registered ) ? 'warning' : 'ok', __( 'Open Catalog for grouped details.', 'magick-ai-abilities' ) ); ?>
-			<?php $this->render_status_tile( __( 'Demo ability', 'magick-ai-abilities' ), $demo_enabled ? __( 'enabled', 'magick-ai-abilities' ) : __( 'disabled', 'magick-ai-abilities' ), $demo_enabled ? 'ok' : 'inactive', __( 'Managed from Smoke tests.', 'magick-ai-abilities' ) ); ?>
+		<h2><?php echo esc_html__( 'Status', 'npcink-abilities-toolkit' ); ?></h2>
+		<div class="npcink-abilities-toolkit-summary" role="list">
+			<?php $this->render_status_tile( __( 'WordPress', 'npcink-abilities-toolkit' ), (string) $status['wp_version'], 'ok', __( 'Runtime version detected.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'Ability API', 'npcink-abilities-toolkit' ), $ability_api_ready ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'unavailable', 'npcink-abilities-toolkit' ), $ability_api_ready ? 'ok' : 'error', __( 'Registration functions and categories.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'REST routes', 'npcink-abilities-toolkit' ), $rest_ready ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'missing', 'npcink-abilities-toolkit' ), $rest_ready ? 'ok' : 'error', __( 'Discovery endpoints for clients.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'Registered abilities', 'npcink-abilities-toolkit' ), (string) count( $registered ), empty( $registered ) ? 'warning' : 'ok', __( 'Open Catalog for grouped details.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'Demo ability', 'npcink-abilities-toolkit' ), $demo_enabled ? __( 'enabled', 'npcink-abilities-toolkit' ) : __( 'disabled', 'npcink-abilities-toolkit' ), $demo_enabled ? 'ok' : 'inactive', __( 'Managed from Smoke tests.', 'npcink-abilities-toolkit' ) ); ?>
 		</div>
 
 		<?php $this->render_status_attention( $status, $registered ); ?>
 
 		<p class="description">
-			<?php echo esc_html__( 'This page is a package status and smoke-test surface. Catalog rows are separate, and low-frequency REST details stay under Smoke tests.', 'magick-ai-abilities' ); ?>
+			<?php echo esc_html__( 'This page is a package status and smoke-test surface. Catalog rows are separate, and low-frequency REST details stay under Smoke tests.', 'npcink-abilities-toolkit' ); ?>
 		</p>
 		<?php
 	}
@@ -483,10 +322,10 @@ final class Test_Page {
 	 */
 	private function render_status_tile( $label, $value, $state, $detail ) {
 		?>
-		<div class="magick-ai-abilities-status is-<?php echo esc_attr( $state ); ?>" role="listitem">
-			<span class="magick-ai-abilities-status__label"><?php echo esc_html( $label ); ?></span>
-			<span class="magick-ai-abilities-status__value"><?php echo esc_html( $value ); ?></span>
-			<span class="magick-ai-abilities-status__detail"><?php echo esc_html( $detail ); ?></span>
+		<div class="npcink-abilities-toolkit-status is-<?php echo esc_attr( $state ); ?>" role="listitem">
+			<span class="npcink-abilities-toolkit-status__label"><?php echo esc_html( $label ); ?></span>
+			<span class="npcink-abilities-toolkit-status__value"><?php echo esc_html( $value ); ?></span>
+			<span class="npcink-abilities-toolkit-status__detail"><?php echo esc_html( $detail ); ?></span>
 		</div>
 		<?php
 	}
@@ -502,15 +341,15 @@ final class Test_Page {
 		$messages = array();
 
 		if ( ! $status['has_ability_registration'] || ! $status['has_category_registration'] ) {
-			$messages[] = __( 'Abilities API registration functions are unavailable.', 'magick-ai-abilities' );
+			$messages[] = __( 'Abilities API registration functions are unavailable.', 'npcink-abilities-toolkit' );
 		}
 
 		if ( ! $status['has_rest_abilities_route'] || ! $status['has_rest_categories_route'] ) {
-			$messages[] = __( 'Abilities API REST discovery routes are missing.', 'magick-ai-abilities' );
+			$messages[] = __( 'Abilities API REST discovery routes are missing.', 'npcink-abilities-toolkit' );
 		}
 
 		if ( empty( $registered ) ) {
-			$messages[] = __( 'No abilities are registered by this package yet.', 'magick-ai-abilities' );
+			$messages[] = __( 'No abilities are registered by this package yet.', 'npcink-abilities-toolkit' );
 		}
 
 		if ( empty( $messages ) ) {
@@ -545,16 +384,16 @@ final class Test_Page {
 		$paged_results = array_slice( $filtered, $offset, $per_page, true );
 		$groups        = $this->group_abilities_by_risk( $paged_results );
 		?>
-		<h2><?php echo esc_html__( 'Registered Ability Catalog', 'magick-ai-abilities' ); ?></h2>
+		<h2><?php echo esc_html__( 'Registered Ability Catalog', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
-			<?php echo esc_html__( 'Filter the catalog before opening grouped readiness details.', 'magick-ai-abilities' ); ?>
+			<?php echo esc_html__( 'Filter the catalog before opening grouped readiness details.', 'npcink-abilities-toolkit' ); ?>
 		</p>
 
 		<?php if ( empty( $registered ) ) : ?>
 			<table class="widefat striped" style="max-width: 1100px;">
 				<tbody>
 					<tr>
-						<td><?php echo esc_html__( 'No abilities are registered by this package yet.', 'magick-ai-abilities' ); ?></td>
+						<td><?php echo esc_html__( 'No abilities are registered by this package yet.', 'npcink-abilities-toolkit' ); ?></td>
 					</tr>
 				</tbody>
 			</table>
@@ -563,20 +402,20 @@ final class Test_Page {
 
 		<?php $this->render_catalog_filters( $registered, $filters ); ?>
 
-		<p class="magick-ai-abilities-catalog-meta">
+		<p class="npcink-abilities-toolkit-catalog-meta">
 			<?php
 			if ( $total > 0 ) {
 				echo esc_html(
 					sprintf(
 						/* translators: 1: first visible row, 2: last visible row, 3: total filtered rows. */
-						__( 'Showing %1$d-%2$d of %3$d abilities.', 'magick-ai-abilities' ),
+						__( 'Showing %1$d-%2$d of %3$d abilities.', 'npcink-abilities-toolkit' ),
 						$offset + 1,
 						min( $offset + $per_page, $total ),
 						$total
 					)
 				);
 			} else {
-				echo esc_html__( 'No abilities match the current filters.', 'magick-ai-abilities' );
+				echo esc_html__( 'No abilities match the current filters.', 'npcink-abilities-toolkit' );
 			}
 			?>
 		</p>
@@ -594,15 +433,15 @@ final class Test_Page {
 				}
 			}
 			?>
-			<details class="magick-ai-abilities-disclosure">
+			<details class="npcink-abilities-toolkit-disclosure">
 				<summary>
 					<strong><?php echo esc_html( $this->get_risk_group_label( $group_key ) ); ?></strong>
-					<span class="magick-ai-abilities-disclosure__meta">
+					<span class="npcink-abilities-toolkit-disclosure__meta">
 						<?php
 						echo esc_html(
 							sprintf(
 								/* translators: 1: ability count, 2: missing callback count. */
-								__( '%1$d abilities, %2$d callback issues', 'magick-ai-abilities' ),
+								__( '%1$d abilities, %2$d callback issues', 'npcink-abilities-toolkit' ),
 								count( $abilities ),
 								$missing_callbacks
 							)
@@ -610,7 +449,7 @@ final class Test_Page {
 						?>
 					</span>
 				</summary>
-				<div class="magick-ai-abilities-disclosure__body">
+				<div class="npcink-abilities-toolkit-disclosure__body">
 					<?php $this->render_ability_table( $abilities ); ?>
 				</div>
 			</details>
@@ -628,16 +467,26 @@ final class Test_Page {
 	private function get_catalog_filters() {
 		$allowed_per_page = array( 25, 50, 100 );
 		$allowed_risks    = array( '', 'read', 'write', 'destructive', 'other' );
-		$per_page         = isset( $_GET['maa_per_page'] ) ? absint( wp_unslash( $_GET['maa_per_page'] ) ) : 25; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $this->has_valid_admin_request_nonce() ) {
+			return array(
+				'query'    => '',
+				'risk'     => '',
+				'category' => '',
+				'per_page' => 25,
+				'paged'    => 1,
+			);
+		}
+
+		$per_page         = absint( $this->get_admin_query_arg( 'maa_per_page', '25' ) );
 		$per_page         = in_array( $per_page, $allowed_per_page, true ) ? $per_page : 25;
-		$risk             = isset( $_GET['maa_risk'] ) ? sanitize_key( wp_unslash( $_GET['maa_risk'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$risk             = sanitize_key( $this->get_admin_query_arg( 'maa_risk' ) );
 
 		return array(
-			'query'    => isset( $_GET['maa_query'] ) ? sanitize_text_field( wp_unslash( $_GET['maa_query'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'query'    => $this->get_admin_query_arg( 'maa_query' ),
 			'risk'     => in_array( $risk, $allowed_risks, true ) ? $risk : '',
-			'category' => isset( $_GET['maa_category'] ) ? sanitize_key( wp_unslash( $_GET['maa_category'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'category' => sanitize_key( $this->get_admin_query_arg( 'maa_category' ) ),
 			'per_page' => $per_page,
-			'paged'    => isset( $_GET['maa_paged'] ) ? max( 1, absint( wp_unslash( $_GET['maa_paged'] ) ) ) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			'paged'    => max( 1, absint( $this->get_admin_query_arg( 'maa_paged', '1' ) ) ),
 		);
 	}
 
@@ -652,31 +501,32 @@ final class Test_Page {
 		$categories = $this->get_catalog_categories( $registered );
 		$base_url   = menu_page_url( self::MENU_SLUG, false );
 		?>
-		<form class="magick-ai-abilities-filter" method="get" action="<?php echo esc_url( $base_url ); ?>">
+		<form class="npcink-abilities-toolkit-filter" method="get" action="<?php echo esc_url( $base_url ); ?>">
 			<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />
 			<input type="hidden" name="maa_tab" value="catalog" />
 			<input type="hidden" name="maa_paged" value="1" />
+			<?php wp_nonce_field( self::ADMIN_REQUEST_ACTION, 'maa_nonce', false ); ?>
 
 			<label>
-				<?php echo esc_html__( 'Search', 'magick-ai-abilities' ); ?>
-				<input type="search" name="maa_query" value="<?php echo esc_attr( (string) $filters['query'] ); ?>" placeholder="<?php echo esc_attr__( 'Ability ID, category, or label', 'magick-ai-abilities' ); ?>" />
+				<?php echo esc_html__( 'Search', 'npcink-abilities-toolkit' ); ?>
+				<input type="search" name="maa_query" value="<?php echo esc_attr( (string) $filters['query'] ); ?>" placeholder="<?php echo esc_attr__( 'Ability ID, category, or label', 'npcink-abilities-toolkit' ); ?>" />
 			</label>
 
 			<label>
-				<?php echo esc_html__( 'Risk', 'magick-ai-abilities' ); ?>
+				<?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?>
 				<select name="maa_risk">
-					<option value=""><?php echo esc_html__( 'All risks', 'magick-ai-abilities' ); ?></option>
-					<option value="read" <?php selected( $filters['risk'], 'read' ); ?>><?php echo esc_html__( 'Read', 'magick-ai-abilities' ); ?></option>
-					<option value="write" <?php selected( $filters['risk'], 'write' ); ?>><?php echo esc_html__( 'Write', 'magick-ai-abilities' ); ?></option>
-					<option value="destructive" <?php selected( $filters['risk'], 'destructive' ); ?>><?php echo esc_html__( 'Destructive', 'magick-ai-abilities' ); ?></option>
-					<option value="other" <?php selected( $filters['risk'], 'other' ); ?>><?php echo esc_html__( 'Other', 'magick-ai-abilities' ); ?></option>
+					<option value=""><?php echo esc_html__( 'All risks', 'npcink-abilities-toolkit' ); ?></option>
+					<option value="read" <?php selected( $filters['risk'], 'read' ); ?>><?php echo esc_html__( 'Read', 'npcink-abilities-toolkit' ); ?></option>
+					<option value="write" <?php selected( $filters['risk'], 'write' ); ?>><?php echo esc_html__( 'Write', 'npcink-abilities-toolkit' ); ?></option>
+					<option value="destructive" <?php selected( $filters['risk'], 'destructive' ); ?>><?php echo esc_html__( 'Destructive', 'npcink-abilities-toolkit' ); ?></option>
+					<option value="other" <?php selected( $filters['risk'], 'other' ); ?>><?php echo esc_html__( 'Other', 'npcink-abilities-toolkit' ); ?></option>
 				</select>
 			</label>
 
 			<label>
-				<?php echo esc_html__( 'Category', 'magick-ai-abilities' ); ?>
+				<?php echo esc_html__( 'Category', 'npcink-abilities-toolkit' ); ?>
 				<select name="maa_category">
-					<option value=""><?php echo esc_html__( 'All categories', 'magick-ai-abilities' ); ?></option>
+					<option value=""><?php echo esc_html__( 'All categories', 'npcink-abilities-toolkit' ); ?></option>
 					<?php foreach ( $categories as $category ) : ?>
 						<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
 							<?php echo esc_html( $category ); ?>
@@ -686,7 +536,7 @@ final class Test_Page {
 			</label>
 
 			<label>
-				<?php echo esc_html__( 'Per page', 'magick-ai-abilities' ); ?>
+				<?php echo esc_html__( 'Per page', 'npcink-abilities-toolkit' ); ?>
 				<select name="maa_per_page">
 					<?php foreach ( array( 25, 50, 100 ) as $per_page ) : ?>
 						<option value="<?php echo esc_attr( (string) $per_page ); ?>" <?php selected( $filters['per_page'], $per_page ); ?>>
@@ -696,9 +546,9 @@ final class Test_Page {
 				</select>
 			</label>
 
-			<p class="magick-ai-abilities-actions">
-				<button type="submit" class="button button-primary"><?php echo esc_html__( 'Apply', 'magick-ai-abilities' ); ?></button>
-				<a class="button" href="<?php echo esc_url( add_query_arg( 'maa_tab', 'catalog', $base_url ) ); ?>"><?php echo esc_html__( 'Reset', 'magick-ai-abilities' ); ?></a>
+			<p class="npcink-abilities-toolkit-actions">
+				<button type="submit" class="button button-primary"><?php echo esc_html__( 'Apply', 'npcink-abilities-toolkit' ); ?></button>
+				<a class="button" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'maa_tab', 'catalog', $base_url ) ) ); ?>"><?php echo esc_html__( 'Reset', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
 		</form>
 		<?php
@@ -798,6 +648,7 @@ final class Test_Page {
 				'maa_category' => (string) $filters['category'],
 				'maa_per_page' => (int) $filters['per_page'],
 				'maa_paged'    => '%#%',
+				'maa_nonce'    => wp_create_nonce( self::ADMIN_REQUEST_ACTION ),
 			),
 			menu_page_url( self::MENU_SLUG, false )
 		);
@@ -808,8 +659,8 @@ final class Test_Page {
 				'base'      => $base_url,
 				'current'   => $current_page,
 				'total'     => $total_pages,
-				'prev_text' => __( 'Previous', 'magick-ai-abilities' ),
-				'next_text' => __( 'Next', 'magick-ai-abilities' ),
+				'prev_text' => __( 'Previous', 'npcink-abilities-toolkit' ),
+				'next_text' => __( 'Next', 'npcink-abilities-toolkit' ),
 			)
 		);
 
@@ -817,7 +668,7 @@ final class Test_Page {
 			return;
 		}
 		?>
-		<div class="magick-ai-abilities-pagination">
+		<div class="npcink-abilities-toolkit-pagination">
 			<?php echo wp_kses_post( $links ); ?>
 		</div>
 		<?php
@@ -856,10 +707,10 @@ final class Test_Page {
 	 */
 	private function get_risk_group_label( $group_key ) {
 		$labels = array(
-			'read'        => __( 'Read abilities', 'magick-ai-abilities' ),
-			'write'       => __( 'Write proposal abilities', 'magick-ai-abilities' ),
-			'destructive' => __( 'Destructive abilities', 'magick-ai-abilities' ),
-			'other'       => __( 'Other abilities', 'magick-ai-abilities' ),
+			'read'        => __( 'Read abilities', 'npcink-abilities-toolkit' ),
+			'write'       => __( 'Write proposal abilities', 'npcink-abilities-toolkit' ),
+			'destructive' => __( 'Destructive abilities', 'npcink-abilities-toolkit' ),
+			'other'       => __( 'Other abilities', 'npcink-abilities-toolkit' ),
 		);
 
 		return $labels[ $group_key ] ?? $labels['other'];
@@ -876,10 +727,10 @@ final class Test_Page {
 		<table class="widefat striped">
 			<thead>
 				<tr>
-					<th scope="col"><?php echo esc_html__( 'Ability ID', 'magick-ai-abilities' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Category', 'magick-ai-abilities' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Risk', 'magick-ai-abilities' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Ready', 'magick-ai-abilities' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Ability ID', 'npcink-abilities-toolkit' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Category', 'npcink-abilities-toolkit' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?></th>
+					<th scope="col"><?php echo esc_html__( 'Ready', 'npcink-abilities-toolkit' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -894,8 +745,8 @@ final class Test_Page {
 						<td><code><?php echo esc_html( (string) ( $definition['category'] ?? '-' ) ); ?></code></td>
 						<td><code><?php echo esc_html( (string) ( $definition['risk_level'] ?? '-' ) ); ?></code></td>
 						<td>
-							<span class="<?php echo $has_callback ? 'magick-ai-abilities-ready' : 'magick-ai-abilities-missing'; ?>">
-								<?php echo esc_html( $has_callback ? __( 'available', 'magick-ai-abilities' ) : __( 'missing', 'magick-ai-abilities' ) ); ?>
+							<span class="<?php echo esc_attr( $has_callback ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
+								<?php echo esc_html( $has_callback ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'missing', 'npcink-abilities-toolkit' ) ); ?>
 							</span>
 							<br />
 							<small><?php echo esc_html( sprintf( 'input:%s output:%s', $has_input ? 'yes' : 'no', $has_output ? 'yes' : 'no' ) ); ?></small>
@@ -919,47 +770,47 @@ final class Test_Page {
 	 */
 	private function render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled, array $registered ) {
 		?>
-		<h2><?php echo esc_html__( 'REST endpoints and browser tests', 'magick-ai-abilities' ); ?></h2>
+		<h2><?php echo esc_html__( 'REST endpoints and browser tests', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
-			<?php echo esc_html__( 'Run manual REST checks with the current wp-admin session and REST nonce.', 'magick-ai-abilities' ); ?>
+			<?php echo esc_html__( 'Run manual REST checks with the current wp-admin session and REST nonce.', 'npcink-abilities-toolkit' ); ?>
 		</p>
 
 		<table class="widefat striped" style="max-width: 960px;">
 			<tbody>
 				<tr>
-					<th scope="row"><?php echo esc_html__( 'Browser Auth', 'magick-ai-abilities' ); ?></th>
-					<td><?php echo esc_html__( 'Buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication such as application passwords.', 'magick-ai-abilities' ); ?></td>
+					<th scope="row"><?php echo esc_html__( 'Browser Auth', 'npcink-abilities-toolkit' ); ?></th>
+					<td><?php echo esc_html__( 'Buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication such as application passwords.', 'npcink-abilities-toolkit' ); ?></td>
 				</tr>
 			</tbody>
 		</table>
 
-		<p class="magick-ai-abilities-actions">
-			<button type="button" class="button button-primary" data-magick-ai-abilities-fetch="<?php echo esc_url( $abilities_url ); ?>">
-				<?php echo esc_html__( 'Fetch Abilities', 'magick-ai-abilities' ); ?>
+		<p class="npcink-abilities-toolkit-actions">
+			<button type="button" class="button button-primary" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $abilities_url ); ?>">
+				<?php echo esc_html__( 'Fetch Abilities', 'npcink-abilities-toolkit' ); ?>
 			</button>
-			<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $categories_url ); ?>">
-				<?php echo esc_html__( 'Fetch Categories', 'magick-ai-abilities' ); ?>
+			<button type="button" class="button" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $categories_url ); ?>">
+				<?php echo esc_html__( 'Fetch Categories', 'npcink-abilities-toolkit' ); ?>
 			</button>
-			<button type="button" class="button" data-magick-ai-abilities-fetch="<?php echo esc_url( $demo_run_url ); ?>" <?php disabled( ! $demo_enabled ); ?>>
-				<?php echo esc_html__( 'Run Demo Ability', 'magick-ai-abilities' ); ?>
+			<button type="button" class="button" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $demo_run_url ); ?>" <?php disabled( ! $demo_enabled ); ?>>
+				<?php echo esc_html__( 'Run Demo Ability', 'npcink-abilities-toolkit' ); ?>
 			</button>
 		</p>
 
-		<textarea id="magick-ai-abilities-admin-output" class="magick-ai-abilities-output" readonly rows="14"></textarea>
+		<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
 
-		<details class="magick-ai-abilities-disclosure">
+		<details class="npcink-abilities-toolkit-disclosure">
 			<summary>
-				<strong><?php echo esc_html__( 'Demo ability control', 'magick-ai-abilities' ); ?></strong>
-				<span class="magick-ai-abilities-disclosure__meta"><?php echo esc_html__( 'Enable or disable the read-only smoke ability.', 'magick-ai-abilities' ); ?></span>
+				<strong><?php echo esc_html__( 'Demo ability control', 'npcink-abilities-toolkit' ); ?></strong>
+				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Enable or disable the read-only smoke ability.', 'npcink-abilities-toolkit' ); ?></span>
 			</summary>
-			<div class="magick-ai-abilities-disclosure__body">
+			<div class="npcink-abilities-toolkit-disclosure__body">
 				<form method="post" action="options.php">
 					<?php settings_fields( 'magick_ai_abilities_test' ); ?>
 					<label>
 						<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DEMO_ENABLED ); ?>" value="1" <?php checked( $demo_enabled ); ?> />
-						<?php echo esc_html__( 'Enable demo read-only ability: magick-ai-abilities/site-summary', 'magick-ai-abilities' ); ?>
+						<?php echo esc_html__( 'Enable demo read-only ability: npcink-abilities-toolkit/site-summary', 'npcink-abilities-toolkit' ); ?>
 					</label>
-					<?php submit_button( __( 'Save', 'magick-ai-abilities' ), 'secondary', 'submit', false ); ?>
+					<?php submit_button( __( 'Save', 'npcink-abilities-toolkit' ), 'secondary', 'submit', false ); ?>
 				</form>
 			</div>
 		</details>
@@ -978,22 +829,22 @@ final class Test_Page {
 	 */
 	private function render_advanced_checks( $abilities_url, $categories_url, array $registered ) {
 		?>
-		<h2><?php echo esc_html__( 'Advanced Checks', 'magick-ai-abilities' ); ?></h2>
+		<h2><?php echo esc_html__( 'Advanced Checks', 'npcink-abilities-toolkit' ); ?></h2>
 
-		<details class="magick-ai-abilities-disclosure">
+		<details class="npcink-abilities-toolkit-disclosure">
 			<summary>
-				<strong><?php echo esc_html__( 'Endpoint values', 'magick-ai-abilities' ); ?></strong>
-				<span class="magick-ai-abilities-disclosure__meta"><?php echo esc_html__( 'Raw REST values for client setup and support checks.', 'magick-ai-abilities' ); ?></span>
+				<strong><?php echo esc_html__( 'Endpoint values', 'npcink-abilities-toolkit' ); ?></strong>
+				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Raw REST values for client setup and support checks.', 'npcink-abilities-toolkit' ); ?></span>
 			</summary>
-			<div class="magick-ai-abilities-disclosure__body">
+			<div class="npcink-abilities-toolkit-disclosure__body">
 				<table class="widefat striped">
 					<tbody>
 						<tr>
-							<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'magick-ai-abilities' ); ?></th>
+							<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'npcink-abilities-toolkit' ); ?></th>
 							<td><code><?php echo esc_html( $abilities_url ); ?></code></td>
 						</tr>
 						<tr>
-							<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'magick-ai-abilities' ); ?></th>
+							<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'npcink-abilities-toolkit' ); ?></th>
 							<td><code><?php echo esc_html( $categories_url ); ?></code></td>
 						</tr>
 					</tbody>
@@ -1001,18 +852,18 @@ final class Test_Page {
 			</div>
 		</details>
 
-		<details class="magick-ai-abilities-disclosure">
+		<details class="npcink-abilities-toolkit-disclosure">
 			<summary>
-				<strong><?php echo esc_html__( 'Raw ability ids', 'magick-ai-abilities' ); ?></strong>
-				<span class="magick-ai-abilities-disclosure__meta"><?php echo esc_html__( 'Compatibility dump for catalog audits.', 'magick-ai-abilities' ); ?></span>
+				<strong><?php echo esc_html__( 'Raw ability ids', 'npcink-abilities-toolkit' ); ?></strong>
+				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Compatibility dump for catalog audits.', 'npcink-abilities-toolkit' ); ?></span>
 			</summary>
-			<div class="magick-ai-abilities-disclosure__body">
-				<p class="magick-ai-abilities-actions">
-					<button type="button" class="button" data-magick-ai-abilities-copy="magick-ai-abilities-raw-ids">
-						<?php echo esc_html__( 'Copy IDs', 'magick-ai-abilities' ); ?>
+			<div class="npcink-abilities-toolkit-disclosure__body">
+				<p class="npcink-abilities-toolkit-actions">
+					<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-raw-ids">
+						<?php echo esc_html__( 'Copy IDs', 'npcink-abilities-toolkit' ); ?>
 					</button>
 				</p>
-				<textarea id="magick-ai-abilities-raw-ids" class="magick-ai-abilities-raw" readonly rows="8"><?php echo esc_textarea( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></textarea>
+				<textarea id="npcink-abilities-toolkit-raw-ids" class="npcink-abilities-toolkit-raw" readonly rows="8"><?php echo esc_textarea( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></textarea>
 			</div>
 		</details>
 		<?php
@@ -1025,10 +876,10 @@ final class Test_Page {
 	 */
 	private function register_demo_ability() {
 		$this->abilities->add_readonly(
-			'magick-ai-abilities/site-summary',
+			'npcink-abilities-toolkit/site-summary',
 			array(
-				'label'            => __( 'Abilities API Site Summary', 'magick-ai-abilities' ),
-				'description'      => __( 'Returns a small site summary for testing WordPress Abilities API authentication and execution.', 'magick-ai-abilities' ),
+				'label'            => __( 'Abilities API Site Summary', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a small site summary for testing WordPress Abilities API authentication and execution.', 'npcink-abilities-toolkit' ),
 				'capability'       => 'manage_options',
 				'input_schema'     => array(
 					'type'                 => 'object',

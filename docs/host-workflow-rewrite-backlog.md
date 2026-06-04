@@ -1,6 +1,6 @@
 # Host Workflow Rewrite Backlog
 
-Status: planning reference for hosts that consume `magick-ai-abilities`.
+Status: planning reference for hosts that consume `npcink-abilities-toolkit`.
 
 This backlog converts useful Magick AI Core workflow ideas into host-side
 rewrite candidates. It is not a package runtime and does not require hosts to

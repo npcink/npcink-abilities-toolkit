@@ -19,7 +19,7 @@ if ( '' === $magick_ai_abilities_smoke_profile ) {
 	$magick_ai_abilities_smoke_profile = 'default';
 }
 $magick_ai_abilities_smoke_run_id                 = function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : uniqid( 'smoke-', true );
-$magick_ai_abilities_smoke_pattern                = 'Magick AI Abilities Smoke ' . $magick_ai_abilities_smoke_run_id;
+$magick_ai_abilities_smoke_pattern                = 'Npcink Abilities Toolkit Smoke ' . $magick_ai_abilities_smoke_run_id;
 $magick_ai_abilities_smoke_post_fixture_ids       = array();
 $magick_ai_abilities_smoke_comment_fixture_ids    = array();
 $magick_ai_abilities_smoke_attachment_fixture_ids = array();
@@ -288,7 +288,7 @@ if ( function_exists( 'wp_get_abilities' ) ) {
 
 if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 	magick_ai_abilities_smoke_assert(
-		! function_exists( 'wp_has_ability' ) || wp_has_ability( 'magick-ai-abilities/site-summary' ),
+		! function_exists( 'wp_has_ability' ) || wp_has_ability( 'npcink-abilities-toolkit/site-summary' ),
 		'Demo site-summary ability is registered.'
 	);
 }
@@ -306,28 +306,28 @@ magick_ai_abilities_smoke_assert( $admin_id > 0, 'An administrator user is avail
 wp_set_current_user( $admin_id );
 
 $abilities_data = magick_ai_abilities_smoke_rest_catalog( '', 'Authenticated abilities REST catalog returns 200.' );
-$provider_abilities_data = magick_ai_abilities_smoke_rest_catalog( 'magick-ai-abilities', 'Authenticated provider namespace REST catalog returns 200.' );
+$provider_abilities_data = magick_ai_abilities_smoke_rest_catalog( 'npcink-abilities-toolkit', 'Authenticated provider namespace REST catalog returns 200.' );
 if ( 'light_core_read' !== $magick_ai_abilities_smoke_profile ) {
 	magick_ai_abilities_smoke_assert(
-		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/site-summary' ),
+		magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/site-summary' ),
 		'Authenticated abilities REST catalog contains the demo ability.'
 	);
 		magick_ai_abilities_smoke_assert(
-			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-diagnostics-summary' ),
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-diagnostics-summary' ),
 			'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
 		);
 		magick_ai_abilities_smoke_assert(
-			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/wp-ops-diagnostics-detail' ),
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-ops-diagnostics-detail' ),
 			'Authenticated abilities REST catalog contains the standalone ops diagnostics detail ability.'
 		);
 		magick_ai_abilities_smoke_assert(
-			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'magick-ai-abilities/list-workflow-recipes' ),
+			magick_ai_abilities_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/list-workflow-recipes' ),
 			'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
 		);
 		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/create-draft', 'write', true );
 		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/set-post-seo-meta', 'write', true );
 		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai/approve-comment', 'write', true );
-		magick_ai_abilities_smoke_assert_rest_governance_contract( 'magick-ai-abilities/list-workflow-recipes', 'read', false );
+		magick_ai_abilities_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/list-workflow-recipes', 'read', false );
 	}
 
 if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
@@ -337,7 +337,7 @@ if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai/get-test-content-inventory', 'magick-ai/build-test-content-cleanup-plan', 'magick-ai/build-content-inventory-fix-plan', 'magick-ai/build-media-inventory-fix-plan', 'magick-ai-abilities/wp-diagnostics-summary', 'magick-ai-abilities/wp-ops-diagnostics-detail', 'magick-ai-abilities/list-workflow-recipes', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
+		foreach ( array( 'magick-ai/get-site-operations-dashboard', 'magick-ai/get-test-content-inventory', 'magick-ai/build-test-content-cleanup-plan', 'magick-ai/build-content-inventory-fix-plan', 'magick-ai/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'magick-ai/create-draft', 'magick-ai/get-comment-queue-health' ) as $disabled_ability_id ) {
 			magick_ai_abilities_smoke_assert(
 				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 				"Light profile disables optional ability {$disabled_ability_id}."
@@ -350,8 +350,8 @@ if ( 'light_core_read' === $magick_ai_abilities_smoke_profile ) {
 foreach (
 	array(
 			'magick-ai/site-info',
-			'magick-ai-abilities/list-workflow-recipes',
-			'magick-ai-abilities/get-workflow-recipe',
+			'npcink-abilities-toolkit/list-workflow-recipes',
+			'npcink-abilities-toolkit/get-workflow-recipe',
 			'magick-ai/list-post-types',
 		'magick-ai/list-taxonomies',
 		'magick-ai/count-posts',
@@ -374,6 +374,8 @@ foreach (
 		'magick-ai/get-internal-link-graph-health',
 		'magick-ai/get-media-cleanup-opportunities',
 		'magick-ai/build-media-inventory-fix-plan',
+		'magick-ai/build-media-reference-repair-plan',
+		'magick-ai/build-media-settings-reference-repair-plan',
 		'magick-ai/get-taxonomy-consolidation-suggestions',
 		'magick-ai/propose-post-taxonomy-terms',
 		'magick-ai/get-page-structure-health',
@@ -454,9 +456,11 @@ foreach (
 		'magick-ai/update-term',
 		'magick-ai/set-post-terms',
 		'magick-ai/update-media-details',
+		'magick-ai/patch-setting-value',
 		'magick-ai/upload-media-from-url',
 		'magick-ai/optimize-media-asset',
 		'magick-ai/replace-media-file',
+		'magick-ai/adopt-cloud-media-derivative',
 		'magick-ai/set-post-featured-image',
 		'magick-ai/schedule-post',
 		'magick-ai/publish-post',
@@ -483,17 +487,17 @@ $categories_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/categories'
 $categories_response = rest_do_request( $categories_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $categories_response->get_status(), 'Authenticated categories REST catalog returns 200.' );
 
-$run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/site-summary/run' );
+$run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/site-summary/run' );
 $run_request->set_query_params( array( 'input' => array() ) );
 $run_response = rest_do_request( $run_request );
 magick_ai_abilities_smoke_assert( 200 === (int) $run_response->get_status(), 'Authenticated demo ability run returns 200.' );
 
-$diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/wp-diagnostics-summary/run' );
+$diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/wp-diagnostics-summary/run' );
 $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	$diagnostics_run_response = rest_do_request( $diagnostics_run_request );
 	magick_ai_abilities_smoke_assert( 200 === (int) $diagnostics_run_response->get_status(), 'Authenticated diagnostics ability run returns 200.' );
 
-	$ops_diagnostics_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/wp-ops-diagnostics-detail/run' );
+	$ops_diagnostics_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/wp-ops-diagnostics-detail/run' );
 	$ops_diagnostics_run_request->set_query_params( array( 'input' => array( 'max_cron_events' => 5, 'max_plugins_per_group' => 5 ) ) );
 	$ops_diagnostics_run_response = rest_do_request( $ops_diagnostics_run_request );
 	magick_ai_abilities_smoke_assert( 200 === (int) $ops_diagnostics_run_response->get_status(), 'Authenticated ops diagnostics detail ability run returns 200.' );
@@ -508,14 +512,14 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 		magick_ai_abilities_smoke_assert( is_array( $ops_diagnostics_first_source ) && array_key_exists( 'message_fingerprint', $ops_diagnostics_first_source ), 'Ops diagnostics source summary includes message fingerprints when entries exist.' );
 	}
 
-	$workflow_recipes_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/list-workflow-recipes/run' );
+	$workflow_recipes_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-workflow-recipes/run' );
 	$workflow_recipes_run_request->set_query_params( array( 'input' => array() ) );
 	$workflow_recipes_run_response = rest_do_request( $workflow_recipes_run_request );
 	magick_ai_abilities_smoke_assert( 200 === (int) $workflow_recipes_run_response->get_status(), 'Authenticated workflow recipe discovery ability run returns 200.' );
 	$workflow_recipes_run_data = $workflow_recipes_run_response->get_data();
 	magick_ai_abilities_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_publish_preflight'] ), 'Workflow recipe discovery returns publish preflight definition.' );
 
-	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/magick-ai-abilities/get-workflow-recipe/run' );
+	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-workflow-recipe/run' );
 	$workflow_recipe_run_request->set_query_params(
 		array(
 			'input' => array(
@@ -793,14 +797,14 @@ $smoke_attachment_id = wp_insert_post(
 );
 magick_ai_abilities_smoke_assert( ! is_wp_error( $smoke_attachment_id ) && (int) $smoke_attachment_id > 0, 'Temporary smoke media asset is available for media inventory ability runs.' );
 magick_ai_abilities_smoke_register_attachment_fixture( (int) $smoke_attachment_id );
-update_post_meta( (int) $smoke_attachment_id, '_wp_attached_file', '2026/06/magick-ai-abilities-smoke-media-asset.jpg' );
+update_post_meta( (int) $smoke_attachment_id, '_wp_attached_file', '2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg' );
 update_post_meta(
 	(int) $smoke_attachment_id,
 	'_wp_attachment_metadata',
 	array(
 		'width'    => 2600,
 		'height'   => 1400,
-		'file'     => '2026/06/magick-ai-abilities-smoke-media-asset.jpg',
+		'file'     => '2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg',
 		'filesize' => 900000,
 	)
 );
@@ -854,9 +858,9 @@ update_post_meta(
 		array(
 			'format'           => 'webp',
 			'mime_type'        => 'image/webp',
-			'file_basename'    => 'magick-ai-abilities-smoke-media-asset-optimized.webp',
-			'relative_file'    => '2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp',
-			'url'              => content_url( 'uploads/2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp' ),
+			'file_basename'    => 'npcink-abilities-toolkit-smoke-media-asset-optimized.webp',
+			'relative_file'    => '2026/06/npcink-abilities-toolkit-smoke-media-asset-optimized.webp',
+			'url'              => content_url( 'uploads/2026/06/npcink-abilities-toolkit-smoke-media-asset-optimized.webp' ),
 			'width'            => 1920,
 			'height'           => 1034,
 			'quality'          => 82,
@@ -872,8 +876,8 @@ $media_replace_run_request->set_body(
 		array(
 			'input' => array(
 				'attachment_id'                 => (int) $smoke_attachment_id,
-				'derivative_relative_file'      => '2026/06/magick-ai-abilities-smoke-media-asset-optimized.webp',
-				'expected_current_relative_file' => '2026/06/magick-ai-abilities-smoke-media-asset.jpg',
+				'derivative_relative_file'      => '2026/06/npcink-abilities-toolkit-smoke-media-asset-optimized.webp',
+				'expected_current_relative_file' => '2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg',
 				'dry_run'                       => true,
 			),
 		)

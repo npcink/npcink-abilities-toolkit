@@ -173,9 +173,9 @@ function maa_contract_audit_ability( $ability_id, array $ability ) {
  */
 function maa_contract_audit_agent_usage( array $abilities ) {
 	$required_agent_usage = array(
-		'magick-ai-abilities/list-workflow-recipes',
-		'magick-ai-abilities/get-workflow-recipe',
-		'magick-ai-abilities/wp-diagnostics-summary',
+		'npcink-abilities-toolkit/list-workflow-recipes',
+		'npcink-abilities-toolkit/get-workflow-recipe',
+		'npcink-abilities-toolkit/wp-diagnostics-summary',
 		'magick-ai/get-article-publish-preflight-context',
 		'magick-ai/get-old-article-refresh-context',
 		'magick-ai/get-media-cleanup-opportunities',

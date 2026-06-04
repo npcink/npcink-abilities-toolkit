@@ -8,7 +8,7 @@ not a second registry.
 
 ## Core Principle
 
-`magick-ai-abilities` may publish read-only, declarative workflow definitions
+`npcink-abilities-toolkit` may publish read-only, declarative workflow definitions
 that describe recommended ability chains, handoff shapes, required scopes,
 expected output sections, failure posture, and host-governed write boundaries.
 
@@ -27,8 +27,8 @@ same manifest through:
 
 - `magick_ai_abilities_get_workflow_definitions()`;
 - `magick_ai_abilities_get_workflow_definition( $recipe_id )`;
-- `magick-ai-abilities/list-workflow-recipes`;
-- `magick-ai-abilities/get-workflow-recipe`.
+- `npcink-abilities-toolkit/list-workflow-recipes`;
+- `npcink-abilities-toolkit/get-workflow-recipe`.
 
 The replay fixture at `tests/fixtures/agent-workflow-replay.json` mirrors the
 production provider for consumer-side tests. It remains intentionally small while

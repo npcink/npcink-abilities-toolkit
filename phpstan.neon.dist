@@ -6,7 +6,7 @@ parameters:
 	phpVersion: 70200
 	paths:
 		- includes
-		- magick-ai-abilities.php
+		- npcink-abilities-toolkit.php
 	bootstrapFiles:
 		- tests/phpstan-bootstrap.php
 	excludePaths:

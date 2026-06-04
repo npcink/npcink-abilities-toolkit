@@ -1,6 +1,6 @@
 # Project Development Plan
 
-The product positioning and next-stage priority plan are documented in [project-positioning-and-next-stage-plan.md](project-positioning-and-next-stage-plan.md). This plan should be interpreted through that boundary: `magick-ai-abilities` is the WordPress AI Agent ability infrastructure layer, not the end-user AI product or Magick AI runtime.
+The product positioning and next-stage priority plan are documented in [project-positioning-and-next-stage-plan.md](project-positioning-and-next-stage-plan.md). This plan should be interpreted through that boundary: `npcink-abilities-toolkit` is the WordPress AI Agent ability infrastructure layer, not the end-user AI product or Magick AI runtime.
 
 ## Phase 1: Standalone Abilities API Plugin
 
@@ -38,7 +38,7 @@ Start with read-only abilities:
 Current migrated core read package:
 
 - `magick-ai/site-info`
-- `magick-ai-abilities/wp-diagnostics-summary` as a new standalone WordPress-only diagnostics ability, not a migrated Magick AI runtime diagnostic
+- `npcink-abilities-toolkit/wp-diagnostics-summary` as a new standalone WordPress-only diagnostics ability, not a migrated Magick AI runtime diagnostic
 - `magick-ai/list-post-types`
 - `magick-ai/list-taxonomies`
 - `magick-ai/count-posts`
@@ -133,7 +133,7 @@ Current migrated host-governed destructive package:
 - `magick-ai/trash-post`
 - `magick-ai/delete-post-permanently`
 
-Write-like abilities may move when they are pure WordPress operations and remain host-governed: direct clients get dry-run previews by default, while final commit requires approval context from Magick AI or another host runtime. The generic WordPress mutation can live in `magick-ai-abilities`; Magick AI remains responsible for admission, approval, audit, and runtime context.
+Write-like abilities may move when they are pure WordPress operations and remain host-governed: direct clients get dry-run previews by default, while final commit requires approval context from Magick AI or another host runtime. The generic WordPress mutation can live in `npcink-abilities-toolkit`; Magick AI remains responsible for admission, approval, audit, and runtime context.
 
 ## Phase 4: Consumer Integrations
 

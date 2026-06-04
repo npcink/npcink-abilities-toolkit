@@ -113,7 +113,7 @@
         "caller"
       ]
     },
-    "magick-ai-abilities/list-workflow-recipes": {
+    "npcink-abilities-toolkit/list-workflow-recipes": {
       "risk_level": "read",
       "requires_approval": false,
       "required_scopes": [],

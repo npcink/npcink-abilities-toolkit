@@ -16,7 +16,7 @@ The machine-readable field contract is documented in
 [Workflow Definition Contract](workflow-definition-contract.md).
 Hosts that need runtime discovery can use
 `magick_ai_abilities_get_workflow_definitions()` or the read-only
-`magick-ai-abilities/list-workflow-recipes` ability.
+`npcink-abilities-toolkit/list-workflow-recipes` ability.
 
 ## Core Principle For AI Agents
 
@@ -29,11 +29,11 @@ When an AI agent extends this area, keep the definition read-only and
 declarative. The host runtime owns execution state, policy, approval, audit,
 quota, model or prompt selection, and final mutation. If a proposed workflow
 field would require this package to remember runtime state or enforce host
-policy, that field belongs in the consuming host, not in `magick-ai-abilities`.
+policy, that field belongs in the consuming host, not in `npcink-abilities-toolkit`.
 
 ## Boundary
 
-`magick-ai-abilities` may publish workflow recipes when they remain
+`npcink-abilities-toolkit` may publish workflow recipes when they remain
 documentation-level consumption guidance.
 
 Allowed here:
@@ -301,8 +301,8 @@ Goal: gather redacted WordPress-only diagnostics for support or agent triage.
 
 Ability sequence:
 
-1. `magick-ai-abilities/wp-diagnostics-summary`
-2. `magick-ai-abilities/wp-ops-diagnostics-detail`
+1. `npcink-abilities-toolkit/wp-diagnostics-summary`
+2. `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 3. `magick-ai/site-info`
 
 Handoff:

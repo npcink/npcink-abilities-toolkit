@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGIN_SLUG="${PLUGIN_SLUG:-magick-ai-abilities}"
-PACKAGE_REF="${PACKAGE_REF:-HEAD}"
+PLUGIN_SLUG="${PLUGIN_SLUG:-npcink-abilities-toolkit}"
+PACKAGE_REF="${PACKAGE_REF:-WORKTREE}"
 WP_CLI_BIN="${WP_CLI:-wp}"
 WP_CLI_PHP="${WP_CLI_PHP:-php}"
 WP_CLI_ERROR_REPORTING="${WP_CLI_ERROR_REPORTING:-}"
@@ -21,12 +21,8 @@ cleanup() {
 trap cleanup EXIT
 
 package_dir="$tmpdir/$PLUGIN_SLUG"
-(
-	cd "$ROOT_DIR"
-	git archive --format=tar --prefix="$PLUGIN_SLUG/" "$PACKAGE_REF" | tar -x -C "$tmpdir"
-)
-
-for excluded_path in \
+excluded_paths=(
+	".git" \
 	".github" \
 	".gitattributes" \
 	".gitignore" \
@@ -35,6 +31,7 @@ for excluded_path in \
 	"README.md" \
 	"composer.json" \
 	"composer.lock" \
+	"build" \
 	"dist" \
 	"docs" \
 	"examples" \
@@ -43,7 +40,24 @@ for excluded_path in \
 	"sj" \
 	"tests" \
 	"vendor"
-do
+)
+
+if [[ "WORKTREE" == "$PACKAGE_REF" ]]; then
+	mkdir -p "$package_dir"
+	rsync_args=("-a")
+	for excluded_path in "${excluded_paths[@]}"; do
+		rsync_args+=("--exclude=$excluded_path")
+	done
+	rsync_args+=("$ROOT_DIR/" "$package_dir/")
+	rsync "${rsync_args[@]}"
+else
+	(
+		cd "$ROOT_DIR"
+		git archive --format=tar --prefix="$PLUGIN_SLUG/" "$PACKAGE_REF" | tar -x -C "$tmpdir"
+	)
+fi
+
+for excluded_path in "${excluded_paths[@]}"; do
 	if [[ -e "$package_dir/$excluded_path" ]]; then
 		echo "Packaged plugin includes excluded path: $excluded_path" >&2
 		exit 1

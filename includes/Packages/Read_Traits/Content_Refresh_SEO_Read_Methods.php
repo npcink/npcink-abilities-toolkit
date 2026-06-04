@@ -25,15 +25,15 @@ trait Content_Refresh_SEO_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$max_targets = max( 1, min( 10, $this->absint_value( $input['max_targets'] ?? 5 ) ) );
@@ -53,7 +53,7 @@ trait Content_Refresh_SEO_Read_Methods {
 				'target_post_id' => $this->absint_value( $target['post_id'] ?? 0 ),
 				'target_url'     => $this->esc_url_value( (string) ( $target['url'] ?? '' ) ),
 				'anchor_text'    => $anchor,
-				'placement_hint' => __( 'Place one contextual internal link after the first paragraph that introduces this concept.', 'magick-ai-abilities' ),
+				'placement_hint' => __( 'Place one contextual internal link after the first paragraph that introduces this concept.', 'npcink-abilities-toolkit' ),
 				'reason'         => $this->sanitize_metadata_text( (string) ( $target['reason'] ?? '' ) ),
 			);
 		}
@@ -94,7 +94,7 @@ trait Content_Refresh_SEO_Read_Methods {
 	public function get_content_refresh_opportunities( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content refresh opportunities.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content refresh opportunities.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -206,7 +206,7 @@ trait Content_Refresh_SEO_Read_Methods {
 	public function get_old_article_refresh_context( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read article refresh context.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read article refresh context.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -315,7 +315,7 @@ trait Content_Refresh_SEO_Read_Methods {
 	public function get_internal_link_graph_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read internal link graph health.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read internal link graph health.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -394,7 +394,7 @@ trait Content_Refresh_SEO_Read_Methods {
 					'source_title'   => sanitize_text_field( (string) ( $rows[ $source_id ]['title'] ?? '' ) ),
 					'target_title'   => sanitize_text_field( (string) ( $rows[ $target_id ]['title'] ?? '' ) ),
 					'shared_terms'   => array_slice( $overlap, 0, 3 ),
-					'reason'         => __( 'Posts share topic terms and may support a contextual internal link.', 'magick-ai-abilities' ),
+					'reason'         => __( 'Posts share topic terms and may support a contextual internal link.', 'npcink-abilities-toolkit' ),
 				);
 			}
 		}
@@ -491,7 +491,7 @@ trait Content_Refresh_SEO_Read_Methods {
 				'type'     => $issue,
 				'priority' => in_array( $issue, array( 'missing_seo_description', 'answer_structure_gap' ), true ) ? 'high' : 'medium',
 				'count'    => (int) $refresh_issue_counts[ $issue ],
-				'reason'   => __( 'Refresh scan found repeated SEO/GEO readiness gaps.', 'magick-ai-abilities' ),
+				'reason'   => __( 'Refresh scan found repeated SEO/GEO readiness gaps.', 'npcink-abilities-toolkit' ),
 			);
 		}
 
@@ -528,15 +528,15 @@ trait Content_Refresh_SEO_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$title = sanitize_text_field( (string) get_the_title( $post_id ) );
@@ -556,12 +556,12 @@ trait Content_Refresh_SEO_Read_Methods {
 		$checks = array();
 		$recommendations = array();
 
-		$this->append_readiness_check( $checks, $recommendations, 'focus_keyword', '' !== $focus_keyword && $this->contains_text_ci( $plain_text . ' ' . $title, $focus_keyword ), 'high', __( 'Focus keyword appears in title or content.', 'magick-ai-abilities' ), __( 'Add or confirm a focus keyword and place it naturally in the title or lead section.', 'magick-ai-abilities' ) );
-		$this->append_readiness_check( $checks, $recommendations, 'seo_title', '' !== $seo_title, 'medium', __( 'SEO title metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO title metadata before publication or optimization handoff.', 'magick-ai-abilities' ) );
-		$this->append_readiness_check( $checks, $recommendations, 'seo_description', '' !== $seo_description, 'medium', __( 'SEO description metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO description metadata for search and share snippets.', 'magick-ai-abilities' ) );
-		$this->append_readiness_check( $checks, $recommendations, 'content_depth', $this->strlen_value( $plain_text ) >= 320, 'medium', __( 'Content has enough depth for baseline SEO review.', 'magick-ai-abilities' ), __( 'Expand the content with clearer context, steps, evidence, or examples.', 'magick-ai-abilities' ) );
-		$this->append_readiness_check( $checks, $recommendations, 'answerability', ! empty( $question_candidates ), 'medium', __( 'Content has answer-oriented question candidates.', 'magick-ai-abilities' ), __( 'Add direct answer sections or FAQ-style questions for GEO readiness.', 'magick-ai-abilities' ) );
-		$this->append_readiness_check( $checks, $recommendations, 'featured_media', $featured_media_id > 0, 'low', __( 'Featured media is assigned.', 'magick-ai-abilities' ), __( 'Add featured media when the channel or theme expects one.', 'magick-ai-abilities' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'focus_keyword', '' !== $focus_keyword && $this->contains_text_ci( $plain_text . ' ' . $title, $focus_keyword ), 'high', __( 'Focus keyword appears in title or content.', 'npcink-abilities-toolkit' ), __( 'Add or confirm a focus keyword and place it naturally in the title or lead section.', 'npcink-abilities-toolkit' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'seo_title', '' !== $seo_title, 'medium', __( 'SEO title metadata is present.', 'npcink-abilities-toolkit' ), __( 'Add SEO title metadata before publication or optimization handoff.', 'npcink-abilities-toolkit' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'seo_description', '' !== $seo_description, 'medium', __( 'SEO description metadata is present.', 'npcink-abilities-toolkit' ), __( 'Add SEO description metadata for search and share snippets.', 'npcink-abilities-toolkit' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'content_depth', $this->strlen_value( $plain_text ) >= 320, 'medium', __( 'Content has enough depth for baseline SEO review.', 'npcink-abilities-toolkit' ), __( 'Expand the content with clearer context, steps, evidence, or examples.', 'npcink-abilities-toolkit' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'answerability', ! empty( $question_candidates ), 'medium', __( 'Content has answer-oriented question candidates.', 'npcink-abilities-toolkit' ), __( 'Add direct answer sections or FAQ-style questions for GEO readiness.', 'npcink-abilities-toolkit' ) );
+		$this->append_readiness_check( $checks, $recommendations, 'featured_media', $featured_media_id > 0, 'low', __( 'Featured media is assigned.', 'npcink-abilities-toolkit' ), __( 'Add featured media when the channel or theme expects one.', 'npcink-abilities-toolkit' ) );
 
 		$penalty = 0;
 		foreach ( $checks as $check ) {
@@ -613,7 +613,7 @@ trait Content_Refresh_SEO_Read_Methods {
 	public function get_site_topic_coverage_report( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read topic coverage.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read topic coverage.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -675,7 +675,7 @@ trait Content_Refresh_SEO_Read_Methods {
 			if ( (int) ( $topic['count'] ?? 0 ) <= 1 ) {
 				$coverage_gaps[] = array(
 					'topic'  => sanitize_text_field( (string) ( $topic['topic'] ?? '' ) ),
-					'reason' => __( 'Only one scanned post covers this topic; consider adding supporting content or internal links.', 'magick-ai-abilities' ),
+					'reason' => __( 'Only one scanned post covers this topic; consider adding supporting content or internal links.', 'npcink-abilities-toolkit' ),
 				);
 			}
 		}
@@ -844,7 +844,7 @@ trait Content_Refresh_SEO_Read_Methods {
 					'edit_link'       => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( $post_id, 'raw' ) ) : '',
 					'anchor_text'     => $term,
 						/* translators: %s: Related term. */
-						'reason'          => sprintf( __( 'Existing content is related to "%s" and can support the source post with contextual reading.', 'magick-ai-abilities' ), $term ),
+						'reason'          => sprintf( __( 'Existing content is related to "%s" and can support the source post with contextual reading.', 'npcink-abilities-toolkit' ), $term ),
 					'relevance_score' => 0.72,
 				);
 				if ( count( $targets ) >= $max_targets ) {

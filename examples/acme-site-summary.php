@@ -1,6 +1,6 @@
 <?php
 /**
- * Example provider integration for Magick AI Abilities.
+ * Example provider integration for Npcink Abilities Toolkit.
  *
  * @package MagickAIAbilitiesExample
  */

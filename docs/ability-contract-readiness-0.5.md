@@ -9,7 +9,7 @@ line.
 
 ## Objective
 
-`magick-ai-abilities` should be the local ability truth source for WordPress
+`npcink-abilities-toolkit` should be the local ability truth source for WordPress
 agents and product plugins:
 
 - stable ability ids;
@@ -90,8 +90,12 @@ Those belong in product, provider, adapter, or host plugins.
 - `composer check:boundary` passes.
 - `composer check:consumer` passes.
 - `composer check:catalog` passes.
+- `composer check:wporg` passes.
+- `composer check:plugin-package:local` passes before any WordPress.org upload.
 - `composer test:all` passes.
 - `composer smoke:wp` result is recorded when a Local WordPress site is
   available.
+- `docs/wordpress-org-review-lessons.md` has been checked against any current
+  review email under `sj/q/`.
 - `docs/ability-acceptance-matrix.md` remains the gate for any new ability.
 - `docs/core-governance-handoff-guide.md` remains accurate for Core consumers.

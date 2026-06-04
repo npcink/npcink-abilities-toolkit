@@ -66,6 +66,9 @@ contracts:
   This should start as derivative generation, not direct replacement.
 - `magick-ai/replace-media-file`: highest-risk path for switching an
   attachment file. Require backup, rollback, approval, and strict preview.
+- `magick-ai/adopt-cloud-media-derivative`: approved local adoption path for a
+  non-expired Cloud derivative artifact. Require artifact evidence, backup,
+  rollback metadata, and host approval before commit.
 
 Recommended rollout order:
 

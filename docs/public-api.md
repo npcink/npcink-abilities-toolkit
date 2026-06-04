@@ -115,7 +115,7 @@ is empty or does not contain `/`.
 
 Default behavior:
 
-- `category` defaults to `magick-ai-abilities-read`.
+- `category` defaults to `npcink-abilities-toolkit-read`.
 - `capability` defaults to `manage_options`.
 - `permission_callback` is generated from `capability` unless provided.
 - `source` defaults to `third_party`.
@@ -177,7 +177,7 @@ final commit.
 
 Defaults are the same as read-only registration except:
 
-- `category` defaults to `magick-ai-abilities-write`.
+- `category` defaults to `npcink-abilities-toolkit-write`.
 - `risk_level` is `write`.
 - `requires_confirm` is `true`.
 - input schema is extended with `dry_run`, `commit`, and `idempotency_key`.
@@ -324,5 +324,5 @@ Parameters:
 Hosts that need REST-based discovery can also call the read-only Abilities API
 abilities:
 
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`

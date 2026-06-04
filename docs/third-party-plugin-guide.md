@@ -20,7 +20,7 @@ add_action(
 );
 ```
 
-Do not include files from `magick-ai-abilities/includes/` and do not instantiate
+Do not include files from `npcink-abilities-toolkit/includes/` and do not instantiate
 classes under the `Magick_AI_Abilities` namespace. Those are implementation
 details.
 

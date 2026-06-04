@@ -12,8 +12,8 @@ uses to validate proposal governance.
 - `magick-ai/create-draft`
 - `magick-ai/set-post-seo-meta`
 - `magick-ai/approve-comment`
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`
 
 ## Locked Fields
 

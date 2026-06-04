@@ -46,16 +46,16 @@ trait Article_Production_Read_Methods {
 			$publish_blocked = true;
 			if ( 'high' === sanitize_key( (string) ( $review['template_risk_level'] ?? '' ) ) ) {
 				$gate_reason = 'template_style_requires_handoff';
-				$user_message = __( 'Template style risk is high; review and polish the article before scheduling or publishing.', 'magick-ai-abilities' );
+				$user_message = __( 'Template style risk is high; review and polish the article before scheduling or publishing.', 'npcink-abilities-toolkit' );
 			} else {
 				$gate_reason = 'quality_review_requires_handoff';
-				$user_message = __( 'Quality review requires human review before scheduling or publishing.', 'magick-ai-abilities' );
+				$user_message = __( 'Quality review requires human review before scheduling or publishing.', 'npcink-abilities-toolkit' );
 			}
 		} elseif ( in_array( $requested_publish_mode, array( 'schedule', 'publish' ), true ) && ! empty( $duplicate_guard['skip_recommended'] ) ) {
 			$effective_publish_mode = 'review';
 			$publish_blocked = true;
 			$gate_reason = 'duplicate_production_candidate';
-			$user_message = __( 'A duplicate production candidate was detected; review before scheduling or publishing.', 'magick-ai-abilities' );
+			$user_message = __( 'A duplicate production candidate was detected; review before scheduling or publishing.', 'npcink-abilities-toolkit' );
 		}
 
 		return array(

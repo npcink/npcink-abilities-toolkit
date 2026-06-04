@@ -13,18 +13,18 @@ Use this shared Local site for repeatable manual and smoke verification:
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
 - Test admin password: `[REDACTED_SECRET]`
-- Installed plugin slug: `magick-ai-abilities`
+- Installed plugin slug: `npcink-abilities-toolkit`
 - Admin test page with a Magick AI host menu:
-  `https://magick-ai.local/wp-admin/admin.php?page=magick-ai-abilities`
+  `https://magick-ai.local/wp-admin/admin.php?page=npcink-abilities-toolkit`
 - Standalone fallback admin test page:
-  `https://magick-ai.local/wp-admin/tools.php?page=magick-ai-abilities`
+  `https://magick-ai.local/wp-admin/tools.php?page=npcink-abilities-toolkit`
 
 Verification status through 2026-05-30:
 
 - `curl -k -I https://magick-ai.local/` returned HTTP 200.
 - `https://magick-ai.local/wp-json/` exposed `/wp-abilities/v1`.
 - WP admin login with username `1` and the local-only redacted password succeeded.
-- `wp plugin status magick-ai-abilities` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
+- `wp plugin status npcink-abilities-toolkit` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
 - `composer smoke:wp` passed with `Smoke OK: 98 assertions`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 117 assertions`
   after adding `magick-ai/get-post-context`,
@@ -71,7 +71,7 @@ Verification status through 2026-05-30:
   Magick AI capabilities endpoint returned 198 entries, and the projected rows
   did not include `open_api_enabled`, `backend_priority`, `tool_policy`,
   `skip_catalog_manifest_fallback`, or `write_mode`.
-- On 2026-05-29, `wp plugin status magick-ai-abilities` reported the plugin as
+- On 2026-05-29, `wp plugin status npcink-abilities-toolkit` reported the plugin as
   active with version `0.3.0`.
 - On 2026-05-29, `composer smoke:wp` passed after splitting diagnostics and
   comment helper definitions into dedicated providers: default profile

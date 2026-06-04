@@ -107,6 +107,7 @@ Representative write abilities:
 - `magick-ai/upload-media-from-url`
 - `magick-ai/optimize-media-asset`
 - `magick-ai/replace-media-file`
+- `magick-ai/adopt-cloud-media-derivative`
 - `magick-ai/set-post-featured-image`
 - `magick-ai/schedule-post`
 - `magick-ai/publish-post`
@@ -181,8 +182,8 @@ flows, and local smoke checks.
 
 Abilities:
 
-- `magick-ai-abilities/wp-diagnostics-summary`
-- `magick-ai-abilities/wp-ops-diagnostics-detail`
+- `npcink-abilities-toolkit/wp-diagnostics-summary`
+- `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 
 The detail ability is the support-facing follow-up surface for bounded plugin
 rows, caller permissions, log severity summaries, optional structured log
@@ -210,8 +211,8 @@ routing, and final writes in the host runtime.
 
 Abilities:
 
-- `magick-ai-abilities/list-workflow-recipes`
-- `magick-ai-abilities/get-workflow-recipe`
+- `npcink-abilities-toolkit/list-workflow-recipes`
+- `npcink-abilities-toolkit/get-workflow-recipe`
 
 ## SEO/GEO Support Pack
 

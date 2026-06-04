@@ -38,25 +38,25 @@ final class Agent_Usage_Metadata {
 	 */
 	private static function metadata() {
 		return array(
-			'magick-ai-abilities/list-workflow-recipes' => array(
+			'npcink-abilities-toolkit/list-workflow-recipes' => array(
 				'when_to_use'     => array( 'Discover supported host-side workflow recipes before choosing a multi-step path.' ),
 				'not_for'         => array( 'Do not use this to execute, schedule, approve, audit, or commit workflow steps.' ),
 				'best_for'        => array( 'Selecting the right entry ability for article, refresh, comment, diagnostics, or governance handoff work.' ),
 				'stopping_points' => array( 'After selecting a recipe, call the listed abilities through the host; this package does not run the workflow.' ),
 			),
-			'magick-ai-abilities/get-workflow-recipe' => array(
+			'npcink-abilities-toolkit/get-workflow-recipe' => array(
 				'when_to_use'     => array( 'Fetch one workflow recipe by recipe id or case id after discovery.' ),
 				'not_for'         => array( 'Do not use this as a workflow execution endpoint or approval record.' ),
 				'best_for'        => array( 'Reading required inputs, entry ability, expanded ability ids, and handoff boundaries for one workflow.' ),
 				'stopping_points' => array( 'Stop after reading the recipe; execution, approval, audit, retry, and final writes belong to the host.' ),
 			),
-			'magick-ai-abilities/wp-diagnostics-summary' => array(
+			'npcink-abilities-toolkit/wp-diagnostics-summary' => array(
 				'when_to_use'     => array( 'Inspect a redacted WordPress-only environment summary for support or readiness triage.' ),
 				'not_for'         => array( 'Do not use this for Magick AI settings, MCP settings, secrets, filesystem paths, database names, or external probes.' ),
 				'best_for'        => array( 'Checking REST, Abilities API, WordPress, PHP, theme, plugin, cron, and update context without leaking secrets.' ),
 				'stopping_points' => array( 'For runtime, cloud, MCP, or secret diagnostics, hand off to the owning host or operations addon.' ),
 			),
-			'magick-ai-abilities/wp-ops-diagnostics-detail' => array(
+			'npcink-abilities-toolkit/wp-ops-diagnostics-detail' => array(
 				'when_to_use'     => array( 'Inspect bounded WordPress operations details after the summary shows an environment or support gap.' ),
 				'not_for'         => array( 'Do not use this for Magick AI runtime state, MCP state, database names, table names, filesystem paths, secrets, unredacted logs, or external probes.' ),
 				'best_for'        => array( 'Checking active plugins, optional plugin groups, caller roles/capabilities, PHP extensions, cache and rewrite state, HTTPS, server/database summaries, cron hooks, bounded log severity summaries, content types, roles, widgets, block-theme registries, search integrations, SEO/security/performance summaries, and common plugin integrations.' ),

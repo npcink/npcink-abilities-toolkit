@@ -46,10 +46,10 @@ final class Core_Read_Pack_Classifier {
 	public static function known_pack_map() {
 			return array(
 				'magick-ai/site-info'                                => 'core_wordpress_read',
-				'magick-ai-abilities/wp-diagnostics-summary'        => 'wordpress_diagnostics',
-				'magick-ai-abilities/wp-ops-diagnostics-detail'     => 'wordpress_diagnostics',
-				'magick-ai-abilities/list-workflow-recipes'          => 'workflow_definitions',
-				'magick-ai-abilities/get-workflow-recipe'            => 'workflow_definitions',
+				'npcink-abilities-toolkit/wp-diagnostics-summary'        => 'wordpress_diagnostics',
+				'npcink-abilities-toolkit/wp-ops-diagnostics-detail'     => 'wordpress_diagnostics',
+				'npcink-abilities-toolkit/list-workflow-recipes'          => 'workflow_definitions',
+				'npcink-abilities-toolkit/get-workflow-recipe'            => 'workflow_definitions',
 				'magick-ai/list-post-types'                         => 'core_wordpress_read',
 			'magick-ai/list-taxonomies'                         => 'core_wordpress_read',
 			'magick-ai/list-media'                              => 'media_governance',
@@ -128,8 +128,11 @@ final class Core_Read_Pack_Classifier {
 			'magick-ai/resolve-url-to-post'                     => 'core_wordpress_read',
 			'magick-ai/get-post-blocks'                         => 'core_wordpress_read',
 			'magick-ai/list-post-revisions'                     => 'core_wordpress_read',
+			'magick-ai/build-media-reference-repair-plan'       => 'media_governance',
+			'magick-ai/build-media-settings-reference-repair-plan' => 'media_governance',
 			'magick-ai/inspect-media-asset'                     => 'media_governance',
 			'magick-ai/build-media-derivative-cloud-request'    => 'media_governance',
+			'magick-ai/build-media-derivative-batch-plan'       => 'media_governance',
 		);
 	}
 

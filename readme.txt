@@ -1,4 +1,4 @@
-=== Magick AI Abilities ===
+=== Npcink Abilities Toolkit ===
 Contributors: muze233
 Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
@@ -12,7 +12,7 @@ Standalone WordPress Abilities API package toolkit for registering agent-callabl
 
 == Description ==
 
-Magick AI Abilities provides a standalone toolkit for plugin authors who want to expose safe, agent-callable abilities through the WordPress Abilities API.
+Npcink Abilities Toolkit provides a standalone toolkit for plugin authors who want to expose safe, agent-callable abilities through the WordPress Abilities API.
 
 The plugin owns ability registration helpers, category helpers, schema normalization, annotation normalization, and optional compatibility projection for Magick AI when Magick AI is installed.
 
@@ -23,6 +23,14 @@ It does not own model routing, cloud execution, billing, quota, workflow runtime
 Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry.
 
 Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership.
+
+== External Services and Remote Requests ==
+
+This plugin does not automatically contact Magick AI, model providers, analytics services, tracking services, or cloud services.
+
+Some abilities can prepare request payloads for a separate host or cloud add-on, but this plugin does not send those payloads to an external service by itself.
+
+The `magick-ai/upload-media-from-url` ability can download a media file from a URL provided by an authenticated caller when an approved host runtime commits that ability. In that case WordPress sends an HTTP request to the caller-provided URL in order to fetch the media file for the local media library. The remote endpoint is chosen by the caller, not by this plugin.
 
 == Requirements ==
 
@@ -50,11 +58,11 @@ The page verifies Abilities API availability, fetches the authenticated REST abi
 
 The plugin includes migrated low-risk WordPress read abilities, deterministic comment helpers, and host-governed WordPress write/destructive abilities using preserved `magick-ai/*` ids for compatibility.
 
-It also includes `magick-ai-abilities/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
+It also includes `npcink-abilities-toolkit/wp-diagnostics-summary`, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Magick AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
 
 It also includes `magick-ai/search-posts` and `magick-ai/search-post-meta`, bounded local WordPress search helpers for keyword and explicit post-meta discovery. These are read-only helpers and do not call external search indexes or mutate content.
 
-It also includes `magick-ai-abilities/list-workflow-recipes` and `magick-ai-abilities/get-workflow-recipe`, read-only host composition recipe metadata discovery abilities. These expose metadata only and do not execute workflow runtime behavior.
+It also includes `npcink-abilities-toolkit/list-workflow-recipes` and `npcink-abilities-toolkit/get-workflow-recipe`, read-only host composition recipe metadata discovery abilities. These expose metadata only and do not execute workflow runtime behavior.
 
 Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `magick-ai-core`.
 

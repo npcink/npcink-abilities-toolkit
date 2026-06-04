@@ -38,10 +38,10 @@ trait Post_Primitives_Read_Methods {
 		$modified_before = sanitize_text_field( (string) ( $input['modified_before'] ?? '' ) );
 
 		if ( '' === $search ) {
-			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( empty( $post_type_filter ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$args = array(
@@ -122,14 +122,14 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$content = (string) ( $post->post_content ?? '' );
@@ -159,14 +159,14 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
@@ -220,14 +220,14 @@ trait Post_Primitives_Read_Methods {
 		$single = ! array_key_exists( 'single', $input ) || ! empty( $input['single'] );
 
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post meta.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post meta.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 			if ( '' !== $meta_key ) {
@@ -272,13 +272,13 @@ trait Post_Primitives_Read_Methods {
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
 
 		if ( '' === $search ) {
-			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_search_empty', __( 'Search keyword cannot be empty.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( empty( $meta_keys ) ) {
-			return new \WP_Error( 'magick_ai_abilities_meta_keys_required', __( 'At least one non-sensitive meta key is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_meta_keys_required', __( 'At least one non-sensitive meta key is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( empty( $post_type_filter ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( ! in_array( $match, array( 'contains', 'exact' ), true ) ) {
 			$match = 'contains';
@@ -390,7 +390,7 @@ trait Post_Primitives_Read_Methods {
 		}
 
 		if ( ! post_type_exists( $post_type ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$args = array(
@@ -501,14 +501,14 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$include_content = ! empty( $input['include_content'] );
@@ -540,15 +540,15 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$include_content = ! array_key_exists( 'include_content', $input ) || ! empty( $input['include_content'] );
@@ -685,15 +685,15 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$max_revisions = max( 1, min( 20, $this->absint_value( $input['max_revisions'] ?? 10 ) ) );
@@ -823,7 +823,7 @@ trait Post_Primitives_Read_Methods {
 		$post_type_hint = sanitize_key( (string) ( $input['post_type'] ?? 'any' ) );
 
 		if ( '' === $url && '' === $slug ) {
-			return new \WP_Error( 'magick_ai_abilities_resolve_input_required', __( 'A URL or slug is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_resolve_input_required', __( 'A URL or slug is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post_id = 0;
@@ -855,15 +855,15 @@ trait Post_Primitives_Read_Methods {
 		}
 
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'No matching post was found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'No matching post was found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'No matching post was found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'No matching post was found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		return array(
@@ -886,14 +886,14 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$target_post = $post;
@@ -901,10 +901,10 @@ trait Post_Primitives_Read_Methods {
 		if ( $revision_id > 0 ) {
 			$revision = get_post( $revision_id );
 			if ( ! $revision || 'revision' !== sanitize_key( (string) ( $revision->post_type ?? '' ) ) ) {
-				return new \WP_Error( 'magick_ai_abilities_revision_not_found', __( 'Revision was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+				return new \WP_Error( 'magick_ai_abilities_revision_not_found', __( 'Revision was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 			if ( absint( $revision->post_parent ?? 0 ) !== $post_id ) {
-				return new \WP_Error( 'magick_ai_abilities_revision_post_mismatch', __( 'Revision does not belong to the requested post.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'magick_ai_abilities_revision_post_mismatch', __( 'Revision does not belong to the requested post.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$target_post = $revision;
 		}
@@ -943,14 +943,14 @@ trait Post_Primitives_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post revision history.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$per_page = max( 1, min( 20, absint( $input['per_page'] ?? 10 ) ) );

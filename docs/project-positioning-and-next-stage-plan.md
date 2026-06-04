@@ -5,7 +5,7 @@ Date: 2026-05-28
 
 ## Positioning
 
-`magick-ai-abilities` is the WordPress AI Agent ability infrastructure layer.
+`npcink-abilities-toolkit` is the WordPress AI Agent ability infrastructure layer.
 
 It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, discover, and execute reusable WordPress abilities through the WordPress Abilities API.
 
@@ -25,7 +25,7 @@ The project boundary already matches this conclusion:
 
 ## Layering Model
 
-### `magick-ai-abilities`
+### `npcink-abilities-toolkit`
 
 Owns:
 
@@ -76,7 +76,7 @@ Own:
 - ICP/security/compliance UX;
 - documentation, onboarding, pricing, and commercial packaging.
 
-They may consume `magick-ai-abilities` to expose their operations to agents, but their market value is the end-user experience.
+They may consume `npcink-abilities-toolkit` to expose their operations to agents, but their market value is the end-user experience.
 
 ## Principal Contradiction
 
@@ -124,7 +124,7 @@ Goal: prove that upper-layer products can consume this package as infrastructure
 
 Deliverables:
 
-- Magick AI integration contract with minimum supported `magick-ai-abilities` version;
+- Magick AI integration contract with minimum supported `npcink-abilities-toolkit` version;
 - duplicate ability id audit flow for cross-repo development;
 - compatibility projection tests for opted-in provider abilities;
 - one consumer-side smoke path that discovers an ability through WordPress Abilities API and executes it through the host runtime;

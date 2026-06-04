@@ -1,11 +1,11 @@
-# Magick AI Abilities Migration Inventory
+# Npcink Abilities Toolkit Migration Inventory
 
 This inventory tracks the migration from `magick-ai/includes/abilities` into this standalone Abilities API package plugin.
 
 ## Added After 0.2
 
 These abilities are new standalone first-party abilities, not migrated from the
-Magick AI plugin. They are official `magick-ai-abilities` package capabilities
+Magick AI plugin. They are official `npcink-abilities-toolkit` package capabilities
 and are projected to the Magick AI catalog as `wp_ability` consumers.
 
 | Ability id | Source | New owner | Magick AI-owned | Host-governed |
@@ -99,7 +99,7 @@ and are projected to the Magick AI catalog as `wp_ability` consumers.
 
 ## Migrated Deterministic Comment Helpers in 0.1
 
-These abilities are read-only comment workflow helpers. `magick-ai-abilities` owns the schemas, callbacks, deterministic suggestion/summary behavior, and WordPress comment reads. Magick AI keeps the workflow definitions and execution governance that consume these ability ids.
+These abilities are read-only comment workflow helpers. `npcink-abilities-toolkit` owns the schemas, callbacks, deterministic suggestion/summary behavior, and WordPress comment reads. Magick AI keeps the workflow definitions and execution governance that consume these ability ids.
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ These abilities are read-only comment workflow helpers. `magick-ai-abilities` ow
 
 ## Migrated Host-Governed Writes in 0.1
 
-These abilities are pure WordPress write operations. `magick-ai-abilities` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
+These abilities are pure WordPress write operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
@@ -140,7 +140,7 @@ These abilities are pure WordPress write operations. `magick-ai-abilities` owns 
 
 ## Migrated Host-Governed Destructive Abilities in 0.1
 
-These abilities are destructive WordPress operations. `magick-ai-abilities` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
+These abilities are destructive WordPress operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
@@ -159,10 +159,10 @@ These abilities are owned by this standalone plugin and are not migrated Magick 
 
 | Ability id | Purpose | Owner |
 | --- | --- | --- |
-| `magick-ai-abilities/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai-abilities/wp-ops-diagnostics-detail` | Bounded redacted WordPress operations diagnostics for support flows | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai-abilities/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai-abilities/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | Bounded redacted WordPress operations diagnostics for support flows | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
 
 ## Next Read-Only Candidates
 
@@ -182,7 +182,7 @@ These can move only as proposal generators or host-governed write abilities. Com
 
 ## Remaining Write Candidates
 
-None for generic WordPress writes in the current migration scope. SEO metadata writing now lives in `magick-ai-abilities`; Magick AI can still provide provider-specific SEO adapter behavior through filters.
+None for generic WordPress writes in the current migration scope. SEO metadata writing now lives in `npcink-abilities-toolkit`; Magick AI can still provide provider-specific SEO adapter behavior through filters.
 
 ## Current Post-Cleanup Audit
 

@@ -280,7 +280,7 @@ final class Ability_Registrar {
 
 		$emitted_at = gmdate( 'c' );
 		$payload    = array(
-			'plugin_slug'  => 'magick-ai-abilities',
+			'plugin_slug'  => 'npcink-abilities-toolkit',
 			'status'       => 'ok',
 			'event_kind'   => 'abilities.catalog.changed',
 			'event_id'     => $this->catalog_event_id( $catalog_hash, $current_version, (string) $reason ),

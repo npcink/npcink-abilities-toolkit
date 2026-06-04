@@ -25,8 +25,8 @@ to expose it.
 ## Category
 
 - `category`: stable category id.
-- Read-only abilities default to `magick-ai-abilities-read`.
-- Write-like abilities default to `magick-ai-abilities-write`.
+- Read-only abilities default to `npcink-abilities-toolkit-read`.
+- Write-like abilities default to `npcink-abilities-toolkit-write`.
 - First-party migrated abilities may preserve legacy categories such as
   `magick-ai-data`, `magick-ai-pages`, `magick-ai-comments`, and
   `magick-ai-write` for compatibility.

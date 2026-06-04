@@ -3,11 +3,11 @@
 Status: active
 Version: magick-ai-project-split-v1
 
-This document defines how `magick-ai-abilities` is developed after it is split from the Magick AI plugin.
+This document defines how `npcink-abilities-toolkit` is developed after it is split from the Magick AI plugin.
 
 ## Project Role
 
-`magick-ai-abilities` is an independent WordPress Abilities API package plugin. It owns reusable WordPress ability definitions that can be consumed by Magick AI, other plugins, or direct Abilities API clients.
+`npcink-abilities-toolkit` is an independent WordPress Abilities API package plugin. It owns reusable WordPress ability definitions that can be consumed by Magick AI, other plugins, or direct Abilities API clients.
 
 Magick AI is an optional consumer. This plugin must remain installable, testable, and useful without Magick AI.
 
@@ -16,7 +16,7 @@ Magick AI is an optional consumer. This plugin must remain installable, testable
 Use this project as a generic WordPress Abilities API package layer, not as a
 Magick AI admin/runtime submodule.
 
-`magick-ai-abilities` answers:
+`npcink-abilities-toolkit` answers:
 
 - what reusable WordPress abilities can be registered;
 - what schemas, annotations, and categories those abilities expose;
@@ -162,7 +162,7 @@ Direct clients receive dry-run previews by default. A real commit requires host 
 
 ## Duplicate Registration Rule
 
-When an ability id has moved to `magick-ai-abilities`, Magick AI must not keep a duplicate local config row or duplicate callback implementation for that id.
+When an ability id has moved to `npcink-abilities-toolkit`, Magick AI must not keep a duplicate local config row or duplicate callback implementation for that id.
 
 During local cross-repo development, Magick AI should run its duplicate-id audit against this project. This plugin's own CI must not require the Magick AI repository to be present.
 
@@ -174,9 +174,9 @@ Allowed integration is limited to optional WordPress hooks and filters, for exam
 
 ## Version Compatibility
 
-- `magick-ai-abilities` keeps SemVer-style public API discipline for registration helpers and built-in ability ids.
-- Magick AI should require `magick-ai-abilities` `0.3.0` or newer when it depends on host-selectable package gating, thin default projection rows, or explicit read/comment sub-pack maps.
-- Magick AI should document the minimum recommended `magick-ai-abilities` version in its own integration contract.
+- `npcink-abilities-toolkit` keeps SemVer-style public API discipline for registration helpers and built-in ability ids.
+- Magick AI should require `npcink-abilities-toolkit` `0.3.0` or newer when it depends on host-selectable package gating, thin default projection rows, or explicit read/comment sub-pack maps.
+- Magick AI should document the minimum recommended `npcink-abilities-toolkit` version in its own integration contract.
 - If a future release needs Magick AI fallback definitions, that must be recorded in a new ADR before fallback code is reintroduced.
 
 ## Required Checks

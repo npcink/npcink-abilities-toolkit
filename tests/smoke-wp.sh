@@ -7,7 +7,7 @@ WP_CLI_PHP="${WP_CLI_PHP:-php}"
 WP_CLI_PHP_ARGS="${WP_CLI_PHP_ARGS:-}"
 WP_CLI_ERROR_REPORTING="${WP_CLI_ERROR_REPORTING:-}"
 WP_CLI_MYSQL_SOCKET="${WP_CLI_MYSQL_SOCKET:-}"
-PLUGIN_SLUG="${PLUGIN_SLUG:-magick-ai-abilities}"
+PLUGIN_SLUG="${PLUGIN_SLUG:-npcink-abilities-toolkit}"
 
 if [[ "$WP_CLI_BIN" != *.phar ]] && ! command -v "$WP_CLI_BIN" >/dev/null 2>&1; then
 	cat >&2 <<'EOF'
@@ -73,7 +73,7 @@ if [[ -z "$mu_plugin_dir" ]]; then
 	exit 1
 fi
 mkdir -p "$mu_plugin_dir"
-light_profile_mu_plugin="$mu_plugin_dir/magick-ai-abilities-light-profile-smoke.php"
+light_profile_mu_plugin="$mu_plugin_dir/npcink-abilities-toolkit-light-profile-smoke.php"
 cleanup_light_profile() {
 	rm -f "$light_profile_mu_plugin"
 }

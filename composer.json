@@ -1,5 +1,5 @@
 {
-  "name": "magick-ai/magick-ai-abilities",
+  "name": "npcink/npcink-abilities-toolkit",
   "description": "Standalone WordPress Abilities API package toolkit for agent-callable abilities, with optional Magick AI integration.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
@@ -24,6 +24,7 @@
     "check:contracts": "@php scripts/check-ability-contracts.php",
     "check:consumer": "@php scripts/check-consumer-handoff.php",
     "check:catalog": "@php scripts/audit-ability-catalog.php tests/fixtures/core-governance-catalog-snapshot.json",
+    "check:wporg": "@php scripts/check-wordpress-org-review-rules.php",
     "check:plugin-package": "bash scripts/check-plugin-package.sh",
     "check:plugin-package:local": "WP_CLI=/tmp/wp-cli.phar WP_CLI_PHP=/opt/homebrew/bin/php WP_CLI_ERROR_REPORTING=8191 WP_CLI_MYSQL_SOCKET=\"/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock\" WP_PATH=\"/Users/muze/Local Sites/magick-ai/app/public\" bash scripts/check-plugin-package.sh",
     "lint:php": "@php tests/lint.php",
@@ -38,6 +39,7 @@
       "@check:contracts",
       "@check:consumer",
       "@check:catalog",
+      "@check:wporg",
       "@test",
       "@lint:php"
     ]

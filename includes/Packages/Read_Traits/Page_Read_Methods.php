@@ -24,7 +24,7 @@ trait Page_Read_Methods {
 	public function list_pages( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
@@ -115,19 +115,19 @@ trait Page_Read_Methods {
 	public function get_page( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$page_id = absint( $input['page_id'] ?? 0 );
 		if ( $page_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_page_not_found', __( 'Page ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_page_not_found', __( 'Page ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		$post = get_post( $page_id );
 		if ( ! $post || 'page' !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_page_not_found', __( 'Page was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_page_not_found', __( 'Page was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $page_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this page.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this page.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$template = function_exists( 'get_page_template_slug' ) ? get_page_template_slug( $page_id ) : '';
@@ -180,7 +180,7 @@ trait Page_Read_Methods {
 	public function inspect_page_structure( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read pages.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$max_pages = max( 1, min( 100, absint( $input['max_pages'] ?? 50 ) ) );
@@ -332,7 +332,7 @@ trait Page_Read_Methods {
 	public function get_page_structure_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_pages' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read page structure health.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read page structure health.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$page_id = $this->absint_value( $input['page_id'] ?? 0 );
@@ -425,7 +425,7 @@ trait Page_Read_Methods {
 	private function get_page_templates() {
 		$available_templates = array(
 			array(
-				'label' => __( 'Default Template', 'magick-ai-abilities' ),
+				'label' => __( 'Default Template', 'npcink-abilities-toolkit' ),
 				'slug'  => 'default',
 			),
 		);

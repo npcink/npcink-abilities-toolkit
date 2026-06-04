@@ -302,8 +302,8 @@
         "mcp_risk": "write"
       }
     },
-    "magick-ai-abilities/list-workflow-recipes": {
-      "category": "magick-ai-abilities-workflows",
+    "npcink-abilities-toolkit/list-workflow-recipes": {
+      "category": "npcink-abilities-toolkit-workflows",
       "risk_level": "read",
       "requires_confirm": false,
       "requires_approval": false,
@@ -341,8 +341,8 @@
         "mcp_risk": "read"
       }
     },
-    "magick-ai-abilities/get-workflow-recipe": {
-      "category": "magick-ai-abilities-workflows",
+    "npcink-abilities-toolkit/get-workflow-recipe": {
+      "category": "npcink-abilities-toolkit-workflows",
       "risk_level": "read",
       "requires_confirm": false,
       "requires_approval": false,

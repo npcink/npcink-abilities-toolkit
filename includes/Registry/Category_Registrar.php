@@ -90,24 +90,24 @@ final class Category_Registrar {
 	 */
 	private function register_defaults() {
 		$this->add(
-			'magick-ai-abilities-read',
+			'npcink-abilities-toolkit-read',
 			array(
-				'label'       => __( 'Abilities API Packages: Read', 'magick-ai-abilities' ),
-				'description' => __( 'Read-only abilities for discovery, diagnostics, and context retrieval.', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Read', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Read-only abilities for discovery, diagnostics, and context retrieval.', 'npcink-abilities-toolkit' ),
 			)
 		);
 		$this->add(
-			'magick-ai-abilities-write',
+			'npcink-abilities-toolkit-write',
 			array(
-				'label'       => __( 'Abilities API Packages: Write Proposals', 'magick-ai-abilities' ),
-				'description' => __( 'Write-like abilities that produce proposals instead of committing changes directly.', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Write Proposals', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Write-like abilities that produce proposals instead of committing changes directly.', 'npcink-abilities-toolkit' ),
 			)
 		);
 		$this->add(
-			'magick-ai-abilities-tools',
+			'npcink-abilities-toolkit-tools',
 			array(
-				'label'       => __( 'Abilities API Packages: Tools', 'magick-ai-abilities' ),
-				'description' => __( 'Tool-backed abilities for agent workflows.', 'magick-ai-abilities' ),
+				'label'       => __( 'Abilities API Packages: Tools', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Tool-backed abilities for agent workflows.', 'npcink-abilities-toolkit' ),
 			)
 		);
 	}

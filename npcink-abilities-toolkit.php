@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name: Magick AI Abilities
+ * Plugin Name: Npcink Abilities Toolkit
  * Description: Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.
  * Version: 0.4.0
  * Requires at least: 7.0
  * Requires PHP: 8.0
- * Author: Magick AI
+ * Author: Npcink
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: magick-ai-abilities
+ * Text Domain: npcink-abilities-toolkit
  *
  * @package MagickAIAbilities
  */

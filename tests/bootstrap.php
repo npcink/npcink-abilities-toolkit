@@ -75,6 +75,27 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+	function wp_upload_dir() {
+		$basedir = isset( $GLOBALS['maa_unit_upload_basedir'] ) ? (string) $GLOBALS['maa_unit_upload_basedir'] : sys_get_temp_dir() . '/magick-ai-abilities-uploads';
+		$baseurl = isset( $GLOBALS['maa_unit_upload_baseurl'] ) ? (string) $GLOBALS['maa_unit_upload_baseurl'] : 'https://example.test/wp-content/uploads';
+		return array(
+			'basedir' => rtrim( $basedir, '/\\' ),
+			'baseurl' => rtrim( $baseurl, '/\\' ),
+		);
+	}
+}
+
+if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
+	function magick_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
+		unset( $trace_id );
+		if ( isset( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) ) {
+			return call_user_func( $GLOBALS['maa_unit_cloud_artifact_download_callback'], $derivative_artifact );
+		}
+		return new WP_Error( 'cloud_addon_unavailable', 'Cloud artifact download unavailable.' );
+	}
+}
+
 if ( ! function_exists( 'wp_strip_all_tags' ) ) {
 	function wp_strip_all_tags( $text, $remove_breaks = false ) {
 		$text = strip_tags( (string) $text );
@@ -517,6 +538,30 @@ if ( ! function_exists( 'update_option' ) ) {
 		}
 		$GLOBALS['maa_unit_options'][ (string) $name ] = $value;
 		return true;
+	}
+}
+
+if ( ! function_exists( 'get_theme_mods' ) ) {
+	function get_theme_mods() {
+		return isset( $GLOBALS['maa_unit_theme_mods'] ) && is_array( $GLOBALS['maa_unit_theme_mods'] )
+			? $GLOBALS['maa_unit_theme_mods']
+			: array();
+	}
+}
+
+if ( ! function_exists( 'get_theme_mod' ) ) {
+	function get_theme_mod( $name, $default = false ) {
+		$mods = get_theme_mods();
+		return array_key_exists( (string) $name, $mods ) ? $mods[ (string) $name ] : $default;
+	}
+}
+
+if ( ! function_exists( 'set_theme_mod' ) ) {
+	function set_theme_mod( $name, $value ) {
+		if ( ! isset( $GLOBALS['maa_unit_theme_mods'] ) || ! is_array( $GLOBALS['maa_unit_theme_mods'] ) ) {
+			$GLOBALS['maa_unit_theme_mods'] = array();
+		}
+		$GLOBALS['maa_unit_theme_mods'][ (string) $name ] = $value;
 	}
 }
 

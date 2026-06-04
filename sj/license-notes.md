@@ -4,8 +4,8 @@
 
 These notes cover the WordPress.org listing assets for:
 
-- Plugin: Magick AI Abilities
-- Slug: `magick-ai-abilities`
+- Plugin: Npcink Abilities Toolkit
+- Slug: `npcink-abilities-toolkit`
 - Asset folder: `sj/`
 - WordPress.org export folder: `sj/exports/wordpress-org/`
 
@@ -57,7 +57,7 @@ The assets intentionally avoid:
 - Screenshots of third-party proprietary interfaces.
 
 The design uses abstract geometric shapes, ability nodes, callback and contract
-metaphors, and Magick AI family visual styling.
+metaphors, and Npcink developer-tool visual styling.
 
 ## Publishing Status
 

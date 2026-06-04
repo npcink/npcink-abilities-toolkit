@@ -121,11 +121,11 @@ function maa_assert_observability_event_is_metadata_only( array $event, $message
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
 maa_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Magick AI parent slug' );
-maa_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'magick-ai-abilities';" ), 'admin test page uses the canonical Abilities admin slug' );
+maa_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
 maa_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Magick AI menu' );
 maa_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-maa_assert_true( false !== strpos( $admin_test_page, "__( 'Magick AI Abilities', 'magick-ai-abilities' ),\n\t\t\t\t__( 'Abilities', 'magick-ai-abilities' )," ), 'admin test page registers the requested page and submenu titles when attached' );
-$old_admin_slug = 'magick-ai-abilities-' . 'test';
+maa_assert_true( false !== strpos( $admin_test_page, "__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'Abilities', 'npcink-abilities-toolkit' )," ), 'admin test page registers the requested page and submenu titles when attached' );
+$old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 maa_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
 foreach (
 	array(
@@ -156,7 +156,7 @@ foreach (
 	maa_assert_true( false !== strpos( $admin_surface_standard, $required ), 'admin surface standard documents ability page boundary: ' . $required );
 }
 
-$main_plugin_header = file_get_contents( __DIR__ . '/../magick-ai-abilities.php' );
+$main_plugin_header = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );
 maa_assert_true( false !== strpos( $main_plugin_header, 'Requires PHP: 8.0' ), 'main plugin header requires PHP 8.0' );
 
@@ -389,7 +389,7 @@ maa_assert_same( false, $write['annotations']['readonly'], 'write proposal is no
 maa_assert_same( 'write', $write['risk_level'], 'write proposal risk is write' );
 maa_assert_same( true, $write['requires_confirm'], 'write proposal requires confirmation' );
 maa_assert_same( true, $write['requires_approval'], 'write proposal exposes approval requirement alias' );
-maa_assert_same( 'magick-ai-abilities-write', $write['category'], 'write proposal default category is write category' );
+maa_assert_same( 'npcink-abilities-toolkit-write', $write['category'], 'write proposal default category is write category' );
 foreach ( array( 'dry_run', 'commit', 'idempotency_key' ) as $write_control_property ) {
 	maa_assert_true(
 		isset( $write['input_schema']['properties'][ $write_control_property ] ),
@@ -576,7 +576,7 @@ $first_hash = $observability_registrar->catalog_fingerprint();
 $observability_registrar->register_with_wordpress();
 $catalog_events = maa_observability_events_of_kind( $GLOBALS['maa_unit_observability_events'], 'abilities.catalog.changed' );
 maa_assert_same( 1, count( $catalog_events ), 'first bootstrap emits one catalog changed event' );
-maa_assert_same( 'magick-ai-abilities', $catalog_events[0]['plugin_slug'] ?? '', 'catalog event carries plugin slug' );
+maa_assert_same( 'npcink-abilities-toolkit', $catalog_events[0]['plugin_slug'] ?? '', 'catalog event carries plugin slug' );
 maa_assert_same( 'ok', $catalog_events[0]['status'] ?? '', 'catalog event status is ok' );
 maa_assert_same( 'local', $catalog_events[0]['source'] ?? '', 'catalog event source remains local' );
 maa_assert_same( 3, $catalog_events[0]['ability_count'] ?? 0, 'catalog event carries ability count' );
@@ -821,6 +821,7 @@ $migrated_read_ability_ids = array(
 	'magick-ai/resolve-internal-link-targets',
 	'magick-ai/build-inline-image-blocks',
 	'magick-ai/build-media-seo-assets',
+	'magick-ai/build-media-derivative-batch-plan',
 	'magick-ai/geo-analyze',
 	'magick-ai/optimize-media-metadata',
 	'magick-ai/position-inline-image-blocks',
@@ -847,9 +848,9 @@ $migrated_read_ability_ids = array(
 	'magick-ai/inspect-page-structure',
 );
 	$new_read_ability_ids = array(
-		'magick-ai-abilities/wp-ops-diagnostics-detail',
-		'magick-ai-abilities/list-workflow-recipes',
-		'magick-ai-abilities/get-workflow-recipe',
+		'npcink-abilities-toolkit/wp-ops-diagnostics-detail',
+		'npcink-abilities-toolkit/list-workflow-recipes',
+		'npcink-abilities-toolkit/get-workflow-recipe',
 		'magick-ai/get-post-context',
 	'magick-ai/get-content-publishing-checklist',
 	'magick-ai/get-content-inventory-health',
@@ -867,6 +868,8 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-internal-link-graph-health',
 	'magick-ai/get-media-cleanup-opportunities',
 	'magick-ai/build-media-inventory-fix-plan',
+	'magick-ai/build-media-reference-repair-plan',
+	'magick-ai/build-media-settings-reference-repair-plan',
 	'magick-ai/get-taxonomy-consolidation-suggestions',
 	'magick-ai/propose-post-taxonomy-terms',
 	'magick-ai/get-page-structure-health',
@@ -892,6 +895,7 @@ $migrated_write_ability_ids = array(
 	'magick-ai/update-post',
 	'magick-ai/set-post-seo-meta',
 	'magick-ai/patch-post-content',
+	'magick-ai/patch-setting-value',
 	'magick-ai/update-post-blocks',
 	'magick-ai/set-post-slug',
 	'magick-ai/set-post-author',
@@ -958,26 +962,26 @@ maa_assert_true( isset( $package_categories->all()['magick-ai-data'] ), 'core re
 maa_assert_true( isset( $package_categories->all()['magick-ai-pages'] ), 'core read package registers the legacy magick-ai-pages category for compatibility' );
 maa_assert_true( isset( $package_categories->all()['magick-ai-comments'] ), 'core comment package registers the standalone comments category' );
 maa_assert_true( isset( $package_categories->all()['magick-ai-write'] ), 'core write package registers the legacy magick-ai-write category for compatibility' );
-maa_assert_true( isset( $package_categories->all()['magick-ai-abilities-diagnostics'] ), 'core read package registers the standalone diagnostics category' );
-maa_assert_true( isset( $package_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read package owns standalone wp-diagnostics-summary ability' );
-maa_assert_same( 'magick-ai-abilities-diagnostics', $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['category'], 'wp-diagnostics-summary uses standalone diagnostics category' );
-maa_assert_true( isset( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail'] ), 'core read package owns standalone wp-ops-diagnostics-detail ability' );
-maa_assert_same( 'magick-ai-abilities-diagnostics', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['category'], 'wp-ops-diagnostics-detail uses standalone diagnostics category' );
-maa_assert_true( false !== strpos( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['description'] ?? '', 'plugin' ), 'ops diagnostics description mentions plugin details' );
-maa_assert_same( 50, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['max_cron_events']['maximum'] ?? null, 'ops diagnostics bounds returned cron events' );
-maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_contents']['default'] ?? null, 'ops diagnostics does not include log contents by default' );
-maa_assert_true( ! isset( $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_tail'] ), 'ops diagnostics uses one log contents control' );
-maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_inactive_plugins']['default'] ?? null, 'ops diagnostics omits inactive plugin rows by default' );
-maa_assert_same( true, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_plugin_updates']['default'] ?? null, 'ops diagnostics includes plugin update rows by default' );
-maa_assert_same( 500, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['max_plugins_per_group']['maximum'] ?? null, 'ops diagnostics bounds plugin rows per group' );
-maa_assert_same( 200, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['tail_lines']['maximum'] ?? null, 'ops diagnostics bounds returned log tail lines' );
-maa_assert_same( 10080, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['since_minutes']['maximum'] ?? null, 'ops diagnostics bounds log since window' );
-maa_assert_true( in_array( 'warning', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['severity']['items']['enum'] ?? array(), true ), 'ops diagnostics supports log severity filtering' );
-maa_assert_same( true, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['input_schema']['properties']['include_integrations']['default'] ?? null, 'ops diagnostics includes integration diagnostics by default' );
-maa_assert_true( in_array( 'plugins', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires plugins section' );
-maa_assert_true( in_array( 'current_user', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires current user section' );
-maa_assert_true( in_array( 'integrations', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires integrations section' );
-maa_assert_true( in_array( 'seo_summary', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires SEO summary section' );
+maa_assert_true( isset( $package_categories->all()['npcink-abilities-toolkit-diagnostics'] ), 'core read package registers the standalone diagnostics category' );
+maa_assert_true( isset( $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary'] ), 'core read package owns standalone wp-diagnostics-summary ability' );
+maa_assert_same( 'npcink-abilities-toolkit-diagnostics', $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['category'], 'wp-diagnostics-summary uses standalone diagnostics category' );
+maa_assert_true( isset( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail'] ), 'core read package owns standalone wp-ops-diagnostics-detail ability' );
+maa_assert_same( 'npcink-abilities-toolkit-diagnostics', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['category'], 'wp-ops-diagnostics-detail uses standalone diagnostics category' );
+maa_assert_true( false !== strpos( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['description'] ?? '', 'plugin' ), 'ops diagnostics description mentions plugin details' );
+maa_assert_same( 50, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['max_cron_events']['maximum'] ?? null, 'ops diagnostics bounds returned cron events' );
+maa_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_contents']['default'] ?? null, 'ops diagnostics does not include log contents by default' );
+maa_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_tail'] ), 'ops diagnostics uses one log contents control' );
+maa_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_inactive_plugins']['default'] ?? null, 'ops diagnostics omits inactive plugin rows by default' );
+maa_assert_same( true, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_plugin_updates']['default'] ?? null, 'ops diagnostics includes plugin update rows by default' );
+maa_assert_same( 500, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['max_plugins_per_group']['maximum'] ?? null, 'ops diagnostics bounds plugin rows per group' );
+maa_assert_same( 200, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['tail_lines']['maximum'] ?? null, 'ops diagnostics bounds returned log tail lines' );
+maa_assert_same( 10080, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['since_minutes']['maximum'] ?? null, 'ops diagnostics bounds log since window' );
+maa_assert_true( in_array( 'warning', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['severity']['items']['enum'] ?? array(), true ), 'ops diagnostics supports log severity filtering' );
+maa_assert_same( true, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_integrations']['default'] ?? null, 'ops diagnostics includes integration diagnostics by default' );
+maa_assert_true( in_array( 'plugins', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires plugins section' );
+maa_assert_true( in_array( 'current_user', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires current user section' );
+maa_assert_true( in_array( 'integrations', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires integrations section' );
+maa_assert_true( in_array( 'seo_summary', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['output_schema']['required'] ?? array(), true ), 'ops diagnostics output requires SEO summary section' );
 $parse_log_entry = new ReflectionMethod( $core_read_package, 'parse_diagnostics_log_entry' );
 $parse_log_entry->setAccessible( true );
 $summarize_log_sources = new ReflectionMethod( $core_read_package, 'summarize_diagnostics_log_sources' );
@@ -1070,6 +1074,16 @@ maa_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['magick-ai/o
 maa_assert_same( 82, $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
 maa_assert_same( array( 'replace', 'rollback' ), $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode']['enum'] ?? array(), 'replace-media-file exposes bounded replacement modes' );
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
+maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative'] ), 'adopt-cloud-media-derivative is registered as a local write ability' );
+maa_assert_same( 'magick-ai-cloud-backup', $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'adopt-cloud-media-derivative defaults to explicit Cloud backup suffix' );
+maa_assert_same( array( 'attachment_id', 'derivative_artifact' ), $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['required'] ?? array(), 'adopt-cloud-media-derivative requires attachment and artifact evidence' );
+maa_assert_true( isset( $package_abilities['magick-ai/build-media-reference-repair-plan'] ), 'build-media-reference-repair-plan is registered as a read-only planning ability' );
+maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-reference-repair-plan requires attachment id' );
+maa_assert_true( isset( $package_abilities['magick-ai/build-media-settings-reference-repair-plan'] ), 'build-media-settings-reference-repair-plan is registered as a read-only planning ability' );
+maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-settings-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-settings-reference-repair-plan requires attachment id' );
+maa_assert_same( array( 'svg', 'gif', 'ico', 'pdf' ), $package_abilities['magick-ai/build-media-settings-reference-repair-plan']['input_schema']['properties']['excluded_formats']['default'] ?? array(), 'media settings reference repair defaults excluded formats' );
+maa_assert_true( isset( $package_abilities['magick-ai/patch-setting-value'] ), 'patch-setting-value is registered as a local write ability' );
+maa_assert_same( array( 'target_type', 'target_name', 'operations' ), $package_abilities['magick-ai/patch-setting-value']['input_schema']['required'] ?? array(), 'patch-setting-value requires a setting target and operations' );
 maa_assert_same( 1920, $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['target_max_width']['default'] ?? null, 'inspect-media-asset defaults to a 1920px max width target' );
 maa_assert_same( array( 'webp', 'avif', 'original' ), $package_abilities['magick-ai/inspect-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'inspect-media-asset exposes bounded preferred output formats' );
 maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['required_scopes'] ?? array(), 'media derivative cloud request remains a read-scope planning ability' );
@@ -1080,6 +1094,12 @@ maa_assert_same( array( 'image' ), $package_abilities['magick-ai/build-media-der
 maa_assert_same( array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded watermark positions' );
 maa_assert_same( 0.75, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['opacity']['default'] ?? null, 'media derivative cloud request defaults watermark opacity' );
 maa_assert_same( 18, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['scale_percent']['default'] ?? null, 'media derivative cloud request defaults watermark scale' );
+maa_assert_true( isset( $package_abilities['magick-ai/build-media-derivative-batch-plan'] ), 'media derivative batch plan is registered as a read-only planning ability' );
+maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['required_scopes'] ?? array(), 'media derivative batch plan remains a read-scope planning ability' );
+maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
+maa_assert_same( 50, $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['max_items']['maximum'] ?? null, 'media derivative batch plan bounds candidates to 50 items' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 maa_assert_same( 100, $package_abilities['magick-ai/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
 maa_assert_same( array( 'post_id' ), $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 maa_assert_same( 20, $package_abilities['magick-ai/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
@@ -1098,12 +1118,12 @@ maa_assert_same( 100, $package_abilities['magick-ai/get-comment-action-priority-
 maa_assert_same( 100, $package_abilities['magick-ai/get-comment-compliance-handoff']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment compliance handoff scan is bounded to 100 comments per page' );
 	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 	maa_assert_same( 'magick-ai-comments', $package_abilities['magick-ai/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
-	maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
-	maa_assert_same( false, $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['project_to_magick_catalog'], 'standalone ops diagnostics ability does not project into Magick AI by default' );
-	maa_assert_same( false, $package_abilities['magick-ai-abilities/list-workflow-recipes']['project_to_magick_catalog'], 'workflow recipe discovery ability does not project into Magick AI by default' );
-	maa_assert_same( 'wordpress_diagnostics', $package_abilities['magick-ai-abilities/wp-ops-diagnostics-detail']['meta']['magick_ai_abilities']['pack'] ?? '', 'ops diagnostics detail is classified as WordPress diagnostics' );
-	maa_assert_same( 'magick-ai-abilities-workflows', $package_abilities['magick-ai-abilities/list-workflow-recipes']['category'], 'workflow recipe discovery uses standalone workflow category' );
-	maa_assert_same( 'workflow_definitions', $package_abilities['magick-ai-abilities/list-workflow-recipes']['meta']['magick_ai_abilities']['pack'] ?? '', 'workflow recipe discovery is classified as workflow definitions' );
+	maa_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['project_to_magick_catalog'], 'standalone diagnostics ability does not project into Magick AI by default' );
+	maa_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['project_to_magick_catalog'], 'standalone ops diagnostics ability does not project into Magick AI by default' );
+	maa_assert_same( false, $package_abilities['npcink-abilities-toolkit/list-workflow-recipes']['project_to_magick_catalog'], 'workflow recipe discovery ability does not project into Magick AI by default' );
+	maa_assert_same( 'wordpress_diagnostics', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['meta']['magick_ai_abilities']['pack'] ?? '', 'ops diagnostics detail is classified as WordPress diagnostics' );
+	maa_assert_same( 'npcink-abilities-toolkit-workflows', $package_abilities['npcink-abilities-toolkit/list-workflow-recipes']['category'], 'workflow recipe discovery uses standalone workflow category' );
+	maa_assert_same( 'workflow_definitions', $package_abilities['npcink-abilities-toolkit/list-workflow-recipes']['meta']['magick_ai_abilities']['pack'] ?? '', 'workflow recipe discovery is classified as workflow definitions' );
 maa_assert_same( 'core_wordpress_read', $package_abilities['magick-ai/site-info']['meta']['magick_ai_abilities']['pack'] ?? '', 'site-info is classified as a core WordPress read ability' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/get-site-operations-dashboard']['meta']['magick_ai_abilities']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 maa_assert_same( 'content_operations', $package_abilities['magick-ai/build-content-inventory-fix-plan']['meta']['magick_ai_abilities']['pack'] ?? '', 'content inventory fix plan is classified as content operations' );
@@ -1112,10 +1132,10 @@ maa_assert_same( 'taxonomy_governance', $package_abilities['magick-ai/propose-po
 maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comment-queue-health']['meta']['magick_ai_abilities']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
 	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
 	maa_assert_same( 'magick-ai/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
-	maa_assert_same( 'magick-ai-abilities/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
-	maa_assert_same( 'magick-ai-abilities/wp-ops-diagnostics-detail', $core_read_definition_ids[2] ?? '', 'core read definitions keep ops diagnostics after diagnostics summary' );
-	maa_assert_same( 'magick-ai-abilities/list-workflow-recipes', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow list after diagnostics' );
-	maa_assert_same( 'magick-ai-abilities/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
+	maa_assert_same( 'npcink-abilities-toolkit/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
+	maa_assert_same( 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', $core_read_definition_ids[2] ?? '', 'core read definitions keep ops diagnostics after diagnostics summary' );
+	maa_assert_same( 'npcink-abilities-toolkit/list-workflow-recipes', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow list after diagnostics' );
+	maa_assert_same( 'npcink-abilities-toolkit/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
 	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
 	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
 	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[80] ?? '', 'core read definitions keep URL resolver order after provider split' );
@@ -1151,9 +1171,9 @@ $filtered_read_package->boot();
 $filtered_read_abilities = $filtered_read_registrar->all();
 	maa_assert_true( isset( $filtered_read_abilities['magick-ai/site-info'] ), 'core read pack filter keeps generic site-info ability' );
 	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai/get-site-operations-dashboard'] ), 'core read pack filter removes operations helper ability' );
-	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
-	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/wp-ops-diagnostics-detail'] ), 'core read pack filter removes ops diagnostics helper ability' );
-	maa_assert_true( ! isset( $filtered_read_abilities['magick-ai-abilities/list-workflow-recipes'] ), 'core read pack filter removes workflow definition discovery ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['npcink-abilities-toolkit/wp-diagnostics-summary'] ), 'core read pack filter removes diagnostics helper ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail'] ), 'core read pack filter removes ops diagnostics helper ability' );
+	maa_assert_true( ! isset( $filtered_read_abilities['npcink-abilities-toolkit/list-workflow-recipes'] ), 'core read pack filter removes workflow definition discovery ability' );
 remove_all_filters( 'magick_ai_abilities_enabled_read_packs' );
 
 add_filter(
@@ -2267,6 +2287,121 @@ maa_assert_same( 'top_right', $media_cloud_request_with_watermark['data']['cloud
 maa_assert_same( 0.5, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['opacity'] ?? null, 'watermarked media derivative request preserves watermark opacity' );
 maa_assert_same( 22, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['scale_percent'] ?? 0, 'watermarked media derivative request preserves watermark scale' );
 maa_assert_same( false, $media_cloud_request_with_watermark['data']['local_adoption']['wordpress_write_included'] ?? null, 'watermarked media derivative request still does not write WordPress' );
+$GLOBALS['maa_unit_style_posts'][84] = (object) array(
+	'ID'             => 84,
+	'post_title'     => 'April Campaign JPEG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'april-campaign-jpeg',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/jpeg',
+	'post_date'      => '2026-04-12 10:00:00',
+);
+update_post_meta(
+	84,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1800,
+		'height'   => 1000,
+		'file'     => '2026/04/april-campaign-jpeg.jpg',
+		'filesize' => 700000,
+	)
+);
+update_post_meta( 84, '_wp_attached_file', '2026/04/april-campaign-jpeg.jpg' );
+$GLOBALS['maa_unit_style_posts'][85] = (object) array(
+	'ID'             => 85,
+	'post_title'     => 'April Existing PNG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'april-existing-png',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/png',
+	'post_date'      => '2026-04-18 09:00:00',
+);
+update_post_meta(
+	85,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1600,
+		'height'   => 900,
+		'file'     => '2026/04/april-existing-png.png',
+		'filesize' => 600000,
+	)
+);
+update_post_meta( 85, '_wp_attached_file', '2026/04/april-existing-png.png' );
+$GLOBALS['maa_unit_style_posts'][86] = (object) array(
+	'ID'             => 86,
+	'post_title'     => 'May Campaign JPEG',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'may-campaign-jpeg',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/jpeg',
+	'post_date'      => '2026-05-02 10:00:00',
+);
+update_post_meta(
+	86,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 1700,
+		'height'   => 950,
+		'file'     => '2026/05/may-campaign-jpeg.jpg',
+		'filesize' => 650000,
+	)
+);
+update_post_meta( 86, '_wp_attached_file', '2026/05/may-campaign-jpeg.jpg' );
+$media_derivative_batch_plan = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'date_from'     => '2026-04-01',
+		'date_to'       => '2026-04-30 23:59:59',
+		'target_format' => 'png',
+		'max_items'     => 10,
+	)
+);
+maa_assert_same( true, $media_derivative_batch_plan['success'] ?? null, 'media derivative batch plan returns a success envelope' );
+maa_assert_same( true, $media_derivative_batch_plan['data']['readonly'] ?? null, 'media derivative batch plan is read-only' );
+maa_assert_same( 'dry_run', $media_derivative_batch_plan['data']['plan_mode'] ?? '', 'media derivative batch plan returns a dry-run plan mode' );
+maa_assert_same( false, $media_derivative_batch_plan['data']['commit_execution'] ?? null, 'media derivative batch plan does not execute commits' );
+maa_assert_same( true, $media_derivative_batch_plan['data']['requires_approval'] ?? null, 'media derivative batch plan requires approval before adoption' );
+maa_assert_same( 1, $media_derivative_batch_plan['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan selects one April JPEG candidate for PNG conversion' );
+maa_assert_same( 84, $media_derivative_batch_plan['data']['candidates'][0]['attachment_id'] ?? 0, 'media derivative batch plan candidate comes from the April date range' );
+maa_assert_same( 'png', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_input']['preferred_format'] ?? '', 'media derivative batch plan prepares PNG single-image request input' );
+maa_assert_same( 'magick-ai/build-media-derivative-cloud-request', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_ability'] ?? '', 'media derivative batch plan points to the existing single-image cloud request ability' );
+maa_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan skips images already in the target format' );
+maa_assert_array_omits_keys( $media_derivative_batch_plan['data'], array( 'write_actions', 'wordpress_write_decision', 'approval_decision', 'commit' ), 'media derivative batch plan output' );
+$media_derivative_batch_plan_bounded = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids' => array( 84, 86 ),
+		'target_format'  => 'png',
+		'max_items'      => 1,
+	)
+);
+maa_assert_same( 1, $media_derivative_batch_plan_bounded['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan enforces max_items' );
+$media_derivative_batch_plan_excluded = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids'    => array( 84 ),
+		'target_format'     => 'png',
+		'exclude_formats'   => array( 'jpeg' ),
+	)
+);
+maa_assert_same( 0, $media_derivative_batch_plan_excluded['data']['summary']['candidate_count'] ?? 1, 'media derivative batch plan honors excluded source formats' );
+maa_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan explains excluded source formats' );
+$media_derivative_batch_plan_invalid = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids' => array( 84 ),
+		'target_format'  => 'tiff',
+	)
+);
+maa_assert_true( is_wp_error( $media_derivative_batch_plan_invalid ) && 'magick_ai_abilities_media_derivative_target_format_invalid' === $media_derivative_batch_plan_invalid->get_error_code(), 'media derivative batch plan rejects invalid target formats' );
 $media_optimization_preview = $core_write_package->optimize_media_asset(
 	array(
 		'attachment_id'     => 79,
@@ -2314,6 +2449,100 @@ maa_assert_same( false, $media_replace_preview['replaced'] ?? null, 'replace-med
 maa_assert_same( true, $media_replace_preview['original_preserved'] ?? null, 'replace-media-file keeps original backup intent in dry-run' );
 maa_assert_same( '2026/06/workflow-diagram-image-optimized.webp', $media_replace_preview['after']['relative_file'] ?? '', 'replace-media-file uses recorded optimized derivative as target' );
 maa_assert_true( false !== strpos( (string) ( $media_replace_preview['backup']['relative_file'] ?? '' ), 'magick-ai-backup' ), 'replace-media-file plans a Magick backup file' );
+$cloud_artifact_contents = 'cloud-webp-derivative-bytes';
+$cloud_artifact_sha256 = hash( 'sha256', $cloud_artifact_contents );
+$cloud_adoption_preview = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'    => 'art_cloud_media_123',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => strlen( $cloud_artifact_contents ),
+			'checksum'       => 'sha256:' . $cloud_artifact_sha256,
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+	)
+);
+maa_assert_same( true, $cloud_adoption_preview['dry_run'] ?? null, 'adopt-cloud-media-derivative defaults to dry-run preview' );
+maa_assert_same( false, $cloud_adoption_preview['replaced'] ?? null, 'adopt-cloud-media-derivative dry-run does not switch files' );
+maa_assert_same( 'art_cloud_media_123', $cloud_adoption_preview['artifact']['artifact_id'] ?? '', 'adopt-cloud-media-derivative preserves artifact evidence' );
+maa_assert_true( false !== strpos( (string) ( $cloud_adoption_preview['after']['relative_file'] ?? '' ), 'workflow-diagram-image-magick-ai-cloud-' ), 'adopt-cloud-media-derivative plans a local derivative filename' );
+$expired_cloud_adoption = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'       => 79,
+		'derivative_artifact' => array(
+			'artifact_id' => 'art_expired_media_123',
+			'expires_at'  => gmdate( 'c', time() - 60 ),
+			'mime_type'   => 'image/webp',
+			'format'      => 'webp',
+		),
+	)
+);
+maa_assert_true( is_wp_error( $expired_cloud_adoption ) && 'magick_ai_abilities_cloud_artifact_expired' === $expired_cloud_adoption->get_error_code(), 'adopt-cloud-media-derivative rejects expired artifacts' );
+$GLOBALS['maa_unit_upload_basedir'] = sys_get_temp_dir() . '/magick-ai-abilities-cloud-adoption-' . getmypid();
+$current_media_path = $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/workflow-diagram-image.jpg';
+mkdir( dirname( $current_media_path ), 0755, true );
+file_put_contents( $current_media_path, 'original-jpeg-bytes' );
+$GLOBALS['maa_unit_cloud_artifact_download_callback'] = static function ( array $artifact ) use ( $cloud_artifact_contents, $cloud_artifact_sha256 ) {
+	return array(
+		'artifact_id'    => (string) ( $artifact['artifact_id'] ?? '' ),
+		'contents'       => $cloud_artifact_contents,
+		'mime_type'      => 'image/webp',
+		'filesize_bytes' => strlen( $cloud_artifact_contents ),
+		'sha256'         => $cloud_artifact_sha256,
+		'expires_at'     => (string) ( $artifact['expires_at'] ?? '' ),
+	);
+};
+$GLOBALS['magick_ai_runtime_wp_ability_context']['context'] = array(
+	'approval_commit_authorized' => true,
+	'approval_id'                => 'approval-cloud-media-adoption',
+);
+$cloud_adoption_commit = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'    => 'art_cloud_media_commit',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => strlen( $cloud_artifact_contents ),
+			'checksum'       => 'sha256:' . $cloud_artifact_sha256,
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+		'commit'                       => true,
+	)
+);
+unset( $GLOBALS['magick_ai_runtime_wp_ability_context'], $GLOBALS['maa_unit_cloud_artifact_download_callback'] );
+maa_assert_true( ! is_wp_error( $cloud_adoption_commit ), 'adopt-cloud-media-derivative commit succeeds after approval' . ( is_wp_error( $cloud_adoption_commit ) ? ': ' . $cloud_adoption_commit->get_error_code() : '' ) );
+maa_assert_same( false, $cloud_adoption_commit['dry_run'] ?? null, 'adopt-cloud-media-derivative commit exits dry-run' );
+maa_assert_same( true, $cloud_adoption_commit['replaced'] ?? null, 'adopt-cloud-media-derivative commit replaces the attachment pointer after approval' );
+maa_assert_same( 'image/webp', get_post_mime_type( 79 ), 'adopt-cloud-media-derivative commit updates attachment MIME type' );
+maa_assert_true( false !== strpos( (string) get_post_meta( 79, '_wp_attached_file', true ), 'workflow-diagram-image-magick-ai-cloud-' ), 'adopt-cloud-media-derivative commit points attachment at local derivative' );
+maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . get_post_meta( 79, '_wp_attached_file', true ) ), 'adopt-cloud-media-derivative commit writes the local derivative file' );
+maa_assert_true( false !== strpos( (string) ( $cloud_adoption_commit['backup']['relative_file'] ?? '' ), 'magick-ai-cloud-backup' ), 'adopt-cloud-media-derivative commit records a backup file' );
+maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . (string) ( $cloud_adoption_commit['backup']['relative_file'] ?? '' ) ), 'adopt-cloud-media-derivative commit writes the local backup file' );
+update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
+$GLOBALS['maa_unit_style_posts'][79]->post_mime_type = 'image/jpeg';
+update_post_meta(
+	79,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 2600,
+		'height'   => 1400,
+		'file'     => '2026/06/workflow-diagram-image.jpg',
+		'filesize' => 900000,
+	)
+);
 update_post_meta(
 	79,
 	'_magick_ai_media_file_replacement_history',
@@ -2356,6 +2585,88 @@ maa_assert_same( true, $media_rollback_preview['dry_run'] ?? null, 'replace-medi
 maa_assert_same( false, $media_rollback_preview['rolled_back'] ?? null, 'replace-media-file rollback dry-run does not switch files' );
 maa_assert_same( 'rollback', $media_rollback_preview['mode'] ?? '', 'replace-media-file supports rollback mode' );
 maa_assert_same( '2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg', $media_rollback_preview['after']['relative_file'] ?? '', 'replace-media-file rollback targets recorded backup file' );
+$GLOBALS['maa_unit_style_posts'][83] = (object) array(
+	'ID'           => 83,
+	'post_title'   => 'Media Reference Repair Candidate',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => '<p><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg" /></p><p><a href="/wp-content/uploads/2026/06/workflow-diagram-image.jpg">download</a></p><p><img src="/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg" /></p>',
+	'post_name'    => 'media-reference-repair-candidate',
+	'post_author'  => 7,
+);
+$media_reference_repair_plan = $core_read_package->build_media_reference_repair_plan(
+	array(
+		'attachment_id'  => 79,
+		'replacement_id' => 'media_replace_unit',
+		'max_posts'      => 10,
+	)
+);
+maa_assert_same( true, $media_reference_repair_plan['success'] ?? null, 'build-media-reference-repair-plan returns a success envelope' );
+maa_assert_same( false, $media_reference_repair_plan['data']['commit_execution'] ?? null, 'media reference repair plan does not execute commits' );
+maa_assert_same( 1, $media_reference_repair_plan['data']['action_count'] ?? 0, 'media reference repair plan builds one post patch action' );
+maa_assert_same( 'magick-ai/patch-post-content', $media_reference_repair_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media reference repair plan reuses patch-post-content' );
+maa_assert_same( 83, $media_reference_repair_plan['data']['write_actions'][0]['input']['post_id'] ?? 0, 'media reference repair action targets the referencing post' );
+maa_assert_same( 'replace', $media_reference_repair_plan['data']['write_actions'][0]['input']['operations'][0]['op'] ?? '', 'media reference repair action uses replace operations' );
+maa_assert_true( false !== strpos( (string) ( $media_reference_repair_plan['data']['write_actions'][0]['input']['operations'][0]['find'] ?? '' ), 'workflow-diagram-image.jpg' ), 'media reference repair action finds old media URL' );
+maa_assert_true( false !== strpos( (string) ( $media_reference_repair_plan['data']['write_actions'][0]['input']['operations'][0]['replace'] ?? '' ), 'workflow-diagram-image-optimized.webp' ), 'media reference repair action replaces with new media URL' );
+maa_assert_same( 'old_sized_variant_reference_detected', $media_reference_repair_plan['data']['manual_review'][0]['reason'] ?? '', 'media reference repair plan sends old size variants to manual review' );
+$GLOBALS['maa_unit_options']['theme_builder_media_setting'] = array(
+	'hero' => array(
+		'image' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
+	),
+);
+$GLOBALS['maa_unit_theme_mods']['header_image'] = '/wp-content/uploads/2026/06/workflow-diagram-image.jpg';
+$media_settings_reference_plan = $core_read_package->build_media_settings_reference_repair_plan(
+	array(
+		'attachment_id'    => 79,
+		'replacement_id'   => 'media_replace_unit',
+		'option_names'     => array( 'theme_builder_media_setting' ),
+		'theme_mod_names'  => array( 'header_image' ),
+		'min_width'        => 64,
+		'min_height'       => 64,
+	)
+);
+maa_assert_same( true, $media_settings_reference_plan['success'] ?? null, 'build-media-settings-reference-repair-plan returns a success envelope' );
+maa_assert_same( false, $media_settings_reference_plan['data']['commit_execution'] ?? null, 'media settings reference repair plan does not execute commits' );
+maa_assert_same( 2, $media_settings_reference_plan['data']['action_count'] ?? 0, 'media settings reference repair plan builds option and theme mod patch actions' );
+maa_assert_same( 'magick-ai/patch-setting-value', $media_settings_reference_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media settings reference repair plan reuses patch-setting-value' );
+maa_assert_same( 'theme_builder_media_setting', $media_settings_reference_plan['data']['write_actions'][0]['input']['target_name'] ?? '', 'media settings reference repair targets the option name' );
+maa_assert_same( 'header_image', $media_settings_reference_plan['data']['write_actions'][1]['input']['target_name'] ?? '', 'media settings reference repair targets the theme mod name' );
+$media_settings_excluded_plan = $core_read_package->build_media_settings_reference_repair_plan(
+	array(
+		'attachment_id'     => 79,
+		'replacement_id'    => 'media_replace_unit',
+		'option_names'      => array( 'theme_builder_media_setting' ),
+		'include_theme_mods' => false,
+		'excluded_formats'  => array( 'jpg' ),
+	)
+);
+maa_assert_same( true, $media_settings_excluded_plan['success'] ?? null, 'media settings reference repair accepts excluded format policy' );
+maa_assert_same( 0, $media_settings_excluded_plan['data']['action_count'] ?? 1, 'media settings reference repair does not build actions for excluded source formats' );
+maa_assert_same( 'source_format_excluded', $media_settings_excluded_plan['data']['manual_review'][0]['reason'] ?? '', 'media settings reference repair sends excluded formats to manual review' );
+$patch_setting_preview = $core_write_package->patch_setting_value(
+	array(
+		'target_type' => 'option',
+		'target_name' => 'theme_builder_media_setting',
+		'operations'  => $media_settings_reference_plan['data']['write_actions'][0]['input']['operations'] ?? array(),
+		'dry_run'     => true,
+	)
+);
+maa_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
+maa_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+$GLOBALS['magick_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+$patch_setting_commit = $core_write_package->patch_setting_value(
+	array(
+		'target_type' => 'theme_mod',
+		'target_name' => 'header_image',
+		'operations'  => $media_settings_reference_plan['data']['write_actions'][1]['input']['operations'] ?? array(),
+		'commit'      => true,
+	)
+);
+unset( $GLOBALS['magick_ai_runtime_wp_ability_context'] );
+maa_assert_same( false, $patch_setting_commit['dry_run'] ?? null, 'patch-setting-value commit exits dry-run after approval' );
+maa_assert_true( false !== strpos( (string) get_theme_mod( 'header_image', '' ), 'workflow-diagram-image-optimized.webp' ), 'patch-setting-value commits exact theme mod URL replacement' );
 $media_health = $core_read_package->get_media_inventory_health(
 	array(
 		'mime_type' => 'image',
@@ -3036,8 +3347,8 @@ foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id 
 	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['open_api_enabled'] ), "{$migrated_destructive_ability_id} catalog projection does not own Open API policy" );
 	maa_assert_true( ! isset( $package_catalog[ $catalog_key ]['skip_catalog_manifest_fallback'] ), "{$migrated_destructive_ability_id} catalog projection does not own host fallback policy" );
 }
-maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-diagnostics-summary'] ), 'catalog bridge does not project standalone diagnostics ability' );
-maa_assert_true( ! isset( $package_catalog['magick-ai-abilities_wp-ops-diagnostics-detail'] ), 'catalog bridge does not project standalone ops diagnostics ability' );
+maa_assert_true( ! isset( $package_catalog['npcink-abilities-toolkit_wp-diagnostics-summary'] ), 'catalog bridge does not project standalone diagnostics ability' );
+maa_assert_true( ! isset( $package_catalog['npcink-abilities-toolkit_wp-ops-diagnostics-detail'] ), 'catalog bridge does not project standalone ops diagnostics ability' );
 
 $workflow_replay_path = __DIR__ . '/fixtures/agent-workflow-replay.json';
 $workflow_replay_json = file_get_contents( $workflow_replay_path );
@@ -3164,13 +3475,13 @@ foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
 	}
 }
 
-$workflow_list = call_user_func( $package_abilities['magick-ai-abilities/list-workflow-recipes']['execute_callback'], array() );
+$workflow_list = call_user_func( $package_abilities['npcink-abilities-toolkit/list-workflow-recipes']['execute_callback'], array() );
 maa_assert_same( $workflow_manifest, $workflow_list, 'workflow recipe discovery ability returns provider manifest' );
-$workflow_draft_alias = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'article_draft_v1' ) );
+$workflow_draft_alias = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'article_draft_v1' ) );
 maa_assert_same( $workflow_manifest['cases']['article_draft'], $workflow_draft_alias, 'workflow recipe detail ability resolves article_draft_v1 alias' );
-$workflow_get = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/wordpress_comment_compliance_handoff' ) );
+$workflow_get = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/wordpress_comment_compliance_handoff' ) );
 maa_assert_same( $workflow_manifest['cases']['comment_compliance_handoff'], $workflow_get, 'workflow recipe detail ability resolves recipe id' );
-$workflow_missing = call_user_func( $package_abilities['magick-ai-abilities/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
+$workflow_missing = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
 maa_assert_true( is_wp_error( $workflow_missing ), 'workflow recipe detail ability fails closed for missing recipe' );
 
 echo "OK: {$assertions} assertions\n";

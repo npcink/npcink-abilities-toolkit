@@ -53,8 +53,8 @@ final class Core_Comment_Package {
 		$this->categories->add(
 			'magick-ai-comments',
 			array(
-				'label'       => __( 'WordPress Comment Abilities', 'magick-ai-abilities' ),
-				'description' => __( 'Read-only comment moderation and reply helper abilities.', 'magick-ai-abilities' ),
+				'label'       => __( 'WordPress Comment Abilities', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Read-only comment moderation and reply helper abilities.', 'npcink-abilities-toolkit' ),
 			)
 		);
 

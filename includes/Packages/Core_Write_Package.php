@@ -52,8 +52,8 @@ final class Core_Write_Package {
 		$this->categories->add(
 			'magick-ai-write',
 			array(
-				'label'       => __( 'WordPress Write Abilities', 'magick-ai-abilities' ),
-				'description' => __( 'Host-governed WordPress write abilities with dry-run previews and external approval.', 'magick-ai-abilities' ),
+				'label'       => __( 'WordPress Write Abilities', 'npcink-abilities-toolkit' ),
+				'description' => __( 'Host-governed WordPress write abilities with dry-run previews and external approval.', 'npcink-abilities-toolkit' ),
 			)
 		);
 
@@ -76,8 +76,8 @@ final class Core_Write_Package {
 
 		return array(
 			'magick-ai/create-draft'       => array(
-				'label'           => __( 'Create Draft', 'magick-ai-abilities' ),
-				'description'     => __( 'Creates a draft post or page after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Create Draft', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Creates a draft post or page after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -123,8 +123,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'create_draft' ),
 			),
 			'magick-ai/update-post'        => array(
-				'label'           => __( 'Update Post', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post title, content, or excerpt after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Update Post', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post title, content, or excerpt after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -157,8 +157,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'update_post' ),
 			),
 			'magick-ai/set-post-seo-meta'  => array(
-				'label'           => __( 'Set Post SEO Meta', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates SEO title and description metadata for one post after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post SEO Meta', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates SEO title and description metadata for one post after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -189,8 +189,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_seo_meta' ),
 			),
 			'magick-ai/patch-post-content' => array(
-				'label'           => __( 'Patch Post Content', 'magick-ai-abilities' ),
-				'description'     => __( 'Applies text patch operations to saved post content after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Patch Post Content', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Applies text patch operations to saved post content after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -238,9 +238,61 @@ final class Core_Write_Package {
 				),
 				'execute_callback' => array( $this, 'patch_post_content' ),
 			),
+			'magick-ai/patch-setting-value' => array(
+				'label'           => __( 'Patch Setting Value', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Applies exact text replacement operations to one option or theme mod after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'manage_options',
+				'required_scopes' => array( 'site.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'target_type' => array(
+							'type' => 'string',
+							'enum' => array( 'option', 'theme_mod' ),
+						),
+						'target_name' => array( 'type' => 'string', 'minLength' => 1 ),
+						'operations'  => array(
+							'type'     => 'array',
+							'minItems' => 1,
+							'items'    => array(
+								'type'                 => 'object',
+								'properties'           => array(
+									'op'             => array(
+										'type' => 'string',
+										'enum' => array( 'replace' ),
+									),
+									'find'           => array( 'type' => 'string', 'minLength' => 1 ),
+									'replace'        => $text,
+									'limit'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 1 ),
+									'case_sensitive' => array( 'type' => 'boolean', 'default' => true ),
+								),
+								'required'             => array( 'op', 'find', 'replace' ),
+								'additionalProperties' => false,
+							),
+						),
+					),
+					array( 'target_type', 'target_name', 'operations' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'target_type'  => array( 'type' => 'string' ),
+						'target_name'  => array( 'type' => 'string' ),
+						'updated'      => array( 'type' => 'boolean' ),
+						'value_type'   => array( 'type' => 'string' ),
+						'impact_ranges' => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+						'patch_preview' => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+						'diff_preview' => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'      => array( 'type' => 'boolean' ),
+					),
+					array( 'target_type', 'target_name', 'updated', 'value_type', 'impact_ranges', 'patch_preview', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'patch_setting_value' ),
+			),
 			'magick-ai/update-post-blocks' => array(
-				'label'           => __( 'Update Post Blocks', 'magick-ai-abilities' ),
-				'description'     => __( 'Writes Gutenberg blocks into post content after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Update Post Blocks', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Writes Gutenberg blocks into post content after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -284,8 +336,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'update_post_blocks' ),
 			),
 			'magick-ai/set-post-slug'      => array(
-				'label'           => __( 'Set Post Slug', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post slug after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Slug', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post slug after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -313,8 +365,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_slug' ),
 			),
 			'magick-ai/set-post-author'    => array(
-				'label'           => __( 'Set Post Author', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post author after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Author', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post author after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -341,8 +393,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_author' ),
 			),
 			'magick-ai/set-post-template'  => array(
-				'label'           => __( 'Set Post Template', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post template after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Template', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post template after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -369,8 +421,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_template' ),
 			),
 			'magick-ai/set-post-format'    => array(
-				'label'           => __( 'Set Post Format', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post format after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Format', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post format after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -400,8 +452,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_format' ),
 			),
 			'magick-ai/create-term'        => array(
-				'label'           => __( 'Create Term', 'magick-ai-abilities' ),
-				'description'     => __( 'Creates a taxonomy term after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Create Term', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Creates a taxonomy term after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'manage_categories',
 				'required_scopes' => array( 'taxonomy.manage' ),
@@ -431,8 +483,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'create_term' ),
 			),
 			'magick-ai/update-term'        => array(
-				'label'           => __( 'Update Term', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a taxonomy term after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Update Term', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a taxonomy term after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'manage_categories',
 				'required_scopes' => array( 'taxonomy.manage' ),
@@ -466,8 +518,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'update_term' ),
 			),
 			'magick-ai/set-post-terms'     => array(
-				'label'           => __( 'Set Post Terms', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates a post taxonomy terms in replace, append, or remove mode after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Terms', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates a post taxonomy terms in replace, append, or remove mode after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'taxonomy.manage' ),
@@ -517,8 +569,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_terms' ),
 			),
 			'magick-ai/update-media-details' => array(
-				'label'           => __( 'Update Media Details', 'magick-ai-abilities' ),
-				'description'     => __( 'Updates attachment title, alt, caption, description, and attribution fields after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Update Media Details', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Updates attachment title, alt, caption, description, and attribution fields after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
@@ -564,8 +616,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'update_media_details' ),
 			),
 			'magick-ai/upload-media-from-url' => array(
-				'label'           => __( 'Upload Media From URL', 'magick-ai-abilities' ),
-				'description'     => __( 'Downloads one remote media asset into the WordPress media library after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Upload Media From URL', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Downloads one remote media asset into the WordPress media library after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
@@ -610,8 +662,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'upload_media_from_url' ),
 			),
 			'magick-ai/optimize-media-asset' => array(
-				'label'           => __( 'Optimize Media Asset', 'magick-ai-abilities' ),
-				'description'     => __( 'Generates an optimized derivative for one image attachment after host approval, preserving the original file.', 'magick-ai-abilities' ),
+				'label'           => __( 'Optimize Media Asset', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Generates an optimized derivative for one image attachment after host approval, preserving the original file.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
@@ -645,8 +697,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'optimize_media_asset' ),
 			),
 			'magick-ai/replace-media-file' => array(
-				'label'           => __( 'Replace Media File', 'magick-ai-abilities' ),
-				'description'     => __( 'Replaces one attachment main file with a previously generated optimized derivative after host approval, with backup and rollback metadata.', 'magick-ai-abilities' ),
+				'label'           => __( 'Replace Media File', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Replaces one attachment main file with a previously generated optimized derivative after host approval, with backup and rollback metadata.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'upload_files',
 				'required_scopes' => array( 'media.write' ),
@@ -685,9 +737,47 @@ final class Core_Write_Package {
 				),
 				'execute_callback' => array( $this, 'replace_media_file' ),
 			),
+			'magick-ai/adopt-cloud-media-derivative' => array(
+				'label'           => __( 'Adopt Cloud Media Derivative', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Adopts one approved short-lived Cloud derivative artifact as the attachment main file, with local backup and rollback metadata.', 'npcink-abilities-toolkit' ),
+				'category'        => 'magick-ai-write',
+				'capability'      => 'upload_files',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
+						'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
+						'expected_current_relative_file' => array( 'type' => 'string' ),
+						'expected_current_mime_type'     => array( 'type' => 'string' ),
+						'expected_derivative_mime_type'  => array( 'type' => 'string' ),
+						'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'magick-ai-cloud-backup' ),
+					),
+					array( 'attachment_id', 'derivative_artifact' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'attachment_id'      => array( 'type' => 'integer' ),
+						'replaced'           => array( 'type' => 'boolean' ),
+						'original_preserved' => array( 'type' => 'boolean' ),
+						'replacement_id'     => array( 'type' => 'string' ),
+						'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
+						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'artifact'           => array( 'type' => 'object', 'additionalProperties' => true ),
+						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
+						'edit_link'          => array( 'type' => 'string' ),
+						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
+						'dry_run'            => array( 'type' => 'boolean' ),
+					),
+					array( 'attachment_id', 'replaced', 'original_preserved', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'adopt_cloud_media_derivative' ),
+			),
 			'magick-ai/set-post-featured-image' => array(
-				'label'           => __( 'Set Post Featured Image', 'magick-ai-abilities' ),
-				'description'     => __( 'Sets a post featured image from an attachment ID or approved remote media URL, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Set Post Featured Image', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Sets a post featured image from an attachment ID or approved remote media URL, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'media.write' ),
@@ -717,8 +807,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'set_post_featured_image' ),
 			),
 			'magick-ai/schedule-post' => array(
-				'label'           => __( 'Schedule Post', 'magick-ai-abilities' ),
-				'description'     => __( 'Schedules a post for future publication after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Schedule Post', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Schedules a post for future publication after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'publish_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -751,8 +841,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'schedule_post' ),
 			),
 			'magick-ai/publish-post' => array(
-				'label'           => __( 'Publish Post', 'magick-ai-abilities' ),
-				'description'     => __( 'Publishes a draft or pending post after host approval. Only treat the post as publicly accessible after this succeeds.', 'magick-ai-abilities' ),
+				'label'           => __( 'Publish Post', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Publishes a draft or pending post after host approval. Only treat the post as publicly accessible after this succeeds.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'publish_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -778,8 +868,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'publish_post' ),
 			),
 			'magick-ai/restore-post' => array(
-				'label'           => __( 'Restore Post', 'magick-ai-abilities' ),
-				'description'     => __( 'Restores a trashed post or page after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Restore Post', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Restores a trashed post or page after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'edit_posts',
 				'required_scopes' => array( 'post.write' ),
@@ -804,8 +894,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'restore_post' ),
 			),
 			'magick-ai/approve-comment'      => array(
-				'label'           => __( 'Approve Comment', 'magick-ai-abilities' ),
-				'description'     => __( 'Approves one comment after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Approve Comment', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Approves one comment after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'moderate_comments',
 				'required_scopes' => array( 'comments.manage' ),
@@ -830,8 +920,8 @@ final class Core_Write_Package {
 				'execute_callback' => array( $this, 'approve_comment' ),
 			),
 			'magick-ai/reply-comment'        => array(
-				'label'           => __( 'Reply Comment', 'magick-ai-abilities' ),
-				'description'     => __( 'Replies to one comment as the current user after host approval, or returns a dry-run preview by default.', 'magick-ai-abilities' ),
+				'label'           => __( 'Reply Comment', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Replies to one comment as the current user after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
 				'category'        => 'magick-ai-write',
 				'capability'      => 'moderate_comments',
 				'required_scopes' => array( 'comments.manage' ),
@@ -876,21 +966,21 @@ final class Core_Write_Package {
 		$input     = is_array( $input ) ? $input : array();
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		if ( '' === $post_type || ! post_type_exists( $post_type ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post_type_object = get_post_type_object( $post_type );
 		if ( ! $post_type_object || empty( $post_type_object->cap->create_posts ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not support creation.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not support creation.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$create_capability = sanitize_key( (string) $post_type_object->cap->create_posts );
 		if ( '' !== $create_capability && ! current_user_can( $create_capability ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to create this post type.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to create this post type.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
 		if ( '' === $title ) {
-			return new \WP_Error( 'magick_ai_abilities_title_required', __( 'Title is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_title_required', __( 'Title is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$content_payload    = $this->normalize_content_input( $input, 'content', $title );
@@ -1002,7 +1092,7 @@ final class Core_Write_Package {
 			);
 		}
 		if ( empty( $changes ) ) {
-			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$payload = array(
@@ -1055,7 +1145,7 @@ final class Core_Write_Package {
 		$has_title        = array_key_exists( 'seo_title', $input );
 		$has_description  = array_key_exists( 'seo_description', $input );
 		if ( ! $has_title && ! $has_description ) {
-			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No SEO metadata fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No SEO metadata fields were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$current_title       = sanitize_text_field( (string) ( $current['title'] ?? '' ) );
@@ -1188,6 +1278,73 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Applies exact patch operations to one WordPress setting value.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function patch_setting_value( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$target_type = sanitize_key( (string) ( $input['target_type'] ?? '' ) );
+		$target_name = sanitize_key( (string) ( $input['target_name'] ?? '' ) );
+		if ( ! in_array( $target_type, array( 'option', 'theme_mod' ), true ) || '' === $target_name ) {
+			return new \WP_Error( 'magick_ai_abilities_setting_target_invalid', __( 'Setting target is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$required_cap = 'theme_mod' === $target_type ? 'edit_theme_options' : 'manage_options';
+		if ( ! current_user_can( $required_cap ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to patch this setting.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$before_value = $this->get_patchable_setting_value( $target_type, $target_name );
+		$patch_result = $this->apply_patch_operations_to_value( $before_value, is_array( $input['operations'] ?? null ) ? $input['operations'] : array() );
+		if ( is_wp_error( $patch_result ) ) {
+			return $patch_result;
+		}
+		$after_value = $patch_result['value'] ?? $before_value;
+		$before_text = $this->setting_value_preview_text( $before_value );
+		$after_text = $this->setting_value_preview_text( $after_value );
+		$updated = $before_text !== $after_text;
+
+		$payload = array(
+			'target_type'   => $target_type,
+			'target_name'   => $target_name,
+			'updated'       => $updated,
+			'value_type'    => $this->setting_value_type( $before_value ),
+			'impact_ranges' => is_array( $patch_result['impact_ranges'] ?? null ) ? $patch_result['impact_ranges'] : array(),
+			'patch_preview' => is_array( $patch_result['patch_preview'] ?? null ) ? $patch_result['patch_preview'] : array(),
+			'diff_preview'  => $this->build_text_diff_preview( $before_text, $after_text ),
+			'preview'       => array(
+				'action' => 'patch_setting_value',
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+
+		$allowed = $this->assert_commit_allowed( 'magick-ai/patch-setting-value', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+		if ( $updated ) {
+			if ( 'theme_mod' === $target_type ) {
+				if ( ! function_exists( 'set_theme_mod' ) ) {
+					return new \WP_Error( 'magick_ai_abilities_theme_mod_unavailable', __( 'Theme mod writes are unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 501 ) );
+				}
+				set_theme_mod( $target_name, $after_value );
+			} else {
+				if ( ! function_exists( 'update_option' ) ) {
+					return new \WP_Error( 'magick_ai_abilities_option_unavailable', __( 'Option writes are unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 501 ) );
+				}
+				update_option( $target_name, $after_value, null );
+			}
+		}
+
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
 	 * Writes Gutenberg blocks into one post.
 	 *
 	 * @param mixed $input Input args.
@@ -1208,13 +1365,13 @@ final class Core_Write_Package {
 		$validate_roundtrip = ! array_key_exists( 'validate_roundtrip', $input ) || ! empty( $input['validate_roundtrip'] );
 		$raw_blocks         = is_array( $input['blocks'] ?? null ) ? $input['blocks'] : array();
 		if ( empty( $raw_blocks ) ) {
-			return new \WP_Error( 'magick_ai_abilities_blocks_required', __( 'Blocks are required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_blocks_required', __( 'Blocks are required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$block_errors            = array();
 		$normalized_input_blocks = $this->normalize_blocks_input( $raw_blocks, $block_errors, 'blocks' );
 		if ( ! empty( $block_errors ) ) {
-			return new \WP_Error( 'magick_ai_abilities_blocks_invalid', __( 'Blocks structure is invalid.', 'magick-ai-abilities' ), array( 'status' => 400, 'errors' => $block_errors ) );
+			return new \WP_Error( 'magick_ai_abilities_blocks_invalid', __( 'Blocks structure is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400, 'errors' => $block_errors ) );
 		}
 
 		$before_content       = (string) ( $post->post_content ?? '' );
@@ -1274,7 +1431,7 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 		if ( $roundtrip_checked && ! $roundtrip_ok ) {
-			return new \WP_Error( 'magick_ai_abilities_blocks_roundtrip_invalid', __( 'Blocks roundtrip validation failed; write was blocked.', 'magick-ai-abilities' ), array( 'status' => 400, 'validation' => $validation ) );
+			return new \WP_Error( 'magick_ai_abilities_blocks_roundtrip_invalid', __( 'Blocks roundtrip validation failed; write was blocked.', 'npcink-abilities-toolkit' ), array( 'status' => 400, 'validation' => $validation ) );
 		}
 
 		if ( $updated ) {
@@ -1306,7 +1463,7 @@ final class Core_Write_Package {
 
 		$requested_slug = sanitize_title( (string) ( $input['slug'] ?? '' ) );
 		if ( '' === $requested_slug ) {
-			return new \WP_Error( 'magick_ai_abilities_slug_required', __( 'Slug is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_slug_required', __( 'Slug is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$before_slug = sanitize_title( (string) ( $post->post_name ?? '' ) );
@@ -1364,10 +1521,10 @@ final class Core_Write_Package {
 
 		$author_id = absint( $input['author_id'] ?? 0 );
 		if ( $author_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_author_invalid', __( 'Author ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_author_invalid', __( 'Author ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( function_exists( 'get_userdata' ) && ! get_userdata( $author_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_author_invalid', __( 'Author ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_author_invalid', __( 'Author ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$before_author_id = absint( $post->post_author ?? 0 );
@@ -1418,7 +1575,7 @@ final class Core_Write_Package {
 
 		$template = sanitize_text_field( (string) ( $input['template'] ?? '' ) );
 		if ( '' === $template ) {
-			return new \WP_Error( 'magick_ai_abilities_template_required', __( 'Template is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_template_required', __( 'Template is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$before_template = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $post_id, '_wp_page_template', true ) ) : '';
 		$before_template = '' !== $before_template ? $before_template : 'default';
@@ -1466,7 +1623,7 @@ final class Core_Write_Package {
 		$format = sanitize_key( (string) ( $input['format'] ?? '' ) );
 		$allowed_formats = array( 'standard', 'aside', 'image', 'video', 'quote', 'link', 'gallery', 'audio', 'chat', 'status' );
 		if ( ! in_array( $format, $allowed_formats, true ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_format_invalid', __( 'Post format is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_format_invalid', __( 'Post format is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$before_format = function_exists( 'get_post_format' ) ? sanitize_key( (string) get_post_format( $post_id ) ) : '';
 		$before_format = '' !== $before_format ? $before_format : 'standard';
@@ -1515,13 +1672,13 @@ final class Core_Write_Package {
 		}
 		$name = sanitize_text_field( (string) ( $input['name'] ?? '' ) );
 		if ( '' === $name ) {
-			return new \WP_Error( 'magick_ai_abilities_term_name_required', __( 'Term name is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_name_required', __( 'Term name is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$slug        = sanitize_title( (string) ( $input['slug'] ?? '' ) );
 		$description = sanitize_textarea_field( (string) ( $input['description'] ?? '' ) );
 		$parent      = absint( $input['parent'] ?? 0 );
 		if ( $parent > 0 && is_wp_error( $this->get_term_object( $parent, $taxonomy ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_parent_term_not_found', __( 'Parent term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_parent_term_not_found', __( 'Parent term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$payload = array(
@@ -1595,13 +1752,13 @@ final class Core_Write_Package {
 		if ( array_key_exists( 'parent', $input ) ) {
 			$parent = absint( $input['parent'] );
 			if ( $parent > 0 && is_wp_error( $this->get_term_object( $parent, $taxonomy ) ) ) {
-				return new \WP_Error( 'magick_ai_abilities_parent_term_not_found', __( 'Parent term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+				return new \WP_Error( 'magick_ai_abilities_parent_term_not_found', __( 'Parent term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 			$update_args['parent'] = $parent;
 			$changes['parent'] = array( 'before' => absint( $term->parent ?? 0 ), 'after' => $parent );
 		}
 		if ( empty( $update_args ) ) {
-			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$payload = array(
@@ -1770,7 +1927,7 @@ final class Core_Write_Package {
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to edit this attachment.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to edit this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$current = $this->media_snapshot( $attachment );
@@ -1791,7 +1948,7 @@ final class Core_Write_Package {
 			$changes[ $field ] = array( 'before' => (string) ( $current[ $field ] ?? '' ), 'after' => $value );
 		}
 		if ( empty( $changes ) ) {
-			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'No update fields were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$payload = array_merge(
@@ -1868,16 +2025,16 @@ final class Core_Write_Package {
 	public function upload_media_from_url( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$url = esc_url_raw( (string) ( $input['url'] ?? '' ) );
 		if ( '' === $url ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attach_to_post_id = absint( $input['attach_to_post_id'] ?? 0 );
 		if ( $attach_to_post_id > 0 && ! current_user_can( 'edit_post', $attach_to_post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to attach media to this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to attach media to this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$title       = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
@@ -1972,7 +2129,7 @@ final class Core_Write_Package {
 	public function optimize_media_asset( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize media.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
@@ -1981,7 +2138,7 @@ final class Core_Write_Package {
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize this media asset.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to optimize this media asset.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$plan = $this->build_media_optimization_plan( $attachment_id, $input );
@@ -2037,7 +2194,7 @@ final class Core_Write_Package {
 	public function replace_media_file( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace media files.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace media files.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
@@ -2046,7 +2203,7 @@ final class Core_Write_Package {
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace this media file.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace this media file.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$mode = sanitize_key( (string) ( $input['mode'] ?? 'replace' ) );
@@ -2106,6 +2263,85 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Adopts one short-lived Cloud derivative artifact as a local media replacement.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function adopt_cloud_media_derivative( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to adopt media derivatives.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$attachment_id = absint( $input['attachment_id'] ?? 0 );
+		$attachment = $this->get_media_attachment( $attachment_id );
+		if ( is_wp_error( $attachment ) ) {
+			return $attachment;
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to replace this media file.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$plan = $this->build_cloud_media_derivative_adoption_plan( $attachment_id, $input );
+		if ( is_wp_error( $plan ) ) {
+			return $plan;
+		}
+
+		$payload = array(
+			'attachment_id'      => $attachment_id,
+			'replaced'           => false,
+			'original_preserved' => true,
+			'replacement_id'     => (string) ( $plan['replacement_id'] ?? '' ),
+			'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+			'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
+			'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+			'artifact'           => is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array(),
+			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
+			'edit_link'          => $this->edit_link( $attachment_id ),
+			'preview'            => array(
+				'action'          => 'adopt_cloud_media_derivative',
+				'attachment_id'   => $attachment_id,
+				'replacement_id'  => (string) ( $plan['replacement_id'] ?? '' ),
+				'artifact_id'     => (string) ( $plan['artifact']['artifact_id'] ?? '' ),
+				'backup_created'  => true,
+				'cloud_artifact'  => true,
+			),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+		$allowed = $this->assert_commit_allowed( 'magick-ai/adopt-cloud-media-derivative', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+		if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_addon_unavailable', __( 'Cloud Addon artifact download is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+
+		$materialized = $this->materialize_cloud_media_derivative_artifact( $attachment_id, $plan );
+		if ( is_wp_error( $materialized ) ) {
+			return $materialized;
+		}
+		$plan['_derivative'] = $materialized;
+		$plan['after'] = $this->media_file_state_from_derivative( $attachment_id, $materialized );
+		$this->append_media_optimized_derivative( $attachment_id, $materialized );
+
+		$result = $this->execute_media_file_replacement( $attachment_id, $plan );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$payload['replaced'] = ! empty( $result['replaced'] );
+		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
+		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
+	}
+
+	/**
 	 * Sets one post featured image.
 	 *
 	 * @param mixed $input Input args.
@@ -2123,7 +2359,7 @@ final class Core_Write_Package {
 		$media_url     = esc_url_raw( (string) ( $input['media_url'] ?? '' ) );
 		$media_title   = sanitize_text_field( (string) ( $input['media_title'] ?? '' ) );
 		if ( $attachment_id <= 0 && '' === $media_url ) {
-			return new \WP_Error( 'magick_ai_abilities_featured_image_required', __( 'Either attachment_id or media_url is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_featured_image_required', __( 'Either attachment_id or media_url is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$source                = $attachment_id > 0 ? 'attachment_id' : 'media_url';
@@ -2151,7 +2387,7 @@ final class Core_Write_Package {
 
 		if ( $attachment_id <= 0 ) {
 			if ( ! current_user_can( 'upload_files' ) ) {
-				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to upload media.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 			}
 			$uploaded_id = $this->upload_media_asset_from_url( $media_url, $post_id, $media_title );
 			if ( is_wp_error( $uploaded_id ) ) {
@@ -2166,11 +2402,11 @@ final class Core_Write_Package {
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to use this attachment.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to use this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		if ( ! function_exists( 'set_post_thumbnail' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Featured image runtime is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Featured image runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 		set_post_thumbnail( $post_id, $attachment_id );
 		$applied_attachment_id = absint( get_post_thumbnail_id( $post_id ) );
@@ -2195,21 +2431,21 @@ final class Core_Write_Package {
 	public function schedule_post( $input ) {
 		$input   = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
-		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to schedule this post.', 'magick-ai-abilities' ) );
+		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to schedule this post.', 'npcink-abilities-toolkit' ) );
 		if ( is_wp_error( $post ) ) {
 			return $post;
 		}
 
 		$publish_at_raw = sanitize_text_field( (string) ( $input['publish_at'] ?? '' ) );
 		if ( '' === $publish_at_raw ) {
-			return new \WP_Error( 'magick_ai_abilities_publish_at_required', __( 'publish_at is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_publish_at_required', __( 'publish_at is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$timestamp = strtotime( $publish_at_raw );
 		if ( false === $timestamp ) {
-			return new \WP_Error( 'magick_ai_abilities_publish_at_invalid', __( 'publish_at is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_publish_at_invalid', __( 'publish_at is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( $timestamp <= time() ) {
-			return new \WP_Error( 'magick_ai_abilities_publish_at_past', __( 'publish_at must be in the future.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_publish_at_past', __( 'publish_at must be in the future.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$timezone_mode = sanitize_key( (string) ( $input['timezone'] ?? 'site' ) );
@@ -2274,7 +2510,7 @@ final class Core_Write_Package {
 	public function publish_post( $input ) {
 		$input   = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
-		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to publish this post.', 'magick-ai-abilities' ) );
+		$post    = $this->get_post_for_publish( $post_id, __( 'You do not have permission to publish this post.', 'npcink-abilities-toolkit' ) );
 		if ( is_wp_error( $post ) ) {
 			return $post;
 		}
@@ -2331,7 +2567,7 @@ final class Core_Write_Package {
 			return $post;
 		}
 		if ( 'trash' !== sanitize_key( (string) ( $post->post_status ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_not_trashed', __( 'This post is not in the trash.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_not_trashed', __( 'This post is not in the trash.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$payload = array(
@@ -2354,7 +2590,7 @@ final class Core_Write_Package {
 
 		$result = function_exists( 'wp_untrash_post' ) ? wp_untrash_post( $post_id ) : false;
 		if ( ! $result ) {
-			return new \WP_Error( 'magick_ai_abilities_restore_failed', __( 'Post restore failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_restore_failed', __( 'Post restore failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$payload['restored'] = true;
@@ -2423,14 +2659,14 @@ final class Core_Write_Package {
 		$parent_id = absint( $comment->comment_ID ?? 0 );
 		$post_id   = absint( $comment->comment_post_ID ?? 0 );
 		if ( $post_id <= 0 || ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to reply to this comment.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to reply to this comment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$content_payload = $this->normalize_content_input( $input, 'content' );
 		$content         = (string) ( $content_payload['content'] ?? '' );
 		$stripped        = wp_strip_all_tags( $content );
 		if ( '' === trim( (string) $stripped ) ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_content_required', __( 'Reply content is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_content_required', __( 'Reply content is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$payload = array(
@@ -2471,7 +2707,7 @@ final class Core_Write_Package {
 		);
 		$new_comment_id = absint( $new_comment_id );
 		if ( $new_comment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_reply_failed', __( 'Comment reply failed.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_reply_failed', __( 'Comment reply failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 		$created = get_comment( $new_comment_id );
 
@@ -2515,6 +2751,12 @@ final class Core_Write_Package {
 				'not_for'         => array( 'Do not use this to replace the original attachment file, upload remote media, or delete media.' ),
 				'best_for'        => array( 'Generating a smaller derivative after inspect-media-asset reports format, size, or width attention.' ),
 				'stopping_points' => array( 'Default to dry_run; final derivative generation requires host approval context and preserves the original file.' ),
+			),
+			'magick-ai/adopt-cloud-media-derivative' => array(
+				'when_to_use'     => array( 'Prepare or commit approved adoption of one non-expired Cloud derivative artifact as an attachment main file.' ),
+				'not_for'         => array( 'Do not use this to preview artifacts, create Cloud derivatives, accept arbitrary replacement URLs, or bypass Core approval.' ),
+				'best_for'        => array( 'Replacing an attachment after an operator reviewed the Cloud derivative preview and Core approved local adoption.' ),
+				'stopping_points' => array( 'Default to dry_run; final commit requires host approval context, artifact evidence, local backup, and rollback metadata.' ),
 			),
 			'magick-ai/approve-comment' => array(
 				'when_to_use'     => array( 'Prepare or commit approval of one moderated comment after review.' ),
@@ -2662,7 +2904,7 @@ final class Core_Write_Package {
 		}
 
 		if ( ! function_exists( 'update_post_meta' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_seo_adapter_missing', __( 'No SEO metadata writer is available.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_seo_adapter_missing', __( 'No SEO metadata writer is available.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 		update_post_meta( $post_id, '_yoast_wpseo_title', $title );
 		update_post_meta( $post_id, '_yoast_wpseo_metadesc', $description );
@@ -2695,7 +2937,7 @@ final class Core_Write_Package {
 
 		return new \WP_Error(
 			'magick_ai_abilities_host_approval_required',
-			__( 'This write ability requires approval from a host runtime before commit.', 'magick-ai-abilities' ),
+			__( 'This write ability requires approval from a host runtime before commit.', 'npcink-abilities-toolkit' ),
 			array(
 				'status'       => 403,
 				'ability_id'   => $ability_id,
@@ -2713,14 +2955,14 @@ final class Core_Write_Package {
 	private function get_editable_post( $post_id ) {
 		$post_id = absint( $post_id );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to edit this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to edit this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return $post;
 	}
@@ -2735,11 +2977,11 @@ final class Core_Write_Package {
 	private function get_post_for_publish( $post_id, $permission_message ) {
 		$post_id = absint( $post_id );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! $post ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'publish_post', $post_id ) ) {
 			return new \WP_Error( 'magick_ai_abilities_permission_denied', $permission_message, array( 'status' => 403 ) );
@@ -2756,11 +2998,11 @@ final class Core_Write_Package {
 	private function get_media_attachment( $attachment_id ) {
 		$attachment_id = absint( $attachment_id );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment = get_post( $attachment_id );
 		if ( ! $attachment || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		return $attachment;
 	}
@@ -2776,10 +3018,10 @@ final class Core_Write_Package {
 	private function upload_media_asset_from_url( $url, $attach_to_post_id = 0, $title = '' ) {
 		$url = esc_url_raw( (string) $url );
 		if ( '' === $url ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'Media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( function_exists( 'wp_http_validate_url' ) && ! wp_http_validate_url( $url ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_blocked', __( 'Media URL is not allowed.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_blocked', __( 'Media URL is not allowed.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$download_timeout = function_exists( 'apply_filters' )
@@ -2792,17 +3034,8 @@ final class Core_Write_Package {
 		$max_bytes        = max( MB_IN_BYTES, min( 256 * MB_IN_BYTES, $max_bytes ) );
 		$head_content_type = '';
 
-		if ( ! function_exists( 'download_url' ) && defined( 'ABSPATH' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-		if ( ! function_exists( 'media_handle_sideload' ) && defined( 'ABSPATH' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/media.php';
-		}
-		if ( ! function_exists( 'wp_generate_attachment_metadata' ) && defined( 'ABSPATH' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-		}
-		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+		if ( ! function_exists( 'wp_safe_remote_get' ) || ! function_exists( 'wp_upload_bits' ) || ! function_exists( 'wp_insert_attachment' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		if ( function_exists( 'wp_safe_remote_head' ) ) {
@@ -2818,28 +3051,37 @@ final class Core_Write_Package {
 			if ( ! is_wp_error( $head_response ) ) {
 				$head_status = (int) wp_remote_retrieve_response_code( $head_response );
 				if ( $head_status >= 400 ) {
-					return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Remote media is not reachable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+					return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 				}
 				$content_length = (int) wp_remote_retrieve_header( $head_response, 'content-length' );
 				if ( $content_length > 0 && $content_length > $max_bytes ) {
-					return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+					return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 				}
 				$head_content_type = sanitize_text_field( (string) wp_remote_retrieve_header( $head_response, 'content-type' ) );
 			}
 		}
 
-		$tmp_file = download_url( $url, $download_timeout );
-		if ( is_wp_error( $tmp_file ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_download_failed', $tmp_file->get_error_message(), array( 'status' => 400 ) );
+		$get_response = wp_safe_remote_get(
+			$url,
+			array(
+				'timeout'             => $download_timeout,
+				'redirection'         => 3,
+				'reject_unsafe_urls'  => true,
+				'limit_response_size' => $max_bytes + 1,
+			)
+		);
+		if ( is_wp_error( $get_response ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_download_failed', $get_response->get_error_message(), array( 'status' => 400 ) );
 		}
-		if ( ! is_string( $tmp_file ) || '' === $tmp_file || ! file_exists( $tmp_file ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Downloaded media temp file is unavailable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+		$get_status = (int) wp_remote_retrieve_response_code( $get_response );
+		if ( $get_status >= 400 ) {
+			return new \WP_Error( 'magick_ai_abilities_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$file_size = (int) filesize( $tmp_file );
+		$file_contents = (string) wp_remote_retrieve_body( $get_response );
+		$file_size     = strlen( $file_contents );
 		if ( $file_size <= 0 || $file_size > $max_bytes ) {
-			wp_delete_file( $tmp_file );
-			return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$path     = wp_parse_url( $url, PHP_URL_PATH );
@@ -2862,29 +3104,55 @@ final class Core_Write_Package {
 			}
 		}
 
+		$upload = wp_upload_bits( $filename, null, $file_contents );
+		if ( ! empty( $upload['error'] ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_upload_failed', sanitize_text_field( (string) $upload['error'] ), array( 'status' => 400 ) );
+		}
+		$file_path = (string) ( $upload['file'] ?? '' );
+		$file_url  = esc_url_raw( (string) ( $upload['url'] ?? '' ) );
+		if ( '' === $file_path || ! is_readable( $file_path ) ) {
+			return new \WP_Error( 'magick_ai_abilities_media_upload_failed', __( 'Uploaded media file is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
 		$allowed_mimes = function_exists( 'get_allowed_mime_types' ) ? get_allowed_mime_types() : array();
 		$filetype      = function_exists( 'wp_check_filetype_and_ext' )
-			? wp_check_filetype_and_ext( $tmp_file, $filename, $allowed_mimes )
-			: array();
+			? wp_check_filetype_and_ext( $file_path, $filename, $allowed_mimes )
+			: wp_check_filetype( $filename, $allowed_mimes );
 		$detected_type = sanitize_text_field( (string) ( $filetype['type'] ?? '' ) );
 		$detected_ext  = sanitize_key( (string) ( $filetype['ext'] ?? '' ) );
 		if ( '' === $detected_type || '' === $detected_ext ) {
-			wp_delete_file( $tmp_file );
-			return new \WP_Error( 'magick_ai_abilities_media_type_blocked', __( 'Remote media type is not allowed.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			wp_delete_file( $file_path );
+			return new \WP_Error( 'magick_ai_abilities_media_type_blocked', __( 'Remote media type is not allowed.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$file_array = array(
-			'name'     => $filename,
-			'type'     => $detected_type,
-			'tmp_name' => $tmp_file,
-			'size'     => $file_size,
+		$attachment_title = sanitize_text_field( (string) $title );
+		if ( '' === $attachment_title ) {
+			$attachment_title = preg_replace( '/\.[^.]+$/', '', $filename );
+			$attachment_title = sanitize_text_field( (string) $attachment_title );
+		}
+
+		$attachment_id = wp_insert_attachment(
+			array(
+				'post_mime_type' => $detected_type,
+				'post_title'     => $attachment_title,
+				'post_content'   => '',
+				'post_status'    => 'inherit',
+				'guid'           => $file_url,
+			),
+			$file_path,
+			max( 0, absint( $attach_to_post_id ) ),
+			true
 		);
-		$attachment_id = media_handle_sideload( $file_array, max( 0, absint( $attach_to_post_id ) ), sanitize_text_field( (string) $title ) );
 		if ( is_wp_error( $attachment_id ) ) {
-			if ( file_exists( $tmp_file ) ) {
-				wp_delete_file( $tmp_file );
-			}
+			wp_delete_file( $file_path );
 			return $attachment_id;
+		}
+
+		if ( function_exists( 'wp_generate_attachment_metadata' ) && function_exists( 'wp_update_attachment_metadata' ) ) {
+			$metadata = wp_generate_attachment_metadata( absint( $attachment_id ), $file_path );
+			if ( is_array( $metadata ) ) {
+				wp_update_attachment_metadata( absint( $attachment_id ), $metadata );
+			}
 		}
 
 		return absint( $attachment_id );
@@ -2929,7 +3197,7 @@ final class Core_Write_Package {
 		$source_url = function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '';
 		$mime_type = function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '';
 		if ( '' !== $mime_type && 0 !== strpos( $mime_type, 'image/' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_not_image', __( 'Only image attachments can be optimized.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_not_image', __( 'Only image attachments can be optimized.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$width = absint( $metadata['width'] ?? 0 );
@@ -2996,13 +3264,10 @@ final class Core_Write_Package {
 		$attachment_id = absint( $attachment_id );
 		$source_file = (string) ( $plan['_source_file'] ?? '' );
 		if ( '' === $source_file || ! is_readable( $source_file ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_source_file_unavailable', __( 'The source attachment file is unavailable.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
-		}
-		if ( ! function_exists( 'wp_get_image_editor' ) && defined( 'ABSPATH' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/image.php';
+			return new \WP_Error( 'magick_ai_abilities_media_source_file_unavailable', __( 'The source attachment file is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( ! function_exists( 'wp_get_image_editor' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_image_editor_unavailable', __( 'WordPress image editor is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_image_editor_unavailable', __( 'WordPress image editor is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$editor = wp_get_image_editor( $source_file );
@@ -3025,7 +3290,7 @@ final class Core_Write_Package {
 
 		$destination_dir = dirname( $source_file );
 		if ( ! is_dir( $destination_dir ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_directory_unavailable', __( 'The attachment directory is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_directory_unavailable', __( 'The attachment directory is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 		$basename = $this->sanitize_media_file_name( (string) ( $derivative['file_basename'] ?? 'attachment-' . $attachment_id . '-optimized.webp' ) );
 		if ( function_exists( 'wp_unique_filename' ) ) {
@@ -3037,7 +3302,7 @@ final class Core_Write_Package {
 			return $saved;
 		}
 		if ( ! is_array( $saved ) || empty( $saved['path'] ) || ! is_readable( (string) $saved['path'] ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_derivative_failed', __( 'Optimized derivative file was not created.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_derivative_failed', __( 'Optimized derivative file was not created.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$relative_dir = sanitize_text_field( (string) ( $plan['_relative_dir'] ?? '' ) );
@@ -3092,6 +3357,205 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Builds a local adoption plan for one Cloud derivative artifact.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function build_cloud_media_derivative_adoption_plan( $attachment_id, array $input ) {
+		$attachment_id = absint( $attachment_id );
+		$current = $this->current_media_file_state( $attachment_id );
+		if ( is_wp_error( $current ) ) {
+			return $current;
+		}
+		$expected_error = $this->validate_media_expected_state( $current, $input );
+		if ( is_wp_error( $expected_error ) ) {
+			return $expected_error;
+		}
+
+		$artifact = $this->normalize_cloud_media_derivative_artifact( is_array( $input['derivative_artifact'] ?? null ) ? $input['derivative_artifact'] : array() );
+		if ( is_wp_error( $artifact ) ) {
+			return $artifact;
+		}
+		$expected_derivative_mime = sanitize_text_field( (string) ( $input['expected_derivative_mime_type'] ?? '' ) );
+		if ( '' !== $expected_derivative_mime && $expected_derivative_mime !== (string) ( $artifact['mime_type'] ?? '' ) ) {
+			return new \WP_Error( 'magick_ai_abilities_derivative_mime_mismatch', __( 'The derivative MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+
+		$replacement_id = 'cloud_media_replace_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . (string) $artifact['artifact_id'] . '|' . microtime( true ) ), 0, 8 );
+		$backup_suffix = sanitize_key( (string) ( $input['backup_suffix'] ?? 'magick-ai-cloud-backup' ) );
+		$backup_suffix = '' !== $backup_suffix ? substr( $backup_suffix, 0, 48 ) : 'magick-ai-cloud-backup';
+		$backup_relative = $this->backup_relative_file_for_current_media( $current, $replacement_id, $backup_suffix );
+		$derivative = $this->cloud_artifact_derivative_state( $attachment_id, $current, $artifact );
+		$after = $this->media_file_state_from_derivative( $attachment_id, $derivative );
+
+		return array(
+			'replacement_id' => $replacement_id,
+			'before'         => $this->public_media_file_state( $current ),
+			'after'          => $after,
+			'backup'         => array(
+				'relative_file' => $backup_relative,
+				'url'           => $this->media_url_for_relative_file( $backup_relative ),
+				'mime_type'     => (string) ( $current['mime_type'] ?? '' ),
+				'width'         => absint( $current['width'] ?? 0 ),
+				'height'        => absint( $current['height'] ?? 0 ),
+			),
+			'artifact'       => $artifact,
+			'_current'       => $current,
+			'_derivative'    => $derivative,
+			'_backup_relative_file' => $backup_relative,
+		);
+	}
+
+	/**
+	 * Validates a bounded Cloud derivative artifact descriptor.
+	 *
+	 * @param array<string,mixed> $artifact Artifact descriptor.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function normalize_cloud_media_derivative_artifact( array $artifact ) {
+		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? $artifact['id'] ?? '' ) );
+		if ( '' === $artifact_id ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_id_required', __( 'A derivative artifact_id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$mime_type = sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) );
+		if ( ! in_array( $mime_type, array( 'image/webp', 'image/avif', 'image/jpeg', 'image/png' ), true ) ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_mime_invalid', __( 'The derivative artifact MIME type is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$expires_at = sanitize_text_field( (string) ( $artifact['expires_at'] ?? '' ) );
+		$expires_ts = absint( $artifact['expires_ts'] ?? 0 );
+		if ( $expires_ts <= 0 && '' !== $expires_at ) {
+			$parsed = strtotime( $expires_at );
+			$expires_ts = false !== $parsed ? absint( $parsed ) : 0;
+		}
+		if ( $expires_ts <= 0 ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_expiry_required', __( 'The derivative artifact expiry is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( $expires_ts <= time() ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_expired', __( 'The derivative artifact has expired. Generate a new preview before adoption.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
+		}
+		$format = sanitize_key( (string) ( $artifact['format'] ?? '' ) );
+		if ( '' === $format || 'original' === $format ) {
+			$format = $this->media_format_for_mime( $mime_type );
+		}
+		if ( ! in_array( $format, array( 'webp', 'avif', 'jpeg', 'png' ), true ) ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_format_invalid', __( 'The derivative artifact format is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		return array(
+			'artifact_id'         => $artifact_id,
+			'expires_at'          => '' !== $expires_at ? $expires_at : gmdate( 'c', $expires_ts ),
+			'expires_ts'          => $expires_ts,
+			'mime_type'           => $mime_type,
+			'format'              => $format,
+			'width'               => absint( $artifact['width'] ?? 0 ),
+			'height'              => absint( $artifact['height'] ?? 0 ),
+			'filesize_bytes'      => absint( $artifact['filesize_bytes'] ?? 0 ),
+			'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? $artifact['sha256'] ?? '' ) ),
+			'sha256'              => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
+			'processing_warnings' => array_values( array_filter( array_map( 'sanitize_text_field', (array) ( $artifact['processing_warnings'] ?? array() ) ) ) ),
+		);
+	}
+
+	/**
+	 * Builds the future local derivative file state from a Cloud artifact.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $current Current media state.
+	 * @param array<string,mixed> $artifact Normalized artifact.
+	 * @return array<string,mixed>
+	 */
+	private function cloud_artifact_derivative_state( $attachment_id, array $current, array $artifact ) {
+		$current_relative = $this->normalize_media_relative_file( (string) ( $current['relative_file'] ?? '' ) );
+		$dir = dirname( $current_relative );
+		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$basename = $this->sanitize_media_file_name( basename( $current_relative ) );
+		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
+		$stem = '' !== (string) $stem ? $stem : 'attachment-' . absint( $attachment_id );
+		$artifact_key = substr( sanitize_key( (string) ( $artifact['artifact_id'] ?? '' ) ), 0, 16 );
+		$extension = $this->media_extension_for_mime( (string) ( $artifact['mime_type'] ?? '' ) );
+		$file_basename = $this->sanitize_media_file_name( (string) $stem . '-magick-ai-cloud-' . $artifact_key . '.' . $extension );
+		$relative_file = '' !== $dir ? $dir . '/' . $file_basename : $file_basename;
+
+		return array(
+			'format'          => sanitize_key( (string) ( $artifact['format'] ?? '' ) ),
+			'mime_type'       => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
+			'file_basename'   => $file_basename,
+			'relative_file'   => $relative_file,
+			'url'             => $this->media_url_for_relative_file( $relative_file ),
+			'width'           => absint( $artifact['width'] ?? 0 ),
+			'height'          => absint( $artifact['height'] ?? 0 ),
+			'filesize_bytes'  => absint( $artifact['filesize_bytes'] ?? 0 ),
+			'generated_at_gmt' => gmdate( 'c' ),
+			'source'          => 'cloud_derivative_artifact',
+			'artifact_id'     => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
+			'artifact_checksum' => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
+		);
+	}
+
+	/**
+	 * Downloads and stores a Cloud artifact as a bounded local derivative file.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Adoption plan.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function materialize_cloud_media_derivative_artifact( $attachment_id, array $plan ) {
+		$artifact = is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array();
+		$download = magick_ai_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+		if ( is_wp_error( $download ) ) {
+			return $download;
+		}
+		$contents = is_array( $download ) ? (string) ( $download['contents'] ?? '' ) : '';
+		if ( '' === $contents ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_empty', __( 'The downloaded derivative artifact was empty.', 'npcink-abilities-toolkit' ), array( 'status' => 502 ) );
+		}
+		$sha256 = hash( 'sha256', $contents );
+		$expected_sha256 = $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) );
+		if ( '' !== $expected_sha256 && $expected_sha256 !== $sha256 ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_artifact_checksum_mismatch', __( 'The downloaded derivative checksum did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+
+		$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
+		$relative_file = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
+		$destination = $this->media_uploads_path_for_relative_file( $relative_file );
+		if ( '' === $destination ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_derivative_path_invalid', __( 'The local derivative path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$destination_dir = dirname( $destination );
+		if ( ! $this->ensure_media_directory( $destination_dir ) ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_derivative_directory_unavailable', __( 'The local derivative directory could not be created.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$basename = $this->sanitize_media_file_name( basename( $destination ) );
+		if ( function_exists( 'wp_unique_filename' ) ) {
+			$basename = wp_unique_filename( $destination_dir, $basename );
+			$destination = $this->trailingslashit_value( $destination_dir ) . $basename;
+			$relative_dir = dirname( $relative_file );
+			$relative_dir = '.' !== $relative_dir ? trim( $relative_dir, '/' ) : '';
+			$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $basename : $basename;
+		} elseif ( file_exists( $destination ) ) {
+			$basename = $this->unique_media_basename( $destination_dir, $basename );
+			$destination = $this->trailingslashit_value( $destination_dir ) . $basename;
+			$relative_dir = dirname( $relative_file );
+			$relative_dir = '.' !== $relative_dir ? trim( $relative_dir, '/' ) : '';
+			$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $basename : $basename;
+		}
+		if ( false === file_put_contents( $destination, $contents ) ) {
+			return new \WP_Error( 'magick_ai_abilities_cloud_derivative_write_failed', __( 'The local derivative file could not be written.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		$derivative['file_basename'] = $basename;
+		$derivative['relative_file'] = $relative_file;
+		$derivative['url'] = $this->media_url_for_relative_file( $relative_file );
+		$derivative['filesize_bytes'] = absint( filesize( $destination ) );
+		$derivative['artifact_checksum'] = $sha256;
+		$derivative['generated_at_gmt'] = gmdate( 'c' );
+
+		return $derivative;
+	}
+
+	/**
 	 * Builds a replacement plan from a recorded optimized derivative.
 	 *
 	 * @param int                 $attachment_id Attachment id.
@@ -3111,15 +3575,15 @@ final class Core_Write_Package {
 
 		$derivative_relative = $this->normalize_media_relative_file( (string) ( $input['derivative_relative_file'] ?? '' ) );
 		if ( '' === $derivative_relative ) {
-			return new \WP_Error( 'magick_ai_abilities_derivative_required', __( 'A derivative_relative_file is required for media file replacement.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_derivative_required', __( 'A derivative_relative_file is required for media file replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$derivative = $this->find_media_optimized_derivative( $attachment_id, $derivative_relative );
 		if ( empty( $derivative ) ) {
-			return new \WP_Error( 'magick_ai_abilities_derivative_not_recorded', __( 'The requested derivative is not recorded for this attachment.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_derivative_not_recorded', __( 'The requested derivative is not recorded for this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$expected_derivative_mime = sanitize_text_field( (string) ( $input['expected_derivative_mime_type'] ?? '' ) );
 		if ( '' !== $expected_derivative_mime && $expected_derivative_mime !== (string) ( $derivative['mime_type'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_derivative_mime_mismatch', __( 'The derivative MIME type did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_derivative_mime_mismatch', __( 'The derivative MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
 		$replacement_id = 'media_replace_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . $derivative_relative . '|' . microtime( true ) ), 0, 8 );
@@ -3164,16 +3628,16 @@ final class Core_Write_Package {
 		}
 		$replacement_id = sanitize_text_field( (string) ( $input['replacement_id'] ?? '' ) );
 		if ( '' === $replacement_id ) {
-			return new \WP_Error( 'magick_ai_abilities_replacement_id_required', __( 'A replacement_id is required for rollback.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_replacement_id_required', __( 'A replacement_id is required for rollback.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$history = $this->find_media_file_replacement_history( $attachment_id, $replacement_id );
 		if ( empty( $history ) ) {
-			return new \WP_Error( 'magick_ai_abilities_replacement_not_found', __( 'Replacement history was not found for rollback.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_replacement_not_found', __( 'Replacement history was not found for rollback.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		$backup = is_array( $history['backup'] ?? null ) ? $history['backup'] : array();
 		$backup_relative = $this->normalize_media_relative_file( (string) ( $backup['relative_file'] ?? '' ) );
 		if ( '' === $backup_relative ) {
-			return new \WP_Error( 'magick_ai_abilities_backup_unavailable', __( 'Replacement backup metadata is unavailable.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_backup_unavailable', __( 'Replacement backup metadata is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$after = array(
 			'relative_file'   => $backup_relative,
@@ -3213,16 +3677,14 @@ final class Core_Write_Package {
 		$derivative_relative = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
 		$derivative_path = $this->media_uploads_path_for_relative_file( $derivative_relative );
 		if ( '' === $current_path || ! is_readable( $current_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'The current attachment file is unavailable for backup.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'The current attachment file is unavailable for backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		if ( '' === $derivative_path || ! is_readable( $derivative_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_derivative_file_unavailable', __( 'The derivative file is unavailable for replacement.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_derivative_file_unavailable', __( 'The derivative file is unavailable for replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
-		$backup_dir_ready = function_exists( 'wp_mkdir_p' )
-			? wp_mkdir_p( dirname( $backup_path ) )
-			: ( is_dir( dirname( $backup_path ) ) || mkdir( dirname( $backup_path ), 0755, true ) );
+		$backup_dir_ready = '' !== $backup_path && $this->ensure_media_directory( dirname( $backup_path ) );
 		if ( '' === $backup_path || ! $backup_dir_ready || ! copy( $current_path, $backup_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
@@ -3266,7 +3728,7 @@ final class Core_Write_Package {
 		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
 		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
 		if ( '' === $backup_path || ! is_readable( $backup_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_backup_file_unavailable', __( 'The backup file is unavailable for rollback.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_backup_file_unavailable', __( 'The backup file is unavailable for rollback.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
 		$after['filesize_bytes'] = absint( filesize( $backup_path ) );
@@ -3299,12 +3761,15 @@ final class Core_Write_Package {
 			$relative_file = $this->normalize_media_relative_file( (string) ( $metadata['file'] ?? '' ) );
 		}
 		$file_path = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
+		if ( '' !== $file_path && '' !== $relative_file && ! is_readable( $file_path ) ) {
+			$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
+		}
 		if ( '' === $file_path && '' !== $relative_file ) {
 			$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
 		}
 		$mime_type = function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '';
 		if ( '' === $relative_file && '' === $file_path ) {
-			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'Current attachment file metadata is unavailable.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_current_media_file_unavailable', __( 'Current attachment file metadata is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
 		return array(
@@ -3330,11 +3795,11 @@ final class Core_Write_Package {
 	private function validate_media_expected_state( array $current, array $input ) {
 		$expected_relative = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? '' ) );
 		if ( '' !== $expected_relative && $expected_relative !== (string) ( $current['relative_file'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$expected_mime = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? '' ) );
 		if ( '' !== $expected_mime && $expected_mime !== (string) ( $current['mime_type'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'magick-ai-abilities' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
 		return true;
@@ -3483,7 +3948,7 @@ final class Core_Write_Package {
 		$relative_file = $this->normalize_media_relative_file( $relative_file );
 		$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
 		if ( '' === $relative_file || '' === $file_path ) {
-			return new \WP_Error( 'magick_ai_abilities_replacement_path_invalid', __( 'Replacement file path is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_replacement_path_invalid', __( 'Replacement file path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( $attachment_id, '_wp_attached_file', $relative_file );
@@ -3503,15 +3968,10 @@ final class Core_Write_Package {
 			'filesize' => absint( $state['filesize_bytes'] ?? 0 ),
 			'sizes'    => array(),
 		);
-		if ( function_exists( 'wp_generate_attachment_metadata' ) || defined( 'ABSPATH' ) ) {
-			if ( ! function_exists( 'wp_generate_attachment_metadata' ) && defined( 'ABSPATH' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/image.php';
-			}
-			if ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
-				$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
-				if ( is_array( $generated ) && ! empty( $generated ) ) {
-					$metadata = $generated;
-				}
+		if ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
+			$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
+			if ( is_array( $generated ) && ! empty( $generated ) ) {
+				$metadata = $generated;
 			}
 		}
 		if ( function_exists( 'update_post_meta' ) ) {
@@ -3636,6 +4096,26 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Ensures a media directory exists using WordPress helpers when available.
+	 *
+	 * @param string $directory Directory path.
+	 * @return bool
+	 */
+	private function ensure_media_directory( $directory ) {
+		$directory = (string) $directory;
+		if ( '' === $directory ) {
+			return false;
+		}
+		if ( is_dir( $directory ) ) {
+			return true;
+		}
+		if ( function_exists( 'wp_mkdir_p' ) && wp_mkdir_p( $directory ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns a MIME type for an optimized format.
 	 *
 	 * @param string $format Format.
@@ -3643,6 +4123,9 @@ final class Core_Write_Package {
 	 */
 	private function media_mime_for_format( $format ) {
 		$format = sanitize_key( (string) $format );
+		if ( 'avif' === $format ) {
+			return 'image/avif';
+		}
 		if ( 'jpeg' === $format ) {
 			return 'image/jpeg';
 		}
@@ -3660,7 +4143,71 @@ final class Core_Write_Package {
 	 */
 	private function media_extension_for_format( $format ) {
 		$format = sanitize_key( (string) $format );
-		return 'jpeg' === $format ? 'jpg' : ( in_array( $format, array( 'webp', 'png' ), true ) ? $format : 'webp' );
+		return 'jpeg' === $format ? 'jpg' : ( in_array( $format, array( 'webp', 'avif', 'png' ), true ) ? $format : 'webp' );
+	}
+
+	/**
+	 * Returns a derivative format for a MIME type.
+	 *
+	 * @param string $mime_type MIME type.
+	 * @return string
+	 */
+	private function media_format_for_mime( $mime_type ) {
+		$mime_type = sanitize_text_field( (string) $mime_type );
+		if ( 'image/avif' === $mime_type ) {
+			return 'avif';
+		}
+		if ( 'image/jpeg' === $mime_type ) {
+			return 'jpeg';
+		}
+		if ( 'image/png' === $mime_type ) {
+			return 'png';
+		}
+		return 'webp';
+	}
+
+	/**
+	 * Returns a safe extension for a MIME type.
+	 *
+	 * @param string $mime_type MIME type.
+	 * @return string
+	 */
+	private function media_extension_for_mime( $mime_type ) {
+		return $this->media_extension_for_format( $this->media_format_for_mime( $mime_type ) );
+	}
+
+	/**
+	 * Normalizes SHA-256 values from Cloud artifact descriptors.
+	 *
+	 * @param string $value Raw checksum value.
+	 * @return string
+	 */
+	private function normalize_media_sha256( $value ) {
+		$value = strtolower( trim( sanitize_text_field( (string) $value ) ) );
+		if ( 0 === strpos( $value, 'sha256:' ) ) {
+			$value = substr( $value, 7 );
+		}
+		return 1 === preg_match( '/^[a-f0-9]{64}$/', $value ) ? $value : '';
+	}
+
+	/**
+	 * Returns a unique file basename without requiring WordPress helpers in tests.
+	 *
+	 * @param string $directory Directory path.
+	 * @param string $basename Desired basename.
+	 * @return string
+	 */
+	private function unique_media_basename( $directory, $basename ) {
+		$basename = $this->sanitize_media_file_name( $basename );
+		$stem = preg_replace( '/\.[^.]+$/', '', $basename );
+		$extension = pathinfo( $basename, PATHINFO_EXTENSION );
+		$candidate = $basename;
+		$index = 1;
+		while ( file_exists( $this->trailingslashit_value( $directory ) . $candidate ) ) {
+			$candidate = $this->sanitize_media_file_name( (string) $stem . '-' . $index . ( '' !== $extension ? '.' . $extension : '' ) );
+			++$index;
+		}
+		return $candidate;
 	}
 
 	/**
@@ -3791,14 +4338,14 @@ final class Core_Write_Package {
 	private function get_comment_for_write( $comment_id ) {
 		$comment_id = absint( $comment_id );
 		if ( $comment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_invalid', __( 'Comment ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_invalid', __( 'Comment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$comment = get_comment( $comment_id );
 		if ( ! $comment ) {
-			return new \WP_Error( 'magick_ai_abilities_comment_not_found', __( 'Comment was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_comment_not_found', __( 'Comment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'moderate_comments' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to moderate comments.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to moderate comments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return $comment;
 	}
@@ -4143,7 +4690,7 @@ final class Core_Write_Package {
 		$content    = (string) $content;
 		$operations = array_values( $operations );
 		if ( empty( $operations ) ) {
-			return new \WP_Error( 'magick_ai_abilities_patch_operations_required', __( 'Operations are required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_patch_operations_required', __( 'Operations are required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$impact_ranges = array();
@@ -4152,11 +4699,11 @@ final class Core_Write_Package {
 			$operation = is_array( $operation ) ? $operation : array();
 			$op        = sanitize_key( (string) ( $operation['op'] ?? '' ) );
 			if ( ! in_array( $op, array( 'replace', 'delete', 'insert_before', 'insert_after' ), true ) ) {
-				return new \WP_Error( 'magick_ai_abilities_patch_operation_invalid', __( 'Patch operation is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'magick_ai_abilities_patch_operation_invalid', __( 'Patch operation is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$find = (string) ( $operation['find'] ?? '' );
 			if ( '' === $find ) {
-				return new \WP_Error( 'magick_ai_abilities_patch_find_required', __( 'Patch find text is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'magick_ai_abilities_patch_find_required', __( 'Patch find text is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$replace       = 'delete' === $op ? '' : (string) ( $operation['replace'] ?? '' );
 			$limit         = max( 1, min( 20, absint( $operation['limit'] ?? 1 ) ) );
@@ -4213,6 +4760,163 @@ final class Core_Write_Package {
 			'impact_ranges' => $impact_ranges,
 			'patch_preview' => $patch_preview,
 		);
+	}
+
+	/**
+	 * Applies exact patch operations recursively to one setting value.
+	 *
+	 * @param mixed        $value Original value.
+	 * @param array<mixed> $operations Patch operations.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function apply_patch_operations_to_value( $value, array $operations ) {
+		if ( is_string( $value ) && $this->looks_serialized_setting_string( $value ) ) {
+			return new \WP_Error( 'magick_ai_abilities_serialized_setting_patch_blocked', __( 'Raw serialized setting strings require manual review.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$operations = array_values( $operations );
+		if ( empty( $operations ) ) {
+			return new \WP_Error( 'magick_ai_abilities_patch_operations_required', __( 'Operations are required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		foreach ( $operations as $operation ) {
+			$op = sanitize_key( (string) ( is_array( $operation ) ? ( $operation['op'] ?? '' ) : '' ) );
+			if ( 'replace' !== $op ) {
+				return new \WP_Error( 'magick_ai_abilities_setting_patch_operation_invalid', __( 'Setting patch operations must be exact replacements.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+		}
+
+		$impact_ranges = array();
+		$patch_preview = array();
+		$after = $this->replace_in_setting_value( $value, $operations, '', $impact_ranges, $patch_preview );
+		if ( is_wp_error( $after ) ) {
+			return $after;
+		}
+		return array(
+			'value'         => $after,
+			'impact_ranges' => $impact_ranges,
+			'patch_preview' => $patch_preview,
+		);
+	}
+
+	/**
+	 * Replaces strings recursively in one setting value.
+	 *
+	 * @param mixed                $value Value.
+	 * @param array<int,mixed>     $operations Operations.
+	 * @param string               $path Value path.
+	 * @param array<int,mixed>     $impact_ranges Impact rows.
+	 * @param array<int,mixed>     $patch_preview Preview rows.
+	 * @return mixed|\WP_Error
+	 */
+	private function replace_in_setting_value( $value, array $operations, $path, array &$impact_ranges, array &$patch_preview ) {
+		if ( is_string( $value ) ) {
+			if ( $this->looks_serialized_setting_string( $value ) ) {
+				return new \WP_Error( 'magick_ai_abilities_serialized_setting_patch_blocked', __( 'Raw serialized setting strings require manual review.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$result = $this->apply_patch_operations( $value, $operations );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+			foreach ( (array) ( $result['impact_ranges'] ?? array() ) as $row ) {
+				$row = is_array( $row ) ? $row : array();
+				$row['path'] = $path;
+				$impact_ranges[] = $row;
+			}
+			foreach ( (array) ( $result['patch_preview'] ?? array() ) as $row ) {
+				$row = is_array( $row ) ? $row : array();
+				$row['path'] = $path;
+				$patch_preview[] = $row;
+			}
+			return $result['content'] ?? $value;
+		}
+		if ( is_array( $value ) ) {
+			$next = array();
+			foreach ( $value as $key => $child ) {
+				$child_path = '' === $path ? (string) $key : $path . '.' . (string) $key;
+				$next_child = $this->replace_in_setting_value( $child, $operations, $child_path, $impact_ranges, $patch_preview );
+				if ( is_wp_error( $next_child ) ) {
+					return $next_child;
+				}
+				$next[ $key ] = $next_child;
+			}
+			return $next;
+		}
+		if ( is_object( $value ) ) {
+			$next = clone $value;
+			foreach ( get_object_vars( $value ) as $key => $child ) {
+				$child_path = '' === $path ? (string) $key : $path . '.' . (string) $key;
+				$next_child = $this->replace_in_setting_value( $child, $operations, $child_path, $impact_ranges, $patch_preview );
+				if ( is_wp_error( $next_child ) ) {
+					return $next_child;
+				}
+				$next->{$key} = $next_child;
+			}
+			return $next;
+		}
+		return $value;
+	}
+
+	/**
+	 * Reads one patchable setting value.
+	 *
+	 * @param string $target_type option|theme_mod.
+	 * @param string $target_name Setting name.
+	 * @return mixed
+	 */
+	private function get_patchable_setting_value( $target_type, $target_name ) {
+		if ( 'theme_mod' === $target_type ) {
+			return function_exists( 'get_theme_mod' ) ? get_theme_mod( $target_name, null ) : ( $GLOBALS['maa_unit_theme_mods'][ $target_name ] ?? null );
+		}
+		return function_exists( 'get_option' ) ? get_option( $target_name, null ) : ( $GLOBALS['maa_unit_options'][ $target_name ] ?? null );
+	}
+
+	/**
+	 * Builds stable preview text for a setting value.
+	 *
+	 * @param mixed $value Value.
+	 * @return string
+	 */
+	private function setting_value_preview_text( $value ) {
+		if ( is_string( $value ) || is_numeric( $value ) || is_bool( $value ) ) {
+			return (string) $value;
+		}
+		if ( is_array( $value ) || is_object( $value ) ) {
+			$encoded = wp_json_encode( $value, defined( 'JSON_UNESCAPED_SLASHES' ) ? JSON_UNESCAPED_SLASHES : 0 );
+			return is_string( $encoded ) ? $encoded : '';
+		}
+		return '';
+	}
+
+	/**
+	 * Returns a setting value type label.
+	 *
+	 * @param mixed $value Value.
+	 * @return string
+	 */
+	private function setting_value_type( $value ) {
+		if ( is_array( $value ) ) {
+			return 'array';
+		}
+		if ( is_object( $value ) ) {
+			return 'object';
+		}
+		return gettype( $value );
+	}
+
+	/**
+	 * Detects raw serialized strings.
+	 *
+	 * @param string $value Value.
+	 * @return bool
+	 */
+	private function looks_serialized_setting_string( $value ) {
+		$value = trim( (string) $value );
+		if ( '' === $value ) {
+			return false;
+		}
+		if ( function_exists( 'is_serialized' ) && is_serialized( $value ) ) {
+			return true;
+		}
+		return (bool) preg_match( '/^(a|O|s|i|b|d):[0-9]+[:;]/', $value );
 	}
 
 	/**
@@ -4496,7 +5200,7 @@ final class Core_Write_Package {
 	private function valid_taxonomy( $taxonomy ) {
 		$taxonomy = sanitize_key( (string) $taxonomy );
 		if ( '' === $taxonomy || ! taxonomy_exists( $taxonomy ) ) {
-			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_taxonomy_invalid', __( 'Taxonomy is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		return $taxonomy;
 	}
@@ -4514,7 +5218,7 @@ final class Core_Write_Package {
 			? sanitize_key( (string) $taxonomy_object->cap->{$cap_key} )
 			: 'manage_categories';
 		if ( '' !== $capability && ! current_user_can( $capability ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission for this taxonomy operation.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission for this taxonomy operation.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		return true;
 	}
@@ -4529,11 +5233,11 @@ final class Core_Write_Package {
 	private function get_term_object( $term_id, $taxonomy ) {
 		$term_id = absint( $term_id );
 		if ( $term_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_term_invalid', __( 'Term ID is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_invalid', __( 'Term ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$term = get_term( $term_id, $taxonomy );
 		if ( ! $term || is_wp_error( $term ) ) {
-			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_term_not_found', __( 'Term was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		return $term;
 	}

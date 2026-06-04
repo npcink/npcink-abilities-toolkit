@@ -25,15 +25,15 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -56,25 +56,25 @@ trait Publishing_Workflow_Read_Methods {
 		$category_names = function_exists( 'get_the_terms' ) ? $this->format_term_name_list( get_the_terms( $post_id, 'category' ) ) : array();
 
 		$checks = array();
-		$this->append_publishing_check( $checks, 'title', '' !== $title, 'fail', __( 'Title is present.', 'magick-ai-abilities' ), __( 'Add a clear post title before publishing.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'content', $this->strlen_value( $plain_text ) >= 120, 'fail', __( 'Body content has enough text for review.', 'magick-ai-abilities' ), __( 'Add more body content before publishing.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'slug', '' !== $slug, 'fail', __( 'Slug is set.', 'magick-ai-abilities' ), __( 'Set a stable URL slug before publishing.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'author', $author_id > 0, 'fail', __( 'Author is assigned.', 'magick-ai-abilities' ), __( 'Assign an author before publishing.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'title', '' !== $title, 'fail', __( 'Title is present.', 'npcink-abilities-toolkit' ), __( 'Add a clear post title before publishing.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'content', $this->strlen_value( $plain_text ) >= 120, 'fail', __( 'Body content has enough text for review.', 'npcink-abilities-toolkit' ), __( 'Add more body content before publishing.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'slug', '' !== $slug, 'fail', __( 'Slug is set.', 'npcink-abilities-toolkit' ), __( 'Set a stable URL slug before publishing.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'author', $author_id > 0, 'fail', __( 'Author is assigned.', 'npcink-abilities-toolkit' ), __( 'Assign an author before publishing.', 'npcink-abilities-toolkit' ) );
 
 		if ( 'post' === $post_type && function_exists( 'get_the_terms' ) ) {
-			$this->append_publishing_check( $checks, 'categories', ! empty( $category_names ), 'fail', __( 'At least one category is assigned.', 'magick-ai-abilities' ), __( 'Assign at least one category before publishing.', 'magick-ai-abilities' ) );
+			$this->append_publishing_check( $checks, 'categories', ! empty( $category_names ), 'fail', __( 'At least one category is assigned.', 'npcink-abilities-toolkit' ), __( 'Assign at least one category before publishing.', 'npcink-abilities-toolkit' ) );
 		} elseif ( 'post' === $post_type ) {
-			$this->append_publishing_check( $checks, 'categories', false, 'warning', __( 'Category lookup is available.', 'magick-ai-abilities' ), __( 'Category lookup is unavailable in this runtime; verify categories in WordPress.', 'magick-ai-abilities' ) );
+			$this->append_publishing_check( $checks, 'categories', false, 'warning', __( 'Category lookup is available.', 'npcink-abilities-toolkit' ), __( 'Category lookup is unavailable in this runtime; verify categories in WordPress.', 'npcink-abilities-toolkit' ) );
 		}
 
-		$this->append_publishing_check( $checks, 'excerpt', '' !== $excerpt, 'warning', __( 'Excerpt is present.', 'magick-ai-abilities' ), __( 'Add an excerpt for archive and social previews.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'featured_media', $featured_media_id > 0, 'warning', __( 'Featured image is assigned.', 'magick-ai-abilities' ), __( 'Add a featured image when the layout or channel expects one.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'seo_title', '' !== $seo_title, 'warning', __( 'SEO title metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO title metadata if the site SEO plugin uses it.', 'magick-ai-abilities' ) );
-		$this->append_publishing_check( $checks, 'seo_description', '' !== $seo_description, 'warning', __( 'SEO description metadata is present.', 'magick-ai-abilities' ), __( 'Add SEO description metadata for search and share snippets.', 'magick-ai-abilities' ) );
+		$this->append_publishing_check( $checks, 'excerpt', '' !== $excerpt, 'warning', __( 'Excerpt is present.', 'npcink-abilities-toolkit' ), __( 'Add an excerpt for archive and social previews.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'featured_media', $featured_media_id > 0, 'warning', __( 'Featured image is assigned.', 'npcink-abilities-toolkit' ), __( 'Add a featured image when the layout or channel expects one.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'seo_title', '' !== $seo_title, 'warning', __( 'SEO title metadata is present.', 'npcink-abilities-toolkit' ), __( 'Add SEO title metadata if the site SEO plugin uses it.', 'npcink-abilities-toolkit' ) );
+		$this->append_publishing_check( $checks, 'seo_description', '' !== $seo_description, 'warning', __( 'SEO description metadata is present.', 'npcink-abilities-toolkit' ), __( 'Add SEO description metadata for search and share snippets.', 'npcink-abilities-toolkit' ) );
 
 		if ( 'future' === $target_status ) {
 			$future_date = strtotime( (string) ( $post->post_date ?? '' ) );
-			$this->append_publishing_check( $checks, 'schedule_date', false !== $future_date && $future_date > time(), 'fail', __( 'Scheduled publish date is in the future.', 'magick-ai-abilities' ), __( 'Set a future publish date before scheduling.', 'magick-ai-abilities' ) );
+			$this->append_publishing_check( $checks, 'schedule_date', false !== $future_date && $future_date > time(), 'fail', __( 'Scheduled publish date is in the future.', 'npcink-abilities-toolkit' ), __( 'Set a future publish date before scheduling.', 'npcink-abilities-toolkit' ) );
 		}
 
 		$missing = array();
@@ -137,7 +137,7 @@ trait Publishing_Workflow_Read_Methods {
 		);
 		$post_ids = array_slice( $post_ids, 0, 50 );
 		if ( empty( $post_ids ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_ids_required', __( 'At least one post id is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_ids_required', __( 'At least one post id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -231,7 +231,7 @@ trait Publishing_Workflow_Read_Methods {
 	public function get_site_operations_dashboard( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read site operations.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read site operations.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -333,11 +333,11 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'magick-ai-abilities' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -443,7 +443,7 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -644,7 +644,7 @@ trait Publishing_Workflow_Read_Methods {
 	public function get_publishing_calendar_context( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read publishing calendar context.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read publishing calendar context.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		if ( '' === $post_type ) {
