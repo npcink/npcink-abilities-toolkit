@@ -43,6 +43,7 @@ Representative abilities:
 - `magick-ai/get-post-blocks`
 - `magick-ai/list-post-revisions`
 - `magick-ai/list-media`
+- `magick-ai/resolve-media-attachment-by-url`
 - `magick-ai/get-media-inventory-health`
 - `magick-ai/inspect-media-asset`
 - `magick-ai/build-media-derivative-cloud-request`
