@@ -2445,11 +2445,15 @@ final class Core_Read_Package {
 						'watermark'                  => array(
 							'type'                 => 'object',
 							'properties'           => array(
-								'type'          => array( 'type' => 'string', 'enum' => array( 'image' ), 'default' => 'image' ),
+								'type'          => array( 'type' => 'string', 'enum' => array( 'image', 'text' ), 'default' => 'image' ),
 								'artifact_id'   => array( 'type' => 'string' ),
+								'text'          => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 64, 'default' => 'AI' ),
 								'position'      => array( 'type' => 'string', 'enum' => array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), 'default' => 'bottom_right' ),
 								'opacity'       => array( 'type' => 'number', 'minimum' => 0, 'maximum' => 1, 'default' => 0.75 ),
 								'scale_percent' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 18 ),
+								'font_size'     => array( 'type' => 'integer', 'minimum' => 8, 'maximum' => 256, 'default' => 48 ),
+								'color'         => array( 'type' => 'string', 'default' => '#FFFFFF' ),
+								'background'    => array( 'type' => 'string', 'default' => 'rgba(0,0,0,0.35)' ),
 								'margin_px'     => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 1000, 'default' => 24 ),
 							),
 							'additionalProperties' => false,
@@ -2590,11 +2594,15 @@ final class Core_Read_Package {
 						'watermark'                  => array(
 							'type'                 => 'object',
 							'properties'           => array(
-								'type'          => array( 'type' => 'string', 'enum' => array( 'image' ), 'default' => 'image' ),
+								'type'          => array( 'type' => 'string', 'enum' => array( 'image', 'text' ), 'default' => 'image' ),
 								'artifact_id'   => array( 'type' => 'string' ),
+								'text'          => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 64, 'default' => 'AI' ),
 								'position'      => array( 'type' => 'string', 'enum' => array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), 'default' => 'bottom_right' ),
 								'opacity'       => array( 'type' => 'number', 'minimum' => 0, 'maximum' => 1, 'default' => 0.75 ),
 								'scale_percent' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 18 ),
+								'font_size'     => array( 'type' => 'integer', 'minimum' => 8, 'maximum' => 256, 'default' => 48 ),
+								'color'         => array( 'type' => 'string', 'default' => '#FFFFFF' ),
+								'background'    => array( 'type' => 'string', 'default' => 'rgba(0,0,0,0.35)' ),
 								'margin_px'     => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 1000, 'default' => 24 ),
 							),
 							'additionalProperties' => false,

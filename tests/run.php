@@ -1116,10 +1116,12 @@ maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-medi
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['required'] ?? array(), 'media derivative cloud request requires an attachment id' );
 maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media derivative cloud request exposes bounded preferred output formats' );
 maa_assert_same( 82, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['quality']['default'] ?? null, 'media derivative cloud request defaults to quality 82' );
-maa_assert_same( array( 'image' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['type']['enum'] ?? array(), 'media derivative cloud request supports image watermark plans' );
+maa_assert_same( array( 'image', 'text' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['type']['enum'] ?? array(), 'media derivative cloud request supports image and text watermark plans' );
 maa_assert_same( array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded watermark positions' );
 maa_assert_same( 0.75, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['opacity']['default'] ?? null, 'media derivative cloud request defaults watermark opacity' );
 maa_assert_same( 18, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['scale_percent']['default'] ?? null, 'media derivative cloud request defaults watermark scale' );
+maa_assert_same( 'AI', $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['text']['default'] ?? null, 'media derivative cloud request defaults text watermark content' );
+maa_assert_same( 48, $package_abilities['magick-ai/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['font_size']['default'] ?? null, 'media derivative cloud request defaults text watermark font size' );
 maa_assert_true( isset( $package_abilities['magick-ai/build-media-derivative-batch-plan'] ), 'media derivative batch plan is registered as a read-only planning ability' );
 maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['required_scopes'] ?? array(), 'media derivative batch plan remains a read-scope planning ability' );
 maa_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['magick-ai/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
@@ -2355,6 +2357,30 @@ maa_assert_same( 'top_right', $media_cloud_request_with_watermark['data']['cloud
 maa_assert_same( 0.5, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['opacity'] ?? null, 'watermarked media derivative request preserves watermark opacity' );
 maa_assert_same( 22, $media_cloud_request_with_watermark['data']['cloud_job_payload']['watermark']['scale_percent'] ?? 0, 'watermarked media derivative request preserves watermark scale' );
 maa_assert_same( false, $media_cloud_request_with_watermark['data']['local_adoption']['wordpress_write_included'] ?? null, 'watermarked media derivative request still does not write WordPress' );
+$media_cloud_request_with_text_watermark = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id'    => 79,
+		'preferred_format' => 'webp',
+		'watermark'        => array(
+			'type'       => 'text',
+			'text'       => '<strong>AI</strong>',
+			'position'   => 'top_right',
+			'opacity'    => 0.75,
+			'font_size'  => 48,
+			'color'      => '#ffffff',
+			'background' => 'rgba(0,0,0,0.35)',
+			'margin_px'  => 24,
+		),
+	)
+);
+maa_assert_same( true, $media_cloud_request_with_text_watermark['success'] ?? null, 'build-media-derivative-cloud-request accepts optional text watermark plans' );
+maa_assert_same( 'text', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['type'] ?? '', 'text watermarked media derivative request preserves watermark type' );
+maa_assert_same( 'AI', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['text'] ?? '', 'text watermarked media derivative request normalizes plain text content' );
+maa_assert_same( 'top_right', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['position'] ?? '', 'text watermarked media derivative request preserves watermark position' );
+maa_assert_same( 48, $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['font_size'] ?? 0, 'text watermarked media derivative request preserves bounded font size' );
+maa_assert_same( '#FFFFFF', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['color'] ?? '', 'text watermarked media derivative request normalizes hex color' );
+maa_assert_same( 'rgba(0,0,0,0.35)', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['background'] ?? '', 'text watermarked media derivative request preserves bounded rgba background' );
+maa_assert_true( ! isset( $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['artifact_id'] ), 'text watermarked media derivative request does not require a watermark artifact id' );
 $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 	array(
 		'attachment_id'                 => 79,
@@ -2511,6 +2537,22 @@ $media_derivative_batch_plan_bounded = $core_read_package->build_media_derivativ
 	)
 );
 maa_assert_same( 1, $media_derivative_batch_plan_bounded['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan enforces max_items' );
+$media_derivative_batch_plan_text_watermark = $core_read_package->build_media_derivative_batch_plan(
+	array(
+		'attachment_ids' => array( 84 ),
+		'target_format'  => 'webp',
+		'max_items'      => 1,
+		'watermark'      => array(
+			'type'     => 'text',
+			'text'     => 'AI',
+			'position' => 'top_right',
+		),
+	)
+);
+maa_assert_same( true, $media_derivative_batch_plan_text_watermark['success'] ?? null, 'media derivative batch plan accepts text watermark input' );
+maa_assert_same( 'text', $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['type'] ?? '', 'media derivative batch plan carries text watermark requests into candidate cloud inputs' );
+maa_assert_same( 'AI', $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['text'] ?? '', 'media derivative batch plan carries text watermark content into candidate cloud inputs' );
+maa_assert_true( ! isset( $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['artifact_id'] ), 'media derivative batch plan text watermark does not require an artifact id' );
 $media_derivative_batch_plan_excluded = $core_read_package->build_media_derivative_batch_plan(
 	array(
 		'attachment_ids'    => array( 84 ),

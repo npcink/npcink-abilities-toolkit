@@ -51,6 +51,12 @@ handoff for Cloud derivative processing. It is intentionally read-only:
   callback URLs, or presigned source URLs;
 - it does not write WordPress media records or attachment metadata.
 
+The request contract can include optional image watermarks by artifact reference
+or text watermarks such as `AI`. Text watermarks are still Cloud-worker
+instructions only; the local abilities package normalizes the bounded text,
+position, opacity, font size, color, background, and margin fields, but does not
+render watermark pixels.
+
 The Cloud addon or host transport layer owns upload, signing, and dispatch. The
 Cloud worker owns derivative generation. The local WordPress host owns final
 approval, recording, replacement, rollback, and metadata writes.

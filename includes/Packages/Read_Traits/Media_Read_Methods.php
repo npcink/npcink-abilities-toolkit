@@ -1620,7 +1620,7 @@ trait Media_Read_Methods {
 	}
 
 	/**
-	 * Normalizes an optional image watermark plan for Cloud derivative requests.
+	 * Normalizes an optional watermark plan for Cloud derivative requests.
 	 *
 	 * @param mixed $watermark Raw watermark input.
 	 * @return array<string,mixed>|\WP_Error
@@ -1631,10 +1631,10 @@ trait Media_Read_Methods {
 		}
 
 		$type = sanitize_key( (string) ( $watermark['type'] ?? 'image' ) );
-		if ( 'image' !== $type ) {
+		if ( ! in_array( $type, array( 'image', 'text' ), true ) ) {
 			return new \WP_Error(
 				'magick_ai_abilities_media_derivative_watermark_type_invalid',
-				__( 'Only image watermarks are supported for Cloud media derivatives.', 'npcink-abilities-toolkit' ),
+				__( 'Only image and text watermarks are supported for Cloud media derivatives.', 'npcink-abilities-toolkit' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -1646,22 +1646,74 @@ trait Media_Read_Methods {
 
 		$opacity = is_numeric( $watermark['opacity'] ?? null ) ? (float) $watermark['opacity'] : 0.75;
 		$opacity = max( 0.0, min( 1.0, $opacity ) );
-		$scale_percent = max( 1, min( 100, $this->absint_value( $watermark['scale_percent'] ?? 18 ) ) );
 		$margin_px = max( 0, min( 1000, $this->absint_value( $watermark['margin_px'] ?? 24 ) ) );
-		$artifact_id = sanitize_text_field( (string) ( $watermark['artifact_id'] ?? '' ) );
 
-		$normalized = array(
-			'type'          => 'image',
-			'position'      => $position,
-			'opacity'       => round( $opacity, 3 ),
-			'scale_percent' => $scale_percent,
-			'margin_px'     => $margin_px,
-		);
-		if ( '' !== $artifact_id ) {
-			$normalized['artifact_id'] = $artifact_id;
+		if ( 'image' === $type ) {
+			$artifact_id = sanitize_text_field( (string) ( $watermark['artifact_id'] ?? '' ) );
+			$normalized = array(
+				'type'          => 'image',
+				'position'      => $position,
+				'opacity'       => round( $opacity, 3 ),
+				'scale_percent' => max( 1, min( 100, $this->absint_value( $watermark['scale_percent'] ?? 18 ) ) ),
+				'margin_px'     => $margin_px,
+			);
+			if ( '' !== $artifact_id ) {
+				$normalized['artifact_id'] = $artifact_id;
+			}
+
+			return $normalized;
 		}
 
-		return $normalized;
+		$text = $this->normalize_plain_text( $watermark['text'] ?? 'AI' );
+		if ( '' === $text ) {
+			$text = 'AI';
+		}
+		if ( function_exists( 'mb_substr' ) ) {
+			$text = mb_substr( $text, 0, 64 );
+		} else {
+			$text = substr( $text, 0, 64 );
+		}
+
+		return array(
+			'type'       => 'text',
+			'text'       => $text,
+			'position'   => $position,
+			'opacity'    => round( $opacity, 3 ),
+			'font_size'  => max( 8, min( 256, $this->absint_value( $watermark['font_size'] ?? 48 ) ) ),
+			'color'      => $this->normalize_media_derivative_watermark_color( $watermark['color'] ?? '#FFFFFF', '#FFFFFF' ),
+			'background' => $this->normalize_media_derivative_watermark_color( $watermark['background'] ?? 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.35)' ),
+			'margin_px'  => $margin_px,
+		);
+	}
+
+	/**
+	 * Normalizes a bounded color token for Cloud text watermark rendering.
+	 *
+	 * @param mixed  $value Raw color.
+	 * @param string $default Default color.
+	 * @return string
+	 */
+	private function normalize_media_derivative_watermark_color( $value, $default ) {
+		$color = trim( sanitize_text_field( (string) $value ) );
+		if ( 'transparent' === strtolower( $color ) ) {
+			return 'transparent';
+		}
+		if ( 1 === preg_match( '/^#[0-9A-Fa-f]{3}([0-9A-Fa-f]{3})?$/', $color ) ) {
+			return strtoupper( $color );
+		}
+		if ( 1 === preg_match( '/^rgba?\(\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})\\s*,\\s*(\\d{1,3})(?:\\s*,\\s*(0|1|0?\\.\\d+))?\\s*\\)$/', $color, $matches ) ) {
+			$r = max( 0, min( 255, (int) $matches[1] ) );
+			$g = max( 0, min( 255, (int) $matches[2] ) );
+			$b = max( 0, min( 255, (int) $matches[3] ) );
+			if ( isset( $matches[4] ) && '' !== $matches[4] ) {
+				$a = max( 0.0, min( 1.0, (float) $matches[4] ) );
+				return 'rgba(' . $r . ',' . $g . ',' . $b . ',' . rtrim( rtrim( sprintf( '%.3F', $a ), '0' ), '.' ) . ')';
+			}
+
+			return 'rgb(' . $r . ',' . $g . ',' . $b . ')';
+		}
+
+		return $default;
 	}
 
 	/**
