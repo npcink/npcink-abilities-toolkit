@@ -21,7 +21,7 @@ Npcink AI admin/runtime submodule.
 - what reusable WordPress abilities can be registered;
 - what schemas, annotations, and categories those abilities expose;
 - what WordPress-only read or host-governed dry-run/write callbacks do;
-- how opted-in abilities may expose lightweight compatibility metadata.
+- how opted-in abilities may expose lightweight Npcink AI catalog projection metadata.
 
 Npcink AI answers:
 
@@ -72,7 +72,7 @@ Compatibility projection must stay thin:
 - allowed: explicit `project_to_npcink_catalog` metadata for opted-in abilities;
 - allowed: `executor_type=wp_ability`, the WordPress ability id, schemas,
   annotations, risk level, confirmation requirement, and lightweight
-  compatibility metadata;
+  Npcink AI catalog projection metadata;
 - forbidden: Npcink AI settings UI, admin REST handlers, product catalog caching,
   MCP/Open API/Agent Gateway governance, quota/audit, or workflow execution.
 - forbidden: projection fields that make this package the owner of Npcink AI
@@ -110,17 +110,17 @@ the gating contract explicit. Future file splits should move definitions by
 sub-pack only when tests prove no ability id, schema, callback, risk, or default
 registration behavior changed.
 
-## Legacy ID Policy
+## Canonical ID Policy
 
-Many migrated first-party abilities still use `npcink-abilities-toolkit/*` ids for backward
-compatibility with existing host references. Those ids are stable compatibility
-ids, not proof that Npcink AI owns the callback implementation.
+First-party abilities owned by this plugin use `npcink-abilities-toolkit/*` ids
+as their canonical ids. They are not compatibility aliases for previous host
+ids, and they do not imply that Npcink AI owns the callback implementation.
 
 New generic provider examples should use their own namespace. New first-party
-abilities in this package may keep the legacy namespace only when they extend a
-migrated compatibility surface already consumed by Npcink AI. A future rename
-from `npcink-abilities-toolkit/*` to a standalone namespace must be handled as a deprecation
-and successor migration, not a silent replacement.
+abilities in this package should use the `npcink-abilities-toolkit/*` namespace
+when the callback is owned here. A future replacement of a canonical id must be
+handled as a normal breaking or deprecation/successor change, not as a hidden
+compatibility alias.
 
 ## Workflow Recipe Rule
 
@@ -170,7 +170,7 @@ During local cross-repo development, Npcink AI should run its duplicate-id audit
 
 Production package code in this plugin must not require files from the Npcink AI repository and must not call Npcink AI runtime execution functions.
 
-Allowed integration is limited to optional WordPress hooks and filters, for example the catalog projection filter implemented by the compatibility bridge.
+Allowed integration is limited to optional WordPress hooks and filters, for example the catalog projection filter implemented by the Npcink catalog bridge.
 
 ## Version Compatibility
 

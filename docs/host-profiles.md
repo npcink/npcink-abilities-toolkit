@@ -8,7 +8,7 @@ the only safe deployment shape.
 
 ## Full Profile
 
-Use the full profile when the host is a governed agent runtime such as Magick AI
+Use the full profile when the host is a governed agent runtime such as Npcink AI
 Core, a local automation environment, or another product that can handle caller
 identity, scopes, approval, audit, quota, dry-run previews, and final write
 authorization.

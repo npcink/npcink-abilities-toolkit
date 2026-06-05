@@ -9,19 +9,19 @@ Date: 2026-05-28
 
 It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, discover, and execute reusable WordPress abilities through the WordPress Abilities API.
 
-It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Magick AI, WP Magick Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
+It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Npcink AI, Npcink Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
 
 ## Why This Positioning
 
 The WordPress AI direction is moving away from each plugin owning its own model calls and toward shared platform primitives: AI Client, Connectors API, Abilities API, client-side abilities, and MCP-oriented ability exposure. In that environment, the defensible layer for this project is not another prompt UI. It is the machine-readable WordPress operation catalog that upper layers can safely compose.
 
-The China-market research points to a different product layer: site owners need domestic environment fixes, configuration wizards, Baidu/WeChat/CDN/ICP workflows, compliance help, documentation, and low-friction packaging. Those are important product opportunities, but they belong in WP Magick Toolbox or another end-user product, not in this infrastructure package.
+The China-market research points to a different product layer: site owners need domestic environment fixes, configuration wizards, Baidu/WeChat/CDN/ICP workflows, compliance help, documentation, and low-friction packaging. Those are important product opportunities, but they belong in Npcink Toolbox or another end-user product, not in this infrastructure package.
 
 The project boundary already matches this conclusion:
 
 - this project owns Abilities API categories, schemas, metadata, reusable WordPress callbacks, dry-run previews, and optional compatibility projection;
 - host runtimes own caller identity, admission, quota, audit, approval, final commit authorization, workflow orchestration, model routing, MCP governance, and cloud execution;
-- Magick AI is an optional consumer, not the owner of this package.
+- Npcink AI is an optional consumer, not the owner of this package.
 
 ## Layering Model
 
@@ -51,7 +51,7 @@ Does not own:
 - cloud execution;
 - broad China toolbox UI.
 
-### Magick AI
+### Npcink AI
 
 Owns:
 
@@ -64,7 +64,7 @@ Owns:
 - cloud execution enhancement;
 - operations dashboards.
 
-### WP Magick Toolbox Or Other End-User Products
+### Npcink Toolbox Or Other End-User Products
 
 Own:
 
@@ -94,14 +94,14 @@ This is not a conflict that should be solved by moving all product functionality
 4. Direct clients get dry-run previews by default for writes and destructive actions.
 5. Final commit always requires host approval context.
 6. No duplicate ownership for migrated ability ids.
-7. No production dependency on Magick AI internals.
+7. No production dependency on Npcink AI internals.
 8. Keep the public API small, boring, and versioned.
 
 ## Next Stage Goals
 
 ### P0: Stabilize The Ability Foundation
 
-Goal: make this package safe for Magick AI, Toolbox, and third-party plugins to depend on.
+Goal: make this package safe for Npcink AI, Toolbox, and third-party plugins to depend on.
 
 Deliverables:
 
@@ -110,12 +110,12 @@ Deliverables:
 - define ability id, category, schema, annotations, required scopes, and risk-level conventions;
 - add example provider plugin coverage for third-party read-only and projected abilities;
 - keep `composer test:all` and `composer check:boundary` as required checks;
-- keep Magick AI dependency out of package code.
+- keep Npcink AI dependency out of package code.
 
 Success signal:
 
 - a third-party plugin can register a useful ability without referencing internal classes;
-- Magick AI can discover and execute migrated abilities without duplicate configs;
+- Npcink AI can discover and execute migrated abilities without duplicate configs;
 - write/destructive abilities cannot silently commit without host context.
 
 ### P1: Prove Consumer Integration
@@ -124,7 +124,7 @@ Goal: prove that upper-layer products can consume this package as infrastructure
 
 Deliverables:
 
-- Magick AI integration contract with minimum supported `npcink-abilities-toolkit` version;
+- Npcink AI integration contract with minimum supported `npcink-abilities-toolkit` version;
 - duplicate ability id audit flow for cross-repo development;
 - compatibility projection tests for opted-in provider abilities;
 - one consumer-side smoke path that discovers an ability through WordPress Abilities API and executes it through the host runtime;
@@ -132,7 +132,7 @@ Deliverables:
 
 Success signal:
 
-- Magick AI treats this project as catalog truth for migrated generic WordPress abilities;
+- Npcink AI treats this project as catalog truth for migrated generic WordPress abilities;
 - fallback definitions are not reintroduced without a new ADR;
 - consumer breakages are diagnosed by contract tests rather than manual inspection.
 
@@ -152,7 +152,7 @@ Success signal:
 
 - each pack has a focused README section, test coverage, and a clear ownership boundary;
 - pack names and ability ids are understandable to both agents and plugin developers;
-- product-specific features remain in Magick AI or Toolbox.
+- product-specific features remain in Npcink AI or Toolbox.
 
 ### P3: Prepare The Ecosystem Surface
 
@@ -169,7 +169,7 @@ Deliverables:
 Success signal:
 
 - external developers can understand what belongs here in under 10 minutes;
-- ability providers can opt into Magick AI projection intentionally;
+- ability providers can opt into Npcink AI projection intentionally;
 - end-user products can explain this package as an infrastructure dependency, not as a competing UI.
 
 ## Recommended 30/60/90 Day Plan
@@ -188,7 +188,7 @@ Focus on contract stability.
 
 Focus on consumer proof.
 
-- Wire Magick AI to consume migrated abilities only through discovery/execution contracts.
+- Wire Npcink AI to consume migrated abilities only through discovery/execution contracts.
 - Add duplicate-id audit documentation and, if practical, a local script or fixture.
 - Add compatibility projection test coverage.
 - Define minimum recommended version policy for consuming hosts.

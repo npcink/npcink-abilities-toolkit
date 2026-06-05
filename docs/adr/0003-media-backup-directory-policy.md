@@ -23,7 +23,7 @@ same-directory compatibility path for newly created backups.
 
 ## Decision
 
-Store newly created Magick AI media operation backups under:
+Store newly created Npcink AI media operation backups under:
 
 ```text
 wp-content/uploads/npcink-abilities-toolkit-backups/{current-upload-subdirectory}/

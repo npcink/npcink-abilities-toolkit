@@ -21,12 +21,12 @@ It helps plugin authors and host runtimes expose safe, agent-callable WordPress
 capabilities through a stable contract layer. The plugin includes ability
 registration helpers, category helpers, schema normalization, annotation
 normalization, built-in WordPress read abilities, proposal-oriented write
-abilities, diagnostics abilities, and optional compatibility projection for
-Magick AI hosts.
+abilities, diagnostics abilities, and optional catalog projection for
+Npcink AI hosts.
 
 This plugin is independently published by Npcink and remains useful on its own.
 It can be consumed directly by clients that use the WordPress Abilities API or
-by host plugins that need a stable ability catalog, including optional Magick AI
+by host plugins that need a stable ability catalog, including optional Npcink AI
 hosts.
 
 Npcink Abilities Toolkit complements official WordPress AI, MCP, and Abilities API
@@ -40,10 +40,10 @@ WordPress writes.
 - Normalize ability schemas and annotations for safer agent consumption.
 - Provide built-in WordPress read, diagnostics, host composition recipe
   discovery, and comment helper abilities.
-- Preserve compatibility-oriented `npcink-abilities-toolkit/*` ability ids where needed.
+- Use canonical `npcink-abilities-toolkit/*` ability ids for abilities owned by this plugin.
 - Expose contracts that host plugins can govern through their own approval,
   preflight, and audit layers.
-- Keep Magick AI integration optional instead of making Magick AI the owner of
+- Keep Npcink AI integration optional instead of making Npcink AI the owner of
   the Abilities API layer.
 
 ## Who This Is For
@@ -62,12 +62,12 @@ WordPress writes.
 
 ## Integration Boundary
 
-In a Magick AI host setup:
+In a Npcink AI host setup:
 
 - Npcink Abilities Toolkit owns ability definitions and callbacks.
 - Npcink AI Core owns governance, approval, preflight, and audit.
-- Magick AI Adapter owns OpenClaw channel adaptation.
-- Magick AI Cloud Addon owns cloud service connection.
+- Npcink AI Adapter owns OpenClaw channel adaptation.
+- Npcink AI Cloud Addon owns cloud service connection.
 
 This separation keeps the ability layer reusable, inspectable, and compatible
 with the broader WordPress ecosystem.

@@ -1,7 +1,7 @@
 # Article Workflow Abilities v1
 
 This document maps the recommended `article_draft_v1` composition path for
-hosts such as Magick AI Toolbox, Adapter, and Core. Abilities provides reusable
+hosts such as Npcink AI Toolbox, Adapter, and Core. Abilities provides reusable
 WordPress callbacks and result builders. It does not provide a cloud writer,
 article SaaS product, workflow runtime, approval store, batch publishing
 console, or final write authorization.
@@ -52,11 +52,11 @@ reviewable artifact before Core proposal intake.
 | Result composition | `npcink-abilities-toolkit/compose-article-production-result`, `npcink-abilities-toolkit/compose-article-draft-result`, `npcink-abilities-toolkit/resolve-article-publication-decision` | Abilities | Composes host-reviewed output and decision artifacts. |
 | Final write | `npcink-abilities-toolkit/create-draft` | Abilities callback, Core governed | Must be submitted through Core proposal, approval, and preflight before commit. |
 
-Provider or knowledge abilities such as `magick-ai-toolbox/web-research`,
-`magick-ai-toolbox/search-image-source`,
-`magick-ai-toolbox/search-site-knowledge`,
-`magick-ai-toolbox/build-content-discoverability-brief`, and
-`magick-ai-toolbox/build-article-assistant` belong to Toolbox, not this package.
+Provider or knowledge abilities such as `npcink-toolbox/web-research`,
+`npcink-toolbox/search-image-source`,
+`npcink-toolbox/search-site-knowledge`,
+`npcink-toolbox/build-content-discoverability-brief`, and
+`npcink-toolbox/build-article-assistant` belong to Toolbox, not this package.
 
 ## Non-Goals
 

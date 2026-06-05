@@ -39,8 +39,8 @@ This plugin is part of the Npcink developer-tool series. Its role is the ability
 
 It complements the other Npcink AI plugins:
 - Npcink AI Core handles governance, approval, preflight, and audit.
-- Magick AI Adapter handles OpenClaw channel adaptation and calls Core plus the Abilities API.
-- Magick AI Cloud Addon links to cloud services.
+- Npcink AI Adapter handles OpenClaw channel adaptation and calls Core plus the Abilities API.
+- Npcink AI Cloud Addon links to cloud services.
 This banner should clearly represent Abilities, not Core, Adapter, or Cloud.
 
 Visual concept: a WordPress ability catalog made of modular capability cards, callback nodes, schema contract brackets, and validation boundaries. Show abilities flowing into host/plugin clients through clean contract lines, not through a cloud or chatbot interface.

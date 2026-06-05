@@ -8,7 +8,7 @@ These abilities are new standalone first-party abilities, not migrated from the
 Npcink AI plugin. They are official `npcink-abilities-toolkit` package capabilities
 and are projected to the Npcink AI catalog as `wp_ability` consumers.
 
-| Ability id | Source | New owner | Magick AI-owned | Host-governed |
+| Ability id | Source | New owner | Npcink AI-owned | Host-governed |
 | --- | --- | --- | --- | --- |
 | `npcink-abilities-toolkit/get-post-context` | New standalone Content Context Pack ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 | `npcink-abilities-toolkit/get-content-publishing-checklist` | New standalone Publishing Pack read-support ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
@@ -44,7 +44,7 @@ and are projected to the Npcink AI catalog as `wp_ability` consumers.
 
 ## Migrated in 0.1
 
-| Ability id | Source in Magick AI | New owner |
+| Ability id | Source in Npcink AI | New owner |
 | --- | --- | --- |
 | `npcink-abilities-toolkit/site-info` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/list-post-types` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
@@ -82,7 +82,7 @@ and are projected to the Npcink AI catalog as `wp_ability` consumers.
 | `npcink-abilities-toolkit/build-article-optimization-apply-plan` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/compose-article-optimization-apply-result` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/extract-reference-post-style` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
-| `npcink-abilities-toolkit/extract-style-baseline` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php`; Magick AI cron now dispatches the migrated ability through `wp_get_ability()` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/extract-style-baseline` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php`; Npcink AI cron now dispatches the migrated ability through `wp_get_ability()` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/build-article-production-fingerprint` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/check-article-production-duplicate` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 | `npcink-abilities-toolkit/review-article-output-light` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
@@ -99,9 +99,9 @@ and are projected to the Npcink AI catalog as `wp_ability` consumers.
 
 ## Migrated Deterministic Comment Helpers in 0.1
 
-These abilities are read-only comment workflow helpers. `npcink-abilities-toolkit` owns the schemas, callbacks, deterministic suggestion/summary behavior, and WordPress comment reads. Magick AI keeps the workflow definitions and execution governance that consume these ability ids.
+These abilities are read-only comment workflow helpers. `npcink-abilities-toolkit` owns the schemas, callbacks, deterministic suggestion/summary behavior, and WordPress comment reads. Npcink AI keeps the workflow definitions and execution governance that consume these ability ids.
 
-| Ability id | Source in Magick AI | New owner |
+| Ability id | Source in Npcink AI | New owner |
 | --- | --- | --- |
 | `npcink-abilities-toolkit/build-comment-moderation-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
 | `npcink-abilities-toolkit/compose-comment-moderation-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
@@ -113,9 +113,9 @@ These abilities are read-only comment workflow helpers. `npcink-abilities-toolki
 
 ## Migrated Host-Governed Writes in 0.1
 
-These abilities are pure WordPress write operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
+These abilities are pure WordPress write operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Npcink AI. The old Npcink AI config rows and local callback functions are removed for this migrated set.
 
-| Ability id | Source in Magick AI | New owner |
+| Ability id | Source in Npcink AI | New owner |
 | --- | --- | --- |
 | `npcink-abilities-toolkit/create-draft` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
 | `npcink-abilities-toolkit/update-post` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
@@ -140,9 +140,9 @@ These abilities are pure WordPress write operations. `npcink-abilities-toolkit` 
 
 ## Migrated Host-Governed Destructive Abilities in 0.1
 
-These abilities are destructive WordPress operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Magick AI. The old Magick AI config rows and local callback functions are removed for this migrated set.
+These abilities are destructive WordPress operations. `npcink-abilities-toolkit` owns the schemas, callbacks, dry-run previews, and WordPress mutations. Final commit remains host-governed: direct clients receive dry-run previews by default, and commit requires approval context from a host runtime such as Npcink AI. The old Npcink AI config rows and local callback functions are removed for this migrated set.
 
-| Ability id | Source in Magick AI | New owner |
+| Ability id | Source in Npcink AI | New owner |
 | --- | --- | --- |
 | `npcink-abilities-toolkit/delete-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
 | `npcink-abilities-toolkit/merge-terms` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
@@ -168,7 +168,7 @@ These abilities are owned by this standalone plugin and are not migrated Npcink 
 
 These should be evaluated before write-like abilities:
 
-- additional low-risk WordPress diagnostics details that do not depend on Magick AI, MCP, runtime, raw database identifiers, filesystem paths, log contents, or operations state
+- additional low-risk WordPress diagnostics details that do not depend on Npcink AI, MCP, runtime, raw database identifiers, filesystem paths, log contents, or operations state
 
 ## Later Proposal-Only Candidates
 
@@ -182,37 +182,37 @@ These can move only as proposal generators or host-governed write abilities. Com
 
 ## Remaining Write Candidates
 
-None for generic WordPress writes in the current migration scope. SEO metadata writing now lives in `npcink-abilities-toolkit`; Magick AI can still provide provider-specific SEO adapter behavior through filters.
+None for generic WordPress writes in the current migration scope. SEO metadata writing now lives in `npcink-abilities-toolkit`; Npcink AI can still provide provider-specific SEO adapter behavior through filters.
 
 ## Current Post-Cleanup Audit
 
-As of the current cleanup pass, Magick AI's local ability config registry contains 33 `npcink-abilities-toolkit/*` abilities. The standalone package registry contains 85 `npcink-abilities-toolkit/*` package abilities. The two sets have no duplicate ability ids.
+As of the current cleanup pass, Npcink AI's local ability config registry contains 33 `npcink-abilities-toolkit/*` abilities. The standalone package registry contains 85 `npcink-abilities-toolkit/*` package abilities. The two sets have no duplicate ability ids.
 
-The remaining Magick AI-owned ability ids are:
+The remaining Npcink AI-owned ability ids are:
 
 - semantic/model/runtime abilities: `npcink-abilities-toolkit/translate`, `npcink-abilities-toolkit/summarize`, `npcink-abilities-toolkit/image-generate`, `npcink-abilities-toolkit/tts`, `npcink-abilities-toolkit/extract`, `npcink-abilities-toolkit/generate-excerpt`, `npcink-abilities-toolkit/generate-title-suggestions`, `npcink-abilities-toolkit/seo-meta-generate`, `npcink-abilities-toolkit/generate-meta-description`, `npcink-abilities-toolkit/generate-content-summary`, `npcink-abilities-toolkit/review-content-block`, `npcink-abilities-toolkit/generate-image-prompt`, `npcink-abilities-toolkit/generate-alt`, `npcink-abilities-toolkit/embed-text`, `npcink-abilities-toolkit/vector-search`, `npcink-abilities-toolkit/classify-post-taxonomy`, `npcink-abilities-toolkit/seo-analyze`, and `npcink-abilities-toolkit/detect-ai-slop`
 - external/service bridge abilities: `npcink-abilities-toolkit/media-bridge`, `npcink-abilities-toolkit/seo-bridge`, `npcink-abilities-toolkit/mail-bridge`, `npcink-abilities-toolkit/web-search`, and `npcink-abilities-toolkit/extract-url`
 - article workflow/model-selection abilities: `npcink-abilities-toolkit/resolve-image-source`, `npcink-abilities-toolkit/resolve-references`, `npcink-abilities-toolkit/seo-analysis`, `npcink-abilities-toolkit/geo-analysis`, `npcink-abilities-toolkit/quality-scoring`, and `npcink-abilities-toolkit/apply-editor-feedback`
-- Magick AI operations resources: `npcink-abilities-toolkit/site-diagnostics`, `npcink-abilities-toolkit/mcp-workflow-summary-resource`, `npcink-abilities-toolkit/mcp-prompt-summary-resource`, and `npcink-abilities-toolkit/mcp-site-overview-resource`
+- Npcink AI operations resources: `npcink-abilities-toolkit/site-diagnostics`, `npcink-abilities-toolkit/mcp-workflow-summary-resource`, `npcink-abilities-toolkit/mcp-prompt-summary-resource`, and `npcink-abilities-toolkit/mcp-site-overview-resource`
 
-These are intentionally not migrated in this pass because they depend on Magick AI model routing, runtime bridges, vector/provider execution, workflow semantics, MCP/resource state, or operations diagnostics. Future extraction of a semantic/model package would require a separate ADR because it would no longer be a pure WordPress ability package.
+These are intentionally not migrated in this pass because they depend on Npcink AI model routing, runtime bridges, vector/provider execution, workflow semantics, MCP/resource state, or operations diagnostics. Future extraction of a semantic/model package would require a separate ADR because it would no longer be a pure WordPress ability package.
 
-## Keep in Magick AI
+## Keep in Npcink AI
 
 These are operational/runtime concerns and should not move into this plugin:
 
 - Agent Gateway and Open API controllers
 - app key authentication
 - scope, quota, audit, and telemetry enforcement
-- full `npcink-abilities-toolkit/site-diagnostics` while it includes Magick AI, MCP, REST probe, database, filesystem, and operations-state collection
+- full `npcink-abilities-toolkit/site-diagnostics` while it includes Npcink AI, MCP, REST probe, database, filesystem, and operations-state collection
 - model routing and workflow/skill runtime
 - runtime bridge execution
 - two-phase confirmation tokens
-- final commit authorization context for Magick AI runs
+- final commit authorization context for Npcink AI runs
 - performance snapshots and operations dashboards
 
 ## Transition Rule
 
-For the current no-user development profile, the standalone plugin is the required owner for migrated read abilities. Magick AI should remove fallback definitions and callback files for the migrated set instead of keeping duplicate owners.
+For the current no-user development profile, the standalone plugin is the required owner for migrated read abilities. Npcink AI should remove fallback definitions and callback files for the migrated set instead of keeping duplicate owners.
 
 If a future release profile needs fallback definitions again, document that as a new ADR and keep duplicate registration avoidance explicit.

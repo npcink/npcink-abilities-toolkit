@@ -63,7 +63,7 @@ function npcink_abilities_toolkit_boundary_php_files( $directory ) {
 	return $files;
 }
 
-$contract_path = $root . '/docs/magick-ai-project-split-contract.md';
+$contract_path = $root . '/docs/npcink-ai-project-split-contract.md';
 $contract      = npcink_abilities_toolkit_boundary_read( $contract_path );
 
 foreach (
@@ -82,8 +82,8 @@ foreach (
 }
 
 $readme = npcink_abilities_toolkit_boundary_read( $root . '/README.md' );
-if ( false === strpos( $readme, 'docs/magick-ai-project-split-contract.md' ) ) {
-	npcink_abilities_toolkit_boundary_fail( 'README must link to docs/magick-ai-project-split-contract.md.' );
+if ( false === strpos( $readme, 'docs/npcink-ai-project-split-contract.md' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'README must link to docs/npcink-ai-project-split-contract.md.' );
 }
 
 $forbidden_patterns = array(

@@ -21,7 +21,7 @@ Writable: no.
 
 Host approval: no final commit approval required.
 
-Primary consumers: Magick AI, WP Magick Toolbox, direct Abilities API clients,
+Primary consumers: Npcink AI, Npcink Toolbox, direct Abilities API clients,
 and third-party hosts that need WordPress content discovery.
 
 Representative abilities:
@@ -90,7 +90,7 @@ Writable: read-support helpers are not writable; mutation abilities are writable
 
 Host approval: not required for read-support helpers; required for final commit.
 
-Primary consumers: Magick AI and other host runtimes that can provide caller
+Primary consumers: Npcink AI and other host runtimes that can provide caller
 identity, approval, audit, quota, and idempotency context.
 
 Representative write abilities:
@@ -163,7 +163,7 @@ write/destructive abilities.
 
 Host approval: required for final approve, reply, spam, or trash actions.
 
-Primary consumers: Magick AI comment workflows, compliance helpers, and host
+Primary consumers: Npcink AI comment workflows, compliance helpers, and host
 runtimes that need deterministic comment handoffs.
 
 Representative abilities:
@@ -196,7 +196,7 @@ Writable: no.
 
 Host approval: no final commit approval required.
 
-Primary consumers: direct Abilities API clients, Magick AI, Toolbox support
+Primary consumers: direct Abilities API clients, Npcink AI, Toolbox support
 flows, and local smoke checks.
 
 Abilities:
@@ -247,7 +247,7 @@ Publishing Pack or a host workflow.
 Host approval: no approval for context/suggestion helpers; approval is required
 only when a host later executes write/destructive abilities.
 
-Primary consumers: Magick AI article workflows, content products, SEO/GEO
+Primary consumers: Npcink AI article workflows, content products, SEO/GEO
 assistants, and host runtimes that compose suggestions with model output.
 
 Representative abilities:

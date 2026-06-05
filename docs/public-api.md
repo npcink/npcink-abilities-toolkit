@@ -7,7 +7,7 @@ details.
 Host-governed write and destructive commit helpers are not public third-party
 APIs in 0.1. Third-party providers may register read-only abilities and
 write-proposal abilities only. Final commit authorization belongs to a host
-runtime such as Magick AI.
+runtime such as Npcink AI.
 
 The internal registrar can still register first-party host-governed write and
 destructive callbacks for this package's built-in WordPress ability packs. That
@@ -103,7 +103,7 @@ Optional fields:
 - `source`
 - `project_to_npcink_catalog`
 
-`source` defaults to `third_party`, meaning the definition is supplied by a provider plugin outside the consuming host. Provider definitions are not projected into Magick AI by default. Set `project_to_npcink_catalog => true` only when the provider intentionally wants Npcink AI compatibility projection. Official host mirrors should keep `project_to_npcink_catalog => false` when another host already owns catalog truth.
+`source` defaults to `third_party`, meaning the definition is supplied by a provider plugin outside the consuming host. Provider definitions are not projected into Npcink AI by default. Set `project_to_npcink_catalog => true` only when the provider intentionally wants Npcink AI compatibility projection. Official host mirrors should keep `project_to_npcink_catalog => false` when another host already owns catalog truth.
 
 Parameters:
 

@@ -115,7 +115,7 @@ Recommended rollout order:
 - Do not use `update-media-details` for resize, compression, conversion, or
   file replacement.
 - Do not replace original files by default.
-- Store media operation backups in the dedicated Magick AI uploads backup
+- Store media operation backups in the dedicated Npcink AI uploads backup
   directory, not beside normal month-directory media assets.
 - Do not introduce queue, cache, CDN, or rollback ownership into the read-only
   inventory path.

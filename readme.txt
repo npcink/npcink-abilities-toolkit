@@ -91,7 +91,7 @@ For isolated bounded-chain performance validation, run:
 * Added package and sub-pack filters so hosts can keep a full catalog by default or opt into a light `core_wordpress_read` profile.
 * Kept public third-party helpers read-only/write-proposal oriented and documented that final commit authorization belongs to the host runtime.
 * Made Npcink AI catalog projection thin by default and added a projection-row filter for host-owned policy expansion.
-* Preserved migrated `npcink-abilities-toolkit/*` ids as compatibility ids while documenting the future deprecation/successor migration rule.
+* Established `npcink-abilities-toolkit/*` as the canonical id namespace for abilities owned by this plugin.
 * Added explicit read/comment sub-pack maps as the split point for future source-file extraction.
 * Verified Npcink AI catalog compatibility against the local development site.
 

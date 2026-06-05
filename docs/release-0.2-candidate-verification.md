@@ -11,7 +11,7 @@ a release.
 
 - Release candidate version: `0.2.0`
 - `npcink-abilities-toolkit`: `0981ca3 固化能力基础设施契约和本地验证流程`
-- Magick AI consumer: `287f8d358 open-platform: docs 强化 abilities 拆分边界审计`
+- Npcink AI consumer: `287f8d358 open-platform: docs 强化 abilities 拆分边界审计`
 - Local WordPress smoke site: `https://magick-ai.local`
 - WordPress path: `/Users/muze/Local Sites/npcink-abilities-toolkit/app/public`
 - WP-CLI: `/tmp/wp-cli.phar`
@@ -22,8 +22,8 @@ a release.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Documentation updated | Pass | Public API, ability contract, provider guide, Magick AI integration contract, first-party pack grouping, local WP smoke notes, and this candidate receipt are present. |
-| Migration inventory updated | Pass | `docs/magick-ai-migration-inventory.md` reflects the migrated ability ownership model for the current candidate baseline. |
+| Documentation updated | Pass | Public API, ability contract, provider guide, Npcink AI integration contract, first-party pack grouping, local WP smoke notes, and this candidate receipt are present. |
+| Migration inventory updated | Pass | `docs/npcink-ai-migration-inventory.md` reflects the migrated ability ownership model for the current candidate baseline. |
 | Public API reviewed | Pass | `docs/public-api-freeze-0.1.md` keeps third-party public helpers limited to category, readonly, write-proposal, normalize, and get-registered helpers. |
 | `composer validate:composer` | Pass | `./composer.json is valid`. |
 | `composer check:boundary` | Pass | `npcink-abilities-toolkit project boundary: ok`. |
@@ -47,9 +47,9 @@ composer smoke:wp
 Smoke note: WP-CLI emits PHP 8.5 deprecation notices from
 `php-cli-tools/lib/cli/Colors.php`, but the smoke command exits successfully.
 
-## Magick AI Consumer Verification
+## Npcink AI Consumer Verification
 
-The Magick AI repository was verified as a consumer without requiring internal
+The Npcink AI repository was verified as a consumer without requiring internal
 files from `npcink-abilities-toolkit`.
 
 | Check | Result | Evidence |
@@ -74,11 +74,11 @@ pnpm run check:unit:php:files -- \
 
 - Migrated read, comment, write, and destructive package abilities are registered
   by `npcink-abilities-toolkit`.
-- Magick AI consumes migrated abilities through WordPress Abilities API discovery,
+- Npcink AI consumes migrated abilities through WordPress Abilities API discovery,
   catalog projection metadata, and `executor_type=wp_ability` runtime dispatch.
-- Duplicate Magick AI-owned and standalone `npcink-abilities-toolkit/*` ability ids were not
+- Duplicate Npcink AI-owned and standalone `npcink-abilities-toolkit/*` ability ids were not
   found in the checked repositories.
-- Write and destructive commits remain host-governed by Magick AI or another
+- Write and destructive commits remain host-governed by Npcink AI or another
   host runtime; third-party public registration remains limited to readonly and
   write-proposal helpers.
 - No fallback definitions or direct internal `require_once` path were reintroduced

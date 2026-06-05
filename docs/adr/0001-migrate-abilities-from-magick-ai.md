@@ -1,4 +1,4 @@
-# ADR 0001: Migrate Abilities API Packages From Magick AI
+# ADR 0001: Migrate Abilities API Packages From Npcink AI
 
 Status: accepted
 Date: 2026-05-27
@@ -16,7 +16,7 @@ The standalone `npcink-abilities-toolkit` plugin should become the Abilities API
 
 ## Decision
 
-Migrate Abilities API package ownership into `npcink-abilities-toolkit`, but do not move Magick AI control-plane ownership.
+Migrate Abilities API package ownership into `npcink-abilities-toolkit`, but do not move Npcink AI control-plane ownership.
 
 `npcink-abilities-toolkit` owns:
 
@@ -51,11 +51,11 @@ These abilities live in `Npcink_Abilities_Toolkit\Packages\Core_Read_Package`.
 
 - Existing `npcink-abilities-toolkit/*` ids are preserved until consumers have a documented alias migration path.
 - `project_to_npcink_catalog` remains false by default for third-party provider abilities.
-- Migrated official `npcink-abilities-toolkit/*` read abilities may explicitly project into the Npcink AI catalog through the compatibility bridge after Magick AI deletes its fallback definitions.
+- Migrated official `npcink-abilities-toolkit/*` read abilities may explicitly project into the Npcink AI catalog through the compatibility bridge after Npcink AI deletes its fallback definitions.
 - Built-in package abilities should not become Agent Gateway, quota, audit, or model runtime owners.
 - The Npcink AI plugin may retain fallback definitions only when a release-mode compatibility ADR explicitly allows it. ADR 0002 supersedes this for the current no-user development stage and removes migrated fallback definitions by default.
 - Duplicate WordPress ability registration must be avoided through `wp_has_ability()` checks.
 
 ## Consequences
 
-This reduces new ability development pressure in the main Npcink AI plugin without forcing an immediate destructive removal. Later phases can remove fallback definitions from Magick AI after real-site smoke tests confirm the standalone package is required and active.
+This reduces new ability development pressure in the main Npcink AI plugin without forcing an immediate destructive removal. Later phases can remove fallback definitions from Npcink AI after real-site smoke tests confirm the standalone package is required and active.

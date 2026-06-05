@@ -4,7 +4,7 @@ Status: active for 0.3 stabilization.
 
 This document defines the first three end-to-end workflows that should be proven
 before another large ability batch is added. The workflows are not a runtime
-owned by this package. They are consumption contracts for Magick AI, WP Magick
+owned by this package. They are consumption contracts for Npcink AI, WP Magick
 Toolbox, or any host that executes WordPress abilities.
 
 The broader public recipe catalog is documented in
@@ -124,7 +124,7 @@ machine-readable:
 
 The current required consumer-side check belongs in `npcink-ai-core`. Future
 Agent Gateway, MCP, or other host tests may reuse the same fixture, but the
-abandoned legacy Magick AI project is no longer a validation target.
+abandoned legacy Npcink AI project is no longer a validation target.
 
 Use this fixture to prove that task selection prefers the bundled context entry
 before falling back to expanded individual calls or host-governed writes.

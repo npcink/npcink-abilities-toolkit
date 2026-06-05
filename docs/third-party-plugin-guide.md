@@ -1,6 +1,6 @@
 # Provider Plugin Guide
 
-Any WordPress plugin can use this toolkit to provide Abilities API capability packages. Magick AI is an optional consumer; other clients can discover and run the same abilities through the standard WordPress Abilities API.
+Any WordPress plugin can use this toolkit to provide Abilities API capability packages. Npcink AI is an optional consumer; other clients can discover and run the same abilities through the standard WordPress Abilities API.
 
 ## Detect The Toolkit
 
@@ -85,9 +85,9 @@ npcink_abilities_toolkit_register_readonly(
 );
 ```
 
-## Opt Into Magick AI Compatibility Projection
+## Opt Into Npcink AI Compatibility Projection
 
-Abilities are not projected into Magick AI by default. If your provider plugin intentionally wants Npcink AI compatibility, set:
+Abilities are not projected into Npcink AI by default. If your provider plugin intentionally wants Npcink AI compatibility, set:
 
 ```php
 'project_to_npcink_catalog' => true,
@@ -97,7 +97,7 @@ The ability remains a normal WordPress Abilities API ability; the projection onl
 
 Opt in only when:
 
-- the ability is intentionally useful to Magick AI;
+- the ability is intentionally useful to Npcink AI;
 - the provider is comfortable exposing its schema in the Npcink AI catalog;
 - the ability can be executed through the normal WordPress Abilities API path.
 
@@ -105,7 +105,7 @@ Do not opt in when:
 
 - another host already owns catalog truth for the same ability id;
 - the ability requires private runtime state not represented in the schema;
-- exposing the ability would imply Magick AI approval, quota, billing, or audit
+- exposing the ability would imply Npcink AI approval, quota, billing, or audit
   behavior that the provider does not own.
 
 ## Register a Write Proposal Ability

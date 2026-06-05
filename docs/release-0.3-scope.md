@@ -3,7 +3,7 @@
 Status: accepted for `0.3.0`.
 
 The 0.3 line should make the current ability surface dependable for consumers
-instead of expanding aggressively. The priority is proving that Magick AI,
+instead of expanding aggressively. The priority is proving that Npcink AI,
 Toolbox, and direct Abilities API clients can discover and execute useful
 workflow chains through standard WordPress ability contracts.
 
@@ -15,7 +15,7 @@ workflow chains through standard WordPress ability contracts.
 - Validate the three primary workflow chains documented in
   [Agent Workflow Validation](agent-workflow-validation.md).
 - Validate bounded-chain performance with `composer perf:smoke`.
-- Keep Magick AI projection metadata-only with `executor_type=wp_ability`.
+- Keep Npcink AI projection metadata-only with `executor_type=wp_ability`.
 - Keep default/full and light `core_wordpress_read` smoke profiles passing.
 - Record smoke results whenever the Local WordPress site is available.
 - Publish release metadata as plugin/readme version `0.3.0` after final local
@@ -43,7 +43,7 @@ workflow chains through standard WordPress ability contracts.
 - `git diff --check` passes.
 - `composer smoke:wp` status is recorded, including the assertion count or why
   it was not run.
-- Any new ability id is added to `docs/magick-ai-migration-inventory.md`.
+- Any new ability id is added to `docs/npcink-ai-migration-inventory.md`.
 
 ## Compatibility Checklist
 
@@ -56,12 +56,12 @@ workflow chains through standard WordPress ability contracts.
 - Projected Npcink AI catalog rows remain thin by default and do not include
   host-owned policy fields such as `open_api_enabled`, `backend_priority`,
   `write_mode`, `tool_policy`, or catalog fallback controls.
-- Magick AI consumer tests derive backend priority and tool policy in Magick AI
+- Npcink AI consumer tests derive backend priority and tool policy in Npcink AI
   from `executor_type`, `risk_level`, and `requires_confirm`.
 - Public third-party helpers remain limited to category, read-only,
   write-proposal, normalization, registry inspection, and composition filters.
   No third-party final commit helper is introduced without a new ADR.
-- Existing `npcink-abilities-toolkit/*` ids remain compatibility ids. Namespace cleanup is
+- Existing `npcink-abilities-toolkit/*` ids are canonical ids for abilities owned here. Namespace cleanup is
   deferred until each renamed id has `deprecated` / `successor` metadata and
   host migration tests.
 - Built-in read/comment definitions must have explicit sub-pack map entries;

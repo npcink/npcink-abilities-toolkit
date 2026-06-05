@@ -65,10 +65,10 @@ Verification status through 2026-05-30:
   `Smoke OK: 162 assertions` and the light `core_wordpress_read` profile with
   `Smoke OK: 13 assertions` after adding package/sub-pack gating and thin
   projection compatibility checks.
-- On 2026-05-29, Magick AI local Catalog verification passed after removing a
+- On 2026-05-29, Npcink AI local Catalog verification passed after removing a
   stale Npcink AI settings loader require: authenticated
   `plugins.php?page=npcink-ai-settings&tab=catalog` returned HTTP 200, the
-  Magick AI capabilities endpoint returned 198 entries, and the projected rows
+  Npcink AI capabilities endpoint returned 198 entries, and the projected rows
   did not include `open_api_enabled`, `backend_priority`, `tool_policy`,
   `skip_catalog_manifest_fallback`, or `write_mode`.
 - On 2026-05-29, `wp plugin status npcink-abilities-toolkit` reported the plugin as

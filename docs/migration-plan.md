@@ -7,7 +7,7 @@ The product positioning and next-stage priority plan are documented in [project-
 - Keep this plugin independent from the Npcink AI runtime.
 - Provide public registration functions.
 - Register categories and abilities only through WordPress Abilities API hooks.
-- Keep Magick AI integration optional and filter-based when Magick AI is present.
+- Keep Npcink AI integration optional and filter-based when Npcink AI is present.
 
 ## Phase 2: Stabilize Registration Helpers
 
@@ -25,7 +25,7 @@ Do not move model routing, workflow runtime, skills runtime, Cloud execution, qu
 
 The migration boundary is frozen in [ADR 0001](adr/0001-migrate-abilities-from-magick-ai.md).
 The current standalone-owner cleanup policy is frozen in [ADR 0002](adr/0002-standalone-owner-and-magick-ai-cleanup.md).
-The per-ability migration inventory is tracked in [magick-ai-migration-inventory.md](magick-ai-migration-inventory.md).
+The per-ability migration inventory is tracked in [npcink-ai-migration-inventory.md](npcink-ai-migration-inventory.md).
 
 ## Phase 3: Migrate Low-Risk Abilities
 
@@ -133,7 +133,7 @@ Current migrated host-governed destructive package:
 - `npcink-abilities-toolkit/trash-post`
 - `npcink-abilities-toolkit/delete-post-permanently`
 
-Write-like abilities may move when they are pure WordPress operations and remain host-governed: direct clients get dry-run previews by default, while final commit requires approval context from Magick AI or another host runtime. The generic WordPress mutation can live in `npcink-abilities-toolkit`; Magick AI remains responsible for admission, approval, audit, and runtime context.
+Write-like abilities may move when they are pure WordPress operations and remain host-governed: direct clients get dry-run previews by default, while final commit requires approval context from Npcink AI or another host runtime. The generic WordPress mutation can live in `npcink-abilities-toolkit`; Npcink AI remains responsible for admission, approval, audit, and runtime context.
 
 ## Phase 4: Consumer Integrations
 
@@ -141,4 +141,4 @@ Update consumers, including the Npcink AI plugin, to consume this plugin through
 
 Avoid direct `require_once` calls into this plugin's internal `includes/` files.
 
-Current Magick AI development rule: remove migrated read-only, deterministic comment helper, migrated host-governed write, and migrated host-governed destructive configs/callbacks from the main plugin. Do not keep fallback copies unless a later release-mode ADR explicitly reintroduces them.
+Current Npcink AI development rule: remove migrated read-only, deterministic comment helper, migrated host-governed write, and migrated host-governed destructive configs/callbacks from the main plugin. Do not keep fallback copies unless a later release-mode ADR explicitly reintroduces them.

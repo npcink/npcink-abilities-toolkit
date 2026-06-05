@@ -47,7 +47,7 @@ directly.
 Keep `npcink-abilities-toolkit` in freeze/observe mode:
 
 - do not add another fourth-batch ability from candidate lists alone;
-- treat the main Magick AI repo cleanup list as harvest input, not as an
+- treat the main Npcink AI repo cleanup list as harvest input, not as an
   implementation queue;
 - only add a new ability when Core or a host workflow reports a concrete
   schema, metadata, or ability contract gap;

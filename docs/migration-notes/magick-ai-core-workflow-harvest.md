@@ -15,7 +15,7 @@ Use this split when rewriting any harvested workflow:
 | Destination | Owns | Does not own |
 | --- | --- | --- |
 | `npcink-abilities-toolkit` | WordPress Abilities API definitions, schemas, callbacks, dry-run previews, and documentation-only recipes. | Workflow execution state, approval records, Agent Gateway projection, model routing, Settings UI. |
-| `magick-ai-content-assistant` | Article, media, and comment product UX, defaults, editor flows, preview/apply screens, and model-assisted content experience. | Generic Abilities API package ownership or Magick AI governance internals. |
+| `magick-ai-content-assistant` | Article, media, and comment product UX, defaults, editor flows, preview/apply screens, and model-assisted content experience. | Generic Abilities API package ownership or Npcink AI governance internals. |
 | Npcink AI Core | Approval, audit, apply guard, app auth, quota, trace, Open Platform governance, and host runtime policy. | Content product workflows, reusable WordPress ability packages, generic writing/SEO/comment automation as a product surface. |
 
 ## Harvested Workflow Groups

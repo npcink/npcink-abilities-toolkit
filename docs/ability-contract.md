@@ -1,7 +1,7 @@
 # Ability Contract
 
 Every public ability should define a stable machine-readable contract. The
-contract must be clear enough for WordPress Abilities API clients, Magick AI,
+contract must be clear enough for WordPress Abilities API clients, Npcink AI,
 MCP-oriented hosts, and tests to understand the same behavior without reading
 package internals.
 

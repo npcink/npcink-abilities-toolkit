@@ -1,4 +1,4 @@
-# Magick AI Main Repo Harvest Checkpoint
+# Npcink AI Main Repo Harvest Checkpoint
 
 Status: active checkpoint for `0.5.0` freeze/observe.
 
@@ -32,7 +32,7 @@ preview shapes, and documentation-only recipes.
 | Publish preflight | `npcink-abilities-toolkit/get-article-publish-preflight-context`, `npcink-abilities-toolkit/get-content-publishing-checklist`, `npcink-abilities-toolkit/get-post-publish-risk-report`, `npcink-abilities-toolkit/get-publishing-calendar-context` | Covered as read-only context and workflow recipe composition. |
 | Media inventory and media SEO handoff | `npcink-abilities-toolkit/list-media`, `npcink-abilities-toolkit/get-media-inventory-health`, `npcink-abilities-toolkit/get-media-cleanup-opportunities`, `npcink-abilities-toolkit/build-media-seo-assets`, `npcink-abilities-toolkit/optimize-media-metadata`, `npcink-abilities-toolkit/update-media-details` | Covered on read/proposal/dry-run surfaces. Host still owns model calls, batch selection, scheduling, and approved write execution. |
 | Page structure inspection | `npcink-abilities-toolkit/inspect-page-structure`, `npcink-abilities-toolkit/get-page-structure-health` | Covered as read-only WordPress context. |
-| Site diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `npcink-abilities-toolkit/site-info`, `npcink-abilities-toolkit/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
+| Site diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `npcink-abilities-toolkit/site-info`, `npcink-abilities-toolkit/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Npcink AI/MCP/runtime diagnostics still stay in the host. |
 
 ## Absorb As Documentation Only
 

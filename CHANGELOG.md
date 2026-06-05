@@ -5,7 +5,7 @@
 - Updated `npcink-abilities-toolkit/adopt-cloud-media-derivative` and `npcink-abilities-toolkit/replace-media-file` to preview and commit exact post-content media URL repairs, including old intermediate-size image URLs, when an approved replacement switches an attachment to a new local file.
 - Added `npcink-abilities-toolkit/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `npcink-abilities-toolkit/set-post-terms` without mutating posts or creating terms.
 - Added a 0.5 unreleased verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
-- Added a Magick AI main repo harvest checkpoint that maps content/media/comment/batch cleanup signals to existing abilities and confirms that no new ability batch should start from candidate lists alone.
+- Added a Npcink AI main repo harvest checkpoint that maps content/media/comment/batch cleanup signals to existing abilities and confirms that no new ability batch should start from candidate lists alone.
 - Expanded the Core consumer handoff check to assert the five harvested surfaces and their corresponding host-governed write targets expose Abilities API discovery metadata, schemas, dry-run controls, and approval metadata.
 
 ## 0.4.0 - 2026-05-30
@@ -30,9 +30,9 @@
 - Added package and sub-pack filters for host-selectable built-in package composition while preserving full default registration.
 - Added explicit read/comment sub-pack maps as the stable entry point for future definition-provider extraction.
 - Kept public third-party helpers read-only/write-proposal oriented and documented that final commit authorization belongs to host runtimes.
-- Made Npcink AI catalog projection thin by default and added a single projected-row filter for host-owned compatibility expansion.
-- Preserved migrated `npcink-abilities-toolkit/*` ids as compatibility ids and documented the deprecation/successor rule for any future namespace cleanup.
-- Verified Magick AI local Catalog compatibility: authenticated catalog page returned HTTP 200, the capabilities endpoint returned 198 entries, and projected rows omitted host-owned runtime policy fields.
+- Made Npcink AI catalog projection thin by default and added a single projected-row filter for host-owned catalog expansion.
+- Established `npcink-abilities-toolkit/*` as the canonical id namespace for abilities owned by this plugin.
+- Verified Npcink AI local Catalog compatibility: authenticated catalog page returned HTTP 200, the capabilities endpoint returned 198 entries, and projected rows omitted host-owned runtime policy fields.
 - Added workflow recipe guidance that documents host-side ability composition without moving workflow runtime ownership into this package.
 - Added read-only workflow context bundles for article publish preflight, old article refresh discovery, and comment compliance handoff.
 - Added short-TTL read caching for selected bounded reports and a `composer perf:smoke` performance smoke command.
@@ -69,7 +69,7 @@
 - Added host-governed write/destructive semantics for `dry_run`, `commit`, `idempotency_key`, `requires_confirm`, `preview`, and `commit_required`.
 - Kept third-party public registration limited to category, readonly, write-proposal, schema/annotation normalization, and registered ability inspection helpers.
 - Added first-party ability pack grouping for content context, publishing, comment compliance, diagnostics, and SEO/GEO support.
-- Added Magick AI consumer verification evidence, including duplicate-id audit expectations and `wp_ability` projection checks.
+- Added Npcink AI consumer verification evidence, including duplicate-id audit expectations and `wp_ability` projection checks.
 - Expanded lightweight tests for write controls, output schema controls, invalid ability ids, provider projection defaults, and Npcink catalog projection behavior.
 - Verified Local WP smoke coverage and recorded 0.2 candidate evidence.
 
@@ -84,6 +84,6 @@
 - Added a wp-admin test page under Tools -> Abilities API Packages.
 - Added environment checks for Abilities API functions, REST routes, REST nonce usage, and Magick App Key non-usage.
 - Added optional compatibility projection into the Npcink AI catalog for provider abilities.
-- Added integration rules for optional Magick AI consumption and a 0.1 public API freeze document.
+- Added integration rules for optional Npcink AI consumption and a 0.1 public API freeze document.
 - Added a WP-CLI smoke test for real WordPress environments.
 - Added lightweight regression tests and PHP syntax linting.
