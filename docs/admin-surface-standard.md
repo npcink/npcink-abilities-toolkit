@@ -29,6 +29,17 @@ Low-frequency details should be behind explicit advanced entries:
 - raw registered ability id dump;
 - compatibility projection notes for Magick AI consumers.
 
+## Time Display
+
+Ability callbacks may return UTC, ISO, or explicitly named `*_gmt` fields as
+machine-readable contract values. Keep those output field names and semantics stable.
+
+If the Abilities admin page ever shows a timestamp to a human operator, format
+the visible value through the WordPress site timezone as `Y-m-d H:i:s`. Do not
+print raw UTC strings, ISO timestamps, or `*_gmt` ability values directly in
+the human-facing admin UI unless the label explicitly describes a
+machine/debug value.
+
 ## Do Not Add
 
 Abilities admin must not add:

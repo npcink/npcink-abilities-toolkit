@@ -152,6 +152,10 @@ foreach (
 		'Core proposal approval',
 		'OpenClaw handoff',
 		'Cloud API key',
+		'Time Display',
+		'WordPress site timezone',
+		'Y-m-d H:i:s',
+		'Keep those output field names and semantics stable',
 	) as $required
 ) {
 	maa_assert_true( false !== strpos( $admin_surface_standard, $required ), 'admin surface standard documents ability page boundary: ' . $required );
