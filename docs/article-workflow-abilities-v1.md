@@ -25,7 +25,7 @@ Recipe ref: `workflow/wordpress_article_draft`
 
 Recommended host artifact: `article_assistant_workbench`
 
-Final governed write ability: `magick-ai/create-draft`
+Final governed write ability: `npcink-abilities-toolkit/create-draft`
 
 ## Complexity Budget
 
@@ -44,13 +44,13 @@ reviewable artifact before Core proposal intake.
 
 | Stage | Ability | Owner | Notes |
 | --- | --- | --- | --- |
-| Site and post context | `magick-ai/site-info`, `magick-ai/get-post`, `magick-ai/search-posts`, `magick-ai/resolve-url-to-post` | Abilities | Read-only context inputs. |
-| Internal link context | `magick-ai/resolve-internal-link-targets` | Abilities | Returns candidate internal targets; does not write links. |
-| Style/context extraction | `magick-ai/extract-reference-post-style`, `magick-ai/extract-style-baseline`, `magick-ai/build-article-style-profile` | Abilities | Reusable style signals for a host workbench. |
-| Media support | `magick-ai/build-inline-image-blocks`, `magick-ai/build-media-seo-assets`, `magick-ai/position-inline-image-blocks` | Abilities | Returns plans and block/metadata suggestions; no media import. |
-| Production checks | `magick-ai/build-article-production-fingerprint`, `magick-ai/check-article-production-duplicate`, `magick-ai/review-article-output-light` | Abilities | Deterministic review and duplicate gates before proposal handoff. |
-| Result composition | `magick-ai/compose-article-production-result`, `magick-ai/compose-article-draft-result`, `magick-ai/resolve-article-publication-decision` | Abilities | Composes host-reviewed output and decision artifacts. |
-| Final write | `magick-ai/create-draft` | Abilities callback, Core governed | Must be submitted through Core proposal, approval, and preflight before commit. |
+| Site and post context | `npcink-abilities-toolkit/site-info`, `npcink-abilities-toolkit/get-post`, `npcink-abilities-toolkit/search-posts`, `npcink-abilities-toolkit/resolve-url-to-post` | Abilities | Read-only context inputs. |
+| Internal link context | `npcink-abilities-toolkit/resolve-internal-link-targets` | Abilities | Returns candidate internal targets; does not write links. |
+| Style/context extraction | `npcink-abilities-toolkit/extract-reference-post-style`, `npcink-abilities-toolkit/extract-style-baseline`, `npcink-abilities-toolkit/build-article-style-profile` | Abilities | Reusable style signals for a host workbench. |
+| Media support | `npcink-abilities-toolkit/build-inline-image-blocks`, `npcink-abilities-toolkit/build-media-seo-assets`, `npcink-abilities-toolkit/position-inline-image-blocks` | Abilities | Returns plans and block/metadata suggestions; no media import. |
+| Production checks | `npcink-abilities-toolkit/build-article-production-fingerprint`, `npcink-abilities-toolkit/check-article-production-duplicate`, `npcink-abilities-toolkit/review-article-output-light` | Abilities | Deterministic review and duplicate gates before proposal handoff. |
+| Result composition | `npcink-abilities-toolkit/compose-article-production-result`, `npcink-abilities-toolkit/compose-article-draft-result`, `npcink-abilities-toolkit/resolve-article-publication-decision` | Abilities | Composes host-reviewed output and decision artifacts. |
+| Final write | `npcink-abilities-toolkit/create-draft` | Abilities callback, Core governed | Must be submitted through Core proposal, approval, and preflight before commit. |
 
 Provider or knowledge abilities such as `magick-ai-toolbox/web-research`,
 `magick-ai-toolbox/search-image-source`,

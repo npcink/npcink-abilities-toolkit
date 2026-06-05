@@ -1,22 +1,22 @@
 <?php
 /**
- * Optional Magick AI compatibility bridge.
+ * Optional Npcink AI catalog bridge.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Integration;
+namespace Npcink_Abilities_Toolkit\Integration;
 
-use Magick_AI_Abilities\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Projects registered WordPress abilities into Magick AI's catalog when Magick AI is available.
+ * Projects registered WordPress abilities into Npcink AI's catalog when Npcink AI is available.
  */
-final class Magick_Catalog_Bridge {
+final class Npcink_Catalog_Bridge {
 	/**
 	 * Ability registrar.
 	 *
@@ -39,11 +39,11 @@ final class Magick_Catalog_Bridge {
 	 * @return void
 	 */
 	public function boot() {
-		add_filter( 'magick_ai_open_platform_ability_catalog', array( $this, 'filter_catalog' ), 20, 2 );
+		add_filter( 'npcink_ai_open_platform_ability_catalog', array( $this, 'filter_catalog' ), 20, 2 );
 	}
 
 	/**
-	 * Adds opted-in provider ability definitions to the Magick AI catalog.
+	 * Adds opted-in provider ability definitions to the Npcink AI catalog.
 	 *
 	 * @param mixed $catalog Existing catalog.
 	 * @param mixed $args Catalog build args.
@@ -55,7 +55,7 @@ final class Magick_Catalog_Bridge {
 		$catalog = is_array( $catalog ) ? $catalog : array();
 
 		foreach ( $this->abilities->all() as $ability_id => $definition ) {
-			if ( empty( $definition['project_to_magick_catalog'] ) ) {
+			if ( empty( $definition['project_to_npcink_catalog'] ) ) {
 				continue;
 			}
 
@@ -68,11 +68,11 @@ final class Magick_Catalog_Bridge {
 				continue;
 			}
 
-			$magick_meta   = is_array( $definition['meta']['magick'] ?? null ) ? $definition['meta']['magick'] : array();
-			$magick_meta['show_in_rest'] = true;
-			$magick_meta['wp_ability_id'] = $ability_id;
-			$magick_meta['risk_level'] = $definition['risk_level'];
-			$magick_meta['requires_confirm'] = $definition['requires_confirm'];
+			$npcink_meta   = is_array( $definition['meta']['npcink'] ?? null ) ? $definition['meta']['npcink'] : array();
+			$npcink_meta['show_in_rest'] = true;
+			$npcink_meta['wp_ability_id'] = $ability_id;
+			$npcink_meta['risk_level'] = $definition['risk_level'];
+			$npcink_meta['requires_confirm'] = $definition['requires_confirm'];
 
 			$row = array(
 				'ability_id'        => $ability_id,
@@ -94,22 +94,22 @@ final class Magick_Catalog_Bridge {
 				'meta'              => array(
 					'show_in_rest' => true,
 					'annotations'  => $definition['annotations'],
-					'magick'       => $magick_meta,
+					'npcink'       => $npcink_meta,
 				),
 			);
 
 			/**
-			 * Filters a projected Magick AI catalog row.
+			 * Filters a projected Npcink AI catalog row.
 			 *
 			 * The default row is intentionally thin: it identifies the WordPress
-			 * ability and carries schemas/annotations without owning Magick AI
+			 * ability and carries schemas/annotations without owning Npcink AI
 			 * routing, OpenAPI, backend priority, or tool policy decisions.
 			 *
 			 * @param array<string,mixed> $row Ability catalog row.
 			 * @param string              $ability_id WordPress ability id.
 			 * @param array<string,mixed> $definition Normalized ability definition.
 			 */
-			$catalog[ $catalog_key ] = apply_filters( 'magick_ai_abilities_projected_catalog_row', $row, $ability_id, $definition );
+			$catalog[ $catalog_key ] = apply_filters( 'npcink_abilities_toolkit_projected_catalog_row', $row, $ability_id, $definition );
 		}
 
 		return $catalog;

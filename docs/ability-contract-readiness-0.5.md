@@ -28,7 +28,7 @@ This package owns:
 - read-only WordPress context abilities;
 - deterministic proposal and host-governed write/destructive ability contracts;
 - workflow recipe discovery metadata;
-- optional thin Magick AI compatibility projection metadata.
+- optional thin Npcink AI compatibility projection metadata.
 
 This package does not own:
 

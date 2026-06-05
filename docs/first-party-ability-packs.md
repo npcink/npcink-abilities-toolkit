@@ -26,53 +26,53 @@ and third-party hosts that need WordPress content discovery.
 
 Representative abilities:
 
-- `magick-ai/site-info`
-- `magick-ai/list-post-types`
-- `magick-ai/list-taxonomies`
-- `magick-ai/count-posts`
-- `magick-ai/list-pages-tree`
-- `magick-ai/list-posts`
-- `magick-ai/get-post`
-- `magick-ai/get-post-context`
-- `magick-ai/get-content-inventory-health`
-- `magick-ai/get-test-content-inventory`
-- `magick-ai/build-test-content-cleanup-plan`
-- `magick-ai/build-content-inventory-fix-plan`
-- `magick-ai/get-site-operations-dashboard`
-- `magick-ai/resolve-url-to-post`
-- `magick-ai/get-post-blocks`
-- `magick-ai/list-post-revisions`
-- `magick-ai/list-media`
-- `magick-ai/resolve-media-attachment-by-url`
-- `magick-ai/get-media-inventory-health`
-- `magick-ai/inspect-media-asset`
-- `magick-ai/list-media-backups`
-- `magick-ai/build-media-derivative-cloud-request`
-- `magick-ai/build-media-optimization-plan`
-- `magick-ai/build-media-rename-plan`
-- `magick-ai/get-media-cleanup-opportunities`
-- `magick-ai/build-media-inventory-fix-plan`
-- `magick-ai/get-taxonomy-inventory-health`
-- `magick-ai/get-taxonomy-consolidation-suggestions`
-- `magick-ai/propose-post-taxonomy-terms`
-- `magick-ai/list-terms`
-- `magick-ai/list-taxonomy-terms`
-- `magick-ai/list-categories`
-- `magick-ai/list-tags`
-- `magick-ai/get-term`
-- `magick-ai/list-users`
-- `magick-ai/list-comments`
-- `magick-ai/list-menus`
-- `magick-ai/get-menu`
-- `magick-ai/search-posts`
-- `magick-ai/search-post-meta`
-- `magick-ai/get-post-stats`
-- `magick-ai/list-revisions`
-- `magick-ai/get-post-meta`
-- `magick-ai/list-pages`
-- `magick-ai/get-page`
-- `magick-ai/inspect-page-structure`
-- `magick-ai/get-page-structure-health`
+- `npcink-abilities-toolkit/site-info`
+- `npcink-abilities-toolkit/list-post-types`
+- `npcink-abilities-toolkit/list-taxonomies`
+- `npcink-abilities-toolkit/count-posts`
+- `npcink-abilities-toolkit/list-pages-tree`
+- `npcink-abilities-toolkit/list-posts`
+- `npcink-abilities-toolkit/get-post`
+- `npcink-abilities-toolkit/get-post-context`
+- `npcink-abilities-toolkit/get-content-inventory-health`
+- `npcink-abilities-toolkit/get-test-content-inventory`
+- `npcink-abilities-toolkit/build-test-content-cleanup-plan`
+- `npcink-abilities-toolkit/build-content-inventory-fix-plan`
+- `npcink-abilities-toolkit/get-site-operations-dashboard`
+- `npcink-abilities-toolkit/resolve-url-to-post`
+- `npcink-abilities-toolkit/get-post-blocks`
+- `npcink-abilities-toolkit/list-post-revisions`
+- `npcink-abilities-toolkit/list-media`
+- `npcink-abilities-toolkit/resolve-media-attachment-by-url`
+- `npcink-abilities-toolkit/get-media-inventory-health`
+- `npcink-abilities-toolkit/inspect-media-asset`
+- `npcink-abilities-toolkit/list-media-backups`
+- `npcink-abilities-toolkit/build-media-derivative-cloud-request`
+- `npcink-abilities-toolkit/build-media-optimization-plan`
+- `npcink-abilities-toolkit/build-media-rename-plan`
+- `npcink-abilities-toolkit/get-media-cleanup-opportunities`
+- `npcink-abilities-toolkit/build-media-inventory-fix-plan`
+- `npcink-abilities-toolkit/get-taxonomy-inventory-health`
+- `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`
+- `npcink-abilities-toolkit/propose-post-taxonomy-terms`
+- `npcink-abilities-toolkit/list-terms`
+- `npcink-abilities-toolkit/list-taxonomy-terms`
+- `npcink-abilities-toolkit/list-categories`
+- `npcink-abilities-toolkit/list-tags`
+- `npcink-abilities-toolkit/get-term`
+- `npcink-abilities-toolkit/list-users`
+- `npcink-abilities-toolkit/list-comments`
+- `npcink-abilities-toolkit/list-menus`
+- `npcink-abilities-toolkit/get-menu`
+- `npcink-abilities-toolkit/search-posts`
+- `npcink-abilities-toolkit/search-post-meta`
+- `npcink-abilities-toolkit/get-post-stats`
+- `npcink-abilities-toolkit/list-revisions`
+- `npcink-abilities-toolkit/get-post-meta`
+- `npcink-abilities-toolkit/list-pages`
+- `npcink-abilities-toolkit/get-page`
+- `npcink-abilities-toolkit/inspect-page-structure`
+- `npcink-abilities-toolkit/get-page-structure-health`
 
 For media `format_attention` handling, keep inventory plans read-only and use
 [Media Format Attention Boundary](media-format-attention-boundary.md) before
@@ -95,60 +95,60 @@ identity, approval, audit, quota, and idempotency context.
 
 Representative write abilities:
 
-- `magick-ai/create-draft`
-- `magick-ai/update-post`
-- `magick-ai/set-post-seo-meta`
-- `magick-ai/patch-post-content`
-- `magick-ai/update-post-blocks`
-- `magick-ai/set-post-slug`
-- `magick-ai/set-post-author`
-- `magick-ai/set-post-template`
-- `magick-ai/set-post-format`
-- `magick-ai/create-term`
-- `magick-ai/update-term`
-- `magick-ai/set-post-terms`
-- `magick-ai/update-media-details`
-- `magick-ai/upload-media-from-url`
-- `magick-ai/optimize-media-asset`
-- `magick-ai/replace-media-file`
-- `magick-ai/restore-media-backup`
-- `magick-ai/rename-media-file`
-- `magick-ai/adopt-cloud-media-derivative`
-- `magick-ai/set-post-featured-image`
-- `magick-ai/schedule-post`
-- `magick-ai/publish-post`
-- `magick-ai/restore-post`
+- `npcink-abilities-toolkit/create-draft`
+- `npcink-abilities-toolkit/update-post`
+- `npcink-abilities-toolkit/set-post-seo-meta`
+- `npcink-abilities-toolkit/patch-post-content`
+- `npcink-abilities-toolkit/update-post-blocks`
+- `npcink-abilities-toolkit/set-post-slug`
+- `npcink-abilities-toolkit/set-post-author`
+- `npcink-abilities-toolkit/set-post-template`
+- `npcink-abilities-toolkit/set-post-format`
+- `npcink-abilities-toolkit/create-term`
+- `npcink-abilities-toolkit/update-term`
+- `npcink-abilities-toolkit/set-post-terms`
+- `npcink-abilities-toolkit/update-media-details`
+- `npcink-abilities-toolkit/upload-media-from-url`
+- `npcink-abilities-toolkit/optimize-media-asset`
+- `npcink-abilities-toolkit/replace-media-file`
+- `npcink-abilities-toolkit/restore-media-backup`
+- `npcink-abilities-toolkit/rename-media-file`
+- `npcink-abilities-toolkit/adopt-cloud-media-derivative`
+- `npcink-abilities-toolkit/set-post-featured-image`
+- `npcink-abilities-toolkit/schedule-post`
+- `npcink-abilities-toolkit/publish-post`
+- `npcink-abilities-toolkit/restore-post`
 
-Media filename policy: `magick-ai/upload-media-from-url` and
-`magick-ai/adopt-cloud-media-derivative` may accept an approved `file_name` for
-new local media files. `magick-ai/rename-media-file` may rename an existing
+Media filename policy: `npcink-abilities-toolkit/upload-media-from-url` and
+`npcink-abilities-toolkit/adopt-cloud-media-derivative` may accept an approved `file_name` for
+new local media files. `npcink-abilities-toolkit/rename-media-file` may rename an existing
 attachment main file within its current uploads directory after approval; use
-`magick-ai/build-media-rename-plan` so exact post-content references to the old
+`npcink-abilities-toolkit/build-media-rename-plan` so exact post-content references to the old
 uploads URL are patched in the same governed proposal.
-`magick-ai/replace-media-file` and `magick-ai/adopt-cloud-media-derivative`
+`npcink-abilities-toolkit/replace-media-file` and `npcink-abilities-toolkit/adopt-cloud-media-derivative`
 also preview and commit exact post-content reference repairs for the old main
 uploads URL and known intermediate-size image URLs while switching the
 attachment pointer to the approved replacement file.
-`magick-ai/update-media-details` updates metadata only and must not physically
+`npcink-abilities-toolkit/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 
 Representative read-only publishing support abilities:
 
-- `magick-ai/get-content-publishing-checklist`
-- `magick-ai/get-bulk-publishing-checklist`
-- `magick-ai/get-revision-change-risk-report`
-- `magick-ai/get-post-publish-risk-report`
-- `magick-ai/get-article-publish-preflight-context`
-- `magick-ai/get-publishing-calendar-context`
+- `npcink-abilities-toolkit/get-content-publishing-checklist`
+- `npcink-abilities-toolkit/get-bulk-publishing-checklist`
+- `npcink-abilities-toolkit/get-revision-change-risk-report`
+- `npcink-abilities-toolkit/get-post-publish-risk-report`
+- `npcink-abilities-toolkit/get-article-publish-preflight-context`
+- `npcink-abilities-toolkit/get-publishing-calendar-context`
 
 Representative destructive abilities:
 
-- `magick-ai/delete-term`
-- `magick-ai/merge-terms`
-- `magick-ai/bulk-update-post-terms`
-- `magick-ai/delete-media-permanently`
-- `magick-ai/trash-post`
-- `magick-ai/delete-post-permanently`
+- `npcink-abilities-toolkit/delete-term`
+- `npcink-abilities-toolkit/merge-terms`
+- `npcink-abilities-toolkit/bulk-update-post-terms`
+- `npcink-abilities-toolkit/delete-media-permanently`
+- `npcink-abilities-toolkit/trash-post`
+- `npcink-abilities-toolkit/delete-post-permanently`
 
 ## Comment Compliance Pack
 
@@ -168,26 +168,26 @@ runtimes that need deterministic comment handoffs.
 
 Representative abilities:
 
-- `magick-ai/list-comments`
-- `magick-ai/build-comment-moderation-suggest`
-- `magick-ai/compose-comment-moderation-result`
-- `magick-ai/build-comment-mention-reply-suggest`
-- `magick-ai/read-comment-trigger-queue`
-- `magick-ai/get-comment-queue-health`
-- `magick-ai/get-comment-action-priority-queue`
-- `magick-ai/get-comment-compliance-handoff`
-- `magick-ai/compose-comment-mention-reply-result`
-- `magick-ai/build-comment-moderation-batch-suggest`
-- `magick-ai/compose-comment-moderation-batch-result`
-- `magick-ai/approve-comment`
-- `magick-ai/reply-comment`
-- `magick-ai/spam-comment`
-- `magick-ai/trash-comment`
+- `npcink-abilities-toolkit/list-comments`
+- `npcink-abilities-toolkit/build-comment-moderation-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-result`
+- `npcink-abilities-toolkit/build-comment-mention-reply-suggest`
+- `npcink-abilities-toolkit/read-comment-trigger-queue`
+- `npcink-abilities-toolkit/get-comment-queue-health`
+- `npcink-abilities-toolkit/get-comment-action-priority-queue`
+- `npcink-abilities-toolkit/get-comment-compliance-handoff`
+- `npcink-abilities-toolkit/compose-comment-mention-reply-result`
+- `npcink-abilities-toolkit/build-comment-moderation-batch-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-batch-result`
+- `npcink-abilities-toolkit/approve-comment`
+- `npcink-abilities-toolkit/reply-comment`
+- `npcink-abilities-toolkit/spam-comment`
+- `npcink-abilities-toolkit/trash-comment`
 
 ## Diagnostics Pack
 
 Purpose: provide redacted WordPress-only diagnostics for agents and host
-runtimes without exposing Magick AI runtime, MCP, database, filesystem, or
+runtimes without exposing Npcink AI runtime, MCP, database, filesystem, or
 secret state.
 
 Risk: read.
@@ -224,7 +224,7 @@ Writable: no.
 
 Host approval: no final commit approval required.
 
-Primary consumers: Magick AI Core, Agent Gateway, MCP adapters, and other hosts
+Primary consumers: Npcink AI Core, Agent Gateway, MCP adapters, and other hosts
 that need recipe discovery while keeping execution, approval, audit, quota, model
 routing, and final writes in the host runtime.
 
@@ -252,35 +252,35 @@ assistants, and host runtimes that compose suggestions with model output.
 
 Representative abilities:
 
-- `magick-ai/propose-post-excerpt`
-- `magick-ai/resolve-post-metadata-plan`
-- `magick-ai/resolve-internal-link-targets`
-- `magick-ai/get-internal-link-opportunity-report`
-- `magick-ai/get-content-refresh-opportunities`
-- `magick-ai/get-internal-link-graph-health`
-- `magick-ai/get-post-seo-geo-readiness`
-- `magick-ai/get-site-topic-coverage-report`
-- `magick-ai/get-seo-geo-gap-report`
-- `magick-ai/get-site-style-baseline`
-- `magick-ai/build-article-workflow-context`
-- `magick-ai/get-old-article-refresh-context`
-- `magick-ai/build-inline-image-blocks`
-- `magick-ai/build-media-seo-assets`
-- `magick-ai/geo-analyze`
-- `magick-ai/optimize-media-metadata`
-- `magick-ai/position-inline-image-blocks`
-- `magick-ai/build-article-optimization-report`
-- `magick-ai/seo-report-context`
-- `magick-ai/read-post-optimization-context`
-- `magick-ai/build-article-single-optimization-suggest`
-- `magick-ai/build-article-optimization-apply-plan`
-- `magick-ai/compose-article-optimization-apply-result`
-- `magick-ai/extract-reference-post-style`
-- `magick-ai/extract-style-baseline`
-- `magick-ai/build-article-production-fingerprint`
-- `magick-ai/check-article-production-duplicate`
-- `magick-ai/review-article-output-light`
-- `magick-ai/compose-article-production-result`
-- `magick-ai/compose-article-draft-result`
-- `magick-ai/resolve-article-publication-decision`
-- `magick-ai/build-article-style-profile`
+- `npcink-abilities-toolkit/propose-post-excerpt`
+- `npcink-abilities-toolkit/resolve-post-metadata-plan`
+- `npcink-abilities-toolkit/resolve-internal-link-targets`
+- `npcink-abilities-toolkit/get-internal-link-opportunity-report`
+- `npcink-abilities-toolkit/get-content-refresh-opportunities`
+- `npcink-abilities-toolkit/get-internal-link-graph-health`
+- `npcink-abilities-toolkit/get-post-seo-geo-readiness`
+- `npcink-abilities-toolkit/get-site-topic-coverage-report`
+- `npcink-abilities-toolkit/get-seo-geo-gap-report`
+- `npcink-abilities-toolkit/get-site-style-baseline`
+- `npcink-abilities-toolkit/build-article-workflow-context`
+- `npcink-abilities-toolkit/get-old-article-refresh-context`
+- `npcink-abilities-toolkit/build-inline-image-blocks`
+- `npcink-abilities-toolkit/build-media-seo-assets`
+- `npcink-abilities-toolkit/geo-analyze`
+- `npcink-abilities-toolkit/optimize-media-metadata`
+- `npcink-abilities-toolkit/position-inline-image-blocks`
+- `npcink-abilities-toolkit/build-article-optimization-report`
+- `npcink-abilities-toolkit/seo-report-context`
+- `npcink-abilities-toolkit/read-post-optimization-context`
+- `npcink-abilities-toolkit/build-article-single-optimization-suggest`
+- `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+- `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+- `npcink-abilities-toolkit/extract-reference-post-style`
+- `npcink-abilities-toolkit/extract-style-baseline`
+- `npcink-abilities-toolkit/build-article-production-fingerprint`
+- `npcink-abilities-toolkit/check-article-production-duplicate`
+- `npcink-abilities-toolkit/review-article-output-light`
+- `npcink-abilities-toolkit/compose-article-production-result`
+- `npcink-abilities-toolkit/compose-article-draft-result`
+- `npcink-abilities-toolkit/resolve-article-publication-decision`
+- `npcink-abilities-toolkit/build-article-style-profile`

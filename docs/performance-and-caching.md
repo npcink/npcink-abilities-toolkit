@@ -22,11 +22,11 @@ bounded, and cache only read-only data that is safe to recompute.
 
 These abilities reduce host round trips while staying read-only:
 
-- `magick-ai/get-article-publish-preflight-context`
-- `magick-ai/get-old-article-refresh-context`
-- `magick-ai/get-comment-compliance-handoff`
-- `magick-ai/get-site-operations-dashboard`
-- `magick-ai/build-article-workflow-context`
+- `npcink-abilities-toolkit/get-article-publish-preflight-context`
+- `npcink-abilities-toolkit/get-old-article-refresh-context`
+- `npcink-abilities-toolkit/get-comment-compliance-handoff`
+- `npcink-abilities-toolkit/get-site-operations-dashboard`
+- `npcink-abilities-toolkit/build-article-workflow-context`
 
 They do not store workflow state, approve writes, schedule work, or commit
 WordPress mutations. They only return context bundles that a host can use for
@@ -36,8 +36,8 @@ its own approval and orchestration.
 
 The first cache pilot covers:
 
-- `magick-ai/get-content-inventory-health`
-- `magick-ai/get-seo-geo-gap-report`
+- `npcink-abilities-toolkit/get-content-inventory-health`
+- `npcink-abilities-toolkit/get-seo-geo-gap-report`
 
 The cache uses WordPress transients with a short TTL and a versioned key. The
 cache key includes:
@@ -45,7 +45,7 @@ cache key includes:
 - ability cache namespace;
 - normalized bounded input;
 - current user id;
-- `magick_ai_abilities_read_cache_version`.
+- `npcink_abilities_toolkit_read_cache_version`.
 
 The version is bumped from plugin hooks for post, term, and attachment changes.
 This keeps stale read-only reports bounded without making cache entries a

@@ -6,7 +6,7 @@ Standalone WordPress Abilities API plugin for packaging and registering agent-ca
 
 This project is an independent Abilities API capability-package plugin. It can be used by any WordPress plugin that wants to expose abilities to agents, and by clients that consume the WordPress Abilities API directly.
 
-Magick AI is only one optional consumer/integration target. This plugin is not a Magick AI runtime module and must remain useful without Magick AI installed.
+Npcink AI is only one optional consumer/integration target. This plugin is not a Npcink AI runtime module and must remain useful without Npcink AI installed.
 
 This project owns the WordPress Abilities API registration layer:
 
@@ -17,9 +17,9 @@ This project owns the WordPress Abilities API registration layer:
 - schema and metadata normalization
 - low-risk WordPress read ability packages
 - host-governed WordPress write/destructive ability packages
-- optional compatibility projection for Magick AI when Magick AI is installed
+- optional canonical projection for Npcink AI when Npcink AI is installed
 
-Host-governed callbacks default to dry-run previews. A real commit requires approval context from Magick AI Core, Adapter, or another host runtime.
+Host-governed callbacks default to dry-run previews. A real commit requires approval context from Npcink AI Core, Adapter, or another host runtime.
 
 It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, admission, approval storage, audit truth, or final commit authorization.
 
@@ -31,19 +31,19 @@ It does not own model routing, cloud execution, billing, quota, workflow runtime
 ## Public API
 
 ```php
-magick_ai_abilities_register_category( $category_id, $args );
-magick_ai_abilities_register_readonly( $ability_id, $definition );
-magick_ai_abilities_register_write_proposal( $ability_id, $definition );
-magick_ai_abilities_normalize_schema( $schema, $default_type );
-magick_ai_abilities_normalize_annotations( $annotations, $risk_level );
-magick_ai_abilities_get_registered();
-magick_ai_abilities_get_workflow_definitions();
-magick_ai_abilities_get_workflow_definition( $recipe_id );
+npcink_abilities_toolkit_register_category( $category_id, $args );
+npcink_abilities_toolkit_register_readonly( $ability_id, $definition );
+npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition );
+npcink_abilities_toolkit_normalize_schema( $schema, $default_type );
+npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level );
+npcink_abilities_toolkit_get_registered();
+npcink_abilities_toolkit_get_workflow_definitions();
+npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
 ```
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
-The migration boundary from the Magick AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
-The independent-project split and Magick AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
+The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
+The independent-project split and Npcink AI integration boundary are documented in [docs/magick-ai-project-split-contract.md](docs/magick-ai-project-split-contract.md).
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
@@ -56,7 +56,7 @@ are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governanc
 [docs/schema-boundary-audit.md](docs/schema-boundary-audit.md).
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
-The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Magick AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
+The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 unreleased observation line is tracked in [docs/release-0.5-unreleased-verification.md](docs/release-0.5-unreleased-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
@@ -68,11 +68,11 @@ Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plu
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) {
 			return;
 		}
 
-		magick_ai_abilities_register_readonly(
+		npcink_abilities_toolkit_register_readonly(
 			'acme/site-summary',
 			array(
 				'label'            => 'Site Summary',
@@ -98,11 +98,11 @@ add_action(
 );
 ```
 
-When Magick AI is installed, provider plugins may opt into compatibility projection so their registered abilities appear in `magick_ai_open_platform_ability_catalog` as `wp_ability` backend entries. Other plugins can ignore that integration and consume the same abilities through the standard WordPress Abilities API.
+When Npcink AI is installed, provider plugins may opt into canonical projection so their registered abilities appear in `npcink_ai_open_platform_ability_catalog` as `wp_ability` backend entries. Other plugins can ignore that integration and consume the same abilities through the standard WordPress Abilities API.
 
 See [examples/core-governance-consumer.php](examples/core-governance-consumer.php)
 for a minimal consumer-side example that discovers a real ability id, reads
-schema/risk metadata, and prepares a `magick-ai-core` proposal payload without
+schema/risk metadata, and prepares a `npcink-ai-core` proposal payload without
 this package owning Core governance.
 
 The consumer handoff fixture and release-candidate governance checks are
@@ -119,9 +119,9 @@ cross-repo Core integration changes.
 
 ## Test Page
 
-After activating the plugin with a Magick AI host plugin, open
-**Magick AI -> Abilities** in wp-admin. When this standalone package is
-installed without a Magick AI host menu, open **Tools -> Abilities API
+After activating the plugin with a Npcink AI host plugin, open
+**Npcink AI -> Abilities** in wp-admin. When this standalone package is
+installed without a Npcink AI host menu, open **Tools -> Abilities API
 Packages** instead.
 
 The default page shows package readiness and the registered ability catalog:
@@ -141,75 +141,75 @@ Advanced checks are kept behind disclosures and can:
 
 The migrated core read and deterministic comment packages provide these read-only WordPress abilities:
 
-- `magick-ai/site-info`
-- `magick-ai/list-post-types`
-- `magick-ai/list-taxonomies`
-- `magick-ai/count-posts`
-- `magick-ai/list-pages-tree`
-- `magick-ai/list-posts`
-- `magick-ai/get-post`
-- `magick-ai/resolve-url-to-post`
-- `magick-ai/get-post-blocks`
-- `magick-ai/list-post-revisions`
-- `magick-ai/list-media`
-- `magick-ai/resolve-media-attachment-by-url`
-- `magick-ai/list-terms`
-- `magick-ai/list-taxonomy-terms`
-- `magick-ai/list-categories`
-- `magick-ai/list-tags`
-- `magick-ai/get-term`
-- `magick-ai/propose-post-taxonomy-terms`
-- `magick-ai/propose-post-excerpt`
-- `magick-ai/list-users`
-- `magick-ai/list-comments`
-- `magick-ai/build-comment-moderation-suggest`
-- `magick-ai/compose-comment-moderation-result`
-- `magick-ai/build-comment-mention-reply-suggest`
-- `magick-ai/read-comment-trigger-queue`
-- `magick-ai/get-comment-compliance-handoff`
-- `magick-ai/compose-comment-mention-reply-result`
-- `magick-ai/build-comment-moderation-batch-suggest`
-- `magick-ai/compose-comment-moderation-batch-result`
-- `magick-ai/list-menus`
-- `magick-ai/get-menu`
-- `magick-ai/search-posts`
-- `magick-ai/search-post-meta`
-- `magick-ai/resolve-post-metadata-plan`
-- `magick-ai/resolve-internal-link-targets`
-- `magick-ai/build-inline-image-blocks`
-- `magick-ai/build-media-seo-assets`
-- `magick-ai/geo-analyze`
-- `magick-ai/optimize-media-metadata`
-- `magick-ai/inspect-media-asset`
-- `magick-ai/build-media-derivative-cloud-request`
-- `magick-ai/build-media-optimization-plan`
-- `magick-ai/build-media-rename-plan`
-- `magick-ai/position-inline-image-blocks`
-- `magick-ai/build-article-optimization-report`
-- `magick-ai/seo-report-context`
-- `magick-ai/read-post-optimization-context`
-- `magick-ai/build-article-single-optimization-suggest`
-- `magick-ai/build-article-optimization-apply-plan`
-- `magick-ai/compose-article-optimization-apply-result`
-- `magick-ai/get-article-publish-preflight-context`
-- `magick-ai/get-old-article-refresh-context`
-- `magick-ai/extract-reference-post-style`
-- `magick-ai/extract-style-baseline`
-- `magick-ai/build-article-production-fingerprint`
-- `magick-ai/check-article-production-duplicate`
-- `magick-ai/review-article-output-light`
-- `magick-ai/compose-article-production-result`
-- `magick-ai/compose-article-draft-result`
-- `magick-ai/resolve-article-publication-decision`
-- `magick-ai/build-article-style-profile`
-- `magick-ai/get-post-stats`
-- `magick-ai/list-revisions`
-- `magick-ai/get-post-meta`
-- `magick-ai/list-pages`
-- `magick-ai/get-page`
-- `magick-ai/inspect-page-structure`
+- `npcink-abilities-toolkit/site-info`
+- `npcink-abilities-toolkit/list-post-types`
+- `npcink-abilities-toolkit/list-taxonomies`
+- `npcink-abilities-toolkit/count-posts`
+- `npcink-abilities-toolkit/list-pages-tree`
+- `npcink-abilities-toolkit/list-posts`
+- `npcink-abilities-toolkit/get-post`
+- `npcink-abilities-toolkit/resolve-url-to-post`
+- `npcink-abilities-toolkit/get-post-blocks`
+- `npcink-abilities-toolkit/list-post-revisions`
+- `npcink-abilities-toolkit/list-media`
+- `npcink-abilities-toolkit/resolve-media-attachment-by-url`
+- `npcink-abilities-toolkit/list-terms`
+- `npcink-abilities-toolkit/list-taxonomy-terms`
+- `npcink-abilities-toolkit/list-categories`
+- `npcink-abilities-toolkit/list-tags`
+- `npcink-abilities-toolkit/get-term`
+- `npcink-abilities-toolkit/propose-post-taxonomy-terms`
+- `npcink-abilities-toolkit/propose-post-excerpt`
+- `npcink-abilities-toolkit/list-users`
+- `npcink-abilities-toolkit/list-comments`
+- `npcink-abilities-toolkit/build-comment-moderation-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-result`
+- `npcink-abilities-toolkit/build-comment-mention-reply-suggest`
+- `npcink-abilities-toolkit/read-comment-trigger-queue`
+- `npcink-abilities-toolkit/get-comment-compliance-handoff`
+- `npcink-abilities-toolkit/compose-comment-mention-reply-result`
+- `npcink-abilities-toolkit/build-comment-moderation-batch-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-batch-result`
+- `npcink-abilities-toolkit/list-menus`
+- `npcink-abilities-toolkit/get-menu`
+- `npcink-abilities-toolkit/search-posts`
+- `npcink-abilities-toolkit/search-post-meta`
+- `npcink-abilities-toolkit/resolve-post-metadata-plan`
+- `npcink-abilities-toolkit/resolve-internal-link-targets`
+- `npcink-abilities-toolkit/build-inline-image-blocks`
+- `npcink-abilities-toolkit/build-media-seo-assets`
+- `npcink-abilities-toolkit/geo-analyze`
+- `npcink-abilities-toolkit/optimize-media-metadata`
+- `npcink-abilities-toolkit/inspect-media-asset`
+- `npcink-abilities-toolkit/build-media-derivative-cloud-request`
+- `npcink-abilities-toolkit/build-media-optimization-plan`
+- `npcink-abilities-toolkit/build-media-rename-plan`
+- `npcink-abilities-toolkit/position-inline-image-blocks`
+- `npcink-abilities-toolkit/build-article-optimization-report`
+- `npcink-abilities-toolkit/seo-report-context`
+- `npcink-abilities-toolkit/read-post-optimization-context`
+- `npcink-abilities-toolkit/build-article-single-optimization-suggest`
+- `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+- `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+- `npcink-abilities-toolkit/get-article-publish-preflight-context`
+- `npcink-abilities-toolkit/get-old-article-refresh-context`
+- `npcink-abilities-toolkit/extract-reference-post-style`
+- `npcink-abilities-toolkit/extract-style-baseline`
+- `npcink-abilities-toolkit/build-article-production-fingerprint`
+- `npcink-abilities-toolkit/check-article-production-duplicate`
+- `npcink-abilities-toolkit/review-article-output-light`
+- `npcink-abilities-toolkit/compose-article-production-result`
+- `npcink-abilities-toolkit/compose-article-draft-result`
+- `npcink-abilities-toolkit/resolve-article-publication-decision`
+- `npcink-abilities-toolkit/build-article-style-profile`
+- `npcink-abilities-toolkit/get-post-stats`
+- `npcink-abilities-toolkit/list-revisions`
+- `npcink-abilities-toolkit/get-post-meta`
+- `npcink-abilities-toolkit/list-pages`
+- `npcink-abilities-toolkit/get-page`
+- `npcink-abilities-toolkit/inspect-page-structure`
 
-The `magick-ai/*` ids are preserved for compatibility during the migration from the Magick AI plugin. Built-in migrated ids may explicitly project into Magick AI as thin `wp_ability` compatibility rows; third-party provider abilities still do not project into Magick AI by default.
+The `npcink-abilities-toolkit/*` ids are canonical under the Npcink Abilities Toolkit namespace. Built-in migrated ids may explicitly project into Npcink AI as thin `wp_ability` canonical rows; third-party provider abilities still do not project into Npcink AI by default.
 
 ## Built-In WordPress Diagnostics
 
@@ -220,9 +220,9 @@ The standalone diagnostics package provides:
 
 The summary ability returns a redacted WordPress-only environment summary for agents and other plugins. It reports site hosts, WordPress/PHP runtime details including extension availability, active theme summary, active plugin details, current caller roles/capabilities, object cache status, rewrite/permalink status, HTTPS status, REST/Abilities API availability, cron counts, and update counts.
 
-The ops detail ability returns bounded follow-up diagnostics for support flows: plugin lists with slug/name/version/author/update status/requirements/dependencies/Magick AI hint, current caller identity plus local Magick AI permission inferences, PHP extensions, object cache and page-cache drop-in status, rewrite/permalink and HTTPS status, server summary, database version/count/size estimates, cron hook names and next-run times, error log availability plus severity counts, optional redacted and structured log contents when `include_log_contents` is true, custom post type summaries, role capability lists, widget/sidebar summaries, block-theme registry counts, search and integration hints, SEO meta-key/sitemap/robots hints, and SEO/security/performance summaries. Plugin row groups are bounded with `max_plugins_per_group`; inactive plugins are omitted by default and can be requested with `include_inactive_plugins`. Both diagnostics abilities intentionally omit Magick AI settings, MCP settings, API keys, database names, table prefixes, table names, filesystem paths, unredacted error log contents, cron argument values, and external HTTP probes.
+The ops detail ability returns bounded follow-up diagnostics for support flows: plugin lists with slug/name/version/author/update status/requirements/dependencies/Npcink AI hint, current caller identity plus local Npcink AI permission inferences, PHP extensions, object cache and page-cache drop-in status, rewrite/permalink and HTTPS status, server summary, database version/count/size estimates, cron hook names and next-run times, error log availability plus severity counts, optional redacted and structured log contents when `include_log_contents` is true, custom post type summaries, role capability lists, widget/sidebar summaries, block-theme registry counts, search and integration hints, SEO meta-key/sitemap/robots hints, and SEO/security/performance summaries. Plugin row groups are bounded with `max_plugins_per_group`; inactive plugins are omitted by default and can be requested with `include_inactive_plugins`. Both diagnostics abilities intentionally omit Npcink AI settings, MCP settings, API keys, database names, table prefixes, table names, filesystem paths, unredacted error log contents, cron argument values, and external HTTP probes.
 
-Related read abilities also expose operational context needed by support clients: `magick-ai/search-posts` supports bounded local keyword search with post type, status, author, date/modified, and taxonomy filters, `magick-ai/search-post-meta` searches explicitly named non-sensitive post meta keys, `magick-ai/list-posts` supports author/date/modified/taxonomy/order filters, `magick-ai/get-post-context` includes template/status/SEO/media/block details, term lists can include bounded `sample_posts`, users include an `author_profile`, comments include their post context, media rows include attachment usage context, and `magick-ai/get-menu` returns both flat items and a nested tree.
+Related read abilities also expose operational context needed by support clients: `npcink-abilities-toolkit/search-posts` supports bounded local keyword search with post type, status, author, date/modified, and taxonomy filters, `npcink-abilities-toolkit/search-post-meta` searches explicitly named non-sensitive post meta keys, `npcink-abilities-toolkit/list-posts` supports author/date/modified/taxonomy/order filters, `npcink-abilities-toolkit/get-post-context` includes template/status/SEO/media/block details, term lists can include bounded `sample_posts`, users include an `author_profile`, comments include their post context, media rows include attachment usage context, and `npcink-abilities-toolkit/get-menu` returns both flat items and a nested tree.
 
 ## Built-In Workflow Definition Discovery
 
@@ -272,7 +272,7 @@ Run the isolated bounded-chain performance smoke:
 composer perf:smoke
 ```
 
-Check that the standalone package has not drifted into Magick AI runtime ownership:
+Check that the standalone package has not drifted into Npcink AI runtime ownership:
 
 ```bash
 composer check:boundary

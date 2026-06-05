@@ -15,7 +15,7 @@ runtime orchestration.
 The machine-readable field contract is documented in
 [Workflow Definition Contract](workflow-definition-contract.md).
 Hosts that need runtime discovery can use
-`magick_ai_abilities_get_workflow_definitions()` or the read-only
+`npcink_abilities_toolkit_get_workflow_definitions()` or the read-only
 `npcink-abilities-toolkit/list-workflow-recipes` ability.
 
 ## Core Principle For AI Agents
@@ -99,12 +99,12 @@ areas without writes.
 
 Ability sequence:
 
-1. `magick-ai/site-info`
-2. `magick-ai/get-site-operations-dashboard`
-3. `magick-ai/get-content-inventory-health`
-4. `magick-ai/get-media-inventory-health`
-5. `magick-ai/get-taxonomy-inventory-health`
-6. `magick-ai/get-page-structure-health`
+1. `npcink-abilities-toolkit/site-info`
+2. `npcink-abilities-toolkit/get-site-operations-dashboard`
+3. `npcink-abilities-toolkit/get-content-inventory-health`
+4. `npcink-abilities-toolkit/get-media-inventory-health`
+5. `npcink-abilities-toolkit/get-taxonomy-inventory-health`
+6. `npcink-abilities-toolkit/get-page-structure-health`
 
 Handoff:
 
@@ -128,19 +128,19 @@ write chain.
 
 Ability sequence:
 
-1. `magick-ai/resolve-post-metadata-plan`
-2. `magick-ai/resolve-internal-link-targets`
-3. `magick-ai/build-inline-image-blocks`
-4. `magick-ai/build-media-seo-assets`
-5. `magick-ai/review-article-output-light`
-6. `magick-ai/compose-article-draft-result`
+1. `npcink-abilities-toolkit/resolve-post-metadata-plan`
+2. `npcink-abilities-toolkit/resolve-internal-link-targets`
+3. `npcink-abilities-toolkit/build-inline-image-blocks`
+4. `npcink-abilities-toolkit/build-media-seo-assets`
+5. `npcink-abilities-toolkit/review-article-output-light`
+6. `npcink-abilities-toolkit/compose-article-draft-result`
 
 Handoff:
 
 - pass `draft_content`, resolved metadata, internal-link targets, media SEO
   assets, and review findings to the host;
 - if the host wants a real WordPress draft, continue with
-  `magick-ai/create-draft` in dry-run mode first.
+  `npcink-abilities-toolkit/create-draft` in dry-run mode first.
 
 Governance:
 
@@ -156,14 +156,14 @@ publication.
 
 Ability sequence:
 
-1. Preferred bundle: `magick-ai/get-article-publish-preflight-context`
+1. Preferred bundle: `npcink-abilities-toolkit/get-article-publish-preflight-context`
 2. Expanded sequence when the host needs individual calls:
-   `magick-ai/get-post-context`,
-   `magick-ai/get-content-publishing-checklist`,
-   `magick-ai/get-post-publish-risk-report`,
-   `magick-ai/build-article-workflow-context` with `workflow=publish`, and
-   `magick-ai/get-publishing-calendar-context`
-3. Optional dry-run: `magick-ai/schedule-post` or `magick-ai/publish-post`
+   `npcink-abilities-toolkit/get-post-context`,
+   `npcink-abilities-toolkit/get-content-publishing-checklist`,
+   `npcink-abilities-toolkit/get-post-publish-risk-report`,
+   `npcink-abilities-toolkit/build-article-workflow-context` with `workflow=publish`, and
+   `npcink-abilities-toolkit/get-publishing-calendar-context`
+3. Optional dry-run: `npcink-abilities-toolkit/schedule-post` or `npcink-abilities-toolkit/publish-post`
 
 Handoff:
 
@@ -185,13 +185,13 @@ media handoff, and publication decision without bypassing host approval.
 
 Ability sequence:
 
-1. `magick-ai/extract-style-baseline`
-2. `magick-ai/build-article-production-fingerprint`
-3. `magick-ai/check-article-production-duplicate`
-4. `magick-ai/review-article-output-light`
-5. `magick-ai/build-media-seo-assets`
-6. `magick-ai/resolve-article-publication-decision`
-7. `magick-ai/compose-article-production-result`
+1. `npcink-abilities-toolkit/extract-style-baseline`
+2. `npcink-abilities-toolkit/build-article-production-fingerprint`
+3. `npcink-abilities-toolkit/check-article-production-duplicate`
+4. `npcink-abilities-toolkit/review-article-output-light`
+5. `npcink-abilities-toolkit/build-media-seo-assets`
+6. `npcink-abilities-toolkit/resolve-article-publication-decision`
+7. `npcink-abilities-toolkit/compose-article-production-result`
 
 Handoff:
 
@@ -215,13 +215,13 @@ reviewable apply plan.
 
 Ability sequence:
 
-1. `magick-ai/read-post-optimization-context`
-2. `magick-ai/seo-report-context`
-3. `magick-ai/build-article-single-optimization-suggest`
-4. `magick-ai/build-article-optimization-apply-plan`
-5. `magick-ai/compose-article-optimization-apply-result`
-6. Optional dry-run: `magick-ai/patch-post-content`,
-   `magick-ai/set-post-seo-meta`, or `magick-ai/update-post-blocks`
+1. `npcink-abilities-toolkit/read-post-optimization-context`
+2. `npcink-abilities-toolkit/seo-report-context`
+3. `npcink-abilities-toolkit/build-article-single-optimization-suggest`
+4. `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+5. `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+6. Optional dry-run: `npcink-abilities-toolkit/patch-post-content`,
+   `npcink-abilities-toolkit/set-post-seo-meta`, or `npcink-abilities-toolkit/update-post-blocks`
 
 Handoff:
 
@@ -243,13 +243,13 @@ an agent or host product to choose candidates.
 
 Ability sequence:
 
-1. Preferred bundle: `magick-ai/get-old-article-refresh-context`
+1. Preferred bundle: `npcink-abilities-toolkit/get-old-article-refresh-context`
 2. Expanded sequence when the host needs individual calls:
-   `magick-ai/get-content-refresh-opportunities`,
-   `magick-ai/get-seo-geo-gap-report`,
-   `magick-ai/get-site-style-baseline`,
-   `magick-ai/get-internal-link-graph-health`, and
-   `magick-ai/get-internal-link-opportunity-report` for a selected post
+   `npcink-abilities-toolkit/get-content-refresh-opportunities`,
+   `npcink-abilities-toolkit/get-seo-geo-gap-report`,
+   `npcink-abilities-toolkit/get-site-style-baseline`,
+   `npcink-abilities-toolkit/get-internal-link-graph-health`, and
+   `npcink-abilities-toolkit/get-internal-link-opportunity-report` for a selected post
 
 Handoff:
 
@@ -271,16 +271,16 @@ comment actions under host approval.
 
 Ability sequence:
 
-1. Preferred bundle: `magick-ai/get-comment-compliance-handoff`
+1. Preferred bundle: `npcink-abilities-toolkit/get-comment-compliance-handoff`
 2. Expanded sequence when the host needs individual calls:
-   `magick-ai/get-comment-queue-health`,
-   `magick-ai/get-comment-action-priority-queue`,
-   `magick-ai/build-comment-moderation-suggest`, and
-   `magick-ai/build-comment-mention-reply-suggest` when reply handling is
+   `npcink-abilities-toolkit/get-comment-queue-health`,
+   `npcink-abilities-toolkit/get-comment-action-priority-queue`,
+   `npcink-abilities-toolkit/build-comment-moderation-suggest`, and
+   `npcink-abilities-toolkit/build-comment-mention-reply-suggest` when reply handling is
    needed
-3. `magick-ai/compose-comment-moderation-result`
-4. Optional dry-run: `magick-ai/approve-comment`, `magick-ai/reply-comment`,
-   `magick-ai/spam-comment`, or `magick-ai/trash-comment`
+3. `npcink-abilities-toolkit/compose-comment-moderation-result`
+4. Optional dry-run: `npcink-abilities-toolkit/approve-comment`, `npcink-abilities-toolkit/reply-comment`,
+   `npcink-abilities-toolkit/spam-comment`, or `npcink-abilities-toolkit/trash-comment`
 
 Handoff:
 
@@ -303,7 +303,7 @@ Ability sequence:
 
 1. `npcink-abilities-toolkit/wp-diagnostics-summary`
 2. `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
-3. `magick-ai/site-info`
+3. `npcink-abilities-toolkit/site-info`
 
 Handoff:
 
@@ -315,7 +315,7 @@ Handoff:
 Governance:
 
 - read-only;
-- diagnostics must not expose Magick AI settings, MCP settings, API keys,
+- diagnostics must not expose Npcink AI settings, MCP settings, API keys,
   database names, table prefixes, table names, filesystem paths, unredacted
   error log contents, cron argument values, or external HTTP probes.
 

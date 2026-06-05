@@ -1,6 +1,6 @@
 {
   "name": "npcink/npcink-abilities-toolkit",
-  "description": "Standalone WordPress Abilities API package toolkit for agent-callable abilities, with optional Magick AI integration.",
+  "description": "Standalone WordPress Abilities API package toolkit for agent-callable abilities, with optional Npcink AI integration.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "require": {

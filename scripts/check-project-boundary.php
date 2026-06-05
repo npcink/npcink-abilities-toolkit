@@ -1,8 +1,8 @@
 <?php
 /**
- * Checks that this standalone plugin does not drift back into Magick AI runtime ownership.
+ * Checks that this standalone plugin does not drift back into Npcink AI runtime ownership.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 $root = dirname( __DIR__ );
@@ -69,7 +69,7 @@ $contract      = maa_boundary_read( $contract_path );
 foreach (
 	array(
 		'independent WordPress Abilities API package plugin',
-		'Magick AI is an optional consumer',
+		'Npcink AI is an optional consumer',
 		'Final commit authorization',
 		'Duplicate Registration Rule',
 		'Dependency Rule',
@@ -89,9 +89,9 @@ if ( false === strpos( $readme, 'docs/magick-ai-project-split-contract.md' ) ) {
 $forbidden_patterns = array(
 	'magick-ai-root',
 	'/includes/abilities/',
-	'magick_ai_core_run_capability',
-	'magick_ai_execute_runtime_bridge',
-	'magick_ai_dispatch_capability',
+	'npcink_ai_core_run_capability',
+	'npcink_ai_execute_runtime_bridge',
+	'npcink_ai_dispatch_capability',
 	'MAI_Capability_Request',
 	'class-rest-open-platform',
 );
@@ -102,7 +102,7 @@ foreach ( maa_boundary_php_files( $root . '/includes' ) as $file ) {
 
 	foreach ( $forbidden_patterns as $pattern ) {
 		if ( false !== strpos( $contents, $pattern ) ) {
-			maa_boundary_fail( $relative . ' contains forbidden Magick AI runtime dependency pattern: ' . $pattern );
+			maa_boundary_fail( $relative . ' contains forbidden Npcink AI runtime dependency pattern: ' . $pattern );
 		}
 	}
 }

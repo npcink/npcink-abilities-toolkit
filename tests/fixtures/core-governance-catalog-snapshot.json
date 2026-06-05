@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "purpose": "Core governance handoff contract snapshot for high-value abilities.",
   "abilities": {
-    "magick-ai/create-draft": {
-      "category": "magick-ai-write",
+    "npcink-abilities-toolkit/create-draft": {
+      "category": "npcink-abilities-toolkit-write",
       "risk_level": "write",
       "requires_confirm": true,
       "requires_approval": true,
@@ -120,12 +120,12 @@
       "meta": {
         "show_in_rest": true,
         "mcp_public": true,
-        "mcp_server": "magick-ai-write",
+        "mcp_server": "npcink-abilities-toolkit-write",
         "mcp_risk": "write"
       }
     },
-    "magick-ai/set-post-seo-meta": {
-      "category": "magick-ai-write",
+    "npcink-abilities-toolkit/set-post-seo-meta": {
+      "category": "npcink-abilities-toolkit-write",
       "risk_level": "write",
       "requires_confirm": true,
       "requires_approval": true,
@@ -219,12 +219,12 @@
       "meta": {
         "show_in_rest": true,
         "mcp_public": true,
-        "mcp_server": "magick-ai-write",
+        "mcp_server": "npcink-abilities-toolkit-write",
         "mcp_risk": "write"
       }
     },
-    "magick-ai/approve-comment": {
-      "category": "magick-ai-write",
+    "npcink-abilities-toolkit/approve-comment": {
+      "category": "npcink-abilities-toolkit-write",
       "risk_level": "write",
       "requires_confirm": true,
       "requires_approval": true,
@@ -298,7 +298,7 @@
       "meta": {
         "show_in_rest": true,
         "mcp_public": true,
-        "mcp_server": "magick-ai-write",
+        "mcp_server": "npcink-abilities-toolkit-write",
         "mcp_risk": "write"
       }
     },
@@ -337,7 +337,7 @@
       "meta": {
         "show_in_rest": true,
         "mcp_public": false,
-        "mcp_server": "magick-ai-read",
+        "mcp_server": "npcink-abilities-toolkit-read",
         "mcp_risk": "read"
       }
     },
@@ -368,7 +368,7 @@
       "meta": {
         "show_in_rest": true,
         "mcp_public": false,
-        "mcp_server": "magick-ai-read",
+        "mcp_server": "npcink-abilities-toolkit-read",
         "mcp_risk": "read"
       }
     }

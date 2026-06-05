@@ -2,10 +2,10 @@
 /**
  * Internal Link Read Methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

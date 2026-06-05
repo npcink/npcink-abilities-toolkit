@@ -48,12 +48,12 @@ workflow chains through standard WordPress ability contracts.
 ## Compatibility Checklist
 
 - Default boot still enables `core_read`, `core_write`, `core_destructive`,
-  `core_comment`, `magick_catalog_bridge`, `admin_test_page`, and
+  `core_comment`, `npcink_catalog_bridge`, `admin_test_page`, and
   `read_cache_hooks`.
 - Light host profile can keep only `core_read` plus the `core_wordpress_read`
   sub-pack and must not register workflow definition discovery, workflow,
   diagnostics, write, destructive, or comment helper abilities.
-- Projected Magick AI catalog rows remain thin by default and do not include
+- Projected Npcink AI catalog rows remain thin by default and do not include
   host-owned policy fields such as `open_api_enabled`, `backend_priority`,
   `write_mode`, `tool_policy`, or catalog fallback controls.
 - Magick AI consumer tests derive backend priority and tool policy in Magick AI
@@ -61,7 +61,7 @@ workflow chains through standard WordPress ability contracts.
 - Public third-party helpers remain limited to category, read-only,
   write-proposal, normalization, registry inspection, and composition filters.
   No third-party final commit helper is introduced without a new ADR.
-- Existing `magick-ai/*` ids remain compatibility ids. Namespace cleanup is
+- Existing `npcink-abilities-toolkit/*` ids remain compatibility ids. Namespace cleanup is
   deferred until each renamed id has `deprecated` / `successor` metadata and
   host migration tests.
 - Built-in read/comment definitions must have explicit sub-pack map entries;

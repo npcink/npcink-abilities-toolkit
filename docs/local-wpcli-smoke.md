@@ -7,14 +7,14 @@ Use the WordPress smoke test against a Local site after the plugin is symlinked 
 Use this shared Local site for repeatable manual and smoke verification:
 
 - Site URL: `https://magick-ai.local`
-- WordPress path: `/Users/muze/Local Sites/magick-ai/app/public`
+- WordPress path: `/Users/muze/Local Sites/npcink-abilities-toolkit/app/public`
 - Local MySQL socket: `/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock`
 - WP-CLI phar: `/tmp/wp-cli.phar`
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
 - Test admin password: `[REDACTED_SECRET]`
 - Installed plugin slug: `npcink-abilities-toolkit`
-- Admin test page with a Magick AI host menu:
+- Admin test page with a Npcink AI host menu:
   `https://magick-ai.local/wp-admin/admin.php?page=npcink-abilities-toolkit`
 - Standalone fallback admin test page:
   `https://magick-ai.local/wp-admin/tools.php?page=npcink-abilities-toolkit`
@@ -27,47 +27,47 @@ Verification status through 2026-05-30:
 - `wp plugin status npcink-abilities-toolkit` reported the plugin as active, version `0.2.0` during the release-candidate verification pass.
 - `composer smoke:wp` passed with `Smoke OK: 98 assertions`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 117 assertions`
-  after adding `magick-ai/get-post-context`,
-  `magick-ai/get-content-publishing-checklist`,
-  `magick-ai/get-content-inventory-health`,
-  `magick-ai/get-bulk-publishing-checklist`, and
-  `magick-ai/get-internal-link-opportunity-report`,
-  `magick-ai/get-media-inventory-health`,
-  `magick-ai/get-post-seo-geo-readiness`, and
-  `magick-ai/get-site-topic-coverage-report`.
+  after adding `npcink-abilities-toolkit/get-post-context`,
+  `npcink-abilities-toolkit/get-content-publishing-checklist`,
+  `npcink-abilities-toolkit/get-content-inventory-health`,
+  `npcink-abilities-toolkit/get-bulk-publishing-checklist`, and
+  `npcink-abilities-toolkit/get-internal-link-opportunity-report`,
+  `npcink-abilities-toolkit/get-media-inventory-health`,
+  `npcink-abilities-toolkit/get-post-seo-geo-readiness`, and
+  `npcink-abilities-toolkit/get-site-topic-coverage-report`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 124 assertions`
-  after adding `magick-ai/get-taxonomy-inventory-health`,
-  `magick-ai/get-revision-change-risk-report`, and
-  `magick-ai/get-comment-queue-health`.
+  after adding `npcink-abilities-toolkit/get-taxonomy-inventory-health`,
+  `npcink-abilities-toolkit/get-revision-change-risk-report`, and
+  `npcink-abilities-toolkit/get-comment-queue-health`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 132 assertions`
-  after adding `magick-ai/get-site-operations-dashboard`,
-  `magick-ai/get-post-publish-risk-report`,
-  `magick-ai/get-content-refresh-opportunities`, and
-  `magick-ai/get-internal-link-graph-health`.
+  after adding `npcink-abilities-toolkit/get-site-operations-dashboard`,
+  `npcink-abilities-toolkit/get-post-publish-risk-report`,
+  `npcink-abilities-toolkit/get-content-refresh-opportunities`, and
+  `npcink-abilities-toolkit/get-internal-link-graph-health`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 141 assertions`
-  after adding `magick-ai/get-media-cleanup-opportunities`,
-  `magick-ai/get-taxonomy-consolidation-suggestions`,
-  `magick-ai/get-comment-action-priority-queue`, and
-  `magick-ai/get-page-structure-health`.
+  after adding `npcink-abilities-toolkit/get-media-cleanup-opportunities`,
+  `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`,
+  `npcink-abilities-toolkit/get-comment-action-priority-queue`, and
+  `npcink-abilities-toolkit/get-page-structure-health`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 149 assertions`
-  after adding `magick-ai/get-seo-geo-gap-report`,
-  `magick-ai/get-site-style-baseline`,
-  `magick-ai/build-article-workflow-context`, and
-  `magick-ai/get-publishing-calendar-context`.
+  after adding `npcink-abilities-toolkit/get-seo-geo-gap-report`,
+  `npcink-abilities-toolkit/get-site-style-baseline`,
+  `npcink-abilities-toolkit/build-article-workflow-context`, and
+  `npcink-abilities-toolkit/get-publishing-calendar-context`.
 - On 2026-05-28, the same Local site smoke passed with `Smoke OK: 156 assertions`
   after adding workflow-chain assertions for article publish preflight, content
   refresh discovery, and comment compliance handoff.
 - On 2026-05-29, the same Local site smoke passed with `Smoke OK: 162 assertions`
-  after adding `magick-ai/get-article-publish-preflight-context`,
-  `magick-ai/get-old-article-refresh-context`, and
-  `magick-ai/get-comment-compliance-handoff`.
+  after adding `npcink-abilities-toolkit/get-article-publish-preflight-context`,
+  `npcink-abilities-toolkit/get-old-article-refresh-context`, and
+  `npcink-abilities-toolkit/get-comment-compliance-handoff`.
 - On 2026-05-29, `composer smoke:wp` passed the default profile with
   `Smoke OK: 162 assertions` and the light `core_wordpress_read` profile with
   `Smoke OK: 13 assertions` after adding package/sub-pack gating and thin
   projection compatibility checks.
 - On 2026-05-29, Magick AI local Catalog verification passed after removing a
-  stale Magick AI settings loader require: authenticated
-  `plugins.php?page=magick-ai-settings&tab=catalog` returned HTTP 200, the
+  stale Npcink AI settings loader require: authenticated
+  `plugins.php?page=npcink-ai-settings&tab=catalog` returned HTTP 200, the
   Magick AI capabilities endpoint returned 198 entries, and the projected rows
   did not include `open_api_enabled`, `backend_priority`, `tool_policy`,
   `skip_catalog_manifest_fallback`, or `write_mode`.
@@ -129,7 +129,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
 composer smoke:wp
 ```
 

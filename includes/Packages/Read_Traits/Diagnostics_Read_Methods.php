@@ -2,10 +2,10 @@
 /**
  * Diagnostics read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -155,17 +155,17 @@ private function build_current_user_diagnostics_summary() {
 		'roles'               => $roles,
 		'capabilities'        => $capabilities,
 		'common_capabilities' => $common_status,
-		'magick_ai_permissions' => $this->build_magick_ai_permission_diagnostics_summary( $common_status ),
+		'npcink_ai_permissions' => $this->build_npcink_ai_permission_diagnostics_summary( $common_status ),
 	);
 }
 
 /**
- * Builds local capability inferences for Magick AI-facing operations.
+ * Builds local capability inferences for Npcink AI-facing operations.
  *
  * @param array<string,bool> $common_status Common current_user_can() results.
  * @return array<string,mixed>
  */
-private function build_magick_ai_permission_diagnostics_summary( array $common_status ) {
+private function build_npcink_ai_permission_diagnostics_summary( array $common_status ) {
 	$manage_options = (bool) ( $common_status['manage_options'] ?? false );
 	$edit_posts = (bool) ( $common_status['edit_posts'] ?? false );
 	$upload_files = (bool) ( $common_status['upload_files'] ?? false );
@@ -178,7 +178,7 @@ private function build_magick_ai_permission_diagnostics_summary( array $common_s
 		'can_run_read_abilities'     => $manage_options || $edit_posts || $upload_files,
 		'can_create_proposal'        => $manage_options || $edit_posts,
 		'can_approve_in_core'        => $manage_options,
-		'can_manage_magick_settings' => $manage_options,
+		'can_manage_npcink_settings' => $manage_options,
 	);
 }
 
@@ -236,7 +236,7 @@ private function estimate_transient_count() {
 	}
 
 	$cache_key = 'transient_count_' . md5( (string) $wpdb->options . ':' . $this->get_read_cache_version() );
-	$cache_group = 'magick_ai_abilities_diagnostics';
+	$cache_group = 'npcink_abilities_toolkit_diagnostics';
 	if ( function_exists( 'wp_cache_get' ) ) {
 		$cached = wp_cache_get( $cache_key, $cache_group );
 		if ( is_array( $cached ) && array_key_exists( 'value', $cached ) ) {
@@ -435,7 +435,7 @@ private function build_plugin_diagnostics_rows( array $plugin_files, array $plug
 			'requires_php' => sanitize_text_field( (string) ( $data['RequiresPHP'] ?? '' ) ),
 			'dependencies' => $dependencies,
 			'dependency_count' => count( $dependencies ),
-			'is_magick_ai' => $this->is_magick_ai_plugin_hint( $plugin_file, $data ),
+			'is_npcink_ai' => $this->is_npcink_ai_plugin_hint( $plugin_file, $data ),
 			'update_available' => is_object( $update ),
 			'latest_version'   => is_object( $update ) ? sanitize_text_field( (string) ( $update->new_version ?? '' ) ) : '',
 		);
@@ -465,7 +465,7 @@ private function build_dropin_diagnostics_rows( array $dropins, $max_rows = 100 
 			'name'        => sanitize_text_field( (string) ( $dropin['Name'] ?? $dropin_file ) ),
 			'status'      => 'dropin',
 			'dropin'      => true,
-			'is_magick_ai' => $this->is_magick_ai_plugin_hint( (string) $dropin_file, $dropin ),
+			'is_npcink_ai' => $this->is_npcink_ai_plugin_hint( (string) $dropin_file, $dropin ),
 		);
 	}
 
@@ -514,13 +514,13 @@ private function parse_plugin_dependency_slugs( $requires_plugins ) {
 }
 
 /**
- * Detects whether plugin metadata likely belongs to the Magick AI family.
+ * Detects whether plugin metadata likely belongs to the Npcink AI family.
  *
  * @param string              $plugin_file Plugin file identifier.
  * @param array<string,mixed> $data Plugin metadata.
  * @return bool
  */
-private function is_magick_ai_plugin_hint( $plugin_file, array $data ) {
+private function is_npcink_ai_plugin_hint( $plugin_file, array $data ) {
 	$haystack = strtolower(
 		(string) $plugin_file . ' ' .
 		(string) ( $data['Name'] ?? '' ) . ' ' .
@@ -528,7 +528,7 @@ private function is_magick_ai_plugin_hint( $plugin_file, array $data ) {
 		(string) ( $data['TextDomain'] ?? '' )
 	);
 
-	return false !== strpos( $haystack, 'magick-ai' ) || false !== strpos( $haystack, 'magick ai' );
+	return false !== strpos( $haystack, 'npcink-ai' ) || false !== strpos( $haystack, 'npcink ai' );
 }
 
 /**
@@ -568,7 +568,7 @@ private function build_abilities_api_diagnostics_summary() {
 		'get_category_available'              => function_exists( 'wp_get_ability_category' ),
 		'has_category_available'              => function_exists( 'wp_has_ability_category' ),
 		'diagnostics_summary_registered'      => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'npcink-abilities-toolkit/wp-diagnostics-summary' ) : null,
-		'legacy_site_info_registered'         => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'magick-ai/site-info' ) : null,
+		'legacy_site_info_registered'         => function_exists( 'wp_has_ability' ) ? (bool) wp_has_ability( 'npcink-abilities-toolkit/site-info' ) : null,
 	);
 }
 
@@ -716,7 +716,7 @@ private function read_database_table_status_rows() {
 	}
 
 	$cache_key = 'table_status_' . md5( (string) ( $wpdb->prefix ?? '' ) . ':' . $this->get_read_cache_version() );
-	$cache_group = 'magick_ai_abilities_diagnostics';
+	$cache_group = 'npcink_abilities_toolkit_diagnostics';
 	if ( function_exists( 'wp_cache_get' ) ) {
 		$cached = wp_cache_get( $cache_key, $cache_group );
 		if ( is_array( $cached ) && array_key_exists( 'rows', $cached ) ) {

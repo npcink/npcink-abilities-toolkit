@@ -9,7 +9,7 @@ Date: 2026-05-28
 
 It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, discover, and execute reusable WordPress abilities through the WordPress Abilities API.
 
-It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Magick AI runtime. Magick AI, WP Magick Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
+It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Magick AI, WP Magick Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
 
 ## Why This Positioning
 
@@ -37,7 +37,7 @@ Owns:
 - reusable WordPress-only ability callbacks;
 - dry-run preview behavior for write and destructive abilities;
 - local admin smoke/test surface;
-- optional Magick AI compatibility projection by filters.
+- optional Npcink AI compatibility projection by filters.
 
 Does not own:
 

@@ -2,10 +2,10 @@
 /**
  * Ability category registrar.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Registry;
+namespace Npcink_Abilities_Toolkit\Registry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

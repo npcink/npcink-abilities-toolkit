@@ -13,7 +13,7 @@ used by host plugins that need a stable ability catalog.
 Npcink Abilities Toolkit can participate in a Magick AI host setup:
 
 - `npcink-abilities-toolkit` - ability definitions and ability callbacks.
-- `magick-ai-core` - governance, approval, preflight, and audit.
+- `npcink-ai-core` - governance, approval, preflight, and audit.
 - `magick-ai-adapter` - OpenClaw channel adaptation that calls Core and the
   Abilities API.
 - `magick-ai-cloud-addon` - cloud service connection.
@@ -33,7 +33,7 @@ Abilities API 直接消费，也可以被需要稳定能力目录的 host 插件
 Npcink Abilities Toolkit 是 Magick AI 系列插件的一部分：
 
 - `npcink-abilities-toolkit` - 能力定义和 ability callback。
-- `magick-ai-core` - 治理、审批、preflight、audit。
+- `npcink-ai-core` - 治理、审批、preflight、audit。
 - `magick-ai-adapter` - OpenClaw 通道适配，调用 Core 和 Abilities API。
 - `magick-ai-cloud-addon` - 链接云端服务。
 

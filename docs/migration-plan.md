@@ -1,10 +1,10 @@
 # Project Development Plan
 
-The product positioning and next-stage priority plan are documented in [project-positioning-and-next-stage-plan.md](project-positioning-and-next-stage-plan.md). This plan should be interpreted through that boundary: `npcink-abilities-toolkit` is the WordPress AI Agent ability infrastructure layer, not the end-user AI product or Magick AI runtime.
+The product positioning and next-stage priority plan are documented in [project-positioning-and-next-stage-plan.md](project-positioning-and-next-stage-plan.md). This plan should be interpreted through that boundary: `npcink-abilities-toolkit` is the WordPress AI Agent ability infrastructure layer, not the end-user AI product or Npcink AI runtime.
 
 ## Phase 1: Standalone Abilities API Plugin
 
-- Keep this plugin independent from the Magick AI runtime.
+- Keep this plugin independent from the Npcink AI runtime.
 - Provide public registration functions.
 - Register categories and abilities only through WordPress Abilities API hooks.
 - Keep Magick AI integration optional and filter-based when Magick AI is present.
@@ -37,107 +37,107 @@ Start with read-only abilities:
 
 Current migrated core read package:
 
-- `magick-ai/site-info`
-- `npcink-abilities-toolkit/wp-diagnostics-summary` as a new standalone WordPress-only diagnostics ability, not a migrated Magick AI runtime diagnostic
-- `magick-ai/list-post-types`
-- `magick-ai/list-taxonomies`
-- `magick-ai/count-posts`
-- `magick-ai/list-pages-tree`
-- `magick-ai/list-posts`
-- `magick-ai/get-post`
-- `magick-ai/resolve-url-to-post`
-- `magick-ai/get-post-blocks`
-- `magick-ai/list-post-revisions`
-- `magick-ai/list-media`
-- `magick-ai/list-terms`
-- `magick-ai/list-taxonomy-terms`
-- `magick-ai/list-categories`
-- `magick-ai/list-tags`
-- `magick-ai/get-term`
-- `magick-ai/propose-post-excerpt`
-- `magick-ai/resolve-post-metadata-plan`
-- `magick-ai/list-users`
-- `magick-ai/list-comments`
-- `magick-ai/list-menus`
-- `magick-ai/get-menu`
-- `magick-ai/search-posts`
-- `magick-ai/resolve-internal-link-targets`
-- `magick-ai/build-inline-image-blocks`
-- `magick-ai/build-media-seo-assets`
-- `magick-ai/geo-analyze`
-- `magick-ai/optimize-media-metadata`
-- `magick-ai/position-inline-image-blocks`
-- `magick-ai/build-article-optimization-report`
-- `magick-ai/seo-report-context`
-- `magick-ai/read-post-optimization-context`
-- `magick-ai/build-article-single-optimization-suggest`
-- `magick-ai/build-article-optimization-apply-plan`
-- `magick-ai/compose-article-optimization-apply-result`
-- `magick-ai/extract-reference-post-style`
-- `magick-ai/extract-style-baseline`
-- `magick-ai/build-article-production-fingerprint`
-- `magick-ai/check-article-production-duplicate`
-- `magick-ai/review-article-output-light`
-- `magick-ai/compose-article-production-result`
-- `magick-ai/compose-article-draft-result`
-- `magick-ai/resolve-article-publication-decision`
-- `magick-ai/build-article-style-profile`
-- `magick-ai/get-post-stats`
-- `magick-ai/list-revisions`
-- `magick-ai/get-post-meta`
-- `magick-ai/list-pages`
-- `magick-ai/get-page`
-- `magick-ai/inspect-page-structure`
+- `npcink-abilities-toolkit/site-info`
+- `npcink-abilities-toolkit/wp-diagnostics-summary` as a new standalone WordPress-only diagnostics ability, not a migrated Npcink AI runtime diagnostic
+- `npcink-abilities-toolkit/list-post-types`
+- `npcink-abilities-toolkit/list-taxonomies`
+- `npcink-abilities-toolkit/count-posts`
+- `npcink-abilities-toolkit/list-pages-tree`
+- `npcink-abilities-toolkit/list-posts`
+- `npcink-abilities-toolkit/get-post`
+- `npcink-abilities-toolkit/resolve-url-to-post`
+- `npcink-abilities-toolkit/get-post-blocks`
+- `npcink-abilities-toolkit/list-post-revisions`
+- `npcink-abilities-toolkit/list-media`
+- `npcink-abilities-toolkit/list-terms`
+- `npcink-abilities-toolkit/list-taxonomy-terms`
+- `npcink-abilities-toolkit/list-categories`
+- `npcink-abilities-toolkit/list-tags`
+- `npcink-abilities-toolkit/get-term`
+- `npcink-abilities-toolkit/propose-post-excerpt`
+- `npcink-abilities-toolkit/resolve-post-metadata-plan`
+- `npcink-abilities-toolkit/list-users`
+- `npcink-abilities-toolkit/list-comments`
+- `npcink-abilities-toolkit/list-menus`
+- `npcink-abilities-toolkit/get-menu`
+- `npcink-abilities-toolkit/search-posts`
+- `npcink-abilities-toolkit/resolve-internal-link-targets`
+- `npcink-abilities-toolkit/build-inline-image-blocks`
+- `npcink-abilities-toolkit/build-media-seo-assets`
+- `npcink-abilities-toolkit/geo-analyze`
+- `npcink-abilities-toolkit/optimize-media-metadata`
+- `npcink-abilities-toolkit/position-inline-image-blocks`
+- `npcink-abilities-toolkit/build-article-optimization-report`
+- `npcink-abilities-toolkit/seo-report-context`
+- `npcink-abilities-toolkit/read-post-optimization-context`
+- `npcink-abilities-toolkit/build-article-single-optimization-suggest`
+- `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+- `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+- `npcink-abilities-toolkit/extract-reference-post-style`
+- `npcink-abilities-toolkit/extract-style-baseline`
+- `npcink-abilities-toolkit/build-article-production-fingerprint`
+- `npcink-abilities-toolkit/check-article-production-duplicate`
+- `npcink-abilities-toolkit/review-article-output-light`
+- `npcink-abilities-toolkit/compose-article-production-result`
+- `npcink-abilities-toolkit/compose-article-draft-result`
+- `npcink-abilities-toolkit/resolve-article-publication-decision`
+- `npcink-abilities-toolkit/build-article-style-profile`
+- `npcink-abilities-toolkit/get-post-stats`
+- `npcink-abilities-toolkit/list-revisions`
+- `npcink-abilities-toolkit/get-post-meta`
+- `npcink-abilities-toolkit/list-pages`
+- `npcink-abilities-toolkit/get-page`
+- `npcink-abilities-toolkit/inspect-page-structure`
 
 Current migrated deterministic comment helper package:
 
-- `magick-ai/build-comment-moderation-suggest`
-- `magick-ai/compose-comment-moderation-result`
-- `magick-ai/build-comment-mention-reply-suggest`
-- `magick-ai/read-comment-trigger-queue`
-- `magick-ai/compose-comment-mention-reply-result`
-- `magick-ai/build-comment-moderation-batch-suggest`
-- `magick-ai/compose-comment-moderation-batch-result`
+- `npcink-abilities-toolkit/build-comment-moderation-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-result`
+- `npcink-abilities-toolkit/build-comment-mention-reply-suggest`
+- `npcink-abilities-toolkit/read-comment-trigger-queue`
+- `npcink-abilities-toolkit/compose-comment-mention-reply-result`
+- `npcink-abilities-toolkit/build-comment-moderation-batch-suggest`
+- `npcink-abilities-toolkit/compose-comment-moderation-batch-result`
 
 Current migrated host-governed write package:
 
-- `magick-ai/create-draft`
-- `magick-ai/update-post`
-- `magick-ai/set-post-seo-meta`
-- `magick-ai/patch-post-content`
-- `magick-ai/update-post-blocks`
-- `magick-ai/set-post-slug`
-- `magick-ai/set-post-author`
-- `magick-ai/set-post-template`
-- `magick-ai/set-post-format`
-- `magick-ai/create-term`
-- `magick-ai/update-term`
-- `magick-ai/set-post-terms`
-- `magick-ai/update-media-details`
-- `magick-ai/upload-media-from-url`
-- `magick-ai/set-post-featured-image`
-- `magick-ai/schedule-post`
-- `magick-ai/publish-post`
-- `magick-ai/restore-post`
-- `magick-ai/approve-comment`
-- `magick-ai/reply-comment`
+- `npcink-abilities-toolkit/create-draft`
+- `npcink-abilities-toolkit/update-post`
+- `npcink-abilities-toolkit/set-post-seo-meta`
+- `npcink-abilities-toolkit/patch-post-content`
+- `npcink-abilities-toolkit/update-post-blocks`
+- `npcink-abilities-toolkit/set-post-slug`
+- `npcink-abilities-toolkit/set-post-author`
+- `npcink-abilities-toolkit/set-post-template`
+- `npcink-abilities-toolkit/set-post-format`
+- `npcink-abilities-toolkit/create-term`
+- `npcink-abilities-toolkit/update-term`
+- `npcink-abilities-toolkit/set-post-terms`
+- `npcink-abilities-toolkit/update-media-details`
+- `npcink-abilities-toolkit/upload-media-from-url`
+- `npcink-abilities-toolkit/set-post-featured-image`
+- `npcink-abilities-toolkit/schedule-post`
+- `npcink-abilities-toolkit/publish-post`
+- `npcink-abilities-toolkit/restore-post`
+- `npcink-abilities-toolkit/approve-comment`
+- `npcink-abilities-toolkit/reply-comment`
 
 Current migrated host-governed destructive package:
 
-- `magick-ai/delete-term`
-- `magick-ai/merge-terms`
-- `magick-ai/bulk-update-post-terms`
-- `magick-ai/spam-comment`
-- `magick-ai/trash-comment`
-- `magick-ai/delete-media-permanently`
-- `magick-ai/trash-post`
-- `magick-ai/delete-post-permanently`
+- `npcink-abilities-toolkit/delete-term`
+- `npcink-abilities-toolkit/merge-terms`
+- `npcink-abilities-toolkit/bulk-update-post-terms`
+- `npcink-abilities-toolkit/spam-comment`
+- `npcink-abilities-toolkit/trash-comment`
+- `npcink-abilities-toolkit/delete-media-permanently`
+- `npcink-abilities-toolkit/trash-post`
+- `npcink-abilities-toolkit/delete-post-permanently`
 
 Write-like abilities may move when they are pure WordPress operations and remain host-governed: direct clients get dry-run previews by default, while final commit requires approval context from Magick AI or another host runtime. The generic WordPress mutation can live in `npcink-abilities-toolkit`; Magick AI remains responsible for admission, approval, audit, and runtime context.
 
 ## Phase 4: Consumer Integrations
 
-Update consumers, including the Magick AI plugin, to consume this plugin through public functions, WordPress Abilities API discovery, and optional filters.
+Update consumers, including the Npcink AI plugin, to consume this plugin through public functions, WordPress Abilities API discovery, and optional filters.
 
 Avoid direct `require_once` calls into this plugin's internal `includes/` files.
 

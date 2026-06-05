@@ -19,17 +19,17 @@ publication.
 Ability sequence:
 
 1. Discover abilities through `/wp-abilities/v1/abilities` or `wp_get_ability()`.
-2. Prefer `magick-ai/get-article-publish-preflight-context` for the bundled
+2. Prefer `npcink-abilities-toolkit/get-article-publish-preflight-context` for the bundled
    preflight context.
-3. Run `magick-ai/get-post-context` for canonical post context when individual
+3. Run `npcink-abilities-toolkit/get-post-context` for canonical post context when individual
    sections are needed.
-4. Run `magick-ai/get-content-publishing-checklist` for readiness checks.
-5. Run `magick-ai/get-post-publish-risk-report` for publish risk.
-6. Run `magick-ai/build-article-workflow-context` with `workflow=publish`.
-7. Run `magick-ai/get-publishing-calendar-context` to understand scheduling
+4. Run `npcink-abilities-toolkit/get-content-publishing-checklist` for readiness checks.
+5. Run `npcink-abilities-toolkit/get-post-publish-risk-report` for publish risk.
+6. Run `npcink-abilities-toolkit/build-article-workflow-context` with `workflow=publish`.
+7. Run `npcink-abilities-toolkit/get-publishing-calendar-context` to understand scheduling
    pressure.
 8. Stop at read context unless the host explicitly approves
-   `magick-ai/schedule-post` or `magick-ai/publish-post`.
+   `npcink-abilities-toolkit/schedule-post` or `npcink-abilities-toolkit/publish-post`.
 
 Acceptance:
 
@@ -45,14 +45,14 @@ an agent to draft a plan.
 
 Ability sequence:
 
-1. Prefer `magick-ai/get-old-article-refresh-context` for the bundled refresh
+1. Prefer `npcink-abilities-toolkit/get-old-article-refresh-context` for the bundled refresh
    discovery context.
-2. Run `magick-ai/get-content-refresh-opportunities` for stale, thin, weak-link,
+2. Run `npcink-abilities-toolkit/get-content-refresh-opportunities` for stale, thin, weak-link,
    and SEO/GEO issue signals.
-3. Run `magick-ai/get-seo-geo-gap-report` for cross-site topic and answer gaps.
-4. Run `magick-ai/get-site-style-baseline` for writing-style constraints.
-5. Run `magick-ai/get-internal-link-graph-health` for site-wide link structure.
-6. Run `magick-ai/get-internal-link-opportunity-report` for a selected post when
+3. Run `npcink-abilities-toolkit/get-seo-geo-gap-report` for cross-site topic and answer gaps.
+4. Run `npcink-abilities-toolkit/get-site-style-baseline` for writing-style constraints.
+5. Run `npcink-abilities-toolkit/get-internal-link-graph-health` for site-wide link structure.
+6. Run `npcink-abilities-toolkit/get-internal-link-opportunity-report` for a selected post when
    the host chooses a candidate.
 7. Stop at proposal/context unless the host later approves post patch abilities.
 
@@ -71,18 +71,18 @@ comment actions under host approval.
 
 Ability sequence:
 
-1. Prefer `magick-ai/get-comment-compliance-handoff` for the bundled queue,
+1. Prefer `npcink-abilities-toolkit/get-comment-compliance-handoff` for the bundled queue,
    priority, and optional selected-comment handoff.
-2. Run `magick-ai/get-comment-queue-health` for moderation queue summary.
-3. Run `magick-ai/get-comment-action-priority-queue` for prioritized handoff.
-4. Run `magick-ai/build-comment-moderation-suggest` for a selected comment.
-5. Run `magick-ai/build-comment-mention-reply-suggest` when mention or follow-up
+2. Run `npcink-abilities-toolkit/get-comment-queue-health` for moderation queue summary.
+3. Run `npcink-abilities-toolkit/get-comment-action-priority-queue` for prioritized handoff.
+4. Run `npcink-abilities-toolkit/build-comment-moderation-suggest` for a selected comment.
+5. Run `npcink-abilities-toolkit/build-comment-mention-reply-suggest` when mention or follow-up
    handling is needed.
-6. Optionally run `magick-ai/compose-comment-moderation-result` to normalize the
+6. Optionally run `npcink-abilities-toolkit/compose-comment-moderation-result` to normalize the
    handoff result.
 7. Stop at suggestions unless the host explicitly approves
-   `magick-ai/approve-comment`, `magick-ai/reply-comment`,
-   `magick-ai/spam-comment`, or `magick-ai/trash-comment`.
+   `npcink-abilities-toolkit/approve-comment`, `npcink-abilities-toolkit/reply-comment`,
+   `npcink-abilities-toolkit/spam-comment`, or `npcink-abilities-toolkit/trash-comment`.
 
 Acceptance:
 
@@ -122,7 +122,7 @@ machine-readable:
 - `composer test` verifies the fixture against registered abilities and the
   optional `wp_ability` compatibility projection consumed by host projects.
 
-The current required consumer-side check belongs in `magick-ai-core`. Future
+The current required consumer-side check belongs in `npcink-ai-core`. Future
 Agent Gateway, MCP, or other host tests may reuse the same fixture, but the
 abandoned legacy Magick AI project is no longer a validation target.
 

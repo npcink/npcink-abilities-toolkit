@@ -2,17 +2,17 @@
 /**
  * Example provider integration for Npcink Abilities Toolkit.
  *
- * @package MagickAIAbilitiesExample
+ * @package NpcinkAbilitiesToolkitExample
  */
 
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) {
 			return;
 		}
 
-		magick_ai_abilities_register_readonly(
+		npcink_abilities_toolkit_register_readonly(
 			'acme/site-summary',
 			array(
 				'label'            => 'Site Summary',

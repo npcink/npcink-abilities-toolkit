@@ -2,14 +2,14 @@
 /**
  * Core WordPress comment helper ability package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
-use Magick_AI_Abilities\Packages\Comment_Definitions\Core_Comment_Definitions;
-use Magick_AI_Abilities\Registry\Ability_Registrar;
-use Magick_AI_Abilities\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Packages\Comment_Definitions\Core_Comment_Definitions;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -51,7 +51,7 @@ final class Core_Comment_Package {
 	 */
 	public function boot() {
 		$this->categories->add(
-			'magick-ai-comments',
+			'npcink-abilities-toolkit-comments',
 			array(
 				'label'       => __( 'WordPress Comment Abilities', 'npcink-abilities-toolkit' ),
 				'description' => __( 'Read-only comment moderation and reply helper abilities.', 'npcink-abilities-toolkit' ),
@@ -65,11 +65,11 @@ final class Core_Comment_Package {
 			}
 
 			$definition['meta'] = is_array( $definition['meta'] ?? null ) ? $definition['meta'] : array();
-			$definition['meta']['magick_ai_abilities'] = is_array( $definition['meta']['magick_ai_abilities'] ?? null )
-				? $definition['meta']['magick_ai_abilities']
+			$definition['meta']['npcink_abilities_toolkit'] = is_array( $definition['meta']['npcink_abilities_toolkit'] ?? null )
+				? $definition['meta']['npcink_abilities_toolkit']
 				: array();
-			$definition['meta']['magick_ai_abilities']['pack'] = $pack;
-			$definition['project_to_magick_catalog'] = true;
+			$definition['meta']['npcink_abilities_toolkit']['pack'] = $pack;
+			$definition['project_to_npcink_catalog'] = true;
 			$definition = $this->with_agent_usage_metadata( $ability_id, $definition );
 			$this->abilities->add_readonly( $ability_id, $definition );
 		}
@@ -91,7 +91,7 @@ final class Core_Comment_Package {
 		 *
 		 * @param string[] $defaults Enabled comment sub-pack slugs.
 		 */
-		$enabled = apply_filters( 'magick_ai_abilities_enabled_comment_packs', $defaults );
+		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_comment_packs', $defaults );
 		$enabled = is_array( $enabled ) ? array_map( 'sanitize_key', $enabled ) : $defaults;
 		$pack    = sanitize_key( $pack );
 
@@ -104,7 +104,7 @@ final class Core_Comment_Package {
 		 * @param array<string,mixed> $definition Ability definition.
 		 */
 		return (bool) apply_filters(
-			'magick_ai_abilities_should_register_comment_ability',
+			'npcink_abilities_toolkit_should_register_comment_ability',
 			in_array( $pack, $enabled, true ),
 			$ability_id,
 			$pack,
@@ -139,7 +139,7 @@ final class Core_Comment_Package {
 	 * @return array<string,mixed>
 	 */
 	private function with_agent_usage_metadata( $ability_id, array $definition ) {
-		if ( 'magick-ai/get-comment-compliance-handoff' !== $ability_id ) {
+		if ( 'npcink-abilities-toolkit/get-comment-compliance-handoff' !== $ability_id ) {
 			return $definition;
 		}
 
@@ -163,31 +163,31 @@ final class Core_Comment_Package {
 		$input      = is_array( $input ) ? $input : array();
 		$comment_id = $this->absint_value( $input['comment_id'] ?? 0 );
 		if ( $comment_id <= 0 ) {
-			return $this->error( 'magick_ai_comment_invalid', 'comment_id is invalid.', 400 );
+			return $this->error( 'npcink_ai_comment_invalid', 'comment_id is invalid.', 400 );
 		}
 
 		$mode = sanitize_key( (string) ( $input['mode'] ?? 'suggest' ) );
 		if ( ! in_array( $mode, array( 'suggest', 'action' ), true ) ) {
-			return $this->error( 'magick_ai_comment_moderation_mode_invalid', 'mode only supports suggest or action.', 400 );
+			return $this->error( 'npcink_ai_comment_moderation_mode_invalid', 'mode only supports suggest or action.', 400 );
 		}
 
 		$allowed_actions = $this->normalize_comment_moderation_actions( $input['allowed_actions'] ?? array() );
 		$action_override = sanitize_key( (string) ( $input['action_override'] ?? '' ) );
 		if ( 'action' === $mode ) {
 			if ( '' === $action_override ) {
-				return $this->error( 'magick_ai_comment_moderation_action_required', 'action_override is required when mode=action.', 400 );
+				return $this->error( 'npcink_ai_comment_moderation_action_required', 'action_override is required when mode=action.', 400 );
 			}
 			if ( ! in_array( $action_override, $allowed_actions, true ) ) {
-				return $this->error( 'magick_ai_comment_moderation_action_not_allowed', 'action_override is not allowed.', 400 );
+				return $this->error( 'npcink_ai_comment_moderation_action_not_allowed', 'action_override is not allowed.', 400 );
 			}
 			if ( 'reply' === $action_override && '' === trim( (string) ( $input['reply_text'] ?? '' ) ) ) {
-				return $this->error( 'magick_ai_comment_moderation_reply_required', 'reply_text is required when action_override=reply.', 400 );
+				return $this->error( 'npcink_ai_comment_moderation_reply_required', 'reply_text is required when action_override=reply.', 400 );
 			}
 		}
 
 		$comment = $this->get_comment_object( $comment_id );
 		if ( ! is_object( $comment ) ) {
-			return $this->error( 'magick_ai_comment_missing', 'Comment not found.', 404 );
+			return $this->error( 'npcink_ai_comment_missing', 'Comment not found.', 404 );
 		}
 
 		$content       = $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) );
@@ -621,7 +621,7 @@ final class Core_Comment_Package {
 		$comment_id = $this->absint_value( $input['comment_id'] ?? 0 );
 		$comment    = $this->get_comment_object( $comment_id );
 		if ( $comment_id <= 0 || ! is_object( $comment ) ) {
-			return $this->error( 'magick_ai_comment_missing', 'Comment not found.', 404 );
+			return $this->error( 'npcink_ai_comment_missing', 'Comment not found.', 404 );
 		}
 
 		$content      = $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) );
@@ -674,7 +674,7 @@ final class Core_Comment_Package {
 		$input = is_array( $input ) ? $input : array();
 		$mode  = sanitize_key( (string) ( $input['mode'] ?? 'suggest' ) );
 		if ( 'suggest' !== $mode ) {
-			return $this->error( 'magick_ai_comment_batch_mode_invalid', 'comment_moderation_batch_suggest only supports mode=suggest.', 400 );
+			return $this->error( 'npcink_ai_comment_batch_mode_invalid', 'comment_moderation_batch_suggest only supports mode=suggest.', 400 );
 		}
 
 		$ids = is_array( $input['comment_ids'] ?? null ) ? $input['comment_ids'] : array();

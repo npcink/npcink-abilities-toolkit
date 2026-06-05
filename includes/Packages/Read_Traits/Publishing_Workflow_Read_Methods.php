@@ -2,10 +2,10 @@
 /**
  * Publishing workflow read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,15 +25,15 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -137,7 +137,7 @@ trait Publishing_Workflow_Read_Methods {
 		);
 		$post_ids = array_slice( $post_ids, 0, 50 );
 		if ( empty( $post_ids ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_ids_required', __( 'At least one post id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_ids_required', __( 'At least one post id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -231,7 +231,7 @@ trait Publishing_Workflow_Read_Methods {
 	public function get_site_operations_dashboard( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read site operations.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read site operations.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -333,11 +333,11 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -443,7 +443,7 @@ trait Publishing_Workflow_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -644,7 +644,7 @@ trait Publishing_Workflow_Read_Methods {
 	public function get_publishing_calendar_context( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read publishing calendar context.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read publishing calendar context.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		if ( '' === $post_type ) {

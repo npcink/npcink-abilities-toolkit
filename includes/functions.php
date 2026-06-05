@@ -2,24 +2,24 @@
 /**
  * Public API functions.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 	/**
 	 * Emits a local-only observability event for optional Cloud Addon collection.
 	 *
 	 * This function never sends data off-site. The Cloud Addon may subscribe to
-	 * magick_ai_observability_event when monitoring is explicitly enabled.
+	 * npcink_abilities_toolkit_observability_event when monitoring is explicitly enabled.
 	 *
 	 * @param array<string,mixed> $event Event payload.
 	 * @return void
 	 */
-	function magick_ai_abilities_emit_observability_event( array $event ) {
+	function npcink_abilities_toolkit_emit_observability_event( array $event ) {
 		if ( ! function_exists( 'do_action' ) ) {
 			return;
 		}
@@ -28,18 +28,18 @@ if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
 			array(
 				'schema_version' => '2026-06-01',
 				'plugin_slug'    => 'npcink-abilities-toolkit',
-				'plugin_version' => defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '',
+				'plugin_version' => defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '',
 				'source'         => 'local',
 				'emitted_at'     => gmdate( 'c' ),
 			),
 			$event
 		);
 
-		do_action( 'magick_ai_observability_event', $payload );
+		do_action( 'npcink_abilities_toolkit_observability_event', $payload );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_register_category' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_register_category' ) ) {
 	/**
 	 * Registers a WordPress Abilities API category.
 	 *
@@ -47,12 +47,12 @@ if ( ! function_exists( 'magick_ai_abilities_register_category' ) ) {
 	 * @param array  $args Category args.
 	 * @return bool
 	 */
-	function magick_ai_abilities_register_category( $category_id, array $args = array() ) {
-		return Magick_AI_Abilities\Plugin::instance()->categories()->add( $category_id, $args );
+	function npcink_abilities_toolkit_register_category( $category_id, array $args = array() ) {
+		return Npcink_Abilities_Toolkit\Plugin::instance()->categories()->add( $category_id, $args );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) {
 	/**
 	 * Registers a read-only agent-callable ability.
 	 *
@@ -60,12 +60,12 @@ if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
 	 * @param array  $definition Ability definition.
 	 * @return bool
 	 */
-	function magick_ai_abilities_register_readonly( $ability_id, array $definition ) {
-		return Magick_AI_Abilities\Plugin::instance()->abilities()->add_readonly( $ability_id, $definition );
+	function npcink_abilities_toolkit_register_readonly( $ability_id, array $definition ) {
+		return Npcink_Abilities_Toolkit\Plugin::instance()->abilities()->add_readonly( $ability_id, $definition );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_register_write_proposal' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_register_write_proposal' ) ) {
 	/**
 	 * Registers a write-like ability that returns a proposal instead of committing directly.
 	 *
@@ -73,12 +73,12 @@ if ( ! function_exists( 'magick_ai_abilities_register_write_proposal' ) ) {
 	 * @param array  $definition Ability definition.
 	 * @return bool
 	 */
-	function magick_ai_abilities_register_write_proposal( $ability_id, array $definition ) {
-		return Magick_AI_Abilities\Plugin::instance()->abilities()->add_write_proposal( $ability_id, $definition );
+	function npcink_abilities_toolkit_register_write_proposal( $ability_id, array $definition ) {
+		return Npcink_Abilities_Toolkit\Plugin::instance()->abilities()->add_write_proposal( $ability_id, $definition );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_normalize_schema' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_normalize_schema' ) ) {
 	/**
 	 * Normalizes a schema fragment for WordPress Abilities API registration.
 	 *
@@ -86,14 +86,14 @@ if ( ! function_exists( 'magick_ai_abilities_normalize_schema' ) ) {
 	 * @param string $default_type Default type.
 	 * @return array
 	 */
-	function magick_ai_abilities_normalize_schema( $schema, $default_type = 'object' ) {
-		$normalizer = new Magick_AI_Abilities\Registry\Schema_Normalizer();
+	function npcink_abilities_toolkit_normalize_schema( $schema, $default_type = 'object' ) {
+		$normalizer = new Npcink_Abilities_Toolkit\Registry\Schema_Normalizer();
 
 		return $normalizer->normalize( $schema, $default_type );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_normalize_annotations' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_normalize_annotations' ) ) {
 	/**
 	 * Normalizes Abilities API annotations for a risk level.
 	 *
@@ -101,37 +101,37 @@ if ( ! function_exists( 'magick_ai_abilities_normalize_annotations' ) ) {
 	 * @param string $risk_level Risk level.
 	 * @return array
 	 */
-	function magick_ai_abilities_normalize_annotations( $annotations, $risk_level = 'read' ) {
-		$normalizer = new Magick_AI_Abilities\Registry\Annotation_Normalizer();
+	function npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level = 'read' ) {
+		$normalizer = new Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer();
 
 		return $normalizer->normalize( $annotations, $risk_level );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_get_registered' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_get_registered' ) ) {
 	/**
 	 * Returns normalized abilities registered through this toolkit.
 	 *
 	 * @return array
 	 */
-	function magick_ai_abilities_get_registered() {
-		return Magick_AI_Abilities\Plugin::instance()->abilities()->all();
+	function npcink_abilities_toolkit_get_registered() {
+		return Npcink_Abilities_Toolkit\Plugin::instance()->abilities()->all();
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_refresh_catalog_observability' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_refresh_catalog_observability' ) ) {
 	/**
 	 * Emits the local catalog changed event for a manual catalog refresh.
 	 *
 	 * @param string $reason Refresh reason.
 	 * @return bool
 	 */
-	function magick_ai_abilities_refresh_catalog_observability( $reason = 'manual_refresh' ) {
-		return Magick_AI_Abilities\Plugin::instance()->abilities()->emit_manual_catalog_refresh( $reason );
+	function npcink_abilities_toolkit_refresh_catalog_observability( $reason = 'manual_refresh' ) {
+		return Npcink_Abilities_Toolkit\Plugin::instance()->abilities()->emit_manual_catalog_refresh( $reason );
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_get_workflow_definitions' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
 	/**
 	 * Returns read-only workflow recipe definitions for host discovery.
 	 *
@@ -140,19 +140,19 @@ if ( ! function_exists( 'magick_ai_abilities_get_workflow_definitions' ) ) {
 	 *
 	 * @return array<string,mixed>
 	 */
-	function magick_ai_abilities_get_workflow_definitions() {
-		return Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::manifest();
+	function npcink_abilities_toolkit_get_workflow_definitions() {
+		return Npcink_Abilities_Toolkit\Workflow\Workflow_Definition_Provider::manifest();
 	}
 }
 
-if ( ! function_exists( 'magick_ai_abilities_get_workflow_definition' ) ) {
+if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definition' ) ) {
 	/**
 	 * Returns one workflow recipe definition by recipe id or case id.
 	 *
 	 * @param string $recipe_id Recipe id or case id.
 	 * @return array<string,mixed>|null
 	 */
-	function magick_ai_abilities_get_workflow_definition( $recipe_id ) {
-		return Magick_AI_Abilities\Workflow\Workflow_Definition_Provider::get( $recipe_id );
+	function npcink_abilities_toolkit_get_workflow_definition( $recipe_id ) {
+		return Npcink_Abilities_Toolkit\Workflow\Workflow_Definition_Provider::get( $recipe_id );
 	}
 }

@@ -21,31 +21,31 @@ The default plugin boot keeps all built-in packages enabled for compatibility.
 Hosts that only need the generic Abilities API surface can narrow the local
 registration set with filters:
 
-- `magick_ai_abilities_enabled_packages`: package-level boot map. Supported
+- `npcink_abilities_toolkit_enabled_packages`: package-level boot map. Supported
   slugs are `core_read`, `core_write`, `core_destructive`, `core_comment`,
-  `magick_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
-- `magick_ai_abilities_enabled_read_packs`: read-only sub-packs. Returning
+  `npcink_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.
+- `npcink_abilities_toolkit_enabled_read_packs`: read-only sub-packs. Returning
   only `array( 'core_wordpress_read' )` keeps generic WordPress reads and drops
   higher-level content, article, diagnostics, workflow definition discovery,
   media, taxonomy, page, SEO/GEO, and comment workflow helpers.
-- `magick_ai_abilities_enabled_comment_packs`: comment helper sub-packs.
-- `magick_ai_abilities_should_register_read_ability` and
-  `magick_ai_abilities_should_register_comment_ability`: final per-ability
+- `npcink_abilities_toolkit_enabled_comment_packs`: comment helper sub-packs.
+- `npcink_abilities_toolkit_should_register_read_ability` and
+  `npcink_abilities_toolkit_should_register_comment_ability`: final per-ability
   registration gates.
-- `magick_ai_abilities_projected_catalog_row`: last-mile customization for the
-  optional Magick AI compatibility row. The default row is intentionally thin;
+- `npcink_abilities_toolkit_projected_catalog_row`: last-mile customization for the
+  optional Npcink AI compatibility row. The default row is intentionally thin;
   hosts that need product-specific runtime fields should add them here or in
   the consuming host, not by expanding this package's default projection.
 
 These filters are host composition controls, not new public ability-definition
-APIs. They prevent this package from becoming a forced Magick AI catalog bundle
+APIs. They prevent this package from becoming a forced Npcink AI catalog bundle
 in installations that only want reusable WordPress ability definitions.
 
 The projection filter is metadata-only. It must not be used to move final
 approval, quota, audit, Open API exposure, MCP policy, workflow state, or model
 routing ownership into this package.
 
-## `magick_ai_abilities_register_category( $category_id, $args )`
+## `npcink_abilities_toolkit_register_category( $category_id, $args )`
 
 Registers an Abilities API category.
 
@@ -70,7 +70,7 @@ Failure conditions:
 Example:
 
 ```php
-magick_ai_abilities_register_category(
+npcink_abilities_toolkit_register_category(
 	'acme-demo',
 	array(
 		'label'       => 'ACME Demo Abilities',
@@ -79,7 +79,7 @@ magick_ai_abilities_register_category(
 );
 ```
 
-## `magick_ai_abilities_register_readonly( $ability_id, $definition )`
+## `npcink_abilities_toolkit_register_readonly( $ability_id, $definition )`
 
 Registers a read-only ability.
 
@@ -101,9 +101,9 @@ Optional fields:
 - `channels`
 - `contract_version`
 - `source`
-- `project_to_magick_catalog`
+- `project_to_npcink_catalog`
 
-`source` defaults to `third_party`, meaning the definition is supplied by a provider plugin outside the consuming host. Provider definitions are not projected into Magick AI by default. Set `project_to_magick_catalog => true` only when the provider intentionally wants Magick AI compatibility projection. Official host mirrors should keep `project_to_magick_catalog => false` when another host already owns catalog truth.
+`source` defaults to `third_party`, meaning the definition is supplied by a provider plugin outside the consuming host. Provider definitions are not projected into Magick AI by default. Set `project_to_npcink_catalog => true` only when the provider intentionally wants Npcink AI compatibility projection. Official host mirrors should keep `project_to_npcink_catalog => false` when another host already owns catalog truth.
 
 Parameters:
 
@@ -119,7 +119,7 @@ Default behavior:
 - `capability` defaults to `manage_options`.
 - `permission_callback` is generated from `capability` unless provided.
 - `source` defaults to `third_party`.
-- `project_to_magick_catalog` defaults to `false`.
+- `project_to_npcink_catalog` defaults to `false`.
 - `contract_version` defaults to `v1`.
 - `meta.show_in_rest` defaults to `true`.
 - `channels` defaults to `abilities_rest`.
@@ -136,7 +136,7 @@ Failure conditions:
 Example:
 
 ```php
-magick_ai_abilities_register_readonly(
+npcink_abilities_toolkit_register_readonly(
 	'acme/site-summary',
 	array(
 		'label'            => 'Site Summary',
@@ -165,7 +165,7 @@ magick_ai_abilities_register_readonly(
 );
 ```
 
-## `magick_ai_abilities_register_write_proposal( $ability_id, $definition )`
+## `npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition )`
 
 Registers a write-like ability that returns a proposal instead of committing.
 
@@ -190,7 +190,7 @@ make the provider callback authorized to commit.
 Example:
 
 ```php
-magick_ai_abilities_register_write_proposal(
+npcink_abilities_toolkit_register_write_proposal(
 	'acme/create-draft-proposal',
 	array(
 		'label'            => 'Create Draft Proposal',
@@ -235,7 +235,7 @@ magick_ai_abilities_register_write_proposal(
 );
 ```
 
-## `magick_ai_abilities_normalize_schema( $schema, $default_type )`
+## `npcink_abilities_toolkit_normalize_schema( $schema, $default_type )`
 
 Normalizes shorthand schema fragments into arrays compatible with WordPress REST schema validation.
 
@@ -250,7 +250,7 @@ Returns a normalized schema array.
 Example:
 
 ```php
-$schema = magick_ai_abilities_normalize_schema(
+$schema = npcink_abilities_toolkit_normalize_schema(
 	array(
 		'type'       => 'object',
 		'properties' => array(
@@ -260,7 +260,7 @@ $schema = magick_ai_abilities_normalize_schema(
 );
 ```
 
-## `magick_ai_abilities_normalize_annotations( $annotations, $risk_level )`
+## `npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level )`
 
 Normalizes `readonly`, `destructive`, and `idempotent` annotations from one risk level.
 
@@ -279,7 +279,7 @@ Default behavior:
 - `destructive` sets `readonly=false`, `destructive=true`, and
   `idempotent=false`.
 
-## `magick_ai_abilities_get_registered()`
+## `npcink_abilities_toolkit_get_registered()`
 
 Returns the normalized ability definitions currently registered through this toolkit.
 
@@ -293,7 +293,7 @@ Return shape:
   `source`, schemas, callbacks, permission callback, `risk_level`,
   `requires_confirm`, scopes, contract metadata, and `meta`.
 
-## `magick_ai_abilities_get_workflow_definitions()`
+## `npcink_abilities_toolkit_get_workflow_definitions()`
 
 Returns the read-only workflow recipe definition manifest.
 
@@ -310,7 +310,7 @@ Return shape:
 
 Each case follows [Workflow Definition Contract](workflow-definition-contract.md).
 
-## `magick_ai_abilities_get_workflow_definition( $recipe_id )`
+## `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`
 
 Returns one workflow recipe definition by recipe id or case id, or `null` when
 the recipe is unknown.

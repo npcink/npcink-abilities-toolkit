@@ -2,20 +2,20 @@
 /**
  * Verifies that a host can build governance proposal payloads from discovered ability contracts.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 require_once dirname( __DIR__ ) . '/tests/bootstrap.php';
 
-use Magick_AI_Abilities\Packages\Core_Comment_Package;
-use Magick_AI_Abilities\Packages\Core_Destructive_Package;
-use Magick_AI_Abilities\Packages\Core_Read_Package;
-use Magick_AI_Abilities\Packages\Core_Write_Package;
-use Magick_AI_Abilities\Registry\Ability_Registrar;
-use Magick_AI_Abilities\Registry\Annotation_Normalizer;
-use Magick_AI_Abilities\Registry\Category_Registrar;
-use Magick_AI_Abilities\Registry\Contract_Normalizer;
-use Magick_AI_Abilities\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Read_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Write_Package;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
 
 $failures = array();
 
@@ -107,12 +107,12 @@ function maa_consumer_handoff_assert_schema_object( array $ability, $ability_id,
 
 function maa_consumer_handoff_assert_rest_metadata( array $ability, $ability_id ) {
 	$meta        = isset( $ability['meta'] ) && is_array( $ability['meta'] ) ? $ability['meta'] : array();
-	$magick_meta = isset( $meta['magick'] ) && is_array( $meta['magick'] ) ? $meta['magick'] : array();
+	$npcink_meta = isset( $meta['npcink'] ) && is_array( $meta['npcink'] ) ? $meta['npcink'] : array();
 	$mcp_meta    = isset( $meta['mcp'] ) && is_array( $meta['mcp'] ) ? $meta['mcp'] : array();
 
 	maa_consumer_handoff_assert( true === (bool) ( $meta['show_in_rest'] ?? false ), $ability_id . ' is discoverable through Abilities API REST metadata' );
-	maa_consumer_handoff_assert( $ability_id === (string) ( $magick_meta['canonical_ability_id'] ?? '' ), $ability_id . ' metadata preserves canonical ability id' );
-	maa_consumer_handoff_assert( (string) ( $ability['risk_level'] ?? '' ) === (string) ( $magick_meta['risk_level'] ?? '' ), $ability_id . ' metadata mirrors risk level' );
+	maa_consumer_handoff_assert( $ability_id === (string) ( $npcink_meta['canonical_ability_id'] ?? '' ), $ability_id . ' metadata preserves canonical ability id' );
+	maa_consumer_handoff_assert( (string) ( $ability['risk_level'] ?? '' ) === (string) ( $npcink_meta['risk_level'] ?? '' ), $ability_id . ' metadata mirrors risk level' );
 	maa_consumer_handoff_assert( (string) ( $ability['risk_level'] ?? '' ) === (string) ( $mcp_meta['risk'] ?? '' ), $ability_id . ' MCP metadata mirrors risk level' );
 }
 
@@ -190,9 +190,9 @@ foreach ( (array) ( $fixture['harvest_surfaces'] ?? array() ) as $surface_id => 
 	}
 }
 
-$draft_ability = isset( $abilities['magick-ai/create-draft'] ) && is_array( $abilities['magick-ai/create-draft'] ) ? $abilities['magick-ai/create-draft'] : array();
+$draft_ability = isset( $abilities['npcink-abilities-toolkit/create-draft'] ) && is_array( $abilities['npcink-abilities-toolkit/create-draft'] ) ? $abilities['npcink-abilities-toolkit/create-draft'] : array();
 $proposal      = maa_consumer_handoff_proposal_payload(
-	'magick-ai/create-draft',
+	'npcink-abilities-toolkit/create-draft',
 	$draft_ability,
 	array(
 		'title'   => 'Draft prepared through Core governance',
@@ -201,7 +201,7 @@ $proposal      = maa_consumer_handoff_proposal_payload(
 	)
 );
 
-foreach ( (array) ( $fixture['abilities']['magick-ai/create-draft']['proposal_required_keys'] ?? array() ) as $required_key ) {
+foreach ( (array) ( $fixture['abilities']['npcink-abilities-toolkit/create-draft']['proposal_required_keys'] ?? array() ) as $required_key ) {
 	maa_consumer_handoff_assert( array_key_exists( $required_key, $proposal ), 'proposal payload includes ' . $required_key );
 }
 maa_consumer_handoff_assert( true === (bool) ( $proposal['input']['dry_run'] ?? false ), 'proposal input defaults to dry-run preview' );
@@ -211,8 +211,8 @@ maa_consumer_handoff_assert( 'write' === (string) ( $proposal['preview']['abilit
 
 $example_path = dirname( __DIR__ ) . '/examples/core-governance-consumer.php';
 $example      = is_readable( $example_path ) ? file_get_contents( $example_path ) : '';
-maa_consumer_handoff_assert( is_string( $example ) && false !== strpos( $example, 'magick_ai_abilities_get_registered' ), 'consumer example discovers abilities through public helper' );
-maa_consumer_handoff_assert( is_string( $example ) && false !== strpos( $example, 'magick-ai-core/v1/proposals' ), 'consumer example documents Core proposal endpoint' );
+maa_consumer_handoff_assert( is_string( $example ) && false !== strpos( $example, 'npcink_abilities_toolkit_get_registered' ), 'consumer example discovers abilities through public helper' );
+maa_consumer_handoff_assert( is_string( $example ) && false !== strpos( $example, 'npcink-ai-core/v1/proposals' ), 'consumer example documents Core proposal endpoint' );
 
 if ( ! empty( $failures ) ) {
 	foreach ( $failures as $failure ) {

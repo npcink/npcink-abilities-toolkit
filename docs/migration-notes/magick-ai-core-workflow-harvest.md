@@ -1,10 +1,10 @@
-# Magick AI Core Workflow Harvest
+# Npcink AI Core Workflow Harvest
 
 Status: source harvest for future host workflow rewrites.
 
 Date: 2026-05-29.
 
-Source snapshot: Magick AI Core while it is being narrowed to "the WordPress AI
+Source snapshot: Npcink AI Core while it is being narrowed to "the WordPress AI
 operation governance layer." The goal of this harvest is to keep useful workflow
 knowledge without carrying Core runtime ownership into this package.
 
@@ -16,7 +16,7 @@ Use this split when rewriting any harvested workflow:
 | --- | --- | --- |
 | `npcink-abilities-toolkit` | WordPress Abilities API definitions, schemas, callbacks, dry-run previews, and documentation-only recipes. | Workflow execution state, approval records, Agent Gateway projection, model routing, Settings UI. |
 | `magick-ai-content-assistant` | Article, media, and comment product UX, defaults, editor flows, preview/apply screens, and model-assisted content experience. | Generic Abilities API package ownership or Magick AI governance internals. |
-| Magick AI Core | Approval, audit, apply guard, app auth, quota, trace, Open Platform governance, and host runtime policy. | Content product workflows, reusable WordPress ability packages, generic writing/SEO/comment automation as a product surface. |
+| Npcink AI Core | Approval, audit, apply guard, app auth, quota, trace, Open Platform governance, and host runtime policy. | Content product workflows, reusable WordPress ability packages, generic writing/SEO/comment automation as a product surface. |
 
 ## Harvested Workflow Groups
 
@@ -35,11 +35,11 @@ Useful value:
 
 Rewrite as:
 
-1. Read post context with `magick-ai/get-post-context`.
-2. Read existing taxonomy terms with `magick-ai/list-tags` or
-   `magick-ai/list-taxonomy-terms`.
+1. Read post context with `npcink-abilities-toolkit/get-post-context`.
+2. Read existing taxonomy terms with `npcink-abilities-toolkit/list-tags` or
+   `npcink-abilities-toolkit/list-taxonomy-terms`.
 3. Generate a proposal in the host product or a future proposal-only ability.
-4. Preview taxonomy writes with `magick-ai/set-post-terms`.
+4. Preview taxonomy writes with `npcink-abilities-toolkit/set-post-terms`.
 5. Commit only through host approval.
 
 Do not keep the old Core workflow runtime or Agent Gateway skill manifest.
@@ -59,14 +59,14 @@ Useful value:
 
 Rewrite as:
 
-1. Read `magick-ai/get-post-context`.
-2. Use `magick-ai/propose-post-excerpt` for bounded excerpt proposal when
+1. Read `npcink-abilities-toolkit/get-post-context`.
+2. Use `npcink-abilities-toolkit/propose-post-excerpt` for bounded excerpt proposal when
    sufficient.
 3. Let the host call its model layer for abstractive summary or SEO copy.
-4. Use `magick-ai/set-post-seo-meta` or `magick-ai/update-post` in dry-run mode.
+4. Use `npcink-abilities-toolkit/set-post-seo-meta` or `npcink-abilities-toolkit/update-post` in dry-run mode.
 5. Commit only with host approval.
 
-Do not move `magick-ai/generate-excerpt` or `magick-ai/seo-meta-generate` into
+Do not move `npcink-abilities-toolkit/generate-excerpt` or `npcink-abilities-toolkit/seo-meta-generate` into
 this package; they depend on model/provider routing.
 
 ### 3. Pre-Publish Report
@@ -83,12 +83,12 @@ Useful value:
 
 Rewrite as the existing `workflow/wordpress_article_publish_preflight` recipe:
 
-1. Prefer `magick-ai/get-article-publish-preflight-context`.
-2. Expand to `magick-ai/get-content-publishing-checklist`,
-   `magick-ai/get-post-publish-risk-report`,
-   `magick-ai/build-article-workflow-context`, and
-   `magick-ai/get-publishing-calendar-context` only when needed.
-3. Use `magick-ai/schedule-post` or `magick-ai/publish-post` as dry-run first.
+1. Prefer `npcink-abilities-toolkit/get-article-publish-preflight-context`.
+2. Expand to `npcink-abilities-toolkit/get-content-publishing-checklist`,
+   `npcink-abilities-toolkit/get-post-publish-risk-report`,
+   `npcink-abilities-toolkit/build-article-workflow-context`, and
+   `npcink-abilities-toolkit/get-publishing-calendar-context` only when needed.
+3. Use `npcink-abilities-toolkit/schedule-post` or `npcink-abilities-toolkit/publish-post` as dry-run first.
 4. Commit only through a host approval surface.
 
 ### 4. Existing Article Optimization
@@ -110,13 +110,13 @@ Useful value:
 
 Rewrite as the existing `workflow/wordpress_article_optimization` recipe:
 
-1. `magick-ai/read-post-optimization-context`
-2. `magick-ai/seo-report-context`
-3. `magick-ai/build-article-single-optimization-suggest`
-4. `magick-ai/build-article-optimization-apply-plan`
-5. `magick-ai/compose-article-optimization-apply-result`
-6. Optional dry-run with `magick-ai/patch-post-content`,
-   `magick-ai/set-post-seo-meta`, or `magick-ai/update-post-blocks`
+1. `npcink-abilities-toolkit/read-post-optimization-context`
+2. `npcink-abilities-toolkit/seo-report-context`
+3. `npcink-abilities-toolkit/build-article-single-optimization-suggest`
+4. `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+5. `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+6. Optional dry-run with `npcink-abilities-toolkit/patch-post-content`,
+   `npcink-abilities-toolkit/set-post-seo-meta`, or `npcink-abilities-toolkit/update-post-blocks`
 
 Host policy decides which suggestions are allowed to commit.
 
@@ -143,10 +143,10 @@ Rewrite as Content Assistant product flows backed by documentation recipes:
 - article draft: use `workflow/wordpress_article_draft`;
 - article production: use `workflow/wordpress_article_production`;
 - article media: keep as a future recipe that composes
-  `magick-ai/build-media-seo-assets`,
-  `magick-ai/build-inline-image-blocks`,
-  `magick-ai/position-inline-image-blocks`, `magick-ai/upload-media-from-url`,
-  `magick-ai/update-media-details`, and `magick-ai/set-post-featured-image`.
+  `npcink-abilities-toolkit/build-media-seo-assets`,
+  `npcink-abilities-toolkit/build-inline-image-blocks`,
+  `npcink-abilities-toolkit/position-inline-image-blocks`, `npcink-abilities-toolkit/upload-media-from-url`,
+  `npcink-abilities-toolkit/update-media-details`, and `npcink-abilities-toolkit/set-post-featured-image`.
 
 Do not let this package own image generation, source selection, public image
 provider policy, article editor UX, or publish policy.
@@ -172,11 +172,11 @@ Useful value:
 
 Rewrite as:
 
-1. Read media context with `magick-ai/list-media` and
-   `magick-ai/get-media-inventory-health`.
-2. Build metadata proposals with `magick-ai/build-media-seo-assets` and
-   `magick-ai/optimize-media-metadata`.
-3. Preview writes with `magick-ai/update-media-details`.
+1. Read media context with `npcink-abilities-toolkit/list-media` and
+   `npcink-abilities-toolkit/get-media-inventory-health`.
+2. Build metadata proposals with `npcink-abilities-toolkit/build-media-seo-assets` and
+   `npcink-abilities-toolkit/optimize-media-metadata`.
+3. Preview writes with `npcink-abilities-toolkit/update-media-details`.
 4. Let the host own batch selection, scheduling, retry, and commit approval.
 
 Do not migrate nightly/batch consoles or format conversion policy into this
@@ -202,14 +202,14 @@ Useful value:
 
 Rewrite as the existing `workflow/wordpress_comment_compliance_handoff` recipe:
 
-1. Prefer `magick-ai/get-comment-compliance-handoff`.
-2. Expand to `magick-ai/get-comment-queue-health`,
-   `magick-ai/get-comment-action-priority-queue`,
-   `magick-ai/build-comment-moderation-suggest`, and
-   `magick-ai/build-comment-mention-reply-suggest` when needed.
-3. Compose handoff with `magick-ai/compose-comment-moderation-result`.
-4. Preview `magick-ai/approve-comment`, `magick-ai/reply-comment`,
-   `magick-ai/spam-comment`, or `magick-ai/trash-comment`.
+1. Prefer `npcink-abilities-toolkit/get-comment-compliance-handoff`.
+2. Expand to `npcink-abilities-toolkit/get-comment-queue-health`,
+   `npcink-abilities-toolkit/get-comment-action-priority-queue`,
+   `npcink-abilities-toolkit/build-comment-moderation-suggest`, and
+   `npcink-abilities-toolkit/build-comment-mention-reply-suggest` when needed.
+3. Compose handoff with `npcink-abilities-toolkit/compose-comment-moderation-result`.
+4. Preview `npcink-abilities-toolkit/approve-comment`, `npcink-abilities-toolkit/reply-comment`,
+   `npcink-abilities-toolkit/spam-comment`, or `npcink-abilities-toolkit/trash-comment`.
 5. Commit only through host approval.
 
 ### 8. Operations, Cleanup, And Page Structure
@@ -231,11 +231,11 @@ Useful value:
 Rewrite as:
 
 - diagnostics: `npcink-abilities-toolkit/wp-diagnostics-summary` and
-  `magick-ai/site-info`;
-- page structure: `magick-ai/inspect-page-structure` and
-  `magick-ai/get-page-structure-health`;
-- cleanup discovery: `magick-ai/get-media-cleanup-opportunities`,
-  `magick-ai/get-taxonomy-consolidation-suggestions`, and related read-only
+  `npcink-abilities-toolkit/site-info`;
+- page structure: `npcink-abilities-toolkit/inspect-page-structure` and
+  `npcink-abilities-toolkit/get-page-structure-health`;
+- cleanup discovery: `npcink-abilities-toolkit/get-media-cleanup-opportunities`,
+  `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`, and related read-only
   health abilities;
 - destructive cleanup: host-owned recipe using dry-run destructive abilities.
 

@@ -2,7 +2,7 @@
 /**
  * Audits one or more ability catalog JSON files for ownership and governance contract drift.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 $args = array_slice( $argv, 1 );

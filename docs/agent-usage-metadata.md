@@ -68,18 +68,18 @@ The initial set is:
 - `npcink-abilities-toolkit/get-workflow-recipe`
 - `npcink-abilities-toolkit/wp-diagnostics-summary`
 - `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
-- `magick-ai/get-article-publish-preflight-context`
-- `magick-ai/get-old-article-refresh-context`
-- `magick-ai/get-media-cleanup-opportunities`
-- `magick-ai/list-media-backups`
-- `magick-ai/propose-post-taxonomy-terms`
-- `magick-ai/get-comment-compliance-handoff`
-- `magick-ai/create-draft`
-- `magick-ai/set-post-seo-meta`
-- `magick-ai/update-media-details`
-- `magick-ai/restore-media-backup`
-- `magick-ai/approve-comment`
-- `magick-ai/delete-media-permanently`
+- `npcink-abilities-toolkit/get-article-publish-preflight-context`
+- `npcink-abilities-toolkit/get-old-article-refresh-context`
+- `npcink-abilities-toolkit/get-media-cleanup-opportunities`
+- `npcink-abilities-toolkit/list-media-backups`
+- `npcink-abilities-toolkit/propose-post-taxonomy-terms`
+- `npcink-abilities-toolkit/get-comment-compliance-handoff`
+- `npcink-abilities-toolkit/create-draft`
+- `npcink-abilities-toolkit/set-post-seo-meta`
+- `npcink-abilities-toolkit/update-media-details`
+- `npcink-abilities-toolkit/restore-media-backup`
+- `npcink-abilities-toolkit/approve-comment`
+- `npcink-abilities-toolkit/delete-media-permanently`
 
 Future additions should be driven by a failed or confusing consumer proof, not
 by broad catalog expansion.

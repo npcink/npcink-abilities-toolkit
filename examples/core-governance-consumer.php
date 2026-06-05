@@ -2,22 +2,22 @@
 /**
  * Example consumer that builds a Core proposal payload from ability discovery.
  *
- * This file does not call Magick AI Core directly. It shows how another plugin
+ * This file does not call Npcink AI Core directly. It shows how another plugin
  * can discover a real ability id, inspect its schema/risk metadata, and prepare
  * the payload it would send to Core's proposal endpoint.
  *
- * @package MagickAIAbilitiesExample
+ * @package NpcinkAbilitiesToolkitExample
  */
 
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! function_exists( 'magick_ai_abilities_get_registered' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_get_registered' ) ) {
 			return;
 		}
 
-		$abilities  = magick_ai_abilities_get_registered();
-		$ability_id = 'magick-ai/create-draft';
+		$abilities  = npcink_abilities_toolkit_get_registered();
+		$ability_id = 'npcink-abilities-toolkit/create-draft';
 		if ( ! isset( $abilities[ $ability_id ] ) || ! is_array( $abilities[ $ability_id ] ) ) {
 			return;
 		}
@@ -49,8 +49,8 @@ add_action(
 
 		/**
 		 * A real consumer would send $proposal_payload to:
-		 * POST /wp-json/magick-ai-core/v1/proposals
+		 * POST /wp-json/npcink-ai-core/v1/proposals
 		 */
-		do_action( 'magick_ai_abilities_example_core_proposal_payload', $proposal_payload, $ability );
+		do_action( 'npcink_abilities_toolkit_example_core_proposal_payload', $proposal_payload, $ability );
 	}
 );

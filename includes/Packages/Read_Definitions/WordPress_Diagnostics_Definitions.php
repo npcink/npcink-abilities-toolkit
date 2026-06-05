@@ -2,10 +2,10 @@
 /**
  * WordPress diagnostics read ability definitions.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages\Read_Definitions;
+namespace Npcink_Abilities_Toolkit\Packages\Read_Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -25,7 +25,7 @@ final class WordPress_Diagnostics_Definitions {
 		return array(
 			'npcink-abilities-toolkit/wp-diagnostics-summary' => array(
 				'label'            => __( 'WordPress Diagnostics Summary', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a redacted local WordPress diagnostics summary without Magick AI, MCP, filesystem path, database name, or secret details.', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns a redacted local WordPress diagnostics summary without Npcink AI, MCP, filesystem path, database name, or secret details.', 'npcink-abilities-toolkit' ),
 				'category'         => 'npcink-abilities-toolkit-diagnostics',
 				'capability'       => 'manage_options',
 				'contract_version' => 'v1',

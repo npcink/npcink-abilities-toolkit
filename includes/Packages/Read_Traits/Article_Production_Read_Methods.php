@@ -2,10 +2,10 @@
 /**
  * Article production read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,8 +23,8 @@ trait Article_Production_Read_Methods {
 	 */
 	public function resolve_article_publication_decision( $input ) {
 		$input = is_array( $input ) ? $input : array();
-		$policy_defaults = function_exists( 'magick_ai_get_article_workflow_policy_defaults' )
-			? magick_ai_get_article_workflow_policy_defaults()
+		$policy_defaults = function_exists( 'npcink_ai_get_article_workflow_policy_defaults' )
+			? npcink_ai_get_article_workflow_policy_defaults()
 			: array();
 		$requested_publish_mode = sanitize_key( (string) ( $input['publish_mode'] ?? ( $policy_defaults['publish_mode'] ?? 'draft' ) ) );
 		if ( ! in_array( $requested_publish_mode, array( 'draft', 'review', 'schedule', 'publish' ), true ) ) {

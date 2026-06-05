@@ -11,7 +11,7 @@ helpers before calling them:
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) {
 			return;
 		}
 
@@ -21,15 +21,15 @@ add_action(
 ```
 
 Do not include files from `npcink-abilities-toolkit/includes/` and do not instantiate
-classes under the `Magick_AI_Abilities` namespace. Those are implementation
+classes under the `Npcink_Abilities_Toolkit` namespace. Those are implementation
 details.
 
 ## Register a Provider Category
 
-Use `magick_ai_abilities_register_category()` when your plugin owns a group of abilities:
+Use `npcink_abilities_toolkit_register_category()` when your plugin owns a group of abilities:
 
 ```php
-magick_ai_abilities_register_category(
+npcink_abilities_toolkit_register_category(
 	'acme-demo',
 	array(
 		'label'       => 'ACME Demo Abilities',
@@ -40,7 +40,7 @@ magick_ai_abilities_register_category(
 
 ## Register a Read-Only Ability
 
-Use `magick_ai_abilities_register_readonly()` for diagnostics, discovery, and context retrieval.
+Use `npcink_abilities_toolkit_register_readonly()` for diagnostics, discovery, and context retrieval.
 
 The toolkit sets:
 
@@ -53,7 +53,7 @@ The toolkit sets:
 Example:
 
 ```php
-magick_ai_abilities_register_readonly(
+npcink_abilities_toolkit_register_readonly(
 	'acme/content-inventory-summary',
 	array(
 		'label'          => 'Content Inventory Summary',
@@ -87,18 +87,18 @@ magick_ai_abilities_register_readonly(
 
 ## Opt Into Magick AI Compatibility Projection
 
-Abilities are not projected into Magick AI by default. If your provider plugin intentionally wants Magick AI compatibility, set:
+Abilities are not projected into Magick AI by default. If your provider plugin intentionally wants Npcink AI compatibility, set:
 
 ```php
-'project_to_magick_catalog' => true,
+'project_to_npcink_catalog' => true,
 ```
 
-The ability remains a normal WordPress Abilities API ability; the projection only adds a Magick AI catalog entry when Magick AI is installed.
+The ability remains a normal WordPress Abilities API ability; the projection only adds a Npcink AI catalog entry when Npcink AI is installed.
 
 Opt in only when:
 
 - the ability is intentionally useful to Magick AI;
-- the provider is comfortable exposing its schema in the Magick AI catalog;
+- the provider is comfortable exposing its schema in the Npcink AI catalog;
 - the ability can be executed through the normal WordPress Abilities API path.
 
 Do not opt in when:
@@ -110,13 +110,13 @@ Do not opt in when:
 
 ## Register a Write Proposal Ability
 
-Use `magick_ai_abilities_register_write_proposal()` for write-like operations.
+Use `npcink_abilities_toolkit_register_write_proposal()` for write-like operations.
 
 The callback should return a proposal object instead of committing. The host
 product owns approval and any final mutation.
 
 ```php
-magick_ai_abilities_register_write_proposal(
+npcink_abilities_toolkit_register_write_proposal(
 	'acme/create-draft-proposal',
 	array(
 		'label'            => 'Create Draft Proposal',

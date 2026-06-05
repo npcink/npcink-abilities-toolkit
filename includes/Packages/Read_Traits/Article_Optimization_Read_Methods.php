@@ -2,10 +2,10 @@
 /**
  * Article optimization read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -181,15 +181,15 @@ trait Article_Optimization_Read_Methods {
 		$input = is_array( $input ) ? $input : array();
 		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
 		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_invalid', __( 'post_id is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_missing', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_missing', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You are not allowed to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You are not allowed to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$categories = function_exists( 'get_the_terms' ) ? get_the_terms( $post_id, 'category' ) : array();
@@ -709,8 +709,8 @@ trait Article_Optimization_Read_Methods {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private function build_title_suggestions_from_context( $title, $content, $limit, $fallback_reason ) {
-		if ( function_exists( 'magick_ai_build_title_suggestions_from_context' ) ) {
-			$suggestions = magick_ai_build_title_suggestions_from_context( (string) $title, (string) $content, (int) $limit );
+		if ( function_exists( 'npcink_ai_build_title_suggestions_from_context' ) ) {
+			$suggestions = npcink_ai_build_title_suggestions_from_context( (string) $title, (string) $content, (int) $limit );
 			if ( is_array( $suggestions ) ) {
 				return $suggestions;
 			}

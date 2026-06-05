@@ -10,56 +10,56 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: npcink-abilities-toolkit
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MAGICK_AI_ABILITIES_VERSION', '0.4.0' );
-define( 'MAGICK_AI_ABILITIES_FILE', __FILE__ );
-define( 'MAGICK_AI_ABILITIES_DIR', plugin_dir_path( __FILE__ ) );
+define( 'NPCINK_ABILITIES_TOOLKIT_VERSION', '0.4.0' );
+define( 'NPCINK_ABILITIES_TOOLKIT_FILE', __FILE__ );
+define( 'NPCINK_ABILITIES_TOOLKIT_DIR', plugin_dir_path( __FILE__ ) );
 
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Schema_Normalizer.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Annotation_Normalizer.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Contract_Normalizer.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Security/Permission_Callbacks.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Category_Registrar.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Registry/Ability_Registrar.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Integration/Magick_Catalog_Bridge.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Workflow/Workflow_Definition_Provider.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Comment_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Internal_Link_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Page_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Style_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Traits/Taxonomy_Read_Methods.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Agent_Usage_Metadata.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Read_Package.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Write_Package.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Destructive_Package.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Pack_Classifier.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Comment_Definitions/Core_Comment_Definitions.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Packages/Core_Comment_Package.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Admin/Test_Page.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/Plugin.php';
-require_once MAGICK_AI_ABILITIES_DIR . 'includes/functions.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Schema_Normalizer.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Annotation_Normalizer.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Contract_Normalizer.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Security/Permission_Callbacks.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Category_Registrar.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Ability_Registrar.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Integration/Npcink_Catalog_Bridge.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Workflow/Workflow_Definition_Provider.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Comment_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Internal_Link_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Page_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Style_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Taxonomy_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Definitions/Agent_Usage_Metadata.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Read_Package.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Write_Package.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Destructive_Package.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Comment_Pack_Classifier.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Comment_Definitions/Core_Comment_Definitions.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Comment_Package.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Admin/Test_Page.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Plugin.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/functions.php';
 
 add_action(
 	'init',
 	static function () {
-		Magick_AI_Abilities\Plugin::instance()->boot();
+		Npcink_Abilities_Toolkit\Plugin::instance()->boot();
 	},
 	0
 );
@@ -68,7 +68,7 @@ if ( function_exists( 'register_activation_hook' ) ) {
 	register_activation_hook(
 		__FILE__,
 		static function () {
-			$plugin = Magick_AI_Abilities\Plugin::instance();
+			$plugin = Npcink_Abilities_Toolkit\Plugin::instance();
 			$plugin->boot();
 			$plugin->abilities()->emit_manual_catalog_refresh( 'activation' );
 		}

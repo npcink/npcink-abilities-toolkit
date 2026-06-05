@@ -25,14 +25,14 @@ preview shapes, and documentation-only recipes.
 
 | Main repo signal | Current abilities coverage | Result |
 | --- | --- | --- |
-| Draft creation governance | `magick-ai/create-draft` | Covered. Core has already proven proposal, approval, and preflight intake without final write execution. |
-| SEO metadata governance | `magick-ai/resolve-post-metadata-plan`, `magick-ai/set-post-seo-meta` | Covered. Core has already proven field-level proposal intake and preflight context. |
-| Comment approval governance | `magick-ai/get-comment-compliance-handoff`, `magick-ai/build-comment-moderation-suggest`, `magick-ai/approve-comment` | Covered. Core has already proven comment proposal intake without changing comment status during preflight. |
-| Taxonomy assignment preview | `magick-ai/propose-post-taxonomy-terms`, `magick-ai/set-post-terms` | Covered. Core consumer proof found no additional ability contract gap. |
-| Publish preflight | `magick-ai/get-article-publish-preflight-context`, `magick-ai/get-content-publishing-checklist`, `magick-ai/get-post-publish-risk-report`, `magick-ai/get-publishing-calendar-context` | Covered as read-only context and workflow recipe composition. |
-| Media inventory and media SEO handoff | `magick-ai/list-media`, `magick-ai/get-media-inventory-health`, `magick-ai/get-media-cleanup-opportunities`, `magick-ai/build-media-seo-assets`, `magick-ai/optimize-media-metadata`, `magick-ai/update-media-details` | Covered on read/proposal/dry-run surfaces. Host still owns model calls, batch selection, scheduling, and approved write execution. |
-| Page structure inspection | `magick-ai/inspect-page-structure`, `magick-ai/get-page-structure-health` | Covered as read-only WordPress context. |
-| Site diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
+| Draft creation governance | `npcink-abilities-toolkit/create-draft` | Covered. Core has already proven proposal, approval, and preflight intake without final write execution. |
+| SEO metadata governance | `npcink-abilities-toolkit/resolve-post-metadata-plan`, `npcink-abilities-toolkit/set-post-seo-meta` | Covered. Core has already proven field-level proposal intake and preflight context. |
+| Comment approval governance | `npcink-abilities-toolkit/get-comment-compliance-handoff`, `npcink-abilities-toolkit/build-comment-moderation-suggest`, `npcink-abilities-toolkit/approve-comment` | Covered. Core has already proven comment proposal intake without changing comment status during preflight. |
+| Taxonomy assignment preview | `npcink-abilities-toolkit/propose-post-taxonomy-terms`, `npcink-abilities-toolkit/set-post-terms` | Covered. Core consumer proof found no additional ability contract gap. |
+| Publish preflight | `npcink-abilities-toolkit/get-article-publish-preflight-context`, `npcink-abilities-toolkit/get-content-publishing-checklist`, `npcink-abilities-toolkit/get-post-publish-risk-report`, `npcink-abilities-toolkit/get-publishing-calendar-context` | Covered as read-only context and workflow recipe composition. |
+| Media inventory and media SEO handoff | `npcink-abilities-toolkit/list-media`, `npcink-abilities-toolkit/get-media-inventory-health`, `npcink-abilities-toolkit/get-media-cleanup-opportunities`, `npcink-abilities-toolkit/build-media-seo-assets`, `npcink-abilities-toolkit/optimize-media-metadata`, `npcink-abilities-toolkit/update-media-details` | Covered on read/proposal/dry-run surfaces. Host still owns model calls, batch selection, scheduling, and approved write execution. |
+| Page structure inspection | `npcink-abilities-toolkit/inspect-page-structure`, `npcink-abilities-toolkit/get-page-structure-health` | Covered as read-only WordPress context. |
+| Site diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `npcink-abilities-toolkit/site-info`, `npcink-abilities-toolkit/get-site-operations-dashboard` | Covered at the redacted WordPress-only level with bounded operations detail. Magick AI/MCP/runtime diagnostics still stay in the host. |
 
 ## Absorb As Documentation Only
 

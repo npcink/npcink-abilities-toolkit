@@ -8,7 +8,7 @@
  * Author: Npcink
  * Text Domain: npcink-abilities-toolkit-demo
  *
- * @package MagickAIAbilitiesDemo
+ * @package NpcinkAbilitiesToolkitDemo
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,12 +18,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! function_exists( 'magick_ai_abilities_register_readonly' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) {
 			return;
 		}
 
-		if ( function_exists( 'magick_ai_abilities_register_category' ) ) {
-			magick_ai_abilities_register_category(
+		if ( function_exists( 'npcink_abilities_toolkit_register_category' ) ) {
+			npcink_abilities_toolkit_register_category(
 				'acme-demo',
 				array(
 					'label'       => __( 'ACME Demo Abilities', 'npcink-abilities-toolkit-demo' ),
@@ -32,7 +32,7 @@ add_action(
 			);
 		}
 
-		magick_ai_abilities_register_readonly(
+		npcink_abilities_toolkit_register_readonly(
 			'acme/content-inventory-summary',
 			array(
 				'label'          => __( 'Content Inventory Summary', 'npcink-abilities-toolkit-demo' ),
@@ -63,15 +63,15 @@ add_action(
 			)
 		);
 
-		magick_ai_abilities_register_readonly(
+		npcink_abilities_toolkit_register_readonly(
 			'acme/projected-site-summary',
 			array(
 				'label'                     => __( 'Projected Site Summary', 'npcink-abilities-toolkit-demo' ),
-				'description'               => __( 'Shows how a provider plugin explicitly opts into Magick AI compatibility projection.', 'npcink-abilities-toolkit-demo' ),
+				'description'               => __( 'Shows how a provider plugin explicitly opts into Npcink AI canonical projection.', 'npcink-abilities-toolkit-demo' ),
 				'category'                  => 'acme-demo',
 				'capability'                => 'manage_options',
 				'required_scope'            => 'cap.site.read',
-				'project_to_magick_catalog' => true,
+				'project_to_npcink_catalog' => true,
 				'channels'                  => array( 'abilities_rest', 'mcp' ),
 				'input_schema'              => array(
 					'type'                 => 'object',
@@ -93,7 +93,7 @@ add_action(
 			)
 		);
 
-		magick_ai_abilities_register_write_proposal(
+		npcink_abilities_toolkit_register_write_proposal(
 			'acme/create-draft-proposal',
 			array(
 				'label'            => __( 'Create Draft Proposal', 'npcink-abilities-toolkit-demo' ),

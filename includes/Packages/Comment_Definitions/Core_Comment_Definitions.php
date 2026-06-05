@@ -2,10 +2,10 @@
 /**
  * Core comment helper ability definitions.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages\Comment_Definitions;
+namespace Npcink_Abilities_Toolkit\Packages\Comment_Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -42,10 +42,10 @@ final class Core_Comment_Definitions {
 		);
 
 		return array(
-			'magick-ai/build-comment-moderation-suggest' => array(
+			'npcink-abilities-toolkit/build-comment-moderation-suggest' => array(
 				'label'            => __( 'Build Comment Moderation Suggestion', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads one comment and builds a deterministic moderation suggestion without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage', 'cap.text.generate' ),
@@ -85,10 +85,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'build_comment_moderation_suggest' ),
 			),
-			'magick-ai/compose-comment-moderation-result' => array(
+			'npcink-abilities-toolkit/compose-comment-moderation-result' => array(
 				'label'            => __( 'Compose Comment Moderation Result', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Composes one canonical comment moderation suggest/action result envelope.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -124,10 +124,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'compose_comment_moderation_result' ),
 			),
-			'magick-ai/build-comment-mention-reply-suggest' => array(
+			'npcink-abilities-toolkit/build-comment-mention-reply-suggest' => array(
 				'label'            => __( 'Build Comment Mention Reply Suggestion', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Detects a comment mention/followup trigger and prepares a reply suggestion handoff without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage', 'cap.text.generate' ),
@@ -155,10 +155,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'build_comment_mention_reply_suggest' ),
 			),
-			'magick-ai/read-comment-trigger-queue' => array(
+			'npcink-abilities-toolkit/read-comment-trigger-queue' => array(
 				'label'            => __( 'Read Comment Trigger Queue', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads existing comments and builds a trigger candidate queue without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -189,10 +189,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'read_comment_trigger_queue' ),
 			),
-			'magick-ai/get-comment-queue-health' => array(
+			'npcink-abilities-toolkit/get-comment-queue-health' => array(
 				'label'            => __( 'Get Comment Queue Health', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads a bounded comment queue and summarizes moderation, reply, and escalation health without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -218,10 +218,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'get_comment_queue_health' ),
 			),
-			'magick-ai/get-comment-action-priority-queue' => array(
+			'npcink-abilities-toolkit/get-comment-action-priority-queue' => array(
 				'label'            => __( 'Get Comment Action Priority Queue', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads a bounded comment queue and returns prioritized read-only moderation and reply handoff candidates.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -247,10 +247,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'get_comment_action_priority_queue' ),
 			),
-			'magick-ai/get-comment-compliance-handoff' => array(
+			'npcink-abilities-toolkit/get-comment-compliance-handoff' => array(
 				'label'            => __( 'Get Comment Compliance Handoff', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Aggregates comment queue health, action priority rows, and optional selected-comment suggestions for host-side compliance workflows without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -280,10 +280,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'get_comment_compliance_handoff' ),
 			),
-			'magick-ai/compose-comment-mention-reply-result' => array(
+			'npcink-abilities-toolkit/compose-comment-mention-reply-result' => array(
 				'label'            => __( 'Compose Comment Mention Reply Result', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Composes one canonical mention-triggered comment reply suggestion envelope.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),
@@ -305,10 +305,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'compose_comment_mention_reply_result' ),
 			),
-			'magick-ai/build-comment-moderation-batch-suggest' => array(
+			'npcink-abilities-toolkit/build-comment-moderation-batch-suggest' => array(
 				'label'            => __( 'Build Comment Moderation Batch Suggestion', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds read-only moderation suggestions for a bounded list of comments.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage', 'cap.text.generate' ),
@@ -347,10 +347,10 @@ final class Core_Comment_Definitions {
 				'output_schema'    => $success_schema,
 				'execute_callback' => array( $callbacks, 'build_comment_moderation_batch_suggest' ),
 			),
-			'magick-ai/compose-comment-moderation-batch-result' => array(
+			'npcink-abilities-toolkit/compose-comment-moderation-batch-result' => array(
 				'label'            => __( 'Compose Comment Moderation Batch Result', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Composes one canonical batch comment moderation suggestion result envelope.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-comments',
+				'category'         => 'npcink-abilities-toolkit-comments',
 				'capability'       => 'moderate_comments',
 				'required_scope'   => 'comments.manage',
 				'required_scopes'  => array( 'comments.manage' ),

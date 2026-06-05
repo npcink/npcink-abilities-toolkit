@@ -2,10 +2,10 @@
 /**
  * Core WordPress read ability definitions.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages\Read_Definitions;
+namespace Npcink_Abilities_Toolkit\Packages\Read_Definitions;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,10 +23,10 @@ final class Core_WordPress_Read_Definitions {
 	 */
 	public static function definitions( $callbacks ) {
 		return array(
-			'magick-ai/site-info'       => array(
+			'npcink-abilities-toolkit/site-info'       => array(
 				'label'            => __( 'Site Info', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns the site name, URLs, language, WordPress version, timezone, and active theme.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'manage_options',
 				'required_scope'   => 'cap.workflowwp.env.diagnostics',
 				'required_scopes'  => array( 'cap.workflowwp.env.diagnostics' ),
@@ -52,10 +52,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'site_info' ),
 			),
-			'magick-ai/list-post-types' => array(
+			'npcink-abilities-toolkit/list-post-types' => array(
 				'label'            => __( 'List Post Types', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns available post types, including REST exposure and hierarchy flags.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -90,10 +90,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_post_types' ),
 			),
-			'magick-ai/list-taxonomies' => array(
+			'npcink-abilities-toolkit/list-taxonomies' => array(
 				'label'            => __( 'List Taxonomies', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns taxonomy definitions and bound object types.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -132,10 +132,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_taxonomies' ),
 			),
-			'magick-ai/propose-post-excerpt' => array(
+			'npcink-abilities-toolkit/propose-post-excerpt' => array(
 				'label'            => __( 'Propose Post Excerpt', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a read-only excerpt proposal from explicit content input without writing changes.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -166,10 +166,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'propose_post_excerpt' ),
 			),
-			'magick-ai/resolve-post-metadata-plan' => array(
+			'npcink-abilities-toolkit/resolve-post-metadata-plan' => array(
 				'label'            => __( 'Resolve Post Metadata Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Normalizes a post metadata plan into the canonical excerpt, taxonomy, slug, author, template, format, and publication handoff payload.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -208,10 +208,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'resolve_post_metadata_plan' ),
 			),
-			'magick-ai/list-users'      => array(
+			'npcink-abilities-toolkit/list-users'      => array(
 				'label'            => __( 'List Users', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated list of users and roles.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'list_users',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -252,10 +252,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_users' ),
 			),
-			'magick-ai/list-menus'      => array(
+			'npcink-abilities-toolkit/list-menus'      => array(
 				'label'            => __( 'List Navigation Menus', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns available navigation menus and their assigned theme locations.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_theme_options',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -278,10 +278,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_menus' ),
 			),
-			'magick-ai/get-menu'        => array(
+			'npcink-abilities-toolkit/get-menu'        => array(
 				'label'            => __( 'Get Navigation Menu', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns one navigation menu and its menu items.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_theme_options',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -310,10 +310,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_menu' ),
 			),
-			'magick-ai/search-posts'    => array(
+			'npcink-abilities-toolkit/search-posts'    => array(
 				'label'            => __( 'Search Posts', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Searches local WordPress posts by keyword and bounded filters, returning matching post summaries.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -382,10 +382,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'search_posts' ),
 			),
-			'magick-ai/get-post-stats'  => array(
+			'npcink-abilities-toolkit/get-post-stats'  => array(
 				'label'            => __( 'Get Post Stats', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns word count, image count, reading time, comments, and dates for a post.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -412,10 +412,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post_stats' ),
 			),
-			'magick-ai/list-revisions'  => array(
+			'npcink-abilities-toolkit/list-revisions'  => array(
 				'label'            => __( 'List Revisions', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated list of post revisions using the legacy response shape.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -443,10 +443,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_revisions' ),
 			),
-			'magick-ai/get-post-meta'   => array(
+			'npcink-abilities-toolkit/get-post-meta'   => array(
 				'label'            => __( 'Get Post Meta', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads post meta for one post, optionally scoped to a single meta key.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -477,10 +477,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post_meta' ),
 			),
-			'magick-ai/search-post-meta' => array(
+			'npcink-abilities-toolkit/search-post-meta' => array(
 				'label'            => __( 'Search Post Meta', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Searches explicitly named local post meta keys and returns bounded matching post summaries without writing.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -552,10 +552,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'search_post_meta' ),
 			),
-			'magick-ai/count-posts'     => array(
+			'npcink-abilities-toolkit/count-posts'     => array(
 				'label'            => __( 'Count Posts', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Counts posts for one post type and status.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -575,10 +575,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'count_posts' ),
 			),
-			'magick-ai/list-posts'      => array(
+			'npcink-abilities-toolkit/list-posts'      => array(
 				'label'            => __( 'List Posts', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated list of posts or pages.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -630,10 +630,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'list_posts' ),
 			),
-			'magick-ai/get-post'        => array(
+			'npcink-abilities-toolkit/get-post'        => array(
 				'label'            => __( 'Get Post', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns details for a single post or page.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -662,10 +662,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post' ),
 			),
-			'magick-ai/get-post-context' => array(
+			'npcink-abilities-toolkit/get-post-context' => array(
 				'label'            => __( 'Get Post Context', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns one agent-ready post context bundle with content, stats, terms, media, blocks, revisions, and optional scoped metadata.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
 				'required_scopes'  => array( 'post.read' ),
@@ -714,10 +714,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post_context' ),
 			),
-			'magick-ai/resolve-url-to-post' => array(
+			'npcink-abilities-toolkit/resolve-url-to-post' => array(
 				'label'            => __( 'Resolve URL to Post', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Resolves a URL or slug to a post ID, post type, status, edit link, and permalink.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -743,10 +743,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'resolve_url_to_post' ),
 			),
-			'magick-ai/get-post-blocks' => array(
+			'npcink-abilities-toolkit/get-post-blocks' => array(
 				'label'            => __( 'Get Post Blocks', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a Gutenberg block structure snapshot for a post or revision.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
@@ -777,10 +777,10 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post_blocks' ),
 			),
-			'magick-ai/list-post-revisions' => array(
+			'npcink-abilities-toolkit/list-post-revisions' => array(
 				'label'            => __( 'List Post Revisions', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated read-only revision history for a post.', 'npcink-abilities-toolkit' ),
-				'category'         => 'magick-ai-data',
+				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',

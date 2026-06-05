@@ -1,6 +1,6 @@
 # Abilities Admin Surface Standard
 
-Status: active for `Magick AI -> Abilities` and the standalone
+Status: active for `Npcink AI -> Abilities` and the standalone
 `Tools -> Abilities API Packages` fallback.
 
 ## Purpose
@@ -27,7 +27,7 @@ Low-frequency details should be behind explicit advanced entries:
 - browser REST fetch buttons;
 - demo ability enable/disable control;
 - raw registered ability id dump;
-- compatibility projection notes for Magick AI consumers.
+- compatibility projection notes for Npcink AI consumers.
 
 ## Time Display
 
@@ -53,5 +53,5 @@ Abilities admin must not add:
 ## Verification
 
 Static contracts should assert that the page remains a package/status surface,
-keeps the standalone Tools fallback, and does not become a Magick AI runtime or
+keeps the standalone Tools fallback, and does not become a Npcink AI runtime or
 governance console.

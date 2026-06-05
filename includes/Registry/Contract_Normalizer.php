@@ -2,12 +2,12 @@
 /**
  * Ability contract normalization.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Registry;
+namespace Npcink_Abilities_Toolkit\Registry;
 
-use Magick_AI_Abilities\Security\Permission_Callbacks;
+use Npcink_Abilities_Toolkit\Security\Permission_Callbacks;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -72,20 +72,20 @@ final class Contract_Normalizer {
 			? $meta['mcp']
 			: array();
 		$mcp_meta['public']      = ! empty( $mcp_meta['public'] );
-		$mcp_meta['server']      = isset( $mcp_meta['server'] ) ? sanitize_key( (string) $mcp_meta['server'] ) : ( $is_write ? 'magick-ai-write' : 'magick-ai-read' );
+		$mcp_meta['server']      = isset( $mcp_meta['server'] ) ? sanitize_key( (string) $mcp_meta['server'] ) : ( $is_write ? 'npcink-abilities-toolkit-write' : 'npcink-abilities-toolkit-read' );
 		$mcp_meta['risk']        = $risk_level;
 		$mcp_meta['annotations'] = $annotations;
 
-		$magick_meta = isset( $meta['magick'] ) && is_array( $meta['magick'] )
-			? $meta['magick']
+		$npcink_meta = isset( $meta['npcink'] ) && is_array( $meta['npcink'] )
+			? $meta['npcink']
 			: array();
-		$magick_meta['canonical_ability_id'] = $ability_id;
-		$magick_meta['wp_ability_id']        = $ability_id;
-		$magick_meta['risk_level']           = $risk_level;
-		$magick_meta['requires_confirm']     = $is_write;
-		$magick_meta['requires_approval']    = $is_write;
-		$magick_meta['annotations']          = $annotations;
-		$magick_meta['channels']             = isset( $definition['channels'] ) && is_array( $definition['channels'] )
+		$npcink_meta['canonical_ability_id'] = $ability_id;
+		$npcink_meta['wp_ability_id']        = $ability_id;
+		$npcink_meta['risk_level']           = $risk_level;
+		$npcink_meta['requires_confirm']     = $is_write;
+		$npcink_meta['requires_approval']    = $is_write;
+		$npcink_meta['annotations']          = $annotations;
+		$npcink_meta['channels']             = isset( $definition['channels'] ) && is_array( $definition['channels'] )
 			? array_values( array_map( 'sanitize_key', $definition['channels'] ) )
 			: array( 'abilities_rest' );
 
@@ -94,7 +94,7 @@ final class Contract_Normalizer {
 			: true;
 		$meta['annotations']  = $annotations;
 		$meta['mcp']         = $mcp_meta;
-		$meta['magick']      = $magick_meta;
+		$meta['npcink']      = $npcink_meta;
 		if ( $this->has_agent_usage( $agent_usage ) ) {
 			$meta['agent_usage'] = $agent_usage;
 		}
@@ -124,8 +124,8 @@ final class Contract_Normalizer {
 			'ability_id'          => $ability_id,
 			'mode'                => $mode,
 			'source'              => $source,
-			'project_to_magick_catalog' => array_key_exists( 'project_to_magick_catalog', $definition )
-				? ! empty( $definition['project_to_magick_catalog'] )
+			'project_to_npcink_catalog' => array_key_exists( 'project_to_npcink_catalog', $definition )
+				? ! empty( $definition['project_to_npcink_catalog'] )
 				: false,
 			'label'               => isset( $definition['label'] ) ? sanitize_text_field( (string) $definition['label'] ) : $ability_id,
 			'description'         => isset( $definition['description'] ) ? sanitize_text_field( (string) $definition['description'] ) : '',
@@ -172,7 +172,7 @@ final class Contract_Normalizer {
 	 */
 	public function missing_execute_callback() {
 		return new \WP_Error(
-			'magick_ai_abilities_missing_execute_callback',
+			'npcink_abilities_toolkit_missing_execute_callback',
 			__( 'Ability execute callback is not configured.', 'npcink-abilities-toolkit' ),
 			array( 'status' => 500 )
 		);

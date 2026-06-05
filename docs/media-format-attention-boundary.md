@@ -9,11 +9,11 @@ Accepted for the current media governance path.
 `format_attention` is not ordinary media metadata. It can involve image
 dimensions, compression, format conversion, derivative generation, file
 replacement, backup, rollback, cache behavior, and attachment metadata
-regeneration. Those concerns are heavier than `magick-ai/update-media-details`,
+regeneration. Those concerns are heavier than `npcink-abilities-toolkit/update-media-details`,
 which only updates reviewable media text and source metadata.
 
 Mapping `format_attention` directly to a write action inside
-`magick-ai/build-media-inventory-fix-plan` would blur the boundary between a
+`npcink-abilities-toolkit/build-media-inventory-fix-plan` would blur the boundary between a
 read-only inventory plan and file-asset mutation.
 
 ## Decision
@@ -27,11 +27,11 @@ The media inventory fix plan may include read-only diagnostics such as:
 - suggested operation labels such as `generate_optimized_derivative`,
   `compress`, or `consider_format_conversion`;
 - a future target ability hint such as
-  `magick-ai/build-media-derivative-cloud-request`;
+  `npcink-abilities-toolkit/build-media-derivative-cloud-request`;
 - explicit `write_action_generated=false`;
 - high-risk classification for file-asset work.
 
-It must not map `format_attention` to `magick-ai/update-media-details`, because
+It must not map `format_attention` to `npcink-abilities-toolkit/update-media-details`, because
 format work is not metadata-only.
 
 It must not map `format_attention` directly to asset write abilities from the
@@ -40,7 +40,7 @@ approval flow.
 
 ## Current Abilities-Side Cloud Handoff
 
-`magick-ai/build-media-derivative-cloud-request` is the local abilities-side
+`npcink-abilities-toolkit/build-media-derivative-cloud-request` is the local abilities-side
 handoff for Cloud derivative processing. It is intentionally read-only:
 
 - it inspects the attachment and builds a bounded
@@ -63,10 +63,10 @@ approval, recording, replacement, rollback, and metadata writes.
 
 ## Current Backup Storage Policy
 
-Media operation backups are stored under `wp-content/uploads/magick-ai-backups/`
+Media operation backups are stored under `wp-content/uploads/npcink-abilities-toolkit-backups/`
 while preserving the current upload subdirectory under that base. For example,
 an attachment main file in `2026/06/` receives backups in
-`magick-ai-backups/2026/06/`.
+`npcink-abilities-toolkit-backups/2026/06/`.
 
 This keeps operational rollback artifacts out of normal public month media
 directories without relying on host-specific hidden directory behavior. Rollback
@@ -80,21 +80,21 @@ filename. The decision is recorded in
 If file-asset work becomes necessary, prefer separate abilities with narrow
 contracts:
 
-- `magick-ai/optimize-media-asset`: first candidate for resize/compress or
+- `npcink-abilities-toolkit/optimize-media-asset`: first candidate for resize/compress or
   optimized derivative generation. Keep original assets preserved.
-- `magick-ai/convert-media-format`: format conversion such as WebP or AVIF.
+- `npcink-abilities-toolkit/convert-media-format`: format conversion such as WebP or AVIF.
   This should start as derivative generation, not direct replacement.
-- `magick-ai/replace-media-file`: highest-risk path for switching an
+- `npcink-abilities-toolkit/replace-media-file`: highest-risk path for switching an
   attachment file to an approved derivative. Require backup, approval, and
   strict preview. The write preview and commit should include exact
   post-content media URL repairs for the old main file and known intermediate
   sizes.
-- `magick-ai/list-media-backups`: read-only backup history discovery for one
+- `npcink-abilities-toolkit/list-media-backups`: read-only backup history discovery for one
   attachment before any restore proposal is prepared.
-- `magick-ai/restore-media-backup`: host-approved restore path that copies a
+- `npcink-abilities-toolkit/restore-media-backup`: host-approved restore path that copies a
   recorded backup back to the original attachment path, restoring the original
   public media URL.
-- `magick-ai/adopt-cloud-media-derivative`: approved local adoption path for a
+- `npcink-abilities-toolkit/adopt-cloud-media-derivative`: approved local adoption path for a
   non-expired Cloud derivative artifact. Require artifact evidence, backup,
   rollback metadata, host approval before commit, and synchronized
   post-content repairs for old main/intermediate-size uploads URLs that embed

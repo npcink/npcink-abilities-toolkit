@@ -2,14 +2,14 @@
 /**
  * Lightweight test bootstrap.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );
 }
-if ( ! defined( 'MAGICK_AI_ABILITIES_VERSION' ) ) {
-	define( 'MAGICK_AI_ABILITIES_VERSION', '0.1.0-test' );
+if ( ! defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ) {
+	define( 'NPCINK_ABILITIES_TOOLKIT_VERSION', '0.1.0-test' );
 }
 
 if ( ! function_exists( 'sanitize_key' ) ) {
@@ -77,7 +77,7 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 
 if ( ! function_exists( 'wp_upload_dir' ) ) {
 	function wp_upload_dir() {
-		$basedir = isset( $GLOBALS['maa_unit_upload_basedir'] ) ? (string) $GLOBALS['maa_unit_upload_basedir'] : sys_get_temp_dir() . '/magick-ai-abilities-uploads';
+		$basedir = isset( $GLOBALS['maa_unit_upload_basedir'] ) ? (string) $GLOBALS['maa_unit_upload_basedir'] : sys_get_temp_dir() . '/npcink-abilities-toolkit-uploads';
 		$baseurl = isset( $GLOBALS['maa_unit_upload_baseurl'] ) ? (string) $GLOBALS['maa_unit_upload_baseurl'] : 'https://example.test/wp-content/uploads';
 		return array(
 			'basedir' => rtrim( $basedir, '/\\' ),
@@ -98,8 +98,8 @@ if ( ! function_exists( 'wp_delete_file' ) ) {
 	}
 }
 
-if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
-	function magick_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
+if ( ! function_exists( 'npcink_ai_cloud_addon_download_media_derivative_artifact' ) ) {
+	function npcink_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
 		unset( $trace_id );
 		if ( isset( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) ) {
 			return call_user_func( $GLOBALS['maa_unit_cloud_artifact_download_callback'], $derivative_artifact );
@@ -652,7 +652,7 @@ require_once dirname( __DIR__ ) . '/includes/Security/Permission_Callbacks.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Contract_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Category_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
-require_once dirname( __DIR__ ) . '/includes/Integration/Magick_Catalog_Bridge.php';
+require_once dirname( __DIR__ ) . '/includes/Integration/Npcink_Catalog_Bridge.php';
 require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
 require_once dirname( __DIR__ ) . '/includes/Workflow/Workflow_Definition_Provider.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';

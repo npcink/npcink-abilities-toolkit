@@ -2,7 +2,7 @@
 /**
  * PHP syntax lint runner using the current PHP binary.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 $root = dirname( __DIR__ );

@@ -4,12 +4,12 @@ Status: active for the 0.1 development line.
 
 The following functions are the only public PHP API for provider plugins and consumers in 0.1:
 
-- `magick_ai_abilities_register_category( $category_id, $args )`
-- `magick_ai_abilities_register_readonly( $ability_id, $definition )`
-- `magick_ai_abilities_register_write_proposal( $ability_id, $definition )`
-- `magick_ai_abilities_normalize_schema( $schema, $default_type )`
-- `magick_ai_abilities_normalize_annotations( $annotations, $risk_level )`
-- `magick_ai_abilities_get_registered()`
+- `npcink_abilities_toolkit_register_category( $category_id, $args )`
+- `npcink_abilities_toolkit_register_readonly( $ability_id, $definition )`
+- `npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition )`
+- `npcink_abilities_toolkit_normalize_schema( $schema, $default_type )`
+- `npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level )`
+- `npcink_abilities_toolkit_get_registered()`
 
 Consumers should not instantiate classes under `includes/` directly. Those classes are implementation details until a later release explicitly promotes them.
 
@@ -17,8 +17,8 @@ Consumers should not instantiate classes under `includes/` directly. Those class
 
 - Add optional fields instead of changing existing field meanings.
 - Keep `ability_id` stable once published.
-- Keep `meta.show_in_rest`, `meta.mcp.public`, and `meta.magick.channels` separate.
-- Keep Magick AI catalog projection explicit: `project_to_magick_catalog` defaults to false.
+- Keep `meta.show_in_rest`, `meta.mcp.public`, and `meta.npcink.channels` separate.
+- Keep Npcink AI catalog projection explicit: `project_to_npcink_catalog` defaults to false.
 - Write-like helpers must produce proposal-oriented abilities; final commit ownership stays outside this toolkit.
 - Do not add public third-party host-governed write/destructive helper functions in the 0.1 line. If that changes later, write a new ADR first.
 - Built-in ability ids follow SemVer-style compatibility: changing the meaning of an existing id is breaking; adding optional schema properties is non-breaking; removing an id requires `deprecated` and `successor` metadata first.
@@ -44,7 +44,7 @@ Supported definition fields:
 - `required_scopes`
 - `contract_version`
 - `source`
-- `project_to_magick_catalog`
+- `project_to_npcink_catalog`
 - `deprecated`
 - `successor`
 

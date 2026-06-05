@@ -28,8 +28,8 @@ to expose it.
 - Read-only abilities default to `npcink-abilities-toolkit-read`.
 - Write-like abilities default to `npcink-abilities-toolkit-write`.
 - First-party migrated abilities may preserve legacy categories such as
-  `magick-ai-data`, `magick-ai-pages`, `magick-ai-comments`, and
-  `magick-ai-write` for compatibility.
+  `npcink-abilities-toolkit-data`, `npcink-abilities-toolkit-pages`, `npcink-abilities-toolkit-comments`, and
+  `npcink-abilities-toolkit-write` for compatibility.
 
 ## Schemas
 
@@ -71,7 +71,7 @@ least broad WordPress capability that matches the operation.
 - `meta.mcp.annotations.readonly`
 - `meta.mcp.annotations.destructive`
 - `meta.mcp.annotations.idempotent`
-- `meta.magick.channels` when Magick AI compatibility metadata is needed
+- `meta.npcink.channels` when Npcink AI compatibility metadata is needed
 - `agent_usage` / `meta.agent_usage` for static agent and MCP selection
   guidance on priority entry or high-risk abilities
 
@@ -79,8 +79,8 @@ Rules:
 
 - `meta.show_in_rest` defaults to `true`.
 - `meta.mcp.public` is not the same as `meta.show_in_rest`.
-- `meta.magick.channels` is not the same as REST exposure.
-- `project_to_magick_catalog` controls Magick AI compatibility projection and
+- `meta.npcink.channels` is not the same as REST exposure.
+- `project_to_npcink_catalog` controls Npcink AI compatibility projection and
   defaults to `false` for provider abilities.
 - Projection is metadata only. Execution still goes through the WordPress
   Abilities API path.

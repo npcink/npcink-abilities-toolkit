@@ -2,10 +2,10 @@
 /**
  * Permission callback factories.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Security;
+namespace Npcink_Abilities_Toolkit\Security;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

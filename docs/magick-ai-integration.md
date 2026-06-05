@@ -1,6 +1,6 @@
 # Magick AI Integration Contract
 
-`npcink-abilities-toolkit` is a standalone WordPress Abilities API plugin. The Magick AI plugin is an optional consumer, not the owner or runtime host of this project.
+`npcink-abilities-toolkit` is a standalone WordPress Abilities API plugin. The Npcink AI plugin is an optional consumer, not the owner or runtime host of this project.
 
 The same registered abilities must remain usable by other plugins and clients through the standard WordPress Abilities API.
 
@@ -10,11 +10,11 @@ newer version.
 
 ## Allowed Integration
 
-Magick AI may:
+Npcink AI may:
 
-- detect public functions such as `magick_ai_abilities_register_readonly()`
-- consume ability definitions through `magick_ai_abilities_get_registered()`
-- consume projected entries through `magick_ai_open_platform_ability_catalog`
+- detect public functions such as `npcink_abilities_toolkit_register_readonly()`
+- consume ability definitions through `npcink_abilities_toolkit_get_registered()`
+- consume projected entries through `npcink_ai_open_platform_ability_catalog`
 - discover abilities through WordPress Abilities API functions such as
   `wp_get_ability()` and REST `/wp-abilities/v1/*`
 - execute WordPress abilities through the standard `wp_ability` backend path
@@ -22,18 +22,18 @@ Magick AI may:
 
 ## Disallowed Integration
 
-Magick AI must not:
+Npcink AI must not:
 
 - `require_once` files from this plugin's internal `includes/` directory
-- depend on concrete classes under `Magick_AI_Abilities\Registry`
+- depend on concrete classes under `Npcink_Abilities_Toolkit\Registry`
 - move model routing, workflow runtime, skills runtime, Cloud runtime, billing, quota, or approval commit ownership into this plugin
-- treat `meta.show_in_rest` as equivalent to `meta.mcp.public` or `meta.magick.channels`
+- treat `meta.show_in_rest` as equivalent to `meta.mcp.public` or `meta.npcink.channels`
 
 ## Runtime Boundary
 
 This plugin owns registration and contract normalization.
 
-For migrated official `magick-ai/*` abilities, this plugin may also project
+For migrated official `npcink-abilities-toolkit/*` abilities, this plugin may also project
 catalog rows into Magick AI with `executor_type=wp_ability`. That projection is
 discovery metadata only; execution still goes through WordPress Abilities API
 and Magick AI's consuming runtime.
@@ -42,7 +42,7 @@ Projected catalog rows are intentionally thin. They identify the WordPress
 ability, carry schemas, annotations, risk level, confirmation requirement, and
 optional lightweight compatibility metadata. They do not publish Open API
 policy, backend priority, catalog fallback behavior, MCP policy, quota, audit,
-or tool-policy decisions. Those remain Magick AI runtime responsibilities.
+or tool-policy decisions. Those remain Npcink AI runtime responsibilities.
 When Magick AI consumes a thin row, it should derive runtime fields in its own
 catalog normalization layer instead of requiring this package to emit them.
 
@@ -81,9 +81,9 @@ Magick AI owns only its consuming runtime:
   local duplicate configs/callbacks instead of shadowing this package.
 - Missing host approval: write and destructive abilities must remain dry-run or
   fail closed; they must not silently commit.
-- Missing projected catalog entry: Magick AI may still discover the ability
+- Missing projected catalog entry: Npcink AI may still discover the ability
   through WordPress Abilities API, but compatibility catalog consumers will not
-  see it unless `project_to_magick_catalog` is true.
+  see it unless `project_to_npcink_catalog` is true.
 
 ## Migration Rule
 

@@ -2,10 +2,10 @@
 /**
  * Core comment sub-pack classifier.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -34,16 +34,16 @@ final class Core_Comment_Pack_Classifier {
 	 */
 	public static function known_pack_map() {
 		return array(
-			'magick-ai/build-comment-moderation-suggest'       => 'comment_queue_context',
-			'magick-ai/compose-comment-moderation-result'     => 'comment_queue_context',
-			'magick-ai/build-comment-mention-reply-suggest'   => 'comment_queue_context',
-			'magick-ai/read-comment-trigger-queue'            => 'comment_queue_context',
-			'magick-ai/get-comment-queue-health'              => 'comment_queue_context',
-			'magick-ai/get-comment-action-priority-queue'     => 'comment_queue_context',
-			'magick-ai/get-comment-compliance-handoff'        => 'comment_handoff_context',
-			'magick-ai/compose-comment-mention-reply-result'  => 'comment_queue_context',
-			'magick-ai/build-comment-moderation-batch-suggest' => 'comment_queue_context',
-			'magick-ai/compose-comment-moderation-batch-result' => 'comment_queue_context',
+			'npcink-abilities-toolkit/build-comment-moderation-suggest'       => 'comment_queue_context',
+			'npcink-abilities-toolkit/compose-comment-moderation-result'     => 'comment_queue_context',
+			'npcink-abilities-toolkit/build-comment-mention-reply-suggest'   => 'comment_queue_context',
+			'npcink-abilities-toolkit/read-comment-trigger-queue'            => 'comment_queue_context',
+			'npcink-abilities-toolkit/get-comment-queue-health'              => 'comment_queue_context',
+			'npcink-abilities-toolkit/get-comment-action-priority-queue'     => 'comment_queue_context',
+			'npcink-abilities-toolkit/get-comment-compliance-handoff'        => 'comment_handoff_context',
+			'npcink-abilities-toolkit/compose-comment-mention-reply-result'  => 'comment_queue_context',
+			'npcink-abilities-toolkit/build-comment-moderation-batch-suggest' => 'comment_queue_context',
+			'npcink-abilities-toolkit/compose-comment-moderation-batch-result' => 'comment_queue_context',
 		);
 	}
 

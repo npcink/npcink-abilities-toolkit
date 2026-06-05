@@ -2,10 +2,10 @@
 /**
  * Media read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -132,7 +132,7 @@ trait Media_Read_Methods {
 	public function resolve_media_attachment_by_url( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to resolve media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to resolve media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$raw_url = trim( (string) ( $input['url'] ?? '' ) );
@@ -305,9 +305,9 @@ trait Media_Read_Methods {
 					'sizeSlug'        => 'large',
 					'linkDestination' => 'none',
 					'alt'             => $alt,
-					'className'       => 'magick-ai-inline-image ' . $placement_key,
+					'className'       => 'npcink-abilities-toolkit-inline-image ' . $placement_key,
 				),
-				'innerHTML'   => '<figure class="wp-block-image size-large magick-ai-inline-image ' . $this->esc_attr_value( $placement_key ) . '">' . $img_tag . $figcaption . '</figure>',
+				'innerHTML'   => '<figure class="wp-block-image size-large npcink-abilities-toolkit-inline-image ' . $this->esc_attr_value( $placement_key ) . '">' . $img_tag . $figcaption . '</figure>',
 				'innerBlocks' => array(),
 			);
 		}
@@ -725,7 +725,7 @@ trait Media_Read_Methods {
 		public function get_media_cleanup_opportunities( $input ) {
 			$input = is_array( $input ) ? $input : array();
 			if ( ! current_user_can( 'upload_files' ) ) {
-				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media cleanup opportunities.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read media cleanup opportunities.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
@@ -790,23 +790,23 @@ trait Media_Read_Methods {
 		public function list_media_backups( $input ) {
 			$input = is_array( $input ) ? $input : array();
 			if ( ! current_user_can( 'upload_files' ) ) {
-				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 			}
 
 			$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 			if ( $attachment_id <= 0 ) {
-				return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+				return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$attachment = function_exists( 'get_post' ) ? get_post( $attachment_id ) : null;
 			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-				return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read backups for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read backups for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 			}
 
 			$include_rolled_back = array_key_exists( 'include_rolled_back', $input ) ? ! empty( $input['include_rolled_back'] ) : true;
-			$history = function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_magick_ai_media_file_replacement_history', true ) : array();
+			$history = function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_npcink_ai_media_file_replacement_history', true ) : array();
 			if ( is_array( $history ) && isset( $history['replacement_id'] ) ) {
 				$history = array( $history );
 			}
@@ -841,7 +841,7 @@ trait Media_Read_Methods {
 					'before'               => is_array( $record['before'] ?? null ) ? $record['before'] : array(),
 					'after'                => is_array( $record['after'] ?? null ) ? $record['after'] : array(),
 					'restore_action'       => array(
-						'target_ability_id' => 'magick-ai/restore-media-backup',
+						'target_ability_id' => 'npcink-abilities-toolkit/restore-media-backup',
 						'input'             => array(
 							'attachment_id' => $attachment_id,
 							'backup_id'     => sanitize_text_field( (string) ( $record['replacement_id'] ?? '' ) ),
@@ -888,7 +888,7 @@ trait Media_Read_Methods {
 	public function get_media_inventory_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read media inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
@@ -961,16 +961,16 @@ trait Media_Read_Methods {
 	public function inspect_media_asset( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect media assets.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect media assets.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
 		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to inspect this media asset.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect this media asset.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$inspection = $this->build_media_format_inspection(
@@ -1002,16 +1002,16 @@ trait Media_Read_Methods {
 	public function build_media_derivative_cloud_request( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media derivative requests.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare media derivative requests.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
 		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare a derivative request for this media asset.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare a derivative request for this media asset.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$preferred_format = sanitize_key( (string) ( $input['preferred_format'] ?? 'webp' ) );
@@ -1079,7 +1079,7 @@ trait Media_Read_Methods {
 				'proposal_only'            => true,
 				'cloud_job_payload'        => $cloud_job_payload,
 				'cloud_execution'          => array(
-					'owner'                  => 'magick_ai_cloud',
+					'owner'                  => 'npcink_ai_cloud',
 					'transport_owner'        => 'host_or_cloud_addon',
 					'credentials_included'    => false,
 					'authorization_included'  => false,
@@ -1119,13 +1119,13 @@ trait Media_Read_Methods {
 	public function build_media_derivative_batch_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media derivative batch plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare media derivative batch plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 	$target_format = sanitize_key( (string) ( $input['target_format'] ?? $input['preferred_format'] ?? 'webp' ) );
 	if ( ! in_array( $target_format, array( 'webp', 'avif', 'jpeg', 'png', 'original' ), true ) ) {
 		return new \WP_Error(
-			'magick_ai_abilities_media_derivative_target_format_invalid',
+			'npcink_abilities_toolkit_media_derivative_target_format_invalid',
 			__( 'Unsupported media derivative target format.', 'npcink-abilities-toolkit' ),
 			array( 'status' => 400 )
 		);
@@ -1227,7 +1227,7 @@ trait Media_Read_Methods {
 			'height'                 => $this->absint_value( $inspection['height'] ?? 0 ),
 			'filesize_bytes'         => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
 			'warnings'               => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
-			'cloud_request_ability'  => 'magick-ai/build-media-derivative-cloud-request',
+			'cloud_request_ability'  => 'npcink-abilities-toolkit/build-media-derivative-cloud-request',
 			'cloud_request_input'    => $cloud_request_input,
 			'proposal_required'      => true,
 			'preview_required'       => true,
@@ -1273,9 +1273,9 @@ trait Media_Read_Methods {
 			'execution_plan'        => array(
 				'steps' => array(
 					'Review candidates and skipped reasons.',
-					'For each candidate, call magick-ai/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
+					'For each candidate, call npcink-abilities-toolkit/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
 					'Preview non-expired derivative artifacts through the local same-origin preview route.',
-					'Submit Core proposal payloads for magick-ai/adopt-cloud-media-derivative only after review.',
+					'Submit Core proposal payloads for npcink-abilities-toolkit/adopt-cloud-media-derivative only after review.',
 					'Approve and execute through Core; run reference repair planning when hard-coded URLs or settings references remain.',
 				),
 				'batch_size_recommendation' => min( $max_items, 20 ),
@@ -1308,20 +1308,20 @@ trait Media_Read_Methods {
 	public function build_media_optimization_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media optimization plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare media optimization plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$attachment = get_post( $attachment_id );
 		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare an optimization plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare an optimization plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$metadata_input = $this->normalize_media_optimization_metadata_input( $attachment_id, $input['media_details_input'] ?? array() );
@@ -1343,7 +1343,7 @@ trait Media_Read_Methods {
 
 		$metadata_action = $this->build_plan_action(
 			'update_media_details_' . $attachment_id,
-			'magick-ai/update-media-details',
+			'npcink-abilities-toolkit/update-media-details',
 			$metadata_input,
 			array( 'media.write' ),
 			'medium',
@@ -1364,7 +1364,7 @@ trait Media_Read_Methods {
 		}
 		$derivative_action = $this->build_plan_action(
 			'adopt_cloud_media_derivative_' . $attachment_id,
-			'magick-ai/adopt-cloud-media-derivative',
+			'npcink-abilities-toolkit/adopt-cloud-media-derivative',
 			$derivative_input,
 			array( 'media.write' ),
 			'medium',
@@ -1557,7 +1557,7 @@ trait Media_Read_Methods {
 			$extension = $this->media_optimization_extension_for_mime( (string) ( $artifact['mime_type'] ?? '' ) );
 			$file_basename = '' !== $custom_basename
 				? $this->sanitize_file_name_value( (string) $stem . '.' . $extension )
-				: $this->sanitize_file_name_value( (string) $stem . '-magick-ai-cloud-' . $artifact_key . '.' . $extension );
+				: $this->sanitize_file_name_value( (string) $stem . '-npcink-abilities-toolkit-cloud-' . $artifact_key . '.' . $extension );
 			$relative_file = '' !== $dir ? $dir . '/' . $file_basename : $file_basename;
 			$url = $this->media_reference_upload_url( $relative_file );
 
@@ -1826,19 +1826,19 @@ trait Media_Read_Methods {
 	public function build_media_rename_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare media rename plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare media rename plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment = get_post( $attachment_id );
 		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to prepare a rename plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to prepare a rename plan for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$inspection = $this->build_media_format_inspection(
@@ -1858,11 +1858,11 @@ trait Media_Read_Methods {
 			return $target_file_name;
 		}
 		if ( $target_file_name === $current_basename ) {
-			return new \WP_Error( 'magick_ai_abilities_no_changes', __( 'Target file name matches the current file name.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_no_changes', __( 'Target file name matches the current file name.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$target_extension = strtolower( pathinfo( $target_file_name, PATHINFO_EXTENSION ) );
 		if ( '' !== $current_extension && $target_extension !== $current_extension ) {
-			return new \WP_Error( 'magick_ai_abilities_target_extension_mismatch', __( 'Target file extension must match the current media file extension.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_target_extension_mismatch', __( 'Target file extension must match the current media file extension.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$content_hashes = is_array( $inspection['content_hashes'] ?? null ) ? $inspection['content_hashes'] : array();
@@ -1871,25 +1871,25 @@ trait Media_Read_Methods {
 		$expected_current_md5 = $this->normalize_media_md5_value( $raw_expected_current_md5 );
 		$expected_current_sha256 = $this->normalize_media_sha256_value( $raw_expected_current_sha256 );
 		if ( array_key_exists( 'expected_current_md5', $input ) && '' !== trim( $raw_expected_current_md5 ) && '' === $expected_current_md5 ) {
-			return new \WP_Error( 'magick_ai_abilities_expected_md5_invalid', __( 'The expected current MD5 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_expected_md5_invalid', __( 'The expected current MD5 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( array_key_exists( 'expected_current_sha256', $input ) && '' !== trim( $raw_expected_current_sha256 ) && '' === $expected_current_sha256 ) {
-			return new \WP_Error( 'magick_ai_abilities_expected_sha256_invalid', __( 'The expected current SHA-256 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_expected_sha256_invalid', __( 'The expected current SHA-256 value is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( array_key_exists( 'expected_current_md5', $input ) && '' !== $expected_current_md5 && $expected_current_md5 !== (string) ( $content_hashes['md5'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_md5_mismatch', __( 'The current media file MD5 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_current_md5_mismatch', __( 'The current media file MD5 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		if ( array_key_exists( 'expected_current_sha256', $input ) && '' !== $expected_current_sha256 && $expected_current_sha256 !== (string) ( $content_hashes['sha256'] ?? '' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_current_sha256_mismatch', __( 'The current media file SHA-256 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_current_sha256_mismatch', __( 'The current media file SHA-256 did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
 		$expected_current_relative_file = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? $current_relative_file ) );
 		if ( array_key_exists( 'expected_current_relative_file', $input ) && '' !== $expected_current_relative_file && $expected_current_relative_file !== $current_relative_file ) {
-			return new \WP_Error( 'magick_ai_abilities_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_current_file_mismatch', __( 'The current media file did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$expected_current_mime_type = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? $current_mime_type ) );
 		if ( array_key_exists( 'expected_current_mime_type', $input ) && '' !== $expected_current_mime_type && $expected_current_mime_type !== $current_mime_type ) {
-			return new \WP_Error( 'magick_ai_abilities_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
 		$conflict_mode = sanitize_key( (string) ( $input['conflict_mode'] ?? 'fail' ) );
@@ -1913,7 +1913,7 @@ trait Media_Read_Methods {
 		}
 		$rename_action = $this->build_plan_action(
 			'rename_media_file_' . $attachment_id,
-			'magick-ai/rename-media-file',
+			'npcink-abilities-toolkit/rename-media-file',
 			$rename_input,
 			array( 'media.write' ),
 			'medium',
@@ -1934,7 +1934,7 @@ trait Media_Read_Methods {
 			$include_reference_updates = ! array_key_exists( 'include_reference_updates', $input ) || ! in_array( $input['include_reference_updates'], array( false, 0, '0', 'false', 'no' ), true );
 			if ( $include_reference_updates ) {
 				if ( ! current_user_can( 'edit_posts' ) ) {
-					return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'Media rename plans with reference updates require permission to edit posts.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+					return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'Media rename plans with reference updates require permission to edit posts.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 				}
 				$repair_plan = $this->build_media_reference_repair_plan(
 					array(
@@ -2019,11 +2019,11 @@ trait Media_Read_Methods {
 	private function normalize_media_rename_target_file_name( $target_file_name, $current_extension ) {
 		$raw_target = trim( (string) $target_file_name );
 		if ( '' === $raw_target || basename( str_replace( '\\', '/', $raw_target ) ) !== $raw_target ) {
-			return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name must be a file basename, not a path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_target_file_name_invalid', __( 'Target file name must be a file basename, not a path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$target_file_name = $this->sanitize_file_name_value( $raw_target );
 		if ( '' === $target_file_name ) {
-			return new \WP_Error( 'magick_ai_abilities_target_file_name_invalid', __( 'Target file name is invalid after sanitization.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_target_file_name_invalid', __( 'Target file name is invalid after sanitization.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$current_extension = strtolower( sanitize_key( (string) $current_extension ) );
 		if ( '' === pathinfo( $target_file_name, PATHINFO_EXTENSION ) && '' !== $current_extension ) {
@@ -2097,7 +2097,7 @@ trait Media_Read_Methods {
 
 		if ( count( $metadata ) <= 1 ) {
 			return new \WP_Error(
-				'magick_ai_abilities_media_optimization_metadata_required',
+				'npcink_abilities_toolkit_media_optimization_metadata_required',
 				__( 'Media optimization plans require at least one reviewed media metadata field.', 'npcink-abilities-toolkit' ),
 				array( 'status' => 400 )
 			);
@@ -2117,7 +2117,7 @@ trait Media_Read_Methods {
 		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) );
 		if ( '' === $artifact_id ) {
 			return new \WP_Error(
-				'magick_ai_abilities_media_optimization_artifact_required',
+				'npcink_abilities_toolkit_media_optimization_artifact_required',
 				__( 'Media optimization plans require derivative_artifact evidence.', 'npcink-abilities-toolkit' ),
 				array( 'status' => 400 )
 			);
@@ -2155,7 +2155,7 @@ trait Media_Read_Methods {
 		$type = sanitize_key( (string) ( $watermark['type'] ?? 'image' ) );
 		if ( ! in_array( $type, array( 'image', 'text' ), true ) ) {
 			return new \WP_Error(
-				'magick_ai_abilities_media_derivative_watermark_type_invalid',
+				'npcink_abilities_toolkit_media_derivative_watermark_type_invalid',
 				__( 'Only image and text watermarks are supported for Cloud media derivatives.', 'npcink-abilities-toolkit' ),
 				array( 'status' => 400 )
 			);
@@ -2420,7 +2420,7 @@ trait Media_Read_Methods {
 	public function build_media_inventory_fix_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build media inventory fix plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to build media inventory fix plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_ids = is_array( $input['attachment_ids'] ?? null ) ? array_values( array_filter( array_map( array( $this, 'absint_value' ), $input['attachment_ids'] ) ) ) : array();
@@ -2531,12 +2531,12 @@ trait Media_Read_Methods {
 	public function build_media_reference_repair_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build media reference repair plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to build media reference repair plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$replacement = $this->media_reference_repair_replacement_context( $attachment_id, $input );
@@ -2548,7 +2548,7 @@ trait Media_Read_Methods {
 		$max_replacements = max( 1, min( 20, $this->absint_value( $input['max_replacements_per_post'] ?? 20 ) ) );
 		$ref_pairs = $this->media_reference_repair_ref_pairs( $replacement );
 		if ( empty( $ref_pairs ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_reference_repair_urls_missing', __( 'Old and new media URLs are required for reference repair planning.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_reference_repair_urls_missing', __( 'Old and new media URLs are required for reference repair planning.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$actions = array();
@@ -2609,7 +2609,7 @@ trait Media_Read_Methods {
 			}
 			$actions[] = array(
 				'action_id'         => 'repair_media_reference_' . $post_id,
-				'target_ability_id' => 'magick-ai/patch-post-content',
+				'target_ability_id' => 'npcink-abilities-toolkit/patch-post-content',
 				'input'             => array(
 					'post_id'    => $post_id,
 					'operations' => $operations,
@@ -2669,12 +2669,12 @@ trait Media_Read_Methods {
 	public function build_media_settings_reference_repair_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build media settings reference repair plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to build media settings reference repair plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		if ( $attachment_id <= 0 ) {
-			return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$replacement = $this->media_reference_repair_replacement_context( $attachment_id, $input );
@@ -2684,7 +2684,7 @@ trait Media_Read_Methods {
 
 		$ref_pairs = $this->media_reference_repair_ref_pairs( $replacement );
 		if ( empty( $ref_pairs ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_reference_repair_urls_missing', __( 'Old and new media URLs are required for settings reference repair planning.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_reference_repair_urls_missing', __( 'Old and new media URLs are required for settings reference repair planning.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$policy = $this->media_settings_reference_repair_policy( $attachment_id, $replacement, $input );
@@ -2770,7 +2770,7 @@ trait Media_Read_Methods {
 
 			$actions[] = array(
 				'action_id'         => 'repair_media_setting_reference_' . $target_type . '_' . md5( $target_name ),
-				'target_ability_id' => 'magick-ai/patch-setting-value',
+				'target_ability_id' => 'npcink-abilities-toolkit/patch-setting-value',
 				'input'             => array(
 					'target_type' => $target_type,
 					'target_name' => $target_name,
@@ -2954,7 +2954,7 @@ trait Media_Read_Methods {
 					'action_id'         => 'review_media_source_' . $attachment_id,
 					'attachment_id'     => $attachment_id,
 					'issue'             => 'missing_source',
-					'target_ability_id' => 'magick-ai/update-media-details',
+					'target_ability_id' => 'npcink-abilities-toolkit/update-media-details',
 					'requires_input'    => array( 'source_type', 'source_page_url_or_attribution_text' ),
 					'proposal_ready'    => false,
 					'reason'            => 'Source and attribution metadata must come from a verified source, not a deterministic guess.',
@@ -2966,7 +2966,7 @@ trait Media_Read_Methods {
 			$summary = array_key_exists( 'source_type', $update_input )
 				? 'Fill missing media SEO and source metadata.'
 				: 'Fill missing media SEO metadata.';
-			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'magick-ai/update-media-details', $update_input, array( 'media.write' ), 'medium', $summary );
+			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'npcink-abilities-toolkit/update-media-details', $update_input, array( 'media.write' ), 'medium', $summary );
 		}
 
 		if ( in_array( 'format_attention', $issues, true ) ) {
@@ -2991,11 +2991,11 @@ trait Media_Read_Methods {
 				? $this->media_delete_candidate_policy( $attachment_id, $row, $include_trash_parent_media, $include_unattached_test_media, $test_content_patterns )
 				: array( 'allowed' => false, 'blocked_reason' => 'delete_candidates_not_enabled', 'checks' => array() );
 			if ( $include_delete_candidates && ! empty( $delete_policy['allowed'] ) && count( $actions ) < $remaining_slots ) {
-				$actions[] = $this->build_plan_action( 'delete_unattached_media_' . $attachment_id, 'magick-ai/delete-media-permanently', array( 'attachment_id' => $attachment_id ), array( 'media.write' ), 'high', 'Permanently delete detected unattached media only after explicit host approval.' );
+				$actions[] = $this->build_plan_action( 'delete_unattached_media_' . $attachment_id, 'npcink-abilities-toolkit/delete-media-permanently', array( 'attachment_id' => $attachment_id ), array( 'media.write' ), 'high', 'Permanently delete detected unattached media only after explicit host approval.' );
 			} else {
 				$skipped_destructive_candidates[] = array(
 					'attachment_id'     => $attachment_id,
-					'target_ability_id' => 'magick-ai/delete-media-permanently',
+					'target_ability_id' => 'npcink-abilities-toolkit/delete-media-permanently',
 					'issue'             => 'possibly_unattached',
 					'blocked_reason'    => $include_delete_candidates ? (string) ( $delete_policy['blocked_reason'] ?? 'media_delete_policy_not_satisfied' ) : 'delete_candidates_not_enabled',
 					'policy_checks'     => is_array( $delete_policy['checks'] ?? null ) ? $delete_policy['checks'] : array(),
@@ -3247,11 +3247,11 @@ trait Media_Read_Methods {
 		$replacement_id = sanitize_text_field( (string) ( $input['replacement_id'] ?? '' ) );
 		$history = array();
 		if ( function_exists( 'get_post_meta' ) ) {
-			$latest = get_post_meta( $attachment_id, '_magick_ai_media_latest_file_replacement', true );
+			$latest = get_post_meta( $attachment_id, '_npcink_ai_media_latest_file_replacement', true );
 			if ( is_array( $latest ) ) {
 				$history[] = $latest;
 			}
-			$all = get_post_meta( $attachment_id, '_magick_ai_media_file_replacement_history', true );
+			$all = get_post_meta( $attachment_id, '_npcink_ai_media_file_replacement_history', true );
 			if ( is_array( $all ) ) {
 				if ( isset( $all['replacement_id'] ) ) {
 					$history[] = $all;
@@ -3292,7 +3292,7 @@ trait Media_Read_Methods {
 			$new_relative = $this->media_reference_relative_from_url( $new_url );
 		}
 		if ( '' === $old_url || '' === $new_url ) {
-			return new \WP_Error( 'magick_ai_abilities_media_replacement_reference_missing', __( 'No completed media replacement history or explicit old/new URLs were found for this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_replacement_reference_missing', __( 'No completed media replacement history or explicit old/new URLs were found for this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 
 		return array(
@@ -3766,13 +3766,13 @@ trait Media_Read_Methods {
 	private function normalize_media_attachment_resolution_url( $raw_url ) {
 		$raw_url = trim( (string) $raw_url );
 		if ( '' === $raw_url ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'A media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_required', __( 'A media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$uploads_base_url = $this->media_upload_base_url();
 		$base_parts = $this->parse_url_value( $uploads_base_url );
 		if ( empty( $base_parts['scheme'] ) || empty( $base_parts['host'] ) || empty( $base_parts['path'] ) ) {
-			return new \WP_Error( 'magick_ai_abilities_upload_base_unavailable', __( 'The local uploads base URL is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_upload_base_unavailable', __( 'The local uploads base URL is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$normalized_url = $raw_url;
@@ -3782,25 +3782,25 @@ trait Media_Read_Methods {
 		$normalized_url = $this->esc_url_value( $normalized_url );
 		$url_parts = $this->parse_url_value( $normalized_url );
 		if ( empty( $url_parts['scheme'] ) || empty( $url_parts['host'] ) || empty( $url_parts['path'] ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_invalid', __( 'The media URL must be an absolute same-site uploads URL or a root-relative uploads URL.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_invalid', __( 'The media URL must be an absolute same-site uploads URL or a root-relative uploads URL.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$base_host = strtolower( (string) $base_parts['host'] );
 		$url_host = strtolower( (string) $url_parts['host'] );
 		if ( $base_host !== $url_host ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_external', __( 'Only local uploads URLs can be resolved to media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_external', __( 'Only local uploads URLs can be resolved to media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$base_path = rtrim( $this->normalize_url_path( (string) $base_parts['path'] ), '/' ) . '/';
 		$url_path = $this->normalize_url_path( (string) $url_parts['path'] );
 		if ( 0 !== strpos( $url_path, $base_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_not_uploads', __( 'Only URLs under the local uploads directory can be resolved.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_not_uploads', __( 'Only URLs under the local uploads directory can be resolved.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$relative_file = ltrim( rawurldecode( substr( $url_path, strlen( $base_path ) ) ), '/' );
 		$relative_file = $this->normalize_media_relative_file( $relative_file );
 		if ( '' === $relative_file || false !== strpos( $relative_file, '..' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_path_invalid', __( 'The uploads URL path is not a valid media file path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_path_invalid', __( 'The uploads URL path is not a valid media file path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		return array(
@@ -4194,17 +4194,17 @@ trait Media_Read_Methods {
 			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
 			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
 		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
-		$source_type = function_exists( 'get_post_meta' ) ? $this->normalize_media_source_type( get_post_meta( $attachment_id, '_magick_ai_media_source_type', true ) ) : '';
-		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_source_page_url', true ) ) : '';
+		$source_type = function_exists( 'get_post_meta' ) ? $this->normalize_media_source_type( get_post_meta( $attachment_id, '_npcink_ai_media_source_type', true ) ) : '';
+		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_npcink_ai_source_page_url', true ) ) : '';
 		if ( '' === $source_url && function_exists( 'get_post_meta' ) ) {
-			$source_url = $this->esc_url_value( (string) get_post_meta( $attachment_id, '_magick_ai_media_source_page_url', true ) );
+			$source_url = $this->esc_url_value( (string) get_post_meta( $attachment_id, '_npcink_ai_media_source_page_url', true ) );
 		}
-		$photographer_name = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_magick_ai_media_photographer_name', true ) ) : '';
-		$attribution = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_attribution_text', true ) ) : '';
+		$photographer_name = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_npcink_ai_media_photographer_name', true ) ) : '';
+		$attribution = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_npcink_ai_attribution_text', true ) ) : '';
 		if ( '' === $attribution && function_exists( 'get_post_meta' ) ) {
-			$attribution = $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_media_attribution_text', true ) );
+			$attribution = $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_npcink_ai_media_attribution_text', true ) );
 		}
-		$copyright_notice = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_magick_ai_media_copyright_notice', true ) ) : '';
+		$copyright_notice = function_exists( 'get_post_meta' ) ? $this->sanitize_metadata_text( (string) get_post_meta( $attachment_id, '_npcink_ai_media_copyright_notice', true ) ) : '';
 		$issues = array();
 		if ( '' === $alt && 0 === strpos( $mime_type, 'image/' ) ) {
 			$issues[] = 'missing_alt';
@@ -4512,9 +4512,9 @@ trait Media_Read_Methods {
 		$should_convert = ! empty( $format_plan['should_convert'] );
 		$target_future_ability = 'manual_review';
 		if ( $should_resize || $should_compress ) {
-			$target_future_ability = 'magick-ai/build-media-derivative-cloud-request';
+			$target_future_ability = 'npcink-abilities-toolkit/build-media-derivative-cloud-request';
 		} elseif ( $should_convert ) {
-			$target_future_ability = 'magick-ai/build-media-derivative-cloud-request';
+			$target_future_ability = 'npcink-abilities-toolkit/build-media-derivative-cloud-request';
 		}
 
 		return array(
@@ -4523,9 +4523,9 @@ trait Media_Read_Methods {
 			'suggested_operation'    => $this->suggest_media_format_operation( $format_plan ),
 			'target_future_ability'  => $target_future_ability,
 			'future_ability_options' => array(
-				'magick-ai/build-media-derivative-cloud-request',
-				'magick-ai/optimize-media-asset',
-				'magick-ai/replace-media-file',
+				'npcink-abilities-toolkit/build-media-derivative-cloud-request',
+				'npcink-abilities-toolkit/optimize-media-asset',
+				'npcink-abilities-toolkit/replace-media-file',
 			),
 			'write_action_generated' => false,
 			'estimated_risk'         => 'high',
@@ -4952,7 +4952,7 @@ trait Media_Read_Methods {
 				continue;
 			}
 			$class_names = $this->extract_inline_block_class_names( $block );
-			$is_inline_image = in_array( 'magick-ai-inline-image', $class_names, true );
+			$is_inline_image = in_array( 'npcink-abilities-toolkit-inline-image', $class_names, true );
 			$matches_key = false;
 			foreach ( $placement_keys as $placement_key ) {
 				if ( in_array( $placement_key, $class_names, true ) ) {

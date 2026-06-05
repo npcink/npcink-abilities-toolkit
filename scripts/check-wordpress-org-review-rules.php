@@ -2,7 +2,7 @@
 /**
  * Guards against WordPress.org review patterns that previously blocked approval.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 $root     = dirname( __DIR__ );

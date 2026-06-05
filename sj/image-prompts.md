@@ -37,8 +37,8 @@ Create a WordPress.org plugin banner for "Npcink Abilities Toolkit", size 1544x5
 
 This plugin is part of the Npcink developer-tool series. Its role is the ability content package and contract specification layer: ability definitions, ability callbacks, schema normalization, annotations, safe agent-callable WordPress capabilities, and compatibility with hosts that consume the WordPress Abilities API.
 
-It complements the other Magick AI plugins:
-- Magick AI Core handles governance, approval, preflight, and audit.
+It complements the other Npcink AI plugins:
+- Npcink AI Core handles governance, approval, preflight, and audit.
 - Magick AI Adapter handles OpenClaw channel adaptation and calls Core plus the Abilities API.
 - Magick AI Cloud Addon links to cloud services.
 This banner should clearly represent Abilities, not Core, Adapter, or Cloud.

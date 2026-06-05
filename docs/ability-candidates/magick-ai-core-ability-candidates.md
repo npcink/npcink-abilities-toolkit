@@ -1,10 +1,10 @@
-# Magick AI Core Ability Candidates
+# Npcink AI Core Ability Candidates
 
 Status: reference notes for future rewrites.
 
 This document records high-value WordPress ability candidates found while
-shrinking Magick AI Core back to a governance layer. It is intentionally not an
-implementation plan and does not move Magick AI runtime code into this package.
+shrinking Npcink AI Core back to a governance layer. It is intentionally not an
+implementation plan and does not move Npcink AI runtime code into this package.
 
 Latest harvest checkpoint:
 `docs/migration-notes/magick-ai-main-repo-harvest-2026-05-30.md`.
@@ -38,27 +38,27 @@ or Content Assistant own the model and write governance.
 
 These are reusable across host products and fit the Abilities API boundary.
 Several are already present in this package; the note captures why they should
-remain here when Magick AI Core drops the corresponding product surface.
+remain here when Npcink AI Core drops the corresponding product surface.
 
 | Area | Ability ids or future ids | Why it belongs here | Host responsibility |
 | --- | --- | --- | --- |
-| Content context | `magick-ai/get-post-context`, `magick-ai/list-posts`, `magick-ai/get-post`, `magick-ai/get-post-blocks`, `magick-ai/get-post-meta` | Generic WordPress reads with stable schemas. | Choose task, model, prompt, and approval surface. |
-| Publishing readiness | `magick-ai/get-content-publishing-checklist`, `magick-ai/get-post-publish-risk-report`, `magick-ai/get-article-publish-preflight-context`, `magick-ai/get-publishing-calendar-context` | Read-only publishing context is reusable beyond Magick AI. | Decide whether to schedule, publish, or request edits. |
-| Content refresh | `magick-ai/get-content-refresh-opportunities`, `magick-ai/get-old-article-refresh-context`, `magick-ai/get-revision-change-risk-report` | Discovery and risk signals are WordPress context, not Magick AI governance. | Pick candidates and run model-assisted rewrite flows. |
-| SEO/GEO context | `magick-ai/get-post-seo-geo-readiness`, `magick-ai/get-seo-geo-gap-report`, `magick-ai/get-site-topic-coverage-report`, `magick-ai/get-internal-link-opportunity-report`, `magick-ai/get-internal-link-graph-health` | Deterministic context and gap reports are useful to any content host. | Generate final copy and approve writes. |
-| Metadata planning | `magick-ai/resolve-post-metadata-plan`, `magick-ai/propose-post-taxonomy-terms` | WordPress taxonomy and metadata plans can be schema-first proposal helpers. | Validate editorial policy and commit taxonomy/meta writes. |
-| Excerpt and summary handoff | `magick-ai/propose-post-excerpt`, future deterministic summary handoff helpers | Proposal-only helpers can provide bounded editorial handoff without owning generation runtime. | Run model calls when needed and commit with `update-post` or `patch-post-content`. |
-| Media inventory | `magick-ai/list-media`, `magick-ai/get-media-inventory-health`, `magick-ai/get-media-cleanup-opportunities` | Reusable media reads and cleanup signals. | Select remediation workflow and approve media writes/deletes. |
-| Media SEO assets | `magick-ai/build-media-seo-assets`, `magick-ai/optimize-media-metadata`, `magick-ai/build-inline-image-blocks`, `magick-ai/position-inline-image-blocks` | Deterministic media handoff and metadata proposal helpers are portable. | Source images, call models, and approve media metadata writes. |
-| Comments | `magick-ai/list-comments`, `magick-ai/get-comment-queue-health`, `magick-ai/get-comment-action-priority-queue`, `magick-ai/get-comment-compliance-handoff`, `magick-ai/build-comment-moderation-suggest`, `magick-ai/build-comment-mention-reply-suggest` | Comment queue reads and deterministic suggestions are reusable compliance helpers. | Approve, reply, spam, trash, and log final actions. |
-| Page structure | `magick-ai/inspect-page-structure`, `magick-ai/get-page-structure-health` | Read-only page structure inspection can be consumed by agents without Magick AI. | Decide remediation and run theme/page write flows elsewhere. |
-| Diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `magick-ai/site-info`, `magick-ai/get-site-operations-dashboard` | Redacted WordPress-only diagnostics are useful outside Magick AI. | Any Magick AI/MCP/runtime diagnosis stays in the host. |
-| Host-governed publishing writes | `magick-ai/create-draft`, `magick-ai/update-post`, `magick-ai/patch-post-content`, `magick-ai/update-post-blocks`, `magick-ai/set-post-seo-meta`, `magick-ai/set-post-terms`, `magick-ai/schedule-post`, `magick-ai/publish-post` | Generic WordPress writes can expose dry-run previews and commit callbacks. | Provide caller identity, approval, audit, idempotency, quota, and commit authorization. |
-| Host-governed media/comment writes | `magick-ai/update-media-details`, `magick-ai/upload-media-from-url`, `magick-ai/set-post-featured-image`, `magick-ai/approve-comment`, `magick-ai/reply-comment`, `magick-ai/spam-comment`, `magick-ai/trash-comment` | The mutation is generic WordPress behavior. | Govern all final write/destructive commits. |
+| Content context | `npcink-abilities-toolkit/get-post-context`, `npcink-abilities-toolkit/list-posts`, `npcink-abilities-toolkit/get-post`, `npcink-abilities-toolkit/get-post-blocks`, `npcink-abilities-toolkit/get-post-meta` | Generic WordPress reads with stable schemas. | Choose task, model, prompt, and approval surface. |
+| Publishing readiness | `npcink-abilities-toolkit/get-content-publishing-checklist`, `npcink-abilities-toolkit/get-post-publish-risk-report`, `npcink-abilities-toolkit/get-article-publish-preflight-context`, `npcink-abilities-toolkit/get-publishing-calendar-context` | Read-only publishing context is reusable beyond Magick AI. | Decide whether to schedule, publish, or request edits. |
+| Content refresh | `npcink-abilities-toolkit/get-content-refresh-opportunities`, `npcink-abilities-toolkit/get-old-article-refresh-context`, `npcink-abilities-toolkit/get-revision-change-risk-report` | Discovery and risk signals are WordPress context, not Magick AI governance. | Pick candidates and run model-assisted rewrite flows. |
+| SEO/GEO context | `npcink-abilities-toolkit/get-post-seo-geo-readiness`, `npcink-abilities-toolkit/get-seo-geo-gap-report`, `npcink-abilities-toolkit/get-site-topic-coverage-report`, `npcink-abilities-toolkit/get-internal-link-opportunity-report`, `npcink-abilities-toolkit/get-internal-link-graph-health` | Deterministic context and gap reports are useful to any content host. | Generate final copy and approve writes. |
+| Metadata planning | `npcink-abilities-toolkit/resolve-post-metadata-plan`, `npcink-abilities-toolkit/propose-post-taxonomy-terms` | WordPress taxonomy and metadata plans can be schema-first proposal helpers. | Validate editorial policy and commit taxonomy/meta writes. |
+| Excerpt and summary handoff | `npcink-abilities-toolkit/propose-post-excerpt`, future deterministic summary handoff helpers | Proposal-only helpers can provide bounded editorial handoff without owning generation runtime. | Run model calls when needed and commit with `update-post` or `patch-post-content`. |
+| Media inventory | `npcink-abilities-toolkit/list-media`, `npcink-abilities-toolkit/get-media-inventory-health`, `npcink-abilities-toolkit/get-media-cleanup-opportunities` | Reusable media reads and cleanup signals. | Select remediation workflow and approve media writes/deletes. |
+| Media SEO assets | `npcink-abilities-toolkit/build-media-seo-assets`, `npcink-abilities-toolkit/optimize-media-metadata`, `npcink-abilities-toolkit/build-inline-image-blocks`, `npcink-abilities-toolkit/position-inline-image-blocks` | Deterministic media handoff and metadata proposal helpers are portable. | Source images, call models, and approve media metadata writes. |
+| Comments | `npcink-abilities-toolkit/list-comments`, `npcink-abilities-toolkit/get-comment-queue-health`, `npcink-abilities-toolkit/get-comment-action-priority-queue`, `npcink-abilities-toolkit/get-comment-compliance-handoff`, `npcink-abilities-toolkit/build-comment-moderation-suggest`, `npcink-abilities-toolkit/build-comment-mention-reply-suggest` | Comment queue reads and deterministic suggestions are reusable compliance helpers. | Approve, reply, spam, trash, and log final actions. |
+| Page structure | `npcink-abilities-toolkit/inspect-page-structure`, `npcink-abilities-toolkit/get-page-structure-health` | Read-only page structure inspection can be consumed by agents without Magick AI. | Decide remediation and run theme/page write flows elsewhere. |
+| Diagnostics | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail`, `npcink-abilities-toolkit/site-info`, `npcink-abilities-toolkit/get-site-operations-dashboard` | Redacted WordPress-only diagnostics are useful outside Magick AI. | Any Magick AI/MCP/runtime diagnosis stays in the host. |
+| Host-governed publishing writes | `npcink-abilities-toolkit/create-draft`, `npcink-abilities-toolkit/update-post`, `npcink-abilities-toolkit/patch-post-content`, `npcink-abilities-toolkit/update-post-blocks`, `npcink-abilities-toolkit/set-post-seo-meta`, `npcink-abilities-toolkit/set-post-terms`, `npcink-abilities-toolkit/schedule-post`, `npcink-abilities-toolkit/publish-post` | Generic WordPress writes can expose dry-run previews and commit callbacks. | Provide caller identity, approval, audit, idempotency, quota, and commit authorization. |
+| Host-governed media/comment writes | `npcink-abilities-toolkit/update-media-details`, `npcink-abilities-toolkit/upload-media-from-url`, `npcink-abilities-toolkit/set-post-featured-image`, `npcink-abilities-toolkit/approve-comment`, `npcink-abilities-toolkit/reply-comment`, `npcink-abilities-toolkit/spam-comment`, `npcink-abilities-toolkit/trash-comment` | The mutation is generic WordPress behavior. | Govern all final write/destructive commits. |
 
 ## Keep As Documentation Only
 
-The following Magick AI Core workflow surfaces contain useful sequencing ideas
+The following Npcink AI Core workflow surfaces contain useful sequencing ideas
 but should not be copied as runtime code:
 
 - content tag completion;
@@ -85,7 +85,7 @@ recipe ids remain documentation identifiers only.
 
 ## Do Not Migrate
 
-These Magick AI Core concepts are deliberately out of scope:
+These Npcink AI Core concepts are deliberately out of scope:
 
 - `workflow/*` runtime registration, workflow-as-ability execution, and skill
   manifest projection;
@@ -93,10 +93,10 @@ These Magick AI Core concepts are deliberately out of scope:
 - Agent Gateway task templates, catalog rows, or MCP server routing;
 - cloud/billing/operator/batch consoles;
 - local Settings surfaces and observability dashboards;
-- model/provider bridge execution such as `magick-ai/generate-excerpt`,
-  `magick-ai/seo-meta-generate`, `magick-ai/generate-alt`,
-  `magick-ai/seo-analyze`, `magick-ai/resolve-image-source`, or
-  `magick-ai/resolve-references`.
+- model/provider bridge execution such as `npcink-abilities-toolkit/generate-excerpt`,
+  `npcink-abilities-toolkit/seo-meta-generate`, `npcink-abilities-toolkit/generate-alt`,
+  `npcink-abilities-toolkit/seo-analyze`, `npcink-abilities-toolkit/resolve-image-source`, or
+  `npcink-abilities-toolkit/resolve-references`.
 
 If a future package wants to own semantic/model abilities, write a new ADR for a
 separate semantic package. Do not blend it into this WordPress abilities package.

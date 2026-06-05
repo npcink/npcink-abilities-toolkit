@@ -12,13 +12,13 @@ directly.
 
 ## Scope
 
-- Added `magick-ai/propose-post-taxonomy-terms` as a deterministic
+- Added `npcink-abilities-toolkit/propose-post-taxonomy-terms` as a deterministic
   proposal-only helper for existing taxonomy terms.
-- The helper targets `magick-ai/set-post-terms` with dry-run input and
+- The helper targets `npcink-abilities-toolkit/set-post-terms` with dry-run input and
   `commit_execution=false`.
 - The helper does not create terms, assign terms, mutate posts, run model
   calls, own workflow runtime, or perform approval/audit governance.
-- `magick-ai-core` has consumed the real helper contract in its taxonomy terms
+- `npcink-ai-core` has consumed the real helper contract in its taxonomy terms
   preview smoke path.
 - The consumer handoff check now locks the five harvested surfaces from the
   main repo: taxonomy/content cleanup, publish preflight, media inventory, page
@@ -39,8 +39,8 @@ directly.
 | `composer check:contracts` | Pass | Registered first-party ability contract audit passed for 115 abilities. |
 | `composer test:all` | Pass | Composer validation, project boundary, consumer handoff, catalog audit, lightweight tests, and PHP lint passed; `OK: 2582 assertions`. |
 | `composer smoke:wp` | Pass | Full profile covered the taxonomy proposal helper; default profile reported `Smoke OK: 198 assertions`, light profile reported `Smoke OK: 14 assertions`. |
-| `magick-ai-core composer test:all` | Pass | Core PHP lint and static contracts passed. |
-| `magick-ai-core composer smoke:wp` | Pass | Core discovered `magick-ai/propose-post-taxonomy-terms`, ran it through WordPress Abilities API, created and approved a `magick-ai/set-post-terms` proposal, returned commit preflight with `commit_execution=false`, and did not mutate post terms. |
+| `npcink-ai-core composer test:all` | Pass | Core PHP lint and static contracts passed. |
+| `npcink-ai-core composer smoke:wp` | Pass | Core discovered `npcink-abilities-toolkit/propose-post-taxonomy-terms`, ran it through WordPress Abilities API, created and approved a `npcink-abilities-toolkit/set-post-terms` proposal, returned commit preflight with `commit_execution=false`, and did not mutate post terms. |
 
 ## Current Decision
 

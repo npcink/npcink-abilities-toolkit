@@ -2,12 +2,12 @@
 /**
  * Admin test page for Abilities API endpoints.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Admin;
+namespace Npcink_Abilities_Toolkit\Admin;
 
-use Magick_AI_Abilities\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,8 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Renders a small operator-facing test surface.
  */
 final class Test_Page {
-	const OPTION_DEMO_ENABLED = 'magick_ai_abilities_demo_enabled';
-	const PARENT_MENU_SLUG    = 'magick-ai';
+	const OPTION_DEMO_ENABLED = 'npcink_abilities_toolkit_demo_enabled';
+	const PARENT_MENU_SLUG    = 'npcink-ai';
 	const MENU_SLUG           = 'npcink-abilities-toolkit';
 	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
 
@@ -60,7 +60,7 @@ final class Test_Page {
 	 */
 	public function register_settings() {
 		register_setting(
-			'magick_ai_abilities_test',
+			'npcink_abilities_toolkit_test',
 			self::OPTION_DEMO_ENABLED,
 			array(
 				'type'              => 'boolean',
@@ -88,18 +88,18 @@ final class Test_Page {
 		}
 
 		$handle  = 'npcink-abilities-toolkit-admin';
-		$version = defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '1.0.0';
+		$version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '1.0.0';
 
 		wp_enqueue_style(
 			$handle,
-			plugins_url( 'assets/admin.css', MAGICK_AI_ABILITIES_FILE ),
+			plugins_url( 'assets/admin.css', NPCINK_ABILITIES_TOOLKIT_FILE ),
 			array(),
 			$version
 		);
 
 		wp_enqueue_script(
 			$handle,
-			plugins_url( 'assets/admin.js', MAGICK_AI_ABILITIES_FILE ),
+			plugins_url( 'assets/admin.js', NPCINK_ABILITIES_TOOLKIT_FILE ),
 			array(),
 			$version,
 			true
@@ -112,7 +112,7 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function register_menu() {
-		if ( $this->has_magick_parent_menu() ) {
+		if ( $this->has_npcink_parent_menu() ) {
 			add_submenu_page(
 				self::PARENT_MENU_SLUG,
 				__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),
@@ -135,11 +135,11 @@ final class Test_Page {
 	}
 
 	/**
-	 * Returns whether a Magick AI parent menu was registered by a host plugin.
+	 * Returns whether a Npcink AI parent menu was registered by a host plugin.
 	 *
 	 * @return bool
 	 */
-	private function has_magick_parent_menu() {
+	private function has_npcink_parent_menu() {
 		global $menu;
 
 		foreach ( (array) $menu as $item ) {
@@ -805,7 +805,7 @@ final class Test_Page {
 			</summary>
 			<div class="npcink-abilities-toolkit-disclosure__body">
 				<form method="post" action="options.php">
-					<?php settings_fields( 'magick_ai_abilities_test' ); ?>
+					<?php settings_fields( 'npcink_abilities_toolkit_test' ); ?>
 					<label>
 						<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DEMO_ENABLED ); ?>" value="1" <?php checked( $demo_enabled ); ?> />
 						<?php echo esc_html__( 'Enable demo read-only ability: npcink-abilities-toolkit/site-summary', 'npcink-abilities-toolkit' ); ?>
@@ -900,7 +900,7 @@ final class Test_Page {
 						'site_name'      => get_bloginfo( 'name' ),
 						'site_url'       => home_url(),
 						'wp_version'     => get_bloginfo( 'version' ),
-						'plugin_version' => defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? MAGICK_AI_ABILITIES_VERSION : '',
+						'plugin_version' => defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '',
 						'user'           => wp_get_current_user()->user_login,
 					);
 				},

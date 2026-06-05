@@ -26,7 +26,7 @@ same-directory compatibility path for newly created backups.
 Store newly created Magick AI media operation backups under:
 
 ```text
-wp-content/uploads/magick-ai-backups/{current-upload-subdirectory}/
+wp-content/uploads/npcink-abilities-toolkit-backups/{current-upload-subdirectory}/
 ```
 
 For example, a current file at:
@@ -38,7 +38,7 @@ For example, a current file at:
 will produce a backup such as:
 
 ```text
-magick-ai-backups/2026/06/hero-magick-ai-backup-media_replace_20260604_081417_ab12cd34.webp
+npcink-abilities-toolkit-backups/2026/06/hero-npcink-abilities-toolkit-backup-media_replace_20260604_081417_ab12cd34.webp
 ```
 
 The backup filename still includes the original stem, operation-specific backup
@@ -74,7 +74,7 @@ introduced for development-era same-directory backups.
 - New backup files no longer appear in the same year/month media directory as
   the current attachment.
 - Restore and rollback continue to work through recorded relative file paths.
-- Future cleanup can target `magick-ai-backups/` explicitly without scanning all
+- Future cleanup can target `npcink-abilities-toolkit-backups/` explicitly without scanning all
   media month directories for backup suffixes.
 - Future public capabilities can expose backup listing, restore planning, and
   explicit cleanup without changing this storage base.

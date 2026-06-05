@@ -2,10 +2,10 @@
 /**
  * Content inventory read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +24,7 @@ trait Content_Inventory_Read_Methods {
 	public function get_content_inventory_health( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
@@ -32,7 +32,7 @@ trait Content_Inventory_Read_Methods {
 			$post_type = 'post';
 		}
 		if ( function_exists( 'post_type_exists' ) && ! post_type_exists( $post_type ) ) {
-			return new \WP_Error( 'magick_ai_abilities_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$status = sanitize_key( (string) ( $input['status'] ?? 'any' ) );
@@ -167,7 +167,7 @@ trait Content_Inventory_Read_Methods {
 	public function get_test_content_inventory( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read test content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read test content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$patterns = $this->normalize_test_content_patterns( $input['patterns'] ?? array() );
@@ -250,7 +250,7 @@ trait Content_Inventory_Read_Methods {
 			}
 			$actions[] = $this->build_plan_action(
 				'trash_test_post_' . $post_id,
-				'magick-ai/trash-post',
+				'npcink-abilities-toolkit/trash-post',
 				array( 'post_id' => $post_id ),
 				array( 'post.delete' ),
 				'medium',
@@ -270,7 +270,7 @@ trait Content_Inventory_Read_Methods {
 			}
 			$actions[] = $this->build_plan_action(
 				'delete_unused_test_term_' . $term_id,
-				'magick-ai/delete-term',
+				'npcink-abilities-toolkit/delete-term',
 				array(
 					'taxonomy' => $taxonomy,
 					'term_id'  => $term_id,
@@ -292,7 +292,7 @@ trait Content_Inventory_Read_Methods {
 			}
 			$actions[] = $this->build_plan_action(
 				'trash_test_comment_' . $comment_id,
-				'magick-ai/trash-comment',
+				'npcink-abilities-toolkit/trash-comment',
 				array( 'comment_id' => $comment_id ),
 				array( 'comments.manage' ),
 				'medium',
@@ -336,7 +336,7 @@ trait Content_Inventory_Read_Methods {
 	public function build_content_inventory_fix_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to build content inventory fix plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to build content inventory fix plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$post_ids = is_array( $input['post_ids'] ?? null ) ? array_values( array_filter( array_map( array( $this, 'absint_value' ), $input['post_ids'] ) ) ) : array();
@@ -768,17 +768,17 @@ trait Content_Inventory_Read_Methods {
 			$after['seo_description'] = $seo_input['seo_description'];
 		}
 		if ( count( $seo_input ) > 1 && count( $actions ) < $remaining_slots ) {
-			$actions[] = $this->build_plan_action( 'set_seo_meta_' . $post_id, 'magick-ai/set-post-seo-meta', $seo_input, array( 'post.write' ), 'medium', 'Fill missing SEO metadata.' );
+			$actions[] = $this->build_plan_action( 'set_seo_meta_' . $post_id, 'npcink-abilities-toolkit/set-post-seo-meta', $seo_input, array( 'post.write' ), 'medium', 'Fill missing SEO metadata.' );
 		}
 
 		if ( in_array( 'title', $issues, true ) && count( $actions ) < $remaining_slots ) {
-			$actions[] = $this->build_plan_action( 'set_title_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Provide a human-reviewed title before execution.', array( 'title' ) );
+			$actions[] = $this->build_plan_action( 'set_title_' . $post_id, 'npcink-abilities-toolkit/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Provide a human-reviewed title before execution.', array( 'title' ) );
 		}
 
 		if ( in_array( 'slug', $issues, true ) && count( $actions ) < $remaining_slots ) {
 			$suggested_slug = $this->sanitize_metadata_slug( '' !== $title ? $title : 'post-' . $post_id );
 			if ( '' !== $suggested_slug ) {
-				$actions[] = $this->build_plan_action( 'set_slug_' . $post_id, 'magick-ai/set-post-slug', array( 'post_id' => $post_id, 'slug' => $suggested_slug ), array( 'post.write' ), 'medium', 'Set stable post slug.' );
+				$actions[] = $this->build_plan_action( 'set_slug_' . $post_id, 'npcink-abilities-toolkit/set-post-slug', array( 'post_id' => $post_id, 'slug' => $suggested_slug ), array( 'post.write' ), 'medium', 'Set stable post slug.' );
 				$after['slug'] = $suggested_slug;
 			}
 		}
@@ -786,17 +786,17 @@ trait Content_Inventory_Read_Methods {
 		if ( in_array( 'excerpt', $issues, true ) && count( $actions ) < $remaining_slots ) {
 			$suggested_excerpt = $this->truncate_text( $this->trim_words_value( $plain_text, 34 ), 220 );
 			if ( '' !== $suggested_excerpt ) {
-				$actions[] = $this->build_plan_action( 'set_excerpt_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id, 'excerpt' => $suggested_excerpt ), array( 'post.write' ), 'medium', 'Fill missing post excerpt.' );
+				$actions[] = $this->build_plan_action( 'set_excerpt_' . $post_id, 'npcink-abilities-toolkit/update-post', array( 'post_id' => $post_id, 'excerpt' => $suggested_excerpt ), array( 'post.write' ), 'medium', 'Fill missing post excerpt.' );
 				$after['excerpt'] = $suggested_excerpt;
 			}
 		}
 
 		if ( in_array( 'featured_media', $issues, true ) && count( $actions ) < $remaining_slots ) {
-			$actions[] = $this->build_plan_action( 'set_featured_media_' . $post_id, 'magick-ai/set-post-featured-image', array( 'post_id' => $post_id ), array( 'media.write' ), 'medium', 'Select an approved attachment or media URL before execution.', array( 'attachment_id_or_media_url' ) );
+			$actions[] = $this->build_plan_action( 'set_featured_media_' . $post_id, 'npcink-abilities-toolkit/set-post-featured-image', array( 'post_id' => $post_id ), array( 'media.write' ), 'medium', 'Select an approved attachment or media URL before execution.', array( 'attachment_id_or_media_url' ) );
 		}
 
 		if ( in_array( 'content', $issues, true ) && count( $actions ) < $remaining_slots ) {
-			$actions[] = $this->build_plan_action( 'expand_content_' . $post_id, 'magick-ai/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Generate or provide expanded content before execution.', array( 'content' ) );
+			$actions[] = $this->build_plan_action( 'expand_content_' . $post_id, 'npcink-abilities-toolkit/update-post', array( 'post_id' => $post_id ), array( 'post.write' ), 'medium', 'Generate or provide expanded content before execution.', array( 'content' ) );
 		}
 
 		return array(

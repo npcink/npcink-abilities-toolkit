@@ -13,7 +13,7 @@ a release.
 - `npcink-abilities-toolkit`: `0981ca3 固化能力基础设施契约和本地验证流程`
 - Magick AI consumer: `287f8d358 open-platform: docs 强化 abilities 拆分边界审计`
 - Local WordPress smoke site: `https://magick-ai.local`
-- WordPress path: `/Users/muze/Local Sites/magick-ai/app/public`
+- WordPress path: `/Users/muze/Local Sites/npcink-abilities-toolkit/app/public`
 - WP-CLI: `/tmp/wp-cli.phar`
 - PHP for WP-CLI: `/opt/homebrew/bin/php`
 - MySQL socket: `/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock`
@@ -40,7 +40,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
 composer smoke:wp
 ```
 
@@ -57,7 +57,7 @@ files from `npcink-abilities-toolkit`.
 | `pnpm run check:abilities:split-boundary` | Pass | `npcink-abilities-toolkit split boundary: ok (39 main ids, 85 standalone ids, 0 duplicates)`. |
 | `node --check scripts/check-npcink-abilities-toolkit-split.js` | Pass | Script syntax check passed. |
 | Target PHP consumer contracts | Pass | `PHP unit checks passed (5 files, lane all)`. |
-| Local WP consumer E2E | Pass | `site-info` read run returned 200; `create-draft` write dry-run returned 200 with `dry_run=true`, `host_governed=true`, and `commit_required=true`; Magick AI catalog entries used `executor_type=wp_ability`. |
+| Local WP consumer E2E | Pass | `site-info` read run returned 200; `create-draft` write dry-run returned 200 with `dry_run=true`, `host_governed=true`, and `commit_required=true`; Npcink AI catalog entries used `executor_type=wp_ability`. |
 
 Target PHP consumer contracts:
 
@@ -76,7 +76,7 @@ pnpm run check:unit:php:files -- \
   by `npcink-abilities-toolkit`.
 - Magick AI consumes migrated abilities through WordPress Abilities API discovery,
   catalog projection metadata, and `executor_type=wp_ability` runtime dispatch.
-- Duplicate Magick AI-owned and standalone `magick-ai/*` ability ids were not
+- Duplicate Magick AI-owned and standalone `npcink-abilities-toolkit/*` ability ids were not
   found in the checked repositories.
 - Write and destructive commits remain host-governed by Magick AI or another
   host runtime; third-party public registration remains limited to readonly and
@@ -90,7 +90,7 @@ pnpm run check:unit:php:files -- \
 - Build source commit: `7ecda76c3c13bea0c40f5d9109afafffb4f92147`
 - SHA-256: `082fac1af345fc4050345fa0b166dd4fa6e86185e39c93cc75449704c8a55eb9`
 - Package inspection: `unzip -l` reports 48 files under the `npcink-abilities-toolkit/` prefix.
-- Version inspection: packaged `npcink-abilities-toolkit.php` reports `Version: 0.2.0` and `MAGICK_AI_ABILITIES_VERSION` is `0.2.0`; packaged `readme.txt` reports `Stable tag: 0.2.0`.
+- Version inspection: packaged `npcink-abilities-toolkit.php` reports `Version: 0.2.0` and `NPCINK_ABILITIES_TOOLKIT_VERSION` is `0.2.0`; packaged `readme.txt` reports `Stable tag: 0.2.0`.
 
 ## Remaining Before Tagging
 

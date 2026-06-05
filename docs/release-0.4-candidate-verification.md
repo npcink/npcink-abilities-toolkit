@@ -31,23 +31,23 @@ Before tagging `0.4.0`, the release owner should verify:
 
 ## Candidate Scope
 
-- Added `Magick_AI_Abilities\Workflow\Workflow_Definition_Provider` as the
+- Added `Npcink_Abilities_Toolkit\Workflow\Workflow_Definition_Provider` as the
   production source of workflow recipe definitions.
 - Added public read-only helpers:
-  - `magick_ai_abilities_get_workflow_definitions()`
-  - `magick_ai_abilities_get_workflow_definition( $recipe_id )`
+  - `npcink_abilities_toolkit_get_workflow_definitions()`
+  - `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`
 - Added read-only Abilities API discovery abilities:
   - `npcink-abilities-toolkit/list-workflow-recipes`
   - `npcink-abilities-toolkit/get-workflow-recipe`
 - Kept workflow definitions declarative only: no runtime state, scheduling,
   retries, queues, model routing, prompt ownership, approval store, audit store,
   quota, or final WordPress write authority.
-- Updated `magick-ai-core` smoke coverage to prefer the runtime helper and fall
+- Updated `npcink-ai-core` smoke coverage to prefer the runtime helper and fall
   back to the shared replay fixture only for older local provider versions.
 - Added the Core governance catalog snapshot fixture for:
-  - `magick-ai/create-draft`
-  - `magick-ai/set-post-seo-meta`
-  - `magick-ai/approve-comment`
+  - `npcink-abilities-toolkit/create-draft`
+  - `npcink-abilities-toolkit/set-post-seo-meta`
+  - `npcink-abilities-toolkit/approve-comment`
   - workflow definition discovery abilities
 - Added permission matrix and schema boundary audit docs for write/destructive
   abilities.
@@ -70,8 +70,8 @@ Before tagging `0.4.0`, the release owner should verify:
 | `git diff --check` | Pass | No whitespace errors. |
 | `composer smoke:wp` full profile | Pass | `Smoke OK: 193 assertions`; includes REST detail checks for governance metadata and schemas. |
 | `composer smoke:wp` light profile | Pass | `Smoke OK: 14 assertions`; workflow definition discovery is disabled in the light profile. |
-| `magick-ai-core composer test:all` | Pass | PHP lint and static contracts passed. |
-| `magick-ai-core composer smoke:wp` | Pass | Core discovered capabilities from `npcink-abilities-toolkit` and found shared workflow definitions at runtime. |
+| `npcink-ai-core composer test:all` | Pass | PHP lint and static contracts passed. |
+| `npcink-ai-core composer smoke:wp` | Pass | Core discovered capabilities from `npcink-abilities-toolkit` and found shared workflow definitions at runtime. |
 
 ## Package Evidence
 
@@ -79,7 +79,7 @@ Before tagging `0.4.0`, the release owner should verify:
 - Package inspection: `unzip -Z1` reports 60 files and 17 directories under the
   `npcink-abilities-toolkit/` prefix.
 - Version inspection: packaged `npcink-abilities-toolkit.php` reports
-  `Version: 0.4.0` and `MAGICK_AI_ABILITIES_VERSION` is `0.4.0`; packaged
+  `Version: 0.4.0` and `NPCINK_ABILITIES_TOOLKIT_VERSION` is `0.4.0`; packaged
   `readme.txt` reports `Stable tag: 0.4.0`.
 
 Smoke command:
@@ -89,7 +89,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
 composer smoke:wp
 ```
 
@@ -100,8 +100,8 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
-MAGICK_AI_ABILITIES_PATH="/Users/muze/gitee/npcink-abilities-toolkit" \
+WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
+NPCINK_ABILITIES_TOOLKIT_PATH="/Users/muze/gitee/npcink-abilities-toolkit" \
 composer smoke:wp
 ```
 

@@ -25,8 +25,8 @@ The production provider lives in
 `includes/Workflow/Workflow_Definition_Provider.php`. Hosts can discover the
 same manifest through:
 
-- `magick_ai_abilities_get_workflow_definitions()`;
-- `magick_ai_abilities_get_workflow_definition( $recipe_id )`;
+- `npcink_abilities_toolkit_get_workflow_definitions()`;
+- `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`;
 - `npcink-abilities-toolkit/list-workflow-recipes`;
 - `npcink-abilities-toolkit/get-workflow-recipe`.
 

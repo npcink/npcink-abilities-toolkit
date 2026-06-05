@@ -4,14 +4,14 @@ Status: active contract snapshot.
 
 The machine-readable snapshot lives at
 `tests/fixtures/core-governance-catalog-snapshot.json`. It is intentionally
-small: it locks only the high-value handoff abilities that `magick-ai-core`
+small: it locks only the high-value handoff abilities that `npcink-ai-core`
 uses to validate proposal governance.
 
 ## Snapshot Scope
 
-- `magick-ai/create-draft`
-- `magick-ai/set-post-seo-meta`
-- `magick-ai/approve-comment`
+- `npcink-abilities-toolkit/create-draft`
+- `npcink-abilities-toolkit/set-post-seo-meta`
+- `npcink-abilities-toolkit/approve-comment`
 - `npcink-abilities-toolkit/list-workflow-recipes`
 - `npcink-abilities-toolkit/get-workflow-recipe`
 

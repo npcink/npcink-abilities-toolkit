@@ -2,10 +2,10 @@
 /**
  * Ability registrar.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Registry;
+namespace Npcink_Abilities_Toolkit\Registry;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Stores and registers Abilities API abilities.
  */
 final class Ability_Registrar {
-	const CATALOG_STATE_OPTION      = 'magick_ai_abilities_catalog_observability_state';
-	const CATALOG_RATE_LIMIT_PREFIX = 'magick_ai_abilities_catalog_emit_';
+	const CATALOG_STATE_OPTION      = 'npcink_abilities_toolkit_catalog_observability_state';
+	const CATALOG_RATE_LIMIT_PREFIX = 'npcink_abilities_toolkit_catalog_emit_';
 	const CATALOG_RATE_LIMIT_TTL    = 86400;
 
 	/**
@@ -58,7 +58,7 @@ final class Ability_Registrar {
 	 */
 	public function boot() {
 		add_action( 'wp_abilities_api_init', array( $this, 'register_with_wordpress' ), 10 );
-		add_action( 'magick_ai_abilities_refresh_catalog_observability', array( $this, 'emit_manual_catalog_refresh' ), 10, 1 );
+		add_action( 'npcink_abilities_toolkit_refresh_catalog_observability', array( $this, 'emit_manual_catalog_refresh' ), 10, 1 );
 		add_action( 'shutdown', array( $this, 'emit_catalog_snapshot_if_changed' ), 100 );
 	}
 
@@ -257,7 +257,7 @@ final class Ability_Registrar {
 	 * @return bool
 	 */
 	private function emit_catalog_changed_if_needed( $reason, $force ) {
-		if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 			return false;
 		}
 
@@ -266,7 +266,7 @@ final class Ability_Registrar {
 		$state        = is_array( $state ) ? $state : array();
 		$previous_hash = isset( $state['catalog_hash'] ) ? (string) $state['catalog_hash'] : '';
 		$previous_version = isset( $state['plugin_version'] ) ? (string) $state['plugin_version'] : '';
-		$current_version = defined( 'MAGICK_AI_ABILITIES_VERSION' ) ? (string) MAGICK_AI_ABILITIES_VERSION : '';
+		$current_version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
 		$version_changed = '' !== $previous_version && '' !== $current_version && $previous_version !== $current_version;
 
 		if ( ! $force && ! $version_changed && $previous_hash === $catalog_hash ) {
@@ -338,7 +338,7 @@ final class Ability_Registrar {
 			'contract_version'          => (string) ( $definition['contract_version'] ?? '' ),
 			'deprecated'                => ! empty( $definition['deprecated'] ),
 			'successor'                 => (string) ( $definition['successor'] ?? '' ),
-			'project_to_magick_catalog' => ! empty( $definition['project_to_magick_catalog'] ),
+			'project_to_npcink_catalog' => ! empty( $definition['project_to_npcink_catalog'] ),
 		);
 
 		return $this->stable_normalize_value( $stable );
@@ -467,11 +467,11 @@ final class Ability_Registrar {
 	 * @return void
 	 */
 	private function emit_observability_event( $event_kind, array $payload ) {
-		if ( ! function_exists( 'magick_ai_abilities_emit_observability_event' ) ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 			return;
 		}
 
-		magick_ai_abilities_emit_observability_event(
+		npcink_abilities_toolkit_emit_observability_event(
 			array_merge(
 				array(
 					'event_kind' => $event_kind,

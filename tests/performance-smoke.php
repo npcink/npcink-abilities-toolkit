@@ -2,18 +2,18 @@
 /**
  * Lightweight performance smoke for bounded read-only ability chains.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 require_once __DIR__ . '/bootstrap.php';
 
-use Magick_AI_Abilities\Packages\Core_Comment_Package;
-use Magick_AI_Abilities\Packages\Core_Read_Package;
-use Magick_AI_Abilities\Registry\Ability_Registrar;
-use Magick_AI_Abilities\Registry\Annotation_Normalizer;
-use Magick_AI_Abilities\Registry\Category_Registrar;
-use Magick_AI_Abilities\Registry\Contract_Normalizer;
-use Magick_AI_Abilities\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Read_Package;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
 
 $schema_normalizer = new Schema_Normalizer();
 $contract_normalizer = new Contract_Normalizer( $schema_normalizer, new Annotation_Normalizer() );

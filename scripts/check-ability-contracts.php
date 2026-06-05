@@ -2,7 +2,7 @@
 /**
  * Audits the registered first-party ability surface for agent-ready contracts.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
 require_once dirname( __DIR__ ) . '/tests/bootstrap.php';
@@ -117,12 +117,12 @@ function maa_contract_audit_ability( $ability_id, array $ability ) {
 		maa_contract_audit_fail( "{$ability_id} MCP risk must mirror risk_level" );
 	}
 
-	if ( $risk_level !== (string) maa_contract_audit_get( $ability, array( 'meta', 'magick', 'risk_level' ) ) ) {
-		maa_contract_audit_fail( "{$ability_id} Magick risk must mirror risk_level" );
+	if ( $risk_level !== (string) maa_contract_audit_get( $ability, array( 'meta', 'npcink', 'risk_level' ) ) ) {
+		maa_contract_audit_fail( "{$ability_id} Npcink risk must mirror risk_level" );
 	}
 
-	if ( $ability_id !== (string) maa_contract_audit_get( $ability, array( 'meta', 'magick', 'canonical_ability_id' ) ) ) {
-		maa_contract_audit_fail( "{$ability_id} Magick metadata must preserve canonical ability id" );
+	if ( $ability_id !== (string) maa_contract_audit_get( $ability, array( 'meta', 'npcink', 'canonical_ability_id' ) ) ) {
+		maa_contract_audit_fail( "{$ability_id} Npcink metadata must preserve canonical ability id" );
 	}
 
 	$annotations = isset( $ability['annotations'] ) && is_array( $ability['annotations'] )
@@ -176,16 +176,16 @@ function maa_contract_audit_agent_usage( array $abilities ) {
 		'npcink-abilities-toolkit/list-workflow-recipes',
 		'npcink-abilities-toolkit/get-workflow-recipe',
 		'npcink-abilities-toolkit/wp-diagnostics-summary',
-		'magick-ai/get-article-publish-preflight-context',
-		'magick-ai/get-old-article-refresh-context',
-		'magick-ai/get-media-cleanup-opportunities',
-		'magick-ai/propose-post-taxonomy-terms',
-		'magick-ai/get-comment-compliance-handoff',
-		'magick-ai/create-draft',
-		'magick-ai/set-post-seo-meta',
-		'magick-ai/update-media-details',
-		'magick-ai/approve-comment',
-		'magick-ai/delete-media-permanently',
+		'npcink-abilities-toolkit/get-article-publish-preflight-context',
+		'npcink-abilities-toolkit/get-old-article-refresh-context',
+		'npcink-abilities-toolkit/get-media-cleanup-opportunities',
+		'npcink-abilities-toolkit/propose-post-taxonomy-terms',
+		'npcink-abilities-toolkit/get-comment-compliance-handoff',
+		'npcink-abilities-toolkit/create-draft',
+		'npcink-abilities-toolkit/set-post-seo-meta',
+		'npcink-abilities-toolkit/update-media-details',
+		'npcink-abilities-toolkit/approve-comment',
+		'npcink-abilities-toolkit/delete-media-permanently',
 	);
 
 	foreach ( $required_agent_usage as $ability_id ) {
@@ -219,7 +219,7 @@ function maa_contract_audit_agent_usage( array $abilities ) {
  * @return void
  */
 function maa_contract_audit_workflow_recipes( array $abilities ) {
-	$manifest = magick_ai_abilities_get_workflow_definitions();
+	$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 	$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] )
 		? $manifest['cases']
 		: array();
@@ -254,9 +254,9 @@ function maa_contract_audit_workflow_recipes( array $abilities ) {
 	}
 }
 
-Magick_AI_Abilities\Plugin::instance()->boot();
+Npcink_Abilities_Toolkit\Plugin::instance()->boot();
 
-$abilities = magick_ai_abilities_get_registered();
+$abilities = npcink_abilities_toolkit_get_registered();
 if ( empty( $abilities ) ) {
 	maa_contract_audit_fail( 'No registered abilities found after default boot.' );
 }

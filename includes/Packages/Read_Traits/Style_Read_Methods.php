@@ -2,10 +2,10 @@
 /**
  * Style read methods for Core_Read_Package.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities\Packages;
+namespace Npcink_Abilities_Toolkit\Packages;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -84,7 +84,7 @@ trait Style_Read_Methods {
 			$author_id = $this->absint_value( get_current_user_id() );
 		}
 
-		$cache_key = 'magick_ai_style_baseline_' . $mode . '_' . ( $author_id > 0 ? 'author_' . $author_id : 'site' ) . '_v' . $this->get_style_baseline_cache_version();
+		$cache_key = 'npcink_ai_style_baseline_' . $mode . '_' . ( $author_id > 0 ? 'author_' . $author_id : 'site' ) . '_v' . $this->get_style_baseline_cache_version();
 		if ( function_exists( 'get_transient' ) ) {
 			$cached = get_transient( $cache_key );
 			if ( false !== $cached && is_array( $cached ) && isset( $cached['success'], $cached['data'] ) ) {
@@ -498,7 +498,7 @@ trait Style_Read_Methods {
 	 */
 	private function get_style_baseline_cache_version() {
 		if ( function_exists( 'get_option' ) ) {
-			return max( 1, (int) get_option( 'magick_ai_style_baseline_cache_version', 1 ) );
+			return max( 1, (int) get_option( 'npcink_ai_style_baseline_cache_version', 1 ) );
 		}
 		return 1;
 	}

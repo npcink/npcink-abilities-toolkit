@@ -1,77 +1,77 @@
 {
   "schema_version": "v1",
   "purpose": "Consumer-side acceptance fixture for hosts that build Core governance proposals from discovered ability contracts.",
-  "proposal_endpoint": "POST /wp-json/magick-ai-core/v1/proposals",
+  "proposal_endpoint": "POST /wp-json/npcink-ai-core/v1/proposals",
   "harvest_surfaces": {
     "taxonomy_content_cleanup": {
       "read_or_proposal_abilities": [
-        "magick-ai/propose-post-taxonomy-terms",
-        "magick-ai/propose-post-excerpt",
-        "magick-ai/resolve-post-metadata-plan"
+        "npcink-abilities-toolkit/propose-post-taxonomy-terms",
+        "npcink-abilities-toolkit/propose-post-excerpt",
+        "npcink-abilities-toolkit/resolve-post-metadata-plan"
       ],
       "write_targets": [
-        "magick-ai/set-post-terms",
-        "magick-ai/set-post-slug",
-        "magick-ai/update-post"
+        "npcink-abilities-toolkit/set-post-terms",
+        "npcink-abilities-toolkit/set-post-slug",
+        "npcink-abilities-toolkit/update-post"
       ]
     },
     "publish_preflight": {
       "read_or_proposal_abilities": [
-        "magick-ai/get-article-publish-preflight-context",
-        "magick-ai/get-content-publishing-checklist",
-        "magick-ai/get-post-publish-risk-report",
-        "magick-ai/get-publishing-calendar-context"
+        "npcink-abilities-toolkit/get-article-publish-preflight-context",
+        "npcink-abilities-toolkit/get-content-publishing-checklist",
+        "npcink-abilities-toolkit/get-post-publish-risk-report",
+        "npcink-abilities-toolkit/get-publishing-calendar-context"
       ],
       "write_targets": [
-        "magick-ai/schedule-post",
-        "magick-ai/publish-post"
+        "npcink-abilities-toolkit/schedule-post",
+        "npcink-abilities-toolkit/publish-post"
       ]
     },
     "media_inventory": {
       "read_or_proposal_abilities": [
-        "magick-ai/list-media",
-        "magick-ai/get-media-inventory-health",
-        "magick-ai/get-media-cleanup-opportunities",
-        "magick-ai/inspect-media-asset",
-        "magick-ai/list-media-backups",
-        "magick-ai/build-media-rename-plan",
-        "magick-ai/build-media-seo-assets",
-        "magick-ai/optimize-media-metadata"
+        "npcink-abilities-toolkit/list-media",
+        "npcink-abilities-toolkit/get-media-inventory-health",
+        "npcink-abilities-toolkit/get-media-cleanup-opportunities",
+        "npcink-abilities-toolkit/inspect-media-asset",
+        "npcink-abilities-toolkit/list-media-backups",
+        "npcink-abilities-toolkit/build-media-rename-plan",
+        "npcink-abilities-toolkit/build-media-seo-assets",
+        "npcink-abilities-toolkit/optimize-media-metadata"
       ],
       "write_targets": [
-        "magick-ai/update-media-details",
-        "magick-ai/optimize-media-asset",
-        "magick-ai/replace-media-file",
-        "magick-ai/restore-media-backup",
-        "magick-ai/rename-media-file",
-        "magick-ai/delete-media-permanently"
+        "npcink-abilities-toolkit/update-media-details",
+        "npcink-abilities-toolkit/optimize-media-asset",
+        "npcink-abilities-toolkit/replace-media-file",
+        "npcink-abilities-toolkit/restore-media-backup",
+        "npcink-abilities-toolkit/rename-media-file",
+        "npcink-abilities-toolkit/delete-media-permanently"
       ]
     },
     "page_structure_inspection": {
       "read_or_proposal_abilities": [
-        "magick-ai/inspect-page-structure",
-        "magick-ai/get-page-structure-health"
+        "npcink-abilities-toolkit/inspect-page-structure",
+        "npcink-abilities-toolkit/get-page-structure-health"
       ],
       "write_targets": [
-        "magick-ai/update-post-blocks",
-        "magick-ai/patch-post-content"
+        "npcink-abilities-toolkit/update-post-blocks",
+        "npcink-abilities-toolkit/patch-post-content"
       ]
     },
     "comment_handoff_context": {
       "read_or_proposal_abilities": [
-        "magick-ai/get-comment-compliance-handoff",
-        "magick-ai/build-comment-moderation-suggest"
+        "npcink-abilities-toolkit/get-comment-compliance-handoff",
+        "npcink-abilities-toolkit/build-comment-moderation-suggest"
       ],
       "write_targets": [
-        "magick-ai/approve-comment",
-        "magick-ai/reply-comment",
-        "magick-ai/spam-comment",
-        "magick-ai/trash-comment"
+        "npcink-abilities-toolkit/approve-comment",
+        "npcink-abilities-toolkit/reply-comment",
+        "npcink-abilities-toolkit/spam-comment",
+        "npcink-abilities-toolkit/trash-comment"
       ]
     }
   },
   "abilities": {
-    "magick-ai/create-draft": {
+    "npcink-abilities-toolkit/create-draft": {
       "risk_level": "write",
       "requires_approval": true,
       "required_scopes": [
@@ -94,7 +94,7 @@
         "caller"
       ]
     },
-    "magick-ai/set-post-seo-meta": {
+    "npcink-abilities-toolkit/set-post-seo-meta": {
       "risk_level": "write",
       "requires_approval": true,
       "required_scopes": [

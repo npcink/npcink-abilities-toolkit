@@ -40,7 +40,7 @@ WordPress writes.
 - Normalize ability schemas and annotations for safer agent consumption.
 - Provide built-in WordPress read, diagnostics, host composition recipe
   discovery, and comment helper abilities.
-- Preserve compatibility-oriented `magick-ai/*` ability ids where needed.
+- Preserve compatibility-oriented `npcink-abilities-toolkit/*` ability ids where needed.
 - Expose contracts that host plugins can govern through their own approval,
   preflight, and audit layers.
 - Keep Magick AI integration optional instead of making Magick AI the owner of
@@ -65,7 +65,7 @@ WordPress writes.
 In a Magick AI host setup:
 
 - Npcink Abilities Toolkit owns ability definitions and callbacks.
-- Magick AI Core owns governance, approval, preflight, and audit.
+- Npcink AI Core owns governance, approval, preflight, and audit.
 - Magick AI Adapter owns OpenClaw channel adaptation.
 - Magick AI Cloud Addon owns cloud service connection.
 

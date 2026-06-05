@@ -2,22 +2,22 @@
 /**
  * Plugin composition root.
  *
- * @package MagickAIAbilities
+ * @package NpcinkAbilitiesToolkit
  */
 
-namespace Magick_AI_Abilities;
+namespace Npcink_Abilities_Toolkit;
 
-use Magick_AI_Abilities\Admin\Test_Page;
-use Magick_AI_Abilities\Integration\Magick_Catalog_Bridge;
-use Magick_AI_Abilities\Packages\Core_Comment_Package;
-use Magick_AI_Abilities\Packages\Core_Destructive_Package;
-use Magick_AI_Abilities\Packages\Core_Read_Package;
-use Magick_AI_Abilities\Packages\Core_Write_Package;
-use Magick_AI_Abilities\Registry\Ability_Registrar;
-use Magick_AI_Abilities\Registry\Annotation_Normalizer;
-use Magick_AI_Abilities\Registry\Category_Registrar;
-use Magick_AI_Abilities\Registry\Contract_Normalizer;
-use Magick_AI_Abilities\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Admin\Test_Page;
+use Npcink_Abilities_Toolkit\Integration\Npcink_Catalog_Bridge;
+use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Read_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Write_Package;
+use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
+use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -49,9 +49,9 @@ final class Plugin {
 	private $abilities;
 
 	/**
-	 * Magick catalog bridge.
+	 * Npcink catalog bridge.
 	 *
-	 * @var Magick_Catalog_Bridge
+	 * @var Npcink_Catalog_Bridge
 	 */
 	private $catalog_bridge;
 
@@ -119,7 +119,7 @@ final class Plugin {
 
 		$this->categories     = new Category_Registrar();
 		$this->abilities      = new Ability_Registrar( $this->categories, $contract_normalizer );
-		$this->catalog_bridge = new Magick_Catalog_Bridge( $this->abilities );
+		$this->catalog_bridge = new Npcink_Catalog_Bridge( $this->abilities );
 		$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
 		$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
 		$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
@@ -152,7 +152,7 @@ final class Plugin {
 		if ( $this->is_package_enabled( 'core_comment' ) ) {
 			$this->core_comment_package->boot();
 		}
-		if ( $this->is_package_enabled( 'magick_catalog_bridge' ) ) {
+		if ( $this->is_package_enabled( 'npcink_catalog_bridge' ) ) {
 			$this->catalog_bridge->boot();
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
@@ -185,7 +185,7 @@ final class Plugin {
 	 * Checks whether a built-in package should boot.
 	 *
 	 * Supported package slugs are core_read, core_write, core_destructive,
-	 * core_comment, magick_catalog_bridge, admin_test_page, and read_cache_hooks.
+	 * core_comment, npcink_catalog_bridge, admin_test_page, and read_cache_hooks.
 	 *
 	 * @param string $package Package slug.
 	 * @return bool
@@ -196,7 +196,7 @@ final class Plugin {
 			'core_write'            => true,
 			'core_destructive'      => true,
 			'core_comment'          => true,
-			'magick_catalog_bridge' => true,
+			'npcink_catalog_bridge' => true,
 			'admin_test_page'       => true,
 			'read_cache_hooks'      => true,
 		);
@@ -209,7 +209,7 @@ final class Plugin {
 		 *
 		 * @param array<string,bool> $defaults Package enable map.
 		 */
-		$enabled = apply_filters( 'magick_ai_abilities_enabled_packages', $defaults );
+		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_packages', $defaults );
 		$enabled = is_array( $enabled ) ? $enabled : $defaults;
 		$package = sanitize_key( $package );
 
@@ -247,7 +247,7 @@ final class Plugin {
 			return;
 		}
 
-		$current = max( 1, (int) get_option( 'magick_ai_abilities_read_cache_version', 1 ) );
-		update_option( 'magick_ai_abilities_read_cache_version', $current + 1, false );
+		$current = max( 1, (int) get_option( 'npcink_abilities_toolkit_read_cache_version', 1 ) );
+		update_option( 'npcink_abilities_toolkit_read_cache_version', $current + 1, false );
 	}
 }

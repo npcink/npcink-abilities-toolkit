@@ -1,101 +1,101 @@
 # Npcink Abilities Toolkit Migration Inventory
 
-This inventory tracks the migration from `magick-ai/includes/abilities` into this standalone Abilities API package plugin.
+This inventory tracks the migration from `npcink-abilities-toolkit/includes/abilities` into this standalone Abilities API package plugin.
 
 ## Added After 0.2
 
 These abilities are new standalone first-party abilities, not migrated from the
-Magick AI plugin. They are official `npcink-abilities-toolkit` package capabilities
-and are projected to the Magick AI catalog as `wp_ability` consumers.
+Npcink AI plugin. They are official `npcink-abilities-toolkit` package capabilities
+and are projected to the Npcink AI catalog as `wp_ability` consumers.
 
 | Ability id | Source | New owner | Magick AI-owned | Host-governed |
 | --- | --- | --- | --- | --- |
-| `magick-ai/get-post-context` | New standalone Content Context Pack ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-content-publishing-checklist` | New standalone Publishing Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-content-inventory-health` | New standalone Content Context Pack inventory audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-bulk-publishing-checklist` | New standalone Publishing Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-internal-link-opportunity-report` | New standalone SEO/GEO Support Pack read-support ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-media-inventory-health` | New standalone Content Context Pack media inventory audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-post-seo-geo-readiness` | New standalone SEO/GEO Support Pack readiness ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-site-topic-coverage-report` | New standalone SEO/GEO Support Pack topic coverage ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-taxonomy-inventory-health` | New standalone Content Context Pack taxonomy governance audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-revision-change-risk-report` | New standalone Publishing Pack read-support revision risk ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-comment-queue-health` | New standalone Comment Compliance Pack queue health ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
-| `magick-ai/get-site-operations-dashboard` | New standalone Content Context Pack operations triage ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-post-publish-risk-report` | New standalone Publishing Pack read-support risk ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-article-publish-preflight-context` | New standalone Publishing Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-content-refresh-opportunities` | New standalone SEO/GEO Support Pack refresh opportunity ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-old-article-refresh-context` | New standalone SEO/GEO Support Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-internal-link-graph-health` | New standalone SEO/GEO Support Pack internal-link graph audit ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-media-cleanup-opportunities` | New standalone Content Context Pack media cleanup opportunity ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/build-media-inventory-fix-plan` | New standalone Content Context Pack read-only media remediation planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-taxonomy-consolidation-suggestions` | New standalone Content Context Pack taxonomy consolidation suggestion ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-comment-action-priority-queue` | New standalone Comment Compliance Pack priority queue ability | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
-| `magick-ai/get-comment-compliance-handoff` | New standalone Comment Compliance Pack read-only workflow context bundle | `Magick_AI_Abilities\Packages\Core_Comment_Package` | No | No |
-| `magick-ai/get-page-structure-health` | New standalone Content Context Pack page structure health ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-seo-geo-gap-report` | New standalone SEO/GEO Support Pack gap report ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-site-style-baseline` | New standalone SEO/GEO Support Pack style baseline ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/build-article-workflow-context` | New standalone SEO/GEO Support Pack workflow context ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-publishing-calendar-context` | New standalone Publishing Pack read-support calendar ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/propose-post-taxonomy-terms` | New standalone taxonomy assignment proposal helper for existing terms | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/get-test-content-inventory` | New standalone Content Context Pack test-content inventory ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/build-test-content-cleanup-plan` | New standalone Content Context Pack read-only cleanup planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
-| `magick-ai/build-content-inventory-fix-plan` | New standalone Content Context Pack read-only remediation planning ability | `Magick_AI_Abilities\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-post-context` | New standalone Content Context Pack ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-content-publishing-checklist` | New standalone Publishing Pack read-support ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-content-inventory-health` | New standalone Content Context Pack inventory audit ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-bulk-publishing-checklist` | New standalone Publishing Pack read-support ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-internal-link-opportunity-report` | New standalone SEO/GEO Support Pack read-support ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-media-inventory-health` | New standalone Content Context Pack media inventory audit ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-post-seo-geo-readiness` | New standalone SEO/GEO Support Pack readiness ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-site-topic-coverage-report` | New standalone SEO/GEO Support Pack topic coverage ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-taxonomy-inventory-health` | New standalone Content Context Pack taxonomy governance audit ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-revision-change-risk-report` | New standalone Publishing Pack read-support revision risk ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-comment-queue-health` | New standalone Comment Compliance Pack queue health ability | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` | No | No |
+| `npcink-abilities-toolkit/get-site-operations-dashboard` | New standalone Content Context Pack operations triage ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-post-publish-risk-report` | New standalone Publishing Pack read-support risk ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-article-publish-preflight-context` | New standalone Publishing Pack read-only workflow context bundle | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-content-refresh-opportunities` | New standalone SEO/GEO Support Pack refresh opportunity ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-old-article-refresh-context` | New standalone SEO/GEO Support Pack read-only workflow context bundle | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-internal-link-graph-health` | New standalone SEO/GEO Support Pack internal-link graph audit ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-media-cleanup-opportunities` | New standalone Content Context Pack media cleanup opportunity ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/build-media-inventory-fix-plan` | New standalone Content Context Pack read-only media remediation planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions` | New standalone Content Context Pack taxonomy consolidation suggestion ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-comment-action-priority-queue` | New standalone Comment Compliance Pack priority queue ability | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` | No | No |
+| `npcink-abilities-toolkit/get-comment-compliance-handoff` | New standalone Comment Compliance Pack read-only workflow context bundle | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` | No | No |
+| `npcink-abilities-toolkit/get-page-structure-health` | New standalone Content Context Pack page structure health ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-seo-geo-gap-report` | New standalone SEO/GEO Support Pack gap report ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-site-style-baseline` | New standalone SEO/GEO Support Pack style baseline ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/build-article-workflow-context` | New standalone SEO/GEO Support Pack workflow context ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-publishing-calendar-context` | New standalone Publishing Pack read-support calendar ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/propose-post-taxonomy-terms` | New standalone taxonomy assignment proposal helper for existing terms | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-test-content-inventory` | New standalone Content Context Pack test-content inventory ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/build-test-content-cleanup-plan` | New standalone Content Context Pack read-only cleanup planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/build-content-inventory-fix-plan` | New standalone Content Context Pack read-only remediation planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 
 ## Migrated in 0.1
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
-| `magick-ai/site-info` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-post-types` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-taxonomies` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/count-posts` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-pages-tree` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-posts` | `includes/abilities/config-read-posts.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-post` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/resolve-url-to-post` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-post-blocks` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-post-revisions` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-media` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-terms` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-taxonomy-terms` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-categories` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-tags` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-term` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/propose-post-excerpt` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/resolve-post-metadata-plan` | `includes/abilities/config-tools/registry/article-ops.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-users` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-comments` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-menus` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-menu` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/search-posts` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/resolve-internal-link-targets` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-inline-image-blocks` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-media-seo-assets` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/geo-analyze` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/optimize-media-metadata` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/position-inline-image-blocks` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-article-optimization-report` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/seo-report-context` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/comment.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/read-post-optimization-context` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/comment.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-article-single-optimization-suggest` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-article-optimization-apply-plan` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/compose-article-optimization-apply-result` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/extract-reference-post-style` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/extract-style-baseline` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php`; Magick AI cron now dispatches the migrated ability through `wp_get_ability()` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-article-production-fingerprint` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/check-article-production-duplicate` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/review-article-output-light` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/compose-article-production-result` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/compose-article-draft-result` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/resolve-article-publication-decision` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/build-article-style-profile` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-post-stats` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-revisions` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-post-meta` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/list-pages` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/get-page` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `magick-ai/inspect-page-structure` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/site-info` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-post-types` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-taxonomies` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/count-posts` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-pages-tree` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-posts` | `includes/abilities/config-read-posts.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-post` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/resolve-url-to-post` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-post-blocks` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-post-revisions` | `includes/abilities/config-read-posts.php` and `abilities-read-posts.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-media` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-terms` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-taxonomy-terms` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-categories` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-tags` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-term` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/propose-post-excerpt` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/resolve-post-metadata-plan` | `includes/abilities/config-tools/registry/article-ops.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-users` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-comments` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-menus` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-menu` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/search-posts` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/resolve-internal-link-targets` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-inline-image-blocks` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-media-seo-assets` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/geo-analyze` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/optimize-media-metadata` | `includes/abilities/config-tools/registry/media.php` and `config-tools/analysis-and-media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/position-inline-image-blocks` | `includes/abilities/config-tools/registry/media.php` and `config-tools/article-media/inline-image-blocks.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-article-optimization-report` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/seo-report-context` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/read-post-optimization-context` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-article-single-optimization-suggest` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-article-optimization-apply-plan` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/compose-article-optimization-apply-result` | `includes/abilities/config-tools/registry/article-ops.php` and `config-tools/article-suggest.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/extract-reference-post-style` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/extract-style-baseline` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/style-extraction.php`; Magick AI cron now dispatches the migrated ability through `wp_get_ability()` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-article-production-fingerprint` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/check-article-production-duplicate` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/review-article-output-light` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/compose-article-production-result` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/compose-article-draft-result` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/resolve-article-publication-decision` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/build-article-style-profile` | `includes/abilities/config-tools/registry/article-production.php` and `config-tools/article-media/article-production.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-post-stats` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-revisions` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-post-meta` | `includes/abilities/config-read-others.php` and `abilities-read-others.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-pages` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-page` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/inspect-page-structure` | `includes/abilities/config-pages.php` and `abilities-pages.php` | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 
 ## Migrated Deterministic Comment Helpers in 0.1
 
@@ -103,13 +103,13 @@ These abilities are read-only comment workflow helpers. `npcink-abilities-toolki
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
-| `magick-ai/build-comment-moderation-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/compose-comment-moderation-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/build-comment-mention-reply-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/read-comment-trigger-queue` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/compose-comment-mention-reply-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/build-comment-moderation-batch-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
-| `magick-ai/compose-comment-moderation-batch-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Magick_AI_Abilities\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/build-comment-moderation-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/compose-comment-moderation-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/build-comment-mention-reply-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/read-comment-trigger-queue` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/compose-comment-mention-reply-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/build-comment-moderation-batch-suggest` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
+| `npcink-abilities-toolkit/compose-comment-moderation-batch-result` | `includes/abilities/config-tools/comment.php` and `config-tools/registry/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Comment_Package` |
 
 ## Migrated Host-Governed Writes in 0.1
 
@@ -117,26 +117,26 @@ These abilities are pure WordPress write operations. `npcink-abilities-toolkit` 
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
-| `magick-ai/create-draft` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/update-post` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-seo-meta` | `includes/abilities/config-write.php` and `write/post-props.php`; Magick AI may still provide SEO adapter filters | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/patch-post-content` | `includes/abilities/config-write.php`, `abilities-write.php`, and `write-formatting-helpers.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/update-post-blocks` | `includes/abilities/config-write.php`, `abilities-write.php`, and `write-formatting-helpers.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-slug` | `includes/abilities/config-write.php` and `write/post-props.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-author` | `includes/abilities/config-write.php` and `write/post-props.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-template` | `includes/abilities/config-write.php` and `write/post-props.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-format` | `includes/abilities/config-write.php` and `write/post-props.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/create-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/update-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-terms` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/update-media-details` | `includes/abilities/config-write.php` and `write/media.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/upload-media-from-url` | `includes/abilities/config-write.php` and `write/media.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/set-post-featured-image` | `includes/abilities/config-write.php` and `write/media.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/schedule-post` | `includes/abilities/config-write.php` and `write/post-props.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/publish-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/restore-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/approve-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
-| `magick-ai/reply-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Magick_AI_Abilities\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/create-draft` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/update-post` | `includes/abilities/config-write.php`, `abilities-write.php`, `write/post-crud.php`, `write/content-formatting.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-seo-meta` | `includes/abilities/config-write.php` and `write/post-props.php`; Npcink AI may still provide SEO adapter filters | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/patch-post-content` | `includes/abilities/config-write.php`, `abilities-write.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/update-post-blocks` | `includes/abilities/config-write.php`, `abilities-write.php`, and `write-formatting-helpers.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-slug` | `includes/abilities/config-write.php` and `write/post-props.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-author` | `includes/abilities/config-write.php` and `write/post-props.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-template` | `includes/abilities/config-write.php` and `write/post-props.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-format` | `includes/abilities/config-write.php` and `write/post-props.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/create-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/update-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-terms` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/update-media-details` | `includes/abilities/config-write.php` and `write/media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/upload-media-from-url` | `includes/abilities/config-write.php` and `write/media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/set-post-featured-image` | `includes/abilities/config-write.php` and `write/media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/schedule-post` | `includes/abilities/config-write.php` and `write/post-props.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/publish-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/restore-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/approve-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
+| `npcink-abilities-toolkit/reply-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Write_Package` |
 
 ## Migrated Host-Governed Destructive Abilities in 0.1
 
@@ -144,25 +144,25 @@ These abilities are destructive WordPress operations. `npcink-abilities-toolkit`
 
 | Ability id | Source in Magick AI | New owner |
 | --- | --- | --- |
-| `magick-ai/delete-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/merge-terms` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/bulk-update-post-terms` | `includes/abilities/config-write.php` and `write/bulk-taxonomy.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/spam-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/trash-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/delete-media-permanently` | `includes/abilities/config-write.php` and `write/media.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/trash-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
-| `magick-ai/delete-post-permanently` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Magick_AI_Abilities\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/delete-term` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/merge-terms` | `includes/abilities/config-write.php` and `write/taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/bulk-update-post-terms` | `includes/abilities/config-write.php` and `write/bulk-taxonomy.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/spam-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/trash-comment` | `includes/abilities/config-write.php` and `write/comment.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/delete-media-permanently` | `includes/abilities/config-write.php` and `write/media.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/trash-post` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
+| `npcink-abilities-toolkit/delete-post-permanently` | `includes/abilities/config-write.php` and `write/post-crud.php` | `Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package` |
 
 ## New Standalone Abilities in 0.1
 
-These abilities are owned by this standalone plugin and are not migrated Magick AI runtime abilities:
+These abilities are owned by this standalone plugin and are not migrated Npcink AI runtime abilities:
 
 | Ability id | Purpose | Owner |
 | --- | --- | --- |
-| `npcink-abilities-toolkit/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | Bounded redacted WordPress operations diagnostics for support flows | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `npcink-abilities-toolkit/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
-| `npcink-abilities-toolkit/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Magick_AI_Abilities\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/wp-diagnostics-summary` | Redacted WordPress-only diagnostics summary for Abilities API clients | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | Bounded redacted WordPress operations diagnostics for support flows | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/list-workflow-recipes` | Read-only workflow recipe definition manifest for host runtime discovery | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
+| `npcink-abilities-toolkit/get-workflow-recipe` | Read-only single workflow recipe definition lookup for host runtime discovery | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` |
 
 ## Next Read-Only Candidates
 
@@ -178,7 +178,7 @@ These can move only as proposal generators or host-governed write abilities. Com
 - post update proposal helpers
 - taxonomy change proposal helpers
 - media metadata proposal helpers
-- additional deterministic workflow handoff normalizers that have no Magick AI runtime, model, bridge, audit, or operations dependency
+- additional deterministic workflow handoff normalizers that have no Npcink AI runtime, model, bridge, audit, or operations dependency
 
 ## Remaining Write Candidates
 
@@ -186,14 +186,14 @@ None for generic WordPress writes in the current migration scope. SEO metadata w
 
 ## Current Post-Cleanup Audit
 
-As of the current cleanup pass, Magick AI's local ability config registry contains 33 `magick-ai/*` abilities. The standalone package registry contains 85 `magick-ai/*` package abilities. The two sets have no duplicate ability ids.
+As of the current cleanup pass, Magick AI's local ability config registry contains 33 `npcink-abilities-toolkit/*` abilities. The standalone package registry contains 85 `npcink-abilities-toolkit/*` package abilities. The two sets have no duplicate ability ids.
 
 The remaining Magick AI-owned ability ids are:
 
-- semantic/model/runtime abilities: `magick-ai/translate`, `magick-ai/summarize`, `magick-ai/image-generate`, `magick-ai/tts`, `magick-ai/extract`, `magick-ai/generate-excerpt`, `magick-ai/generate-title-suggestions`, `magick-ai/seo-meta-generate`, `magick-ai/generate-meta-description`, `magick-ai/generate-content-summary`, `magick-ai/review-content-block`, `magick-ai/generate-image-prompt`, `magick-ai/generate-alt`, `magick-ai/embed-text`, `magick-ai/vector-search`, `magick-ai/classify-post-taxonomy`, `magick-ai/seo-analyze`, and `magick-ai/detect-ai-slop`
-- external/service bridge abilities: `magick-ai/media-bridge`, `magick-ai/seo-bridge`, `magick-ai/mail-bridge`, `magick-ai/web-search`, and `magick-ai/extract-url`
-- article workflow/model-selection abilities: `magick-ai/resolve-image-source`, `magick-ai/resolve-references`, `magick-ai/seo-analysis`, `magick-ai/geo-analysis`, `magick-ai/quality-scoring`, and `magick-ai/apply-editor-feedback`
-- Magick AI operations resources: `magick-ai/site-diagnostics`, `magick-ai/mcp-workflow-summary-resource`, `magick-ai/mcp-prompt-summary-resource`, and `magick-ai/mcp-site-overview-resource`
+- semantic/model/runtime abilities: `npcink-abilities-toolkit/translate`, `npcink-abilities-toolkit/summarize`, `npcink-abilities-toolkit/image-generate`, `npcink-abilities-toolkit/tts`, `npcink-abilities-toolkit/extract`, `npcink-abilities-toolkit/generate-excerpt`, `npcink-abilities-toolkit/generate-title-suggestions`, `npcink-abilities-toolkit/seo-meta-generate`, `npcink-abilities-toolkit/generate-meta-description`, `npcink-abilities-toolkit/generate-content-summary`, `npcink-abilities-toolkit/review-content-block`, `npcink-abilities-toolkit/generate-image-prompt`, `npcink-abilities-toolkit/generate-alt`, `npcink-abilities-toolkit/embed-text`, `npcink-abilities-toolkit/vector-search`, `npcink-abilities-toolkit/classify-post-taxonomy`, `npcink-abilities-toolkit/seo-analyze`, and `npcink-abilities-toolkit/detect-ai-slop`
+- external/service bridge abilities: `npcink-abilities-toolkit/media-bridge`, `npcink-abilities-toolkit/seo-bridge`, `npcink-abilities-toolkit/mail-bridge`, `npcink-abilities-toolkit/web-search`, and `npcink-abilities-toolkit/extract-url`
+- article workflow/model-selection abilities: `npcink-abilities-toolkit/resolve-image-source`, `npcink-abilities-toolkit/resolve-references`, `npcink-abilities-toolkit/seo-analysis`, `npcink-abilities-toolkit/geo-analysis`, `npcink-abilities-toolkit/quality-scoring`, and `npcink-abilities-toolkit/apply-editor-feedback`
+- Magick AI operations resources: `npcink-abilities-toolkit/site-diagnostics`, `npcink-abilities-toolkit/mcp-workflow-summary-resource`, `npcink-abilities-toolkit/mcp-prompt-summary-resource`, and `npcink-abilities-toolkit/mcp-site-overview-resource`
 
 These are intentionally not migrated in this pass because they depend on Magick AI model routing, runtime bridges, vector/provider execution, workflow semantics, MCP/resource state, or operations diagnostics. Future extraction of a semantic/model package would require a separate ADR because it would no longer be a pure WordPress ability package.
 
@@ -204,7 +204,7 @@ These are operational/runtime concerns and should not move into this plugin:
 - Agent Gateway and Open API controllers
 - app key authentication
 - scope, quota, audit, and telemetry enforcement
-- full `magick-ai/site-diagnostics` while it includes Magick AI, MCP, REST probe, database, filesystem, and operations-state collection
+- full `npcink-abilities-toolkit/site-diagnostics` while it includes Magick AI, MCP, REST probe, database, filesystem, and operations-state collection
 - model routing and workflow/skill runtime
 - runtime bridge execution
 - two-phase confirmation tokens

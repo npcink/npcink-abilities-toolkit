@@ -19,7 +19,7 @@ Default boot enables:
 - `core_write`
 - `core_destructive`
 - `core_comment`
-- `magick_catalog_bridge`
+- `npcink_catalog_bridge`
 - `admin_test_page`
 - `read_cache_hooks`
 
@@ -49,7 +49,7 @@ Example:
 
 ```php
 add_filter(
-	'magick_ai_abilities_enabled_packages',
+	'npcink_abilities_toolkit_enabled_packages',
 	static function ( $packages ) {
 		$packages['core_write']       = false;
 		$packages['core_destructive'] = false;
@@ -59,15 +59,15 @@ add_filter(
 );
 
 add_filter(
-	'magick_ai_abilities_enabled_read_packs',
+	'npcink_abilities_toolkit_enabled_read_packs',
 	static function () {
 		return array( 'core_wordpress_read' );
 	}
 );
 ```
 
-This profile keeps generic read abilities such as `magick-ai/site-info`,
-`magick-ai/get-post`, and `magick-ai/list-posts`.
+This profile keeps generic read abilities such as `npcink-abilities-toolkit/site-info`,
+`npcink-abilities-toolkit/get-post`, and `npcink-abilities-toolkit/list-posts`.
 
 It disables optional workflow, diagnostics, write, destructive, and comment
 helper abilities, including:
@@ -76,9 +76,9 @@ helper abilities, including:
 - `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 - `npcink-abilities-toolkit/list-workflow-recipes`
 - `npcink-abilities-toolkit/get-workflow-recipe`
-- `magick-ai/get-site-operations-dashboard`
-- `magick-ai/get-comment-queue-health`
-- `magick-ai/create-draft`
+- `npcink-abilities-toolkit/get-site-operations-dashboard`
+- `npcink-abilities-toolkit/get-comment-queue-health`
+- `npcink-abilities-toolkit/create-draft`
 
 ## Selection Rule
 

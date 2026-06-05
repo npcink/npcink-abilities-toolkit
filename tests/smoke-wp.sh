@@ -20,7 +20,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
 composer smoke:wp
 EOF
 	exit 127
@@ -64,8 +64,8 @@ run_wp core is-installed >/dev/null
 if ! run_wp plugin is-active "$PLUGIN_SLUG" >/dev/null 2>&1; then
 	run_wp plugin activate "$PLUGIN_SLUG" >/dev/null
 fi
-run_wp option update magick_ai_abilities_demo_enabled 1 >/dev/null
-MAGICK_AI_ABILITIES_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
+run_wp option update npcink_abilities_toolkit_demo_enabled 1 >/dev/null
+NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
 
 mu_plugin_dir="$(run_wp eval 'echo WPMU_PLUGIN_DIR;' 2>/dev/null || true)"
 if [[ -z "$mu_plugin_dir" ]]; then
@@ -81,13 +81,13 @@ trap cleanup_light_profile EXIT
 cat > "$light_profile_mu_plugin" <<'PHP'
 <?php
 add_filter(
-	'magick_ai_abilities_enabled_packages',
+	'npcink_abilities_toolkit_enabled_packages',
 	static function ( $packages ) {
 		$packages['core_read']             = true;
 		$packages['core_write']            = false;
 		$packages['core_destructive']      = false;
 		$packages['core_comment']          = false;
-		$packages['magick_catalog_bridge'] = false;
+		$packages['npcink_catalog_bridge'] = false;
 		$packages['admin_test_page']       = false;
 		$packages['read_cache_hooks']      = false;
 
@@ -95,10 +95,10 @@ add_filter(
 	}
 );
 add_filter(
-	'magick_ai_abilities_enabled_read_packs',
+	'npcink_abilities_toolkit_enabled_read_packs',
 	static function () {
 		return array( 'core_wordpress_read' );
 	}
 );
 PHP
-MAGICK_AI_ABILITIES_SMOKE_PROFILE=light_core_read run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
+NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=light_core_read run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
