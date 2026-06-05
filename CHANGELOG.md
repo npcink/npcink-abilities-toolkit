@@ -2,6 +2,7 @@
 
 ## 0.5.0 - Unreleased
 
+- Updated `magick-ai/adopt-cloud-media-derivative` and `magick-ai/replace-media-file` to preview and commit exact post-content media URL repairs, including old intermediate-size image URLs, when an approved replacement switches an attachment to a new local file.
 - Added `magick-ai/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `magick-ai/set-post-terms` without mutating posts or creating terms.
 - Added a 0.5 unreleased verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
 - Added a Magick AI main repo harvest checkpoint that maps content/media/comment/batch cleanup signals to existing abilities and confirms that no new ability batch should start from candidate lists alone.

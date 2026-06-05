@@ -125,6 +125,10 @@ new local media files. `magick-ai/rename-media-file` may rename an existing
 attachment main file within its current uploads directory after approval; use
 `magick-ai/build-media-rename-plan` so exact post-content references to the old
 uploads URL are patched in the same governed proposal.
+`magick-ai/replace-media-file` and `magick-ai/adopt-cloud-media-derivative`
+also preview and commit exact post-content reference repairs for the old main
+uploads URL and known intermediate-size image URLs while switching the
+attachment pointer to the approved replacement file.
 `magick-ai/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 

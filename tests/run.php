@@ -1091,6 +1091,7 @@ maa_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['magick-ai/o
 maa_assert_same( 82, $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
 maa_assert_true( ! isset( $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode'] ), 'replace-media-file does not expose media restore modes' );
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
+maa_assert_true( isset( $package_abilities['magick-ai/replace-media-file']['output_schema']['properties']['content_reference_repairs'] ), 'replace-media-file exposes post content reference repair preview evidence' );
 maa_assert_true( isset( $package_abilities['magick-ai/list-media-backups'] ), 'list-media-backups is registered as a read-only media history ability' );
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/list-media-backups']['input_schema']['required'] ?? array(), 'list-media-backups requires attachment id' );
 maa_assert_true( isset( $package_abilities['magick-ai/restore-media-backup'] ), 'restore-media-backup is registered as a governed write ability' );
@@ -1103,6 +1104,7 @@ maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivati
 maa_assert_same( 'magick-ai-cloud-backup', $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'adopt-cloud-media-derivative defaults to explicit Cloud backup suffix' );
 maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['properties']['file_name'] ), 'adopt-cloud-media-derivative accepts an approved custom derivative file name' );
 maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['output_schema']['properties']['proposed_filename'] ) && isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['output_schema']['properties']['filename_policy'] ), 'adopt-cloud-media-derivative exposes filename proposal evidence in its output schema' );
+maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['output_schema']['properties']['content_reference_repairs'] ), 'adopt-cloud-media-derivative exposes post content reference repair preview evidence' );
 maa_assert_same( array( 'attachment_id', 'derivative_artifact' ), $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['required'] ?? array(), 'adopt-cloud-media-derivative requires attachment and artifact evidence' );
 maa_assert_true( isset( $package_abilities['magick-ai/build-media-reference-repair-plan'] ), 'build-media-reference-repair-plan is registered as a read-only planning ability' );
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-reference-repair-plan requires attachment id' );
@@ -2644,6 +2646,16 @@ maa_assert_true( 0 === strpos( (string) ( $media_replace_preview['backup']['rela
 maa_assert_true( false !== strpos( (string) ( $media_replace_preview['backup']['relative_file'] ?? '' ), 'magick-ai-backup' ), 'replace-media-file plans a Magick backup file' );
 $cloud_artifact_contents = 'cloud-webp-derivative-bytes';
 $cloud_artifact_sha256 = hash( 'sha256', $cloud_artifact_contents );
+$GLOBALS['maa_unit_style_posts'][89] = (object) array(
+	'ID'           => 89,
+	'post_title'   => 'Cloud Derivative Inline Reference',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => '<!-- wp:image {"id":79,"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg" srcset="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg 300w, https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg 2600w" alt="Workflow diagram" class="wp-image-79" /></figure><!-- /wp:image -->',
+	'post_name'    => 'cloud-derivative-inline-reference',
+	'post_author'  => 7,
+);
 $cloud_adoption_preview = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,
@@ -2666,6 +2678,8 @@ maa_assert_same( true, $cloud_adoption_preview['dry_run'] ?? null, 'adopt-cloud-
 maa_assert_same( false, $cloud_adoption_preview['replaced'] ?? null, 'adopt-cloud-media-derivative dry-run does not switch files' );
 maa_assert_same( 'art_cloud_media_123', $cloud_adoption_preview['artifact']['artifact_id'] ?? '', 'adopt-cloud-media-derivative preserves artifact evidence' );
 maa_assert_true( false !== strpos( (string) ( $cloud_adoption_preview['after']['relative_file'] ?? '' ), 'workflow-diagram-image-magick-ai-cloud-' ), 'adopt-cloud-media-derivative plans a local derivative filename' );
+maa_assert_same( 1, $cloud_adoption_preview['content_reference_repairs']['post_count'] ?? 0, 'adopt-cloud-media-derivative previews post content reference repairs for embedded attachment URLs' );
+maa_assert_true( (int) ( $cloud_adoption_preview['content_reference_repairs']['replacement_count'] ?? 0 ) >= 2, 'adopt-cloud-media-derivative preview includes old main and sized image references' );
 $cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,
@@ -2749,6 +2763,9 @@ maa_assert_same( false, $cloud_adoption_commit['dry_run'] ?? null, 'adopt-cloud-
 maa_assert_same( true, $cloud_adoption_commit['replaced'] ?? null, 'adopt-cloud-media-derivative commit replaces the attachment pointer after approval' );
 maa_assert_same( 'image/webp', get_post_mime_type( 79 ), 'adopt-cloud-media-derivative commit updates attachment MIME type' );
 maa_assert_same( '2026/06/customer-approved-diagram.webp', get_post_meta( 79, '_wp_attached_file', true ), 'adopt-cloud-media-derivative commit accepts an approved custom derivative file name' );
+maa_assert_same( 1, $cloud_adoption_commit['content_reference_repairs']['updated_count'] ?? 0, 'adopt-cloud-media-derivative commit updates posts that embed the attachment URL' );
+maa_assert_true( false !== strpos( (string) ( $GLOBALS['maa_unit_style_posts'][89]->post_content ?? '' ), 'customer-approved-diagram.webp' ), 'adopt-cloud-media-derivative commit rewrites inline image references to the adopted WebP' );
+maa_assert_true( false === strpos( (string) ( $GLOBALS['maa_unit_style_posts'][89]->post_content ?? '' ), 'workflow-diagram-image-300x162.jpg' ), 'adopt-cloud-media-derivative commit removes old sized image references from post content' );
 maa_assert_same( 'customer-approved-diagram.webp', $cloud_adoption_commit['proposed_filename'] ?? '', 'adopt-cloud-media-derivative commit records the reviewed filename proposal' );
 maa_assert_same( 'reviewed_input', $cloud_adoption_commit['filename_policy']['source'] ?? '', 'adopt-cloud-media-derivative commit treats explicit file_name as reviewed local input' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . get_post_meta( 79, '_wp_attached_file', true ) ), 'adopt-cloud-media-derivative commit writes the local derivative file' );

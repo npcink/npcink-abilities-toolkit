@@ -728,6 +728,7 @@ final class Core_Write_Package {
 						'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
+						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -847,6 +848,7 @@ final class Core_Write_Package {
 						'artifact'           => array( 'type' => 'object', 'additionalProperties' => true ),
 						'proposed_filename'  => array( 'type' => 'string' ),
 						'filename_policy'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -2306,6 +2308,7 @@ final class Core_Write_Package {
 			'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
 			'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
 			'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+			'content_reference_repairs' => $this->build_media_content_reference_repairs( $attachment_id, $plan, false ),
 			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
 			'edit_link'          => $this->edit_link( $attachment_id ),
 			'preview'            => array(
@@ -2333,6 +2336,7 @@ final class Core_Write_Package {
 		$payload['rolled_back'] = ! empty( $result['rolled_back'] );
 		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -2517,6 +2521,7 @@ final class Core_Write_Package {
 			'artifact'           => is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array(),
 			'proposed_filename'  => $this->sanitize_media_file_name( (string) ( $plan['proposed_filename'] ?? '' ) ),
 			'filename_policy'    => is_array( $plan['filename_policy'] ?? null ) ? $this->sanitize_payload( $plan['filename_policy'] ) : array(),
+			'content_reference_repairs' => $this->build_media_content_reference_repairs( $attachment_id, $plan, false ),
 			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
 			'edit_link'          => $this->edit_link( $attachment_id ),
 			'preview'            => array(
@@ -2551,6 +2556,7 @@ final class Core_Write_Package {
 		$payload['replaced'] = ! empty( $result['replaced'] );
 		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
+		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -4083,6 +4089,11 @@ final class Core_Write_Package {
 			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
 			$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
 			$current_path = (string) ( $current['file_path'] ?? '' );
+			$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
+			$permission_error = $this->validate_media_content_reference_repair_permissions( $content_reference_repairs );
+			if ( is_wp_error( $permission_error ) ) {
+				return $permission_error;
+			}
 		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
 		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
 		$derivative_relative = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
@@ -4106,6 +4117,10 @@ final class Core_Write_Package {
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
+		$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs );
+		if ( is_wp_error( $content_reference_repairs ) ) {
+			return $content_reference_repairs;
+		}
 		$this->append_media_file_replacement_history(
 			$attachment_id,
 			array(
@@ -4124,6 +4139,7 @@ final class Core_Write_Package {
 			'rolled_back' => false,
 			'after'    => $after,
 				'backup'   => $backup,
+				'content_reference_repairs' => $content_reference_repairs,
 			);
 		}
 
@@ -5363,6 +5379,328 @@ final class Core_Write_Package {
 			'impact_ranges' => $impact_ranges,
 			'patch_preview' => $patch_preview,
 		);
+	}
+
+	/**
+	 * Builds exact post-content repairs for media replacement references.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Replacement plan.
+	 * @param bool                $applied Whether repairs have been committed.
+	 * @return array<string,mixed>
+	 */
+	private function build_media_content_reference_repairs( $attachment_id, array $plan, $applied ) {
+		$attachment_id = absint( $attachment_id );
+		$pairs = $this->media_content_reference_pairs_for_plan( $plan );
+		$needles = $this->media_content_reference_needles( $attachment_id, $plan, $pairs );
+		$max_posts = 50;
+		$repairs = array();
+		$scanned_count = 0;
+		$replacement_count = 0;
+
+		foreach ( $this->media_content_reference_candidate_posts( $attachment_id, $needles, $max_posts * 3 ) as $post ) {
+			if ( count( $repairs ) >= $max_posts ) {
+				break;
+			}
+			if ( ! is_object( $post ) || 'attachment' === sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+				continue;
+			}
+			if ( ! in_array( sanitize_key( (string) ( $post->post_status ?? '' ) ), array( 'publish', 'future', 'draft', 'pending', 'private' ), true ) ) {
+				continue;
+			}
+			++$scanned_count;
+			$post_id = absint( $post->ID ?? 0 );
+			$content = (string) ( $post->post_content ?? '' );
+			if ( $post_id <= 0 || '' === $content ) {
+				continue;
+			}
+			$post_pairs = $this->merge_media_content_reference_pairs( $pairs, $this->media_content_reference_dynamic_sized_pairs( $content, $plan ) );
+			$operations = array();
+			foreach ( $post_pairs as $pair ) {
+				$old = (string) ( $pair['old'] ?? '' );
+				$new = (string) ( $pair['new'] ?? '' );
+				if ( '' === $old || '' === $new || $old === $new || false === strpos( $content, $old ) ) {
+					continue;
+				}
+				$count = substr_count( $content, $old );
+				if ( $count <= 0 ) {
+					continue;
+				}
+				$operations[] = array(
+					'op'      => 'replace',
+					'find'    => $old,
+					'replace' => $new,
+					'limit'   => min( 20, $count ),
+				);
+				$replacement_count += $count;
+			}
+			if ( empty( $operations ) ) {
+				continue;
+			}
+			$preview = $this->apply_patch_operations( $content, $operations );
+			$repairs[] = array(
+				'post_id'               => $post_id,
+				'post_type'             => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'post_status'           => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+				'title'                 => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+				'operation_count'       => count( $operations ),
+				'operations'            => $operations,
+				'content_length_before' => strlen( $content ),
+				'content_length_after'  => is_wp_error( $preview ) ? strlen( $content ) : strlen( (string) ( $preview['content'] ?? $content ) ),
+				'patch_preview'         => is_wp_error( $preview ) ? array() : (array) ( $preview['patch_preview'] ?? array() ),
+				'updated'               => false,
+			);
+		}
+
+		return array(
+			'attachment_id'      => $attachment_id,
+			'applied'            => (bool) $applied,
+			'scanned_count'      => $scanned_count,
+			'post_count'         => count( $repairs ),
+			'replacement_count'  => $replacement_count,
+			'repairs'            => $repairs,
+			'reference_strategy' => 'replace_old_main_and_sized_upload_urls_with_new_main_file_url',
+		);
+	}
+
+	/**
+	 * Validates that the current user can edit every post that will be repaired.
+	 *
+	 * @param array<string,mixed> $repairs Repair plan.
+	 * @return true|\WP_Error
+	 */
+	private function validate_media_content_reference_repair_permissions( array $repairs ) {
+		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $repair ) {
+			$post_id = absint( is_array( $repair ) ? ( $repair['post_id'] ?? 0 ) : 0 );
+			if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_reference_repair_permission_denied', __( 'You do not have permission to update a post that references this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403, 'post_id' => $post_id ) );
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Applies planned post-content media reference repairs.
+	 *
+	 * @param array<string,mixed> $repairs Repair plan.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function apply_media_content_reference_repairs( array $repairs ) {
+		$updated_count = 0;
+		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $index => $repair ) {
+			$repair = is_array( $repair ) ? $repair : array();
+			$post_id = absint( $repair['post_id'] ?? 0 );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( ! is_object( $post ) ) {
+				return new \WP_Error( 'magick_ai_abilities_media_reference_repair_post_missing', __( 'A post that references this media item was not found during repair.', 'npcink-abilities-toolkit' ), array( 'status' => 404, 'post_id' => $post_id ) );
+			}
+			$patch = $this->apply_patch_operations( (string) ( $post->post_content ?? '' ), (array) ( $repair['operations'] ?? array() ) );
+			if ( is_wp_error( $patch ) ) {
+				return $patch;
+			}
+			$after_content = (string) ( $patch['content'] ?? ( $post->post_content ?? '' ) );
+			$changed = $after_content !== (string) ( $post->post_content ?? '' );
+			if ( $changed ) {
+				$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				++$updated_count;
+			}
+			$repairs['repairs'][ $index ]['updated'] = $changed;
+			$repairs['repairs'][ $index ]['content_length_after'] = strlen( $after_content );
+			$repairs['repairs'][ $index ]['patch_preview'] = (array) ( $patch['patch_preview'] ?? array() );
+		}
+		$repairs['applied'] = true;
+		$repairs['updated_count'] = $updated_count;
+		return $repairs;
+	}
+
+	/**
+	 * Builds exact old->new reference pairs for a replacement plan.
+	 *
+	 * @param array<string,mixed> $plan Replacement plan.
+	 * @return array<int,array{old:string,new:string}>
+	 */
+	private function media_content_reference_pairs_for_plan( array $plan ) {
+		$before = is_array( $plan['before'] ?? null ) ? $plan['before'] : array();
+		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+		$old_relative = $this->normalize_media_relative_file( (string) ( $before['relative_file'] ?? '' ) );
+		$new_relative = $this->normalize_media_relative_file( (string) ( $after['relative_file'] ?? '' ) );
+		$old_url = esc_url_raw( (string) ( $before['url'] ?? '' ) );
+		$new_url = esc_url_raw( (string) ( $after['url'] ?? '' ) );
+		$old_path = $this->media_content_reference_url_path( $old_url );
+		$new_path = $this->media_content_reference_url_path( $new_url );
+		$pairs = array(
+			array( 'old' => $old_url, 'new' => $new_url ),
+			array( 'old' => $old_path, 'new' => $new_path ),
+			array( 'old' => $old_relative, 'new' => $new_relative ),
+		);
+
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$metadata = is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array();
+		$sizes = is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array();
+		$old_dir = dirname( $old_relative );
+		$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+		foreach ( $sizes as $size ) {
+			$size = is_array( $size ) ? $size : array();
+			$file = $this->sanitize_media_file_name( (string) ( $size['file'] ?? '' ) );
+			if ( '' === $file ) {
+				continue;
+			}
+			$size_relative = '' !== $old_dir ? $old_dir . '/' . $file : $file;
+			$size_url = $this->media_url_for_relative_file( $size_relative );
+			$size_path = $this->media_content_reference_url_path( $size_url );
+			$pairs[] = array( 'old' => $size_url, 'new' => $new_url );
+			$pairs[] = array( 'old' => $size_path, 'new' => $new_path );
+			$pairs[] = array( 'old' => $size_relative, 'new' => $new_relative );
+		}
+
+		return $this->merge_media_content_reference_pairs( $pairs, array() );
+	}
+
+	/**
+	 * Adds old sized variant references found in content even when not in metadata.
+	 *
+	 * @param string              $content Post content.
+	 * @param array<string,mixed> $plan Replacement plan.
+	 * @return array<int,array{old:string,new:string}>
+	 */
+	private function media_content_reference_dynamic_sized_pairs( $content, array $plan ) {
+		$before = is_array( $plan['before'] ?? null ) ? $plan['before'] : array();
+		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+		$old_relative = $this->normalize_media_relative_file( (string) ( $before['relative_file'] ?? '' ) );
+		$new_relative = $this->normalize_media_relative_file( (string) ( $after['relative_file'] ?? '' ) );
+		$new_url = esc_url_raw( (string) ( $after['url'] ?? '' ) );
+		$new_path = $this->media_content_reference_url_path( $new_url );
+		$old_basename = basename( $old_relative );
+		$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
+		$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
+		if ( '' === (string) $stem || '' === (string) $extension || '' === $new_url ) {
+			return array();
+		}
+		$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
+		if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
+			return array();
+		}
+		$old_dir = dirname( $old_relative );
+		$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+		$pairs = array();
+		foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
+			$sized_basename = $this->sanitize_media_file_name( (string) $sized_basename );
+			if ( '' === $sized_basename ) {
+				continue;
+			}
+			$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
+			$size_url = $this->media_url_for_relative_file( $size_relative );
+			$size_path = $this->media_content_reference_url_path( $size_url );
+			$pairs[] = array( 'old' => $size_url, 'new' => $new_url );
+			$pairs[] = array( 'old' => $size_path, 'new' => $new_path );
+			$pairs[] = array( 'old' => $size_relative, 'new' => $new_relative );
+		}
+		return $pairs;
+	}
+
+	/**
+	 * Merges old->new reference pairs.
+	 *
+	 * @param array<int,array<string,string>> $primary Primary pairs.
+	 * @param array<int,array<string,string>> $secondary Secondary pairs.
+	 * @return array<int,array{old:string,new:string}>
+	 */
+	private function merge_media_content_reference_pairs( array $primary, array $secondary ) {
+		$merged = array();
+		foreach ( array_merge( $primary, $secondary ) as $pair ) {
+			$old = trim( (string) ( is_array( $pair ) ? ( $pair['old'] ?? '' ) : '' ) );
+			$new = trim( (string) ( is_array( $pair ) ? ( $pair['new'] ?? '' ) : '' ) );
+			if ( '' === $old || '' === $new || $old === $new ) {
+				continue;
+			}
+			$key = $old . "\n" . $new;
+			$merged[ $key ] = array(
+				'old' => $old,
+				'new' => $new,
+			);
+		}
+		return array_values( $merged );
+	}
+
+	/**
+	 * Returns bounded candidate posts likely to contain old media references.
+	 *
+	 * @param int           $attachment_id Attachment id.
+	 * @param array<string> $needles Search strings.
+	 * @param int           $limit Candidate limit.
+	 * @return array<int,object>
+	 */
+	private function media_content_reference_candidate_posts( $attachment_id, array $needles, $limit ) {
+		$attachment_id = absint( $attachment_id );
+		$limit = max( 1, min( 150, absint( $limit ) ) );
+		if ( isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
+			return get_posts( array( 'posts_per_page' => $limit ) );
+		}
+
+		global $wpdb;
+		if ( is_object( $wpdb ) && ! empty( $wpdb->posts ) && method_exists( $wpdb, 'get_col' ) && method_exists( $wpdb, 'prepare' ) ) {
+			$clauses = array();
+			foreach ( array_slice( array_values( array_filter( array_unique( $needles ) ) ), 0, 25 ) as $needle ) {
+				$needle = (string) $needle;
+				if ( '' === $needle ) {
+					continue;
+				}
+				$like = method_exists( $wpdb, 'esc_like' ) ? $wpdb->esc_like( $needle ) : addcslashes( $needle, '_%\\' );
+				$clauses[] = $wpdb->prepare( 'post_content LIKE %s', '%' . $like . '%' );
+			}
+			if ( ! empty( $clauses ) ) {
+				$sql = "SELECT ID FROM {$wpdb->posts} WHERE post_type <> 'attachment' AND post_status IN ('publish','future','draft','pending','private') AND (" . implode( ' OR ', $clauses ) . ') ORDER BY ID DESC LIMIT %d';
+				$ids = $wpdb->get_col( $wpdb->prepare( $sql, $limit ) );
+				return array_values( array_filter( array_map( 'get_post', array_map( 'absint', (array) $ids ) ), 'is_object' ) );
+			}
+		}
+
+		return get_posts(
+			array(
+				'post_type'      => 'any',
+				'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+				'posts_per_page' => $limit,
+				'orderby'        => 'ID',
+				'order'          => 'DESC',
+				's'              => 'wp-image-' . $attachment_id,
+			)
+		);
+	}
+
+	/**
+	 * Builds bounded search needles for candidate post lookup.
+	 *
+	 * @param int                                      $attachment_id Attachment id.
+	 * @param array<string,mixed>                      $plan Replacement plan.
+	 * @param array<int,array{old:string,new:string}> $pairs Reference pairs.
+	 * @return array<int,string>
+	 */
+	private function media_content_reference_needles( $attachment_id, array $plan, array $pairs ) {
+		$needles = array( 'wp-image-' . absint( $attachment_id ), '"id":' . absint( $attachment_id ), 'data-id="' . absint( $attachment_id ) . '"' );
+		foreach ( $pairs as $pair ) {
+			$needles[] = (string) ( $pair['old'] ?? '' );
+		}
+		$before = is_array( $plan['before'] ?? null ) ? $plan['before'] : array();
+		$old_relative = $this->normalize_media_relative_file( (string) ( $before['relative_file'] ?? '' ) );
+		$old_stem = preg_replace( '/\.[^.]+$/', '', basename( $old_relative ) );
+		if ( strlen( (string) $old_stem ) >= 4 ) {
+			$needles[] = (string) $old_stem;
+		}
+		return array_values( array_filter( array_unique( array_map( 'strval', $needles ) ) ) );
+	}
+
+	/**
+	 * Returns the path component of a URL.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	private function media_content_reference_url_path( $url ) {
+		$path = parse_url( (string) $url, PHP_URL_PATH );
+		return is_string( $path ) ? $path : '';
 	}
 
 	/**
