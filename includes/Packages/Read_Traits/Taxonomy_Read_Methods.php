@@ -496,8 +496,8 @@ trait Taxonomy_Read_Methods {
 			);
 		}
 
-		$terms = isset( $GLOBALS['maa_unit_terms'][ $taxonomy ] ) && is_array( $GLOBALS['maa_unit_terms'][ $taxonomy ] )
-			? array_values( $GLOBALS['maa_unit_terms'][ $taxonomy ] )
+		$terms = isset( $GLOBALS['npcink_abilities_toolkit_unit_terms'][ $taxonomy ] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_terms'][ $taxonomy ] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_terms'][ $taxonomy ] )
 			: array();
 		if ( $hide_empty ) {
 			$terms = array_values(
@@ -763,8 +763,8 @@ trait Taxonomy_Read_Methods {
 			if ( function_exists( 'is_wp_error' ) && is_wp_error( $terms ) ) {
 				$terms = array();
 			}
-		} elseif ( isset( $GLOBALS['maa_unit_post_terms'][ (int) $post_id ][ (string) $taxonomy ] ) ) {
-			$terms = $GLOBALS['maa_unit_post_terms'][ (int) $post_id ][ (string) $taxonomy ];
+		} elseif ( isset( $GLOBALS['npcink_abilities_toolkit_unit_post_terms'][ (int) $post_id ][ (string) $taxonomy ] ) ) {
+			$terms = $GLOBALS['npcink_abilities_toolkit_unit_post_terms'][ (int) $post_id ][ (string) $taxonomy ];
 		}
 
 		return $this->normalize_taxonomy_proposal_catalog( is_array( $terms ) ? $terms : array() );

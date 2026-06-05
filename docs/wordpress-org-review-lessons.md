@@ -15,7 +15,7 @@ review-policy issues.
 The review identified four blocking classes:
 
 - direct loading or path construction for `wp-admin/includes/*`;
-- admin request parameters such as `maa_tab` without a nonce check;
+- admin request parameters such as `npcink_abilities_toolkit_tab` without a nonce check;
 - inline admin CSS or JS emitted from PHP instead of static enqueued assets;
 - generated output that must remain escaped at the final echo point.
 

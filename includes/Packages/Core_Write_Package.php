@@ -3588,8 +3588,8 @@ final class Core_Write_Package {
 	 */
 	private function get_media_optimized_derivatives( $attachment_id ) {
 		$attachment_id = absint( $attachment_id );
-		if ( isset( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'] ) && is_array( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'] ) ) {
-			return array_values( array_filter( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'], 'is_array' ) );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'] ) ) {
+			return array_values( array_filter( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_optimized_derivatives'], 'is_array' ) );
 		}
 		$derivatives = function_exists( 'get_post_meta' ) ? get_post_meta( absint( $attachment_id ), '_npcink_ai_media_optimized_derivatives', true ) : array();
 		return is_array( $derivatives ) ? array_values( array_filter( $derivatives, 'is_array' ) ) : array();
@@ -4452,8 +4452,8 @@ final class Core_Write_Package {
 	 */
 	private function get_media_file_replacement_history( $attachment_id ) {
 		$attachment_id = absint( $attachment_id );
-		if ( isset( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'] ) && is_array( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'] ) ) {
-			return array_values( array_filter( $GLOBALS['maa_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'], 'is_array' ) );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'] ) ) {
+			return array_values( array_filter( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $attachment_id ]['_npcink_ai_media_file_replacement_history'], 'is_array' ) );
 		}
 		$history = function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_npcink_ai_media_file_replacement_history', true ) : array();
 		return is_array( $history ) ? array_values( array_filter( $history, 'is_array' ) ) : array();
@@ -5727,7 +5727,7 @@ final class Core_Write_Package {
 	private function media_content_reference_candidate_posts( $attachment_id, array $needles, $limit ) {
 		$attachment_id = absint( $attachment_id );
 		$limit = max( 1, min( 150, absint( $limit ) ) );
-		if ( isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ) {
 			return get_posts( array( 'posts_per_page' => $limit ) );
 		}
 
@@ -5908,9 +5908,9 @@ final class Core_Write_Package {
 	 */
 	private function get_patchable_setting_value( $target_type, $target_name ) {
 		if ( 'theme_mod' === $target_type ) {
-			return function_exists( 'get_theme_mod' ) ? get_theme_mod( $target_name, null ) : ( $GLOBALS['maa_unit_theme_mods'][ $target_name ] ?? null );
+			return function_exists( 'get_theme_mod' ) ? get_theme_mod( $target_name, null ) : ( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'][ $target_name ] ?? null );
 		}
-		return function_exists( 'get_option' ) ? get_option( $target_name, null ) : ( $GLOBALS['maa_unit_options'][ $target_name ] ?? null );
+		return function_exists( 'get_option' ) ? get_option( $target_name, null ) : ( $GLOBALS['npcink_abilities_toolkit_unit_options'][ $target_name ] ?? null );
 	}
 
 	/**

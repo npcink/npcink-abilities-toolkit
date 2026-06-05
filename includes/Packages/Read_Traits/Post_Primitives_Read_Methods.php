@@ -1136,8 +1136,8 @@ trait Post_Primitives_Read_Methods {
 			: array();
 		$revisions = is_array( $revisions ) ? array_values( $revisions ) : array();
 
-		if ( empty( $revisions ) && isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
-			foreach ( $GLOBALS['maa_unit_style_posts'] as $post ) {
+		if ( empty( $revisions ) && isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ) {
+			foreach ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] as $post ) {
 				if ( is_object( $post ) && 'revision' === sanitize_key( (string) ( $post->post_type ?? '' ) ) && $post_id === $this->absint_value( $post->post_parent ?? 0 ) ) {
 					$revisions[] = $post;
 				}

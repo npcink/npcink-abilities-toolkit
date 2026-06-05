@@ -14,7 +14,7 @@ $failures = array();
  * @param string $message Failure message.
  * @return void
  */
-function maa_boundary_fail( $message ) {
+function npcink_abilities_toolkit_boundary_fail( $message ) {
 	global $failures;
 	$failures[] = (string) $message;
 }
@@ -25,9 +25,9 @@ function maa_boundary_fail( $message ) {
  * @param string $path File path.
  * @return string
  */
-function maa_boundary_read( $path ) {
+function npcink_abilities_toolkit_boundary_read( $path ) {
 	if ( ! is_readable( $path ) ) {
-		maa_boundary_fail( 'Missing readable file: ' . $path );
+		npcink_abilities_toolkit_boundary_fail( 'Missing readable file: ' . $path );
 		return '';
 	}
 
@@ -41,7 +41,7 @@ function maa_boundary_read( $path ) {
  * @param string $directory Directory path.
  * @return array<int,string>
  */
-function maa_boundary_php_files( $directory ) {
+function npcink_abilities_toolkit_boundary_php_files( $directory ) {
 	if ( ! is_dir( $directory ) ) {
 		return array();
 	}
@@ -64,7 +64,7 @@ function maa_boundary_php_files( $directory ) {
 }
 
 $contract_path = $root . '/docs/magick-ai-project-split-contract.md';
-$contract      = maa_boundary_read( $contract_path );
+$contract      = npcink_abilities_toolkit_boundary_read( $contract_path );
 
 foreach (
 	array(
@@ -77,13 +77,13 @@ foreach (
 	) as $required_text
 ) {
 	if ( false === strpos( $contract, $required_text ) ) {
-		maa_boundary_fail( 'Project split contract is missing required text: ' . $required_text );
+		npcink_abilities_toolkit_boundary_fail( 'Project split contract is missing required text: ' . $required_text );
 	}
 }
 
-$readme = maa_boundary_read( $root . '/README.md' );
+$readme = npcink_abilities_toolkit_boundary_read( $root . '/README.md' );
 if ( false === strpos( $readme, 'docs/magick-ai-project-split-contract.md' ) ) {
-	maa_boundary_fail( 'README must link to docs/magick-ai-project-split-contract.md.' );
+	npcink_abilities_toolkit_boundary_fail( 'README must link to docs/magick-ai-project-split-contract.md.' );
 }
 
 $forbidden_patterns = array(
@@ -96,13 +96,13 @@ $forbidden_patterns = array(
 	'class-rest-open-platform',
 );
 
-foreach ( maa_boundary_php_files( $root . '/includes' ) as $file ) {
+foreach ( npcink_abilities_toolkit_boundary_php_files( $root . '/includes' ) as $file ) {
 	$relative = str_replace( $root . '/', '', $file );
-	$contents = maa_boundary_read( $file );
+	$contents = npcink_abilities_toolkit_boundary_read( $file );
 
 	foreach ( $forbidden_patterns as $pattern ) {
 		if ( false !== strpos( $contents, $pattern ) ) {
-			maa_boundary_fail( $relative . ' contains forbidden Npcink AI runtime dependency pattern: ' . $pattern );
+			npcink_abilities_toolkit_boundary_fail( $relative . ' contains forbidden Npcink AI runtime dependency pattern: ' . $pattern );
 		}
 	}
 }

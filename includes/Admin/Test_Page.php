@@ -201,7 +201,7 @@ final class Test_Page {
 			return 'overview';
 		}
 
-		$tab = $this->get_admin_query_arg( 'maa_tab', 'overview' );
+		$tab = $this->get_admin_query_arg( 'npcink_abilities_toolkit_tab', 'overview' );
 
 		return in_array( $tab, $tabs, true ) ? $tab : 'overview';
 	}
@@ -230,7 +230,7 @@ final class Test_Page {
 		?>
 		<nav class="nav-tab-wrapper npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
 			<?php foreach ( $this->get_tabs() as $tab => $label ) : ?>
-				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'maa_tab', $tab, $base_url ) ) ); ?>">
+				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'npcink_abilities_toolkit_tab', $tab, $base_url ) ) ); ?>">
 					<?php echo esc_html( $label ); ?>
 				</a>
 			<?php endforeach; ?>
@@ -245,7 +245,7 @@ final class Test_Page {
 	 * @return string
 	 */
 	private function add_admin_request_nonce( $url ) {
-		return add_query_arg( 'maa_nonce', wp_create_nonce( self::ADMIN_REQUEST_ACTION ), $url );
+		return add_query_arg( 'npcink_abilities_toolkit_nonce', wp_create_nonce( self::ADMIN_REQUEST_ACTION ), $url );
 	}
 
 	/**
@@ -254,7 +254,7 @@ final class Test_Page {
 	 * @return bool
 	 */
 	private function has_valid_admin_request_nonce() {
-		$nonce = filter_input( INPUT_GET, 'maa_nonce', FILTER_UNSAFE_RAW );
+		$nonce = filter_input( INPUT_GET, 'npcink_abilities_toolkit_nonce', FILTER_UNSAFE_RAW );
 		if ( ! is_string( $nonce ) || '' === $nonce ) {
 			return false;
 		}
@@ -477,16 +477,16 @@ final class Test_Page {
 			);
 		}
 
-		$per_page         = absint( $this->get_admin_query_arg( 'maa_per_page', '25' ) );
+		$per_page         = absint( $this->get_admin_query_arg( 'npcink_abilities_toolkit_per_page', '25' ) );
 		$per_page         = in_array( $per_page, $allowed_per_page, true ) ? $per_page : 25;
-		$risk             = sanitize_key( $this->get_admin_query_arg( 'maa_risk' ) );
+		$risk             = sanitize_key( $this->get_admin_query_arg( 'npcink_abilities_toolkit_risk' ) );
 
 		return array(
-			'query'    => $this->get_admin_query_arg( 'maa_query' ),
+			'query'    => $this->get_admin_query_arg( 'npcink_abilities_toolkit_query' ),
 			'risk'     => in_array( $risk, $allowed_risks, true ) ? $risk : '',
-			'category' => sanitize_key( $this->get_admin_query_arg( 'maa_category' ) ),
+			'category' => sanitize_key( $this->get_admin_query_arg( 'npcink_abilities_toolkit_category' ) ),
 			'per_page' => $per_page,
-			'paged'    => max( 1, absint( $this->get_admin_query_arg( 'maa_paged', '1' ) ) ),
+			'paged'    => max( 1, absint( $this->get_admin_query_arg( 'npcink_abilities_toolkit_paged', '1' ) ) ),
 		);
 	}
 
@@ -503,18 +503,18 @@ final class Test_Page {
 		?>
 		<form class="npcink-abilities-toolkit-filter" method="get" action="<?php echo esc_url( $base_url ); ?>">
 			<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>" />
-			<input type="hidden" name="maa_tab" value="catalog" />
-			<input type="hidden" name="maa_paged" value="1" />
-			<?php wp_nonce_field( self::ADMIN_REQUEST_ACTION, 'maa_nonce', false ); ?>
+			<input type="hidden" name="npcink_abilities_toolkit_tab" value="catalog" />
+			<input type="hidden" name="npcink_abilities_toolkit_paged" value="1" />
+			<?php wp_nonce_field( self::ADMIN_REQUEST_ACTION, 'npcink_abilities_toolkit_nonce', false ); ?>
 
 			<label>
 				<?php echo esc_html__( 'Search', 'npcink-abilities-toolkit' ); ?>
-				<input type="search" name="maa_query" value="<?php echo esc_attr( (string) $filters['query'] ); ?>" placeholder="<?php echo esc_attr__( 'Ability ID, category, or label', 'npcink-abilities-toolkit' ); ?>" />
+				<input type="search" name="npcink_abilities_toolkit_query" value="<?php echo esc_attr( (string) $filters['query'] ); ?>" placeholder="<?php echo esc_attr__( 'Ability ID, category, or label', 'npcink-abilities-toolkit' ); ?>" />
 			</label>
 
 			<label>
 				<?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?>
-				<select name="maa_risk">
+				<select name="npcink_abilities_toolkit_risk">
 					<option value=""><?php echo esc_html__( 'All risks', 'npcink-abilities-toolkit' ); ?></option>
 					<option value="read" <?php selected( $filters['risk'], 'read' ); ?>><?php echo esc_html__( 'Read', 'npcink-abilities-toolkit' ); ?></option>
 					<option value="write" <?php selected( $filters['risk'], 'write' ); ?>><?php echo esc_html__( 'Write', 'npcink-abilities-toolkit' ); ?></option>
@@ -525,7 +525,7 @@ final class Test_Page {
 
 			<label>
 				<?php echo esc_html__( 'Category', 'npcink-abilities-toolkit' ); ?>
-				<select name="maa_category">
+				<select name="npcink_abilities_toolkit_category">
 					<option value=""><?php echo esc_html__( 'All categories', 'npcink-abilities-toolkit' ); ?></option>
 					<?php foreach ( $categories as $category ) : ?>
 						<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
@@ -537,7 +537,7 @@ final class Test_Page {
 
 			<label>
 				<?php echo esc_html__( 'Per page', 'npcink-abilities-toolkit' ); ?>
-				<select name="maa_per_page">
+				<select name="npcink_abilities_toolkit_per_page">
 					<?php foreach ( array( 25, 50, 100 ) as $per_page ) : ?>
 						<option value="<?php echo esc_attr( (string) $per_page ); ?>" <?php selected( $filters['per_page'], $per_page ); ?>>
 							<?php echo esc_html( (string) $per_page ); ?>
@@ -548,7 +548,7 @@ final class Test_Page {
 
 			<p class="npcink-abilities-toolkit-actions">
 				<button type="submit" class="button button-primary"><?php echo esc_html__( 'Apply', 'npcink-abilities-toolkit' ); ?></button>
-				<a class="button" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'maa_tab', 'catalog', $base_url ) ) ); ?>"><?php echo esc_html__( 'Reset', 'npcink-abilities-toolkit' ); ?></a>
+				<a class="button" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'npcink_abilities_toolkit_tab', 'catalog', $base_url ) ) ); ?>"><?php echo esc_html__( 'Reset', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
 		</form>
 		<?php
@@ -642,13 +642,13 @@ final class Test_Page {
 
 		$base_url = add_query_arg(
 			array(
-				'maa_tab'      => 'catalog',
-				'maa_query'    => (string) $filters['query'],
-				'maa_risk'     => (string) $filters['risk'],
-				'maa_category' => (string) $filters['category'],
-				'maa_per_page' => (int) $filters['per_page'],
-				'maa_paged'    => '%#%',
-				'maa_nonce'    => wp_create_nonce( self::ADMIN_REQUEST_ACTION ),
+				'npcink_abilities_toolkit_tab'      => 'catalog',
+				'npcink_abilities_toolkit_query'    => (string) $filters['query'],
+				'npcink_abilities_toolkit_risk'     => (string) $filters['risk'],
+				'npcink_abilities_toolkit_category' => (string) $filters['category'],
+				'npcink_abilities_toolkit_per_page' => (int) $filters['per_page'],
+				'npcink_abilities_toolkit_paged'    => '%#%',
+				'npcink_abilities_toolkit_nonce'    => wp_create_nonce( self::ADMIN_REQUEST_ACTION ),
 			),
 			menu_page_url( self::MENU_SLUG, false )
 		);

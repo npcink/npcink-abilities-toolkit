@@ -3932,7 +3932,7 @@ final class Core_Read_Package {
 		);
 		$encoded = function_exists( 'wp_json_encode' ) ? wp_json_encode( $payload ) : json_encode( $payload );
 
-		return 'maa_read_' . substr( md5( (string) $encoded ), 0, 32 );
+		return 'npcink_abilities_toolkit_read_' . substr( md5( (string) $encoded ), 0, 32 );
 	}
 
 	/**

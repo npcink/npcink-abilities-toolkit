@@ -77,8 +77,8 @@ if ( ! function_exists( 'wp_parse_url' ) ) {
 
 if ( ! function_exists( 'wp_upload_dir' ) ) {
 	function wp_upload_dir() {
-		$basedir = isset( $GLOBALS['maa_unit_upload_basedir'] ) ? (string) $GLOBALS['maa_unit_upload_basedir'] : sys_get_temp_dir() . '/npcink-abilities-toolkit-uploads';
-		$baseurl = isset( $GLOBALS['maa_unit_upload_baseurl'] ) ? (string) $GLOBALS['maa_unit_upload_baseurl'] : 'https://example.test/wp-content/uploads';
+		$basedir = isset( $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] ) ? (string) $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] : sys_get_temp_dir() . '/npcink-abilities-toolkit-uploads';
+		$baseurl = isset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] ) ? (string) $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] : 'https://example.test/wp-content/uploads';
 		return array(
 			'basedir' => rtrim( $basedir, '/\\' ),
 			'baseurl' => rtrim( $baseurl, '/\\' ),
@@ -101,8 +101,8 @@ if ( ! function_exists( 'wp_delete_file' ) ) {
 if ( ! function_exists( 'npcink_ai_cloud_addon_download_media_derivative_artifact' ) ) {
 	function npcink_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
 		unset( $trace_id );
-		if ( isset( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['maa_unit_cloud_artifact_download_callback'] ) ) {
-			return call_user_func( $GLOBALS['maa_unit_cloud_artifact_download_callback'], $derivative_artifact );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) ) {
+			return call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'], $derivative_artifact );
 		}
 		return new WP_Error( 'cloud_addon_unavailable', 'Cloud artifact download unavailable.' );
 	}
@@ -129,8 +129,8 @@ if ( ! function_exists( 'current_user_can' ) ) {
 	function current_user_can( $capability, ...$args ) {
 		unset( $args );
 		$capability = sanitize_key( (string) $capability );
-		$cap_map    = isset( $GLOBALS['maa_unit_current_user_caps'] ) && is_array( $GLOBALS['maa_unit_current_user_caps'] )
-			? $GLOBALS['maa_unit_current_user_caps']
+		$cap_map    = isset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps']
 			: array();
 		if ( array_key_exists( $capability, $cap_map ) ) {
 			return ! empty( $cap_map[ $capability ] );
@@ -142,8 +142,8 @@ if ( ! function_exists( 'current_user_can' ) ) {
 
 if ( ! function_exists( 'apply_filters' ) ) {
 	function apply_filters( $hook_name, $value, ...$args ) {
-		$filters = isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) && is_array( $GLOBALS['maa_unit_filters'][ $hook_name ] )
-			? $GLOBALS['maa_unit_filters'][ $hook_name ]
+		$filters = isset( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ]
 			: array();
 		foreach ( $filters as $callback ) {
 			if ( is_callable( $callback ) ) {
@@ -157,13 +157,13 @@ if ( ! function_exists( 'apply_filters' ) ) {
 if ( ! function_exists( 'add_filter' ) ) {
 	function add_filter( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
 		unset( $priority, $accepted_args );
-		if ( ! isset( $GLOBALS['maa_unit_filters'] ) || ! is_array( $GLOBALS['maa_unit_filters'] ) ) {
-			$GLOBALS['maa_unit_filters'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_filters'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_filters'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_filters'] = array();
 		}
-		if ( ! isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) || ! is_array( $GLOBALS['maa_unit_filters'][ $hook_name ] ) ) {
-			$GLOBALS['maa_unit_filters'][ $hook_name ] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] = array();
 		}
-		$GLOBALS['maa_unit_filters'][ $hook_name ][] = $callback;
+		$GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ][] = $callback;
 
 		return true;
 	}
@@ -172,13 +172,13 @@ if ( ! function_exists( 'add_filter' ) ) {
 if ( ! function_exists( 'add_action' ) ) {
 	function add_action( $hook_name, $callback, $priority = 10, $accepted_args = 1 ) {
 		unset( $priority, $accepted_args );
-		if ( ! isset( $GLOBALS['maa_unit_actions'] ) || ! is_array( $GLOBALS['maa_unit_actions'] ) ) {
-			$GLOBALS['maa_unit_actions'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_actions'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_actions'] = array();
 		}
-		if ( ! isset( $GLOBALS['maa_unit_actions'][ $hook_name ] ) || ! is_array( $GLOBALS['maa_unit_actions'][ $hook_name ] ) ) {
-			$GLOBALS['maa_unit_actions'][ $hook_name ] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ] = array();
 		}
-		$GLOBALS['maa_unit_actions'][ $hook_name ][] = $callback;
+		$GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ][] = $callback;
 
 		return true;
 	}
@@ -186,19 +186,19 @@ if ( ! function_exists( 'add_action' ) ) {
 
 if ( ! function_exists( 'do_action' ) ) {
 	function do_action( $hook_name, ...$args ) {
-		if ( ! isset( $GLOBALS['maa_unit_action_counts'] ) || ! is_array( $GLOBALS['maa_unit_action_counts'] ) ) {
-			$GLOBALS['maa_unit_action_counts'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_action_counts'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_action_counts'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_action_counts'] = array();
 		}
-		if ( ! isset( $GLOBALS['maa_unit_current_actions'] ) || ! is_array( $GLOBALS['maa_unit_current_actions'] ) ) {
-			$GLOBALS['maa_unit_current_actions'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_current_actions'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_current_actions'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_current_actions'] = array();
 		}
 
 		$hook_name = (string) $hook_name;
-		$GLOBALS['maa_unit_action_counts'][ $hook_name ] = (int) ( $GLOBALS['maa_unit_action_counts'][ $hook_name ] ?? 0 ) + 1;
-		$GLOBALS['maa_unit_current_actions'][] = $hook_name;
+		$GLOBALS['npcink_abilities_toolkit_unit_action_counts'][ $hook_name ] = (int) ( $GLOBALS['npcink_abilities_toolkit_unit_action_counts'][ $hook_name ] ?? 0 ) + 1;
+		$GLOBALS['npcink_abilities_toolkit_unit_current_actions'][] = $hook_name;
 
-		$actions = isset( $GLOBALS['maa_unit_actions'][ $hook_name ] ) && is_array( $GLOBALS['maa_unit_actions'][ $hook_name ] )
-			? $GLOBALS['maa_unit_actions'][ $hook_name ]
+		$actions = isset( $GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_actions'][ $hook_name ]
 			: array();
 		foreach ( $actions as $callback ) {
 			if ( is_callable( $callback ) ) {
@@ -206,14 +206,14 @@ if ( ! function_exists( 'do_action' ) ) {
 			}
 		}
 
-		array_pop( $GLOBALS['maa_unit_current_actions'] );
+		array_pop( $GLOBALS['npcink_abilities_toolkit_unit_current_actions'] );
 	}
 }
 
 if ( ! function_exists( 'doing_action' ) ) {
 	function doing_action( $hook_name = null ) {
-		$current = isset( $GLOBALS['maa_unit_current_actions'] ) && is_array( $GLOBALS['maa_unit_current_actions'] )
-			? $GLOBALS['maa_unit_current_actions']
+		$current = isset( $GLOBALS['npcink_abilities_toolkit_unit_current_actions'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_current_actions'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_current_actions']
 			: array();
 		if ( null === $hook_name ) {
 			return ! empty( $current );
@@ -225,8 +225,8 @@ if ( ! function_exists( 'doing_action' ) ) {
 
 if ( ! function_exists( 'did_action' ) ) {
 	function did_action( $hook_name ) {
-		$counts = isset( $GLOBALS['maa_unit_action_counts'] ) && is_array( $GLOBALS['maa_unit_action_counts'] )
-			? $GLOBALS['maa_unit_action_counts']
+		$counts = isset( $GLOBALS['npcink_abilities_toolkit_unit_action_counts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_action_counts'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_action_counts']
 			: array();
 
 		return (int) ( $counts[ (string) $hook_name ] ?? 0 );
@@ -235,8 +235,8 @@ if ( ! function_exists( 'did_action' ) ) {
 
 if ( ! function_exists( 'remove_all_filters' ) ) {
 	function remove_all_filters( $hook_name ) {
-		if ( isset( $GLOBALS['maa_unit_filters'][ $hook_name ] ) ) {
-			unset( $GLOBALS['maa_unit_filters'][ $hook_name ] );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] ) ) {
+			unset( $GLOBALS['npcink_abilities_toolkit_unit_filters'][ $hook_name ] );
 		}
 
 		return true;
@@ -248,8 +248,8 @@ if ( ! function_exists( 'get_post' ) ) {
 		if ( is_object( $post_id ) ) {
 			return $post_id;
 		}
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
-			? $GLOBALS['maa_unit_style_posts']
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_style_posts']
 			: array();
 		$post_id = (int) $post_id;
 		return $posts[ $post_id ] ?? null;
@@ -279,11 +279,11 @@ if ( ! function_exists( 'get_post_type_object' ) ) {
 if ( ! function_exists( 'wp_insert_post' ) ) {
 	function wp_insert_post( $postarr, $wp_error = false ) {
 		unset( $wp_error );
-		if ( ! isset( $GLOBALS['maa_unit_style_posts'] ) || ! is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
-			$GLOBALS['maa_unit_style_posts'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array();
 		}
-		$post_id = isset( $postarr['ID'] ) ? (int) $postarr['ID'] : count( $GLOBALS['maa_unit_style_posts'] ) + 1000;
-		$GLOBALS['maa_unit_style_posts'][ $post_id ] = (object) array(
+		$post_id = isset( $postarr['ID'] ) ? (int) $postarr['ID'] : count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) + 1000;
+		$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ] = (object) array(
 			'ID'           => $post_id,
 			'post_type'    => (string) ( $postarr['post_type'] ?? 'post' ),
 			'post_status'  => (string) ( $postarr['post_status'] ?? 'draft' ),
@@ -302,12 +302,12 @@ if ( ! function_exists( 'wp_update_post' ) ) {
 	function wp_update_post( $postarr, $wp_error = false ) {
 		unset( $wp_error );
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
-		if ( $post_id <= 0 || ! isset( $GLOBALS['maa_unit_style_posts'][ $post_id ] ) ) {
+		if ( $post_id <= 0 || ! isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ] ) ) {
 			return new WP_Error( 'not_found', 'Post not found.' );
 		}
 		foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_author', 'post_mime_type' ) as $field ) {
 			if ( array_key_exists( $field, $postarr ) ) {
-				$GLOBALS['maa_unit_style_posts'][ $post_id ]->{$field} = $postarr[ $field ];
+				$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ]->{$field} = $postarr[ $field ];
 			}
 		}
 		return $post_id;
@@ -316,17 +316,17 @@ if ( ! function_exists( 'wp_update_post' ) ) {
 
 if ( ! function_exists( 'update_post_meta' ) ) {
 	function update_post_meta( $post_id, $meta_key, $meta_value ) {
-		if ( ! isset( $GLOBALS['maa_unit_post_meta'] ) || ! is_array( $GLOBALS['maa_unit_post_meta'] ) ) {
-			$GLOBALS['maa_unit_post_meta'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_post_meta'] = array();
 		}
-		$GLOBALS['maa_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] = $meta_value;
+		$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] = $meta_value;
 		return true;
 	}
 }
 
 if ( ! function_exists( 'get_post_meta' ) ) {
 	function get_post_meta( $post_id, $meta_key = '', $single = false ) {
-		$post_meta = $GLOBALS['maa_unit_post_meta'][ (int) $post_id ] ?? array();
+		$post_meta = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ] ?? array();
 		if ( '' === (string) $meta_key ) {
 			$all_meta = array();
 			foreach ( ( is_array( $post_meta ) ? $post_meta : array() ) as $key => $value ) {
@@ -365,7 +365,7 @@ if ( ! function_exists( 'wp_get_attachment_url' ) ) {
 
 if ( ! function_exists( 'wp_get_attachment_metadata' ) ) {
 	function wp_get_attachment_metadata( $attachment_id ) {
-		$metadata = $GLOBALS['maa_unit_post_meta'][ (int) $attachment_id ]['_wp_attachment_metadata'] ?? false;
+		$metadata = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $attachment_id ]['_wp_attachment_metadata'] ?? false;
 		return is_array( $metadata ) ? $metadata : false;
 	}
 }
@@ -454,8 +454,8 @@ if ( ! function_exists( 'wp_json_encode' ) ) {
 if ( ! function_exists( 'get_posts' ) ) {
 	function get_posts( $args = array() ) {
 		$args = is_array( $args ) ? $args : array();
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
-			? array_values( $GLOBALS['maa_unit_style_posts'] )
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			: array();
 		if ( isset( $args['author'] ) ) {
 			$author_id = (int) $args['author'];
@@ -485,8 +485,8 @@ if ( ! function_exists( 'get_the_title' ) ) {
 
 if ( ! function_exists( 'get_comment' ) ) {
 	function get_comment( $comment_id ) {
-		$comments = isset( $GLOBALS['maa_unit_comments'] ) && is_array( $GLOBALS['maa_unit_comments'] )
-			? $GLOBALS['maa_unit_comments']
+		$comments = isset( $GLOBALS['npcink_abilities_toolkit_unit_comments'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_comments'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_comments']
 			: array();
 		$comment_id = (int) $comment_id;
 		return $comments[ $comment_id ] ?? null;
@@ -496,8 +496,8 @@ if ( ! function_exists( 'get_comment' ) ) {
 if ( ! function_exists( 'get_comments' ) ) {
 	function get_comments( $args = array() ) {
 		$args = is_array( $args ) ? $args : array();
-		$comments = isset( $GLOBALS['maa_unit_comments'] ) && is_array( $GLOBALS['maa_unit_comments'] )
-			? array_values( $GLOBALS['maa_unit_comments'] )
+		$comments = isset( $GLOBALS['npcink_abilities_toolkit_unit_comments'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_comments'] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_comments'] )
 			: array();
 		if ( isset( $args['post_id'] ) ) {
 			$post_id = (int) $args['post_id'];
@@ -535,8 +535,8 @@ if ( ! function_exists( 'get_current_user_id' ) ) {
 
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( $name, $default = false ) {
-		$options = isset( $GLOBALS['maa_unit_options'] ) && is_array( $GLOBALS['maa_unit_options'] )
-			? $GLOBALS['maa_unit_options']
+		$options = isset( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_options'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_options']
 			: array();
 		return array_key_exists( $name, $options ) ? $options[ $name ] : $default;
 	}
@@ -545,18 +545,18 @@ if ( ! function_exists( 'get_option' ) ) {
 if ( ! function_exists( 'update_option' ) ) {
 	function update_option( $name, $value, $autoload = null ) {
 		unset( $autoload );
-		if ( ! isset( $GLOBALS['maa_unit_options'] ) || ! is_array( $GLOBALS['maa_unit_options'] ) ) {
-			$GLOBALS['maa_unit_options'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_options'] = array();
 		}
-		$GLOBALS['maa_unit_options'][ (string) $name ] = $value;
+		$GLOBALS['npcink_abilities_toolkit_unit_options'][ (string) $name ] = $value;
 		return true;
 	}
 }
 
 if ( ! function_exists( 'get_theme_mods' ) ) {
 	function get_theme_mods() {
-		return isset( $GLOBALS['maa_unit_theme_mods'] ) && is_array( $GLOBALS['maa_unit_theme_mods'] )
-			? $GLOBALS['maa_unit_theme_mods']
+		return isset( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_theme_mods']
 			: array();
 	}
 }
@@ -570,17 +570,17 @@ if ( ! function_exists( 'get_theme_mod' ) ) {
 
 if ( ! function_exists( 'set_theme_mod' ) ) {
 	function set_theme_mod( $name, $value ) {
-		if ( ! isset( $GLOBALS['maa_unit_theme_mods'] ) || ! is_array( $GLOBALS['maa_unit_theme_mods'] ) ) {
-			$GLOBALS['maa_unit_theme_mods'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] = array();
 		}
-		$GLOBALS['maa_unit_theme_mods'][ (string) $name ] = $value;
+		$GLOBALS['npcink_abilities_toolkit_unit_theme_mods'][ (string) $name ] = $value;
 	}
 }
 
 if ( ! function_exists( 'get_transient' ) ) {
 	function get_transient( $name ) {
-		$transients = isset( $GLOBALS['maa_unit_transients'] ) && is_array( $GLOBALS['maa_unit_transients'] )
-			? $GLOBALS['maa_unit_transients']
+		$transients = isset( $GLOBALS['npcink_abilities_toolkit_unit_transients'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_transients'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_transients']
 			: array();
 		return array_key_exists( $name, $transients ) ? $transients[ $name ] : false;
 	}
@@ -589,18 +589,18 @@ if ( ! function_exists( 'get_transient' ) ) {
 if ( ! function_exists( 'set_transient' ) ) {
 	function set_transient( $name, $value, $expiration = 0 ) {
 		unset( $expiration );
-		if ( ! isset( $GLOBALS['maa_unit_transients'] ) || ! is_array( $GLOBALS['maa_unit_transients'] ) ) {
-			$GLOBALS['maa_unit_transients'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_transients'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_transients'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_transients'] = array();
 		}
-		$GLOBALS['maa_unit_transients'][ $name ] = $value;
+		$GLOBALS['npcink_abilities_toolkit_unit_transients'][ $name ] = $value;
 		return true;
 	}
 }
 
 if ( ! function_exists( 'wp_has_ability' ) ) {
 	function wp_has_ability( $ability_id ) {
-		$registered = isset( $GLOBALS['maa_unit_registered_abilities'] ) && is_array( $GLOBALS['maa_unit_registered_abilities'] )
-			? $GLOBALS['maa_unit_registered_abilities']
+		$registered = isset( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']
 			: array();
 
 		return array_key_exists( (string) $ability_id, $registered );
@@ -609,10 +609,10 @@ if ( ! function_exists( 'wp_has_ability' ) ) {
 
 if ( ! function_exists( 'wp_register_ability' ) ) {
 	function wp_register_ability( $ability_id, array $args ) {
-		if ( ! isset( $GLOBALS['maa_unit_registered_abilities'] ) || ! is_array( $GLOBALS['maa_unit_registered_abilities'] ) ) {
-			$GLOBALS['maa_unit_registered_abilities'] = array();
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] = array();
 		}
-		$GLOBALS['maa_unit_registered_abilities'][ (string) $ability_id ] = $args;
+		$GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'][ (string) $ability_id ] = $args;
 
 		return true;
 	}

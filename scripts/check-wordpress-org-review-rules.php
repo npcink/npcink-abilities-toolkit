@@ -14,7 +14,7 @@ $failures = array();
  * @param string $message Failure message.
  * @return void
  */
-function maa_wporg_fail( $message ) {
+function npcink_abilities_toolkit_wporg_fail( $message ) {
 	global $failures;
 	$failures[] = (string) $message;
 }
@@ -25,9 +25,9 @@ function maa_wporg_fail( $message ) {
  * @param string $path File path.
  * @return string
  */
-function maa_wporg_read( $path ) {
+function npcink_abilities_toolkit_wporg_read( $path ) {
 	if ( ! is_readable( $path ) ) {
-		maa_wporg_fail( 'Missing readable file: ' . $path );
+		npcink_abilities_toolkit_wporg_fail( 'Missing readable file: ' . $path );
 		return '';
 	}
 
@@ -40,7 +40,7 @@ function maa_wporg_read( $path ) {
  *
  * @return array<int,string>
  */
-function maa_wporg_plugin_php_files() {
+function npcink_abilities_toolkit_wporg_plugin_php_files() {
 	global $root;
 
 	$files = glob( $root . '/*.php' );
@@ -79,13 +79,13 @@ $rules = array(
 	'Do not read $_GET directly in plugin views; route reads through nonce-verified helpers.' => '/\$_GET\s*\[/',
 );
 
-foreach ( maa_wporg_plugin_php_files() as $file ) {
+foreach ( npcink_abilities_toolkit_wporg_plugin_php_files() as $file ) {
 	$relative = str_replace( $root . '/', '', $file );
-	$contents = maa_wporg_read( $file );
+	$contents = npcink_abilities_toolkit_wporg_read( $file );
 
 	foreach ( $rules as $message => $pattern ) {
 		if ( preg_match( $pattern, $contents ) ) {
-			maa_wporg_fail( $relative . ': ' . $message );
+			npcink_abilities_toolkit_wporg_fail( $relative . ': ' . $message );
 		}
 	}
 }

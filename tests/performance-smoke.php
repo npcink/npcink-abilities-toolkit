@@ -22,10 +22,10 @@ $abilities = new Ability_Registrar( $categories, $contract_normalizer );
 $core_read_package = new Core_Read_Package( $categories, $abilities );
 $core_comment_package = new Core_Comment_Package( $categories, $abilities );
 
-$GLOBALS['maa_unit_style_posts'] = array();
-$GLOBALS['maa_unit_comments'] = array();
-$GLOBALS['maa_unit_post_meta'] = array();
-$GLOBALS['maa_unit_terms'] = array(
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_comments'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_post_meta'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_terms'] = array(
 	'category' => array(
 		(object) array(
 			'term_id'     => 301,
@@ -37,10 +37,10 @@ $GLOBALS['maa_unit_terms'] = array(
 		),
 	),
 );
-$GLOBALS['maa_unit_transients'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_transients'] = array();
 
 for ( $i = 1; $i <= 40; ++$i ) {
-	$GLOBALS['maa_unit_style_posts'][ $i ] = (object) array(
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $i ] = (object) array(
 		'ID'            => $i,
 		'post_author'   => 7,
 		'post_title'    => 'Workflow performance sample ' . $i,
@@ -55,7 +55,7 @@ for ( $i = 1; $i <= 40; ++$i ) {
 }
 
 for ( $i = 1; $i <= 12; ++$i ) {
-	$GLOBALS['maa_unit_comments'][ $i ] = (object) array(
+	$GLOBALS['npcink_abilities_toolkit_unit_comments'][ $i ] = (object) array(
 		'comment_ID'       => $i,
 		'comment_post_ID'  => 1,
 		'comment_author'   => 'Reader ' . $i,

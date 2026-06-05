@@ -2310,8 +2310,8 @@ trait Media_Read_Methods {
 			);
 		}
 
-		$attachments = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
-			? array_values( $GLOBALS['maa_unit_style_posts'] )
+		$attachments = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			: array();
 		$filtered = array();
 		$date_from_ts = '' !== $date_from ? strtotime( $date_from ) : false;
@@ -3137,8 +3137,8 @@ trait Media_Read_Methods {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$limit = max( 1, (int) $limit );
 		$url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
-			? array_values( $GLOBALS['maa_unit_style_posts'] )
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			: ( function_exists( 'get_posts' ) ? get_posts( array( 'post_type' => 'any', 'post_status' => array( 'publish', 'future', 'draft', 'pending', 'private' ), 'posts_per_page' => 50 ) ) : array() );
 		$references = array();
 
@@ -3173,7 +3173,7 @@ trait Media_Read_Methods {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$limit = max( 1, (int) $limit );
 		$references = array();
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? array_values( $GLOBALS['maa_unit_style_posts'] ) : array();
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) : array();
 
 		foreach ( $posts as $post ) {
 			if ( ! is_object( $post ) || 'attachment' === sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
@@ -3183,7 +3183,7 @@ trait Media_Read_Methods {
 				continue;
 			}
 			$post_id = $this->absint_value( $post->ID ?? 0 );
-			if ( $attachment_id !== $this->absint_value( $GLOBALS['maa_unit_post_meta'][ $post_id ]['_thumbnail_id'] ?? 0 ) ) {
+			if ( $attachment_id !== $this->absint_value( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ]['_thumbnail_id'] ?? 0 ) ) {
 				continue;
 			}
 			$references[] = $this->media_reference_post_row( $post );
@@ -3319,8 +3319,8 @@ trait Media_Read_Methods {
 	 */
 	private function media_reference_repair_candidate_posts( $limit ) {
 		$limit = max( 1, min( 150, (int) $limit ) );
-		if ( isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ) {
-			return array_values( $GLOBALS['maa_unit_style_posts'] );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ) {
+			return array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] );
 		}
 		if ( ! function_exists( 'get_posts' ) ) {
 			return array();
@@ -3345,8 +3345,8 @@ trait Media_Read_Methods {
 		$limit = max( 1, min( 100, (int) $limit ) );
 		$candidates = array();
 		$option_names = $this->media_settings_reference_names( $input['option_names'] ?? array(), 50 );
-		if ( empty( $option_names ) && isset( $GLOBALS['maa_unit_options'] ) && is_array( $GLOBALS['maa_unit_options'] ) ) {
-			$option_names = array_slice( array_map( 'strval', array_keys( $GLOBALS['maa_unit_options'] ) ), 0, $limit );
+		if ( empty( $option_names ) && isset( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) ) {
+			$option_names = array_slice( array_map( 'strval', array_keys( $GLOBALS['npcink_abilities_toolkit_unit_options'] ) ), 0, $limit );
 		}
 		if ( empty( $option_names ) ) {
 			$option_names = $this->media_settings_reference_option_names_from_db( $input, $limit );
@@ -3369,8 +3369,8 @@ trait Media_Read_Methods {
 				$theme_mods = get_theme_mods();
 				$theme_mods = is_array( $theme_mods ) ? $theme_mods : array();
 			}
-			if ( isset( $GLOBALS['maa_unit_theme_mods'] ) && is_array( $GLOBALS['maa_unit_theme_mods'] ) ) {
-				$theme_mods = array_merge( $theme_mods, $GLOBALS['maa_unit_theme_mods'] );
+			if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] ) ) {
+				$theme_mods = array_merge( $theme_mods, $GLOBALS['npcink_abilities_toolkit_unit_theme_mods'] );
 			}
 			if ( empty( $theme_mod_names ) ) {
 				$theme_mod_names = array_slice( array_map( 'strval', array_keys( $theme_mods ) ), 0, $limit );
@@ -4079,7 +4079,7 @@ trait Media_Read_Methods {
 	 * @return int[]
 	 */
 	private function scan_unit_attachment_ids_for_relative_file( $relative_file ) {
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? $GLOBALS['maa_unit_style_posts'] : array();
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ? $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] : array();
 		$ids = array();
 		foreach ( $posts as $post ) {
 			if ( ! is_object( $post ) || 'attachment' !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
@@ -4103,7 +4103,7 @@ trait Media_Read_Methods {
 	 * @return int[]
 	 */
 	private function scan_unit_attachment_ids_for_filename( $basename, $search, $limit ) {
-		$posts = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] ) ? $GLOBALS['maa_unit_style_posts'] : array();
+		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ? $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] : array();
 		$ids = array();
 		foreach ( $posts as $post ) {
 			if ( count( $ids ) >= $limit || ! is_object( $post ) || 'attachment' !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
@@ -4153,8 +4153,8 @@ trait Media_Read_Methods {
 			);
 		}
 
-		$attachments = isset( $GLOBALS['maa_unit_style_posts'] ) && is_array( $GLOBALS['maa_unit_style_posts'] )
-			? array_values( $GLOBALS['maa_unit_style_posts'] )
+		$attachments = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
+			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			: array();
 		$filtered = array();
 		foreach ( $attachments as $attachment ) {
