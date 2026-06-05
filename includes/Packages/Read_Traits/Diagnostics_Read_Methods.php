@@ -435,7 +435,7 @@ private function build_plugin_diagnostics_rows( array $plugin_files, array $plug
 			'requires_php' => sanitize_text_field( (string) ( $data['RequiresPHP'] ?? '' ) ),
 			'dependencies' => $dependencies,
 			'dependency_count' => count( $dependencies ),
-			'is_npcink_ai' => $this->is_npcink_ai_plugin_hint( $plugin_file, $data ),
+			'is_npcink' => $this->is_npcink_plugin_hint( $plugin_file, $data ),
 			'update_available' => is_object( $update ),
 			'latest_version'   => is_object( $update ) ? sanitize_text_field( (string) ( $update->new_version ?? '' ) ) : '',
 		);
@@ -465,7 +465,7 @@ private function build_dropin_diagnostics_rows( array $dropins, $max_rows = 100 
 			'name'        => sanitize_text_field( (string) ( $dropin['Name'] ?? $dropin_file ) ),
 			'status'      => 'dropin',
 			'dropin'      => true,
-			'is_npcink_ai' => $this->is_npcink_ai_plugin_hint( (string) $dropin_file, $dropin ),
+			'is_npcink' => $this->is_npcink_plugin_hint( (string) $dropin_file, $dropin ),
 		);
 	}
 
@@ -520,7 +520,7 @@ private function parse_plugin_dependency_slugs( $requires_plugins ) {
  * @param array<string,mixed> $data Plugin metadata.
  * @return bool
  */
-private function is_npcink_ai_plugin_hint( $plugin_file, array $data ) {
+private function is_npcink_plugin_hint( $plugin_file, array $data ) {
 	$haystack = strtolower(
 		(string) $plugin_file . ' ' .
 		(string) ( $data['Name'] ?? '' ) . ' ' .
@@ -528,7 +528,7 @@ private function is_npcink_ai_plugin_hint( $plugin_file, array $data ) {
 		(string) ( $data['TextDomain'] ?? '' )
 	);
 
-	return false !== strpos( $haystack, 'npcink-ai' ) || false !== strpos( $haystack, 'npcink ai' );
+	return false !== strpos( $haystack, 'npcink-' ) || false !== strpos( $haystack, 'npcink ' );
 }
 
 /**
