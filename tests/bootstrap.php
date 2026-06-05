@@ -86,6 +86,18 @@ if ( ! function_exists( 'wp_upload_dir' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+	function wp_mkdir_p( $target ) {
+		return is_dir( (string) $target ) || mkdir( (string) $target, 0755, true );
+	}
+}
+
+if ( ! function_exists( 'wp_delete_file' ) ) {
+	function wp_delete_file( $file ) {
+		return is_file( (string) $file ) ? unlink( (string) $file ) : true;
+	}
+}
+
 if ( ! function_exists( 'magick_ai_cloud_addon_download_media_derivative_artifact' ) ) {
 	function magick_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
 		unset( $trace_id );

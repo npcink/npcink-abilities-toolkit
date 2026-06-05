@@ -132,7 +132,7 @@ trait Media_Read_Methods {
 	public function resolve_media_attachment_by_url( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to resolve media attachments.', 'magick-ai-abilities' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to resolve media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$raw_url = trim( (string) ( $input['url'] ?? '' ) );
@@ -3386,13 +3386,13 @@ trait Media_Read_Methods {
 	private function normalize_media_attachment_resolution_url( $raw_url ) {
 		$raw_url = trim( (string) $raw_url );
 		if ( '' === $raw_url ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'A media URL is required.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_required', __( 'A media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$uploads_base_url = $this->media_upload_base_url();
 		$base_parts = $this->parse_url_value( $uploads_base_url );
 		if ( empty( $base_parts['scheme'] ) || empty( $base_parts['host'] ) || empty( $base_parts['path'] ) ) {
-			return new \WP_Error( 'magick_ai_abilities_upload_base_unavailable', __( 'The local uploads base URL is unavailable.', 'magick-ai-abilities' ), array( 'status' => 500 ) );
+			return new \WP_Error( 'magick_ai_abilities_upload_base_unavailable', __( 'The local uploads base URL is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$normalized_url = $raw_url;
@@ -3402,25 +3402,25 @@ trait Media_Read_Methods {
 		$normalized_url = $this->esc_url_value( $normalized_url );
 		$url_parts = $this->parse_url_value( $normalized_url );
 		if ( empty( $url_parts['scheme'] ) || empty( $url_parts['host'] ) || empty( $url_parts['path'] ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_invalid', __( 'The media URL must be an absolute same-site uploads URL or a root-relative uploads URL.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_invalid', __( 'The media URL must be an absolute same-site uploads URL or a root-relative uploads URL.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$base_host = strtolower( (string) $base_parts['host'] );
 		$url_host = strtolower( (string) $url_parts['host'] );
 		if ( $base_host !== $url_host ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_external', __( 'Only local uploads URLs can be resolved to media attachments.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_external', __( 'Only local uploads URLs can be resolved to media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$base_path = rtrim( $this->normalize_url_path( (string) $base_parts['path'] ), '/' ) . '/';
 		$url_path = $this->normalize_url_path( (string) $url_parts['path'] );
 		if ( 0 !== strpos( $url_path, $base_path ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_not_uploads', __( 'Only URLs under the local uploads directory can be resolved.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_not_uploads', __( 'Only URLs under the local uploads directory can be resolved.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		$relative_file = ltrim( rawurldecode( substr( $url_path, strlen( $base_path ) ) ), '/' );
 		$relative_file = $this->normalize_media_relative_file( $relative_file );
 		if ( '' === $relative_file || false !== strpos( $relative_file, '..' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_media_url_path_invalid', __( 'The uploads URL path is not a valid media file path.', 'magick-ai-abilities' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'magick_ai_abilities_media_url_path_invalid', __( 'The uploads URL path is not a valid media file path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
 		return array(
@@ -3459,7 +3459,7 @@ trait Media_Read_Methods {
 	 * @return array<string,mixed>
 	 */
 	private function parse_url_value( $url ) {
-		$parts = function_exists( 'wp_parse_url' ) ? wp_parse_url( (string) $url ) : parse_url( (string) $url );
+		$parts = wp_parse_url( (string) $url );
 		return is_array( $parts ) ? $parts : array();
 	}
 

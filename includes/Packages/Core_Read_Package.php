@@ -262,8 +262,8 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'list_media' ),
 			),
 			'magick-ai/resolve-media-attachment-by-url' => array(
-				'label'            => __( 'Resolve Media Attachment By URL', 'magick-ai-abilities' ),
-				'description'      => __( 'Resolves a same-site uploads URL to bounded media attachment candidates with read-only match evidence.', 'magick-ai-abilities' ),
+				'label'            => __( 'Resolve Media Attachment By URL', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Resolves a same-site uploads URL to bounded media attachment candidates with read-only match evidence.', 'npcink-abilities-toolkit' ),
 				'category'         => 'magick-ai-data',
 				'capability'       => 'upload_files',
 				'required_scope'   => 'media.read',

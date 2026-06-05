@@ -4170,7 +4170,7 @@ final class Core_Write_Package {
 			if ( '' === $backup_path || ! $this->ensure_media_directory( dirname( $backup_path ) ) || ! copy( $current_path, $backup_path ) ) {
 				return new \WP_Error( 'magick_ai_abilities_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
-			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! rename( $current_path, $target_path ) ) {
+			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! $this->move_media_file( $current_path, $target_path ) ) {
 				return new \WP_Error( 'magick_ai_abilities_media_rename_failed', __( 'The current attachment file could not be renamed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
 
@@ -4714,10 +4714,30 @@ final class Core_Write_Package {
 		if ( is_dir( $directory ) ) {
 			return true;
 		}
-		if ( function_exists( 'wp_mkdir_p' ) && wp_mkdir_p( $directory ) ) {
-			return true;
+		return function_exists( 'wp_mkdir_p' ) && wp_mkdir_p( $directory );
+	}
+
+	/**
+	 * Moves a media file using WordPress filesystem-safe deletion semantics.
+	 *
+	 * @param string $source_path Source path.
+	 * @param string $target_path Target path.
+	 * @return bool
+	 */
+	private function move_media_file( $source_path, $target_path ) {
+		$source_path = (string) $source_path;
+		$target_path = (string) $target_path;
+		if ( '' === $source_path || '' === $target_path || ! is_readable( $source_path ) || file_exists( $target_path ) ) {
+			return false;
 		}
-		return mkdir( $directory, 0755, true ) || is_dir( $directory );
+		if ( ! copy( $source_path, $target_path ) ) {
+			return false;
+		}
+		if ( function_exists( 'wp_delete_file' ) && wp_delete_file( $source_path ) ) {
+			return ! file_exists( $source_path ) && is_readable( $target_path );
+		}
+		wp_delete_file( $target_path );
+		return false;
 	}
 
 	/**
@@ -5640,22 +5660,34 @@ final class Core_Write_Package {
 			return get_posts( array( 'posts_per_page' => $limit ) );
 		}
 
-		global $wpdb;
-		if ( is_object( $wpdb ) && ! empty( $wpdb->posts ) && method_exists( $wpdb, 'get_col' ) && method_exists( $wpdb, 'prepare' ) ) {
-			$clauses = array();
-			foreach ( array_slice( array_values( array_filter( array_unique( $needles ) ) ), 0, 25 ) as $needle ) {
-				$needle = (string) $needle;
-				if ( '' === $needle ) {
-					continue;
+		$candidates = array();
+		foreach ( array_slice( array_values( array_filter( array_unique( $needles ) ) ), 0, 25 ) as $needle ) {
+			$needle = trim( (string) $needle );
+			if ( '' === $needle ) {
+				continue;
+			}
+			foreach (
+				get_posts(
+					array(
+						'post_type'      => 'any',
+						'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private' ),
+						'posts_per_page' => $limit,
+						'orderby'        => 'ID',
+						'order'          => 'DESC',
+						's'              => $needle,
+					)
+				) as $post
+			) {
+				if ( is_object( $post ) && 'attachment' !== (string) ( $post->post_type ?? '' ) ) {
+					$candidates[ absint( $post->ID ?? 0 ) ] = $post;
 				}
-				$like = method_exists( $wpdb, 'esc_like' ) ? $wpdb->esc_like( $needle ) : addcslashes( $needle, '_%\\' );
-				$clauses[] = $wpdb->prepare( 'post_content LIKE %s', '%' . $like . '%' );
+				if ( count( $candidates ) >= $limit ) {
+					break 2;
+				}
 			}
-			if ( ! empty( $clauses ) ) {
-				$sql = "SELECT ID FROM {$wpdb->posts} WHERE post_type <> 'attachment' AND post_status IN ('publish','future','draft','pending','private') AND (" . implode( ' OR ', $clauses ) . ') ORDER BY ID DESC LIMIT %d';
-				$ids = $wpdb->get_col( $wpdb->prepare( $sql, $limit ) );
-				return array_values( array_filter( array_map( 'get_post', array_map( 'absint', (array) $ids ) ), 'is_object' ) );
-			}
+		}
+		if ( ! empty( $candidates ) ) {
+			return array_values( $candidates );
 		}
 
 		return get_posts(
@@ -5699,7 +5731,7 @@ final class Core_Write_Package {
 	 * @return string
 	 */
 	private function media_content_reference_url_path( $url ) {
-		$path = parse_url( (string) $url, PHP_URL_PATH );
+		$path = wp_parse_url( (string) $url, PHP_URL_PATH );
 		return is_string( $path ) ? $path : '';
 	}
 
