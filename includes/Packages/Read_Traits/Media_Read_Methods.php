@@ -1455,6 +1455,7 @@ trait Media_Read_Methods {
 			$current_relative_file = $this->normalize_media_reference_relative( $current_relative_file );
 			$after = $this->media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, $artifact );
 			$before = array(
+				'attachment_id'  => $attachment_id,
 				'relative_file' => $current_relative_file,
 				'url'           => $this->media_reference_upload_url( $current_relative_file ),
 			);
@@ -1583,6 +1584,13 @@ trait Media_Read_Methods {
 			);
 			$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $this->absint_value( $attachment_id ) ) : array();
 			$metadata = is_array( $metadata ) ? $metadata : array();
+			foreach ( $this->media_optimization_content_source_relative_files( $metadata, (string) ( $before['relative_file'] ?? '' ) ) as $source_relative ) {
+				$source_url = $this->media_reference_upload_url( $source_relative );
+				$source_path = $this->media_reference_url_path( $source_url );
+				$pairs[] = array( 'old' => $source_url, 'new' => (string) ( $after['url'] ?? '' ) );
+				$pairs[] = array( 'old' => $source_path, 'new' => (string) ( $after['path'] ?? '' ) );
+				$pairs[] = array( 'old' => $source_relative, 'new' => (string) ( $after['relative_file'] ?? '' ) );
+			}
 			$sizes = is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array();
 			$old_relative = $this->normalize_media_reference_relative( (string) ( $before['relative_file'] ?? '' ) );
 			$old_dir = dirname( $old_relative );
@@ -1613,34 +1621,101 @@ trait Media_Read_Methods {
 		 * @return array<int,array{old:string,new:string}>
 		 */
 		private function media_optimization_content_dynamic_sized_pairs( $content, array $before, array $after ) {
-			$old_relative = $this->normalize_media_reference_relative( (string) ( $before['relative_file'] ?? '' ) );
-			$old_basename = basename( $old_relative );
-			$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
-			$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
-			if ( '' === (string) $stem || '' === (string) $extension || '' === (string) ( $after['url'] ?? '' ) ) {
+			if ( '' === (string) ( $after['url'] ?? '' ) ) {
 				return array();
 			}
-			$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
-			if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
+			$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $this->absint_value( (int) ( $before['attachment_id'] ?? 0 ) ) ) : array();
+			$metadata = is_array( $metadata ) ? $metadata : array();
+			$source_files = $this->media_optimization_content_source_relative_files( $metadata, (string) ( $before['relative_file'] ?? '' ) );
+			if ( empty( $source_files ) ) {
 				return array();
 			}
-			$old_dir = dirname( $old_relative );
-			$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
 			$pairs = array();
-			foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
-				$sized_basename = $this->sanitize_file_name_value( (string) $sized_basename );
-				if ( '' === $sized_basename ) {
+			foreach ( $source_files as $source_relative ) {
+				$old_basename = basename( $source_relative );
+				$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
+				$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
+				if ( '' === (string) $stem || '' === (string) $extension ) {
 					continue;
 				}
-				$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
-				$size_url = $this->media_reference_upload_url( $size_relative );
-				$size_path = $this->media_reference_url_path( $size_url );
-				$pairs[] = array( 'old' => $size_url, 'new' => (string) ( $after['url'] ?? '' ) );
-				$pairs[] = array( 'old' => $size_path, 'new' => (string) ( $after['path'] ?? '' ) );
-				$pairs[] = array( 'old' => $size_relative, 'new' => (string) ( $after['relative_file'] ?? '' ) );
+				$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
+				if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
+					continue;
+				}
+				$old_dir = dirname( $source_relative );
+				$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+				foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
+					$sized_basename = $this->sanitize_file_name_value( (string) $sized_basename );
+					if ( '' === $sized_basename ) {
+						continue;
+					}
+					$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
+					$size_url = $this->media_reference_upload_url( $size_relative );
+					$size_path = $this->media_reference_url_path( $size_url );
+					$pairs[] = array( 'old' => $size_url, 'new' => (string) ( $after['url'] ?? '' ) );
+					$pairs[] = array( 'old' => $size_path, 'new' => (string) ( $after['path'] ?? '' ) );
+					$pairs[] = array( 'old' => $size_relative, 'new' => (string) ( $after['relative_file'] ?? '' ) );
+				}
 			}
 
 			return $pairs;
+		}
+
+		/**
+		 * Returns original/current uploads-relative files that may appear in post content.
+		 *
+		 * @param array<string,mixed> $metadata Attachment metadata.
+		 * @param string              $current_relative Current uploads-relative file.
+		 * @return array<int,string>
+		 */
+		private function media_optimization_content_source_relative_files( array $metadata, $current_relative ) {
+			$current_relative = $this->normalize_media_reference_relative( $current_relative );
+			$base_dir = '' !== $current_relative ? dirname( $current_relative ) : '';
+			$base_dir = '.' !== $base_dir ? trim( $base_dir, '/' ) : '';
+			$candidates = array(
+				$current_relative,
+				(string) ( $metadata['file'] ?? '' ),
+			);
+			$original_image = $this->sanitize_file_name_value( (string) ( $metadata['original_image'] ?? '' ) );
+			if ( '' !== $original_image ) {
+				$candidates[] = false === strpos( $original_image, '/' ) && '' !== $base_dir ? $base_dir . '/' . $original_image : $original_image;
+			}
+			foreach ( $candidates as $candidate ) {
+				$variant = $this->media_optimization_content_without_unique_suffix( $candidate );
+				if ( '' !== $variant ) {
+					$candidates[] = $variant;
+				}
+			}
+
+			$files = array();
+			foreach ( $candidates as $candidate ) {
+				$file = $this->normalize_media_reference_relative( (string) $candidate );
+				if ( '' !== $file ) {
+					$files[ $file ] = $file;
+				}
+			}
+			return array_values( $files );
+		}
+
+		/**
+		 * Infers the pre-unique-suffix relative file when WordPress stored "-1".
+		 *
+		 * @param string $relative_file Uploads-relative file.
+		 * @return string
+		 */
+		private function media_optimization_content_without_unique_suffix( $relative_file ) {
+			$relative_file = $this->normalize_media_reference_relative( $relative_file );
+			$basename = basename( $relative_file );
+			if ( ! preg_match( '/^(.+)-[0-9]+(\.[^.]+)$/', $basename, $matches ) ) {
+				return '';
+			}
+			$dir = dirname( $relative_file );
+			$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+			$file = $this->sanitize_file_name_value( (string) $matches[1] . (string) $matches[2] );
+			if ( '' === $file ) {
+				return '';
+			}
+			return '' !== $dir ? $dir . '/' . $file : $file;
 		}
 
 		/**

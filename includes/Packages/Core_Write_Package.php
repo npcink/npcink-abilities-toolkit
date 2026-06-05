@@ -5559,6 +5559,13 @@ final class Core_Write_Package {
 
 		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
 		$metadata = is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array();
+		foreach ( $this->media_content_reference_source_relative_files( $metadata, $old_relative ) as $source_relative ) {
+			$source_url = $this->media_url_for_relative_file( $source_relative );
+			$source_path = $this->media_content_reference_url_path( $source_url );
+			$pairs[] = array( 'old' => $source_url, 'new' => $new_url );
+			$pairs[] = array( 'old' => $source_path, 'new' => $new_path );
+			$pairs[] = array( 'old' => $source_relative, 'new' => $new_relative );
+		}
 		$sizes = is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array();
 		$old_dir = dirname( $old_relative );
 		$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
@@ -5593,32 +5600,96 @@ final class Core_Write_Package {
 		$new_relative = $this->normalize_media_relative_file( (string) ( $after['relative_file'] ?? '' ) );
 		$new_url = esc_url_raw( (string) ( $after['url'] ?? '' ) );
 		$new_path = $this->media_content_reference_url_path( $new_url );
-		$old_basename = basename( $old_relative );
-		$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
-		$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
-		if ( '' === (string) $stem || '' === (string) $extension || '' === $new_url ) {
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$metadata = is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array();
+		if ( '' === $new_url ) {
 			return array();
 		}
-		$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
-		if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
-			return array();
-		}
-		$old_dir = dirname( $old_relative );
-		$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
 		$pairs = array();
-		foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
-			$sized_basename = $this->sanitize_media_file_name( (string) $sized_basename );
-			if ( '' === $sized_basename ) {
+		foreach ( $this->media_content_reference_source_relative_files( $metadata, $old_relative ) as $source_relative ) {
+			$old_basename = basename( $source_relative );
+			$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
+			$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
+			if ( '' === (string) $stem || '' === (string) $extension ) {
 				continue;
 			}
-			$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
-			$size_url = $this->media_url_for_relative_file( $size_relative );
-			$size_path = $this->media_content_reference_url_path( $size_url );
-			$pairs[] = array( 'old' => $size_url, 'new' => $new_url );
-			$pairs[] = array( 'old' => $size_path, 'new' => $new_path );
-			$pairs[] = array( 'old' => $size_relative, 'new' => $new_relative );
+			$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
+			if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
+				continue;
+			}
+			$old_dir = dirname( $source_relative );
+			$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+			foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
+				$sized_basename = $this->sanitize_media_file_name( (string) $sized_basename );
+				if ( '' === $sized_basename ) {
+					continue;
+				}
+				$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
+				$size_url = $this->media_url_for_relative_file( $size_relative );
+				$size_path = $this->media_content_reference_url_path( $size_url );
+				$pairs[] = array( 'old' => $size_url, 'new' => $new_url );
+				$pairs[] = array( 'old' => $size_path, 'new' => $new_path );
+				$pairs[] = array( 'old' => $size_relative, 'new' => $new_relative );
+			}
 		}
 		return $pairs;
+	}
+
+	/**
+	 * Returns original/current uploads-relative files that may appear in post content.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @param string              $current_relative Current uploads-relative file.
+	 * @return array<int,string>
+	 */
+	private function media_content_reference_source_relative_files( array $metadata, $current_relative ) {
+		$current_relative = $this->normalize_media_relative_file( $current_relative );
+		$base_dir = '' !== $current_relative ? dirname( $current_relative ) : '';
+		$base_dir = '.' !== $base_dir ? trim( $base_dir, '/' ) : '';
+		$candidates = array(
+			$current_relative,
+			(string) ( $metadata['file'] ?? '' ),
+		);
+		$original_image = $this->sanitize_media_file_name( (string) ( $metadata['original_image'] ?? '' ) );
+		if ( '' !== $original_image ) {
+			$candidates[] = false === strpos( $original_image, '/' ) && '' !== $base_dir ? $base_dir . '/' . $original_image : $original_image;
+		}
+		foreach ( $candidates as $candidate ) {
+			$variant = $this->media_content_reference_without_unique_suffix( $candidate );
+			if ( '' !== $variant ) {
+				$candidates[] = $variant;
+			}
+		}
+
+		$files = array();
+		foreach ( $candidates as $candidate ) {
+			$file = $this->normalize_media_relative_file( (string) $candidate );
+			if ( '' !== $file ) {
+				$files[ $file ] = $file;
+			}
+		}
+		return array_values( $files );
+	}
+
+	/**
+	 * Infers the pre-unique-suffix relative file when WordPress stored "-1".
+	 *
+	 * @param string $relative_file Uploads-relative file.
+	 * @return string
+	 */
+	private function media_content_reference_without_unique_suffix( $relative_file ) {
+		$relative_file = $this->normalize_media_relative_file( $relative_file );
+		$basename = basename( $relative_file );
+		if ( ! preg_match( '/^(.+)-[0-9]+(\.[^.]+)$/', $basename, $matches ) ) {
+			return '';
+		}
+		$dir = dirname( $relative_file );
+		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$file = $this->sanitize_media_file_name( (string) $matches[1] . (string) $matches[2] );
+		if ( '' === $file ) {
+			return '';
+		}
+		return '' !== $dir ? $dir . '/' . $file : $file;
 	}
 
 	/**

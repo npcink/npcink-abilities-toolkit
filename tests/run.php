@@ -2260,11 +2260,12 @@ update_post_meta(
 	79,
 	'_wp_attachment_metadata',
 	array(
-		'width'    => 2600,
-		'height'   => 1400,
-		'file'     => '2026/06/workflow-diagram-image.jpg',
-		'filesize' => 900000,
-		'sizes'    => array(
+		'width'          => 2600,
+		'height'         => 1400,
+		'file'           => '2026/06/workflow-diagram-image.jpg',
+		'filesize'       => 900000,
+		'original_image' => 'workflow-diagram-image-original.jpg',
+		'sizes'          => array(
 			'medium' => array(
 				'file'   => 'workflow-diagram-image-300x162.jpg',
 				'width'  => 300,
@@ -2272,18 +2273,18 @@ update_post_meta(
 			),
 		),
 	)
-	);
-	update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
-	$GLOBALS['maa_unit_upload_basedir'] = sys_get_temp_dir() . '/magick-ai-abilities-media-' . getmypid();
-	$workflow_media_path = $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/workflow-diagram-image.jpg';
-	if ( ! is_dir( dirname( $workflow_media_path ) ) ) {
-		mkdir( dirname( $workflow_media_path ), 0755, true );
-	}
-	file_put_contents( $workflow_media_path, 'original-jpeg-bytes' );
-	$media_url_resolution = $core_read_package->resolve_media_attachment_by_url(
-		array(
-			'url' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
-		)
+);
+update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
+$GLOBALS['maa_unit_upload_basedir'] = sys_get_temp_dir() . '/magick-ai-abilities-media-' . getmypid();
+$workflow_media_path = $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/workflow-diagram-image.jpg';
+if ( ! is_dir( dirname( $workflow_media_path ) ) ) {
+	mkdir( dirname( $workflow_media_path ), 0755, true );
+}
+file_put_contents( $workflow_media_path, 'original-jpeg-bytes' );
+$media_url_resolution = $core_read_package->resolve_media_attachment_by_url(
+	array(
+		'url' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
+	)
 );
 maa_assert_same( true, $media_url_resolution['success'] ?? null, 'resolve-media-attachment-by-url returns a success envelope for exact uploads URLs' );
 maa_assert_same( true, $media_url_resolution['data']['readonly'] ?? null, 'resolve-media-attachment-by-url is read-only' );
@@ -2444,6 +2445,71 @@ maa_assert_true( (int) ( $media_optimization_plan['data']['derivative_preview'][
 maa_assert_true( false !== strpos( (string) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'workflow-diagram-cloud-plan.webp' ), 'media optimization reference preview replaces inline URLs with the reviewed derivative filename' );
 maa_assert_same( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs'], $media_optimization_plan['data']['content_reference_repairs_preview'] ?? array(), 'media optimization plan exposes content reference repairs at top level for Core review summaries' );
 unset( $GLOBALS['maa_unit_style_posts'][90] );
+$GLOBALS['maa_unit_style_posts'][790] = (object) array(
+	'ID'             => 790,
+	'post_title'     => 'Scaled unique suffix source image',
+	'post_status'    => 'inherit',
+	'post_type'      => 'attachment',
+	'post_excerpt'   => '',
+	'post_content'   => '',
+	'post_name'      => 'photo-scaled-1',
+	'post_author'    => 7,
+	'post_parent'    => 0,
+	'post_mime_type' => 'image/jpeg',
+);
+update_post_meta(
+	790,
+	'_wp_attachment_metadata',
+	array(
+		'width'          => 2600,
+		'height'         => 1463,
+		'file'           => '2026/06/photo-scaled-1.jpg',
+		'filesize'       => 940000,
+		'original_image' => 'photo-scaled.jpg',
+		'sizes'          => array(),
+	)
+);
+update_post_meta( 790, '_wp_attached_file', '2026/06/photo-scaled-1.jpg' );
+$GLOBALS['maa_unit_style_posts'][791] = (object) array(
+	'ID'           => 791,
+	'post_title'   => 'Media Optimization Original Reference Candidate',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => '<figure><img src="https://example.test/wp-content/uploads/2026/06/photo-scaled.jpg" srcset="https://example.test/wp-content/uploads/2026/06/photo-scaled.jpg 2600w" class="wp-image-790" /></figure>',
+	'post_name'    => 'media-optimization-original-reference-candidate',
+	'post_author'  => 7,
+);
+$media_optimization_original_plan = $core_read_package->build_media_optimization_plan(
+	array(
+		'attachment_id'                 => 790,
+		'media_details_input'           => array(
+			'title'       => 'Optimized original reference photo',
+			'alt'         => 'Optimized original reference photo',
+			'caption'     => 'Optimized original reference photo.',
+			'description' => 'Optimized media metadata for an original reference photo.',
+			'source_type' => 'ai_generated',
+		),
+		'derivative_artifact'           => array(
+			'artifact_id'        => 'art_cloud_media_original_reference',
+			'expires_at'         => gmdate( 'c', time() + 600 ),
+			'mime_type'          => 'image/webp',
+			'format'             => 'webp',
+			'width'              => 1920,
+			'height'             => 1080,
+			'filesize_bytes'     => 126482,
+			'suggested_filename' => 'photo-optimized.webp',
+		),
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+	)
+);
+maa_assert_same( true, $media_optimization_original_plan['success'] ?? null, 'media optimization plan succeeds for unique-suffixed current files' );
+maa_assert_same( 1, $media_optimization_original_plan['data']['derivative_preview']['content_reference_repairs']['post_count'] ?? 0, 'media optimization plan previews repairs for metadata original_image references' );
+maa_assert_same( 791, $media_optimization_original_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['post_id'] ?? 0, 'media optimization original reference preview targets the post using the pre-unique filename' );
+maa_assert_true( false !== strpos( (string) ( $media_optimization_original_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['find'] ?? '' ), 'photo-scaled.jpg' ), 'media optimization original reference preview finds the pre-unique filename' );
+maa_assert_true( false !== strpos( (string) ( $media_optimization_original_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'photo-optimized.webp' ), 'media optimization original reference preview replaces with the derivative filename' );
+unset( $GLOBALS['maa_unit_style_posts'][790], $GLOBALS['maa_unit_style_posts'][791] );
 maa_assert_true( false !== strpos( $core_write_package_source, 'magick_ai_abilities_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative exposes a bounded artifact download filter for integration smoke tests' );
 $GLOBALS['maa_unit_style_posts'][88] = (object) array(
 	'ID'           => 88,
@@ -2673,7 +2739,7 @@ $GLOBALS['maa_unit_style_posts'][89] = (object) array(
 	'post_status'  => 'publish',
 	'post_type'    => 'post',
 	'post_excerpt' => '',
-	'post_content' => '<!-- wp:image {"id":79,"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg" srcset="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg 300w, https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg 2600w" alt="Workflow diagram" class="wp-image-79" /></figure><!-- /wp:image -->',
+	'post_content' => '<!-- wp:image {"id":79,"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg" srcset="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg 300w, https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg 2600w, https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-original.jpg 2600w" alt="Workflow diagram" class="wp-image-79" /></figure><!-- /wp:image -->',
 	'post_name'    => 'cloud-derivative-inline-reference',
 	'post_author'  => 7,
 );
@@ -2700,7 +2766,7 @@ maa_assert_same( false, $cloud_adoption_preview['replaced'] ?? null, 'adopt-clou
 maa_assert_same( 'art_cloud_media_123', $cloud_adoption_preview['artifact']['artifact_id'] ?? '', 'adopt-cloud-media-derivative preserves artifact evidence' );
 maa_assert_true( false !== strpos( (string) ( $cloud_adoption_preview['after']['relative_file'] ?? '' ), 'workflow-diagram-image-magick-ai-cloud-' ), 'adopt-cloud-media-derivative plans a local derivative filename' );
 maa_assert_same( 1, $cloud_adoption_preview['content_reference_repairs']['post_count'] ?? 0, 'adopt-cloud-media-derivative previews post content reference repairs for embedded attachment URLs' );
-maa_assert_true( (int) ( $cloud_adoption_preview['content_reference_repairs']['replacement_count'] ?? 0 ) >= 2, 'adopt-cloud-media-derivative preview includes old main and sized image references' );
+maa_assert_true( (int) ( $cloud_adoption_preview['content_reference_repairs']['replacement_count'] ?? 0 ) >= 3, 'adopt-cloud-media-derivative preview includes old main, sized, and original image references' );
 $cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,
@@ -2787,6 +2853,7 @@ maa_assert_same( '2026/06/customer-approved-diagram.webp', get_post_meta( 79, '_
 maa_assert_same( 1, $cloud_adoption_commit['content_reference_repairs']['updated_count'] ?? 0, 'adopt-cloud-media-derivative commit updates posts that embed the attachment URL' );
 maa_assert_true( false !== strpos( (string) ( $GLOBALS['maa_unit_style_posts'][89]->post_content ?? '' ), 'customer-approved-diagram.webp' ), 'adopt-cloud-media-derivative commit rewrites inline image references to the adopted WebP' );
 maa_assert_true( false === strpos( (string) ( $GLOBALS['maa_unit_style_posts'][89]->post_content ?? '' ), 'workflow-diagram-image-300x162.jpg' ), 'adopt-cloud-media-derivative commit removes old sized image references from post content' );
+maa_assert_true( false === strpos( (string) ( $GLOBALS['maa_unit_style_posts'][89]->post_content ?? '' ), 'workflow-diagram-image-original.jpg' ), 'adopt-cloud-media-derivative commit removes metadata original image references from post content' );
 maa_assert_same( 'customer-approved-diagram.webp', $cloud_adoption_commit['proposed_filename'] ?? '', 'adopt-cloud-media-derivative commit records the reviewed filename proposal' );
 maa_assert_same( 'reviewed_input', $cloud_adoption_commit['filename_policy']['source'] ?? '', 'adopt-cloud-media-derivative commit treats explicit file_name as reviewed local input' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . get_post_meta( 79, '_wp_attached_file', true ) ), 'adopt-cloud-media-derivative commit writes the local derivative file' );
