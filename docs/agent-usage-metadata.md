@@ -71,11 +71,13 @@ The initial set is:
 - `magick-ai/get-article-publish-preflight-context`
 - `magick-ai/get-old-article-refresh-context`
 - `magick-ai/get-media-cleanup-opportunities`
+- `magick-ai/list-media-backups`
 - `magick-ai/propose-post-taxonomy-terms`
 - `magick-ai/get-comment-compliance-handoff`
 - `magick-ai/create-draft`
 - `magick-ai/set-post-seo-meta`
 - `magick-ai/update-media-details`
+- `magick-ai/restore-media-backup`
 - `magick-ai/approve-comment`
 - `magick-ai/delete-media-permanently`
 

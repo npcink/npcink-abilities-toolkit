@@ -28,6 +28,7 @@ the corresponding WordPress operation.
 | `magick-ai/upload-media-from-url` | `write` | `upload_files` | `media.write` |
 | `magick-ai/optimize-media-asset` | `write` | `upload_files` | `media.write` |
 | `magick-ai/replace-media-file` | `write` | `upload_files` | `media.write` |
+| `magick-ai/restore-media-backup` | `write` | `upload_files` | `media.write` |
 | `magick-ai/rename-media-file` | `write` | `upload_files` | `media.write` |
 | `magick-ai/adopt-cloud-media-derivative` | `write` | `upload_files` | `media.write` |
 | `magick-ai/set-post-featured-image` | `write` | `edit_posts` | `media.write` |

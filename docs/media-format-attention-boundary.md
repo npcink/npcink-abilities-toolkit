@@ -61,6 +61,20 @@ The Cloud addon or host transport layer owns upload, signing, and dispatch. The
 Cloud worker owns derivative generation. The local WordPress host owns final
 approval, recording, replacement, rollback, and metadata writes.
 
+## Current Backup Storage Policy
+
+Media operation backups are stored under `wp-content/uploads/magick-ai-backups/`
+while preserving the current upload subdirectory under that base. For example,
+an attachment main file in `2026/06/` receives backups in
+`magick-ai-backups/2026/06/`.
+
+This keeps operational rollback artifacts out of normal public month media
+directories without relying on host-specific hidden directory behavior. Rollback
+metadata stores the concrete uploads-relative backup path, so recovery should
+read from recorded history rather than reconstructing a path from the current
+filename. The decision is recorded in
+[ADR 0003](adr/0003-media-backup-directory-policy.md).
+
 ## Future Ability Shape
 
 If file-asset work becomes necessary, prefer separate abilities with narrow
@@ -71,7 +85,13 @@ contracts:
 - `magick-ai/convert-media-format`: format conversion such as WebP or AVIF.
   This should start as derivative generation, not direct replacement.
 - `magick-ai/replace-media-file`: highest-risk path for switching an
-  attachment file. Require backup, rollback, approval, and strict preview.
+  attachment file to an approved derivative. Require backup, approval, and
+  strict preview.
+- `magick-ai/list-media-backups`: read-only backup history discovery for one
+  attachment before any restore proposal is prepared.
+- `magick-ai/restore-media-backup`: host-approved restore path that copies a
+  recorded backup back to the original attachment path, restoring the original
+  public media URL.
 - `magick-ai/adopt-cloud-media-derivative`: approved local adoption path for a
   non-expired Cloud derivative artifact. Require artifact evidence, backup,
   rollback metadata, and host approval before commit.
@@ -81,7 +101,7 @@ Recommended rollout order:
 1. Read-only inspection and inventory diagnostics.
 2. Dry-run derivative preview that does not replace the original.
 3. Host-approved commit for derivative generation.
-4. Separate replacement or rollback flow only after backup and cache behavior
+4. Separate replacement and restore flows only after backup and cache behavior
    are documented.
 
 ## Guardrails
@@ -91,6 +111,8 @@ Recommended rollout order:
 - Do not use `update-media-details` for resize, compression, conversion, or
   file replacement.
 - Do not replace original files by default.
+- Store media operation backups in the dedicated Magick AI uploads backup
+  directory, not beside normal month-directory media assets.
 - Do not introduce queue, cache, CDN, or rollback ownership into the read-only
   inventory path.
 - Treat actual file mutation as high risk and host-approved.

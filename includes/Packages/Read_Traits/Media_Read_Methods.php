@@ -722,10 +722,10 @@ trait Media_Read_Methods {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function get_media_cleanup_opportunities( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		if ( ! current_user_can( 'upload_files' ) ) {
-			return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media cleanup opportunities.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		public function get_media_cleanup_opportunities( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media cleanup opportunities.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$mime_type = sanitize_text_field( (string) ( $input['mime_type'] ?? '' ) );
@@ -777,12 +777,110 @@ trait Media_Read_Methods {
 				'source'         => 'local_media_cleanup_opportunities',
 				'execution_mode' => 'deterministic',
 			),
-			'Media cleanup opportunities built.'
-		);
-	}
+				'Media cleanup opportunities built.'
+			);
+		}
 
-	/**
-	 * Builds a media inventory health report.
+		/**
+		 * Lists recorded media operation backups for one attachment.
+		 *
+		 * @param mixed $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		public function list_media_backups( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+			if ( $attachment_id <= 0 ) {
+				return new \WP_Error( 'magick_ai_abilities_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$attachment = function_exists( 'get_post' ) ? get_post( $attachment_id ) : null;
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+				return new \WP_Error( 'magick_ai_abilities_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+				return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'You do not have permission to read backups for this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$include_rolled_back = array_key_exists( 'include_rolled_back', $input ) ? ! empty( $input['include_rolled_back'] ) : true;
+			$history = function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_magick_ai_media_file_replacement_history', true ) : array();
+			if ( is_array( $history ) && isset( $history['replacement_id'] ) ) {
+				$history = array( $history );
+			}
+			$history = is_array( $history ) ? array_values( array_filter( $history, 'is_array' ) ) : array();
+			$backups = array();
+			foreach ( $history as $record ) {
+				$status = sanitize_key( (string) ( $record['status'] ?? '' ) );
+				if ( ! $include_rolled_back && 'rolled_back' === $status ) {
+					continue;
+				}
+				$backup = is_array( $record['backup'] ?? null ) ? $record['backup'] : array();
+				$backup_relative = $this->normalize_media_reference_relative( (string) ( $backup['relative_file'] ?? '' ) );
+				if ( '' === $backup_relative ) {
+					continue;
+				}
+				$backup_path = $this->resolve_media_file_path( '', $backup_relative );
+				$backup_row = array(
+					'backup_id'            => sanitize_text_field( (string) ( $record['replacement_id'] ?? '' ) ),
+					'replacement_id'       => sanitize_text_field( (string) ( $record['replacement_id'] ?? '' ) ),
+					'operation'            => sanitize_key( (string) ( $record['operation'] ?? 'replace_media_file' ) ),
+					'status'               => '' !== $status ? $status : 'active',
+					'backup_relative_file' => $backup_relative,
+					'backup_url'           => $this->media_reference_upload_url( $backup_relative ),
+					'mime_type'            => sanitize_text_field( (string) ( $backup['mime_type'] ?? '' ) ),
+					'width'                => $this->absint_value( $backup['width'] ?? 0 ),
+					'height'               => $this->absint_value( $backup['height'] ?? 0 ),
+					'filesize_bytes'       => $this->absint_value( $backup['filesize_bytes'] ?? ( '' !== $backup_path && is_readable( $backup_path ) ? filesize( $backup_path ) : 0 ) ),
+					'file_exists'          => '' !== $backup_path && is_readable( $backup_path ),
+					'content_hashes'       => is_array( $backup['content_hashes'] ?? null ) ? $backup['content_hashes'] : $this->resolve_media_content_hashes( $backup_path ),
+					'created_at_gmt'       => sanitize_text_field( (string) ( $record['replaced_at_gmt'] ?? '' ) ),
+					'rolled_back_at_gmt'   => sanitize_text_field( (string) ( $record['rolled_back_at_gmt'] ?? '' ) ),
+					'before'               => is_array( $record['before'] ?? null ) ? $record['before'] : array(),
+					'after'                => is_array( $record['after'] ?? null ) ? $record['after'] : array(),
+					'restore_action'       => array(
+						'target_ability_id' => 'magick-ai/restore-media-backup',
+						'input'             => array(
+							'attachment_id' => $attachment_id,
+							'backup_id'     => sanitize_text_field( (string) ( $record['replacement_id'] ?? '' ) ),
+						),
+						'requires_approval' => true,
+					),
+				);
+				$backups[] = $backup_row;
+			}
+
+			$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : array();
+			$metadata = is_array( $metadata ) ? $metadata : array();
+			$current_relative = $this->normalize_media_reference_relative( function_exists( 'get_post_meta' ) ? (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) : (string) ( $metadata['file'] ?? '' ) );
+
+			return $this->build_analysis_success_response(
+				array(
+					'attachment_id' => $attachment_id,
+					'current_file'  => array(
+						'relative_file' => $current_relative,
+						'url'           => $this->media_reference_upload_url( $current_relative ),
+						'mime_type'     => function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '',
+					),
+					'backups'       => $backups,
+					'summary'       => array(
+						'backup_count'        => count( $backups ),
+						'include_rolled_back' => $include_rolled_back,
+					),
+				),
+				array(
+					'source'         => 'local_media_backup_history',
+					'execution_mode' => 'deterministic',
+					'readonly'       => true,
+				),
+				'Media backups listed.'
+			);
+		}
+
+		/**
+		 * Builds a media inventory health report.
 	 *
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
@@ -1445,41 +1543,85 @@ trait Media_Read_Methods {
 			'Rename the attachment main file after reviewed host/OpenClaw filename policy approval.'
 		);
 
-		$dir = dirname( $current_relative_file );
-		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
-		$target_relative_file = '' !== $dir ? $dir . '/' . $target_file_name : $target_file_name;
+			$dir = dirname( $current_relative_file );
+			$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+			$target_relative_file = '' !== $dir ? $dir . '/' . $target_file_name : $target_file_name;
+			$write_actions = array( $rename_action );
+			$reference_repair = array(
+				'enabled'       => false,
+				'action_count'  => 0,
+				'scanned_count' => 0,
+				'preview'       => array(),
+				'manual_review' => array(),
+			);
+			$include_reference_updates = ! array_key_exists( 'include_reference_updates', $input ) || ! in_array( $input['include_reference_updates'], array( false, 0, '0', 'false', 'no' ), true );
+			if ( $include_reference_updates ) {
+				if ( ! current_user_can( 'edit_posts' ) ) {
+					return new \WP_Error( 'magick_ai_abilities_permission_denied', __( 'Media rename plans with reference updates require permission to edit posts.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				}
+				$repair_plan = $this->build_media_reference_repair_plan(
+					array(
+						'attachment_id'                  => $attachment_id,
+						'old_relative_file'              => $current_relative_file,
+						'new_relative_file'              => $target_relative_file,
+						'old_url'                        => $this->media_reference_upload_url( $current_relative_file ),
+						'new_url'                        => $this->media_reference_upload_url( $target_relative_file ),
+						'max_posts'                      => $this->absint_value( $input['max_reference_posts'] ?? 20 ),
+						'max_replacements_per_post'      => $this->absint_value( $input['max_reference_replacements_per_post'] ?? 20 ),
+					)
+				);
+				if ( is_wp_error( $repair_plan ) ) {
+					return $repair_plan;
+				}
+				$repair_data = is_array( $repair_plan['data'] ?? null ) ? $repair_plan['data'] : array();
+				$repair_actions = is_array( $repair_data['write_actions'] ?? null ) ? array_values( $repair_data['write_actions'] ) : array();
+				$write_actions = array_merge( $write_actions, $repair_actions );
+				$reference_repair = array(
+					'enabled'       => true,
+					'action_count'  => count( $repair_actions ),
+					'scanned_count' => $this->absint_value( $repair_data['scanned_count'] ?? 0 ),
+					'old'           => is_array( $repair_data['old'] ?? null ) ? $repair_data['old'] : array(),
+					'new'           => is_array( $repair_data['new'] ?? null ) ? $repair_data['new'] : array(),
+					'preview'       => is_array( $repair_data['preview'] ?? null ) ? array_values( $repair_data['preview'] ) : array(),
+					'manual_review' => is_array( $repair_data['manual_review'] ?? null ) ? array_values( $repair_data['manual_review'] ) : array(),
+				);
+			}
+			$action_count = count( $write_actions );
+			$proposal_mode = $action_count > 1 ? 'batch' : 'single';
 
-		return $this->build_analysis_success_response(
-			array(
-				'artifact_type'       => 'media_rename_plan',
-				'version'             => 1,
+			return $this->build_analysis_success_response(
+				array(
+					'artifact_type'       => 'media_rename_plan',
+					'version'             => 1,
 				'batch_id'            => 'media_rename_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
 				'attachment_id'       => $attachment_id,
-				'requires_approval'   => true,
-				'dry_run'             => true,
-				'commit_execution'    => false,
-				'proposal_mode'       => 'single',
-				'batch_approval'      => false,
-				'action_count'        => 1,
-				'preview'             => array(
-					'before' => array(
-						'relative_file'  => $current_relative_file,
-						'file_basename'  => $current_basename,
-						'mime_type'      => $current_mime_type,
+					'requires_approval'   => true,
+					'dry_run'             => true,
+					'commit_execution'    => false,
+					'proposal_mode'       => $proposal_mode,
+					'batch_approval'      => 'batch' === $proposal_mode,
+					'action_count'        => $action_count,
+					'preview'             => array(
+						'before' => array(
+							'relative_file'  => $current_relative_file,
+							'file_basename'  => $current_basename,
+							'mime_type'      => $current_mime_type,
 						'content_hashes' => $content_hashes,
 					),
 					'after_suggestion' => array(
 						'relative_file' => $target_relative_file,
-						'file_basename' => $target_file_name,
-						'mime_type'     => $current_mime_type,
+							'file_basename' => $target_file_name,
+							'mime_type'     => $current_mime_type,
+						),
+						'reference_repair' => $reference_repair,
+					),
+					'reference_repair'    => $reference_repair,
+					'write_actions'       => $write_actions,
+					'risk'                => array(
+						'level'  => ! empty( $reference_repair['manual_review'] ) ? 'high' : 'medium',
+						'reason' => $action_count > 1 ? 'Renaming an attachment main file changes its public URL; exact post-content references are patched in the same governed proposal.' : 'Renaming an attachment main file changes its public URL and requires Core approval.',
 					),
 				),
-				'write_actions'       => array( $rename_action ),
-				'risk'                => array(
-					'level'  => 'medium',
-					'reason' => 'Renaming an attachment main file changes its public URL and requires Core approval.',
-				),
-			),
 			array(
 				'source'         => 'local_media_rename_plan',
 				'execution_mode' => 'deterministic',

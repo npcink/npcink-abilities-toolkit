@@ -868,8 +868,9 @@ $migrated_read_ability_ids = array(
 	'magick-ai/get-content-refresh-opportunities',
 	'magick-ai/get-old-article-refresh-context',
 	'magick-ai/get-internal-link-graph-health',
-		'magick-ai/get-media-cleanup-opportunities',
-		'magick-ai/build-media-inventory-fix-plan',
+			'magick-ai/get-media-cleanup-opportunities',
+			'magick-ai/list-media-backups',
+			'magick-ai/build-media-inventory-fix-plan',
 		'magick-ai/build-media-reference-repair-plan',
 		'magick-ai/build-media-settings-reference-repair-plan',
 		'magick-ai/build-media-optimization-plan',
@@ -911,8 +912,9 @@ $migrated_write_ability_ids = array(
 	'magick-ai/update-media-details',
 	'magick-ai/upload-media-from-url',
 	'magick-ai/optimize-media-asset',
-	'magick-ai/replace-media-file',
-	'magick-ai/rename-media-file',
+		'magick-ai/replace-media-file',
+		'magick-ai/restore-media-backup',
+		'magick-ai/rename-media-file',
 	'magick-ai/set-post-featured-image',
 	'magick-ai/schedule-post',
 	'magick-ai/publish-post',
@@ -1080,15 +1082,19 @@ maa_assert_true( isset( $package_abilities['magick-ai/build-media-optimization-p
 maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-optimization-plan']['required_scopes'] ?? array(), 'media optimization plan remains a read-scope planning ability' );
 maa_assert_same( array( 'attachment_id', 'media_details_input', 'derivative_artifact' ), $package_abilities['magick-ai/build-media-optimization-plan']['input_schema']['required'] ?? array(), 'media optimization plan requires metadata and artifact evidence' );
 maa_assert_true( isset( $package_abilities['magick-ai/build-media-rename-plan'] ), 'build-media-rename-plan is registered as a read-only planning ability' );
-maa_assert_same( array( 'media.read' ), $package_abilities['magick-ai/build-media-rename-plan']['required_scopes'] ?? array(), 'media rename plan remains a read-scope planning ability' );
+maa_assert_same( array( 'media.read', 'post.read' ), $package_abilities['magick-ai/build-media-rename-plan']['required_scopes'] ?? array(), 'media rename plan reads media and post references' );
 maa_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['magick-ai/build-media-rename-plan']['input_schema']['required'] ?? array(), 'media rename plan requires attachment and target filename' );
 maa_assert_same( array( 'owned', 'ai_generated', 'stock', 'external', 'test' ), $package_abilities['magick-ai/update-media-details']['input_schema']['properties']['source_type']['enum'] ?? array(), 'update-media-details accepts canonical media source_type values' );
 maa_assert_same( 'external', $package_abilities['magick-ai/upload-media-from-url']['input_schema']['properties']['source_type']['default'] ?? '', 'upload-media-from-url defaults remote imports to external source type' );
 maa_assert_true( isset( $package_abilities['magick-ai/upload-media-from-url']['input_schema']['properties']['file_name'] ), 'upload-media-from-url accepts an approved custom media file name' );
 maa_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'optimize-media-asset exposes bounded derivative formats' );
 maa_assert_same( 82, $package_abilities['magick-ai/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
-maa_assert_same( array( 'replace', 'rollback' ), $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode']['enum'] ?? array(), 'replace-media-file exposes bounded replacement modes' );
+maa_assert_true( ! isset( $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['mode'] ), 'replace-media-file does not expose media restore modes' );
 maa_assert_same( 'magick-ai-backup', $package_abilities['magick-ai/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Magick backup suffix' );
+maa_assert_true( isset( $package_abilities['magick-ai/list-media-backups'] ), 'list-media-backups is registered as a read-only media history ability' );
+maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/list-media-backups']['input_schema']['required'] ?? array(), 'list-media-backups requires attachment id' );
+maa_assert_true( isset( $package_abilities['magick-ai/restore-media-backup'] ), 'restore-media-backup is registered as a governed write ability' );
+maa_assert_same( array( 'attachment_id', 'backup_id' ), $package_abilities['magick-ai/restore-media-backup']['input_schema']['required'] ?? array(), 'restore-media-backup requires attachment and backup id' );
 maa_assert_true( isset( $package_abilities['magick-ai/rename-media-file'] ), 'rename-media-file is registered as a local write ability' );
 maa_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['magick-ai/rename-media-file']['input_schema']['required'] ?? array(), 'rename-media-file requires attachment and target filename' );
 maa_assert_same( array( 'fail', 'unique' ), $package_abilities['magick-ai/rename-media-file']['input_schema']['properties']['conflict_mode']['enum'] ?? array(), 'rename-media-file exposes bounded conflict modes' );
@@ -1096,6 +1102,7 @@ maa_assert_same( 'magick-ai-rename-backup', $package_abilities['magick-ai/rename
 maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative'] ), 'adopt-cloud-media-derivative is registered as a local write ability' );
 maa_assert_same( 'magick-ai-cloud-backup', $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'adopt-cloud-media-derivative defaults to explicit Cloud backup suffix' );
 maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['properties']['file_name'] ), 'adopt-cloud-media-derivative accepts an approved custom derivative file name' );
+maa_assert_true( isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['output_schema']['properties']['proposed_filename'] ) && isset( $package_abilities['magick-ai/adopt-cloud-media-derivative']['output_schema']['properties']['filename_policy'] ), 'adopt-cloud-media-derivative exposes filename proposal evidence in its output schema' );
 maa_assert_same( array( 'attachment_id', 'derivative_artifact' ), $package_abilities['magick-ai/adopt-cloud-media-derivative']['input_schema']['required'] ?? array(), 'adopt-cloud-media-derivative requires attachment and artifact evidence' );
 maa_assert_true( isset( $package_abilities['magick-ai/build-media-reference-repair-plan'] ), 'build-media-reference-repair-plan is registered as a read-only planning ability' );
 maa_assert_same( array( 'attachment_id' ), $package_abilities['magick-ai/build-media-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-reference-repair-plan requires attachment id' );
@@ -1165,10 +1172,11 @@ maa_assert_same( 'comment_queue_context', $package_abilities['magick-ai/get-comm
 	maa_assert_same( 'npcink-abilities-toolkit/list-workflow-recipes', $core_read_definition_ids[3] ?? '', 'core read definitions keep workflow list after diagnostics' );
 	maa_assert_same( 'npcink-abilities-toolkit/get-workflow-recipe', $core_read_definition_ids[4] ?? '', 'core read definitions keep workflow get after workflow list' );
 	maa_assert_same( 'magick-ai/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
-	maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
-	maa_assert_same( 'magick-ai/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
-	maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[81] ?? '', 'core read definitions keep URL resolver order after provider split' );
-	maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[83] ?? '', 'core read definitions keep revision list last after provider split' );
+		maa_assert_same( 'magick-ai/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
+		maa_assert_same( 'magick-ai/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
+		maa_assert_true( false !== array_search( 'magick-ai/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
+		maa_assert_same( 'magick-ai/resolve-url-to-post', $core_read_definition_ids[82] ?? '', 'core read definitions keep URL resolver order after provider split' );
+		maa_assert_same( 'magick-ai/list-post-revisions', $core_read_definition_ids[84] ?? '', 'core read definitions keep revision list last after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 maa_assert_same( 'magick-ai/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 maa_assert_same( 'magick-ai/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -2414,6 +2422,16 @@ maa_assert_same( 'magick-ai/adopt-cloud-media-derivative', $media_optimization_p
 maa_assert_same( false, $media_optimization_plan['data']['commit_execution'] ?? null, 'media optimization plan does not execute commits' );
 maa_assert_same( true, $media_optimization_plan['meta']['readonly'] ?? null, 'media optimization plan remains read-only' );
 maa_assert_true( false !== strpos( $core_write_package_source, 'magick_ai_abilities_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative exposes a bounded artifact download filter for integration smoke tests' );
+$GLOBALS['maa_unit_style_posts'][88] = (object) array(
+	'ID'           => 88,
+	'post_title'   => 'Rename Reference Candidate',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => '<!-- wp:image {"id":79,"sizeSlug":"full"} --><figure class="wp-block-image size-full"><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg" alt="Workflow diagram" class="wp-image-79" /></figure><!-- /wp:image -->',
+	'post_name'    => 'rename-reference-candidate',
+	'post_author'  => 7,
+);
 $media_rename_plan = $core_read_package->build_media_rename_plan(
 	array(
 		'attachment_id'        => 79,
@@ -2423,13 +2441,20 @@ $media_rename_plan = $core_read_package->build_media_rename_plan(
 );
 maa_assert_same( true, $media_rename_plan['success'] ?? null, 'build-media-rename-plan returns a success envelope' );
 maa_assert_same( 'media_rename_plan', $media_rename_plan['data']['artifact_type'] ?? '', 'media rename plan declares Core media rename artifact type' );
-maa_assert_same( 'single', $media_rename_plan['data']['proposal_mode'] ?? '', 'media rename plan requests single proposal mode' );
-maa_assert_same( 1, count( (array) ( $media_rename_plan['data']['write_actions'] ?? array() ) ), 'media rename plan includes one write action' );
+maa_assert_same( 'batch', $media_rename_plan['data']['proposal_mode'] ?? '', 'media rename plan batches rename with exact content reference updates' );
+maa_assert_same( true, $media_rename_plan['data']['batch_approval'] ?? null, 'media rename plan requests one approval for rename and reference updates' );
+maa_assert_same( 2, count( (array) ( $media_rename_plan['data']['write_actions'] ?? array() ) ), 'media rename plan includes rename and post reference patch actions' );
 maa_assert_same( 'magick-ai/rename-media-file', $media_rename_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media rename plan targets rename-media-file' );
 maa_assert_same( 'workflow-diagram-image-reviewed.jpg', $media_rename_plan['data']['write_actions'][0]['input']['target_file_name'] ?? '', 'media rename plan appends the current extension when omitted' );
 maa_assert_same( md5( 'original-jpeg-bytes' ), $media_rename_plan['data']['write_actions'][0]['input']['expected_current_md5'] ?? '', 'media rename plan carries MD5 guard into write action' );
+maa_assert_same( 'magick-ai/patch-post-content', $media_rename_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media rename plan patches post content references after rename' );
+maa_assert_same( 88, $media_rename_plan['data']['write_actions'][1]['input']['post_id'] ?? 0, 'media rename plan targets the post that embeds the renamed image URL' );
+maa_assert_true( false !== strpos( (string) ( $media_rename_plan['data']['write_actions'][1]['input']['operations'][0]['find'] ?? '' ), 'workflow-diagram-image.jpg' ), 'media rename plan finds the old image URL in post content' );
+maa_assert_true( false !== strpos( (string) ( $media_rename_plan['data']['write_actions'][1]['input']['operations'][0]['replace'] ?? '' ), 'workflow-diagram-image-reviewed.jpg' ), 'media rename plan replaces post content with the renamed image URL' );
+maa_assert_same( 1, $media_rename_plan['data']['reference_repair']['action_count'] ?? 0, 'media rename plan reports one exact reference repair action' );
 maa_assert_same( false, $media_rename_plan['data']['commit_execution'] ?? null, 'media rename plan does not execute commits' );
 maa_assert_same( true, $media_rename_plan['meta']['readonly'] ?? null, 'media rename plan remains read-only' );
+unset( $GLOBALS['maa_unit_style_posts'][88] );
 $media_rename_plan_invalid_hash = $core_read_package->build_media_rename_plan(
 	array(
 		'attachment_id'        => 79,
@@ -2615,6 +2640,7 @@ maa_assert_same( true, $media_replace_preview['dry_run'] ?? null, 'replace-media
 maa_assert_same( false, $media_replace_preview['replaced'] ?? null, 'replace-media-file dry-run does not switch files' );
 maa_assert_same( true, $media_replace_preview['original_preserved'] ?? null, 'replace-media-file keeps original backup intent in dry-run' );
 maa_assert_same( '2026/06/workflow-diagram-image-optimized.webp', $media_replace_preview['after']['relative_file'] ?? '', 'replace-media-file uses recorded optimized derivative as target' );
+maa_assert_true( 0 === strpos( (string) ( $media_replace_preview['backup']['relative_file'] ?? '' ), 'magick-ai-backups/2026/06/' ), 'replace-media-file plans backups in the dedicated Magick uploads backup directory' );
 maa_assert_true( false !== strpos( (string) ( $media_replace_preview['backup']['relative_file'] ?? '' ), 'magick-ai-backup' ), 'replace-media-file plans a Magick backup file' );
 $cloud_artifact_contents = 'cloud-webp-derivative-bytes';
 $cloud_artifact_sha256 = hash( 'sha256', $cloud_artifact_contents );
@@ -2640,6 +2666,33 @@ maa_assert_same( true, $cloud_adoption_preview['dry_run'] ?? null, 'adopt-cloud-
 maa_assert_same( false, $cloud_adoption_preview['replaced'] ?? null, 'adopt-cloud-media-derivative dry-run does not switch files' );
 maa_assert_same( 'art_cloud_media_123', $cloud_adoption_preview['artifact']['artifact_id'] ?? '', 'adopt-cloud-media-derivative preserves artifact evidence' );
 maa_assert_true( false !== strpos( (string) ( $cloud_adoption_preview['after']['relative_file'] ?? '' ), 'workflow-diagram-image-magick-ai-cloud-' ), 'adopt-cloud-media-derivative plans a local derivative filename' );
+$cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'         => 'art_cloud_media_suggested',
+			'expires_at'          => gmdate( 'c', time() + 600 ),
+			'mime_type'           => 'image/webp',
+			'format'              => 'webp',
+			'width'               => 1600,
+			'height'              => 862,
+			'filesize_bytes'      => strlen( $cloud_artifact_contents ),
+			'checksum'            => 'sha256:' . $cloud_artifact_sha256,
+			'suggested_filename'  => 'cloud-suggested-file.webp',
+			'filename_basis'      => array(
+				'owner'                          => 'wordpress_write_ability_final',
+				'strategy'                       => 'format_checksum',
+				'final_sanitize_unique_required' => true,
+			),
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+	)
+);
+maa_assert_same( 'cloud-suggested-file.webp', $cloud_suggested_filename_preview['proposed_filename'] ?? '', 'adopt-cloud-media-derivative adopts a sanitized Cloud suggested filename as local proposal evidence' );
+maa_assert_same( 'cloud_artifact_suggestion', $cloud_suggested_filename_preview['filename_policy']['source'] ?? '', 'adopt-cloud-media-derivative marks Cloud filenames as suggestions, not write decisions' );
+maa_assert_same( true, $cloud_suggested_filename_preview['filename_policy']['final_sanitize_unique_required'] ?? null, 'adopt-cloud-media-derivative requires final WordPress-side filename finalization' );
 $expired_cloud_adoption = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'       => 79,
@@ -2696,7 +2749,10 @@ maa_assert_same( false, $cloud_adoption_commit['dry_run'] ?? null, 'adopt-cloud-
 maa_assert_same( true, $cloud_adoption_commit['replaced'] ?? null, 'adopt-cloud-media-derivative commit replaces the attachment pointer after approval' );
 maa_assert_same( 'image/webp', get_post_mime_type( 79 ), 'adopt-cloud-media-derivative commit updates attachment MIME type' );
 maa_assert_same( '2026/06/customer-approved-diagram.webp', get_post_meta( 79, '_wp_attached_file', true ), 'adopt-cloud-media-derivative commit accepts an approved custom derivative file name' );
+maa_assert_same( 'customer-approved-diagram.webp', $cloud_adoption_commit['proposed_filename'] ?? '', 'adopt-cloud-media-derivative commit records the reviewed filename proposal' );
+maa_assert_same( 'reviewed_input', $cloud_adoption_commit['filename_policy']['source'] ?? '', 'adopt-cloud-media-derivative commit treats explicit file_name as reviewed local input' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . get_post_meta( 79, '_wp_attached_file', true ) ), 'adopt-cloud-media-derivative commit writes the local derivative file' );
+maa_assert_true( 0 === strpos( (string) ( $cloud_adoption_commit['backup']['relative_file'] ?? '' ), 'magick-ai-backups/2026/06/' ), 'adopt-cloud-media-derivative commit stores backup outside the public month media directory' );
 maa_assert_true( false !== strpos( (string) ( $cloud_adoption_commit['backup']['relative_file'] ?? '' ), 'magick-ai-cloud-backup' ), 'adopt-cloud-media-derivative commit records a backup file' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . (string) ( $cloud_adoption_commit['backup']['relative_file'] ?? '' ) ), 'adopt-cloud-media-derivative commit writes the local backup file' );
 $GLOBALS['maa_unit_style_posts'][87] = (object) array(
@@ -2775,20 +2831,21 @@ maa_assert_same( true, $rename_commit['renamed'] ?? null, 'rename-media-file com
 maa_assert_same( '2026/06/rename-media-fixture-reviewed.jpg', get_post_meta( 87, '_wp_attached_file', true ), 'rename-media-file commit updates attached file pointer' );
 maa_assert_true( ! is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/rename-media-fixture.jpg' ), 'rename-media-file commit moves the original main file' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/rename-media-fixture-reviewed.jpg' ), 'rename-media-file commit writes the renamed main file' );
+maa_assert_true( 0 === strpos( (string) ( $rename_commit['backup']['relative_file'] ?? '' ), 'magick-ai-backups/2026/06/' ), 'rename-media-file commit stores backup outside the public month media directory' );
 maa_assert_true( is_readable( $GLOBALS['maa_unit_upload_basedir'] . '/' . (string) ( $rename_commit['backup']['relative_file'] ?? '' ) ), 'rename-media-file commit writes a rollback backup file' );
 $renamed_metadata = wp_get_attachment_metadata( 87 );
 maa_assert_same( '2026/06/rename-media-fixture-reviewed.jpg', $renamed_metadata['file'] ?? '', 'rename-media-file commit updates attachment metadata file' );
 maa_assert_same( 'rename-media-fixture-300x200.jpg', $renamed_metadata['sizes']['medium']['file'] ?? '', 'rename-media-file commit preserves existing size metadata' );
-update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
-$GLOBALS['maa_unit_style_posts'][79]->post_mime_type = 'image/jpeg';
+update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image-optimized.webp' );
+$GLOBALS['maa_unit_style_posts'][79]->post_mime_type = 'image/webp';
 update_post_meta(
 	79,
 	'_wp_attachment_metadata',
 	array(
-		'width'    => 2600,
-		'height'   => 1400,
-		'file'     => '2026/06/workflow-diagram-image.jpg',
-		'filesize' => 900000,
+		'width'    => 1920,
+		'height'   => 1034,
+		'file'     => '2026/06/workflow-diagram-image-optimized.webp',
+		'filesize' => 300000,
 	)
 );
 update_post_meta(
@@ -2813,7 +2870,7 @@ update_post_meta(
 				'height'        => 1034,
 			),
 			'backup'             => array(
-				'relative_file'  => '2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg',
+				'relative_file'  => 'magick-ai-backups/2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg',
 				'mime_type'      => 'image/jpeg',
 				'width'          => 2600,
 				'height'         => 1400,
@@ -2822,17 +2879,56 @@ update_post_meta(
 		),
 	)
 );
-$media_rollback_preview = $core_write_package->replace_media_file(
+$media_restore_backup_path = $GLOBALS['maa_unit_upload_basedir'] . '/magick-ai-backups/2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg';
+if ( ! is_dir( dirname( $media_restore_backup_path ) ) ) {
+	mkdir( dirname( $media_restore_backup_path ), 0755, true );
+}
+file_put_contents( $media_restore_backup_path, 'original-jpeg-bytes' );
+$media_restore_current_path = $GLOBALS['maa_unit_upload_basedir'] . '/2026/06/workflow-diagram-image-optimized.webp';
+if ( ! is_dir( dirname( $media_restore_current_path ) ) ) {
+	mkdir( dirname( $media_restore_current_path ), 0755, true );
+}
+file_put_contents( $media_restore_current_path, 'optimized-webp-bytes' );
+$media_backups = $core_read_package->list_media_backups(
 	array(
-		'attachment_id'  => 79,
-		'mode'           => 'rollback',
-		'replacement_id' => 'media_replace_unit',
+		'attachment_id' => 79,
 	)
 );
-maa_assert_same( true, $media_rollback_preview['dry_run'] ?? null, 'replace-media-file rollback defaults to dry-run preview' );
-maa_assert_same( false, $media_rollback_preview['rolled_back'] ?? null, 'replace-media-file rollback dry-run does not switch files' );
-maa_assert_same( 'rollback', $media_rollback_preview['mode'] ?? '', 'replace-media-file supports rollback mode' );
-maa_assert_same( '2026/06/workflow-diagram-image-magick-ai-backup-media_replace_unit.jpg', $media_rollback_preview['after']['relative_file'] ?? '', 'replace-media-file rollback targets recorded backup file' );
+maa_assert_same( true, $media_backups['success'] ?? null, 'list-media-backups returns a success envelope' );
+maa_assert_same( 1, $media_backups['data']['summary']['backup_count'] ?? 0, 'list-media-backups returns recorded backup count' );
+maa_assert_same( 'media_replace_unit', $media_backups['data']['backups'][0]['backup_id'] ?? '', 'list-media-backups exposes backup id for restore' );
+maa_assert_same( true, $media_backups['data']['backups'][0]['file_exists'] ?? null, 'list-media-backups checks backup file availability' );
+maa_assert_same( 'magick-ai/restore-media-backup', $media_backups['data']['backups'][0]['restore_action']['target_ability_id'] ?? '', 'list-media-backups returns restore-media-backup action metadata' );
+$media_restore_preview = $core_write_package->restore_media_backup(
+	array(
+		'attachment_id'                  => 79,
+		'backup_id'                      => 'media_replace_unit',
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image-optimized.webp',
+	)
+);
+maa_assert_same( true, $media_restore_preview['dry_run'] ?? null, 'restore-media-backup defaults to dry-run preview' );
+maa_assert_same( false, $media_restore_preview['restored'] ?? null, 'restore-media-backup dry-run does not switch files' );
+maa_assert_same( '2026/06/workflow-diagram-image.jpg', $media_restore_preview['after']['relative_file'] ?? '', 'restore-media-backup targets the original public media path' );
+maa_assert_true( false !== strpos( (string) ( $media_restore_preview['current_backup']['relative_file'] ?? '' ), 'magick-ai-restore-backup' ), 'restore-media-backup plans a backup of the current main file before restore' );
+update_post_meta( 79, '_wp_attached_file', '2026/06/workflow-diagram-image.jpg' );
+$GLOBALS['maa_unit_style_posts'][79]->post_mime_type = 'image/jpeg';
+update_post_meta(
+	79,
+	'_wp_attachment_metadata',
+	array(
+		'width'    => 2600,
+		'height'   => 1400,
+		'file'     => '2026/06/workflow-diagram-image.jpg',
+		'filesize' => 900000,
+		'sizes'    => array(
+			'medium' => array(
+				'file'   => 'workflow-diagram-image-300x162.jpg',
+				'width'  => 300,
+				'height' => 162,
+			),
+		),
+	)
+);
 $GLOBALS['maa_unit_style_posts'][83] = (object) array(
 	'ID'           => 83,
 	'post_title'   => 'Media Reference Repair Candidate',
