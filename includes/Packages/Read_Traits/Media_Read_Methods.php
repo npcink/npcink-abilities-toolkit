@@ -1381,39 +1381,41 @@ trait Media_Read_Methods {
 			),
 			'after'  => array_diff_key( $metadata_input, array( 'attachment_id' => true ) ),
 		);
-		$derivative_preview = array(
-			'before' => array(
-				'relative_file'  => $current_relative_file,
-				'mime_type'      => $current_mime_type,
-				'filesize_bytes' => $this->absint_value( $current['filesize_bytes'] ?? 0 ),
-			),
-			'after'  => array(
-				'artifact_id'    => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
-				'mime_type'      => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
-				'width'          => $this->absint_value( $artifact['width'] ?? 0 ),
-				'height'         => $this->absint_value( $artifact['height'] ?? 0 ),
-				'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
-			),
-		);
+			$derivative_preview = array(
+				'before' => array(
+					'relative_file'  => $current_relative_file,
+					'mime_type'      => $current_mime_type,
+					'filesize_bytes' => $this->absint_value( $current['filesize_bytes'] ?? 0 ),
+				),
+				'after'  => array(
+					'artifact_id'    => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
+					'mime_type'      => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
+					'width'          => $this->absint_value( $artifact['width'] ?? 0 ),
+					'height'         => $this->absint_value( $artifact['height'] ?? 0 ),
+					'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
+				),
+			);
+			$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact );
 
-		return $this->build_analysis_success_response(
-			array(
-				'artifact_type'       => 'media_optimization_plan',
-				'version'             => 1,
-				'batch_id'            => 'media_optimization_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
-				'attachment_id'       => $attachment_id,
-				'optimization_goal'   => 'image_seo_and_derivative_adoption',
+			return $this->build_analysis_success_response(
+				array(
+					'artifact_type'       => 'media_optimization_plan',
+					'version'             => 1,
+					'batch_id'            => 'media_optimization_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
+					'attachment_id'       => $attachment_id,
+					'optimization_goal'   => 'image_seo_and_derivative_adoption',
 				'requires_approval'   => true,
 				'dry_run'             => true,
-				'commit_execution'    => false,
-				'proposal_mode'       => 'batch',
-				'batch_approval'      => true,
-				'action_count'        => 2,
-				'metadata_preview'    => $metadata_preview,
-				'derivative_preview'  => $derivative_preview,
-				'preview'             => array(
-					array(
-						'attachment_id'       => $attachment_id,
+					'commit_execution'    => false,
+					'proposal_mode'       => 'batch',
+					'batch_approval'      => true,
+					'action_count'        => 2,
+					'metadata_preview'    => $metadata_preview,
+					'derivative_preview'  => $derivative_preview,
+					'content_reference_repairs_preview' => $derivative_preview['content_reference_repairs'],
+					'preview'             => array(
+						array(
+							'attachment_id'       => $attachment_id,
 						'before'              => array(
 							'metadata'   => $metadata_preview['before'],
 							'derivative' => $derivative_preview['before'],
@@ -1434,15 +1436,315 @@ trait Media_Read_Methods {
 				'source'         => 'local_media_optimization_plan',
 				'execution_mode' => 'deterministic',
 				'readonly'       => true,
-				'plan_only'      => true,
-			),
-			'Media optimization plan built.'
-		);
-	}
+					'plan_only'      => true,
+				),
+				'Media optimization plan built.'
+			);
+		}
 
-	/**
-	 * Builds a read-only media rename plan for Core approval.
-	 *
+		/**
+		 * Builds read-only post-content repair evidence for a pending media optimization.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param string              $current_relative_file Current uploads-relative file.
+		 * @param array<string,mixed> $artifact Normalized derivative artifact.
+		 * @return array<string,mixed>
+		 */
+		private function build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, array $artifact ) {
+			$attachment_id = $this->absint_value( $attachment_id );
+			$current_relative_file = $this->normalize_media_reference_relative( $current_relative_file );
+			$after = $this->media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, $artifact );
+			$before = array(
+				'relative_file' => $current_relative_file,
+				'url'           => $this->media_reference_upload_url( $current_relative_file ),
+			);
+			$before['path'] = $this->media_reference_url_path( (string) $before['url'] );
+			$pairs = $this->media_optimization_content_reference_pairs( $before, $after, $attachment_id );
+			$max_posts = 50;
+			$repairs = array();
+			$scanned_count = 0;
+			$replacement_count = 0;
+
+			foreach ( $this->media_reference_repair_candidate_posts( $max_posts * 3 ) as $post ) {
+				if ( count( $repairs ) >= $max_posts ) {
+					break;
+				}
+				if ( ! is_object( $post ) || 'attachment' === sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+					continue;
+				}
+				if ( ! in_array( sanitize_key( (string) ( $post->post_status ?? '' ) ), array( 'publish', 'future', 'draft', 'pending', 'private' ), true ) ) {
+					continue;
+				}
+
+				++$scanned_count;
+				$post_id = $this->absint_value( $post->ID ?? 0 );
+				$content = (string) ( $post->post_content ?? '' );
+				if ( $post_id <= 0 || '' === $content ) {
+					continue;
+				}
+
+				$post_pairs = $this->merge_media_optimization_content_reference_pairs(
+					$pairs,
+					$this->media_optimization_content_dynamic_sized_pairs( $content, $before, $after )
+				);
+				$operations = array();
+				foreach ( $post_pairs as $pair ) {
+					$old = (string) ( $pair['old'] ?? '' );
+					$new = (string) ( $pair['new'] ?? '' );
+					if ( '' === $old || '' === $new || $old === $new || false === strpos( $content, $old ) ) {
+						continue;
+					}
+					$count = substr_count( $content, $old );
+					if ( $count <= 0 ) {
+						continue;
+					}
+					$operations[] = array(
+						'op'      => 'replace',
+						'find'    => $old,
+						'replace' => $new,
+						'limit'   => min( 20, $count ),
+					);
+					$replacement_count += $count;
+				}
+				if ( empty( $operations ) ) {
+					continue;
+				}
+
+				$preview = $this->apply_media_optimization_reference_operations_preview( $content, $operations );
+				$repairs[] = array(
+					'post_id'               => $post_id,
+					'post_type'             => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+					'post_status'           => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+					'title'                 => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+					'operation_count'       => count( $operations ),
+					'operations'            => $operations,
+					'content_length_before' => strlen( $content ),
+					'content_length_after'  => strlen( (string) ( $preview['content'] ?? $content ) ),
+					'patch_preview'         => (array) ( $preview['patch_preview'] ?? array() ),
+					'updated'               => false,
+				);
+			}
+
+			return array(
+				'attachment_id'      => $attachment_id,
+				'applied'            => false,
+				'scanned_count'      => $scanned_count,
+				'post_count'         => count( $repairs ),
+				'replacement_count'  => $replacement_count,
+				'repairs'            => $repairs,
+				'reference_strategy' => 'replace_old_main_and_sized_upload_urls_with_new_main_file_url',
+			);
+		}
+
+		/**
+		 * Builds the future local derivative reference state used by the adoption ability.
+		 *
+		 * @param int                 $attachment_id Attachment id.
+		 * @param string              $current_relative_file Current uploads-relative file.
+		 * @param array<string,mixed> $artifact Normalized derivative artifact.
+		 * @return array<string,string>
+		 */
+		private function media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, array $artifact ) {
+			$current_relative_file = $this->normalize_media_reference_relative( $current_relative_file );
+			$dir = dirname( $current_relative_file );
+			$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+			$current_basename = $this->sanitize_file_name_value( basename( $current_relative_file ) );
+			$custom_basename = $this->sanitize_file_name_value( (string) ( $artifact['suggested_filename'] ?? '' ) );
+			$stem = '' !== $custom_basename ? preg_replace( '/\.[^.]+$/', '', $custom_basename ) : preg_replace( '/\.[^.]+$/', '', $current_basename );
+			$stem = '' !== (string) $stem ? $stem : 'attachment-' . $this->absint_value( $attachment_id );
+			$artifact_key = substr( sanitize_key( (string) ( $artifact['artifact_id'] ?? '' ) ), 0, 16 );
+			$extension = $this->media_optimization_extension_for_mime( (string) ( $artifact['mime_type'] ?? '' ) );
+			$file_basename = '' !== $custom_basename
+				? $this->sanitize_file_name_value( (string) $stem . '.' . $extension )
+				: $this->sanitize_file_name_value( (string) $stem . '-magick-ai-cloud-' . $artifact_key . '.' . $extension );
+			$relative_file = '' !== $dir ? $dir . '/' . $file_basename : $file_basename;
+			$url = $this->media_reference_upload_url( $relative_file );
+
+			return array(
+				'relative_file' => $relative_file,
+				'url'           => $url,
+				'path'          => $this->media_reference_url_path( $url ),
+			);
+		}
+
+		/**
+		 * Builds exact old->new reference pairs for pending derivative adoption.
+		 *
+		 * @param array<string,string> $before Current reference state.
+		 * @param array<string,string> $after Future reference state.
+		 * @param int                  $attachment_id Attachment id.
+		 * @return array<int,array{old:string,new:string}>
+		 */
+		private function media_optimization_content_reference_pairs( array $before, array $after, $attachment_id ) {
+			$pairs = array(
+				array( 'old' => (string) ( $before['url'] ?? '' ), 'new' => (string) ( $after['url'] ?? '' ) ),
+				array( 'old' => (string) ( $before['path'] ?? '' ), 'new' => (string) ( $after['path'] ?? '' ) ),
+				array( 'old' => (string) ( $before['relative_file'] ?? '' ), 'new' => (string) ( $after['relative_file'] ?? '' ) ),
+			);
+			$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $this->absint_value( $attachment_id ) ) : array();
+			$metadata = is_array( $metadata ) ? $metadata : array();
+			$sizes = is_array( $metadata['sizes'] ?? null ) ? $metadata['sizes'] : array();
+			$old_relative = $this->normalize_media_reference_relative( (string) ( $before['relative_file'] ?? '' ) );
+			$old_dir = dirname( $old_relative );
+			$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+			foreach ( $sizes as $size ) {
+				$size = is_array( $size ) ? $size : array();
+				$file = $this->sanitize_file_name_value( (string) ( $size['file'] ?? '' ) );
+				if ( '' === $file ) {
+					continue;
+				}
+				$size_relative = '' !== $old_dir ? $old_dir . '/' . $file : $file;
+				$size_url = $this->media_reference_upload_url( $size_relative );
+				$size_path = $this->media_reference_url_path( $size_url );
+				$pairs[] = array( 'old' => $size_url, 'new' => (string) ( $after['url'] ?? '' ) );
+				$pairs[] = array( 'old' => $size_path, 'new' => (string) ( $after['path'] ?? '' ) );
+				$pairs[] = array( 'old' => $size_relative, 'new' => (string) ( $after['relative_file'] ?? '' ) );
+			}
+
+			return $this->merge_media_optimization_content_reference_pairs( $pairs, array() );
+		}
+
+		/**
+		 * Adds old sized references present in content but missing from metadata.
+		 *
+		 * @param string               $content Post content.
+		 * @param array<string,string> $before Current reference state.
+		 * @param array<string,string> $after Future reference state.
+		 * @return array<int,array{old:string,new:string}>
+		 */
+		private function media_optimization_content_dynamic_sized_pairs( $content, array $before, array $after ) {
+			$old_relative = $this->normalize_media_reference_relative( (string) ( $before['relative_file'] ?? '' ) );
+			$old_basename = basename( $old_relative );
+			$stem = preg_replace( '/\.[^.]+$/', '', $old_basename );
+			$extension = pathinfo( $old_basename, PATHINFO_EXTENSION );
+			if ( '' === (string) $stem || '' === (string) $extension || '' === (string) ( $after['url'] ?? '' ) ) {
+				return array();
+			}
+			$pattern = '/' . preg_quote( (string) $stem, '/' ) . '-[0-9]{2,5}x[0-9]{2,5}\.' . preg_quote( (string) $extension, '/' ) . '/u';
+			if ( ! preg_match_all( $pattern, (string) $content, $matches ) ) {
+				return array();
+			}
+			$old_dir = dirname( $old_relative );
+			$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
+			$pairs = array();
+			foreach ( array_unique( (array) ( $matches[0] ?? array() ) ) as $sized_basename ) {
+				$sized_basename = $this->sanitize_file_name_value( (string) $sized_basename );
+				if ( '' === $sized_basename ) {
+					continue;
+				}
+				$size_relative = '' !== $old_dir ? $old_dir . '/' . $sized_basename : $sized_basename;
+				$size_url = $this->media_reference_upload_url( $size_relative );
+				$size_path = $this->media_reference_url_path( $size_url );
+				$pairs[] = array( 'old' => $size_url, 'new' => (string) ( $after['url'] ?? '' ) );
+				$pairs[] = array( 'old' => $size_path, 'new' => (string) ( $after['path'] ?? '' ) );
+				$pairs[] = array( 'old' => $size_relative, 'new' => (string) ( $after['relative_file'] ?? '' ) );
+			}
+
+			return $pairs;
+		}
+
+		/**
+		 * Merges old->new media optimization reference pairs.
+		 *
+		 * @param array<int,array<string,string>> $primary Primary pairs.
+		 * @param array<int,array<string,string>> $secondary Secondary pairs.
+		 * @return array<int,array{old:string,new:string}>
+		 */
+		private function merge_media_optimization_content_reference_pairs( array $primary, array $secondary ) {
+			$merged = array();
+			foreach ( array_merge( $primary, $secondary ) as $pair ) {
+				$old = trim( (string) ( is_array( $pair ) ? ( $pair['old'] ?? '' ) : '' ) );
+				$new = trim( (string) ( is_array( $pair ) ? ( $pair['new'] ?? '' ) : '' ) );
+				if ( '' === $old || '' === $new || $old === $new ) {
+					continue;
+				}
+				$merged[ $old . "\n" . $new ] = array(
+					'old' => $old,
+					'new' => $new,
+				);
+			}
+
+			return array_values( $merged );
+		}
+
+		/**
+		 * Applies replace operations to build a bounded read-only patch preview.
+		 *
+		 * @param string       $content Original content.
+		 * @param array<mixed> $operations Patch operations.
+		 * @return array<string,mixed>
+		 */
+		private function apply_media_optimization_reference_operations_preview( $content, array $operations ) {
+			$content = (string) $content;
+			$patch_preview = array();
+			foreach ( array_values( $operations ) as $index => $operation ) {
+				$operation = is_array( $operation ) ? $operation : array();
+				$find = (string) ( $operation['find'] ?? '' );
+				$replace = (string) ( $operation['replace'] ?? '' );
+				$limit = max( 1, min( 20, $this->absint_value( $operation['limit'] ?? 1 ) ) );
+				$needle_len = strlen( $find );
+				$offset = 0;
+				$applied = 0;
+				while ( '' !== $find && $applied < $limit ) {
+					$position = strpos( $content, $find, $offset );
+					if ( false === $position ) {
+						break;
+					}
+					$content = substr( $content, 0, $position ) . $replace . substr( $content, $position + $needle_len );
+					++$applied;
+					$offset = $position + strlen( $replace );
+				}
+				$patch_preview[] = array(
+					'operation_index' => $index,
+					'op'              => 'replace',
+					'find'            => $this->truncate_media_optimization_fragment( $find, 160 ),
+					'replace'         => $this->truncate_media_optimization_fragment( $replace, 160 ),
+					'applied'         => $applied,
+					'limit'           => $limit,
+					'case_sensitive'  => true,
+				);
+			}
+
+			return array(
+				'content'       => $content,
+				'patch_preview' => $patch_preview,
+			);
+		}
+
+		/**
+		 * Returns a file extension for a supported derivative MIME type.
+		 *
+		 * @param string $mime_type MIME type.
+		 * @return string
+		 */
+		private function media_optimization_extension_for_mime( $mime_type ) {
+			$map = array(
+				'image/webp' => 'webp',
+				'image/avif' => 'avif',
+				'image/jpeg' => 'jpg',
+				'image/jpg'  => 'jpg',
+				'image/png'  => 'png',
+			);
+			$mime_type = strtolower( sanitize_text_field( (string) $mime_type ) );
+			return $map[ $mime_type ] ?? 'webp';
+		}
+
+		/**
+		 * Truncates preview fragments without adding markup.
+		 *
+		 * @param string $text Text.
+		 * @param int    $max_len Maximum length.
+		 * @return string
+		 */
+		private function truncate_media_optimization_fragment( $text, $max_len ) {
+			$text = (string) $text;
+			$max_len = max( 20, (int) $max_len );
+			return strlen( $text ) > $max_len ? substr( $text, 0, $max_len - 3 ) . '...' : $text;
+		}
+
+		/**
+		 * Builds a read-only media rename plan for Core approval.
+		 *
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
@@ -1744,22 +2046,25 @@ trait Media_Read_Methods {
 				__( 'Media optimization plans require derivative_artifact evidence.', 'npcink-abilities-toolkit' ),
 				array( 'status' => 400 )
 			);
-		}
-
-		$normalized = array( 'artifact_id' => $artifact_id );
-		foreach ( array( 'run_id', 'expires_at', 'mime_type', 'format', 'checksum', 'sha256', 'download_url' ) as $field ) {
-			if ( array_key_exists( $field, $artifact ) && '' !== (string) $artifact[ $field ] ) {
-				$normalized[ $field ] = sanitize_text_field( (string) $artifact[ $field ] );
 			}
-		}
-		foreach ( array( 'width', 'height', 'filesize_bytes' ) as $field ) {
-			if ( array_key_exists( $field, $artifact ) ) {
-				$normalized[ $field ] = $this->absint_value( $artifact[ $field ] );
-			}
-		}
 
-		return $normalized;
-	}
+			$normalized = array( 'artifact_id' => $artifact_id );
+			foreach ( array( 'run_id', 'expires_at', 'mime_type', 'format', 'checksum', 'sha256', 'download_url' ) as $field ) {
+				if ( array_key_exists( $field, $artifact ) && '' !== (string) $artifact[ $field ] ) {
+					$normalized[ $field ] = sanitize_text_field( (string) $artifact[ $field ] );
+				}
+			}
+			if ( array_key_exists( 'suggested_filename', $artifact ) && '' !== (string) $artifact['suggested_filename'] ) {
+				$normalized['suggested_filename'] = $this->sanitize_file_name_value( (string) $artifact['suggested_filename'] );
+			}
+			foreach ( array( 'width', 'height', 'filesize_bytes' ) as $field ) {
+				if ( array_key_exists( $field, $artifact ) ) {
+					$normalized[ $field ] = $this->absint_value( $artifact[ $field ] );
+				}
+			}
+
+			return $normalized;
+		}
 
 	/**
 	 * Normalizes an optional watermark plan for Cloud derivative requests.

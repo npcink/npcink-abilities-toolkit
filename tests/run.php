@@ -2395,6 +2395,16 @@ maa_assert_same( 48, $media_cloud_request_with_text_watermark['data']['cloud_job
 maa_assert_same( '#FFFFFF', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['color'] ?? '', 'text watermarked media derivative request normalizes hex color' );
 maa_assert_same( 'rgba(0,0,0,0.35)', $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['background'] ?? '', 'text watermarked media derivative request preserves bounded rgba background' );
 maa_assert_true( ! isset( $media_cloud_request_with_text_watermark['data']['cloud_job_payload']['watermark']['artifact_id'] ), 'text watermarked media derivative request does not require a watermark artifact id' );
+$GLOBALS['maa_unit_style_posts'][90] = (object) array(
+	'ID'           => 90,
+	'post_title'   => 'Media Optimization Reference Preview Candidate',
+	'post_status'  => 'publish',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => '<!-- wp:image {"id":79,"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg" srcset="https://example.test/wp-content/uploads/2026/06/workflow-diagram-image-300x162.jpg 300w, https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg 2600w" alt="Workflow diagram" class="wp-image-79" /></figure><!-- /wp:image -->',
+	'post_name'    => 'media-optimization-reference-preview-candidate',
+	'post_author'  => 7,
+);
 $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 	array(
 		'attachment_id'                 => 79,
@@ -2413,6 +2423,7 @@ $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 			'width'          => 1600,
 			'height'         => 862,
 			'filesize_bytes' => 210000,
+			'suggested_filename' => 'workflow-diagram-cloud-plan.webp',
 		),
 		'expected_current_mime_type'    => 'image/jpeg',
 		'expected_derivative_mime_type' => 'image/webp',
@@ -2427,6 +2438,12 @@ maa_assert_same( 'magick-ai/update-media-details', $media_optimization_plan['dat
 maa_assert_same( 'magick-ai/adopt-cloud-media-derivative', $media_optimization_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media optimization plan includes Cloud derivative adoption action' );
 maa_assert_same( false, $media_optimization_plan['data']['commit_execution'] ?? null, 'media optimization plan does not execute commits' );
 maa_assert_same( true, $media_optimization_plan['meta']['readonly'] ?? null, 'media optimization plan remains read-only' );
+maa_assert_same( 1, $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['post_count'] ?? 0, 'media optimization plan previews post content reference repairs inside derivative evidence' );
+maa_assert_same( 90, $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['post_id'] ?? 0, 'media optimization reference preview targets the referencing post' );
+maa_assert_true( (int) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['replacement_count'] ?? 0 ) >= 2, 'media optimization reference preview includes old main and sized image references' );
+maa_assert_true( false !== strpos( (string) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'workflow-diagram-cloud-plan.webp' ), 'media optimization reference preview replaces inline URLs with the reviewed derivative filename' );
+maa_assert_same( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs'], $media_optimization_plan['data']['content_reference_repairs_preview'] ?? array(), 'media optimization plan exposes content reference repairs at top level for Core review summaries' );
+unset( $GLOBALS['maa_unit_style_posts'][90] );
 maa_assert_true( false !== strpos( $core_write_package_source, 'magick_ai_abilities_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative exposes a bounded artifact download filter for integration smoke tests' );
 $GLOBALS['maa_unit_style_posts'][88] = (object) array(
 	'ID'           => 88,
