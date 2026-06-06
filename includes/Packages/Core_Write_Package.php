@@ -3797,10 +3797,10 @@ final class Core_Write_Package {
 			absint( $attachment_id )
 		);
 		if ( null === $download ) {
-			if ( ! function_exists( 'npcink_ai_cloud_addon_download_media_derivative_artifact' ) ) {
+			if ( ! function_exists( 'npcink_cloud_addon_download_media_derivative_artifact' ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_cloud_addon_unavailable', __( 'Cloud Addon artifact download is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 			}
-			$download = npcink_ai_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+			$download = npcink_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
 		}
 		if ( is_wp_error( $download ) ) {
 			return $download;

@@ -98,8 +98,8 @@ if ( ! function_exists( 'wp_delete_file' ) ) {
 	}
 }
 
-if ( ! function_exists( 'npcink_ai_cloud_addon_download_media_derivative_artifact' ) ) {
-	function npcink_ai_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
+if ( ! function_exists( 'npcink_cloud_addon_download_media_derivative_artifact' ) ) {
+	function npcink_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
 		unset( $trace_id );
 		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) ) {
 			return call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'], $derivative_artifact );
