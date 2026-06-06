@@ -3,7 +3,7 @@
 ## 0.5.0 - 2026-06-06
 
 - Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks.
-- Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface.
+- Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages.
 - Removed development demo ability controls from the admin page and kept showcase, model-call, write, and workflow execution outside this package surface.
 - Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public `test` terminology in released ability ids and schema fields.
 - Updated `npcink-abilities-toolkit/adopt-cloud-media-derivative` and `npcink-abilities-toolkit/replace-media-file` to preview and commit exact post-content media URL repairs, including old intermediate-size image URLs, when an approved replacement switches an attachment to a new local file.

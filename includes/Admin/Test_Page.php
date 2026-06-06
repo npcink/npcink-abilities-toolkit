@@ -695,6 +695,7 @@ final class Test_Page {
 				'total'     => $total_pages,
 				'prev_text' => __( 'Previous', 'npcink-abilities-toolkit' ),
 				'next_text' => __( 'Next', 'npcink-abilities-toolkit' ),
+				'show_all'  => $total_pages <= 9,
 			)
 		);
 

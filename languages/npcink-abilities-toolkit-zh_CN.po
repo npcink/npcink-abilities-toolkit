@@ -205,7 +205,7 @@ msgstr "打开分组就绪详情前可先筛选目录。"
 #: includes/Admin/Test_Page.php:445
 #, php-format
 msgid "Showing %1$d-%2$d of %3$d abilities."
-msgstr ""
+msgstr "显示 %1$d-%2$d 项能力（共 %3$d 项）。"
 
 #: includes/Admin/Test_Page.php:452
 msgid "No abilities match the current filters."
@@ -215,7 +215,7 @@ msgstr "没有能力匹配当前筛选条件。"
 #: includes/Admin/Test_Page.php:478
 #, php-format
 msgid "%1$d abilities, %2$d callback issues"
-msgstr ""
+msgstr "%1$d 能力，%2$d 回调问题"
 
 #: includes/Admin/Test_Page.php:545
 msgid "Search"
@@ -378,276 +378,276 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:866
 msgid "Fetch Abilities"
-msgstr ""
+msgstr "获取能力"
 
 #: includes/Admin/Test_Page.php:869
 msgid "Fetch Categories"
-msgstr ""
+msgstr "获取分类"
 
 #: includes/Admin/Test_Page.php:887
 msgid "Catalog export"
-msgstr ""
+msgstr "目录导出"
 
 #: includes/Admin/Test_Page.php:891
 msgid "Ability ID export"
-msgstr ""
+msgstr "能力 ID 导出"
 
 #: includes/Admin/Test_Page.php:892
 msgid "Copyable ID list for host and catalog audits."
-msgstr ""
+msgstr "供 host 和目录审计复制使用的 ID 列表。"
 
 #: includes/Admin/Test_Page.php:897
 msgid "Copy IDs"
-msgstr ""
+msgstr "复制 ID"
 
 #: includes/Admin/Test_Page.php:913
 msgid "You do not have permission to run this check."
-msgstr ""
+msgstr "你没有权限运行此检查。"
 
 #: includes/Admin/Test_Page.php:924
 msgid "Unknown read-only check."
-msgstr ""
+msgstr "未知的只读检查。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:46
 msgid "Build Comment Moderation Suggestion"
-msgstr ""
+msgstr "建立评论审核建议"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:47
 msgid ""
 "Reads one comment and builds a deterministic moderation suggestion without "
 "writing."
-msgstr ""
+msgstr "阅读一条评论并建立确定性的审核建议，而不写入。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:89
 msgid "Compose Comment Moderation Result"
-msgstr ""
+msgstr "撰写评论 审核结果"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:90
 msgid ""
 "Composes one canonical comment moderation suggest/action result envelope."
-msgstr ""
+msgstr "撰写一个规范的评论审核建议/行动结果信封。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:128
 msgid "Build Comment Mention Reply Suggestion"
-msgstr ""
+msgstr "建立评论 提及 回复 建议"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:129
 msgid ""
 "Detects a comment mention/followup trigger and prepares a reply suggestion "
 "handoff without writing."
-msgstr ""
+msgstr "检测评论提及/后续触发并准备回复建议移交，而不写入。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:159
 msgid "Read Comment Trigger Queue"
-msgstr ""
+msgstr "阅读评论触发队列"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:160
 msgid ""
 "Reads existing comments and builds a trigger candidate queue without writing."
-msgstr ""
+msgstr "读取现有评论并构建触发器候选队列，而无需写入。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:193
 msgid "Get Comment Queue Health"
-msgstr ""
+msgstr "获取评论队列健康状况"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:194
 msgid ""
 "Reads a bounded comment queue and summarizes moderation, reply, and "
 "escalation health without writing."
-msgstr ""
+msgstr "读取有界评论队列并总结审核、回复和升级健康状况，而无需写入。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:222
 msgid "Get Comment Action Priority Queue"
-msgstr ""
+msgstr "获取评论操作优先级队列"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:223
 msgid ""
 "Reads a bounded comment queue and returns prioritized read-only moderation "
 "and reply handoff candidates."
-msgstr ""
+msgstr "读取有界评论队列并返回优先的只读审核和回复切换候选者。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:251
 msgid "Get Comment Compliance Handoff"
-msgstr ""
+msgstr "获取评论 合规移交"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:252
 msgid ""
 "Aggregates comment queue health, action priority rows, and optional selected-"
 "comment suggestions for host-side compliance workflows without writing."
-msgstr ""
+msgstr "不写入即可聚合评论队列运行状况、操作优先级行以及 host 端合规性工作流程的可选选定评论建议。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:284
 msgid "Compose Comment Mention Reply Result"
-msgstr ""
+msgstr "撰写评论提及回复结果"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:285
 msgid ""
 "Composes one canonical mention-triggered comment reply suggestion envelope."
-msgstr ""
+msgstr "撰写一个规范的提及触发评论回复建议信封。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:309
 msgid "Build Comment Moderation Batch Suggestion"
-msgstr ""
+msgstr "构建评论审核批量建议"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:310
 msgid "Builds read-only moderation suggestions for a bounded list of comments."
-msgstr ""
+msgstr "为有限的评论列表构建只读审核建议。"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:351
 msgid "Compose Comment Moderation Batch Result"
-msgstr ""
+msgstr "撰写评论审核批次结果"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:352
 msgid ""
 "Composes one canonical batch comment moderation suggestion result envelope."
-msgstr ""
+msgstr "编写一个标准的批量评论审核建议结果信封。"
 
 #: includes/Packages/Core_Comment_Package.php:56
 msgid "WordPress Comment Abilities"
-msgstr ""
+msgstr "WordPress 评论能力"
 
 #: includes/Packages/Core_Comment_Package.php:57
 msgid "Read-only comment moderation and reply helper abilities."
-msgstr ""
+msgstr "只读评论审核和回复助手功能。"
 
 #: includes/Packages/Core_Destructive_Package.php:55
 #: includes/Packages/Core_Write_Package.php:55
 msgid "WordPress Write Abilities"
-msgstr ""
+msgstr "WordPress 写入能力"
 
 #: includes/Packages/Core_Destructive_Package.php:56
 msgid ""
 "Host-governed WordPress write and destructive abilities with dry-run "
 "previews and external approval."
-msgstr ""
+msgstr "host 治理的 WordPress 写入和破坏能力，具有 dry-run 预览和外部批准。"
 
 #: includes/Packages/Core_Destructive_Package.php:80
 msgid "Delete Term"
-msgstr ""
+msgstr "删除术语"
 
 #: includes/Packages/Core_Destructive_Package.php:81
 msgid ""
 "Deletes a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后删除分类项，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:106
 msgid "Merge Terms"
-msgstr ""
+msgstr "合并条款"
 
 #: includes/Packages/Core_Destructive_Package.php:107
 msgid ""
 "Moves objects from source terms to a target term, then deletes source terms "
 "after host approval."
-msgstr ""
+msgstr "将对象从源分类项移动到目标分类项，然后在 host 批准后删除源分类项。"
 
 #: includes/Packages/Core_Destructive_Package.php:142
 msgid "Bulk Update Post Terms"
-msgstr ""
+msgstr "批量更新文章条款"
 
 #: includes/Packages/Core_Destructive_Package.php:143
 msgid ""
 "Bulk updates post or page taxonomy terms after host approval, with computed "
 "dry-run previews and per-post before/after audit."
-msgstr ""
+msgstr "在 host 批准后批量更新文章或页面分类项，并提供计算的 dry-run 预览和每个文章之前/之后的审核。"
 
 #: includes/Packages/Core_Destructive_Package.php:242
 msgid "Spam Comment"
-msgstr ""
+msgstr "垃圾评论"
 
 #: includes/Packages/Core_Destructive_Package.php:243
 msgid ""
 "Marks one comment as spam after host approval, or returns a dry-run preview "
 "by default."
-msgstr ""
+msgstr "在 host 批准后将一条评论标记为垃圾邮件，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:259
 msgid "Trash Comment"
-msgstr ""
+msgstr "垃圾评论"
 
 #: includes/Packages/Core_Destructive_Package.php:260
 msgid ""
 "Moves one comment to trash after host approval, or returns a dry-run preview "
 "by default."
-msgstr ""
+msgstr "在 host 批准后将一条评论移至回收站，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:276
 msgid "Delete Media Permanently"
-msgstr ""
+msgstr "永久删除媒体"
 
 #: includes/Packages/Core_Destructive_Package.php:277
 msgid ""
 "Permanently deletes one media attachment after host approval, or returns a "
 "dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后永久删除一个媒体附件，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:301
 msgid "Trash Post"
-msgstr ""
+msgstr "垃圾帖"
 
 #: includes/Packages/Core_Destructive_Package.php:302
 msgid ""
 "Moves one post to trash after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后将一篇文章移至回收站，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:325
 msgid "Delete Post Permanently"
-msgstr ""
+msgstr "永久删除文章"
 
 #: includes/Packages/Core_Destructive_Package.php:326
 msgid ""
 "Permanently deletes one post after host approval, or returns a dry-run "
 "preview by default."
-msgstr ""
+msgstr "在 host 批准后永久删除一篇文章，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Destructive_Package.php:397
 msgid "Term deletion failed."
-msgstr ""
+msgstr "术语删除失败。"
 
 #: includes/Packages/Core_Destructive_Package.php:421
 msgid "Target term was not found."
-msgstr ""
+msgstr "未找到目标分类项。"
 
 #: includes/Packages/Core_Destructive_Package.php:443
 msgid "At least one source term is required."
-msgstr ""
+msgstr "至少需要一个源分类项。"
 
 #: includes/Packages/Core_Destructive_Package.php:454
 msgid "Source terms were not found."
-msgstr ""
+msgstr "未找到源分类项。"
 
 #: includes/Packages/Core_Destructive_Package.php:526
 #: includes/Packages/Core_Destructive_Package.php:1396
 #: includes/Packages/Core_Write_Package.php:6247
 msgid "Taxonomy is invalid."
-msgstr ""
+msgstr "分类无效。"
 
 #: includes/Packages/Core_Destructive_Package.php:547
 msgid "Valid terms or term_ids are required for add/remove operations."
-msgstr ""
+msgstr "添加/删除操作需要有效条款或 term_ids。"
 
 #: includes/Packages/Core_Destructive_Package.php:566
 msgid "Current user cannot edit this post."
-msgstr ""
+msgstr "当前用户无法编辑此文章。"
 
 #. translators: %d: query limit.
 #: includes/Packages/Core_Destructive_Package.php:598
 #, php-format
 msgid "Matched post count reached limit (%d); more matching posts may exist."
-msgstr ""
+msgstr "匹配文章数达到限制（%d）；可能存在更多匹配的文章。"
 
 #: includes/Packages/Core_Destructive_Package.php:603
 msgid ""
 "Replace operation has no valid terms; matching posts will have these terms "
 "cleared."
-msgstr ""
+msgstr "替换操作无有效条款；匹配的文章将清除这些条款。"
 
 #. translators: %s: comma-separated term labels.
 #: includes/Packages/Core_Destructive_Package.php:608
 #, php-format
 msgid "These terms will be created during approved commit: %s"
-msgstr ""
+msgstr "这些条款将在批准的提交期间创建：%s"
 
 #: includes/Packages/Core_Destructive_Package.php:748
 #: includes/Packages/Core_Destructive_Package.php:1447
@@ -660,71 +660,71 @@ msgstr ""
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2539
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2677
 msgid "Attachment ID is invalid."
-msgstr ""
+msgstr "附件 ID 无效。"
 
 #: includes/Packages/Core_Destructive_Package.php:768
 msgid "You do not have permission to delete this attachment."
-msgstr ""
+msgstr "您无权删除此附件。"
 
 #: includes/Packages/Core_Destructive_Package.php:796
 msgid "Attachment deletion failed."
-msgstr ""
+msgstr "附件删除失败。"
 
 #: includes/Packages/Core_Destructive_Package.php:838
 msgid "Post trash failed."
-msgstr ""
+msgstr "发布垃圾邮件失败。"
 
 #: includes/Packages/Core_Destructive_Package.php:880
 msgid "Post deletion failed."
-msgstr ""
+msgstr "文章删除失败。"
 
 #: includes/Packages/Core_Destructive_Package.php:1024
 msgid ""
 "This destructive ability requires approval from a host runtime before commit."
-msgstr ""
+msgstr "这种破坏性能力需要在提交之前获得 host runtime 批准。"
 
 #: includes/Packages/Core_Destructive_Package.php:1095
 #: includes/Packages/Core_Write_Package.php:4980
 msgid "Comment ID is invalid."
-msgstr ""
+msgstr "评论 ID 无效。"
 
 #: includes/Packages/Core_Destructive_Package.php:1099
 #: includes/Packages/Core_Write_Package.php:4984
 msgid "Comment was not found."
-msgstr ""
+msgstr "未找到评论。"
 
 #: includes/Packages/Core_Destructive_Package.php:1102
 #: includes/Packages/Core_Write_Package.php:4987
 msgid "You do not have permission to moderate comments."
-msgstr ""
+msgstr "您无权审核评论。"
 
 #: includes/Packages/Core_Destructive_Package.php:1116
 msgid "post_type only supports post and page."
-msgstr ""
+msgstr "post_type 仅支持文章和页面。"
 
 #: includes/Packages/Core_Destructive_Package.php:1124
 msgid "taxonomy only supports category and post_tag."
-msgstr ""
+msgstr "分类法仅支持类别和 post_tag。"
 
 #: includes/Packages/Core_Destructive_Package.php:1128
 msgid "operation only supports add, replace, and remove."
-msgstr ""
+msgstr "操作仅支持添加、替换、删除。"
 
 #: includes/Packages/Core_Destructive_Package.php:1414
 #: includes/Packages/Core_Write_Package.php:6265
 msgid "You do not have permission for this taxonomy operation."
-msgstr ""
+msgstr "您没有执行此分类操作的权限。"
 
 #: includes/Packages/Core_Destructive_Package.php:1429
 #: includes/Packages/Core_Write_Package.php:6280
 msgid "Term ID is invalid."
-msgstr ""
+msgstr "分类项 ID 无效。"
 
 #: includes/Packages/Core_Destructive_Package.php:1433
 #: includes/Packages/Core_Write_Package.php:6284
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:88
 msgid "Term was not found."
-msgstr ""
+msgstr "未找到该术语。"
 
 #: includes/Packages/Core_Destructive_Package.php:1465
 #: includes/Packages/Core_Write_Package.php:3213
@@ -736,7 +736,7 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:889
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:946
 msgid "Post ID is invalid."
-msgstr ""
+msgstr "文章 ID 无效。"
 
 #: includes/Packages/Core_Destructive_Package.php:1469
 #: includes/Packages/Core_Write_Package.php:3217
@@ -755,743 +755,743 @@ msgstr ""
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:33
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:340
 msgid "Post was not found."
-msgstr ""
+msgstr "找不到文章。"
 
 #: includes/Packages/Core_Destructive_Package.php:1472
 msgid "You do not have permission to delete this post."
-msgstr ""
+msgstr "您无权删除此文章。"
 
 #: includes/Packages/Core_Read_Package.php:73
 msgid "WordPress Read Abilities"
-msgstr ""
+msgstr "WordPress 阅读能力"
 
 #: includes/Packages/Core_Read_Package.php:74
 msgid "Read-only WordPress site, content, and structure abilities."
-msgstr ""
+msgstr "只读 WordPress 站点、内容和结构能力。"
 
 #: includes/Packages/Core_Read_Package.php:80
 msgid "WordPress Page Abilities"
-msgstr ""
+msgstr "WordPress 页面功能"
 
 #: includes/Packages/Core_Read_Package.php:81
 msgid "Read-only WordPress page discovery and inspection abilities."
-msgstr ""
+msgstr "只读 WordPress 页面发现和检查能力。"
 
 #: includes/Packages/Core_Read_Package.php:87
 msgid "WordPress Diagnostics"
-msgstr ""
+msgstr "WordPress 诊断"
 
 #: includes/Packages/Core_Read_Package.php:88
 msgid "Redacted WordPress environment diagnostics for Abilities API clients."
-msgstr ""
+msgstr "编辑了 Abilities API 客户端的 WordPress 环境诊断。"
 
 #: includes/Packages/Core_Read_Package.php:94
 msgid "Workflow Recipe Definitions"
-msgstr ""
+msgstr "工作流程配方定义"
 
 #: includes/Packages/Core_Read_Package.php:95
 msgid ""
 "Read-only workflow recipe definitions for host-side ability composition."
-msgstr ""
+msgstr "host 端能力组合的只读工作流程配方定义。"
 
 #: includes/Packages/Core_Read_Package.php:189
 msgid "List Workflow Recipes"
-msgstr ""
+msgstr "列出工作流程食谱"
 
 #: includes/Packages/Core_Read_Package.php:190
 msgid ""
 "Returns read-only workflow recipe definitions for host-side ability "
 "composition without executing workflow steps."
-msgstr ""
+msgstr "返回 host 端能力组合的只读工作流配方定义，而不执行工作流步骤。"
 
 #: includes/Packages/Core_Read_Package.php:212
 msgid "Get Workflow Recipe"
-msgstr ""
+msgstr "获取工作流程配方"
 
 #: includes/Packages/Core_Read_Package.php:213
 msgid ""
 "Returns one read-only workflow recipe definition by recipe id or case id "
 "without executing workflow steps."
-msgstr ""
+msgstr "按配方 ID 或案例 ID 返回一个只读工作流程配方定义，而不执行工作流程步骤。"
 
 #: includes/Packages/Core_Read_Package.php:233
 msgid "List Media"
-msgstr ""
+msgstr "列出媒体"
 
 #: includes/Packages/Core_Read_Package.php:234
 msgid "Returns a paginated list of media library attachments."
-msgstr ""
+msgstr "返回媒体库附件的分页列表。"
 
 #: includes/Packages/Core_Read_Package.php:279
 msgid "Resolve Media Attachment By URL"
-msgstr ""
+msgstr "解决媒体附件：URL"
 
 #: includes/Packages/Core_Read_Package.php:280
 msgid ""
 "Resolves a same-site uploads URL to bounded media attachment candidates with "
 "read-only match evidence."
-msgstr ""
+msgstr "解析同一站点将 URL 上传到具有只读匹配证据的有限媒体附件候选。"
 
 #: includes/Packages/Core_Read_Package.php:327
 msgid "List Terms"
-msgstr ""
+msgstr "列出条款"
 
 #: includes/Packages/Core_Read_Package.php:328
 msgid "Returns a paginated list of terms for a taxonomy."
-msgstr ""
+msgstr "返回分类项的分页列表。"
 
 #: includes/Packages/Core_Read_Package.php:371
 msgid "List Taxonomy Terms"
-msgstr ""
+msgstr "列出分类项"
 
 #: includes/Packages/Core_Read_Package.php:372
 msgid ""
 "Returns a paginated term list for one taxonomy, including parent information."
-msgstr ""
+msgstr "返回一种分类的分页术语列表，包括父级信息。"
 
 #: includes/Packages/Core_Read_Package.php:418
 msgid "List Categories"
-msgstr ""
+msgstr "列出类别"
 
 #: includes/Packages/Core_Read_Package.php:419
 msgid "Returns a paginated list of post categories."
-msgstr ""
+msgstr "返回文章类别的分页列表。"
 
 #: includes/Packages/Core_Read_Package.php:449
 msgid "List Tags"
-msgstr ""
+msgstr "列出标签"
 
 #: includes/Packages/Core_Read_Package.php:450
 msgid "Returns a paginated list of post tags."
-msgstr ""
+msgstr "返回文章标签的分页列表。"
 
 #: includes/Packages/Core_Read_Package.php:480
 msgid "Get Term"
-msgstr ""
+msgstr "获取期限"
 
 #: includes/Packages/Core_Read_Package.php:481
 msgid "Returns details for one taxonomy term by id or slug."
-msgstr ""
+msgstr "按 id 或 slug 返回一个分类项的详细信息。"
 
 #: includes/Packages/Core_Read_Package.php:510
 msgid "List Comments"
-msgstr ""
+msgstr "列出评论"
 
 #: includes/Packages/Core_Read_Package.php:511
 msgid "Returns a paginated list of comments."
-msgstr ""
+msgstr "返回分页的评论列表。"
 
 #: includes/Packages/Core_Read_Package.php:553
 msgid "Resolve Internal Link Targets"
-msgstr ""
+msgstr "解析内部链接目标"
 
 #: includes/Packages/Core_Read_Package.php:554
 msgid ""
 "Finds local published content that can serve as internal-link targets for a "
 "post draft or optimization workflow."
-msgstr ""
+msgstr "查找可用作后期草稿或优化工作流程的内部链接目标的本地发布内容。"
 
 #: includes/Packages/Core_Read_Package.php:599
 msgid "Build Inline Image Blocks"
-msgstr ""
+msgstr "构建内联图像块"
 
 #: includes/Packages/Core_Read_Package.php:600
 msgid ""
 "Converts uploaded inline image rows into append-ready Gutenberg image blocks "
 "without writing post content."
-msgstr ""
+msgstr "将上传的内嵌图像行转换为可追加的 Gutenberg 图像块，而不写入文章内容。"
 
 #: includes/Packages/Core_Read_Package.php:635
 msgid "Build Media SEO Assets"
-msgstr ""
+msgstr "构建媒体 SEO 资产"
 
 #: includes/Packages/Core_Read_Package.php:636
 msgid ""
 "Builds a canonical media SEO enrichment asset list from article media "
 "workflow upload outputs."
-msgstr ""
+msgstr "根据文章媒体工作流程上传输出构建规范媒体 SEO 丰富资产列表。"
 
 #: includes/Packages/Core_Read_Package.php:668
 msgid "GEO Analysis"
-msgstr ""
+msgstr "GEO 分析"
 
 #: includes/Packages/Core_Read_Package.php:669
 msgid ""
 "Builds deterministic GEO and AI visibility issues, recommendations, and "
 "evidence from article text."
-msgstr ""
+msgstr "从文章文本中构建确定性的 GEO 和 AI 可见性问题、建议和证据。"
 
 #: includes/Packages/Core_Read_Package.php:701
 msgid "Optimize Media Metadata"
-msgstr ""
+msgstr "优化媒体元数据"
 
 #: includes/Packages/Core_Read_Package.php:702
 msgid ""
 "Builds deterministic media title, alt, caption, description, source, and "
 "disclosure suggestions from article and media context."
-msgstr ""
+msgstr "根据文章和媒体上下文构建确定性媒体标题、替代项、说明文字、描述、来源和披露建议。"
 
 #: includes/Packages/Core_Read_Package.php:735
 msgid "Position Inline Image Blocks"
-msgstr ""
+msgstr "定位内联图像块"
 
 #: includes/Packages/Core_Read_Package.php:736
 msgid ""
 "Places generated inline image blocks after matching paragraph, heading, or "
 "anchor targets and falls back to append."
-msgstr ""
+msgstr "在匹配段落、标题或锚点目标之后放置生成的内联图像块，然后回退到附加。"
 
 #: includes/Packages/Core_Read_Package.php:771
 msgid "Build Article Optimization Report"
-msgstr ""
+msgstr "构建文章优化报告"
 
 #: includes/Packages/Core_Read_Package.php:772
 msgid ""
 "Composes SEO, GEO, internal-link, and media optimization sections into one "
 "deterministic report."
-msgstr ""
+msgstr "将 SEO、GEO、内部链接和媒体优化部分组成一份确定性报告。"
 
 #: includes/Packages/Core_Read_Package.php:807
 msgid "Build SEO Report Context"
-msgstr ""
+msgstr "构建 SEO 报告上下文"
 
 #: includes/Packages/Core_Read_Package.php:808
 msgid ""
 "Builds lightweight deterministic SEO issues and recommendations for article "
 "optimization workflows."
-msgstr ""
+msgstr "为文章优化工作流程构建轻量级确定性 SEO 问题和建议。"
 
 #: includes/Packages/Core_Read_Package.php:840
 msgid "Read Post Optimization Context"
-msgstr ""
+msgstr "阅读文章优化上下文"
 
 #: includes/Packages/Core_Read_Package.php:841
 msgid ""
 "Reads a post title, excerpt, content, slug, categories, tags, SEO fields, "
 "template, and format snapshot for article optimization workflows."
-msgstr ""
+msgstr "读取文章标题、摘录、内容、slug、类别、标签、SEO 字段、模板和格式快照以进行文章优化工作流程。"
 
 #: includes/Packages/Core_Read_Package.php:872
 msgid "Build Article Single Optimization Suggest"
-msgstr ""
+msgstr "构建文章单个优化建议"
 
 #: includes/Packages/Core_Read_Package.php:873
 msgid ""
 "Builds one canonical single-article optimization suggestion envelope for "
 "title, taxonomy, excerpt, slug, SEO, content, and GEO improvements."
-msgstr ""
+msgstr "为标题、分类、摘录、slug、SEO、内容和 GEO 改进构建一个规范的单篇文章优化建议信封。"
 
 #: includes/Packages/Core_Read_Package.php:914
 msgid "Build Article Optimization Apply Plan"
-msgstr ""
+msgstr "构建文章优化应用计划"
 
 #: includes/Packages/Core_Read_Package.php:915
 msgid ""
 "Builds one conservative apply plan from the read-only article optimization "
 "report without applying writes."
-msgstr ""
+msgstr "根据只读文章优化报告构建一个保守的应用计划，而不应用写入。"
 
 #: includes/Packages/Core_Read_Package.php:950
 msgid "Compose Article Optimization Apply Result"
-msgstr ""
+msgstr "撰写文章优化应用结果"
 
 #: includes/Packages/Core_Read_Package.php:951
 msgid ""
 "Composes report, apply plan, safe apply result, and remaining advisory "
 "changes into one deterministic envelope."
-msgstr ""
+msgstr "将报告、应用计划、安全应用结果和剩余建议更改写入一个确定性信封中。"
 
 #: includes/Packages/Core_Read_Package.php:984
 msgid "Extract Reference Post Style"
-msgstr ""
+msgstr "提取参考文章样式"
 
 #: includes/Packages/Core_Read_Package.php:985
 msgid ""
 "Reads reference posts and returns a compact writing-style profile for "
 "article workflows."
-msgstr ""
+msgstr "阅读参考文章并返回文章工作流程的紧凑写作风格配置文件。"
 
 #: includes/Packages/Core_Read_Package.php:1032
 msgid "Extract Site Style Baseline"
-msgstr ""
+msgstr "提取站点样式基线"
 
 #: includes/Packages/Core_Read_Package.php:1033
 msgid ""
 "Extracts a lightweight site-wide or author-specific writing-style baseline "
 "from recent posts."
-msgstr ""
+msgstr "从最近的文章中提取轻量级的站点范围或特定于作者的写作风格基线。"
 
 #: includes/Packages/Core_Read_Package.php:1080
 msgid "Build Article Production Fingerprint"
-msgstr ""
+msgstr "构建文章生产指纹"
 
 #: includes/Packages/Core_Read_Package.php:1081
 msgid ""
 "Builds a stable lightweight production fingerprint for article dedupe and "
 "result summaries."
-msgstr ""
+msgstr "为文章重复数据删除和结果摘要构建稳定的轻量级生产指纹。"
 
 #: includes/Packages/Core_Read_Package.php:1124
 msgid "Check Article Production Duplicate"
-msgstr ""
+msgstr "检查文章制作重复"
 
 #: includes/Packages/Core_Read_Package.php:1125
 msgid ""
 "Checks whether a lightweight article production fingerprint already exists "
 "on a post."
-msgstr ""
+msgstr "检查文章上是否已存在轻量级文章生产指纹。"
 
 #: includes/Packages/Core_Read_Package.php:1152
 msgid "Review Article Output Light"
-msgstr ""
+msgstr "评论文章 输出光"
 
 #: includes/Packages/Core_Read_Package.php:1153
 msgid ""
 "Builds lightweight local article quality, style, image, and AI-risk review "
 "signals without model calls."
-msgstr ""
+msgstr "无需模型调用即可构建轻量级本地文章质量、风格、图像和 AI 风险审核信号。"
 
 #: includes/Packages/Core_Read_Package.php:1190
 msgid "Compose Article Production Result"
-msgstr ""
+msgstr "撰写文章 制作结果"
 
 #: includes/Packages/Core_Read_Package.php:1191
 msgid ""
 "Summarizes the article production mainline with result mode, degraded "
 "reasons, fingerprint, handoff, and next action."
-msgstr ""
+msgstr "总结文章生成主线，包括结果模式、降级原因、指纹、切换和下一步操作。"
 
 #: includes/Packages/Core_Read_Package.php:1226
 msgid "Compose Article Draft Result"
-msgstr ""
+msgstr "撰写文章草稿结果"
 
 #: includes/Packages/Core_Read_Package.php:1227
 msgid ""
 "Composes one canonical draft workflow result with draft content, metadata "
 "resolution, shared SEO/GEO review, and handoff hints."
-msgstr ""
+msgstr "使用草稿内容、元数据解析、共享的 SEO/GEO 审核和移交提示组成一份规范的草稿工作流程结果。"
 
 #: includes/Packages/Core_Read_Package.php:1263
 msgid "Resolve Article Publication Decision"
-msgstr ""
+msgstr "解决文章发表决定"
 
 #: includes/Packages/Core_Read_Package.php:1264
 msgid ""
 "Resolves a deterministic article publish, schedule, review, or draft handoff "
 "after quality and duplicate checks."
-msgstr ""
+msgstr "解决质量和重复检查后的确定性文章发布、计划、审阅或草稿移交问题。"
 
 #: includes/Packages/Core_Read_Package.php:1302
 msgid "Build Article Style Profile"
-msgstr ""
+msgstr "建立文章风格档案"
 
 #: includes/Packages/Core_Read_Package.php:1303
 msgid ""
 "Merges baseline, reference, and explicit writing-style hints into one "
 "lightweight article style profile."
-msgstr ""
+msgstr "将基线、参考和明确的写作风格提示合并到一个轻量级的文章风格配置文件中。"
 
 #: includes/Packages/Core_Read_Package.php:1339
 msgid "List Pages"
-msgstr ""
+msgstr "列表页"
 
 #: includes/Packages/Core_Read_Package.php:1340
 msgid ""
 "Lists WordPress pages with status, parent, search, sorting, and pagination "
 "filters."
-msgstr ""
+msgstr "列出带有状态、父级、搜索、排序和分页过滤器的 WordPress 页面。"
 
 #: includes/Packages/Core_Read_Package.php:1372
 msgid "Get Page"
-msgstr ""
+msgstr "获取页面"
 
 #: includes/Packages/Core_Read_Package.php:1373
 msgid ""
 "Returns a single WordPress page, including content, template, hierarchy, "
 "author, and optional meta."
-msgstr ""
+msgstr "返回单个 WordPress 页面，包括内容、模板、层次结构、作者和可选元。"
 
 #: includes/Packages/Core_Read_Package.php:1419
 msgid "Inspect Page Structure"
-msgstr ""
+msgstr "检查页面结构"
 
 #: includes/Packages/Core_Read_Package.php:1420
 msgid ""
 "Inspects WordPress page hierarchy, template usage, and orphaned parent "
 "relationships without modifying pages."
-msgstr ""
+msgstr "在不修改页面的情况下检查 WordPress 页面层次结构、模板使用情况和孤立父关系。"
 
 #: includes/Packages/Core_Read_Package.php:1449
 msgid "List Pages Tree"
-msgstr ""
+msgstr "列表页面树"
 
 #: includes/Packages/Core_Read_Package.php:1450
 msgid ""
 "Returns a hierarchical page tree for navigation and site-structure review."
-msgstr ""
+msgstr "返回用于导航和站点结构审查的分层页面树。"
 
 #: includes/Packages/Core_Read_Package.php:1490
 msgid "Get Content Publishing Checklist"
-msgstr ""
+msgstr "获取内容发布清单"
 
 #: includes/Packages/Core_Read_Package.php:1491
 msgid ""
 "Returns a deterministic pre-publish readiness checklist for one post or page "
 "without applying changes."
-msgstr ""
+msgstr "返回一篇文章或页面的确定性预发布准备清单，而不应用更改。"
 
 #: includes/Packages/Core_Read_Package.php:1535
 msgid "Get Content Inventory Health"
-msgstr ""
+msgstr "获取内容库存健康状况"
 
 #: includes/Packages/Core_Read_Package.php:1536
 msgid ""
 "Scans a bounded content inventory and summarizes missing titles, thin "
 "content, excerpt gaps, media gaps, SEO metadata gaps, and stale content."
-msgstr ""
+msgstr "扫描有限的内容清单并总结缺失的标题、薄弱的内容、摘录差距、媒体差距、SEO 元数据差距和过时的内容。"
 
 #: includes/Packages/Core_Read_Package.php:1581
 msgid "Get Nonproduction Content Inventory"
-msgstr ""
+msgstr "获取非生产内容清单"
 
 #: includes/Packages/Core_Read_Package.php:1582
 msgid ""
 "Detects bounded smoke, fixture, and nonproduction content that may distort "
 "content, taxonomy, comment, and operations diagnostics without mutating the "
 "site."
-msgstr ""
+msgstr "检测可能扭曲内容、分类、评论和操作诊断而不改变站点的有限烟雾、固定装置和非生产内容。"
 
 #: includes/Packages/Core_Read_Package.php:1615
 msgid "Build Nonproduction Content Cleanup Plan"
-msgstr ""
+msgstr "制定非生产内容清理计划"
 
 #: includes/Packages/Core_Read_Package.php:1616
 msgid ""
 "Builds a read-only cleanup plan for detected nonproduction content, mapping "
 "each candidate to existing governed write abilities without trashing or "
 "deleting anything."
-msgstr ""
+msgstr "为检测到的非生产内容构建只读清理计划，将每个候选内容映射到现有的受控写入能力，不移入回收站，也不删除任何内容。"
 
 #: includes/Packages/Core_Read_Package.php:1650
 msgid "Build Content Inventory Fix Plan"
-msgstr ""
+msgstr "制定内容库存修复计划"
 
 #: includes/Packages/Core_Read_Package.php:1651
 msgid ""
 "Maps bounded content inventory issues to reviewable fix actions that reuse "
 "existing governed write abilities without mutating posts."
-msgstr ""
+msgstr "将有限的内容库存问题映射到可审查的修复操作，这些修复操作可重用现有的受控写入功能，而无需更改文章。"
 
 #: includes/Packages/Core_Read_Package.php:1685
 msgid "Get Bulk Publishing Checklist"
-msgstr ""
+msgstr "获取批量发布清单"
 
 #: includes/Packages/Core_Read_Package.php:1686
 msgid ""
 "Runs the read-only publishing checklist for a bounded list of posts and "
 "returns batch readiness totals."
-msgstr ""
+msgstr "运行有限的文章列表的只读发布清单并返回批次准备情况总计。"
 
 #: includes/Packages/Core_Read_Package.php:1732
 msgid "Get Internal Link Opportunity Report"
-msgstr ""
+msgstr "获取内部链接机会报告"
 
 #: includes/Packages/Core_Read_Package.php:1733
 msgid ""
 "Builds a post-id based internal-link opportunity report with candidate "
 "targets, anchor suggestions, and placement hints."
-msgstr ""
+msgstr "构建基于文章 ID 的内部链接机会报告，其中包含候选目标、锚点建议和放置提示。"
 
 #: includes/Packages/Core_Read_Package.php:1773
 msgid "Get Site Operations Dashboard"
-msgstr ""
+msgstr "获取站点操作仪表板"
 
 #: includes/Packages/Core_Read_Package.php:1774
 msgid ""
 "Builds a bounded read-only site operations dashboard for content status, "
 "inventory issues, taxonomy health, comments, and media signals."
-msgstr ""
+msgstr "为内容状态、库存问题、分类健康状况、评论和媒体信号构建有界只读站点操作仪表板。"
 
 #: includes/Packages/Core_Read_Package.php:1803
 msgid "Get Post Publish Risk Report"
-msgstr ""
+msgstr "获取发布后风险报告"
 
 #: includes/Packages/Core_Read_Package.php:1804
 msgid ""
 "Builds a read-only publish risk report for one post from checklist, SEO/GEO, "
 "revision, and internal-link signals."
-msgstr ""
+msgstr "根据清单、SEO/GEO、修订和内部链接信号为一篇文章构建只读发布风险报告。"
 
 #: includes/Packages/Core_Read_Package.php:1834
 msgid "Get Article Publish Preflight Context"
-msgstr ""
+msgstr "获取文章 发布 预检上下文"
 
 #: includes/Packages/Core_Read_Package.php:1835
 msgid ""
 "Aggregates post context, publishing checklist, publish risk, workflow "
 "context, and calendar context for host-side publish preflight workflows "
 "without writing."
-msgstr ""
+msgstr "聚合发布上下文、发布清单、发布风险、工作流上下文和日历上下文，以供 host 端发布预检工作流而不写入。"
 
 #: includes/Packages/Core_Read_Package.php:1867
 msgid "Get Content Refresh Opportunities"
-msgstr ""
+msgstr "获得内容刷新机会"
 
 #: includes/Packages/Core_Read_Package.php:1868
 msgid ""
 "Scans a bounded content set and returns stale, thin, SEO-light, answer-"
 "light, and low-link refresh opportunities."
-msgstr ""
+msgstr "扫描有界内容集并返回陈旧、稀疏、SEO-light、answer-light 和低链接刷新机会。"
 
 #: includes/Packages/Core_Read_Package.php:1900
 msgid "Get Old Article Refresh Context"
-msgstr ""
+msgstr "获取旧文章刷新上下文"
 
 #: includes/Packages/Core_Read_Package.php:1901
 msgid ""
 "Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, "
 "internal-link graph health, and optional selected-post link opportunities "
 "for host-side old article refresh workflows."
-msgstr ""
+msgstr "聚合 host 端旧文章刷新工作流程的刷新机会、SEO/GEO 差距、网站样式基线、内部链接图运行状况以及可选的选定文章链接机会。"
 
 #: includes/Packages/Core_Read_Package.php:1935
 msgid "Get Internal Link Graph Health"
-msgstr ""
+msgstr "获取内部链接图健康状况"
 
 #: includes/Packages/Core_Read_Package.php:1936
 msgid ""
 "Scans a bounded content set and summarizes outgoing links, incoming links, "
 "orphan posts, and candidate internal-link pairs."
-msgstr ""
+msgstr "扫描有界内容集并总结传出链接、传入链接、孤立文章和候选内部链接对。"
 
 #: includes/Packages/Core_Read_Package.php:1968
 msgid "Get Media Cleanup Opportunities"
-msgstr ""
+msgstr "获得媒体清理机会"
 
 #: includes/Packages/Core_Read_Package.php:1969
 msgid ""
 "Scans a bounded media inventory and returns cleanup opportunities for "
 "metadata gaps, source gaps, and likely unused assets."
-msgstr ""
+msgstr "扫描有限的媒体库存并返回元数据间隙、源间隙和可能未使用的资产的清理机会。"
 
 #: includes/Packages/Core_Read_Package.php:1998
 msgid "List Media Backups"
-msgstr ""
+msgstr "列出媒体备份"
 
 #: includes/Packages/Core_Read_Package.php:1999
 msgid ""
 "Lists recorded backup files for one attachment media operation history "
 "without mutating media."
-msgstr ""
+msgstr "列出一份附件媒体操作历史记录的备份文件，无需更改媒体。"
 
 #: includes/Packages/Core_Read_Package.php:2028
 msgid "Build Media Inventory Fix Plan"
-msgstr ""
+msgstr "制定媒体库存修复计划"
 
 #: includes/Packages/Core_Read_Package.php:2029
 msgid ""
 "Maps bounded media inventory issues to reviewable metadata and cleanup "
 "actions that reuse existing governed write abilities without mutating media."
-msgstr ""
+msgstr "将有限的媒体库存问题映射到可审查的元数据和清理操作，以重用现有的受控写入功能而不改变媒体。"
 
 #: includes/Packages/Core_Read_Package.php:2068
 msgid "Build Media Reference Repair Plan"
-msgstr ""
+msgstr "构建介质参考修复计划"
 
 #: includes/Packages/Core_Read_Package.php:2069
 msgid ""
 "Scans post content for hard-coded URLs to a previously replaced media file "
 "and builds governed patch-post-content actions without mutating posts."
-msgstr ""
+msgstr "扫描文章内容以查找之前替换的媒体文件中的硬编码 URL，并构建受管理的补丁文章内容操作，而无需更改文章。"
 
 #: includes/Packages/Core_Read_Package.php:2104
 msgid "Build Media Settings Reference Repair Plan"
-msgstr ""
+msgstr "构建媒体设置参考修复计划"
 
 #: includes/Packages/Core_Read_Package.php:2105
 msgid ""
 "Scans selected WordPress options and theme mods for hard-coded URLs to a "
 "previously replaced media file and builds governed exact replacement actions "
 "without mutating settings."
-msgstr ""
+msgstr "扫描选定的 WordPress 选项和主题模组以将 URL 硬编码到之前替换的媒体文件中，并构建受管控的精确替换操作，而无需更改设置。"
 
 #: includes/Packages/Core_Read_Package.php:2148
 msgid "Get Taxonomy Consolidation Suggestions"
-msgstr ""
+msgstr "获取分类整合建议"
 
 #: includes/Packages/Core_Read_Package.php:2149
 msgid ""
 "Scans taxonomy terms and suggests read-only consolidation candidates for "
 "empty, duplicate, similar, and unused terms."
-msgstr ""
+msgstr "扫描分类项并针对空的、重复的、相似的和未使用的术语建议只读合并候选。"
 
 #: includes/Packages/Core_Read_Package.php:2179
 msgid "Propose Post Taxonomy Terms"
-msgstr ""
+msgstr "提出后分类项"
 
 #: includes/Packages/Core_Read_Package.php:2180
 msgid ""
 "Builds a deterministic post taxonomy assignment proposal from existing terms "
 "without mutating the post or creating terms."
-msgstr ""
+msgstr "根据现有术语构建确定性的文章分类分配提案，而无需更改文章或创建术语。"
 
 #: includes/Packages/Core_Read_Package.php:2224
 msgid "Get Page Structure Health"
-msgstr ""
+msgstr "获取页面结构健康状况"
 
 #: includes/Packages/Core_Read_Package.php:2225
 msgid ""
 "Scans one page or a bounded page set and reports heading, CTA, content "
 "depth, and block structure health."
-msgstr ""
+msgstr "扫描一页或有界页面集并报告标题、{{​​CTA}}、内容深度和块结构运行状况。"
 
 #: includes/Packages/Core_Read_Package.php:2254
 msgid "Get SEO GEO Gap Report"
-msgstr ""
+msgstr "获取 SEO GEO 差距报告"
 
 #: includes/Packages/Core_Read_Package.php:2255
 msgid ""
 "Builds a bounded SEO/GEO gap report from topic coverage, refresh "
 "opportunities, answer structure, and SEO metadata signals."
-msgstr ""
+msgstr "根据主题覆盖范围、刷新机会、答案结构和 SEO 元数据信号构建有界 SEO/GEO 差距报告。"
 
 #: includes/Packages/Core_Read_Package.php:2286
 msgid "Get Site Style Baseline"
-msgstr ""
+msgstr "获取网站风格基线"
 
 #: includes/Packages/Core_Read_Package.php:2287
 msgid ""
 "Returns a compact read-only site-wide or author-specific writing style "
 "baseline from recent posts."
-msgstr ""
+msgstr "从最近的文章中返回紧凑的只读站点范围或特定于作者的写作风格基线。"
 
 #: includes/Packages/Core_Read_Package.php:2316
 msgid "Build Article Workflow Context"
-msgstr ""
+msgstr "构建文章工作流程上下文"
 
 #: includes/Packages/Core_Read_Package.php:2317
 msgid ""
 "Builds one read-only context bundle for article refresh, publish, or new-"
 "article workflows without model routing."
-msgstr ""
+msgstr "为文章刷新、发布或新文章工作流程构建一个只读上下文捆绑包，无需模型路由。"
 
 #: includes/Packages/Core_Read_Package.php:2346
 msgid "Get Publishing Calendar Context"
-msgstr ""
+msgstr "获取发布日历上下文"
 
 #: includes/Packages/Core_Read_Package.php:2347
 msgid ""
 "Returns scheduled posts, draft backlog, pending review items, and near-term "
 "publishing cadence context."
-msgstr ""
+msgstr "返回计划的文章、待办事项草稿、待审核项目和近期发布节奏上下文。"
 
 #: includes/Packages/Core_Read_Package.php:2376
 msgid "Get Media Inventory Health"
-msgstr ""
+msgstr "获取媒体库存状况"
 
 #: includes/Packages/Core_Read_Package.php:2377
 msgid ""
 "Scans a bounded media inventory and summarizes missing alt text, captions, "
 "descriptions, source metadata, and format attention."
-msgstr ""
+msgstr "扫描有限的媒体清单并总结丢失的替代文本、标题、描述、源元数据和格式注意。"
 
 #: includes/Packages/Core_Read_Package.php:2420
 msgid "Inspect Media Asset"
-msgstr ""
+msgstr "检查媒体资产"
 
 #: includes/Packages/Core_Read_Package.php:2421
 msgid ""
 "Inspects one attachment file and returns read-only format, size, dimension, "
 "and optimization recommendations."
-msgstr ""
+msgstr "检查一个附件文件并返回只读格式、大小、维度和优化建议。"
 
 #: includes/Packages/Core_Read_Package.php:2473
 msgid "Build Media Derivative Cloud Request"
-msgstr ""
+msgstr "构建媒体衍生云请求"
 
 #: includes/Packages/Core_Read_Package.php:2474
 msgid ""
 "Builds a read-only request contract for a host or Cloud addon to generate an "
 "optimized media derivative without uploading, calling Cloud, or mutating "
 "WordPress."
-msgstr ""
+msgstr "为主机或 Cloud Addon 构建只读请求合约，以生成优化的媒体衍生品，而无需上传、调用云或更改 WordPress。"
 
 #: includes/Packages/Core_Read_Package.php:2534
 msgid "Build Media Optimization Plan"
-msgstr ""
+msgstr "制定媒体优化计划"
 
 #: includes/Packages/Core_Read_Package.php:2535
 msgid ""
 "Builds a read-only one-attachment optimization plan that combines reviewed "
 "media metadata updates with a governed derivative adoption action for one "
 "Core approval."
-msgstr ""
+msgstr "构建一项只读单附件优化计划，该计划将经过审核的媒体元数据更新与受管理的派生采用操作相结合，以获得一次 Core 批准。"
 
 #: includes/Packages/Core_Read_Package.php:2568
 msgid "Build Media Rename Plan"
-msgstr ""
+msgstr "构建媒体重命名计划"
 
 #: includes/Packages/Core_Read_Package.php:2569
 msgid ""
 "Builds a read-only one-attachment rename plan for a reviewed target media "
 "file name and exact post-content reference updates without mutating "
 "WordPress."
-msgstr ""
+msgstr "为已审核的目标媒体文件名和准确的内容后参考更新构建只读单附件重命名计划，而无需更改 WordPress。"
 
 #: includes/Packages/Core_Read_Package.php:2606
 msgid "Build Media Derivative Batch Plan"
-msgstr ""
+msgstr "构建媒体衍生批次计划"
 
 #: includes/Packages/Core_Read_Package.php:2607
 msgid ""
 "Builds a bounded read-only plan for batch Cloud media derivative previews "
 "from local media filters without calling Cloud, creating proposals, or "
 "mutating WordPress."
-msgstr ""
+msgstr "为从本地媒体过滤器批量云媒体衍生品预览构建有界只读计划，无需调用云、创建提案或改变 WordPress。"
 
 #: includes/Packages/Core_Read_Package.php:2690
 msgid "Get Post SEO GEO Readiness"
-msgstr ""
+msgstr "准备好发布 SEO GEO"
 
 #: includes/Packages/Core_Read_Package.php:2691
 msgid ""
 "Returns one deterministic SEO/GEO readiness snapshot for a post, including "
 "metadata, content-depth, question, and media signals."
-msgstr ""
+msgstr "返回文章的一个确定性 SEO/GEO 准备情况快照，包括元数据、内容深度、问题和媒体信号。"
 
 #: includes/Packages/Core_Read_Package.php:2732
 msgid "Get Site Topic Coverage Report"
-msgstr ""
+msgstr "获取网站主题覆盖率报告"
 
 #: includes/Packages/Core_Read_Package.php:2733
 msgid ""
 "Builds a bounded site topic coverage summary from post titles, terms, and "
 "content snippets without model routing."
-msgstr ""
+msgstr "从文章标题、术语和内容片段构建有界站点主题覆盖摘要，无需模型路由。"
 
 #: includes/Packages/Core_Read_Package.php:2775
 msgid "Get Taxonomy Inventory Health"
-msgstr ""
+msgstr "获取分类库存健康状况"
 
 #: includes/Packages/Core_Read_Package.php:2776
 msgid ""
 "Scans a bounded taxonomy term inventory and summarizes empty, unused, "
 "duplicate, and hierarchy attention signals."
-msgstr ""
+msgstr "扫描有界分类项清单并总结空的、未使用的、重复的和层次结构注意信号。"
 
 #: includes/Packages/Core_Read_Package.php:2820
 msgid "Get Revision Change Risk Report"
-msgstr ""
+msgstr "获取修订变更风险报告"
 
 #: includes/Packages/Core_Read_Package.php:2821
 msgid ""
 "Reads recent revisions for one post and summarizes title, content length, "
 "block count, and recency change-risk signals."
-msgstr ""
+msgstr "阅读一篇文章的最新修订并总结标题、内容长度、块计数和新近变化风险信号。"
 
 #: includes/Packages/Core_Read_Package.php:2903
 msgid "Workflow recipe definition was not found."
-msgstr ""
+msgstr "未找到工作流程配方定义。"
 
 #: includes/Packages/Core_Read_Package.php:3088
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:35
@@ -1499,942 +1499,942 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:281
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:393
 msgid "Post type does not exist."
-msgstr ""
+msgstr "文章类型不存在。"
 
 #: includes/Packages/Core_Read_Package.php:3116
 msgid "Content is required to generate an excerpt proposal."
-msgstr ""
+msgstr "生成摘要提案需要内容。"
 
 #: includes/Packages/Core_Read_Package.php:3131
 msgid "Local read-only excerpt proposal generated from explicit content input."
-msgstr ""
+msgstr "从显式内容输入生成的本地只读摘录提案。"
 
 #: includes/Packages/Core_Read_Package.php:3191
 msgid "Post metadata plan resolved."
-msgstr ""
+msgstr "发布元数据计划已解决。"
 
 #: includes/Packages/Core_Read_Package.php:3343
 msgid "Menu was not found."
-msgstr ""
+msgstr "找不到菜单。"
 
 #: includes/Packages/Core_Write_Package.php:56
 msgid ""
 "Host-governed WordPress write abilities with dry-run previews and external "
 "approval."
-msgstr ""
+msgstr "host 治理的 WordPress 写入功能，具有 dry-run 预览和外部批准。"
 
 #: includes/Packages/Core_Write_Package.php:79
 msgid "Create Draft"
-msgstr ""
+msgstr "创建草稿"
 
 #: includes/Packages/Core_Write_Package.php:80
 msgid ""
 "Creates a draft post or page after host approval, or returns a dry-run "
 "preview by default."
-msgstr ""
+msgstr "在 host 批准后创建草稿文章或页面，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:126
 msgid "Update Post"
-msgstr ""
+msgstr "更新文章"
 
 #: includes/Packages/Core_Write_Package.php:127
 msgid ""
 "Updates a post title, content, or excerpt after host approval, or returns a "
 "dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后更新文章标题、内容或摘录，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:160
 msgid "Set Post SEO Meta"
-msgstr ""
+msgstr "设置文章 SEO 元"
 
 #: includes/Packages/Core_Write_Package.php:161
 msgid ""
 "Updates SEO title and description metadata for one post after host approval, "
 "or returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后更新一篇文章的 SEO 标题和描述元数据，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:192
 msgid "Patch Post Content"
-msgstr ""
+msgstr "补丁发布内容"
 
 #: includes/Packages/Core_Write_Package.php:193
 msgid ""
 "Applies text patch operations to saved post content after host approval, or "
 "returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后将文本修补操作应用于保存的文章内容，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:242
 msgid "Patch Setting Value"
-msgstr ""
+msgstr "补丁设置值"
 
 #: includes/Packages/Core_Write_Package.php:243
 msgid ""
 "Applies exact text replacement operations to one option or theme mod after "
 "host approval, or returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后将精确的文本替换操作应用于一个选项或主题模组，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:294
 msgid "Update Post Blocks"
-msgstr ""
+msgstr "更新文章块"
 
 #: includes/Packages/Core_Write_Package.php:295
 msgid ""
 "Writes Gutenberg blocks into post content after host approval, or returns a "
 "dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后将 Gutenberg 块写入文章内容，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:339
 msgid "Set Post Slug"
-msgstr ""
+msgstr "设置柱塞"
 
 #: includes/Packages/Core_Write_Package.php:340
 msgid ""
 "Updates a post slug after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后更新文章，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:368
 msgid "Set Post Author"
-msgstr ""
+msgstr "设置文章作者"
 
 #: includes/Packages/Core_Write_Package.php:369
 msgid ""
 "Updates a post author after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后更新文章作者，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:396
 msgid "Set Post Template"
-msgstr ""
+msgstr "设置文章模板"
 
 #: includes/Packages/Core_Write_Package.php:397
 msgid ""
 "Updates a post template after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后更新文章模板，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:424
 msgid "Set Post Format"
-msgstr ""
+msgstr "设置文章格式"
 
 #: includes/Packages/Core_Write_Package.php:425
 msgid ""
 "Updates a post format after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后更新文章格式，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:455
 msgid "Create Term"
-msgstr ""
+msgstr "创建术语"
 
 #: includes/Packages/Core_Write_Package.php:456
 msgid ""
 "Creates a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后创建分类项，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:486
 msgid "Update Term"
-msgstr ""
+msgstr "更新期限"
 
 #: includes/Packages/Core_Write_Package.php:487
 msgid ""
 "Updates a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后更新分类项，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:521
 msgid "Set Post Terms"
-msgstr ""
+msgstr "设置文章条款"
 
 #: includes/Packages/Core_Write_Package.php:522
 msgid ""
 "Updates a post taxonomy terms in replace, append, or remove mode after host "
 "approval, or returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后以替换、追加或删除模式更新文章分类项，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:572
 msgid "Update Media Details"
-msgstr ""
+msgstr "更新媒体详细信息"
 
 #: includes/Packages/Core_Write_Package.php:573
 msgid ""
 "Updates attachment title, alt, caption, description, and attribution fields "
 "after host approval, or returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后更新附件标题、替代项、标题、描述和属性字段，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:619
 msgid "Upload Media From URL"
-msgstr ""
+msgstr "从 URL 上传媒体"
 
 #: includes/Packages/Core_Write_Package.php:620
 msgid ""
 "Downloads one remote media asset into the WordPress media library after host "
 "approval, or returns a dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后将一项远程媒体资源下载到 WordPress 媒体库中，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:667
 msgid "Optimize Media Asset"
-msgstr ""
+msgstr "优化媒体资产"
 
 #: includes/Packages/Core_Write_Package.php:668
 msgid ""
 "Generates an optimized derivative for one image attachment after host "
 "approval, preserving the original file."
-msgstr ""
+msgstr "在 host 批准后为一个图像附件生成优化的衍生文件，并保留原始文件。"
 
 #: includes/Packages/Core_Write_Package.php:702
 msgid "Replace Media File"
-msgstr ""
+msgstr "替换媒体文件"
 
 #: includes/Packages/Core_Write_Package.php:703
 msgid ""
 "Replaces one attachment main file with a previously generated optimized "
 "derivative after host approval, preserving backup metadata for restore-media-"
 "backup."
-msgstr ""
+msgstr "在 host 批准后，将一个附件主文件替换为先前生成的优化衍生文件，并保留用于恢复媒体备份的备份元数据。"
 
 #: includes/Packages/Core_Write_Package.php:742
 msgid "Restore Media Backup"
-msgstr ""
+msgstr "恢复媒体备份"
 
 #: includes/Packages/Core_Write_Package.php:743
 msgid ""
 "Restores one attachment by copying a recorded backup back to the original "
 "media path and URL after host approval."
-msgstr ""
+msgstr "在 host 批准后，通过将录制的备份复制回原始媒体路径和 URL 来恢复一个附件。"
 
 #: includes/Packages/Core_Write_Package.php:781
 msgid "Rename Media File"
-msgstr ""
+msgstr "重命名媒体文件"
 
 #: includes/Packages/Core_Write_Package.php:782
 msgid ""
 "Renames one attachment main file within its current uploads directory after "
 "host approval, preserving a backup and rollback metadata."
-msgstr ""
+msgstr "在 host 批准后重命名当前上传目录中的一个附件主文件，保留备份和回滚元数据。"
 
 #: includes/Packages/Core_Write_Package.php:820
 msgid "Adopt Cloud Media Derivative"
-msgstr ""
+msgstr "采用云媒体衍生品"
 
 #: includes/Packages/Core_Write_Package.php:821
 msgid ""
 "Adopts one approved short-lived Cloud derivative artifact as the attachment "
 "main file, with local backup and rollback metadata."
-msgstr ""
+msgstr "采用一个经批准的短期云衍生工件作为附件主文件，并具有本地备份和回滚元数据。"
 
 #: includes/Packages/Core_Write_Package.php:862
 msgid "Set Post Featured Image"
-msgstr ""
+msgstr "设置文章特色图片"
 
 #: includes/Packages/Core_Write_Package.php:863
 msgid ""
 "Sets a post featured image from an attachment ID or approved remote media "
 "URL, or returns a dry-run preview by default."
-msgstr ""
+msgstr "设置来自附件 ID 或批准的远程媒体 URL 的文章特色图像，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:893
 msgid "Schedule Post"
-msgstr ""
+msgstr "安排文章"
 
 #: includes/Packages/Core_Write_Package.php:894
 msgid ""
 "Schedules a post for future publication after host approval, or returns a "
 "dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后安排文章以便将来发布，或者默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:927
 msgid "Publish Post"
-msgstr ""
+msgstr "发布文章"
 
 #: includes/Packages/Core_Write_Package.php:928
 msgid ""
 "Publishes a draft or pending post after host approval. Only treat the post "
 "as publicly accessible after this succeeds."
-msgstr ""
+msgstr "在 host 批准后发布草稿或待处理的文章。仅在成功后才将文章视为可公开访问。"
 
 #: includes/Packages/Core_Write_Package.php:954
 msgid "Restore Post"
-msgstr ""
+msgstr "恢复文章"
 
 #: includes/Packages/Core_Write_Package.php:955
 msgid ""
 "Restores a trashed post or page after host approval, or returns a dry-run "
 "preview by default."
-msgstr ""
+msgstr "在 host 批准后恢复已删除的文章或页面，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:980
 msgid "Approve Comment"
-msgstr ""
+msgstr "批准评论"
 
 #: includes/Packages/Core_Write_Package.php:981
 msgid ""
 "Approves one comment after host approval, or returns a dry-run preview by "
 "default."
-msgstr ""
+msgstr "在 host 批准后批准一条评论，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:1006
 msgid "Reply Comment"
-msgstr ""
+msgstr "回复评论"
 
 #: includes/Packages/Core_Write_Package.php:1007
 msgid ""
 "Replies to one comment as the current user after host approval, or returns a "
 "dry-run preview by default."
-msgstr ""
+msgstr "在 host 批准后以当前用户身份回复一条评论，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:1052
 msgid "Post type is invalid."
-msgstr ""
+msgstr "文章类型无效。"
 
 #: includes/Packages/Core_Write_Package.php:1057
 msgid "Post type does not support creation."
-msgstr ""
+msgstr "文章类型不支持创建。"
 
 #: includes/Packages/Core_Write_Package.php:1061
 msgid "You do not have permission to create this post type."
-msgstr ""
+msgstr "您无权创建此文章类型。"
 
 #: includes/Packages/Core_Write_Package.php:1066
 msgid "Title is required."
-msgstr ""
+msgstr "标题为必填项。"
 
 #: includes/Packages/Core_Write_Package.php:1178
 #: includes/Packages/Core_Write_Package.php:1844
 #: includes/Packages/Core_Write_Package.php:2034
 msgid "No update fields were provided."
-msgstr ""
+msgstr "未提供更新字段。"
 
 #: includes/Packages/Core_Write_Package.php:1231
 msgid "No SEO metadata fields were provided."
-msgstr ""
+msgstr "未提供 SEO 元数据字段。"
 
 #: includes/Packages/Core_Write_Package.php:1374
 msgid "Setting target is invalid."
-msgstr ""
+msgstr "设置目标无效。"
 
 #: includes/Packages/Core_Write_Package.php:1378
 msgid "You do not have permission to patch this setting."
-msgstr ""
+msgstr "您无权修补此设置。"
 
 #: includes/Packages/Core_Write_Package.php:1414
 msgid "Theme mod writes are unavailable."
-msgstr ""
+msgstr "主题 mod 写入不可用。"
 
 #: includes/Packages/Core_Write_Package.php:1419
 msgid "Option writes are unavailable."
-msgstr ""
+msgstr "选项写入不可用。"
 
 #: includes/Packages/Core_Write_Package.php:1451
 msgid "Blocks are required."
-msgstr ""
+msgstr "需要块。"
 
 #: includes/Packages/Core_Write_Package.php:1457
 msgid "Blocks structure is invalid."
-msgstr ""
+msgstr "块结构无效。"
 
 #: includes/Packages/Core_Write_Package.php:1517
 msgid "Blocks roundtrip validation failed; write was blocked."
-msgstr ""
+msgstr "块往返验证失败；写入被阻止。"
 
 #: includes/Packages/Core_Write_Package.php:1549
 msgid "Slug is required."
-msgstr ""
+msgstr "需要蛞蝓。"
 
 #: includes/Packages/Core_Write_Package.php:1607
 #: includes/Packages/Core_Write_Package.php:1610
 msgid "Author ID is invalid."
-msgstr ""
+msgstr "作者 ID 无效。"
 
 #: includes/Packages/Core_Write_Package.php:1661
 msgid "Template is required."
-msgstr ""
+msgstr "需要模板。"
 
 #: includes/Packages/Core_Write_Package.php:1709
 msgid "Post format is invalid."
-msgstr ""
+msgstr "文章格式无效。"
 
 #: includes/Packages/Core_Write_Package.php:1758
 msgid "Term name is required."
-msgstr ""
+msgstr "术语名称为必填项。"
 
 #: includes/Packages/Core_Write_Package.php:1764
 #: includes/Packages/Core_Write_Package.php:1838
 msgid "Parent term was not found."
-msgstr ""
+msgstr "未找到父术语。"
 
 #: includes/Packages/Core_Write_Package.php:2013
 msgid "You do not have permission to edit this attachment."
-msgstr ""
+msgstr "您无权编辑此附件。"
 
 #: includes/Packages/Core_Write_Package.php:2111
 #: includes/Packages/Core_Write_Package.php:2612
 msgid "You do not have permission to upload media."
-msgstr ""
+msgstr "您没有上传媒体的权限。"
 
 #: includes/Packages/Core_Write_Package.php:2116
 #: includes/Packages/Core_Write_Package.php:3276
 msgid "Media URL is required."
-msgstr ""
+msgstr "需要介质 URL。"
 
 #: includes/Packages/Core_Write_Package.php:2120
 msgid "You do not have permission to attach media to this post."
-msgstr ""
+msgstr "您无权将媒体附加到此文章。"
 
 #: includes/Packages/Core_Write_Package.php:2219
 msgid "You do not have permission to optimize media."
-msgstr ""
+msgstr "您没有优化媒体的权限。"
 
 #: includes/Packages/Core_Write_Package.php:2228
 msgid "You do not have permission to optimize this media asset."
-msgstr ""
+msgstr "您无权优化此媒体资产。"
 
 #: includes/Packages/Core_Write_Package.php:2284
 msgid "You do not have permission to replace media files."
-msgstr ""
+msgstr "您无权替换媒体文件。"
 
 #: includes/Packages/Core_Write_Package.php:2293
 #: includes/Packages/Core_Write_Package.php:2505
 msgid "You do not have permission to replace this media file."
-msgstr ""
+msgstr "您无权替换此媒体文件。"
 
 #: includes/Packages/Core_Write_Package.php:2355
 msgid "You do not have permission to restore media backups."
-msgstr ""
+msgstr "您无权恢复媒体备份。"
 
 #: includes/Packages/Core_Write_Package.php:2364
 msgid "You do not have permission to restore this media file."
-msgstr ""
+msgstr "您无权恢复此媒体文件。"
 
 #: includes/Packages/Core_Write_Package.php:2369
 #: includes/Packages/Core_Write_Package.php:4017
 msgid "A backup_id is required for media backup restore."
-msgstr ""
+msgstr "媒体备份恢复需要 backup_id。"
 
 #: includes/Packages/Core_Write_Package.php:2430
 msgid "You do not have permission to rename media files."
-msgstr ""
+msgstr "您无权重命名媒体文件。"
 
 #: includes/Packages/Core_Write_Package.php:2439
 msgid "You do not have permission to rename this media file."
-msgstr ""
+msgstr "您无权重命名此媒体文件。"
 
 #: includes/Packages/Core_Write_Package.php:2496
 msgid "You do not have permission to adopt media derivatives."
-msgstr ""
+msgstr "您无权采用媒体衍生品。"
 
 #: includes/Packages/Core_Write_Package.php:2584
 msgid "Either attachment_id or media_url is required."
-msgstr ""
+msgstr "需要 attachment_id 或 media_url。"
 
 #: includes/Packages/Core_Write_Package.php:2627
 msgid "You do not have permission to use this attachment."
-msgstr ""
+msgstr "您无权使用此附件。"
 
 #: includes/Packages/Core_Write_Package.php:2631
 msgid "Featured image runtime is unavailable."
-msgstr ""
+msgstr "特色图像运行时不可用。"
 
 #: includes/Packages/Core_Write_Package.php:2656
 msgid "You do not have permission to schedule this post."
-msgstr ""
+msgstr "您无权安排此文章。"
 
 #: includes/Packages/Core_Write_Package.php:2663
 msgid "publish_at is required."
-msgstr ""
+msgstr "需要 publish_at。"
 
 #: includes/Packages/Core_Write_Package.php:2667
 msgid "publish_at is invalid."
-msgstr ""
+msgstr "publish_at 无效。"
 
 #: includes/Packages/Core_Write_Package.php:2670
 msgid "publish_at must be in the future."
-msgstr ""
+msgstr "publish_at 必须是将来的。"
 
 #: includes/Packages/Core_Write_Package.php:2735
 msgid "You do not have permission to publish this post."
-msgstr ""
+msgstr "您无权发布此文章。"
 
 #: includes/Packages/Core_Write_Package.php:2792
 msgid "This post is not in the trash."
-msgstr ""
+msgstr "这篇文章不在回收站中。"
 
 #: includes/Packages/Core_Write_Package.php:2815
 msgid "Post restore failed."
-msgstr ""
+msgstr "恢复后失败。"
 
 #: includes/Packages/Core_Write_Package.php:2884
 msgid "You do not have permission to reply to this comment."
-msgstr ""
+msgstr "您无权回复此评论。"
 
 #: includes/Packages/Core_Write_Package.php:2891
 msgid "Reply content is required."
-msgstr ""
+msgstr "回复内容为必填项。"
 
 #: includes/Packages/Core_Write_Package.php:2932
 msgid "Comment reply failed."
-msgstr ""
+msgstr "评论回复失败。"
 
 #: includes/Packages/Core_Write_Package.php:3162
 msgid "No SEO metadata writer is available."
-msgstr ""
+msgstr "没有可用的 SEO 元数据编写器。"
 
 #: includes/Packages/Core_Write_Package.php:3195
 msgid "This write ability requires approval from a host runtime before commit."
-msgstr ""
+msgstr "这种写入能力需要在提交之前获得 host runtime 批准。"
 
 #: includes/Packages/Core_Write_Package.php:3220
 msgid "You do not have permission to edit this post."
-msgstr ""
+msgstr "您没有编辑此文章的权限。"
 
 #: includes/Packages/Core_Write_Package.php:3279
 msgid "Media URL is not allowed."
-msgstr ""
+msgstr "不允许使用媒体 URL。"
 
 #: includes/Packages/Core_Write_Package.php:3293
 msgid "Media runtime is unavailable."
-msgstr ""
+msgstr "媒体运行时不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3309
 #: includes/Packages/Core_Write_Package.php:3333
 msgid "Remote media is not reachable."
-msgstr ""
+msgstr "无法访问远程媒体。"
 
 #: includes/Packages/Core_Write_Package.php:3313
 #: includes/Packages/Core_Write_Package.php:3339
 msgid "Remote media exceeds the allowed size."
-msgstr ""
+msgstr "远程媒体超出允许的大小。"
 
 #: includes/Packages/Core_Write_Package.php:3372
 msgid "Uploaded media file is unavailable."
-msgstr ""
+msgstr "上传的媒体文件不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3383
 msgid "Remote media type is not allowed."
-msgstr ""
+msgstr "不允许远程媒体类型。"
 
 #: includes/Packages/Core_Write_Package.php:3458
 msgid "Only image attachments can be optimized."
-msgstr ""
+msgstr "只能优化图像附件。"
 
 #: includes/Packages/Core_Write_Package.php:3525
 msgid "The source attachment file is unavailable."
-msgstr ""
+msgstr "源附件文件不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3528
 msgid "WordPress image editor is unavailable."
-msgstr ""
+msgstr "WordPress 图像编辑器不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3551
 msgid "The attachment directory is unavailable."
-msgstr ""
+msgstr "附件目录不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3563
 msgid "Optimized derivative file was not created."
-msgstr ""
+msgstr "未创建优化的衍生文件。"
 
 #: includes/Packages/Core_Write_Package.php:3641
 #: includes/Packages/Core_Write_Package.php:3873
 msgid "The derivative MIME type did not match the expected value."
-msgstr ""
+msgstr "派生 MIME 类型与预期值不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:3690
 msgid "A derivative artifact_id is required."
-msgstr ""
+msgstr "需要导数 artifact_id。"
 
 #: includes/Packages/Core_Write_Package.php:3694
 msgid ""
 "The derivative artifact MIME type is not supported for media replacement."
-msgstr ""
+msgstr "媒体替换不支持派生工件 MIME 类型。"
 
 #: includes/Packages/Core_Write_Package.php:3703
 msgid "The derivative artifact expiry is required."
-msgstr ""
+msgstr "衍生工件到期是必需的。"
 
 #: includes/Packages/Core_Write_Package.php:3706
 msgid ""
 "The derivative artifact has expired. Generate a new preview before adoption."
-msgstr ""
+msgstr "衍生神器已过期。在采用之前生成新的预览。"
 
 #: includes/Packages/Core_Write_Package.php:3713
 msgid "The derivative artifact format is not supported for media replacement."
-msgstr ""
+msgstr "介质替换不支持派生工件格式。"
 
 #: includes/Packages/Core_Write_Package.php:3790
 msgid "Cloud Addon artifact download is unavailable on this site."
-msgstr ""
+msgstr "此网站不提供 Cloud Addon 工件下载。"
 
 #: includes/Packages/Core_Write_Package.php:3799
 msgid "The downloaded derivative artifact was empty."
-msgstr ""
+msgstr "下载的衍生神器是空的。"
 
 #: includes/Packages/Core_Write_Package.php:3804
 msgid "The downloaded derivative checksum did not match the proposal evidence."
-msgstr ""
+msgstr "下载的衍生校验和与提案证据不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:3811
 msgid "The local derivative path is invalid."
-msgstr ""
+msgstr "本地派生路径无效。"
 
 #: includes/Packages/Core_Write_Package.php:3815
 msgid "The local derivative directory could not be created."
-msgstr ""
+msgstr "无法创建本地派生目录。"
 
 #: includes/Packages/Core_Write_Package.php:3832
 msgid "The local derivative file could not be written."
-msgstr ""
+msgstr "无法写入本地衍生文件。"
 
 #: includes/Packages/Core_Write_Package.php:3865
 msgid "A derivative_relative_file is required for media file replacement."
-msgstr ""
+msgstr "媒体文件替换需要 derivative_relative_file。"
 
 #: includes/Packages/Core_Write_Package.php:3869
 msgid "The requested derivative is not recorded for this attachment."
-msgstr ""
+msgstr "此附件未记录所请求的衍生产品。"
 
 #: includes/Packages/Core_Write_Package.php:3924
 #: includes/Packages/Core_Write_Package.php:4299
 msgid "Current attachment file metadata is unavailable."
-msgstr ""
+msgstr "当前附件文件元数据不可用。"
 
 #: includes/Packages/Core_Write_Package.php:3929
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2022
 msgid "Target file name must be a file basename, not a path."
-msgstr ""
+msgstr "目标文件名必须是文件基名，而不是路径。"
 
 #: includes/Packages/Core_Write_Package.php:3933
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2026
 msgid "Target file name is invalid after sanitization."
-msgstr ""
+msgstr "清理后目标文件名无效。"
 
 #: includes/Packages/Core_Write_Package.php:3944
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1865
 msgid "Target file extension must match the current media file extension."
-msgstr ""
+msgstr "目标文件扩展名必须与当前媒体文件扩展名匹配。"
 
 #: includes/Packages/Core_Write_Package.php:3947
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1861
 msgid "Target file name matches the current file name."
-msgstr ""
+msgstr "目标文件名与当前文件名匹配。"
 
 #: includes/Packages/Core_Write_Package.php:3958
 #: includes/Packages/Core_Write_Package.php:4168
 msgid "Target media file already exists."
-msgstr ""
+msgstr "目标媒体文件已存在。"
 
 #: includes/Packages/Core_Write_Package.php:4021
 msgid "Replacement history was not found for restore."
-msgstr ""
+msgstr "找不到用于恢复的替换历史记录。"
 
 #: includes/Packages/Core_Write_Package.php:4028
 #: includes/Packages/Core_Write_Package.php:4228
 msgid "The backup file is unavailable for restore."
-msgstr ""
+msgstr "备份文件无法恢复。"
 
 #: includes/Packages/Core_Write_Package.php:4035
 #: includes/Packages/Core_Write_Package.php:4231
 msgid "The original media file path is unavailable for restore."
-msgstr ""
+msgstr "原始媒体文件路径无法恢复。"
 
 #: includes/Packages/Core_Write_Package.php:4041
 #: includes/Packages/Core_Write_Package.php:4234
 msgid "The original media file path already exists with different content."
-msgstr ""
+msgstr "原始媒体文件路径已存在且内容不同。"
 
 #: includes/Packages/Core_Write_Package.php:4102
 msgid "The current attachment file is unavailable for backup."
-msgstr ""
+msgstr "当前附件文件无法备份。"
 
 #: includes/Packages/Core_Write_Package.php:4105
 msgid "The derivative file is unavailable for replacement."
-msgstr ""
+msgstr "衍生文件无法替换。"
 
 #: includes/Packages/Core_Write_Package.php:4109
 #: includes/Packages/Core_Write_Package.php:4171
 msgid "The current attachment file could not be backed up."
-msgstr ""
+msgstr "无法备份当前附件文件。"
 
 #: includes/Packages/Core_Write_Package.php:4162
 msgid "The current attachment file is unavailable for rename."
-msgstr ""
+msgstr "当前附件文件无法重命名。"
 
 #: includes/Packages/Core_Write_Package.php:4165
 msgid "Target media file path is invalid."
-msgstr ""
+msgstr "目标媒体文件路径无效。"
 
 #: includes/Packages/Core_Write_Package.php:4174
 msgid "The current attachment file could not be renamed."
-msgstr ""
+msgstr "无法重命名当前附件文件。"
 
 #: includes/Packages/Core_Write_Package.php:4225
 msgid "The current attachment file is unavailable for restore backup."
-msgstr ""
+msgstr "当前附件文件不可用于恢复备份。"
 
 #: includes/Packages/Core_Write_Package.php:4237
 msgid "The current attachment file could not be backed up before restore."
-msgstr ""
+msgstr "恢复前无法备份当前附件文件。"
 
 #: includes/Packages/Core_Write_Package.php:4240
 msgid "The backup file could not be restored to the original path."
-msgstr ""
+msgstr "备份文件无法恢复到原始路径。"
 
 #: includes/Packages/Core_Write_Package.php:4325
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1888
 msgid "The current media file did not match the expected value."
-msgstr ""
+msgstr "当前媒体文件与预期值不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:4329
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1892
 msgid "The current media MIME type did not match the expected value."
-msgstr ""
+msgstr "当前媒体 MIME 类型与预期值不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:4348
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1874
 msgid "The expected current MD5 value is invalid."
-msgstr ""
+msgstr "预期的当前 MD5 值无效。"
 
 #: includes/Packages/Core_Write_Package.php:4351
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1877
 msgid "The expected current SHA-256 value is invalid."
-msgstr ""
+msgstr "预期的当前 SHA-256 值无效。"
 
 #: includes/Packages/Core_Write_Package.php:4358
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1880
 msgid "The current media file MD5 did not match the expected value."
-msgstr ""
+msgstr "当前媒体文件 MD5 与预期值不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:4361
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1883
 msgid "The current media file SHA-256 did not match the expected value."
-msgstr ""
+msgstr "当前媒体文件 SHA-256 与预期值不匹配。"
 
 #: includes/Packages/Core_Write_Package.php:4533
 msgid "Replacement file path is invalid."
-msgstr ""
+msgstr "替换文件路径无效。"
 
 #: includes/Packages/Core_Write_Package.php:5332
 #: includes/Packages/Core_Write_Package.php:5822
 msgid "Operations are required."
-msgstr ""
+msgstr "需要进行操作。"
 
 #: includes/Packages/Core_Write_Package.php:5341
 msgid "Patch operation is invalid."
-msgstr ""
+msgstr "补丁操作无效。"
 
 #: includes/Packages/Core_Write_Package.php:5345
 msgid "Patch find text is required."
-msgstr ""
+msgstr "需要修补程序查找文本。"
 
 #: includes/Packages/Core_Write_Package.php:5496
 msgid ""
 "You do not have permission to update a post that references this media item."
-msgstr ""
+msgstr "您无权更新引用此媒体项目的文章。"
 
 #: includes/Packages/Core_Write_Package.php:5515
 msgid "A post that references this media item was not found during repair."
-msgstr ""
+msgstr "修复期间未找到引用此媒体项目的文章。"
 
 #: includes/Packages/Core_Write_Package.php:5818
 #: includes/Packages/Core_Write_Package.php:5857
 msgid "Raw serialized setting strings require manual review."
-msgstr ""
+msgstr "原始序列化设置字符串需要手动审核。"
 
 #: includes/Packages/Core_Write_Package.php:5827
 msgid "Setting patch operations must be exact replacements."
-msgstr ""
+msgstr "设置补丁操作必须是精确替换。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:27
 msgid "Site Info"
-msgstr ""
+msgstr "站点信息"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:28
 msgid ""
 "Returns the site name, URLs, language, WordPress version, timezone, and "
 "active theme."
-msgstr ""
+msgstr "返回网站名称、URL、语言、WordPress 版本、时区和活动主题。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:56
 msgid "List Post Types"
-msgstr ""
+msgstr "列出文章类型"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:57
 msgid ""
 "Returns available post types, including REST exposure and hierarchy flags."
-msgstr ""
+msgstr "返回可用的文章类型，包括 REST 曝光度和层次结构标志。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:94
 msgid "List Taxonomies"
-msgstr ""
+msgstr "列表分类法"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:95
 msgid "Returns taxonomy definitions and bound object types."
-msgstr ""
+msgstr "返回分类定义和绑定对象类型。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:136
 msgid "Propose Post Excerpt"
-msgstr ""
+msgstr "提议文章摘录"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:137
 msgid ""
 "Builds a read-only excerpt proposal from explicit content input without "
 "writing changes."
-msgstr ""
+msgstr "从显式内容输入构建只读摘录提案，无需写入更改。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:170
 msgid "Resolve Post Metadata Plan"
-msgstr ""
+msgstr "解决后期元数据计划"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:171
 msgid ""
 "Normalizes a post metadata plan into the canonical excerpt, taxonomy, slug, "
 "author, template, format, and publication handoff payload."
-msgstr ""
+msgstr "将文章元数据计划规范化为规范摘录、分类、slug、作者、模板、格式和发布切换有效负载。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:212
 msgid "List Users"
-msgstr ""
+msgstr "列出用户"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:213
 msgid "Returns a paginated list of users and roles."
-msgstr ""
+msgstr "返回用户和角色的分页列表。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:256
 msgid "List Navigation Menus"
-msgstr ""
+msgstr "列表导航菜单"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:257
 msgid "Returns available navigation menus and their assigned theme locations."
-msgstr ""
+msgstr "返回可用的导航菜单及其指定的主题位置。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:282
 msgid "Get Navigation Menu"
-msgstr ""
+msgstr "获取导航菜单"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:283
 msgid "Returns one navigation menu and its menu items."
-msgstr ""
+msgstr "返回一个导航菜单及其菜单项。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:314
 msgid "Search Posts"
-msgstr ""
+msgstr "搜索文章"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:315
 msgid ""
 "Searches local WordPress posts by keyword and bounded filters, returning "
 "matching post summaries."
-msgstr ""
+msgstr "按关键字和有界过滤器搜索本地 WordPress 文章，返回匹配的文章摘要。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:386
 msgid "Get Post Stats"
-msgstr ""
+msgstr "获取文章统计信息"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:387
 msgid ""
 "Returns word count, image count, reading time, comments, and dates for a "
 "post."
-msgstr ""
+msgstr "返回文章的字数、图像数、阅读时间、评论和日期。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:416
 msgid "List Revisions"
-msgstr ""
+msgstr "列表修订"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:417
 msgid ""
 "Returns a paginated list of post revisions using the legacy response shape."
-msgstr ""
+msgstr "使用旧响应形状返回修订版本的分页列表。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:447
 msgid "Get Post Meta"
-msgstr ""
+msgstr "获取文章元数据"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:448
 msgid "Reads post meta for one post, optionally scoped to a single meta key."
-msgstr ""
+msgstr "读取一篇文章的文章元，可以选择将范围限制为单个元键。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:481
 msgid "Search Post Meta"
-msgstr ""
+msgstr "搜索文章元"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:482
 msgid ""
 "Searches explicitly named local post meta keys and returns bounded matching "
 "post summaries without writing."
-msgstr ""
+msgstr "搜索显式命名的本地文章元键并返回有界匹配的文章摘要，而无需写入。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:556
 msgid "Count Posts"
-msgstr ""
+msgstr "文章计数"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:557
 msgid "Counts posts for one post type and status."
-msgstr ""
+msgstr "统计一种文章类型和状态的文章。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:579
 msgid "List Posts"
-msgstr ""
+msgstr "列出文章"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:580
 msgid "Returns a paginated list of posts or pages."
-msgstr ""
+msgstr "返回文章或页面的分页列表。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:634
 msgid "Get Post"
-msgstr ""
+msgstr "获取文章"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:635
 msgid "Returns details for a single post or page."
-msgstr ""
+msgstr "返回单个文章或页面的详细信息。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:666
 msgid "Get Post Context"
-msgstr ""
+msgstr "获取文章上下文"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:667
 msgid ""
 "Returns one agent-ready post context bundle with content, stats, terms, "
 "media, blocks, revisions, and optional scoped metadata."
-msgstr ""
+msgstr "返回一个代理就绪的后上下文捆绑包，其中包含内容、统计信息、术语、媒体、块、修订和可选范围元数据。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:718
 msgid "Resolve URL to Post"
-msgstr ""
+msgstr "解决 URL 发布问题"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:719
 msgid ""
 "Resolves a URL or slug to a post ID, post type, status, edit link, and "
 "permalink."
-msgstr ""
+msgstr "将 URL 或 slug 解析为文章 ID、文章类型、状态、编辑链接和永久链接。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:747
 msgid "Get Post Blocks"
-msgstr ""
+msgstr "获取文章块"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:748
 msgid "Returns a Gutenberg block structure snapshot for a post or revision."
-msgstr ""
+msgstr "返回文章或修订的 Gutenberg 块结构快照。"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:781
 msgid "List Post Revisions"
-msgstr ""
+msgstr "列出文章修订"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:782
 msgid "Returns a paginated read-only revision history for a post."
-msgstr ""
+msgstr "返回文章的分页只读修订历史记录。"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:27
 msgid "WordPress Diagnostics Summary"
-msgstr ""
+msgstr "WordPress 诊断摘要"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:28
 msgid ""
 "Returns a redacted local WordPress diagnostics summary without Npcink AI, "
 "MCP, filesystem path, database name, or secret details."
-msgstr ""
+msgstr "返回经过编辑的本地 WordPress 诊断摘要，不包含 Npcink AI、MCP、文件系统路径、数据库名称或机密详细信息。"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:76
 msgid "WordPress Operations Diagnostics Detail"
-msgstr ""
+msgstr "WordPress 操作诊断详细信息"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:77
 msgid ""
@@ -2443,6 +2443,8 @@ msgid ""
 "log, content type, role, widget, block-theme, search, integration, SEO, "
 "security, and performance details."
 msgstr ""
+"返回有界本地 WordPress "
+"操作诊断，包括插件、调用者功能、PHP、缓存、重写、HTTPS、服务器、数据库、cron、结构化日志、内容类型、角色、小部件、块主题、搜索、集成、SEO、安全性和性能详细信息。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:184
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:28
@@ -2453,39 +2455,39 @@ msgstr ""
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:336
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:446
 msgid "post_id is invalid."
-msgstr ""
+msgstr "post_id 无效。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:192
 msgid "You are not allowed to read this post."
-msgstr ""
+msgstr "您无权阅读这篇文章。"
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:49
 msgid ""
 "Template style risk is high; review and polish the article before scheduling "
 "or publishing."
-msgstr ""
+msgstr "模板风格风险较高；在安排或发布之前审查并完善文章。"
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:52
 msgid "Quality review requires human review before scheduling or publishing."
-msgstr ""
+msgstr "质量审核需要在安排或发布之前进行人工审核。"
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:58
 msgid ""
 "A duplicate production candidate was detected; review before scheduling or "
 "publishing."
-msgstr ""
+msgstr "检测到重复的生产候选者；在安排或发布之前进行审查。"
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:27
 msgid "You do not have permission to read content inventory."
-msgstr ""
+msgstr "您无权读取内容清单。"
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:170
 msgid "You do not have permission to read nonproduction content inventory."
-msgstr ""
+msgstr "您无权读取非生产内容库存。"
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:339
 msgid "You do not have permission to build content inventory fix plans."
-msgstr ""
+msgstr "您无权制定内容清单修复计划。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:36
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:539
@@ -2496,96 +2498,96 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:896
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:36
 msgid "You do not have permission to read this post."
-msgstr ""
+msgstr "您没有阅读这篇文章的权限。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:56
 msgid ""
 "Place one contextual internal link after the first paragraph that introduces "
 "this concept."
-msgstr ""
+msgstr "在介绍此概念的第一段之后放置一个上下文内部链接。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:97
 msgid "You do not have permission to read content refresh opportunities."
-msgstr ""
+msgstr "您无权读取内容刷新机会。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:209
 msgid "You do not have permission to read article refresh context."
-msgstr ""
+msgstr "您无权阅读文章刷新上下文。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:318
 msgid "You do not have permission to read internal link graph health."
-msgstr ""
+msgstr "您无权读取内部链接图运行状况。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:397
 msgid "Posts share topic terms and may support a contextual internal link."
-msgstr ""
+msgstr "文章共享主题术语，并可能支持上下文内部链接。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:494
 msgid "Refresh scan found repeated SEO/GEO readiness gaps."
-msgstr ""
+msgstr "刷新扫描发现重复的 SEO/GEO 准备差距。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
 msgid "Focus keyword appears in title or content."
-msgstr ""
+msgstr "焦点关键字出现在标题或内容中。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
 msgid ""
 "Add or confirm a focus keyword and place it naturally in the title or lead "
 "section."
-msgstr ""
+msgstr "添加或确认焦点关键字并将其自然地放置在标题或引导部分中。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
 msgid "SEO title metadata is present."
-msgstr ""
+msgstr "存在 SEO 标题元数据。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
 msgid "Add SEO title metadata before publication or optimization handoff."
-msgstr ""
+msgstr "在发布或优化移交之前添加 SEO 标题元数据。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
 msgid "SEO description metadata is present."
-msgstr ""
+msgstr "存在 SEO 描述元数据。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
 msgid "Add SEO description metadata for search and share snippets."
-msgstr ""
+msgstr "添加用于搜索和共享片段的 SEO 描述元数据。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
 msgid "Content has enough depth for baseline SEO review."
-msgstr ""
+msgstr "内容有足够的深度用于基线 SEO 审核。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
 msgid "Expand the content with clearer context, steps, evidence, or examples."
-msgstr ""
+msgstr "使用更清晰的上下文、步骤、证据或示例来扩展内容。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
 msgid "Content has answer-oriented question candidates."
-msgstr ""
+msgstr "内容有以答案为导向的问题候选人。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
 msgid "Add direct answer sections or FAQ-style questions for GEO readiness."
-msgstr ""
+msgstr "添加直接回答部分或常见问题解答类型的问题，以做好 GEO 的准备。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
 msgid "Featured media is assigned."
-msgstr ""
+msgstr "指定了特色媒体。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
 msgid "Add featured media when the channel or theme expects one."
-msgstr ""
+msgstr "当频道或主题需要时添加特色媒体。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:616
 msgid "You do not have permission to read topic coverage."
-msgstr ""
+msgstr "您无权阅读主题报道。"
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:678
 msgid ""
 "Only one scanned post covers this topic; consider adding supporting content "
 "or internal links."
-msgstr ""
+msgstr "只有一篇扫描版文章涵盖了该主题；考虑添加支持内容或内部链接。"
 
 #. translators: %s: Related term.
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:847
@@ -2593,346 +2595,346 @@ msgstr ""
 msgid ""
 "Existing content is related to \"%s\" and can support the source post with "
 "contextual reading."
-msgstr ""
+msgstr "现有内容与“%s”相关，可以通过上下文阅读来支持源文章。"
 
 #. translators: %s: Related search term.
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:58
 #, php-format
 msgid ""
 "Existing site content related to \"%s\" can be used as supplemental reading."
-msgstr ""
+msgstr "与“%s”相关的现有网站内容可以作为补充阅读。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:73
 msgid ""
 "Insert one internal link after the first paragraph that explains the core "
 "concept."
-msgstr ""
+msgstr "在解释核心概念的第一段之后插入一个内部链接。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:83
 msgid ""
 "Keep titles, opening summaries, and CTA paragraphs link-free to avoid "
 "diluting the main answer."
-msgstr ""
+msgstr "保持标题、开头摘要和 CTA 段落无链接，以避免淡化主要答案。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:94
 msgid "Internal link targets resolved."
-msgstr ""
+msgstr "内部链接目标已解决。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:135
 msgid "You do not have permission to resolve media attachments."
-msgstr ""
+msgstr "您无权解析媒体附件。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:728
 msgid "You do not have permission to read media cleanup opportunities."
-msgstr ""
+msgstr "您无权阅读媒体清理机会。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:793
 msgid "You do not have permission to read media backups."
-msgstr ""
+msgstr "您无权读取媒体备份。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:802
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1321
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1838
 msgid "Attachment was not found."
-msgstr ""
+msgstr "找不到附件。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:805
 msgid "You do not have permission to read backups for this media item."
-msgstr ""
+msgstr "您无权读取该媒体项目的备份。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:891
 msgid "You do not have permission to read media inventory."
-msgstr ""
+msgstr "您无权读取媒体清单。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:964
 msgid "You do not have permission to inspect media assets."
-msgstr ""
+msgstr "您无权检查媒体资产。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:970
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1011
 msgid "Attachment not found."
-msgstr ""
+msgstr "找不到附件。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:973
 msgid "You do not have permission to inspect this media asset."
-msgstr ""
+msgstr "您无权检查此媒体资产。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1005
 msgid "You do not have permission to prepare media derivative requests."
-msgstr ""
+msgstr "您无权准备媒体衍生品请求。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1014
 msgid ""
 "You do not have permission to prepare a derivative request for this media "
 "asset."
-msgstr ""
+msgstr "您无权为此媒体资产准备衍生请求。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1122
 msgid "You do not have permission to prepare media derivative batch plans."
-msgstr ""
+msgstr "您无权准备媒体衍生批次计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1129
 msgid "Unsupported media derivative target format."
-msgstr ""
+msgstr "不支持的媒体衍生目标格式。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1311
 msgid "You do not have permission to prepare media optimization plans."
-msgstr ""
+msgstr "您无权准备媒体优化计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1324
 msgid ""
 "You do not have permission to prepare an optimization plan for this media "
 "item."
-msgstr ""
+msgstr "您无权为此媒体项目准备优化计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1829
 msgid "You do not have permission to prepare media rename plans."
-msgstr ""
+msgstr "您无权准备媒体重命名计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1841
 msgid ""
 "You do not have permission to prepare a rename plan for this media item."
-msgstr ""
+msgstr "您无权为此媒体项目准备重命名计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1937
 msgid ""
 "Media rename plans with reference updates require permission to edit posts."
-msgstr ""
+msgstr "带有参考更新的媒体重命名计划需要编辑文章的权限。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2101
 msgid ""
 "Media optimization plans require at least one reviewed media metadata field."
-msgstr ""
+msgstr "媒体优化计划需要至少一个经过审查的媒体元数据字段。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2121
 msgid "Media optimization plans require derivative_artifact evidence."
-msgstr ""
+msgstr "媒体优化计划需要 derivative_artifact 证据。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2159
 msgid ""
 "Only image and text watermarks are supported for Cloud media derivatives."
-msgstr ""
+msgstr "云媒体衍生品仅支持图片和文字水印。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2423
 msgid "You do not have permission to build media inventory fix plans."
-msgstr ""
+msgstr "您无权制定媒体库存修复计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2534
 msgid "You do not have permission to build media reference repair plans."
-msgstr ""
+msgstr "您无权建立介质参考修复计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2551
 msgid "Old and new media URLs are required for reference repair planning."
-msgstr ""
+msgstr "参考维修计划需要新旧介质 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2622
 msgid ""
 "Replace hard-coded media URLs in post content after media file adoption."
-msgstr ""
+msgstr "采用媒体文件后替换文章内容中的硬编码媒体 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2672
 msgid ""
 "You do not have permission to build media settings reference repair plans."
-msgstr ""
+msgstr "您无权构建媒体设置参考修复计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2687
 msgid ""
 "Old and new media URLs are required for settings reference repair planning."
-msgstr ""
+msgstr "设置参考修复计划需要新旧介质 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2784
 msgid ""
 "Replace exact hard-coded media URLs in a WordPress setting after local media "
 "adoption."
-msgstr ""
+msgstr "采用本地媒体后，替换 WordPress 设置中的确切硬编码媒体 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3295
 msgid ""
 "No completed media replacement history or explicit old/new URLs were found "
 "for this attachment."
-msgstr ""
+msgstr "未找到此附件的完整媒体更换历史记录或明确的旧/新 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3769
 msgid "A media URL is required."
-msgstr ""
+msgstr "需要介质 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3775
 msgid "The local uploads base URL is unavailable."
-msgstr ""
+msgstr "本地上传库 URL 不可用。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3785
 msgid ""
 "The media URL must be an absolute same-site uploads URL or a root-relative "
 "uploads URL."
-msgstr ""
+msgstr "媒体 URL 必须是绝对同站点上传 URL 或根相对上传 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3791
 msgid "Only local uploads URLs can be resolved to media attachments."
-msgstr ""
+msgstr "只有本地上传的 URL 才能解析为媒体附件。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3797
 msgid "Only URLs under the local uploads directory can be resolved."
-msgstr ""
+msgstr "只能解析本地上传目录下的 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3803
 msgid "The uploads URL path is not a valid media file path."
-msgstr ""
+msgstr "上传 URL 路径不是有效的媒体文件路径。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:27
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:118
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:183
 msgid "You do not have permission to read pages."
-msgstr ""
+msgstr "您没有阅读页面的权限。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:123
 msgid "Page ID is invalid."
-msgstr ""
+msgstr "页面 ID 无效。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:127
 msgid "Page was not found."
-msgstr ""
+msgstr "找不到页面。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:130
 msgid "You do not have permission to read this page."
-msgstr ""
+msgstr "您没有权限阅读此页面。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:335
 msgid "You do not have permission to read page structure health."
-msgstr ""
+msgstr "您无权读取页面结构运行状况。"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:428
 msgid "Default Template"
-msgstr ""
+msgstr "默认模板"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:41
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:275
 msgid "Search keyword cannot be empty."
-msgstr ""
+msgstr "搜索关键字不能为空。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:169
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:696
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:953
 msgid "You do not have permission to read this post revision history."
-msgstr ""
+msgstr "您无权阅读此文章的修订历史记录。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:230
 msgid "You do not have permission to read this post meta."
-msgstr ""
+msgstr "您无权阅读此文章元。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:278
 msgid "At least one non-sensitive meta key is required."
-msgstr ""
+msgstr "至少需要一个非敏感元密钥。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:826
 msgid "A URL or slug is required."
-msgstr ""
+msgstr "需要 URL 或 slug。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:858
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:863
 msgid "No matching post was found."
-msgstr ""
+msgstr "没有找到匹配的文章。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:904
 msgid "Revision was not found."
-msgstr ""
+msgstr "未找到修订版。"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:907
 msgid "Revision does not belong to the requested post."
-msgstr ""
+msgstr "修改不属于所请求的文章。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
 msgid "Title is present."
-msgstr ""
+msgstr "标题已存在。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
 msgid "Add a clear post title before publishing."
-msgstr ""
+msgstr "发布前添加清晰的文章标题。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
 msgid "Body content has enough text for review."
-msgstr ""
+msgstr "正文内容有足够的文字供审核。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
 msgid "Add more body content before publishing."
-msgstr ""
+msgstr "在发布之前添加更多正文内容。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Slug is set."
-msgstr ""
+msgstr "子弹已设置。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Set a stable URL slug before publishing."
-msgstr ""
+msgstr "发布前设置稳定的 URL slug。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
 msgid "Author is assigned."
-msgstr ""
+msgstr "作者已指定。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
 msgid "Assign an author before publishing."
-msgstr ""
+msgstr "发布前指定作者。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
 msgid "At least one category is assigned."
-msgstr ""
+msgstr "至少指定一个类别。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
 msgid "Assign at least one category before publishing."
-msgstr ""
+msgstr "发布前至少分配一个类别。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
 msgid "Category lookup is available."
-msgstr ""
+msgstr "可以进行类别查找。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
 msgid ""
 "Category lookup is unavailable in this runtime; verify categories in "
 "WordPress."
-msgstr ""
+msgstr "此运行时无法进行类别查找；验证 WordPress 中的类别。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
 msgid "Excerpt is present."
-msgstr ""
+msgstr "存在摘录。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
 msgid "Add an excerpt for archive and social previews."
-msgstr ""
+msgstr "添加存档和社交预览的摘录。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
 msgid "Featured image is assigned."
-msgstr ""
+msgstr "指定了特色图像。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
 msgid "Add a featured image when the layout or channel expects one."
-msgstr ""
+msgstr "当布局或频道需要时添加特色图像。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
 msgid "Add SEO title metadata if the site SEO plugin uses it."
-msgstr ""
+msgstr "如果网站 SEO 插件使用 SEO 标题元数据，请添加它。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
 msgid "Scheduled publish date is in the future."
-msgstr ""
+msgstr "预定的发布日期是将来的日期。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
 msgid "Set a future publish date before scheduling."
-msgstr ""
+msgstr "在安排之前设置未来的发布日期。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:140
 msgid "At least one post id is required."
-msgstr ""
+msgstr "至少需要一个文章 ID。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:234
 msgid "You do not have permission to read site operations."
-msgstr ""
+msgstr "您无权读取站点操作。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:647
 msgid "You do not have permission to read publishing calendar context."
-msgstr ""
+msgstr "您无权读取发布日历上下文。"
 
 #: includes/Packages/Read_Traits/Style_Read_Methods.php:210
 msgid "Site style baseline built."
-msgstr ""
+msgstr "网站风格基线已建立。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:77
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:119
@@ -2940,43 +2942,43 @@ msgstr ""
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:334
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:795
 msgid "Taxonomy does not exist."
-msgstr ""
+msgstr "分类法不存在。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:111
 msgid "You do not have permission to read taxonomy consolidation suggestions."
-msgstr ""
+msgstr "您无权阅读分类合并建议。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:152
 msgid "Term has no associated content in the current scan."
-msgstr ""
+msgstr "当前扫描中术语没有关联内容。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:166
 msgid "Terms normalize to the same consolidation key."
-msgstr ""
+msgstr "术语标准化为相同的合并键。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:200
 msgid "A valid post_id is required."
-msgstr ""
+msgstr "需要有效的 post_id。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:204
 msgid "Post not found."
-msgstr ""
+msgstr "找不到文章。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:207
 msgid "You do not have permission to inspect taxonomy proposals for this post."
-msgstr ""
+msgstr "您无权检查此文章的分类提案。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:226
 msgid "At least one candidate term id or term name is required."
-msgstr ""
+msgstr "至少需要一个候选分类项 ID 或术语名称。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:263
 msgid "No candidate terms matched existing taxonomy terms."
-msgstr ""
+msgstr "没有候选术语与现有分类项匹配。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:326
 msgid "You do not have permission to read taxonomy inventory."
-msgstr ""
+msgstr "您无权读取分类库存。"
 
 #: includes/Registry/Category_Registrar.php:95
 msgid "Abilities API Packages: Read"
@@ -3006,18 +3008,18 @@ msgstr "由工具支持的 agent 工作流能力。"
 
 #: includes/Registry/Contract_Normalizer.php:176
 msgid "Ability execute callback is not configured."
-msgstr ""
+msgstr "能力执行回调未配置。"
 
 #: includes/Registry/Contract_Normalizer.php:207
 msgid "When true, return a host-governed preview without mutating WordPress."
-msgstr ""
+msgstr "为 true 时，返回由 host 治理的预览，不修改 WordPress。"
 
 #: includes/Registry/Contract_Normalizer.php:212
 msgid ""
 "When true, attempt the final commit. Host approval context is still required."
-msgstr ""
+msgstr "为 true 时，尝试执行最终提交。仍然需要 host 审批上下文。"
 
 #: includes/Registry/Contract_Normalizer.php:218
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
-msgstr ""
+msgstr "可选的 host 提供幂等键，用于审计和重放关联。"

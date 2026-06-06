@@ -61,7 +61,7 @@ The 0.5 release verification line is tracked in [docs/release-0.5-verification.m
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
-Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface for Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.
+Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.
 
 ## Minimal Example
 

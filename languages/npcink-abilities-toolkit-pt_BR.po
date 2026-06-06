@@ -212,7 +212,7 @@ msgstr "Filtre o catálogo antes de abrir detalhes agrupados de prontidão."
 #: includes/Admin/Test_Page.php:445
 #, php-format
 msgid "Showing %1$d-%2$d of %3$d abilities."
-msgstr ""
+msgstr "Mostrando %1$d-%2$d de %3$d habilidades."
 
 #: includes/Admin/Test_Page.php:452
 msgid "No abilities match the current filters."
@@ -222,7 +222,7 @@ msgstr "Nenhuma habilidade corresponde aos filtros atuais."
 #: includes/Admin/Test_Page.php:478
 #, php-format
 msgid "%1$d abilities, %2$d callback issues"
-msgstr ""
+msgstr "%1$d habilidades, %2$d problemas de retorno de chamada"
 
 #: includes/Admin/Test_Page.php:545
 msgid "Search"
@@ -389,276 +389,310 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:866
 msgid "Fetch Abilities"
-msgstr ""
+msgstr "Buscar habilidades"
 
 #: includes/Admin/Test_Page.php:869
 msgid "Fetch Categories"
-msgstr ""
+msgstr "Buscar categorias"
 
 #: includes/Admin/Test_Page.php:887
 msgid "Catalog export"
-msgstr ""
+msgstr "Exportação de catálogo"
 
 #: includes/Admin/Test_Page.php:891
 msgid "Ability ID export"
-msgstr ""
+msgstr "Exportação de ID de habilidade"
 
 #: includes/Admin/Test_Page.php:892
 msgid "Copyable ID list for host and catalog audits."
-msgstr ""
+msgstr "Lista de IDs copiáveis ​​para auditorias de host e catálogo."
 
 #: includes/Admin/Test_Page.php:897
 msgid "Copy IDs"
-msgstr ""
+msgstr "Copiar IDs"
 
 #: includes/Admin/Test_Page.php:913
 msgid "You do not have permission to run this check."
-msgstr ""
+msgstr "Você não tem permissão para executar esta verificação."
 
 #: includes/Admin/Test_Page.php:924
 msgid "Unknown read-only check."
-msgstr ""
+msgstr "Verificação somente leitura desconhecida."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:46
 msgid "Build Comment Moderation Suggestion"
-msgstr ""
+msgstr "Criar sugestão de moderação de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:47
 msgid ""
 "Reads one comment and builds a deterministic moderation suggestion without "
 "writing."
-msgstr ""
+msgstr "Lê um comentário e constrói uma sugestão de moderação determinística sem escrever."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:89
 msgid "Compose Comment Moderation Result"
-msgstr ""
+msgstr "Compor resultado de moderação de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:90
 msgid ""
 "Composes one canonical comment moderation suggest/action result envelope."
-msgstr ""
+msgstr "Compõe um envelope de sugestão/resultado de ação de moderação de comentários canônicos."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:128
 msgid "Build Comment Mention Reply Suggestion"
-msgstr ""
+msgstr "Criar sugestão de resposta, menção, comentário"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:129
 msgid ""
 "Detects a comment mention/followup trigger and prepares a reply suggestion "
 "handoff without writing."
 msgstr ""
+"Detecta um gatilho de menção/acompanhamento de comentário e prepara uma "
+"transferência de sugestão de resposta sem escrever."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:159
 msgid "Read Comment Trigger Queue"
-msgstr ""
+msgstr "Ler fila de acionamento de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:160
 msgid ""
 "Reads existing comments and builds a trigger candidate queue without writing."
-msgstr ""
+msgstr "Lê comentários existentes e cria uma fila de candidatos a acionadores sem escrever."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:193
 msgid "Get Comment Queue Health"
-msgstr ""
+msgstr "Obtenha a integridade da fila de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:194
 msgid ""
 "Reads a bounded comment queue and summarizes moderation, reply, and "
 "escalation health without writing."
 msgstr ""
+"Lê uma fila de comentários limitada e resume a moderação, a resposta e a "
+"integridade do escalonamento sem escrever."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:222
 msgid "Get Comment Action Priority Queue"
-msgstr ""
+msgstr "Obter fila de prioridade de ação de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:223
 msgid ""
 "Reads a bounded comment queue and returns prioritized read-only moderation "
 "and reply handoff candidates."
 msgstr ""
+"Lê uma fila de comentários limitada e retorna moderação somente leitura "
+"priorizada e candidatos de transferência de resposta."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:251
 msgid "Get Comment Compliance Handoff"
-msgstr ""
+msgstr "Obtenha transferência de conformidade de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:252
 msgid ""
 "Aggregates comment queue health, action priority rows, and optional selected-"
 "comment suggestions for host-side compliance workflows without writing."
 msgstr ""
+"Agrega a integridade da fila de comentários, linhas de prioridade de ação e "
+"sugestões opcionais de comentários selecionados para fluxos de trabalho de "
+"conformidade do lado do host sem gravação."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:284
 msgid "Compose Comment Mention Reply Result"
-msgstr ""
+msgstr "Compor Comentário Mencionar Resultado da Resposta"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:285
 msgid ""
 "Composes one canonical mention-triggered comment reply suggestion envelope."
-msgstr ""
+msgstr "Compõe um envelope de sugestão de resposta de comentário acionado por menção canônica."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:309
 msgid "Build Comment Moderation Batch Suggestion"
-msgstr ""
+msgstr "Criar sugestão de lote de moderação de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:310
 msgid "Builds read-only moderation suggestions for a bounded list of comments."
-msgstr ""
+msgstr "Cria sugestões de moderação somente leitura para uma lista limitada de comentários."
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:351
 msgid "Compose Comment Moderation Batch Result"
-msgstr ""
+msgstr "Compor resultado do lote de moderação de comentários"
 
 #: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:352
 msgid ""
 "Composes one canonical batch comment moderation suggestion result envelope."
 msgstr ""
+"Compõe um envelope canônico de resultados de sugestões de moderação de "
+"comentários em lote."
 
 #: includes/Packages/Core_Comment_Package.php:56
 msgid "WordPress Comment Abilities"
-msgstr ""
+msgstr "WordPress Habilidades de comentários"
 
 #: includes/Packages/Core_Comment_Package.php:57
 msgid "Read-only comment moderation and reply helper abilities."
-msgstr ""
+msgstr "Moderação de comentários somente leitura e recursos auxiliares de resposta."
 
 #: includes/Packages/Core_Destructive_Package.php:55
 #: includes/Packages/Core_Write_Package.php:55
 msgid "WordPress Write Abilities"
-msgstr ""
+msgstr "WordPress Habilidades de escrita"
 
 #: includes/Packages/Core_Destructive_Package.php:56
 msgid ""
 "Host-governed WordPress write and destructive abilities with dry-run "
 "previews and external approval."
 msgstr ""
+"Habilidades de gravação e destrutivas de WordPress governadas por host com "
+"visualizações de dry-run e aprovação externa."
 
 #: includes/Packages/Core_Destructive_Package.php:80
 msgid "Delete Term"
-msgstr ""
+msgstr "Excluir Termo"
 
 #: includes/Packages/Core_Destructive_Package.php:81
 msgid ""
 "Deletes a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Exclui um termo de taxonomia após a aprovação do host ou retorna uma "
+"visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:106
 msgid "Merge Terms"
-msgstr ""
+msgstr "Mesclar Termos"
 
 #: includes/Packages/Core_Destructive_Package.php:107
 msgid ""
 "Moves objects from source terms to a target term, then deletes source terms "
 "after host approval."
 msgstr ""
+"Move objetos dos termos de origem para um termo de destino e exclui os termos "
+"de origem após a aprovação do host."
 
 #: includes/Packages/Core_Destructive_Package.php:142
 msgid "Bulk Update Post Terms"
-msgstr ""
+msgstr "Termos de postagem de atualização em massa"
 
 #: includes/Packages/Core_Destructive_Package.php:143
 msgid ""
 "Bulk updates post or page taxonomy terms after host approval, with computed "
 "dry-run previews and per-post before/after audit."
 msgstr ""
+"Atualizações em massa de termos de taxonomia de postagem ou página após a "
+"aprovação do host, com visualizações de dry-run computadas e por postagem "
+"antes/depois da auditoria."
 
 #: includes/Packages/Core_Destructive_Package.php:242
 msgid "Spam Comment"
-msgstr ""
+msgstr "Comentário de spam"
 
 #: includes/Packages/Core_Destructive_Package.php:243
 msgid ""
 "Marks one comment as spam after host approval, or returns a dry-run preview "
 "by default."
 msgstr ""
+"Marca um comentário como spam após a aprovação do host ou retorna uma "
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:259
 msgid "Trash Comment"
-msgstr ""
+msgstr "Comentário lixo"
 
 #: includes/Packages/Core_Destructive_Package.php:260
 msgid ""
 "Moves one comment to trash after host approval, or returns a dry-run preview "
 "by default."
 msgstr ""
+"Move um comentário para a lixeira após a aprovação do host ou retorna uma "
+"visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:276
 msgid "Delete Media Permanently"
-msgstr ""
+msgstr "Excluir mídia permanentemente"
 
 #: includes/Packages/Core_Destructive_Package.php:277
 msgid ""
 "Permanently deletes one media attachment after host approval, or returns a "
 "dry-run preview by default."
 msgstr ""
+"Exclui permanentemente um anexo de mídia após a aprovação do host ou retorna "
+"uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:301
 msgid "Trash Post"
-msgstr ""
+msgstr "Postagem de lixo"
 
 #: includes/Packages/Core_Destructive_Package.php:302
 msgid ""
 "Moves one post to trash after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Move uma postagem para a lixeira após a aprovação do host ou retorna uma "
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:325
 msgid "Delete Post Permanently"
-msgstr ""
+msgstr "Excluir postagem permanentemente"
 
 #: includes/Packages/Core_Destructive_Package.php:326
 msgid ""
 "Permanently deletes one post after host approval, or returns a dry-run "
 "preview by default."
 msgstr ""
+"Exclui permanentemente uma postagem após a aprovação do host ou retorna uma "
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Destructive_Package.php:397
 msgid "Term deletion failed."
-msgstr ""
+msgstr "Falha na exclusão do termo."
 
 #: includes/Packages/Core_Destructive_Package.php:421
 msgid "Target term was not found."
-msgstr ""
+msgstr "O termo alvo não foi encontrado."
 
 #: includes/Packages/Core_Destructive_Package.php:443
 msgid "At least one source term is required."
-msgstr ""
+msgstr "É necessário pelo menos um termo de origem."
 
 #: includes/Packages/Core_Destructive_Package.php:454
 msgid "Source terms were not found."
-msgstr ""
+msgstr "Os termos de origem não foram encontrados."
 
 #: includes/Packages/Core_Destructive_Package.php:526
 #: includes/Packages/Core_Destructive_Package.php:1396
 #: includes/Packages/Core_Write_Package.php:6247
 msgid "Taxonomy is invalid."
-msgstr ""
+msgstr "A taxonomia é inválida."
 
 #: includes/Packages/Core_Destructive_Package.php:547
 msgid "Valid terms or term_ids are required for add/remove operations."
-msgstr ""
+msgstr "Termos válidos ou term_ids são necessários para operações de adição/remoção."
 
 #: includes/Packages/Core_Destructive_Package.php:566
 msgid "Current user cannot edit this post."
-msgstr ""
+msgstr "O usuário atual não pode editar esta postagem."
 
 #. translators: %d: query limit.
 #: includes/Packages/Core_Destructive_Package.php:598
 #, php-format
 msgid "Matched post count reached limit (%d); more matching posts may exist."
 msgstr ""
+"A contagem de postagens correspondentes atingiu o limite (%d); podem existir "
+"mais postagens correspondentes."
 
 #: includes/Packages/Core_Destructive_Package.php:603
 msgid ""
 "Replace operation has no valid terms; matching posts will have these terms "
 "cleared."
 msgstr ""
+"A operação de substituição não possui termos válidos; postagens "
+"correspondentes terão esses termos limpos."
 
 #. translators: %s: comma-separated term labels.
 #: includes/Packages/Core_Destructive_Package.php:608
 #, php-format
 msgid "These terms will be created during approved commit: %s"
-msgstr ""
+msgstr "Estes termos serão criados durante o commit aprovado: %s"
 
 #: includes/Packages/Core_Destructive_Package.php:748
 #: includes/Packages/Core_Destructive_Package.php:1447
@@ -671,71 +705,71 @@ msgstr ""
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2539
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2677
 msgid "Attachment ID is invalid."
-msgstr ""
+msgstr "O ID do anexo é inválido."
 
 #: includes/Packages/Core_Destructive_Package.php:768
 msgid "You do not have permission to delete this attachment."
-msgstr ""
+msgstr "Você não tem permissão para excluir este anexo."
 
 #: includes/Packages/Core_Destructive_Package.php:796
 msgid "Attachment deletion failed."
-msgstr ""
+msgstr "Falha na exclusão do anexo."
 
 #: includes/Packages/Core_Destructive_Package.php:838
 msgid "Post trash failed."
-msgstr ""
+msgstr "Falha na publicação da lixeira."
 
 #: includes/Packages/Core_Destructive_Package.php:880
 msgid "Post deletion failed."
-msgstr ""
+msgstr "Falha na exclusão da postagem."
 
 #: includes/Packages/Core_Destructive_Package.php:1024
 msgid ""
 "This destructive ability requires approval from a host runtime before commit."
-msgstr ""
+msgstr "Essa capacidade destrutiva requer aprovação de um host runtime antes da confirmação."
 
 #: includes/Packages/Core_Destructive_Package.php:1095
 #: includes/Packages/Core_Write_Package.php:4980
 msgid "Comment ID is invalid."
-msgstr ""
+msgstr "O ID do comentário é inválido."
 
 #: includes/Packages/Core_Destructive_Package.php:1099
 #: includes/Packages/Core_Write_Package.php:4984
 msgid "Comment was not found."
-msgstr ""
+msgstr "O comentário não foi encontrado."
 
 #: includes/Packages/Core_Destructive_Package.php:1102
 #: includes/Packages/Core_Write_Package.php:4987
 msgid "You do not have permission to moderate comments."
-msgstr ""
+msgstr "Você não tem permissão para moderar comentários."
 
 #: includes/Packages/Core_Destructive_Package.php:1116
 msgid "post_type only supports post and page."
-msgstr ""
+msgstr "post_type suporta apenas postagem e página."
 
 #: includes/Packages/Core_Destructive_Package.php:1124
 msgid "taxonomy only supports category and post_tag."
-msgstr ""
+msgstr "a taxonomia suporta apenas categoria e post_tag."
 
 #: includes/Packages/Core_Destructive_Package.php:1128
 msgid "operation only supports add, replace, and remove."
-msgstr ""
+msgstr "a operação suporta apenas adicionar, substituir e remover."
 
 #: includes/Packages/Core_Destructive_Package.php:1414
 #: includes/Packages/Core_Write_Package.php:6265
 msgid "You do not have permission for this taxonomy operation."
-msgstr ""
+msgstr "Você não tem permissão para esta operação de taxonomia."
 
 #: includes/Packages/Core_Destructive_Package.php:1429
 #: includes/Packages/Core_Write_Package.php:6280
 msgid "Term ID is invalid."
-msgstr ""
+msgstr "O ID do termo é inválido."
 
 #: includes/Packages/Core_Destructive_Package.php:1433
 #: includes/Packages/Core_Write_Package.php:6284
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:88
 msgid "Term was not found."
-msgstr ""
+msgstr "O termo não foi encontrado."
 
 #: includes/Packages/Core_Destructive_Package.php:1465
 #: includes/Packages/Core_Write_Package.php:3213
@@ -747,7 +781,7 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:889
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:946
 msgid "Post ID is invalid."
-msgstr ""
+msgstr "O ID da postagem é inválido."
 
 #: includes/Packages/Core_Destructive_Package.php:1469
 #: includes/Packages/Core_Write_Package.php:3217
@@ -766,404 +800,466 @@ msgstr ""
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:33
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:340
 msgid "Post was not found."
-msgstr ""
+msgstr "A postagem não foi encontrada."
 
 #: includes/Packages/Core_Destructive_Package.php:1472
 msgid "You do not have permission to delete this post."
-msgstr ""
+msgstr "Você não tem permissão para excluir esta postagem."
 
 #: includes/Packages/Core_Read_Package.php:73
 msgid "WordPress Read Abilities"
-msgstr ""
+msgstr "WordPress Habilidades de leitura"
 
 #: includes/Packages/Core_Read_Package.php:74
 msgid "Read-only WordPress site, content, and structure abilities."
-msgstr ""
+msgstr "Capacidades de site, conteúdo e estrutura somente leitura WordPress."
 
 #: includes/Packages/Core_Read_Package.php:80
 msgid "WordPress Page Abilities"
-msgstr ""
+msgstr "WordPress Habilidades de página"
 
 #: includes/Packages/Core_Read_Package.php:81
 msgid "Read-only WordPress page discovery and inspection abilities."
-msgstr ""
+msgstr "Habilidades de descoberta e inspeção de página WordPress somente leitura."
 
 #: includes/Packages/Core_Read_Package.php:87
 msgid "WordPress Diagnostics"
-msgstr ""
+msgstr "WordPress Diagnóstico"
 
 #: includes/Packages/Core_Read_Package.php:88
 msgid "Redacted WordPress environment diagnostics for Abilities API clients."
-msgstr ""
+msgstr "Diagnóstico de ambiente WordPress redigido para clientes Abilities API."
 
 #: includes/Packages/Core_Read_Package.php:94
 msgid "Workflow Recipe Definitions"
-msgstr ""
+msgstr "Definições de receita de fluxo de trabalho"
 
 #: includes/Packages/Core_Read_Package.php:95
 msgid ""
 "Read-only workflow recipe definitions for host-side ability composition."
 msgstr ""
+"Definições de receita de fluxo de trabalho somente leitura para composição de "
+"habilidades do lado do host."
 
 #: includes/Packages/Core_Read_Package.php:189
 msgid "List Workflow Recipes"
-msgstr ""
+msgstr "Listar receitas de fluxo de trabalho"
 
 #: includes/Packages/Core_Read_Package.php:190
 msgid ""
 "Returns read-only workflow recipe definitions for host-side ability "
 "composition without executing workflow steps."
 msgstr ""
+"Retorna definições de receita de fluxo de trabalho somente leitura para "
+"composição de capacidade do lado do host sem executar etapas de fluxo de "
+"trabalho."
 
 #: includes/Packages/Core_Read_Package.php:212
 msgid "Get Workflow Recipe"
-msgstr ""
+msgstr "Obtenha receita de fluxo de trabalho"
 
 #: includes/Packages/Core_Read_Package.php:213
 msgid ""
 "Returns one read-only workflow recipe definition by recipe id or case id "
 "without executing workflow steps."
 msgstr ""
+"Retorna uma definição de receita de fluxo de trabalho somente leitura por ID "
+"de receita ou ID de caso sem executar etapas de fluxo de trabalho."
 
 #: includes/Packages/Core_Read_Package.php:233
 msgid "List Media"
-msgstr ""
+msgstr "Listar mídia"
 
 #: includes/Packages/Core_Read_Package.php:234
 msgid "Returns a paginated list of media library attachments."
-msgstr ""
+msgstr "Retorna uma lista paginada de anexos da biblioteca de mídia."
 
 #: includes/Packages/Core_Read_Package.php:279
 msgid "Resolve Media Attachment By URL"
-msgstr ""
+msgstr "Resolver anexo de mídia por URL"
 
 #: includes/Packages/Core_Read_Package.php:280
 msgid ""
 "Resolves a same-site uploads URL to bounded media attachment candidates with "
 "read-only match evidence."
 msgstr ""
+"Resolve uploads do mesmo site URL para candidatos a anexos de mídia limitados "
+"com evidência de correspondência somente leitura."
 
 #: includes/Packages/Core_Read_Package.php:327
 msgid "List Terms"
-msgstr ""
+msgstr "Listar termos"
 
 #: includes/Packages/Core_Read_Package.php:328
 msgid "Returns a paginated list of terms for a taxonomy."
-msgstr ""
+msgstr "Retorna uma lista paginada de termos para uma taxonomia."
 
 #: includes/Packages/Core_Read_Package.php:371
 msgid "List Taxonomy Terms"
-msgstr ""
+msgstr "Listar termos de taxonomia"
 
 #: includes/Packages/Core_Read_Package.php:372
 msgid ""
 "Returns a paginated term list for one taxonomy, including parent information."
 msgstr ""
+"Retorna uma lista de termos paginados para uma taxonomia, incluindo "
+"informações dos pais."
 
 #: includes/Packages/Core_Read_Package.php:418
 msgid "List Categories"
-msgstr ""
+msgstr "Listar categorias"
 
 #: includes/Packages/Core_Read_Package.php:419
 msgid "Returns a paginated list of post categories."
-msgstr ""
+msgstr "Retorna uma lista paginada de categorias de postagens."
 
 #: includes/Packages/Core_Read_Package.php:449
 msgid "List Tags"
-msgstr ""
+msgstr "Listar tags"
 
 #: includes/Packages/Core_Read_Package.php:450
 msgid "Returns a paginated list of post tags."
-msgstr ""
+msgstr "Retorna uma lista paginada de tags de postagem."
 
 #: includes/Packages/Core_Read_Package.php:480
 msgid "Get Term"
-msgstr ""
+msgstr "Obter prazo"
 
 #: includes/Packages/Core_Read_Package.php:481
 msgid "Returns details for one taxonomy term by id or slug."
-msgstr ""
+msgstr "Retorna detalhes de um termo de taxonomia por id ou slug."
 
 #: includes/Packages/Core_Read_Package.php:510
 msgid "List Comments"
-msgstr ""
+msgstr "Listar comentários"
 
 #: includes/Packages/Core_Read_Package.php:511
 msgid "Returns a paginated list of comments."
-msgstr ""
+msgstr "Retorna uma lista paginada de comentários."
 
 #: includes/Packages/Core_Read_Package.php:553
 msgid "Resolve Internal Link Targets"
-msgstr ""
+msgstr "Resolver alvos de links internos"
 
 #: includes/Packages/Core_Read_Package.php:554
 msgid ""
 "Finds local published content that can serve as internal-link targets for a "
 "post draft or optimization workflow."
 msgstr ""
+"Encontra conteúdo publicado localmente que pode servir como alvos de links "
+"internos para um rascunho de postagem ou fluxo de trabalho de otimização."
 
 #: includes/Packages/Core_Read_Package.php:599
 msgid "Build Inline Image Blocks"
-msgstr ""
+msgstr "Construir blocos de imagens embutidos"
 
 #: includes/Packages/Core_Read_Package.php:600
 msgid ""
 "Converts uploaded inline image rows into append-ready Gutenberg image blocks "
 "without writing post content."
 msgstr ""
+"Converte linhas de imagem embutidas carregadas em blocos de imagem Gutenberg "
+"prontos para anexar sem escrever conteúdo de postagem."
 
 #: includes/Packages/Core_Read_Package.php:635
 msgid "Build Media SEO Assets"
-msgstr ""
+msgstr "Crie ativos de mídia SEO"
 
 #: includes/Packages/Core_Read_Package.php:636
 msgid ""
 "Builds a canonical media SEO enrichment asset list from article media "
 "workflow upload outputs."
 msgstr ""
+"Constrói uma lista de ativos de enriquecimento de mídia canônica SEO a partir "
+"de saídas de upload de fluxo de trabalho de mídia de artigo."
 
 #: includes/Packages/Core_Read_Package.php:668
 msgid "GEO Analysis"
-msgstr ""
+msgstr "GEO Análise"
 
 #: includes/Packages/Core_Read_Package.php:669
 msgid ""
 "Builds deterministic GEO and AI visibility issues, recommendations, and "
 "evidence from article text."
 msgstr ""
+"Cria problemas de visibilidade determinísticos GEO e AI, recomendações e "
+"evidências a partir do texto do artigo."
 
 #: includes/Packages/Core_Read_Package.php:701
 msgid "Optimize Media Metadata"
-msgstr ""
+msgstr "Otimize metadados de mídia"
 
 #: includes/Packages/Core_Read_Package.php:702
 msgid ""
 "Builds deterministic media title, alt, caption, description, source, and "
 "disclosure suggestions from article and media context."
 msgstr ""
+"Cria sugestões determinísticas de título de mídia, alt, legenda, descrição, "
+"fonte e divulgação a partir do artigo e do contexto de mídia."
 
 #: includes/Packages/Core_Read_Package.php:735
 msgid "Position Inline Image Blocks"
-msgstr ""
+msgstr "Posicionar blocos de imagem embutidos"
 
 #: includes/Packages/Core_Read_Package.php:736
 msgid ""
 "Places generated inline image blocks after matching paragraph, heading, or "
 "anchor targets and falls back to append."
 msgstr ""
+"Coloca blocos de imagem embutidos gerados após correspondência de parágrafo, "
+"título ou destinos de âncora e volta para anexar."
 
 #: includes/Packages/Core_Read_Package.php:771
 msgid "Build Article Optimization Report"
-msgstr ""
+msgstr "Crie um relatório de otimização de artigos"
 
 #: includes/Packages/Core_Read_Package.php:772
 msgid ""
 "Composes SEO, GEO, internal-link, and media optimization sections into one "
 "deterministic report."
 msgstr ""
+"Compõe seções SEO, GEO, link interno e otimização de mídia em um relatório "
+"determinístico."
 
 #: includes/Packages/Core_Read_Package.php:807
 msgid "Build SEO Report Context"
-msgstr ""
+msgstr "Criar contexto de relatório SEO"
 
 #: includes/Packages/Core_Read_Package.php:808
 msgid ""
 "Builds lightweight deterministic SEO issues and recommendations for article "
 "optimization workflows."
 msgstr ""
+"Cria problemas SEO determinísticos leves e recomendações para fluxos de "
+"trabalho de otimização de artigos."
 
 #: includes/Packages/Core_Read_Package.php:840
 msgid "Read Post Optimization Context"
-msgstr ""
+msgstr "Leia o contexto de pós-otimização"
 
 #: includes/Packages/Core_Read_Package.php:841
 msgid ""
 "Reads a post title, excerpt, content, slug, categories, tags, SEO fields, "
 "template, and format snapshot for article optimization workflows."
 msgstr ""
+"Lê o título de uma postagem, trecho, conteúdo, slug, categorias, tags, campos "
+"SEO, modelo e instantâneo de formato para fluxos de trabalho de otimização de "
+"artigos."
 
 #: includes/Packages/Core_Read_Package.php:872
 msgid "Build Article Single Optimization Suggest"
-msgstr ""
+msgstr "Sugestão de otimização única de artigo de construção"
 
 #: includes/Packages/Core_Read_Package.php:873
 msgid ""
 "Builds one canonical single-article optimization suggestion envelope for "
 "title, taxonomy, excerpt, slug, SEO, content, and GEO improvements."
 msgstr ""
+"Cria um envelope canônico de sugestão de otimização de artigo único para "
+"melhorias de título, taxonomia, trecho, slug, SEO, conteúdo e GEO."
 
 #: includes/Packages/Core_Read_Package.php:914
 msgid "Build Article Optimization Apply Plan"
-msgstr ""
+msgstr "Construir plano de aplicação de otimização de artigos"
 
 #: includes/Packages/Core_Read_Package.php:915
 msgid ""
 "Builds one conservative apply plan from the read-only article optimization "
 "report without applying writes."
 msgstr ""
+"Cria um plano de aplicação conservador a partir do relatório de otimização de "
+"artigos somente leitura, sem aplicar gravações."
 
 #: includes/Packages/Core_Read_Package.php:950
 msgid "Compose Article Optimization Apply Result"
-msgstr ""
+msgstr "Compor o resultado da otimização do artigo"
 
 #: includes/Packages/Core_Read_Package.php:951
 msgid ""
 "Composes report, apply plan, safe apply result, and remaining advisory "
 "changes into one deterministic envelope."
 msgstr ""
+"Compõe relatório, plano de aplicação, resultado de aplicação segura e "
+"alterações consultivas restantes em um envelope determinístico."
 
 #: includes/Packages/Core_Read_Package.php:984
 msgid "Extract Reference Post Style"
-msgstr ""
+msgstr "Extrair estilo de postagem de referência"
 
 #: includes/Packages/Core_Read_Package.php:985
 msgid ""
 "Reads reference posts and returns a compact writing-style profile for "
 "article workflows."
 msgstr ""
+"Lê postagens de referência e retorna um perfil compacto de estilo de escrita "
+"para fluxos de trabalho de artigos."
 
 #: includes/Packages/Core_Read_Package.php:1032
 msgid "Extract Site Style Baseline"
-msgstr ""
+msgstr "Extrair linha de base do estilo do site"
 
 #: includes/Packages/Core_Read_Package.php:1033
 msgid ""
 "Extracts a lightweight site-wide or author-specific writing-style baseline "
 "from recent posts."
 msgstr ""
+"Extrai uma linha de base leve do estilo de escrita de todo o site ou "
+"específico do autor de postagens recentes."
 
 #: includes/Packages/Core_Read_Package.php:1080
 msgid "Build Article Production Fingerprint"
-msgstr ""
+msgstr "Construir impressão digital de produção de artigos"
 
 #: includes/Packages/Core_Read_Package.php:1081
 msgid ""
 "Builds a stable lightweight production fingerprint for article dedupe and "
 "result summaries."
 msgstr ""
+"Cria uma impressão digital de produção leve e estável para desduplicação de "
+"artigos e resumos de resultados."
 
 #: includes/Packages/Core_Read_Package.php:1124
 msgid "Check Article Production Duplicate"
-msgstr ""
+msgstr "Verifique a duplicata de produção do artigo"
 
 #: includes/Packages/Core_Read_Package.php:1125
 msgid ""
 "Checks whether a lightweight article production fingerprint already exists "
 "on a post."
-msgstr ""
+msgstr "Verifica se já existe uma impressão digital de produção de artigo leve em uma postagem."
 
 #: includes/Packages/Core_Read_Package.php:1152
 msgid "Review Article Output Light"
-msgstr ""
+msgstr "Luz de saída do artigo de revisão"
 
 #: includes/Packages/Core_Read_Package.php:1153
 msgid ""
 "Builds lightweight local article quality, style, image, and AI-risk review "
 "signals without model calls."
 msgstr ""
+"Cria sinais leves de revisão de qualidade, estilo, imagem e risco de AI "
+"artigos locais sem chamadas de modelo."
 
 #: includes/Packages/Core_Read_Package.php:1190
 msgid "Compose Article Production Result"
-msgstr ""
+msgstr "Compor o resultado da produção do artigo"
 
 #: includes/Packages/Core_Read_Package.php:1191
 msgid ""
 "Summarizes the article production mainline with result mode, degraded "
 "reasons, fingerprint, handoff, and next action."
 msgstr ""
+"Resume a linha principal de produção do artigo com modo de resultado, motivos "
+"degradados, impressão digital, transferência e próxima ação."
 
 #: includes/Packages/Core_Read_Package.php:1226
 msgid "Compose Article Draft Result"
-msgstr ""
+msgstr "Redigir o resultado do rascunho do artigo"
 
 #: includes/Packages/Core_Read_Package.php:1227
 msgid ""
 "Composes one canonical draft workflow result with draft content, metadata "
 "resolution, shared SEO/GEO review, and handoff hints."
 msgstr ""
+"Compõe um resultado de fluxo de trabalho de rascunho canônico com conteúdo de "
+"rascunho, resolução de metadados, revisão compartilhada de SEO/GEO e dicas de "
+"transferência."
 
 #: includes/Packages/Core_Read_Package.php:1263
 msgid "Resolve Article Publication Decision"
-msgstr ""
+msgstr "Resolver decisão de publicação de artigo"
 
 #: includes/Packages/Core_Read_Package.php:1264
 msgid ""
 "Resolves a deterministic article publish, schedule, review, or draft handoff "
 "after quality and duplicate checks."
 msgstr ""
+"Resolve uma publicação determinística de artigo, agendamento, revisão ou "
+"transferência de rascunho após verificações de qualidade e duplicatas."
 
 #: includes/Packages/Core_Read_Package.php:1302
 msgid "Build Article Style Profile"
-msgstr ""
+msgstr "Construir perfil de estilo de artigo"
 
 #: includes/Packages/Core_Read_Package.php:1303
 msgid ""
 "Merges baseline, reference, and explicit writing-style hints into one "
 "lightweight article style profile."
 msgstr ""
+"Mescla linha de base, referência e dicas explícitas de estilo de escrita em um"
+"perfil leve de estilo de artigo."
 
 #: includes/Packages/Core_Read_Package.php:1339
 msgid "List Pages"
-msgstr ""
+msgstr "Listar páginas"
 
 #: includes/Packages/Core_Read_Package.php:1340
 msgid ""
 "Lists WordPress pages with status, parent, search, sorting, and pagination "
 "filters."
-msgstr ""
+msgstr "Lista WordPress páginas com filtros de status, pai, pesquisa, classificação e paginação."
 
 #: includes/Packages/Core_Read_Package.php:1372
 msgid "Get Page"
-msgstr ""
+msgstr "Obter página"
 
 #: includes/Packages/Core_Read_Package.php:1373
 msgid ""
 "Returns a single WordPress page, including content, template, hierarchy, "
 "author, and optional meta."
 msgstr ""
+"Retorna uma única página WordPress, incluindo conteúdo, modelo, hierarquia, "
+"autor e meta opcional."
 
 #: includes/Packages/Core_Read_Package.php:1419
 msgid "Inspect Page Structure"
-msgstr ""
+msgstr "Inspecione a estrutura da página"
 
 #: includes/Packages/Core_Read_Package.php:1420
 msgid ""
 "Inspects WordPress page hierarchy, template usage, and orphaned parent "
 "relationships without modifying pages."
 msgstr ""
+"Inspeciona a hierarquia de páginas WordPress, o uso de modelos e "
+"relacionamentos de pais órfãos sem modificar as páginas."
 
 #: includes/Packages/Core_Read_Package.php:1449
 msgid "List Pages Tree"
-msgstr ""
+msgstr "Listar árvore de páginas"
 
 #: includes/Packages/Core_Read_Package.php:1450
 msgid ""
 "Returns a hierarchical page tree for navigation and site-structure review."
-msgstr ""
+msgstr "Retorna uma árvore de páginas hierárquica para navegação e revisão da estrutura do site."
 
 #: includes/Packages/Core_Read_Package.php:1490
 msgid "Get Content Publishing Checklist"
-msgstr ""
+msgstr "Obtenha a lista de verificação de publicação de conteúdo"
 
 #: includes/Packages/Core_Read_Package.php:1491
 msgid ""
 "Returns a deterministic pre-publish readiness checklist for one post or page "
 "without applying changes."
 msgstr ""
+"Retorna uma lista de verificação determinística de preparação para "
+"pré-publicação para uma postagem ou página sem aplicar alterações."
 
 #: includes/Packages/Core_Read_Package.php:1535
 msgid "Get Content Inventory Health"
-msgstr ""
+msgstr "Obtenha a integridade do inventário de conteúdo"
 
 #: includes/Packages/Core_Read_Package.php:1536
 msgid ""
 "Scans a bounded content inventory and summarizes missing titles, thin "
 "content, excerpt gaps, media gaps, SEO metadata gaps, and stale content."
 msgstr ""
+"Verifica um inventário de conteúdo limitado e resume títulos ausentes, "
+"conteúdo limitado, lacunas de trechos, lacunas de mídia, SEO lacunas de "
+"metadados e conteúdo desatualizado."
 
 #: includes/Packages/Core_Read_Package.php:1581
 msgid "Get Nonproduction Content Inventory"
-msgstr ""
+msgstr "Obtenha inventário de conteúdo não produtivo"
 
 #: includes/Packages/Core_Read_Package.php:1582
 msgid ""
@@ -1171,10 +1267,13 @@ msgid ""
 "content, taxonomy, comment, and operations diagnostics without mutating the "
 "site."
 msgstr ""
+"Detecta fumaça limitada, acessórios e conteúdo não produtivo que pode "
+"distorcer o conteúdo, a taxonomia, os comentários e o diagnóstico de operações"
+"sem alterar o site."
 
 #: includes/Packages/Core_Read_Package.php:1615
 msgid "Build Nonproduction Content Cleanup Plan"
-msgstr ""
+msgstr "Crie um plano de limpeza de conteúdo não produtivo"
 
 #: includes/Packages/Core_Read_Package.php:1616
 msgid ""
@@ -1182,60 +1281,75 @@ msgid ""
 "each candidate to existing governed write abilities without trashing or "
 "deleting anything."
 msgstr ""
+"Cria um plano de limpeza somente leitura para conteúdo de não produção "
+"detectado, mapeando cada candidato para habilidades de gravação controladas "
+"existentes sem descartar ou excluir nada."
 
 #: includes/Packages/Core_Read_Package.php:1650
 msgid "Build Content Inventory Fix Plan"
-msgstr ""
+msgstr "Crie um plano de correção de inventário de conteúdo"
 
 #: includes/Packages/Core_Read_Package.php:1651
 msgid ""
 "Maps bounded content inventory issues to reviewable fix actions that reuse "
 "existing governed write abilities without mutating posts."
 msgstr ""
+"Mapeia problemas de inventário de conteúdo limitado para ações de correção "
+"revisáveis ​​que reutilizam habilidades de gravação governadas existentes sem "
+"alterar postagens."
 
 #: includes/Packages/Core_Read_Package.php:1685
 msgid "Get Bulk Publishing Checklist"
-msgstr ""
+msgstr "Obtenha a lista de verificação de publicação em massa"
 
 #: includes/Packages/Core_Read_Package.php:1686
 msgid ""
 "Runs the read-only publishing checklist for a bounded list of posts and "
 "returns batch readiness totals."
 msgstr ""
+"Executa a lista de verificação de publicação somente leitura para uma lista "
+"limitada de postagens e retorna os totais de preparação do lote."
 
 #: includes/Packages/Core_Read_Package.php:1732
 msgid "Get Internal Link Opportunity Report"
-msgstr ""
+msgstr "Obtenha relatório de oportunidades de links internos"
 
 #: includes/Packages/Core_Read_Package.php:1733
 msgid ""
 "Builds a post-id based internal-link opportunity report with candidate "
 "targets, anchor suggestions, and placement hints."
 msgstr ""
+"Cria um relatório de oportunidades de link interno baseado em post-id com "
+"alvos candidatos, sugestões de âncoras e dicas de posicionamento."
 
 #: includes/Packages/Core_Read_Package.php:1773
 msgid "Get Site Operations Dashboard"
-msgstr ""
+msgstr "Obtenha o painel de operações do site"
 
 #: includes/Packages/Core_Read_Package.php:1774
 msgid ""
 "Builds a bounded read-only site operations dashboard for content status, "
 "inventory issues, taxonomy health, comments, and media signals."
 msgstr ""
+"Cria um painel de operações do site somente leitura limitado para status de "
+"conteúdo, problemas de inventário, integridade da taxonomia, comentários e "
+"sinais de mídia."
 
 #: includes/Packages/Core_Read_Package.php:1803
 msgid "Get Post Publish Risk Report"
-msgstr ""
+msgstr "Obtenha relatório de risco pós-publicação"
 
 #: includes/Packages/Core_Read_Package.php:1804
 msgid ""
 "Builds a read-only publish risk report for one post from checklist, SEO/GEO, "
 "revision, and internal-link signals."
 msgstr ""
+"Cria um relatório de risco de publicação somente leitura para uma postagem de "
+"lista de verificação, SEO/GEO, revisão e sinais de link interno."
 
 #: includes/Packages/Core_Read_Package.php:1834
 msgid "Get Article Publish Preflight Context"
-msgstr ""
+msgstr "Obter contexto de dry-run de publicação de artigo"
 
 #: includes/Packages/Core_Read_Package.php:1835
 msgid ""
@@ -1243,20 +1357,25 @@ msgid ""
 "context, and calendar context for host-side publish preflight workflows "
 "without writing."
 msgstr ""
+"Agrega contexto de postagem, lista de verificação de publicação, risco de "
+"publicação, contexto de fluxo de trabalho e contexto de calendário para fluxos"
+"de trabalho de pré-impressão de publicação do lado do host sem gravação."
 
 #: includes/Packages/Core_Read_Package.php:1867
 msgid "Get Content Refresh Opportunities"
-msgstr ""
+msgstr "Obtenha oportunidades de atualização de conteúdo"
 
 #: includes/Packages/Core_Read_Package.php:1868
 msgid ""
 "Scans a bounded content set and returns stale, thin, SEO-light, answer-"
 "light, and low-link refresh opportunities."
 msgstr ""
+"Verifica um conjunto de conteúdo limitado e retorna oportunidades de "
+"atualização obsoletas, finas, SEO-light, answer-light e low-link."
 
 #: includes/Packages/Core_Read_Package.php:1900
 msgid "Get Old Article Refresh Context"
-msgstr ""
+msgstr "Obter contexto de atualização de artigo antigo"
 
 #: includes/Packages/Core_Read_Package.php:1901
 msgid ""
@@ -1264,60 +1383,77 @@ msgid ""
 "internal-link graph health, and optional selected-post link opportunities "
 "for host-side old article refresh workflows."
 msgstr ""
+"Agrega oportunidades de atualização, lacunas de SEO/GEO, linha de base do "
+"estilo do site, integridade do gráfico de links internos e oportunidades "
+"opcionais de links de postagens selecionadas para fluxos de trabalho de "
+"atualização de artigos antigos do lado do host."
 
 #: includes/Packages/Core_Read_Package.php:1935
 msgid "Get Internal Link Graph Health"
-msgstr ""
+msgstr "Obtenha integridade do gráfico de link interno"
 
 #: includes/Packages/Core_Read_Package.php:1936
 msgid ""
 "Scans a bounded content set and summarizes outgoing links, incoming links, "
 "orphan posts, and candidate internal-link pairs."
 msgstr ""
+"Verifica um conjunto de conteúdo limitado e resume links de saída, links de "
+"entrada, postagens órfãs e pares de links internos candidatos."
 
 #: includes/Packages/Core_Read_Package.php:1968
 msgid "Get Media Cleanup Opportunities"
-msgstr ""
+msgstr "Obtenha oportunidades de limpeza de mídia"
 
 #: includes/Packages/Core_Read_Package.php:1969
 msgid ""
 "Scans a bounded media inventory and returns cleanup opportunities for "
 "metadata gaps, source gaps, and likely unused assets."
 msgstr ""
+"Verifica um inventário de mídia limitado e retorna oportunidades de limpeza "
+"para lacunas de metadados, lacunas de origem e provavelmente ativos não "
+"utilizados."
 
 #: includes/Packages/Core_Read_Package.php:1998
 msgid "List Media Backups"
-msgstr ""
+msgstr "Listar backups de mídia"
 
 #: includes/Packages/Core_Read_Package.php:1999
 msgid ""
 "Lists recorded backup files for one attachment media operation history "
 "without mutating media."
 msgstr ""
+"Lista arquivos de backup gravados para um histórico de operações de mídia de "
+"anexo sem alteração da mídia."
 
 #: includes/Packages/Core_Read_Package.php:2028
 msgid "Build Media Inventory Fix Plan"
-msgstr ""
+msgstr "Criar plano de correção de inventário de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2029
 msgid ""
 "Maps bounded media inventory issues to reviewable metadata and cleanup "
 "actions that reuse existing governed write abilities without mutating media."
 msgstr ""
+"Mapeia problemas de inventário de mídia limitado para metadados revisáveis ​​e"
+"ações de limpeza que reutilizam capacidades de gravação controladas existentes"
+"sem sofrer mutação de mídia."
 
 #: includes/Packages/Core_Read_Package.php:2068
 msgid "Build Media Reference Repair Plan"
-msgstr ""
+msgstr "Criar plano de reparo de referência de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2069
 msgid ""
 "Scans post content for hard-coded URLs to a previously replaced media file "
 "and builds governed patch-post-content actions without mutating posts."
 msgstr ""
+"Verifica o conteúdo da postagem em busca de URLs codificados em um arquivo de "
+"mídia substituído anteriormente e cria ações de patch pós-conteúdo controladas"
+"sem alterar as postagens."
 
 #: includes/Packages/Core_Read_Package.php:2104
 msgid "Build Media Settings Reference Repair Plan"
-msgstr ""
+msgstr "Criar plano de reparo de referência de configurações de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2105
 msgid ""
@@ -1325,100 +1461,121 @@ msgid ""
 "previously replaced media file and builds governed exact replacement actions "
 "without mutating settings."
 msgstr ""
+"Verifica opções de WordPress selecionadas e mods de tema para URLs codificados"
+"em um arquivo de mídia substituído anteriormente e cria ações de substituição "
+"exatas governadas sem alterar as configurações."
 
 #: includes/Packages/Core_Read_Package.php:2148
 msgid "Get Taxonomy Consolidation Suggestions"
-msgstr ""
+msgstr "Obtenha sugestões de consolidação de taxonomia"
 
 #: includes/Packages/Core_Read_Package.php:2149
 msgid ""
 "Scans taxonomy terms and suggests read-only consolidation candidates for "
 "empty, duplicate, similar, and unused terms."
 msgstr ""
+"Verifica termos de taxonomia e sugere candidatos de consolidação somente "
+"leitura para termos vazios, duplicados, semelhantes e não utilizados."
 
 #: includes/Packages/Core_Read_Package.php:2179
 msgid "Propose Post Taxonomy Terms"
-msgstr ""
+msgstr "Propor termos pós-taxonomia"
 
 #: includes/Packages/Core_Read_Package.php:2180
 msgid ""
 "Builds a deterministic post taxonomy assignment proposal from existing terms "
 "without mutating the post or creating terms."
 msgstr ""
+"Constrói uma proposta determinística de atribuição de pós-taxonomia a partir "
+"de termos existentes sem alterar a postagem ou criar termos."
 
 #: includes/Packages/Core_Read_Package.php:2224
 msgid "Get Page Structure Health"
-msgstr ""
+msgstr "Obtenha a integridade da estrutura da página"
 
 #: includes/Packages/Core_Read_Package.php:2225
 msgid ""
 "Scans one page or a bounded page set and reports heading, CTA, content "
 "depth, and block structure health."
 msgstr ""
+"Verifica uma página ou um conjunto de páginas limitado e relata o cabeçalho, "
+"CTA, profundidade do conteúdo e integridade da estrutura do bloco."
 
 #: includes/Packages/Core_Read_Package.php:2254
 msgid "Get SEO GEO Gap Report"
-msgstr ""
+msgstr "Obtenha SEO GEO Relatório de Lacunas"
 
 #: includes/Packages/Core_Read_Package.php:2255
 msgid ""
 "Builds a bounded SEO/GEO gap report from topic coverage, refresh "
 "opportunities, answer structure, and SEO metadata signals."
 msgstr ""
+"Cria um relatório de lacunas SEO/GEO limitado a partir da cobertura do tópico,"
+"oportunidades de atualização, estrutura de resposta e SEO sinais de metadados."
 
 #: includes/Packages/Core_Read_Package.php:2286
 msgid "Get Site Style Baseline"
-msgstr ""
+msgstr "Obtenha a linha de base do estilo do site"
 
 #: includes/Packages/Core_Read_Package.php:2287
 msgid ""
 "Returns a compact read-only site-wide or author-specific writing style "
 "baseline from recent posts."
 msgstr ""
+"Retorna uma linha de base de estilo de escrita compacta, somente leitura, para"
+"todo o site ou específica do autor, a partir de postagens recentes."
 
 #: includes/Packages/Core_Read_Package.php:2316
 msgid "Build Article Workflow Context"
-msgstr ""
+msgstr "Construir contexto de fluxo de trabalho de artigo"
 
 #: includes/Packages/Core_Read_Package.php:2317
 msgid ""
 "Builds one read-only context bundle for article refresh, publish, or new-"
 "article workflows without model routing."
 msgstr ""
+"Cria um pacote de contexto somente leitura para fluxos de trabalho de "
+"atualização de artigos, publicação ou novos artigos sem roteamento de modelo."
 
 #: includes/Packages/Core_Read_Package.php:2346
 msgid "Get Publishing Calendar Context"
-msgstr ""
+msgstr "Obtenha o contexto do calendário de publicação"
 
 #: includes/Packages/Core_Read_Package.php:2347
 msgid ""
 "Returns scheduled posts, draft backlog, pending review items, and near-term "
 "publishing cadence context."
 msgstr ""
+"Retorna postagens agendadas, lista de pendências de rascunho, itens de revisão"
+"pendentes e contexto de cadência de publicação de curto prazo."
 
 #: includes/Packages/Core_Read_Package.php:2376
 msgid "Get Media Inventory Health"
-msgstr ""
+msgstr "Obtenha a integridade do inventário de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2377
 msgid ""
 "Scans a bounded media inventory and summarizes missing alt text, captions, "
 "descriptions, source metadata, and format attention."
 msgstr ""
+"Verifica um inventário de mídia local e resume texto alternativo, legendas, "
+"descrições, metadados de origem e atenção de formato ausentes."
 
 #: includes/Packages/Core_Read_Package.php:2420
 msgid "Inspect Media Asset"
-msgstr ""
+msgstr "Inspecionar ativo de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2421
 msgid ""
 "Inspects one attachment file and returns read-only format, size, dimension, "
 "and optimization recommendations."
 msgstr ""
+"Inspeciona um arquivo anexo e retorna recomendações de formato, tamanho, "
+"dimensão e otimização somente leitura."
 
 #: includes/Packages/Core_Read_Package.php:2473
 msgid "Build Media Derivative Cloud Request"
-msgstr ""
+msgstr "Criar solicitação de nuvem derivada de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2474
 msgid ""
@@ -1426,10 +1583,13 @@ msgid ""
 "optimized media derivative without uploading, calling Cloud, or mutating "
 "WordPress."
 msgstr ""
+"Cria um contrato de solicitação somente leitura para um host ou complemento do"
+"Cloud para gerar um derivado de mídia otimizado sem fazer upload, chamar o "
+"Cloud ou alterar WordPress."
 
 #: includes/Packages/Core_Read_Package.php:2534
 msgid "Build Media Optimization Plan"
-msgstr ""
+msgstr "Crie um plano de otimização de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2535
 msgid ""
@@ -1437,10 +1597,13 @@ msgid ""
 "media metadata updates with a governed derivative adoption action for one "
 "Core approval."
 msgstr ""
+"Cria um plano de otimização de um anexo somente leitura que combina "
+"atualizações de metadados de mídia revisadas com uma ação de adoção derivada "
+"governada para uma aprovação Core."
 
 #: includes/Packages/Core_Read_Package.php:2568
 msgid "Build Media Rename Plan"
-msgstr ""
+msgstr "Crie um plano de renomeação de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2569
 msgid ""
@@ -1448,10 +1611,13 @@ msgid ""
 "file name and exact post-content reference updates without mutating "
 "WordPress."
 msgstr ""
+"Constrói um plano de renomeação de um anexo somente leitura para um nome de "
+"arquivo de mídia de destino revisado e atualizações exatas de referência "
+"pós-conteúdo sem mutação WordPress."
 
 #: includes/Packages/Core_Read_Package.php:2606
 msgid "Build Media Derivative Batch Plan"
-msgstr ""
+msgstr "Criar plano de lote derivado de mídia"
 
 #: includes/Packages/Core_Read_Package.php:2607
 msgid ""
@@ -1459,50 +1625,61 @@ msgid ""
 "from local media filters without calling Cloud, creating proposals, or "
 "mutating WordPress."
 msgstr ""
+"Cria um plano somente leitura limitado para visualizações derivadas de mídia "
+"da nuvem em lote a partir de filtros de mídia locais sem chamar a nuvem, criar"
+"propostas ou alterar WordPress."
 
 #: includes/Packages/Core_Read_Package.php:2690
 msgid "Get Post SEO GEO Readiness"
-msgstr ""
+msgstr "Obtenha preparação para postagem SEO GEO"
 
 #: includes/Packages/Core_Read_Package.php:2691
 msgid ""
 "Returns one deterministic SEO/GEO readiness snapshot for a post, including "
 "metadata, content-depth, question, and media signals."
 msgstr ""
+"Retorna um instantâneo determinístico de prontidão SEO/GEO para uma postagem, "
+"incluindo metadados, profundidade de conteúdo, perguntas e sinais de mídia."
 
 #: includes/Packages/Core_Read_Package.php:2732
 msgid "Get Site Topic Coverage Report"
-msgstr ""
+msgstr "Obtenha o relatório de cobertura de tópicos do site"
 
 #: includes/Packages/Core_Read_Package.php:2733
 msgid ""
 "Builds a bounded site topic coverage summary from post titles, terms, and "
 "content snippets without model routing."
 msgstr ""
+"Cria um resumo limitado da cobertura do tópico do site a partir de títulos de "
+"postagens, termos e trechos de conteúdo sem roteamento de modelo."
 
 #: includes/Packages/Core_Read_Package.php:2775
 msgid "Get Taxonomy Inventory Health"
-msgstr ""
+msgstr "Obtenha integridade do inventário de taxonomia"
 
 #: includes/Packages/Core_Read_Package.php:2776
 msgid ""
 "Scans a bounded taxonomy term inventory and summarizes empty, unused, "
 "duplicate, and hierarchy attention signals."
 msgstr ""
+"Verifica um inventário de termos de taxonomia limitado e resume sinais de "
+"atenção vazios, não utilizados, duplicados e de hierarquia."
 
 #: includes/Packages/Core_Read_Package.php:2820
 msgid "Get Revision Change Risk Report"
-msgstr ""
+msgstr "Obtenha o relatório de risco de alteração de revisão"
 
 #: includes/Packages/Core_Read_Package.php:2821
 msgid ""
 "Reads recent revisions for one post and summarizes title, content length, "
 "block count, and recency change-risk signals."
 msgstr ""
+"Lê as revisões recentes de uma postagem e resume o título, a extensão do "
+"conteúdo, a contagem de blocos e os sinais de risco de mudança recente."
 
 #: includes/Packages/Core_Read_Package.php:2903
 msgid "Workflow recipe definition was not found."
-msgstr ""
+msgstr "A definição da receita do fluxo de trabalho não foi encontrada."
 
 #: includes/Packages/Core_Read_Package.php:3088
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:35
@@ -1510,193 +1687,229 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:281
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:393
 msgid "Post type does not exist."
-msgstr ""
+msgstr "O tipo de postagem não existe."
 
 #: includes/Packages/Core_Read_Package.php:3116
 msgid "Content is required to generate an excerpt proposal."
-msgstr ""
+msgstr "O conteúdo é necessário para gerar uma proposta de trecho."
 
 #: includes/Packages/Core_Read_Package.php:3131
 msgid "Local read-only excerpt proposal generated from explicit content input."
 msgstr ""
+"Proposta de trecho somente leitura local gerada a partir de entrada de "
+"conteúdo explícito."
 
 #: includes/Packages/Core_Read_Package.php:3191
 msgid "Post metadata plan resolved."
-msgstr ""
+msgstr "Plano pós-metadados resolvido."
 
 #: includes/Packages/Core_Read_Package.php:3343
 msgid "Menu was not found."
-msgstr ""
+msgstr "O cardápio não foi encontrado."
 
 #: includes/Packages/Core_Write_Package.php:56
 msgid ""
 "Host-governed WordPress write abilities with dry-run previews and external "
 "approval."
 msgstr ""
+"Habilidades de gravação WordPress governadas por host com visualizações de "
+"dry-run e aprovação externa."
 
 #: includes/Packages/Core_Write_Package.php:79
 msgid "Create Draft"
-msgstr ""
+msgstr "Criar rascunho"
 
 #: includes/Packages/Core_Write_Package.php:80
 msgid ""
 "Creates a draft post or page after host approval, or returns a dry-run "
 "preview by default."
 msgstr ""
+"Cria um rascunho de postagem ou página após a aprovação do host ou retorna uma"
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:126
 msgid "Update Post"
-msgstr ""
+msgstr "Atualizar postagem"
 
 #: includes/Packages/Core_Write_Package.php:127
 msgid ""
 "Updates a post title, content, or excerpt after host approval, or returns a "
 "dry-run preview by default."
 msgstr ""
+"Atualiza o título, conteúdo ou trecho de uma postagem após a aprovação do host"
+"ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:160
 msgid "Set Post SEO Meta"
-msgstr ""
+msgstr "Definir meta da postagem SEO"
 
 #: includes/Packages/Core_Write_Package.php:161
 msgid ""
 "Updates SEO title and description metadata for one post after host approval, "
 "or returns a dry-run preview by default."
 msgstr ""
+"Atualiza SEO os metadados de título e descrição de uma postagem após a "
+"aprovação do host ou retorna uma visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:192
 msgid "Patch Post Content"
-msgstr ""
+msgstr "Conteúdo da postagem de patch"
 
 #: includes/Packages/Core_Write_Package.php:193
 msgid ""
 "Applies text patch operations to saved post content after host approval, or "
 "returns a dry-run preview by default."
 msgstr ""
+"Aplica operações de correção de texto ao conteúdo da postagem salva após a "
+"aprovação do host ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:242
 msgid "Patch Setting Value"
-msgstr ""
+msgstr "Valor de configuração do patch"
 
 #: includes/Packages/Core_Write_Package.php:243
 msgid ""
 "Applies exact text replacement operations to one option or theme mod after "
 "host approval, or returns a dry-run preview by default."
 msgstr ""
+"Aplica operações exatas de substituição de texto a uma opção ou mod de tema "
+"após a aprovação do host ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:294
 msgid "Update Post Blocks"
-msgstr ""
+msgstr "Atualizar Post Blocks"
 
 #: includes/Packages/Core_Write_Package.php:295
 msgid ""
 "Writes Gutenberg blocks into post content after host approval, or returns a "
 "dry-run preview by default."
 msgstr ""
+"Grava blocos Gutenberg no conteúdo da postagem após a aprovação do host ou "
+"retorna uma visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:339
 msgid "Set Post Slug"
-msgstr ""
+msgstr "Definir pós-slug"
 
 #: includes/Packages/Core_Write_Package.php:340
 msgid ""
 "Updates a post slug after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Atualiza um post slug após a aprovação do host ou retorna uma visualização de "
+"dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:368
 msgid "Set Post Author"
-msgstr ""
+msgstr "Definir autor da postagem"
 
 #: includes/Packages/Core_Write_Package.php:369
 msgid ""
 "Updates a post author after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Atualiza um autor de postagem após a aprovação do host ou retorna uma "
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:396
 msgid "Set Post Template"
-msgstr ""
+msgstr "Definir modelo de postagem"
 
 #: includes/Packages/Core_Write_Package.php:397
 msgid ""
 "Updates a post template after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Atualiza um modelo de postagem após a aprovação do host ou retorna uma "
+"visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:424
 msgid "Set Post Format"
-msgstr ""
+msgstr "Definir formato de postagem"
 
 #: includes/Packages/Core_Write_Package.php:425
 msgid ""
 "Updates a post format after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Atualiza um formato de postagem após a aprovação do host ou retorna uma "
+"visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:455
 msgid "Create Term"
-msgstr ""
+msgstr "Criar Termo"
 
 #: includes/Packages/Core_Write_Package.php:456
 msgid ""
 "Creates a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Cria um termo de taxonomia após a aprovação do host ou retorna uma "
+"visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:486
 msgid "Update Term"
-msgstr ""
+msgstr "Prazo de atualização"
 
 #: includes/Packages/Core_Write_Package.php:487
 msgid ""
 "Updates a taxonomy term after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Atualiza um termo de taxonomia após a aprovação do host ou retorna uma "
+"visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:521
 msgid "Set Post Terms"
-msgstr ""
+msgstr "Definir termos de postagem"
 
 #: includes/Packages/Core_Write_Package.php:522
 msgid ""
 "Updates a post taxonomy terms in replace, append, or remove mode after host "
 "approval, or returns a dry-run preview by default."
 msgstr ""
+"Atualiza os termos de uma pós-taxonomia no modo substituir, anexar ou remover "
+"após a aprovação do host ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:572
 msgid "Update Media Details"
-msgstr ""
+msgstr "Atualizar detalhes da mídia"
 
 #: includes/Packages/Core_Write_Package.php:573
 msgid ""
 "Updates attachment title, alt, caption, description, and attribution fields "
 "after host approval, or returns a dry-run preview by default."
 msgstr ""
+"Atualiza os campos de título, alt, legenda, descrição e atribuição do anexo "
+"após a aprovação do host ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:619
 msgid "Upload Media From URL"
-msgstr ""
+msgstr "Fazer upload de mídia de URL"
 
 #: includes/Packages/Core_Write_Package.php:620
 msgid ""
 "Downloads one remote media asset into the WordPress media library after host "
 "approval, or returns a dry-run preview by default."
 msgstr ""
+"Faz download de um ativo de mídia remoto na biblioteca de mídia WordPress após"
+"a aprovação do host ou retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:667
 msgid "Optimize Media Asset"
-msgstr ""
+msgstr "Otimize ativos de mídia"
 
 #: includes/Packages/Core_Write_Package.php:668
 msgid ""
 "Generates an optimized derivative for one image attachment after host "
 "approval, preserving the original file."
 msgstr ""
+"Gera uma derivada otimizada para um anexo de imagem após a aprovação do host, "
+"preservando o arquivo original."
 
 #: includes/Packages/Core_Write_Package.php:702
 msgid "Replace Media File"
-msgstr ""
+msgstr "Substituir arquivo de mídia"
 
 #: includes/Packages/Core_Write_Package.php:703
 msgid ""
@@ -1704,748 +1917,791 @@ msgid ""
 "derivative after host approval, preserving backup metadata for restore-media-"
 "backup."
 msgstr ""
+"Substitui um arquivo principal anexado por um derivado otimizado gerado "
+"anteriormente após a aprovação do host, preservando os metadados de backup "
+"para backup de mídia de restauração."
 
 #: includes/Packages/Core_Write_Package.php:742
 msgid "Restore Media Backup"
-msgstr ""
+msgstr "Restaurar backup de mídia"
 
 #: includes/Packages/Core_Write_Package.php:743
 msgid ""
 "Restores one attachment by copying a recorded backup back to the original "
 "media path and URL after host approval."
 msgstr ""
+"Restaura um anexo copiando um backup gravado de volta para o caminho de mídia "
+"original e URL após a aprovação do host."
 
 #: includes/Packages/Core_Write_Package.php:781
 msgid "Rename Media File"
-msgstr ""
+msgstr "Renomear arquivo de mídia"
 
 #: includes/Packages/Core_Write_Package.php:782
 msgid ""
 "Renames one attachment main file within its current uploads directory after "
 "host approval, preserving a backup and rollback metadata."
 msgstr ""
+"Renomeia um arquivo principal de anexo em seu diretório de uploads atual após "
+"a aprovação do host, preservando um backup e metadados de reversão."
 
 #: includes/Packages/Core_Write_Package.php:820
 msgid "Adopt Cloud Media Derivative"
-msgstr ""
+msgstr "Adote derivado de mídia em nuvem"
 
 #: includes/Packages/Core_Write_Package.php:821
 msgid ""
 "Adopts one approved short-lived Cloud derivative artifact as the attachment "
 "main file, with local backup and rollback metadata."
 msgstr ""
+"Adota um artefato derivado da nuvem de curta duração aprovado como arquivo "
+"principal do anexo, com backup local e metadados de reversão."
 
 #: includes/Packages/Core_Write_Package.php:862
 msgid "Set Post Featured Image"
-msgstr ""
+msgstr "Definir imagem em destaque da postagem"
 
 #: includes/Packages/Core_Write_Package.php:863
 msgid ""
 "Sets a post featured image from an attachment ID or approved remote media "
 "URL, or returns a dry-run preview by default."
 msgstr ""
+"Define uma imagem em destaque da postagem a partir de um ID de anexo ou mídia "
+"remota aprovada URL ou retorna uma visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:893
 msgid "Schedule Post"
-msgstr ""
+msgstr "Agendar postagem"
 
 #: includes/Packages/Core_Write_Package.php:894
 msgid ""
 "Schedules a post for future publication after host approval, or returns a "
 "dry-run preview by default."
 msgstr ""
+"Agenda uma postagem para publicação futura após a aprovação do host ou retorna"
+"uma visualização de teste por padrão."
 
 #: includes/Packages/Core_Write_Package.php:927
 msgid "Publish Post"
-msgstr ""
+msgstr "Publicar postagem"
 
 #: includes/Packages/Core_Write_Package.php:928
 msgid ""
 "Publishes a draft or pending post after host approval. Only treat the post "
 "as publicly accessible after this succeeds."
 msgstr ""
+"Publica um rascunho ou postagem pendente após a aprovação do organizador. Só "
+"trate a postagem como acessível publicamente depois que isso for bem-sucedido."
 
 #: includes/Packages/Core_Write_Package.php:954
 msgid "Restore Post"
-msgstr ""
+msgstr "Restaurar postagem"
 
 #: includes/Packages/Core_Write_Package.php:955
 msgid ""
 "Restores a trashed post or page after host approval, or returns a dry-run "
 "preview by default."
 msgstr ""
+"Restaura uma postagem ou página na lixeira após a aprovação do host ou retorna"
+"uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:980
 msgid "Approve Comment"
-msgstr ""
+msgstr "Aprovar comentário"
 
 #: includes/Packages/Core_Write_Package.php:981
 msgid ""
 "Approves one comment after host approval, or returns a dry-run preview by "
 "default."
 msgstr ""
+"Aprova um comentário após a aprovação do host ou retorna uma visualização de "
+"dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:1006
 msgid "Reply Comment"
-msgstr ""
+msgstr "Comentário de resposta"
 
 #: includes/Packages/Core_Write_Package.php:1007
 msgid ""
 "Replies to one comment as the current user after host approval, or returns a "
 "dry-run preview by default."
 msgstr ""
+"Responde a um comentário como o usuário atual após a aprovação do host ou "
+"retorna uma visualização de dry-run por padrão."
 
 #: includes/Packages/Core_Write_Package.php:1052
 msgid "Post type is invalid."
-msgstr ""
+msgstr "O tipo de postagem é inválido."
 
 #: includes/Packages/Core_Write_Package.php:1057
 msgid "Post type does not support creation."
-msgstr ""
+msgstr "O tipo de postagem não suporta criação."
 
 #: includes/Packages/Core_Write_Package.php:1061
 msgid "You do not have permission to create this post type."
-msgstr ""
+msgstr "Você não tem permissão para criar este tipo de postagem."
 
 #: includes/Packages/Core_Write_Package.php:1066
 msgid "Title is required."
-msgstr ""
+msgstr "O título é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:1178
 #: includes/Packages/Core_Write_Package.php:1844
 #: includes/Packages/Core_Write_Package.php:2034
 msgid "No update fields were provided."
-msgstr ""
+msgstr "Nenhum campo de atualização foi fornecido."
 
 #: includes/Packages/Core_Write_Package.php:1231
 msgid "No SEO metadata fields were provided."
-msgstr ""
+msgstr "Nenhum campo de metadados SEO foi fornecido."
 
 #: includes/Packages/Core_Write_Package.php:1374
 msgid "Setting target is invalid."
-msgstr ""
+msgstr "A definição da meta é inválida."
 
 #: includes/Packages/Core_Write_Package.php:1378
 msgid "You do not have permission to patch this setting."
-msgstr ""
+msgstr "Você não tem permissão para corrigir esta configuração."
 
 #: includes/Packages/Core_Write_Package.php:1414
 msgid "Theme mod writes are unavailable."
-msgstr ""
+msgstr "As gravações de mod de tema não estão disponíveis."
 
 #: includes/Packages/Core_Write_Package.php:1419
 msgid "Option writes are unavailable."
-msgstr ""
+msgstr "As gravações de opções não estão disponíveis."
 
 #: includes/Packages/Core_Write_Package.php:1451
 msgid "Blocks are required."
-msgstr ""
+msgstr "Blocos são obrigatórios."
 
 #: includes/Packages/Core_Write_Package.php:1457
 msgid "Blocks structure is invalid."
-msgstr ""
+msgstr "A estrutura dos blocos é inválida."
 
 #: includes/Packages/Core_Write_Package.php:1517
 msgid "Blocks roundtrip validation failed; write was blocked."
-msgstr ""
+msgstr "Falha na validação de ida e volta dos blocos; a gravação foi bloqueada."
 
 #: includes/Packages/Core_Write_Package.php:1549
 msgid "Slug is required."
-msgstr ""
+msgstr "Slug é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:1607
 #: includes/Packages/Core_Write_Package.php:1610
 msgid "Author ID is invalid."
-msgstr ""
+msgstr "O ID do autor é inválido."
 
 #: includes/Packages/Core_Write_Package.php:1661
 msgid "Template is required."
-msgstr ""
+msgstr "O modelo é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:1709
 msgid "Post format is invalid."
-msgstr ""
+msgstr "O formato da postagem é inválido."
 
 #: includes/Packages/Core_Write_Package.php:1758
 msgid "Term name is required."
-msgstr ""
+msgstr "O nome do termo é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:1764
 #: includes/Packages/Core_Write_Package.php:1838
 msgid "Parent term was not found."
-msgstr ""
+msgstr "O termo pai não foi encontrado."
 
 #: includes/Packages/Core_Write_Package.php:2013
 msgid "You do not have permission to edit this attachment."
-msgstr ""
+msgstr "Você não tem permissão para editar este anexo."
 
 #: includes/Packages/Core_Write_Package.php:2111
 #: includes/Packages/Core_Write_Package.php:2612
 msgid "You do not have permission to upload media."
-msgstr ""
+msgstr "Você não tem permissão para fazer upload de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2116
 #: includes/Packages/Core_Write_Package.php:3276
 msgid "Media URL is required."
-msgstr ""
+msgstr "A mídia URL é necessária."
 
 #: includes/Packages/Core_Write_Package.php:2120
 msgid "You do not have permission to attach media to this post."
-msgstr ""
+msgstr "Você não tem permissão para anexar mídia a esta postagem."
 
 #: includes/Packages/Core_Write_Package.php:2219
 msgid "You do not have permission to optimize media."
-msgstr ""
+msgstr "Você não tem permissão para otimizar mídia."
 
 #: includes/Packages/Core_Write_Package.php:2228
 msgid "You do not have permission to optimize this media asset."
-msgstr ""
+msgstr "Você não tem permissão para otimizar este recurso de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2284
 msgid "You do not have permission to replace media files."
-msgstr ""
+msgstr "Você não tem permissão para substituir arquivos de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2293
 #: includes/Packages/Core_Write_Package.php:2505
 msgid "You do not have permission to replace this media file."
-msgstr ""
+msgstr "Você não tem permissão para substituir este arquivo de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2355
 msgid "You do not have permission to restore media backups."
-msgstr ""
+msgstr "Você não tem permissão para restaurar backups de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2364
 msgid "You do not have permission to restore this media file."
-msgstr ""
+msgstr "Você não tem permissão para restaurar este arquivo de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2369
 #: includes/Packages/Core_Write_Package.php:4017
 msgid "A backup_id is required for media backup restore."
-msgstr ""
+msgstr "Um backup_id é necessário para restauração de backup de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2430
 msgid "You do not have permission to rename media files."
-msgstr ""
+msgstr "Você não tem permissão para renomear arquivos de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2439
 msgid "You do not have permission to rename this media file."
-msgstr ""
+msgstr "Você não tem permissão para renomear este arquivo de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2496
 msgid "You do not have permission to adopt media derivatives."
-msgstr ""
+msgstr "Você não tem permissão para adotar derivados de mídia."
 
 #: includes/Packages/Core_Write_Package.php:2584
 msgid "Either attachment_id or media_url is required."
-msgstr ""
+msgstr "É necessário attachment_id ou media_url."
 
 #: includes/Packages/Core_Write_Package.php:2627
 msgid "You do not have permission to use this attachment."
-msgstr ""
+msgstr "Você não tem permissão para usar este anexo."
 
 #: includes/Packages/Core_Write_Package.php:2631
 msgid "Featured image runtime is unavailable."
-msgstr ""
+msgstr "O tempo de execução da imagem em destaque não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:2656
 msgid "You do not have permission to schedule this post."
-msgstr ""
+msgstr "Você não tem permissão para agendar esta postagem."
 
 #: includes/Packages/Core_Write_Package.php:2663
 msgid "publish_at is required."
-msgstr ""
+msgstr "publish_at é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:2667
 msgid "publish_at is invalid."
-msgstr ""
+msgstr "publish_at é inválido."
 
 #: includes/Packages/Core_Write_Package.php:2670
 msgid "publish_at must be in the future."
-msgstr ""
+msgstr "publish_at deve estar no futuro."
 
 #: includes/Packages/Core_Write_Package.php:2735
 msgid "You do not have permission to publish this post."
-msgstr ""
+msgstr "Você não tem permissão para publicar esta postagem."
 
 #: includes/Packages/Core_Write_Package.php:2792
 msgid "This post is not in the trash."
-msgstr ""
+msgstr "Esta postagem não está na lixeira."
 
 #: includes/Packages/Core_Write_Package.php:2815
 msgid "Post restore failed."
-msgstr ""
+msgstr "A pós-restauração falhou."
 
 #: includes/Packages/Core_Write_Package.php:2884
 msgid "You do not have permission to reply to this comment."
-msgstr ""
+msgstr "Você não tem permissão para responder a este comentário."
 
 #: includes/Packages/Core_Write_Package.php:2891
 msgid "Reply content is required."
-msgstr ""
+msgstr "O conteúdo da resposta é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:2932
 msgid "Comment reply failed."
-msgstr ""
+msgstr "A resposta do comentário falhou."
 
 #: includes/Packages/Core_Write_Package.php:3162
 msgid "No SEO metadata writer is available."
-msgstr ""
+msgstr "Nenhum gravador de metadados SEO está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3195
 msgid "This write ability requires approval from a host runtime before commit."
-msgstr ""
+msgstr "Essa capacidade de gravação requer aprovação de um host runtime antes da confirmação."
 
 #: includes/Packages/Core_Write_Package.php:3220
 msgid "You do not have permission to edit this post."
-msgstr ""
+msgstr "Você não tem permissão para editar esta postagem."
 
 #: includes/Packages/Core_Write_Package.php:3279
 msgid "Media URL is not allowed."
-msgstr ""
+msgstr "A mídia URL não é permitida."
 
 #: includes/Packages/Core_Write_Package.php:3293
 msgid "Media runtime is unavailable."
-msgstr ""
+msgstr "O tempo de execução da mídia não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3309
 #: includes/Packages/Core_Write_Package.php:3333
 msgid "Remote media is not reachable."
-msgstr ""
+msgstr "A mídia remota não está acessível."
 
 #: includes/Packages/Core_Write_Package.php:3313
 #: includes/Packages/Core_Write_Package.php:3339
 msgid "Remote media exceeds the allowed size."
-msgstr ""
+msgstr "A mídia remota excede o tamanho permitido."
 
 #: includes/Packages/Core_Write_Package.php:3372
 msgid "Uploaded media file is unavailable."
-msgstr ""
+msgstr "O arquivo de mídia enviado não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3383
 msgid "Remote media type is not allowed."
-msgstr ""
+msgstr "O tipo de mídia remota não é permitido."
 
 #: includes/Packages/Core_Write_Package.php:3458
 msgid "Only image attachments can be optimized."
-msgstr ""
+msgstr "Somente anexos de imagem podem ser otimizados."
 
 #: includes/Packages/Core_Write_Package.php:3525
 msgid "The source attachment file is unavailable."
-msgstr ""
+msgstr "O arquivo anexo de origem não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3528
 msgid "WordPress image editor is unavailable."
-msgstr ""
+msgstr "O editor de imagens WordPress não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3551
 msgid "The attachment directory is unavailable."
-msgstr ""
+msgstr "O diretório de anexos não está disponível."
 
 #: includes/Packages/Core_Write_Package.php:3563
 msgid "Optimized derivative file was not created."
-msgstr ""
+msgstr "O arquivo derivado otimizado não foi criado."
 
 #: includes/Packages/Core_Write_Package.php:3641
 #: includes/Packages/Core_Write_Package.php:3873
 msgid "The derivative MIME type did not match the expected value."
-msgstr ""
+msgstr "O tipo MIME derivado não corresponde ao valor esperado."
 
 #: includes/Packages/Core_Write_Package.php:3690
 msgid "A derivative artifact_id is required."
-msgstr ""
+msgstr "Uma derivada artifact_id é necessária."
 
 #: includes/Packages/Core_Write_Package.php:3694
 msgid ""
 "The derivative artifact MIME type is not supported for media replacement."
-msgstr ""
+msgstr "O tipo MIME de artefato derivado não é suportado para substituição de mídia."
 
 #: includes/Packages/Core_Write_Package.php:3703
 msgid "The derivative artifact expiry is required."
-msgstr ""
+msgstr "A expiração do artefato derivado é necessária."
 
 #: includes/Packages/Core_Write_Package.php:3706
 msgid ""
 "The derivative artifact has expired. Generate a new preview before adoption."
-msgstr ""
+msgstr "O artefato derivado expirou. Gere uma nova visualização antes da adoção."
 
 #: includes/Packages/Core_Write_Package.php:3713
 msgid "The derivative artifact format is not supported for media replacement."
-msgstr ""
+msgstr "O formato de artefato derivado não é suportado para substituição de mídia."
 
 #: includes/Packages/Core_Write_Package.php:3790
 msgid "Cloud Addon artifact download is unavailable on this site."
-msgstr ""
+msgstr "O download do artefato Cloud Addon não está disponível neste site."
 
 #: includes/Packages/Core_Write_Package.php:3799
 msgid "The downloaded derivative artifact was empty."
-msgstr ""
+msgstr "O artefato derivado baixado estava vazio."
 
 #: includes/Packages/Core_Write_Package.php:3804
 msgid "The downloaded derivative checksum did not match the proposal evidence."
-msgstr ""
+msgstr "A soma de verificação derivada baixada não correspondia à evidência da proposta."
 
 #: includes/Packages/Core_Write_Package.php:3811
 msgid "The local derivative path is invalid."
-msgstr ""
+msgstr "O caminho da derivada local é inválido."
 
 #: includes/Packages/Core_Write_Package.php:3815
 msgid "The local derivative directory could not be created."
-msgstr ""
+msgstr "O diretório derivado local não pôde ser criado."
 
 #: includes/Packages/Core_Write_Package.php:3832
 msgid "The local derivative file could not be written."
-msgstr ""
+msgstr "O arquivo derivado local não pôde ser gravado."
 
 #: includes/Packages/Core_Write_Package.php:3865
 msgid "A derivative_relative_file is required for media file replacement."
-msgstr ""
+msgstr "Um derivative_relative_file é necessário para substituição de arquivo de mídia."
 
 #: includes/Packages/Core_Write_Package.php:3869
 msgid "The requested derivative is not recorded for this attachment."
-msgstr ""
+msgstr "O derivativo solicitado não está registrado para este anexo."
 
 #: includes/Packages/Core_Write_Package.php:3924
 #: includes/Packages/Core_Write_Package.php:4299
 msgid "Current attachment file metadata is unavailable."
-msgstr ""
+msgstr "Os metadados do arquivo anexo atual não estão disponíveis."
 
 #: includes/Packages/Core_Write_Package.php:3929
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2022
 msgid "Target file name must be a file basename, not a path."
-msgstr ""
+msgstr "O nome do arquivo de destino deve ser um nome base de arquivo, não um caminho."
 
 #: includes/Packages/Core_Write_Package.php:3933
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2026
 msgid "Target file name is invalid after sanitization."
-msgstr ""
+msgstr "O nome do arquivo de destino é inválido após a higienização."
 
 #: includes/Packages/Core_Write_Package.php:3944
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1865
 msgid "Target file extension must match the current media file extension."
-msgstr ""
+msgstr "A extensão do arquivo de destino deve corresponder à extensão do arquivo de mídia atual."
 
 #: includes/Packages/Core_Write_Package.php:3947
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1861
 msgid "Target file name matches the current file name."
-msgstr ""
+msgstr "O nome do arquivo de destino corresponde ao nome do arquivo atual."
 
 #: includes/Packages/Core_Write_Package.php:3958
 #: includes/Packages/Core_Write_Package.php:4168
 msgid "Target media file already exists."
-msgstr ""
+msgstr "O arquivo de mídia de destino já existe."
 
 #: includes/Packages/Core_Write_Package.php:4021
 msgid "Replacement history was not found for restore."
-msgstr ""
+msgstr "O histórico de substituição não foi encontrado para restauração."
 
 #: includes/Packages/Core_Write_Package.php:4028
 #: includes/Packages/Core_Write_Package.php:4228
 msgid "The backup file is unavailable for restore."
-msgstr ""
+msgstr "O arquivo de backup não está disponível para restauração."
 
 #: includes/Packages/Core_Write_Package.php:4035
 #: includes/Packages/Core_Write_Package.php:4231
 msgid "The original media file path is unavailable for restore."
-msgstr ""
+msgstr "O caminho do arquivo de mídia original não está disponível para restauração."
 
 #: includes/Packages/Core_Write_Package.php:4041
 #: includes/Packages/Core_Write_Package.php:4234
 msgid "The original media file path already exists with different content."
-msgstr ""
+msgstr "O caminho do arquivo de mídia original já existe com conteúdo diferente."
 
 #: includes/Packages/Core_Write_Package.php:4102
 msgid "The current attachment file is unavailable for backup."
-msgstr ""
+msgstr "O arquivo anexo atual não está disponível para backup."
 
 #: includes/Packages/Core_Write_Package.php:4105
 msgid "The derivative file is unavailable for replacement."
-msgstr ""
+msgstr "O arquivo derivado não está disponível para substituição."
 
 #: includes/Packages/Core_Write_Package.php:4109
 #: includes/Packages/Core_Write_Package.php:4171
 msgid "The current attachment file could not be backed up."
-msgstr ""
+msgstr "Não foi possível fazer backup do arquivo anexo atual."
 
 #: includes/Packages/Core_Write_Package.php:4162
 msgid "The current attachment file is unavailable for rename."
-msgstr ""
+msgstr "O arquivo anexo atual não está disponível para renomeação."
 
 #: includes/Packages/Core_Write_Package.php:4165
 msgid "Target media file path is invalid."
-msgstr ""
+msgstr "O caminho do arquivo de mídia de destino é inválido."
 
 #: includes/Packages/Core_Write_Package.php:4174
 msgid "The current attachment file could not be renamed."
-msgstr ""
+msgstr "O arquivo anexo atual não pôde ser renomeado."
 
 #: includes/Packages/Core_Write_Package.php:4225
 msgid "The current attachment file is unavailable for restore backup."
-msgstr ""
+msgstr "O arquivo anexo atual não está disponível para backup de restauração."
 
 #: includes/Packages/Core_Write_Package.php:4237
 msgid "The current attachment file could not be backed up before restore."
-msgstr ""
+msgstr "Não foi possível fazer backup do arquivo anexo atual antes da restauração."
 
 #: includes/Packages/Core_Write_Package.php:4240
 msgid "The backup file could not be restored to the original path."
-msgstr ""
+msgstr "O arquivo de backup não pôde ser restaurado para o caminho original."
 
 #: includes/Packages/Core_Write_Package.php:4325
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1888
 msgid "The current media file did not match the expected value."
-msgstr ""
+msgstr "O arquivo de mídia atual não corresponde ao valor esperado."
 
 #: includes/Packages/Core_Write_Package.php:4329
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1892
 msgid "The current media MIME type did not match the expected value."
-msgstr ""
+msgstr "O tipo MIME da mídia atual não corresponde ao valor esperado."
 
 #: includes/Packages/Core_Write_Package.php:4348
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1874
 msgid "The expected current MD5 value is invalid."
-msgstr ""
+msgstr "O valor atual esperado de MD5 é inválido."
 
 #: includes/Packages/Core_Write_Package.php:4351
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1877
 msgid "The expected current SHA-256 value is invalid."
-msgstr ""
+msgstr "O valor atual esperado de SHA-256 é inválido."
 
 #: includes/Packages/Core_Write_Package.php:4358
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1880
 msgid "The current media file MD5 did not match the expected value."
-msgstr ""
+msgstr "O arquivo de mídia atual MD5 não corresponde ao valor esperado."
 
 #: includes/Packages/Core_Write_Package.php:4361
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1883
 msgid "The current media file SHA-256 did not match the expected value."
-msgstr ""
+msgstr "O arquivo de mídia atual SHA-256 não corresponde ao valor esperado."
 
 #: includes/Packages/Core_Write_Package.php:4533
 msgid "Replacement file path is invalid."
-msgstr ""
+msgstr "O caminho do arquivo de substituição é inválido."
 
 #: includes/Packages/Core_Write_Package.php:5332
 #: includes/Packages/Core_Write_Package.php:5822
 msgid "Operations are required."
-msgstr ""
+msgstr "As operações são necessárias."
 
 #: includes/Packages/Core_Write_Package.php:5341
 msgid "Patch operation is invalid."
-msgstr ""
+msgstr "A operação de patch é inválida."
 
 #: includes/Packages/Core_Write_Package.php:5345
 msgid "Patch find text is required."
-msgstr ""
+msgstr "O texto de localização do patch é obrigatório."
 
 #: includes/Packages/Core_Write_Package.php:5496
 msgid ""
 "You do not have permission to update a post that references this media item."
 msgstr ""
+"Você não tem permissão para atualizar uma postagem que faça referência a este "
+"item de mídia."
 
 #: includes/Packages/Core_Write_Package.php:5515
 msgid "A post that references this media item was not found during repair."
 msgstr ""
+"Uma postagem que faz referência a este item de mídia não foi encontrada "
+"durante o reparo."
 
 #: includes/Packages/Core_Write_Package.php:5818
 #: includes/Packages/Core_Write_Package.php:5857
 msgid "Raw serialized setting strings require manual review."
-msgstr ""
+msgstr "As strings de configuração serializadas brutas exigem revisão manual."
 
 #: includes/Packages/Core_Write_Package.php:5827
 msgid "Setting patch operations must be exact replacements."
-msgstr ""
+msgstr "As operações de patch de configuração devem ser substituições exatas."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:27
 msgid "Site Info"
-msgstr ""
+msgstr "Informações do site"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:28
 msgid ""
 "Returns the site name, URLs, language, WordPress version, timezone, and "
 "active theme."
-msgstr ""
+msgstr "Retorna o nome do site, URLs, idioma, WordPress versão, fuso horário e tema ativo."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:56
 msgid "List Post Types"
-msgstr ""
+msgstr "Listar tipos de postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:57
 msgid ""
 "Returns available post types, including REST exposure and hierarchy flags."
 msgstr ""
+"Retorna os tipos de postagem disponíveis, incluindo exposição REST e "
+"sinalizadores de hierarquia."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:94
 msgid "List Taxonomies"
-msgstr ""
+msgstr "Listar taxonomias"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:95
 msgid "Returns taxonomy definitions and bound object types."
-msgstr ""
+msgstr "Retorna definições de taxonomia e tipos de objetos vinculados."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:136
 msgid "Propose Post Excerpt"
-msgstr ""
+msgstr "Propor trecho da postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:137
 msgid ""
 "Builds a read-only excerpt proposal from explicit content input without "
 "writing changes."
 msgstr ""
+"Constrói uma proposta de trecho somente leitura a partir de entrada de "
+"conteúdo explícito sem escrever alterações."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:170
 msgid "Resolve Post Metadata Plan"
-msgstr ""
+msgstr "Resolver plano de pós-metadados"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:171
 msgid ""
 "Normalizes a post metadata plan into the canonical excerpt, taxonomy, slug, "
 "author, template, format, and publication handoff payload."
 msgstr ""
+"Normaliza um plano de pós-metadados em trecho canônico, taxonomia, slug, "
+"autor, modelo, formato e carga útil de transferência de publicação."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:212
 msgid "List Users"
-msgstr ""
+msgstr "Listar usuários"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:213
 msgid "Returns a paginated list of users and roles."
-msgstr ""
+msgstr "Retorna uma lista paginada de usuários e funções."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:256
 msgid "List Navigation Menus"
-msgstr ""
+msgstr "Listar menus de navegação"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:257
 msgid "Returns available navigation menus and their assigned theme locations."
-msgstr ""
+msgstr "Retorna os menus de navegação disponíveis e seus locais de tema atribuídos."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:282
 msgid "Get Navigation Menu"
-msgstr ""
+msgstr "Obter menu de navegação"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:283
 msgid "Returns one navigation menu and its menu items."
-msgstr ""
+msgstr "Retorna um menu de navegação e seus itens de menu."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:314
 msgid "Search Posts"
-msgstr ""
+msgstr "Pesquisar postagens"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:315
 msgid ""
 "Searches local WordPress posts by keyword and bounded filters, returning "
 "matching post summaries."
 msgstr ""
+"Pesquisa postagens locais de WordPress por palavras-chave e filtros limitados,"
+"retornando resumos de postagens correspondentes."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:386
 msgid "Get Post Stats"
-msgstr ""
+msgstr "Obtenha estatísticas de postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:387
 msgid ""
 "Returns word count, image count, reading time, comments, and dates for a "
 "post."
 msgstr ""
+"Retorna contagem de palavras, contagem de imagens, tempo de leitura, "
+"comentários e datas de uma postagem."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:416
 msgid "List Revisions"
-msgstr ""
+msgstr "Listar revisões"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:417
 msgid ""
 "Returns a paginated list of post revisions using the legacy response shape."
-msgstr ""
+msgstr "Retorna uma lista paginada de pós-revisões usando o formato de resposta herdado."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:447
 msgid "Get Post Meta"
-msgstr ""
+msgstr "Obter Post Meta"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:448
 msgid "Reads post meta for one post, optionally scoped to a single meta key."
-msgstr ""
+msgstr "Lê post meta para um post, opcionalmente com escopo para uma única meta-chave."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:481
 msgid "Search Post Meta"
-msgstr ""
+msgstr "Meta de postagem de pesquisa"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:482
 msgid ""
 "Searches explicitly named local post meta keys and returns bounded matching "
 "post summaries without writing."
 msgstr ""
+"Pesquisa meta-chaves de postagem locais nomeadas explicitamente e retorna "
+"resumos de postagens correspondentes sem gravação."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:556
 msgid "Count Posts"
-msgstr ""
+msgstr "Contar postagens"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:557
 msgid "Counts posts for one post type and status."
-msgstr ""
+msgstr "Conta postagens para um tipo e status de postagem."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:579
 msgid "List Posts"
-msgstr ""
+msgstr "Listar postagens"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:580
 msgid "Returns a paginated list of posts or pages."
-msgstr ""
+msgstr "Retorna uma lista paginada de postagens ou páginas."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:634
 msgid "Get Post"
-msgstr ""
+msgstr "Obter postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:635
 msgid "Returns details for a single post or page."
-msgstr ""
+msgstr "Retorna detalhes de uma única postagem ou página."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:666
 msgid "Get Post Context"
-msgstr ""
+msgstr "Obtenha o contexto da postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:667
 msgid ""
 "Returns one agent-ready post context bundle with content, stats, terms, "
 "media, blocks, revisions, and optional scoped metadata."
 msgstr ""
+"Retorna um pacote de pós-contexto pronto para agente com conteúdo, "
+"estatísticas, termos, mídia, blocos, revisões e metadados com escopo opcional."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:718
 msgid "Resolve URL to Post"
-msgstr ""
+msgstr "Resolva URL para postar"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:719
 msgid ""
 "Resolves a URL or slug to a post ID, post type, status, edit link, and "
 "permalink."
 msgstr ""
+"Resolve um URL ou slug para um ID de postagem, tipo de postagem, status, link "
+"de edição e link permanente."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:747
 msgid "Get Post Blocks"
-msgstr ""
+msgstr "Obtenha blocos de postagem"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:748
 msgid "Returns a Gutenberg block structure snapshot for a post or revision."
-msgstr ""
+msgstr "Retorna um instantâneo da estrutura de bloco Gutenberg para uma postagem ou revisão."
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:781
 msgid "List Post Revisions"
-msgstr ""
+msgstr "Listar revisões de postagens"
 
 #: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:782
 msgid "Returns a paginated read-only revision history for a post."
-msgstr ""
+msgstr "Retorna um histórico de revisão paginado somente leitura para uma postagem."
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:27
 msgid "WordPress Diagnostics Summary"
-msgstr ""
+msgstr "WordPress Resumo de diagnóstico"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:28
 msgid ""
 "Returns a redacted local WordPress diagnostics summary without Npcink AI, "
 "MCP, filesystem path, database name, or secret details."
 msgstr ""
+"Retorna um resumo de diagnóstico local WordPress editado sem Npcink AI, MCP, "
+"caminho do sistema de arquivos, nome do banco de dados ou detalhes secretos."
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:76
 msgid "WordPress Operations Diagnostics Detail"
-msgstr ""
+msgstr "WordPress Detalhe de diagnóstico de operações"
 
 #: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:77
 msgid ""
@@ -2454,6 +2710,10 @@ msgid ""
 "log, content type, role, widget, block-theme, search, integration, SEO, "
 "security, and performance details."
 msgstr ""
+"Retorna diagnósticos de operações locais WordPress limitados com plug-in, "
+"capacidade de chamador, PHP, cache, reescrita, HTTPS, servidor, banco de "
+"dados, cron, log estruturado, tipo de conteúdo, função, widget, tema de bloco, "
+"pesquisa, integração, SEO, segurança e detalhes de desempenho."
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:184
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:28
@@ -2464,39 +2724,41 @@ msgstr ""
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:336
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:446
 msgid "post_id is invalid."
-msgstr ""
+msgstr "post_id é inválido."
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:192
 msgid "You are not allowed to read this post."
-msgstr ""
+msgstr "Você não tem permissão para ler esta postagem."
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:49
 msgid ""
 "Template style risk is high; review and polish the article before scheduling "
 "or publishing."
 msgstr ""
+"O risco do estilo do modelo é alto; revise e aprimore o artigo antes de "
+"agendar ou publicar."
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:52
 msgid "Quality review requires human review before scheduling or publishing."
-msgstr ""
+msgstr "A revisão de qualidade requer revisão humana antes de agendar ou publicar."
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:58
 msgid ""
 "A duplicate production candidate was detected; review before scheduling or "
 "publishing."
-msgstr ""
+msgstr "Um candidato de produção duplicado foi detectado; revise antes de agendar ou publicar."
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:27
 msgid "You do not have permission to read content inventory."
-msgstr ""
+msgstr "Você não tem permissão para ler o inventário de conteúdo."
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:170
 msgid "You do not have permission to read nonproduction content inventory."
-msgstr ""
+msgstr "Você não tem permissão para ler o inventário de conteúdo que não seja de produção."
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:339
 msgid "You do not have permission to build content inventory fix plans."
-msgstr ""
+msgstr "Você não tem permissão para criar planos de correção de inventário de conteúdo."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:36
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:539
@@ -2507,96 +2769,102 @@ msgstr ""
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:896
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:36
 msgid "You do not have permission to read this post."
-msgstr ""
+msgstr "Você não tem permissão para ler esta postagem."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:56
 msgid ""
 "Place one contextual internal link after the first paragraph that introduces "
 "this concept."
 msgstr ""
+"Coloque um link interno contextual após o primeiro parágrafo que apresenta "
+"este conceito."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:97
 msgid "You do not have permission to read content refresh opportunities."
-msgstr ""
+msgstr "Você não tem permissão para ler oportunidades de atualização de conteúdo."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:209
 msgid "You do not have permission to read article refresh context."
-msgstr ""
+msgstr "Você não tem permissão para ler o contexto de atualização do artigo."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:318
 msgid "You do not have permission to read internal link graph health."
-msgstr ""
+msgstr "Você não tem permissão para ler a integridade do gráfico de links internos."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:397
 msgid "Posts share topic terms and may support a contextual internal link."
-msgstr ""
+msgstr "As postagens compartilham termos do tópico e podem conter um link interno contextual."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:494
 msgid "Refresh scan found repeated SEO/GEO readiness gaps."
-msgstr ""
+msgstr "A verificação de atualização encontrou lacunas de prontidão repetidas de SEO/GEO."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
 msgid "Focus keyword appears in title or content."
-msgstr ""
+msgstr "A palavra-chave Focus aparece no título ou conteúdo."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
 msgid ""
 "Add or confirm a focus keyword and place it naturally in the title or lead "
 "section."
 msgstr ""
+"Adicione ou confirme uma palavra-chave de foco e coloque-a naturalmente no "
+"título ou na seção principal."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
 msgid "SEO title metadata is present."
-msgstr ""
+msgstr "SEO metadados de título estão presentes."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
 msgid "Add SEO title metadata before publication or optimization handoff."
-msgstr ""
+msgstr "Adicione metadados de título SEO antes da publicação ou transferência de otimização."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
 msgid "SEO description metadata is present."
-msgstr ""
+msgstr "SEO metadados de descrição estão presentes."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
 msgid "Add SEO description metadata for search and share snippets."
-msgstr ""
+msgstr "Adicione metadados de descrição de SEO para snippets de pesquisa e compartilhamento."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
 msgid "Content has enough depth for baseline SEO review."
-msgstr ""
+msgstr "O conteúdo tem profundidade suficiente para revisão de referência SEO."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
 msgid "Expand the content with clearer context, steps, evidence, or examples."
-msgstr ""
+msgstr "Expanda o conteúdo com contexto, etapas, evidências ou exemplos mais claros."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
 msgid "Content has answer-oriented question candidates."
-msgstr ""
+msgstr "O conteúdo tem candidatos a perguntas orientadas para respostas."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
 msgid "Add direct answer sections or FAQ-style questions for GEO readiness."
-msgstr ""
+msgstr "Adicione seções de resposta direta ou perguntas no estilo FAQ para preparação para GEO."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
 msgid "Featured media is assigned."
-msgstr ""
+msgstr "A mídia em destaque é atribuída."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
 msgid "Add featured media when the channel or theme expects one."
-msgstr ""
+msgstr "Adicione mídia em destaque quando o canal ou tema assim o exigir."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:616
 msgid "You do not have permission to read topic coverage."
-msgstr ""
+msgstr "Você não tem permissão para ler a cobertura do tópico."
 
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:678
 msgid ""
 "Only one scanned post covers this topic; consider adding supporting content "
 "or internal links."
 msgstr ""
+"Apenas uma postagem digitalizada cobre este tópico; considere adicionar "
+"conteúdo de suporte ou links internos."
 
 #. translators: %s: Related term.
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:847
@@ -2605,6 +2873,8 @@ msgid ""
 "Existing content is related to \"%s\" and can support the source post with "
 "contextual reading."
 msgstr ""
+"O conteúdo existente está relacionado a \"%s\" e pode apoiar a postagem de "
+"origem com leitura contextual."
 
 #. translators: %s: Related search term.
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:58
@@ -2612,338 +2882,364 @@ msgstr ""
 msgid ""
 "Existing site content related to \"%s\" can be used as supplemental reading."
 msgstr ""
+"O conteúdo existente do site relacionado a \"%s\" pode ser usado como leitura "
+"complementar."
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:73
 msgid ""
 "Insert one internal link after the first paragraph that explains the core "
 "concept."
-msgstr ""
+msgstr "Insira um link interno após o primeiro parágrafo que explica o conceito central."
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:83
 msgid ""
 "Keep titles, opening summaries, and CTA paragraphs link-free to avoid "
 "diluting the main answer."
 msgstr ""
+"Mantenha títulos, resumos de abertura e CTA parágrafos sem links para evitar "
+"diluir a resposta principal."
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:94
 msgid "Internal link targets resolved."
-msgstr ""
+msgstr "Alvos de links internos resolvidos."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:135
 msgid "You do not have permission to resolve media attachments."
-msgstr ""
+msgstr "Você não tem permissão para resolver anexos de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:728
 msgid "You do not have permission to read media cleanup opportunities."
-msgstr ""
+msgstr "Você não tem permissão para ler as oportunidades de limpeza de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:793
 msgid "You do not have permission to read media backups."
-msgstr ""
+msgstr "Você não tem permissão para ler backups de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:802
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1321
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1838
 msgid "Attachment was not found."
-msgstr ""
+msgstr "O anexo não foi encontrado."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:805
 msgid "You do not have permission to read backups for this media item."
-msgstr ""
+msgstr "Você não tem permissão para ler backups deste item de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:891
 msgid "You do not have permission to read media inventory."
-msgstr ""
+msgstr "Você não tem permissão para ler o inventário de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:964
 msgid "You do not have permission to inspect media assets."
-msgstr ""
+msgstr "Você não tem permissão para inspecionar recursos de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:970
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1011
 msgid "Attachment not found."
-msgstr ""
+msgstr "Anexo não encontrado."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:973
 msgid "You do not have permission to inspect this media asset."
-msgstr ""
+msgstr "Você não tem permissão para inspecionar este recurso de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1005
 msgid "You do not have permission to prepare media derivative requests."
-msgstr ""
+msgstr "Você não tem permissão para preparar solicitações de derivativos de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1014
 msgid ""
 "You do not have permission to prepare a derivative request for this media "
 "asset."
 msgstr ""
+"Você não tem permissão para preparar uma solicitação derivada para este "
+"recurso de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1122
 msgid "You do not have permission to prepare media derivative batch plans."
-msgstr ""
+msgstr "Você não tem permissão para preparar planos em lote de derivativos de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1129
 msgid "Unsupported media derivative target format."
-msgstr ""
+msgstr "Formato de destino derivado de mídia não compatível."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1311
 msgid "You do not have permission to prepare media optimization plans."
-msgstr ""
+msgstr "Você não tem permissão para preparar planos de otimização de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1324
 msgid ""
 "You do not have permission to prepare an optimization plan for this media "
 "item."
-msgstr ""
+msgstr "Você não tem permissão para preparar um plano de otimização para este item de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1829
 msgid "You do not have permission to prepare media rename plans."
-msgstr ""
+msgstr "Você não tem permissão para preparar planos de renomeação de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1841
 msgid ""
 "You do not have permission to prepare a rename plan for this media item."
-msgstr ""
+msgstr "Você não tem permissão para preparar um plano de renomeação para este item de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1937
 msgid ""
 "Media rename plans with reference updates require permission to edit posts."
 msgstr ""
+"Os planos de renomeação de mídia com atualizações de referência exigem "
+"permissão para editar postagens."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2101
 msgid ""
 "Media optimization plans require at least one reviewed media metadata field."
 msgstr ""
+"Os planos de otimização de mídia exigem pelo menos um campo de metadados de "
+"mídia revisado."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2121
 msgid "Media optimization plans require derivative_artifact evidence."
-msgstr ""
+msgstr "Os planos de otimização de mídia exigem derivative_artifact evidências."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2159
 msgid ""
 "Only image and text watermarks are supported for Cloud media derivatives."
-msgstr ""
+msgstr "Apenas marcas d'água de imagem e texto são suportadas para derivados de mídia em nuvem."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2423
 msgid "You do not have permission to build media inventory fix plans."
-msgstr ""
+msgstr "Você não tem permissão para criar planos de correção de inventário de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2534
 msgid "You do not have permission to build media reference repair plans."
-msgstr ""
+msgstr "Você não tem permissão para criar planos de reparo de referência de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2551
 msgid "Old and new media URLs are required for reference repair planning."
 msgstr ""
+"Mídias antigas e novas URLs são necessárias para o planejamento de reparos de "
+"referência."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2622
 msgid ""
 "Replace hard-coded media URLs in post content after media file adoption."
 msgstr ""
+"Substitua mídias codificadas URLs no conteúdo da postagem após a adoção do "
+"arquivo de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2672
 msgid ""
 "You do not have permission to build media settings reference repair plans."
 msgstr ""
+"Você não tem permissão para criar planos de reparo de referência de "
+"configurações de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2687
 msgid ""
 "Old and new media URLs are required for settings reference repair planning."
 msgstr ""
+"Mídias antigas e novas URLs são necessárias para o planejamento de reparos de "
+"referência de configurações."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2784
 msgid ""
 "Replace exact hard-coded media URLs in a WordPress setting after local media "
 "adoption."
 msgstr ""
+"Substitua URLs de mídia codificados exatos em uma configuração WordPress após "
+"a adoção da mídia local."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3295
 msgid ""
 "No completed media replacement history or explicit old/new URLs were found "
 "for this attachment."
 msgstr ""
+"Nenhum histórico completo de substituição de mídia ou URLs antigos/novos "
+"explícitos foram encontrados para este anexo."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3769
 msgid "A media URL is required."
-msgstr ""
+msgstr "Uma mídia URL é necessária."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3775
 msgid "The local uploads base URL is unavailable."
-msgstr ""
+msgstr "A base de uploads locais URL não está disponível."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3785
 msgid ""
 "The media URL must be an absolute same-site uploads URL or a root-relative "
 "uploads URL."
 msgstr ""
+"A mídia URL deve ser uploads absolutos do mesmo site URL ou uploads relativos "
+"à raiz URL."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3791
 msgid "Only local uploads URLs can be resolved to media attachments."
-msgstr ""
+msgstr "Somente uploads locais URLs podem ser resolvidos para anexos de mídia."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3797
 msgid "Only URLs under the local uploads directory can be resolved."
-msgstr ""
+msgstr "Somente URLs no diretório de uploads locais podem ser resolvidos."
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3803
 msgid "The uploads URL path is not a valid media file path."
-msgstr ""
+msgstr "O caminho de uploads URL não é um caminho de arquivo de mídia válido."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:27
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:118
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:183
 msgid "You do not have permission to read pages."
-msgstr ""
+msgstr "Você não tem permissão para ler páginas."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:123
 msgid "Page ID is invalid."
-msgstr ""
+msgstr "O ID da página é inválido."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:127
 msgid "Page was not found."
-msgstr ""
+msgstr "A página não foi encontrada."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:130
 msgid "You do not have permission to read this page."
-msgstr ""
+msgstr "Você não tem permissão para ler esta página."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:335
 msgid "You do not have permission to read page structure health."
-msgstr ""
+msgstr "Você não tem permissão para ler a integridade da estrutura da página."
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:428
 msgid "Default Template"
-msgstr ""
+msgstr "Modelo padrão"
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:41
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:275
 msgid "Search keyword cannot be empty."
-msgstr ""
+msgstr "A palavra-chave de pesquisa não pode estar vazia."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:169
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:696
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:953
 msgid "You do not have permission to read this post revision history."
-msgstr ""
+msgstr "Você não tem permissão para ler este histórico de pós-revisões."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:230
 msgid "You do not have permission to read this post meta."
-msgstr ""
+msgstr "Você não tem permissão para ler esta meta de postagem."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:278
 msgid "At least one non-sensitive meta key is required."
-msgstr ""
+msgstr "É necessária pelo menos uma meta-chave não confidencial."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:826
 msgid "A URL or slug is required."
-msgstr ""
+msgstr "Um URL ou slug é necessário."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:858
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:863
 msgid "No matching post was found."
-msgstr ""
+msgstr "Nenhuma postagem correspondente foi encontrada."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:904
 msgid "Revision was not found."
-msgstr ""
+msgstr "A revisão não foi encontrada."
 
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:907
 msgid "Revision does not belong to the requested post."
-msgstr ""
+msgstr "A revisão não pertence ao cargo solicitado."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
 msgid "Title is present."
-msgstr ""
+msgstr "O título está presente."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
 msgid "Add a clear post title before publishing."
-msgstr ""
+msgstr "Adicione um título de postagem claro antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
 msgid "Body content has enough text for review."
-msgstr ""
+msgstr "O conteúdo do corpo tem texto suficiente para revisão."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
 msgid "Add more body content before publishing."
-msgstr ""
+msgstr "Adicione mais conteúdo corporal antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Slug is set."
-msgstr ""
+msgstr "A lesma está definida."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Set a stable URL slug before publishing."
-msgstr ""
+msgstr "Defina um slug URL estável antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
 msgid "Author is assigned."
-msgstr ""
+msgstr "O autor é atribuído."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
 msgid "Assign an author before publishing."
-msgstr ""
+msgstr "Atribua um autor antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
 msgid "At least one category is assigned."
-msgstr ""
+msgstr "Pelo menos uma categoria é atribuída."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
 msgid "Assign at least one category before publishing."
-msgstr ""
+msgstr "Atribua pelo menos uma categoria antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
 msgid "Category lookup is available."
-msgstr ""
+msgstr "A pesquisa de categoria está disponível."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
 msgid ""
 "Category lookup is unavailable in this runtime; verify categories in "
 "WordPress."
 msgstr ""
+"A pesquisa de categoria não está disponível neste tempo de execução; verifique"
+"categorias em WordPress."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
 msgid "Excerpt is present."
-msgstr ""
+msgstr "O trecho está presente."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
 msgid "Add an excerpt for archive and social previews."
-msgstr ""
+msgstr "Adicione um trecho para arquivo e visualizações sociais."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
 msgid "Featured image is assigned."
-msgstr ""
+msgstr "A imagem em destaque é atribuída."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
 msgid "Add a featured image when the layout or channel expects one."
-msgstr ""
+msgstr "Adicione uma imagem em destaque quando o layout ou canal espera uma."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
 msgid "Add SEO title metadata if the site SEO plugin uses it."
-msgstr ""
+msgstr "Adicione metadados de título SEO se o plug-in SEO do site os usar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
 msgid "Scheduled publish date is in the future."
-msgstr ""
+msgstr "A data de publicação agendada está no futuro."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
 msgid "Set a future publish date before scheduling."
-msgstr ""
+msgstr "Defina uma data de publicação futura antes de agendar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:140
 msgid "At least one post id is required."
-msgstr ""
+msgstr "É necessário pelo menos um ID de postagem."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:234
 msgid "You do not have permission to read site operations."
-msgstr ""
+msgstr "Você não tem permissão para ler as operações do site."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:647
 msgid "You do not have permission to read publishing calendar context."
-msgstr ""
+msgstr "Você não tem permissão para ler o contexto do calendário de publicação."
 
 #: includes/Packages/Read_Traits/Style_Read_Methods.php:210
 msgid "Site style baseline built."
-msgstr ""
+msgstr "Linha de base do estilo do site construída."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:77
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:119
@@ -2951,43 +3247,43 @@ msgstr ""
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:334
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:795
 msgid "Taxonomy does not exist."
-msgstr ""
+msgstr "A taxonomia não existe."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:111
 msgid "You do not have permission to read taxonomy consolidation suggestions."
-msgstr ""
+msgstr "Você não tem permissão para ler sugestões de consolidação de taxonomia."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:152
 msgid "Term has no associated content in the current scan."
-msgstr ""
+msgstr "O termo não tem conteúdo associado na verificação atual."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:166
 msgid "Terms normalize to the same consolidation key."
-msgstr ""
+msgstr "Os termos são normalizados para a mesma chave de consolidação."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:200
 msgid "A valid post_id is required."
-msgstr ""
+msgstr "É necessário um post_id válido."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:204
 msgid "Post not found."
-msgstr ""
+msgstr "Postagem não encontrada."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:207
 msgid "You do not have permission to inspect taxonomy proposals for this post."
-msgstr ""
+msgstr "Você não tem permissão para inspecionar propostas de taxonomia para esta postagem."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:226
 msgid "At least one candidate term id or term name is required."
-msgstr ""
+msgstr "É necessário pelo menos um ID ou nome de termo candidato."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:263
 msgid "No candidate terms matched existing taxonomy terms."
-msgstr ""
+msgstr "Nenhum termo candidato correspondeu aos termos da taxonomia existente."
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:326
 msgid "You do not have permission to read taxonomy inventory."
-msgstr ""
+msgstr "Você não tem permissão para ler o inventário de taxonomia."
 
 #: includes/Registry/Category_Registrar.php:95
 msgid "Abilities API Packages: Read"
@@ -3021,18 +3317,22 @@ msgstr "Habilidades apoiadas por ferramentas para fluxos de agentes."
 
 #: includes/Registry/Contract_Normalizer.php:176
 msgid "Ability execute callback is not configured."
-msgstr ""
+msgstr "O retorno de chamada de execução da capacidade não está configurado."
 
 #: includes/Registry/Contract_Normalizer.php:207
 msgid "When true, return a host-governed preview without mutating WordPress."
-msgstr ""
+msgstr "Quando verdadeiro, retorna uma visualização governada por host sem mutação WordPress."
 
 #: includes/Registry/Contract_Normalizer.php:212
 msgid ""
 "When true, attempt the final commit. Host approval context is still required."
 msgstr ""
+"Quando verdadeiro, tente o commit final. O contexto de aprovação do host ainda "
+"é necessário."
 
 #: includes/Registry/Contract_Normalizer.php:218
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr ""
+"Chave opcional de idempotência fornecida pelo host para correlação de "
+"auditoria e reprodução."
