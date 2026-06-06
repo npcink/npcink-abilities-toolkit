@@ -1126,6 +1126,8 @@ npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-rename-backup', 
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative'] ), 'adopt-cloud-media-derivative is registered as a local write ability' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-cloud-backup', $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'adopt-cloud-media-derivative defaults to explicit Cloud backup suffix' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['file_name'] ), 'adopt-cloud-media-derivative accepts an approved custom derivative file name' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['expected_content_reference_post_ids'] ), 'adopt-cloud-media-derivative accepts reviewed content reference post id expectations' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['expected_content_reference_replacement_count'] ), 'adopt-cloud-media-derivative accepts reviewed content reference replacement count expectations' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['proposed_filename'] ) && isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['filename_policy'] ), 'adopt-cloud-media-derivative exposes filename proposal evidence in its output schema' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['content_reference_repairs'] ), 'adopt-cloud-media-derivative exposes post content reference repair preview evidence' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'derivative_artifact' ), $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['required'] ?? array(), 'adopt-cloud-media-derivative requires attachment and artifact evidence' );
@@ -2458,6 +2460,9 @@ npcink_abilities_toolkit_assert_same( 2, count( (array) ( $media_optimization_pl
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $media_optimization_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media optimization plan starts with metadata action' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/adopt-cloud-media-derivative', $media_optimization_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media optimization plan includes Cloud derivative adoption action' );
 npcink_abilities_toolkit_assert_same( 'f553110d20d666349676892b1b0fbeb7.webp', $media_optimization_plan['data']['write_actions'][1]['input']['file_name'] ?? '', 'media optimization plan passes reviewed derivative file_name into adoption action' );
+npcink_abilities_toolkit_assert_same( array( 90 ), $media_optimization_plan['data']['write_actions'][1]['input']['expected_content_reference_post_ids'] ?? array(), 'media optimization plan carries reviewed content reference post targets into adoption input' );
+npcink_abilities_toolkit_assert_same( 1, $media_optimization_plan['data']['write_actions'][1]['input']['expected_content_reference_post_count'] ?? null, 'media optimization plan carries reviewed content reference post count into adoption input' );
+npcink_abilities_toolkit_assert_same( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['replacement_count'] ?? null, $media_optimization_plan['data']['write_actions'][1]['input']['expected_content_reference_replacement_count'] ?? null, 'media optimization plan carries reviewed content reference replacement count into adoption input' );
 npcink_abilities_toolkit_assert_same( 0, npcink_abilities_toolkit_count_plan_actions_for_ability( (array) ( $media_optimization_plan['data']['write_actions'] ?? array() ), 'npcink-abilities-toolkit/patch-post-content' ), 'media optimization plan keeps post-content repair inside derivative adoption evidence' );
 npcink_abilities_toolkit_assert_same( false, $media_optimization_plan['data']['commit_execution'] ?? null, 'media optimization plan does not execute commits' );
 npcink_abilities_toolkit_assert_same( true, $media_optimization_plan['meta']['readonly'] ?? null, 'media optimization plan remains read-only' );
@@ -2789,6 +2794,9 @@ npcink_abilities_toolkit_assert_same( 'art_cloud_media_123', $cloud_adoption_pre
 npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $cloud_adoption_preview['after']['relative_file'] ?? '' ), 'workflow-diagram-image-npcink-abilities-toolkit-cloud-' ), 'adopt-cloud-media-derivative plans a local derivative filename' );
 npcink_abilities_toolkit_assert_same( 1, $cloud_adoption_preview['content_reference_repairs']['post_count'] ?? 0, 'adopt-cloud-media-derivative previews post content reference repairs for embedded attachment URLs' );
 npcink_abilities_toolkit_assert_true( (int) ( $cloud_adoption_preview['content_reference_repairs']['replacement_count'] ?? 0 ) >= 3, 'adopt-cloud-media-derivative preview includes old main, sized, and original image references' );
+$cloud_adoption_expected_post_ids = array_values( array_map( 'absint', array_column( (array) ( $cloud_adoption_preview['content_reference_repairs']['repairs'] ?? array() ), 'post_id' ) ) );
+$cloud_adoption_expected_post_count = absint( $cloud_adoption_preview['content_reference_repairs']['post_count'] ?? 0 );
+$cloud_adoption_expected_replacement_count = absint( $cloud_adoption_preview['content_reference_repairs']['replacement_count'] ?? 0 );
 $cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,
@@ -2832,7 +2840,9 @@ $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] = sys_get_temp_dir() . 
 $current_media_path = $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] . '/2026/06/workflow-diagram-image.jpg';
 mkdir( dirname( $current_media_path ), 0755, true );
 file_put_contents( $current_media_path, 'original-jpeg-bytes' );
-$GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] = static function ( array $artifact ) use ( $cloud_artifact_contents, $cloud_artifact_sha256 ) {
+$cloud_artifact_download_count = 0;
+$GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] = static function ( array $artifact ) use ( $cloud_artifact_contents, $cloud_artifact_sha256, &$cloud_artifact_download_count ) {
+	++$cloud_artifact_download_count;
 	return array(
 		'artifact_id'    => (string) ( $artifact['artifact_id'] ?? '' ),
 		'contents'       => $cloud_artifact_contents,
@@ -2846,6 +2856,30 @@ $GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array(
 	'approval_commit_authorized' => true,
 	'approval_id'                => 'approval-cloud-media-adoption',
 );
+$cloud_adoption_drift = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'    => 'art_cloud_media_drift',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => strlen( $cloud_artifact_contents ),
+			'checksum'       => 'sha256:' . $cloud_artifact_sha256,
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+		'expected_content_reference_post_ids' => array( 999 ),
+		'expected_content_reference_post_count' => $cloud_adoption_expected_post_count,
+		'expected_content_reference_replacement_count' => $cloud_adoption_expected_replacement_count,
+		'commit'                       => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $cloud_adoption_drift ) && 'npcink_abilities_toolkit_media_reference_repair_expectation_mismatch' === $cloud_adoption_drift->get_error_code(), 'adopt-cloud-media-derivative blocks commit when reviewed content reference targets drift' );
+npcink_abilities_toolkit_assert_same( 0, $cloud_artifact_download_count, 'adopt-cloud-media-derivative checks content reference drift before downloading the Cloud artifact' );
 $cloud_adoption_commit = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,
@@ -2863,6 +2897,9 @@ $cloud_adoption_commit = $core_write_package->adopt_cloud_media_derivative(
 		'expected_current_mime_type'    => 'image/jpeg',
 		'expected_derivative_mime_type' => 'image/webp',
 		'file_name'                    => 'customer-approved-diagram.webp',
+		'expected_content_reference_post_ids' => $cloud_adoption_expected_post_ids,
+		'expected_content_reference_post_count' => $cloud_adoption_expected_post_count,
+		'expected_content_reference_replacement_count' => $cloud_adoption_expected_replacement_count,
 		'commit'                       => true,
 	)
 );

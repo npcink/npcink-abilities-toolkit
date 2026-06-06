@@ -820,21 +820,24 @@ final class Core_Write_Package {
 					'label'           => __( 'Adopt Cloud Media Derivative', 'npcink-abilities-toolkit' ),
 					'description'     => __( 'Adopts one approved short-lived Cloud derivative artifact as the attachment main file, with local backup and rollback metadata.', 'npcink-abilities-toolkit' ),
 					'category'        => 'npcink-abilities-toolkit-write',
-				'capability'      => 'upload_files',
-				'required_scopes' => array( 'media.write' ),
-				'channels'        => array( 'agent', 'mcp' ),
-				'meta'            => $this->write_meta(),
-				'input_schema'    => $this->schema(
-					array(
-						'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
-						'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
-						'expected_current_relative_file' => array( 'type' => 'string' ),
-						'expected_current_mime_type'     => array( 'type' => 'string' ),
-						'expected_derivative_mime_type'  => array( 'type' => 'string' ),
-						'file_name'                      => array( 'type' => 'string', 'maxLength' => 120 ),
-						'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'npcink-abilities-toolkit-cloud-backup' ),
-					),
-					array( 'attachment_id', 'derivative_artifact' )
+					'capability'      => 'upload_files',
+					'required_scopes' => array( 'media.write' ),
+					'channels'        => array( 'agent', 'mcp' ),
+					'meta'            => $this->write_meta(),
+					'input_schema'    => $this->schema(
+						array(
+							'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
+							'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'expected_current_relative_file' => array( 'type' => 'string' ),
+							'expected_current_mime_type'     => array( 'type' => 'string' ),
+							'expected_derivative_mime_type'  => array( 'type' => 'string' ),
+							'file_name'                      => array( 'type' => 'string', 'maxLength' => 120 ),
+							'expected_content_reference_post_ids' => array( 'type' => 'array', 'items' => array( 'type' => 'integer', 'minimum' => 1 ), 'maxItems' => 50 ),
+							'expected_content_reference_post_count' => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 50 ),
+							'expected_content_reference_replacement_count' => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 1000 ),
+							'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'npcink-abilities-toolkit-cloud-backup' ),
+						),
+						array( 'attachment_id', 'derivative_artifact' )
 				),
 				'output_schema'   => $this->schema(
 					array(
@@ -2540,6 +2543,13 @@ final class Core_Write_Package {
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
+		$expectation_error = $this->validate_media_content_reference_repair_expectations(
+			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			is_array( $plan['content_reference_repair_expectations'] ?? null ) ? $plan['content_reference_repair_expectations'] : array()
+		);
+		if ( is_wp_error( $expectation_error ) ) {
+			return $expectation_error;
+		}
 		$materialized = $this->materialize_cloud_media_derivative_artifact( $attachment_id, $plan );
 		if ( is_wp_error( $materialized ) ) {
 			return $materialized;
@@ -3672,6 +3682,7 @@ final class Core_Write_Package {
 				'preserve_attachment_metadata'   => true,
 				'source'                         => '' !== (string) ( $input['file_name'] ?? '' ) ? 'reviewed_input' : 'cloud_artifact_suggestion',
 			),
+			'content_reference_repair_expectations' => $this->normalize_media_content_reference_repair_expectations( $input ),
 			'_current'       => $current,
 			'_derivative'    => $derivative,
 			'_backup_relative_file' => $backup_relative,
@@ -4090,6 +4101,13 @@ final class Core_Write_Package {
 			$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
 			$current_path = (string) ( $current['file_path'] ?? '' );
 			$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
+			$expectation_error = $this->validate_media_content_reference_repair_expectations(
+				$content_reference_repairs,
+				is_array( $plan['content_reference_repair_expectations'] ?? null ) ? $plan['content_reference_repair_expectations'] : array()
+			);
+			if ( is_wp_error( $expectation_error ) ) {
+				return $expectation_error;
+			}
 			$permission_error = $this->validate_media_content_reference_repair_permissions( $content_reference_repairs );
 			if ( is_wp_error( $permission_error ) ) {
 				return $permission_error;
@@ -4362,6 +4380,31 @@ final class Core_Write_Package {
 			}
 
 			return true;
+		}
+
+		/**
+		 * Normalizes optional post-content reference repair drift guards.
+		 *
+		 * @param array<string,mixed> $input Input args.
+		 * @return array<string,mixed>
+		 */
+		private function normalize_media_content_reference_repair_expectations( array $input ) {
+			$expectations = array();
+			if ( array_key_exists( 'expected_content_reference_post_ids', $input ) ) {
+				$post_ids = is_array( $input['expected_content_reference_post_ids'] )
+					? array_map( 'absint', $input['expected_content_reference_post_ids'] )
+					: array();
+				$post_ids = array_slice( array_values( array_unique( array_filter( $post_ids ) ) ), 0, 50 );
+				sort( $post_ids );
+				$expectations['post_ids'] = $post_ids;
+			}
+			if ( array_key_exists( 'expected_content_reference_post_count', $input ) ) {
+				$expectations['post_count'] = absint( $input['expected_content_reference_post_count'] );
+			}
+			if ( array_key_exists( 'expected_content_reference_replacement_count', $input ) ) {
+				$expectations['replacement_count'] = absint( $input['expected_content_reference_replacement_count'] );
+			}
+			return $expectations;
 		}
 
 		/**
@@ -5496,6 +5539,71 @@ final class Core_Write_Package {
 				return new \WP_Error( 'npcink_abilities_toolkit_media_reference_repair_permission_denied', __( 'You do not have permission to update a post that references this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403, 'post_id' => $post_id ) );
 			}
 		}
+		return true;
+	}
+
+	/**
+	 * Validates reviewed post-content reference repair expectations.
+	 *
+	 * @param array<string,mixed> $repairs Repair plan.
+	 * @param array<string,mixed> $expectations Reviewed expectations.
+	 * @return true|\WP_Error
+	 */
+	private function validate_media_content_reference_repair_expectations( array $repairs, array $expectations ) {
+		if ( empty( $expectations ) ) {
+			return true;
+		}
+
+		$actual_post_ids = array();
+		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $repair ) {
+			$post_id = absint( is_array( $repair ) ? ( $repair['post_id'] ?? 0 ) : 0 );
+			if ( $post_id > 0 ) {
+				$actual_post_ids[] = $post_id;
+			}
+		}
+		$actual_post_ids = array_values( array_unique( $actual_post_ids ) );
+		sort( $actual_post_ids );
+		$actual_post_count = absint( $repairs['post_count'] ?? count( $actual_post_ids ) );
+		$actual_replacement_count = absint( $repairs['replacement_count'] ?? 0 );
+
+		if ( array_key_exists( 'post_ids', $expectations ) ) {
+			$expected_post_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) $expectations['post_ids'] ) ) ) );
+			sort( $expected_post_ids );
+			if ( $expected_post_ids !== $actual_post_ids ) {
+				return new \WP_Error(
+					'npcink_abilities_toolkit_media_reference_repair_expectation_mismatch',
+					__( 'The post-content media reference repair targets changed after review.', 'npcink-abilities-toolkit' ),
+					array(
+						'status'   => 409,
+						'expected' => array( 'post_ids' => $expected_post_ids ),
+						'actual'   => array( 'post_ids' => $actual_post_ids ),
+					)
+				);
+			}
+		}
+		if ( array_key_exists( 'post_count', $expectations ) && absint( $expectations['post_count'] ) !== $actual_post_count ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_media_reference_repair_expectation_mismatch',
+				__( 'The post-content media reference repair count changed after review.', 'npcink-abilities-toolkit' ),
+				array(
+					'status'   => 409,
+					'expected' => array( 'post_count' => absint( $expectations['post_count'] ) ),
+					'actual'   => array( 'post_count' => $actual_post_count ),
+				)
+			);
+		}
+		if ( array_key_exists( 'replacement_count', $expectations ) && absint( $expectations['replacement_count'] ) !== $actual_replacement_count ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_media_reference_repair_expectation_mismatch',
+				__( 'The post-content media reference replacement count changed after review.', 'npcink-abilities-toolkit' ),
+				array(
+					'status'   => 409,
+					'expected' => array( 'replacement_count' => absint( $expectations['replacement_count'] ) ),
+					'actual'   => array( 'replacement_count' => $actual_replacement_count ),
+				)
+			);
+		}
+
 		return true;
 	}
 

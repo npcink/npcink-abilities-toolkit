@@ -128,7 +128,10 @@ uploads URL are patched in the same governed proposal.
 `npcink-abilities-toolkit/replace-media-file` and `npcink-abilities-toolkit/adopt-cloud-media-derivative`
 also preview and commit exact post-content reference repairs for the old main
 uploads URL and known intermediate-size image URLs while switching the
-attachment pointer to the approved replacement file.
+attachment pointer to the approved replacement file. Media optimization plans
+pass reviewed post ids, post count, and replacement count as lightweight
+expectations on `npcink-abilities-toolkit/adopt-cloud-media-derivative`; commit
+recomputes repairs and blocks with a conflict if those reviewed targets drift.
 `npcink-abilities-toolkit/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 

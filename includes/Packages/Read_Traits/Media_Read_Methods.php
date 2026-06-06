@@ -1357,26 +1357,18 @@ trait Media_Read_Methods {
 			'attachment_id'       => $attachment_id,
 			'derivative_artifact' => $artifact,
 		);
-		if ( '' !== $reviewed_file_name ) {
-			$derivative_input['file_name'] = $reviewed_file_name;
-		}
-		if ( '' !== $expected_current_relative_file ) {
-			$derivative_input['expected_current_relative_file'] = $expected_current_relative_file;
-		}
-		if ( '' !== $expected_current_mime_type ) {
-			$derivative_input['expected_current_mime_type'] = $expected_current_mime_type;
-		}
-		if ( '' !== $expected_derivative_mime_type ) {
-			$derivative_input['expected_derivative_mime_type'] = $expected_derivative_mime_type;
-		}
-		$derivative_action = $this->build_plan_action(
-			'adopt_cloud_media_derivative_' . $attachment_id,
-			'npcink-abilities-toolkit/adopt-cloud-media-derivative',
-			$derivative_input,
-			array( 'media.write' ),
-			'medium',
-			'Adopt the reviewed Cloud derivative artifact as the attachment main file after Core approval.'
-		);
+			if ( '' !== $reviewed_file_name ) {
+				$derivative_input['file_name'] = $reviewed_file_name;
+			}
+			if ( '' !== $expected_current_relative_file ) {
+				$derivative_input['expected_current_relative_file'] = $expected_current_relative_file;
+			}
+			if ( '' !== $expected_current_mime_type ) {
+				$derivative_input['expected_current_mime_type'] = $expected_current_mime_type;
+			}
+			if ( '' !== $expected_derivative_mime_type ) {
+				$derivative_input['expected_derivative_mime_type'] = $expected_derivative_mime_type;
+			}
 
 		$metadata_preview = array(
 			'before' => array(
@@ -1388,23 +1380,40 @@ trait Media_Read_Methods {
 			),
 			'after'  => array_diff_key( $metadata_input, array( 'attachment_id' => true ) ),
 		);
-			$derivative_preview = array(
-				'before' => array(
-					'relative_file'  => $current_relative_file,
-					'mime_type'      => $current_mime_type,
-					'filesize_bytes' => $this->absint_value( $current['filesize_bytes'] ?? 0 ),
-				),
-				'after'  => array(
-					'artifact_id'    => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
-					'mime_type'      => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
-					'width'          => $this->absint_value( $artifact['width'] ?? 0 ),
-					'height'         => $this->absint_value( $artifact['height'] ?? 0 ),
-					'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
-				),
-			);
-			$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
+		$derivative_preview = array(
+			'before' => array(
+				'relative_file'  => $current_relative_file,
+				'mime_type'      => $current_mime_type,
+				'filesize_bytes' => $this->absint_value( $current['filesize_bytes'] ?? 0 ),
+			),
+			'after'  => array(
+				'artifact_id'    => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
+				'mime_type'      => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
+				'width'          => $this->absint_value( $artifact['width'] ?? 0 ),
+				'height'         => $this->absint_value( $artifact['height'] ?? 0 ),
+				'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
+			),
+		);
+		$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
+		$content_reference_repairs = is_array( $derivative_preview['content_reference_repairs'] ?? null ) ? $derivative_preview['content_reference_repairs'] : array();
+		$derivative_input['expected_content_reference_post_ids'] = array_values(
+			array_map(
+				array( $this, 'absint_value' ),
+				array_column( (array) ( $content_reference_repairs['repairs'] ?? array() ), 'post_id' )
+			)
+		);
+		$derivative_input['expected_content_reference_post_count'] = $this->absint_value( $content_reference_repairs['post_count'] ?? 0 );
+		$derivative_input['expected_content_reference_replacement_count'] = $this->absint_value( $content_reference_repairs['replacement_count'] ?? 0 );
+		$derivative_action = $this->build_plan_action(
+			'adopt_cloud_media_derivative_' . $attachment_id,
+			'npcink-abilities-toolkit/adopt-cloud-media-derivative',
+			$derivative_input,
+			array( 'media.write' ),
+			'medium',
+			'Adopt the reviewed Cloud derivative artifact as the attachment main file after Core approval.'
+		);
 
-			return $this->build_analysis_success_response(
+		return $this->build_analysis_success_response(
 				array(
 					'artifact_type'       => 'media_optimization_plan',
 					'version'             => 1,
