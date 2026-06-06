@@ -35,6 +35,8 @@ The command:
 - activates this plugin plus the official plugins;
 - records active plugin and REST route artifacts under
   `build/official-stack-e2e/`;
+- runs an MCP HTTP probe with a temporary WordPress application password,
+  then deletes that password;
 - runs the official-stack probes and the project WordPress smoke.
 
 ## Reuse And Reset
@@ -90,6 +92,7 @@ OFFICIAL_STACK_HTTP_PORT=8899 composer e2e:official-stack
 OFFICIAL_STACK_PROJECT_NAME=npcink_abilities_official_stack composer e2e:official-stack
 OFFICIAL_STACK_INSTALL_AI=0 composer e2e:official-stack
 OFFICIAL_STACK_INSTALL_MCP=0 composer e2e:official-stack
+OFFICIAL_STACK_RUN_MCP_HTTP_PROBE=0 composer e2e:official-stack
 OFFICIAL_STACK_REINSTALL_OFFICIAL_PLUGINS=1 composer e2e:official-stack
 ```
 
@@ -104,6 +107,29 @@ OFFICIAL_STACK_ABILITIES_API_ZIP=/path/to/abilities-api.zip composer e2e:officia
 The script caches downloads in `build/official-stack-cache/`, which is ignored
 by Git.
 
+## Official UI And MCP Notes
+
+The official AI plugin shows Abilities Explorer only after AI is enabled and
+the Abilities Explorer admin experiment is enabled in
+`Settings -> AI`. Once enabled, the explorer is available at:
+
+```text
+http://localhost:8899/wp-admin/tools.php?page=ai-abilities-explorer
+```
+
+The default MCP Adapter server exposes a small fixed tool set:
+
+- `mcp-adapter-discover-abilities`
+- `mcp-adapter-get-ability-info`
+- `mcp-adapter-execute-ability`
+
+Individual WordPress abilities are discovered and executed through those tools.
+Only abilities with `meta.mcp.public=true` appear through the default MCP
+server. This is why `npcink-abilities-toolkit/create-draft` is MCP-discoverable
+while read-only context abilities such as `npcink-abilities-toolkit/site-info`
+remain available through REST and the official Abilities Explorer, but not
+through the default MCP server.
+
 ## Local Verification
 
 Last verified on 2026-06-07 with the reusable Docker environment:
@@ -115,6 +141,14 @@ Last verified on 2026-06-07 with the reusable Docker environment:
 - `composer e2e:official-stack` reused the same environment, passed the
   official-stack probes, and completed project smoke with `Smoke OK: 265
   assertions`.
+- Browser verification enabled the official AI plugin's Abilities Explorer,
+  which displayed 141 total abilities and our `npcink-abilities-toolkit/*`
+  ability rows with View/Test actions.
+- The official Abilities Explorer successfully invoked
+  `npcink-abilities-toolkit/site-info` with `{}` input.
+- MCP HTTP verification initialized the default MCP server, listed the three
+  adapter tools, discovered public Npcink abilities, and executed
+  `npcink-abilities-toolkit/create-draft` as a governed dry run.
 
 ## Local App Role
 

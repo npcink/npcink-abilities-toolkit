@@ -17,6 +17,8 @@ ABILITIES_API_ZIP="${OFFICIAL_STACK_ABILITIES_API_ZIP:-}"
 INSTALL_AI="${OFFICIAL_STACK_INSTALL_AI:-1}"
 INSTALL_MCP="${OFFICIAL_STACK_INSTALL_MCP:-1}"
 REINSTALL_OFFICIAL_PLUGINS="${OFFICIAL_STACK_REINSTALL_OFFICIAL_PLUGINS:-0}"
+RUN_MCP_HTTP_PROBE="${OFFICIAL_STACK_RUN_MCP_HTTP_PROBE:-1}"
+MCP_APP_PASSWORD_NAME="Npcink Official Stack MCP Probe"
 RUN_FULL_SMOKE=1
 SETUP_ONLY=0
 FRESH=0
@@ -42,6 +44,7 @@ Useful environment overrides:
   OFFICIAL_STACK_ABILITIES_API_ZIP=/path/to/abilities-api.zip
   OFFICIAL_STACK_INSTALL_AI=0
   OFFICIAL_STACK_INSTALL_MCP=0
+  OFFICIAL_STACK_RUN_MCP_HTTP_PROBE=0
   OFFICIAL_STACK_REINSTALL_OFFICIAL_PLUGINS=1
 EOF
 }
@@ -287,6 +290,218 @@ run_official_probes() {
 	'
 }
 
+delete_mcp_probe_app_passwords() {
+	local uuids
+	uuids="$(
+		wp user application-password list "$ADMIN_USER" --fields=uuid,name --format=json | tail -n 1 | php -r '
+			$name = $argv[1];
+			$rows = json_decode(stream_get_contents(STDIN), true);
+			if (!is_array($rows)) {
+				exit(0);
+			}
+			foreach ($rows as $row) {
+				if (($row["name"] ?? "") === $name && !empty($row["uuid"])) {
+					echo $row["uuid"], PHP_EOL;
+				}
+			}
+		' "$MCP_APP_PASSWORD_NAME"
+	)"
+
+	if [[ -z "$uuids" ]]; then
+		return
+	fi
+
+	while IFS= read -r uuid; do
+		[[ -n "$uuid" ]] || continue
+		wp user application-password delete "$ADMIN_USER" "$uuid" >/dev/null || true
+	done <<< "$uuids"
+}
+
+json_rpc_request() {
+	local app_password="$1"
+	local session_id="$2"
+	local payload_file="$3"
+	local body_file="$4"
+	local header_file="$5"
+	local mcp_url="$WP_URL/?rest_route=/mcp/mcp-adapter-default-server"
+
+	if [[ -n "$session_id" ]]; then
+		curl -fsS \
+			-u "$ADMIN_USER:$app_password" \
+			-H 'Content-Type: application/json' \
+			-H 'Accept: application/json' \
+			-H "Mcp-Session-Id: $session_id" \
+			-D "$header_file" \
+			-o "$body_file" \
+			-d @"$payload_file" \
+			"$mcp_url"
+	else
+		curl -fsS \
+			-u "$ADMIN_USER:$app_password" \
+			-H 'Content-Type: application/json' \
+			-H 'Accept: application/json' \
+			-D "$header_file" \
+			-o "$body_file" \
+			-d @"$payload_file" \
+			"$mcp_url"
+	fi
+}
+
+validate_mcp_http_probe() {
+	local initialize_body="$1"
+	local tools_body="$2"
+	local discover_body="$3"
+	local execute_body="$4"
+	local summary_file="$5"
+
+	php -r '
+		[$initialize_file, $tools_file, $discover_file, $execute_file, $summary_file] = array_slice($argv, 1);
+
+		$read_json = static function ($file, $label) {
+			$data = json_decode((string) file_get_contents($file), true);
+			if (!is_array($data)) {
+				fwrite(STDERR, "{$label} did not return JSON\n");
+				exit(1);
+			}
+			return $data;
+		};
+
+		$initialize = $read_json($initialize_file, "MCP initialize");
+		$tools = $read_json($tools_file, "MCP tools/list");
+		$discover = $read_json($discover_file, "MCP discover abilities");
+		$execute = $read_json($execute_file, "MCP execute ability");
+
+		if (($initialize["result"]["serverInfo"]["name"] ?? "") !== "MCP Adapter Default Server") {
+			fwrite(STDERR, "MCP initialize did not return the default server info\n");
+			exit(1);
+		}
+
+		$tool_names = array_map(
+			static fn($tool) => $tool["name"] ?? "",
+			$tools["result"]["tools"] ?? array()
+		);
+		foreach (array("mcp-adapter-discover-abilities", "mcp-adapter-get-ability-info", "mcp-adapter-execute-ability") as $required_tool) {
+			if (!in_array($required_tool, $tool_names, true)) {
+				fwrite(STDERR, "Missing MCP tool: {$required_tool}\n");
+				exit(1);
+			}
+		}
+
+		$discover_text = $discover["result"]["content"][0]["text"] ?? "";
+		$discover_payload = json_decode((string) $discover_text, true);
+		if (!is_array($discover_payload)) {
+			fwrite(STDERR, "MCP discover abilities did not return a JSON text payload\n");
+			exit(1);
+		}
+
+		$abilities = $discover_payload["abilities"] ?? array();
+		$npcink_abilities = array_values(array_filter(
+			$abilities,
+			static fn($ability) => 0 === strpos((string) ($ability["name"] ?? ""), "npcink-abilities-toolkit/")
+		));
+		$ability_names = array_map(static fn($ability) => $ability["name"] ?? "", $npcink_abilities);
+		if (!in_array("npcink-abilities-toolkit/create-draft", $ability_names, true)) {
+			fwrite(STDERR, "MCP discover abilities did not include npcink-abilities-toolkit/create-draft\n");
+			exit(1);
+		}
+
+		$structured = $execute["result"]["structuredContent"] ?? array();
+		if (true !== ($structured["success"] ?? null)) {
+			fwrite(STDERR, "MCP execute ability did not return success=true\n");
+			exit(1);
+		}
+		if (true !== ($structured["data"]["dry_run"] ?? null)) {
+			fwrite(STDERR, "MCP execute ability did not preserve dry_run=true\n");
+			exit(1);
+		}
+		if (true !== ($structured["data"]["commit_required"] ?? null)) {
+			fwrite(STDERR, "MCP execute ability did not report commit_required=true\n");
+			exit(1);
+		}
+
+		file_put_contents(
+			$summary_file,
+			json_encode(
+				array(
+					"server" => $initialize["result"]["serverInfo"],
+					"tool_count" => count($tool_names),
+					"ability_count" => count($abilities),
+					"npcink_ability_count" => count($npcink_abilities),
+					"executed_ability" => "npcink-abilities-toolkit/create-draft",
+					"dry_run" => $structured["data"]["dry_run"] ?? null,
+					"commit_required" => $structured["data"]["commit_required"] ?? null,
+				),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+			) . PHP_EOL
+		);
+	' "$initialize_body" "$tools_body" "$discover_body" "$execute_body" "$summary_file"
+}
+
+run_mcp_http_probe() {
+	if [[ "$INSTALL_MCP" != "1" || "$RUN_MCP_HTTP_PROBE" != "1" ]]; then
+		log "Skipping MCP HTTP probe."
+		return
+	fi
+
+	need_command curl
+	need_command php
+	mkdir -p "$ARTIFACT_DIR"
+
+	local payload_dir="$ARTIFACT_DIR/mcp-http-payloads"
+	mkdir -p "$payload_dir"
+
+	local app_password
+	log "Creating temporary application password for MCP HTTP probe"
+	delete_mcp_probe_app_passwords
+	app_password="$(wp user application-password create "$ADMIN_USER" "$MCP_APP_PASSWORD_NAME" --porcelain | tail -n 1)"
+	trap delete_mcp_probe_app_passwords EXIT
+
+	local initialize_payload="$payload_dir/initialize.request.json"
+	local tools_payload="$payload_dir/tools-list.request.json"
+	local discover_payload="$payload_dir/discover-abilities.request.json"
+	local execute_payload="$payload_dir/execute-create-draft.request.json"
+	local initialize_body="$payload_dir/initialize.response.json"
+	local tools_body="$payload_dir/tools-list.response.json"
+	local discover_body="$payload_dir/discover-abilities.response.json"
+	local execute_body="$payload_dir/execute-create-draft.response.json"
+	local headers="$payload_dir/headers.txt"
+	local summary="$ARTIFACT_DIR/mcp-http-summary.json"
+
+	cat > "$initialize_payload" <<'EOF'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"npcink-official-stack-e2e","version":"0.1.0"}}}
+EOF
+	cat > "$tools_payload" <<'EOF'
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+EOF
+	cat > "$discover_payload" <<'EOF'
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mcp-adapter-discover-abilities","arguments":{}}}
+EOF
+	cat > "$execute_payload" <<'EOF'
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
+EOF
+
+	log "Running MCP HTTP initialize"
+	json_rpc_request "$app_password" "" "$initialize_payload" "$initialize_body" "$headers"
+	local session_id
+	session_id="$(awk -F': ' 'tolower($1) == "mcp-session-id" {gsub(/\r/, "", $2); print $2; exit}' "$headers")"
+	[[ -n "$session_id" ]] || fail "MCP HTTP initialize did not return a session id."
+
+	log "Running MCP HTTP tools/list"
+	json_rpc_request "$app_password" "$session_id" "$tools_payload" "$tools_body" "$headers"
+
+	log "Running MCP HTTP discover abilities"
+	json_rpc_request "$app_password" "$session_id" "$discover_payload" "$discover_body" "$headers"
+
+	log "Running MCP HTTP dry-run execute"
+	json_rpc_request "$app_password" "$session_id" "$execute_payload" "$execute_body" "$headers"
+
+	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$execute_body" "$summary"
+	delete_mcp_probe_app_passwords
+	trap - EXIT
+
+	log "MCP HTTP probe complete. Summary: $summary"
+}
+
 run_project_smoke() {
 	if [[ "$RUN_FULL_SMOKE" != "1" ]]; then
 		log "Skipping full project smoke because --skip-full-smoke was passed."
@@ -355,6 +570,7 @@ if [[ "$SETUP_ONLY" == "1" ]]; then
 fi
 
 run_official_probes
+run_mcp_http_probe
 run_project_smoke
 
 log "Official stack E2E complete. Artifacts: $ARTIFACT_DIR"
