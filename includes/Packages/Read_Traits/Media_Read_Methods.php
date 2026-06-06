@@ -1423,26 +1423,26 @@ trait Media_Read_Methods {
 					'preview'             => array(
 						array(
 							'attachment_id'       => $attachment_id,
-						'before'              => array(
-							'metadata'   => $metadata_preview['before'],
-							'derivative' => $derivative_preview['before'],
-						),
-						'after_suggestion'    => array(
-							'metadata'   => $metadata_preview['after'],
-							'derivative' => $derivative_preview['after'],
+							'before'              => array(
+								'metadata'   => $metadata_preview['before'],
+								'derivative' => $derivative_preview['before'],
+							),
+							'after_suggestion'    => array(
+								'metadata'   => $metadata_preview['after'],
+								'derivative' => $derivative_preview['after'],
+							),
 						),
 					),
+					'write_actions'       => array( $metadata_action, $derivative_action ),
+					'risk'                => array(
+						'level'  => 'medium',
+						'reason' => 'One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval.',
+					),
 				),
-				'write_actions'       => array( $metadata_action, $derivative_action ),
-				'risk'                => array(
-					'level'  => 'medium',
-					'reason' => 'One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval.',
-				),
-			),
-			array(
-				'source'         => 'local_media_optimization_plan',
-				'execution_mode' => 'deterministic',
-				'readonly'       => true,
+				array(
+					'source'         => 'local_media_optimization_plan',
+					'execution_mode' => 'deterministic',
+					'readonly'       => true,
 					'plan_only'      => true,
 				),
 				'Media optimization plan built.'
