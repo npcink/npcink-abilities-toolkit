@@ -67,7 +67,10 @@ Use this path when changing this package.
    when a WordPress site is available.
 4. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
    official Abilities API, MCP, or AI plugin compatibility assumptions.
-5. Record release evidence in the relevant release verification document.
+5. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+   for the public repository handoff, CI baseline, and post-publication gate
+   status.
+6. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
