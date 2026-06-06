@@ -3,6 +3,7 @@
 .distignore
 .gitattributes
 .gitignore
+docker-compose.official-stack.yml
 .DS_Store
 CHANGELOG.md
 README.md

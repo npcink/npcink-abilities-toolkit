@@ -8,6 +8,7 @@ WP_CLI_BIN="${WP_CLI:-wp}"
 WP_CLI_PHP="${WP_CLI_PHP:-php}"
 WP_CLI_ERROR_REPORTING="${WP_CLI_ERROR_REPORTING:-}"
 WP_CLI_MYSQL_SOCKET="${WP_CLI_MYSQL_SOCKET:-}"
+DISTIGNORE_FILE="$ROOT_DIR/.distignore"
 
 if [[ "$WP_CLI_BIN" != *.phar ]] && ! command -v "$WP_CLI_BIN" >/dev/null 2>&1; then
 	echo "WP-CLI was not found. Set WP_CLI to a wp-cli.phar path or install a global wp command." >&2
@@ -21,27 +22,7 @@ cleanup() {
 trap cleanup EXIT
 
 package_dir="$tmpdir/$PLUGIN_SLUG"
-excluded_paths=(
-	".git" \
-	".github" \
-	".distignore" \
-	".gitattributes" \
-	".gitignore" \
-	".DS_Store" \
-	"CHANGELOG.md" \
-	"README.md" \
-	"composer.json" \
-	"composer.lock" \
-	"build" \
-	"dist" \
-	"docs" \
-	"examples" \
-	"phpstan.neon.dist" \
-	"scripts" \
-	"sj" \
-	"tests" \
-	"vendor"
-)
+mapfile -t excluded_paths < <(sed -e 's/\r$//' "$DISTIGNORE_FILE" | awk 'NF && $1 !~ /^#/')
 
 if [[ "WORKTREE" == "$PACKAGE_REF" ]]; then
 	mkdir -p "$package_dir"
@@ -58,12 +39,15 @@ else
 	)
 fi
 
+shopt -s nullglob dotglob
 for excluded_path in "${excluded_paths[@]}"; do
-	if [[ -e "$package_dir/$excluded_path" ]]; then
+	matches=("$package_dir"/$excluded_path)
+	if [[ "${#matches[@]}" -gt 0 ]]; then
 		echo "Packaged plugin includes excluded path: $excluded_path" >&2
 		exit 1
 	fi
 done
+shopt -u nullglob dotglob
 
 wp_args=()
 if [[ -n "${WP_PATH:-}" ]]; then

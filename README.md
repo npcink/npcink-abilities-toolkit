@@ -300,6 +300,17 @@ Run the WordPress smoke test from a site where the plugin is installed:
 WP_PATH=/path/to/wordpress composer smoke:wp
 ```
 
+Run the reusable Docker E2E environment against the official WordPress AI stack:
+
+```bash
+composer e2e:official-stack
+```
+
+Use `composer e2e:official-stack -- --fresh` to reset Docker volumes, or
+`composer e2e:official-stack -- --setup-only` to keep the environment running
+for manual browser checks. Details are documented in
+[docs/official-stack-e2e.md](docs/official-stack-e2e.md).
+
 Local app socket examples are documented in [docs/local-wpcli-smoke.md](docs/local-wpcli-smoke.md).
 The smoke test covers REST discovery, individual ability execution, and the
 workflow chains documented in [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md).

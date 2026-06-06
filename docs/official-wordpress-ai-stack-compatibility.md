@@ -65,7 +65,16 @@ test with the official plugins installed.
 
 ## Manual Official Stack Smoke
 
-Use a disposable or local WordPress site with WordPress 7.0+ and PHP 8.0+.
+Use the reusable Docker workflow first:
+
+```bash
+composer e2e:official-stack
+```
+
+See [Official Stack E2E Environment](official-stack-e2e.md) for reuse, reset,
+and setup-only options.
+
+For a disposable or local WordPress site with WordPress 7.0+ and PHP 8.0+:
 
 1. Install and activate `npcink-abilities-toolkit`.
 2. Install and activate the official Abilities API package only if the target

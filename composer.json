@@ -34,6 +34,7 @@
     "analyse:phpstan": "phpstan analyse --memory-limit=512M",
     "perf:smoke": "@php tests/performance-smoke.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
+    "e2e:official-stack": "bash scripts/official-stack-e2e.sh",
     "test": "@php tests/run.php",
     "test:all": [
       "@validate:composer",
