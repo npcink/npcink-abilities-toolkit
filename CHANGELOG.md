@@ -1,10 +1,14 @@
 # Changelog
 
-## 0.5.0 - Unreleased
+## 0.5.0 - 2026-06-06
 
+- Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks.
+- Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface.
+- Removed development demo ability controls from the admin page and kept showcase, model-call, write, and workflow execution outside this package surface.
+- Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public `test` terminology in released ability ids and schema fields.
 - Updated `npcink-abilities-toolkit/adopt-cloud-media-derivative` and `npcink-abilities-toolkit/replace-media-file` to preview and commit exact post-content media URL repairs, including old intermediate-size image URLs, when an approved replacement switches an attachment to a new local file.
 - Added `npcink-abilities-toolkit/propose-post-taxonomy-terms`, a deterministic taxonomy assignment proposal helper that targets `npcink-abilities-toolkit/set-post-terms` without mutating posts or creating terms.
-- Added a 0.5 unreleased verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
+- Added a 0.5 verification note that records the taxonomy terms Core consumer proof and keeps the package in freeze/observe mode until a concrete workflow gap appears.
 - Added a Npcink AI main repo harvest checkpoint that maps content/media/comment/batch cleanup signals to existing abilities and confirms that no new ability batch should start from candidate lists alone.
 - Expanded the Core consumer handoff check to assert the five harvested surfaces and their corresponding host-governed write targets expose Abilities API discovery metadata, schemas, dry-run controls, and approval metadata.
 

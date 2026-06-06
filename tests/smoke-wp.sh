@@ -20,7 +20,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:wp
 EOF
 	exit 127
@@ -64,7 +64,6 @@ run_wp core is-installed >/dev/null
 if ! run_wp plugin is-active "$PLUGIN_SLUG" >/dev/null 2>&1; then
 	run_wp plugin activate "$PLUGIN_SLUG" >/dev/null
 fi
-run_wp option update npcink_abilities_toolkit_demo_enabled 1 >/dev/null
 NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
 
 mu_plugin_dir="$(run_wp eval 'echo WPMU_PLUGIN_DIR;' 2>/dev/null || true)"

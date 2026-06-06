@@ -5,29 +5,35 @@ Status: active for `Npcink AI -> Abilities` and the standalone
 
 ## Purpose
 
-The Abilities admin page is an ability-package status and smoke-test surface.
+The Abilities admin page is an ability-package status and REST-check surface.
 It exists to confirm that WordPress Abilities API registration, schemas,
-callbacks, categories, and demo execution are available.
+callbacks, categories, and authenticated REST discovery are available.
 
 ## Default View
 
 The default page should show:
 
 - compact environment status for WordPress Abilities API support;
-- registered ability count and demo ability state;
+- registered ability count and callback readiness;
 - an ability catalog table grouped or scannable by `ability_id`;
 - per-ability signals for category, risk, callback availability, and schema
   availability.
 
-## Advanced / Test Details
+## Endpoint Details
 
 Low-frequency details should be behind explicit advanced entries:
 
-- raw REST endpoint URLs;
+- REST endpoint URLs should be visible on the REST checks screen with copy actions;
 - browser REST fetch buttons;
-- demo ability enable/disable control;
-- raw registered ability id dump;
+- authenticated REST discovery checks;
+- at most two official read-only ability checks may be visible: site info and bounded redacted diagnostics summary;
+- copyable registered ability ID export;
 - compatibility projection notes for Npcink AI consumers.
+
+Do not add demo/showcase execution buttons, model-call buttons, write buttons,
+or workflow-run buttons to this package surface. Real workflow execution belongs
+to a host product such as Npcink AI/Core, not to the capability package admin
+page.
 
 ## Time Display
 

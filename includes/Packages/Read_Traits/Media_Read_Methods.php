@@ -2438,8 +2438,8 @@ trait Media_Read_Methods {
 		$max_actions = max( 1, min( 100, $this->absint_value( $input['max_actions'] ?? 50 ) ) );
 		$include_delete_candidates = ! empty( $input['include_delete_candidates'] );
 		$include_trash_parent_media = ! empty( $input['include_trash_parent_media'] );
-		$include_unattached_test_media = ! empty( $input['include_unattached_test_media'] );
-		$test_content_patterns = $this->normalize_test_content_patterns( array() );
+		$include_unattached_nonproduction_media = ! empty( $input['include_unattached_nonproduction_media'] );
+		$nonproduction_content_patterns = $this->normalize_nonproduction_content_patterns( array() );
 		$context = array(
 			'article_title'   => sanitize_text_field( (string) ( $input['article_title'] ?? '' ) ),
 			'article_excerpt' => $this->sanitize_metadata_text( (string) ( $input['article_excerpt'] ?? '' ) ),
@@ -2477,7 +2477,7 @@ trait Media_Read_Methods {
 			$row['parent_post_title'] = is_object( $parent ) ? sanitize_text_field( (string) ( $parent->post_title ?? '' ) ) : '';
 			$row['post_name'] = sanitize_title( (string) ( $attachment->post_name ?? '' ) );
 
-			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates, $include_trash_parent_media, $include_unattached_test_media, $test_content_patterns );
+			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates, $include_trash_parent_media, $include_unattached_nonproduction_media, $nonproduction_content_patterns );
 			foreach ( (array) ( $post_plan['issues'] ?? array() ) as $issue ) {
 				$issue = sanitize_key( (string) $issue );
 				if ( '' !== $issue ) {
@@ -2888,12 +2888,12 @@ trait Media_Read_Methods {
 	 * @param array<string,mixed> $context Planning context.
 	 * @param int                 $remaining_slots Remaining action slots.
 	 * @param bool                $include_delete_candidates Whether to map delete candidates.
-	 * @param bool                $include_trash_parent_media Whether trash-parent test media can map to delete actions.
-	 * @param bool                $include_unattached_test_media Whether parentless test media can map to delete actions.
-	 * @param string[]            $test_content_patterns Test content patterns.
+	 * @param bool                $include_trash_parent_media Whether trash-parent nonproduction media can map to delete actions.
+	 * @param bool                $include_unattached_nonproduction_media Whether parentless nonproduction media can map to delete actions.
+	 * @param string[]            $nonproduction_content_patterns Nonproduction content patterns.
 	 * @return array<string,mixed>
 	 */
-	private function build_media_inventory_fix_plan_rows( $attachment_id, array $row, array $issue_types, array $context, $remaining_slots, $include_delete_candidates, $include_trash_parent_media = false, $include_unattached_test_media = false, array $test_content_patterns = array() ) {
+	private function build_media_inventory_fix_plan_rows( $attachment_id, array $row, array $issue_types, array $context, $remaining_slots, $include_delete_candidates, $include_trash_parent_media = false, $include_unattached_nonproduction_media = false, array $nonproduction_content_patterns = array() ) {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$remaining_slots = max( 0, (int) $remaining_slots );
 		$issues = array_values(
@@ -2988,7 +2988,7 @@ trait Media_Read_Methods {
 
 		if ( in_array( 'possibly_unattached', $issues, true ) ) {
 			$delete_policy = $include_delete_candidates
-				? $this->media_delete_candidate_policy( $attachment_id, $row, $include_trash_parent_media, $include_unattached_test_media, $test_content_patterns )
+				? $this->media_delete_candidate_policy( $attachment_id, $row, $include_trash_parent_media, $include_unattached_nonproduction_media, $nonproduction_content_patterns )
 				: array( 'allowed' => false, 'blocked_reason' => 'delete_candidates_not_enabled', 'checks' => array() );
 			if ( $include_delete_candidates && ! empty( $delete_policy['allowed'] ) && count( $actions ) < $remaining_slots ) {
 				$actions[] = $this->build_plan_action( 'delete_unattached_media_' . $attachment_id, 'npcink-abilities-toolkit/delete-media-permanently', array( 'attachment_id' => $attachment_id ), array( 'media.write' ), 'high', 'Permanently delete detected unattached media only after explicit host approval.' );
@@ -2999,7 +2999,7 @@ trait Media_Read_Methods {
 					'issue'             => 'possibly_unattached',
 					'blocked_reason'    => $include_delete_candidates ? (string) ( $delete_policy['blocked_reason'] ?? 'media_delete_policy_not_satisfied' ) : 'delete_candidates_not_enabled',
 					'policy_checks'     => is_array( $delete_policy['checks'] ?? null ) ? $delete_policy['checks'] : array(),
-					'reason'            => $include_delete_candidates ? 'Permanent deletion is limited to explicitly opted-in test media with no live content references.' : 'Permanent deletion is excluded by default. Re-run with include_delete_candidates=true plus include_trash_parent_media=true or include_unattached_test_media=true to include eligible test media in write_actions.',
+					'reason'            => $include_delete_candidates ? 'Permanent deletion is limited to explicitly opted-in nonproduction media with no live content references.' : 'Permanent deletion is excluded by default. Re-run with include_delete_candidates=true plus include_trash_parent_media=true or include_unattached_nonproduction_media=true to include eligible nonproduction media in write_actions.',
 				);
 			}
 		}
@@ -3040,14 +3040,14 @@ trait Media_Read_Methods {
 	 *
 	 * @param int                 $attachment_id Attachment ID.
 	 * @param array<string,mixed> $row Media row.
-	 * @param bool                $include_trash_parent_media Whether trash-parent test media can be deleted.
-	 * @param bool                $include_unattached_test_media Whether parentless test media can be deleted.
-	 * @param string[]            $test_content_patterns Test content patterns.
+	 * @param bool                $include_trash_parent_media Whether trash-parent nonproduction media can be deleted.
+	 * @param bool                $include_unattached_nonproduction_media Whether parentless nonproduction media can be deleted.
+	 * @param string[]            $nonproduction_content_patterns Nonproduction content patterns.
 	 * @return array<string,mixed>
 	 */
-	private function media_delete_candidate_policy( $attachment_id, array $row, $include_trash_parent_media, $include_unattached_test_media, array $test_content_patterns ) {
+	private function media_delete_candidate_policy( $attachment_id, array $row, $include_trash_parent_media, $include_unattached_nonproduction_media, array $nonproduction_content_patterns ) {
 		$attachment_id = $this->absint_value( $attachment_id );
-		$test_content_patterns = ! empty( $test_content_patterns ) ? $test_content_patterns : $this->normalize_test_content_patterns( array() );
+		$nonproduction_content_patterns = ! empty( $nonproduction_content_patterns ) ? $nonproduction_content_patterns : $this->normalize_nonproduction_content_patterns( array() );
 		$parent_title = sanitize_text_field( (string) ( $row['parent_post_title'] ?? '' ) );
 		$media_haystack = implode(
 			' ',
@@ -3061,21 +3061,21 @@ trait Media_Read_Methods {
 		$live_reference_count = (int) ( $usage['featured_image_count'] ?? 0 ) + (int) ( $usage['content_reference_count'] ?? 0 );
 		$checks = array(
 			'include_trash_parent_media' => (bool) $include_trash_parent_media,
-			'include_unattached_test_media' => (bool) $include_unattached_test_media,
+			'include_unattached_nonproduction_media' => (bool) $include_unattached_nonproduction_media,
 			'parent_post_id'             => $this->absint_value( $row['parent_post_id'] ?? 0 ),
 			'parent_status'              => sanitize_key( (string) ( $row['parent_post_status'] ?? '' ) ),
-			'parent_matches_test_content' => $this->text_matches_test_content_patterns( $parent_title, $test_content_patterns ),
-			'media_matches_test_content' => $this->text_matches_test_content_patterns( $media_haystack, $test_content_patterns ),
+			'parent_matches_nonproduction_content' => $this->text_matches_nonproduction_content_patterns( $parent_title, $nonproduction_content_patterns ),
+			'media_matches_nonproduction_content' => $this->text_matches_nonproduction_content_patterns( $media_haystack, $nonproduction_content_patterns ),
 			'live_reference_count'       => $live_reference_count,
 			'usage'                      => $usage,
 		);
 
 		if ( $checks['parent_post_id'] <= 0 ) {
-			if ( empty( $checks['include_unattached_test_media'] ) ) {
-				return array( 'allowed' => false, 'blocked_reason' => 'unattached_test_media_not_enabled', 'checks' => $checks );
+			if ( empty( $checks['include_unattached_nonproduction_media'] ) ) {
+				return array( 'allowed' => false, 'blocked_reason' => 'unattached_nonproduction_media_not_enabled', 'checks' => $checks );
 			}
-			if ( empty( $checks['media_matches_test_content'] ) ) {
-				return array( 'allowed' => false, 'blocked_reason' => 'media_not_test_content', 'checks' => $checks );
+			if ( empty( $checks['media_matches_nonproduction_content'] ) ) {
+				return array( 'allowed' => false, 'blocked_reason' => 'media_not_nonproduction_content', 'checks' => $checks );
 			}
 			if ( $live_reference_count > 0 ) {
 				return array( 'allowed' => false, 'blocked_reason' => 'referenced_by_live_content', 'checks' => $checks );
@@ -3090,11 +3090,11 @@ trait Media_Read_Methods {
 		if ( 'trash' !== $checks['parent_status'] ) {
 			return array( 'allowed' => false, 'blocked_reason' => 'parent_not_trash', 'checks' => $checks );
 		}
-		if ( empty( $checks['parent_matches_test_content'] ) ) {
-			return array( 'allowed' => false, 'blocked_reason' => 'parent_not_test_content', 'checks' => $checks );
+		if ( empty( $checks['parent_matches_nonproduction_content'] ) ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'parent_not_nonproduction_content', 'checks' => $checks );
 		}
-		if ( empty( $checks['media_matches_test_content'] ) ) {
-			return array( 'allowed' => false, 'blocked_reason' => 'media_not_test_content', 'checks' => $checks );
+		if ( empty( $checks['media_matches_nonproduction_content'] ) ) {
+			return array( 'allowed' => false, 'blocked_reason' => 'media_not_nonproduction_content', 'checks' => $checks );
 		}
 		if ( $live_reference_count > 0 ) {
 			return array( 'allowed' => false, 'blocked_reason' => 'referenced_by_live_content', 'checks' => $checks );
@@ -3104,13 +3104,13 @@ trait Media_Read_Methods {
 	}
 
 	/**
-	 * Checks whether text contains one of the default test-content patterns.
+	 * Checks whether text contains one of the default nonproduction-content patterns.
 	 *
 	 * @param string   $text Text to inspect.
-	 * @param string[] $patterns Test content patterns.
+	 * @param string[] $patterns Nonproduction content patterns.
 	 * @return bool
 	 */
-	private function text_matches_test_content_patterns( $text, array $patterns ) {
+	private function text_matches_nonproduction_content_patterns( $text, array $patterns ) {
 		$text = strtolower( $this->sanitize_metadata_text( (string) $text ) );
 		if ( '' === $text ) {
 			return false;

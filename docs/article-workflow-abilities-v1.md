@@ -52,11 +52,11 @@ reviewable artifact before Core proposal intake.
 | Result composition | `npcink-abilities-toolkit/compose-article-production-result`, `npcink-abilities-toolkit/compose-article-draft-result`, `npcink-abilities-toolkit/resolve-article-publication-decision` | Abilities | Composes host-reviewed output and decision artifacts. |
 | Final write | `npcink-abilities-toolkit/create-draft` | Abilities callback, Core governed | Must be submitted through Core proposal, approval, and preflight before commit. |
 
-Provider or knowledge abilities such as `npcink-toolbox/web-research`,
-`npcink-toolbox/search-image-source`,
-`npcink-toolbox/search-site-knowledge`,
-`npcink-toolbox/build-content-discoverability-brief`, and
-`npcink-toolbox/build-article-assistant` belong to Toolbox, not this package.
+Provider or knowledge abilities such as `npcink-ai-toolbox/web-research`,
+`npcink-ai-toolbox/search-image-source`,
+`npcink-ai-toolbox/search-site-knowledge`,
+`npcink-ai-toolbox/build-content-discoverability-brief`, and
+`npcink-ai-toolbox/build-article-assistant` belong to Toolbox, not this package.
 
 ## Non-Goals
 

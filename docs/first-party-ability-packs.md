@@ -21,7 +21,7 @@ Writable: no.
 
 Host approval: no final commit approval required.
 
-Primary consumers: Npcink AI, Npcink Toolbox, direct Abilities API clients,
+Primary consumers: Npcink AI, Npcink AI Toolbox, direct Abilities API clients,
 and third-party hosts that need WordPress content discovery.
 
 Representative abilities:
@@ -35,8 +35,8 @@ Representative abilities:
 - `npcink-abilities-toolkit/get-post`
 - `npcink-abilities-toolkit/get-post-context`
 - `npcink-abilities-toolkit/get-content-inventory-health`
-- `npcink-abilities-toolkit/get-test-content-inventory`
-- `npcink-abilities-toolkit/build-test-content-cleanup-plan`
+- `npcink-abilities-toolkit/get-nonproduction-content-inventory`
+- `npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan`
 - `npcink-abilities-toolkit/build-content-inventory-fix-plan`
 - `npcink-abilities-toolkit/get-site-operations-dashboard`
 - `npcink-abilities-toolkit/resolve-url-to-post`

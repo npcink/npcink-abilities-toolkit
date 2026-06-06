@@ -24,6 +24,7 @@ package_dir="$tmpdir/$PLUGIN_SLUG"
 excluded_paths=(
 	".git" \
 	".github" \
+	".distignore" \
 	".gitattributes" \
 	".gitignore" \
 	".DS_Store" \

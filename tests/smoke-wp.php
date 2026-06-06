@@ -388,19 +388,8 @@ npcink_abilities_toolkit_smoke_assert( function_exists( 'wp_register_ability' ),
 npcink_abilities_toolkit_smoke_assert( function_exists( 'wp_register_ability_category' ), 'WordPress Abilities API category registration function exists.' );
 npcink_abilities_toolkit_smoke_assert( function_exists( 'npcink_abilities_toolkit_register_readonly' ), 'Plugin public readonly registration helper is loaded.' );
 
-if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
-	update_option( 'npcink_abilities_toolkit_demo_enabled', '1' );
-}
-
 if ( function_exists( 'wp_get_abilities' ) ) {
 	wp_get_abilities();
-}
-
-if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
-	npcink_abilities_toolkit_smoke_assert(
-		! function_exists( 'wp_has_ability' ) || wp_has_ability( 'npcink-abilities-toolkit/site-summary' ),
-		'Demo site-summary ability is registered.'
-	);
 }
 
 $admin_ids = get_users(
@@ -418,10 +407,6 @@ wp_set_current_user( $admin_id );
 $abilities_data = npcink_abilities_toolkit_smoke_rest_catalog( '', 'Authenticated abilities REST catalog returns 200.' );
 $provider_abilities_data = npcink_abilities_toolkit_smoke_rest_catalog( 'npcink-abilities-toolkit', 'Authenticated provider namespace REST catalog returns 200.' );
 if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
-	npcink_abilities_toolkit_smoke_assert(
-		npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/site-summary' ),
-		'Authenticated abilities REST catalog contains the demo ability.'
-	);
 		npcink_abilities_toolkit_smoke_assert(
 			npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-diagnostics-summary' ),
 			'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
@@ -447,7 +432,7 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-test-content-inventory', 'npcink-abilities-toolkit/build-test-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
+		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
 			npcink_abilities_toolkit_smoke_assert(
 				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 				"Light profile disables optional ability {$disabled_ability_id}."
@@ -471,8 +456,8 @@ foreach (
 		'npcink-abilities-toolkit/get-post-context',
 		'npcink-abilities-toolkit/get-content-publishing-checklist',
 		'npcink-abilities-toolkit/get-content-inventory-health',
-		'npcink-abilities-toolkit/get-test-content-inventory',
-		'npcink-abilities-toolkit/build-test-content-cleanup-plan',
+		'npcink-abilities-toolkit/get-nonproduction-content-inventory',
+		'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan',
 		'npcink-abilities-toolkit/build-content-inventory-fix-plan',
 		'npcink-abilities-toolkit/get-bulk-publishing-checklist',
 		'npcink-abilities-toolkit/get-internal-link-opportunity-report',
@@ -600,11 +585,6 @@ foreach (
 $categories_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/categories' );
 $categories_response = rest_do_request( $categories_request );
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $categories_response->get_status(), 'Authenticated categories REST catalog returns 200.' );
-
-$run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/site-summary/run' );
-$run_request->set_query_params( array( 'input' => array() ) );
-$run_response = rest_do_request( $run_request );
-npcink_abilities_toolkit_smoke_assert( 200 === (int) $run_response->get_status(), 'Authenticated demo ability run returns 200.' );
 
 $diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/wp-diagnostics-summary/run' );
 $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
@@ -743,7 +723,7 @@ $inventory_health_run_request->set_query_params(
 $inventory_health_run_response = rest_do_request( $inventory_health_run_request );
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $inventory_health_run_response->get_status(), 'Authenticated content inventory health ability run returns 200.' );
 
-$test_inventory_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-test-content-inventory/run' );
+$test_inventory_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-nonproduction-content-inventory/run' );
 $test_inventory_run_request->set_query_params(
 	array(
 		'input' => array(
@@ -753,11 +733,11 @@ $test_inventory_run_request->set_query_params(
 	)
 );
 $test_inventory_run_response = rest_do_request( $test_inventory_run_request );
-npcink_abilities_toolkit_smoke_assert( 200 === (int) $test_inventory_run_response->get_status(), 'Authenticated test content inventory ability run returns 200.' );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $test_inventory_run_response->get_status(), 'Authenticated nonproduction content inventory ability run returns 200.' );
 $test_inventory_run_data = $test_inventory_run_response->get_data();
-npcink_abilities_toolkit_smoke_assert( true === ( $test_inventory_run_data['data']['detected'] ?? null ), 'Test content inventory detects smoke content.' );
+npcink_abilities_toolkit_smoke_assert( true === ( $test_inventory_run_data['data']['detected'] ?? null ), 'Nonproduction content inventory detects smoke content.' );
 
-$test_cleanup_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-test-content-cleanup-plan/run' );
+$test_cleanup_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan/run' );
 $test_cleanup_plan_run_request->set_query_params(
 	array(
 		'input' => array(
@@ -767,11 +747,11 @@ $test_cleanup_plan_run_request->set_query_params(
 	)
 );
 $test_cleanup_plan_run_response = rest_do_request( $test_cleanup_plan_run_request );
-npcink_abilities_toolkit_smoke_assert( 200 === (int) $test_cleanup_plan_run_response->get_status(), 'Authenticated test content cleanup plan ability run returns 200.' );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $test_cleanup_plan_run_response->get_status(), 'Authenticated nonproduction content cleanup plan ability run returns 200.' );
 $test_cleanup_plan_run_data = $test_cleanup_plan_run_response->get_data();
-npcink_abilities_toolkit_smoke_assert( false === ( $test_cleanup_plan_run_data['data']['commit_execution'] ?? null ), 'Test content cleanup plan does not execute commits.' );
-npcink_abilities_toolkit_smoke_assert( 'batch' === (string) ( $test_cleanup_plan_run_data['data']['proposal_mode'] ?? '' ), 'Test content cleanup plan requests batch proposal mode.' );
-npcink_abilities_toolkit_smoke_assert( true === (bool) ( $test_cleanup_plan_run_data['data']['batch_approval'] ?? false ), 'Test content cleanup plan requests one approval for the generated batch.' );
+npcink_abilities_toolkit_smoke_assert( false === ( $test_cleanup_plan_run_data['data']['commit_execution'] ?? null ), 'Nonproduction content cleanup plan does not execute commits.' );
+npcink_abilities_toolkit_smoke_assert( 'batch' === (string) ( $test_cleanup_plan_run_data['data']['proposal_mode'] ?? '' ), 'Nonproduction content cleanup plan requests batch proposal mode.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $test_cleanup_plan_run_data['data']['batch_approval'] ?? false ), 'Nonproduction content cleanup plan requests one approval for the generated batch.' );
 
 $content_fix_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-content-inventory-fix-plan/run' );
 $content_fix_plan_run_request->set_query_params(

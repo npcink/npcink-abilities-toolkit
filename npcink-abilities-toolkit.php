@@ -2,13 +2,14 @@
 /**
  * Plugin Name: Npcink Abilities Toolkit
  * Description: Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.
- * Version: 0.4.0
+ * Version: 0.5.0
  * Requires at least: 7.0
  * Requires PHP: 8.0
  * Author: Npcink
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: npcink-abilities-toolkit
+ * Domain Path: /languages
  *
  * @package NpcinkAbilitiesToolkit
  */
@@ -17,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NPCINK_ABILITIES_TOOLKIT_VERSION', '0.4.0' );
+define( 'NPCINK_ABILITIES_TOOLKIT_VERSION', '0.5.0' );
 define( 'NPCINK_ABILITIES_TOOLKIT_FILE', __FILE__ );
 define( 'NPCINK_ABILITIES_TOOLKIT_DIR', plugin_dir_path( __FILE__ ) );
 

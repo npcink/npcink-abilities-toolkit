@@ -122,7 +122,12 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Npcink AI parent slug' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const PARENT_MENU_SLUG    = 'npcink-ai';" ), 'admin test page targets the shared Npcink AI parent menu.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook_suffixes' ), 'admin test page stores real WordPress hook suffixes for asset loading.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Open Catalog' ) && false !== strpos( $admin_test_page, 'Open REST Checks' ), 'admin overview links post-install users to catalog and REST checks.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'Abilities', 'npcink-abilities-toolkit' )," ), 'admin test page registers the requested page and submenu titles when attached' );
@@ -130,12 +135,25 @@ $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
 foreach (
 	array(
-		'Ability package status',
+		'Confirm package readiness',
+		'Package',
+		'Callback issues',
+		'Next actions',
+		'Connect a host',
+		'Final write approval stays with the host runtime',
 		'Registered Ability Catalog',
-		'Advanced Checks',
-		'REST endpoints and browser tests',
-		'Demo ability control',
-		'Raw ability ids',
+		'Connection values',
+		'Copy Abilities Endpoint',
+		'Read-only ability checks',
+		'bounded admin input',
+		'omits plugin rows, current-user details, updates, and cron details',
+		'npcink_abilities_toolkit_readonly_check',
+		'data-npcink-abilities-toolkit-readonly-check',
+		'Run Site Info',
+		'Run Diagnostics Summary',
+		'Catalog export',
+		'REST discovery checks',
+		'Ability ID export',
 		'render_status_summary',
 		'render_ability_catalog',
 	) as $required
@@ -146,7 +164,7 @@ foreach (
 $admin_surface_standard = file_get_contents( __DIR__ . '/../docs/admin-surface-standard.md' );
 foreach (
 	array(
-		'ability-package status and smoke-test surface',
+		'ability-package status and REST-check surface',
 		'registered ability count',
 		'per-ability signals',
 		'Core proposal approval',
@@ -860,8 +878,8 @@ $migrated_read_ability_ids = array(
 		'npcink-abilities-toolkit/get-post-context',
 	'npcink-abilities-toolkit/get-content-publishing-checklist',
 	'npcink-abilities-toolkit/get-content-inventory-health',
-	'npcink-abilities-toolkit/get-test-content-inventory',
-	'npcink-abilities-toolkit/build-test-content-cleanup-plan',
+	'npcink-abilities-toolkit/get-nonproduction-content-inventory',
+	'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan',
 	'npcink-abilities-toolkit/build-content-inventory-fix-plan',
 	'npcink-abilities-toolkit/search-post-meta',
 	'npcink-abilities-toolkit/get-bulk-publishing-checklist',
@@ -1057,13 +1075,13 @@ npcink_abilities_toolkit_assert_same( true, $package_abilities['npcink-abilities
 npcink_abilities_toolkit_assert_same( true, $package_abilities['npcink-abilities-toolkit/get-post-context']['input_schema']['properties']['include_blocks']['default'] ?? null, 'get-post-context includes blocks by default' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/get-content-publishing-checklist']['requires_confirm'], 'publishing checklist remains readonly' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-content-inventory-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'inventory health scan is bounded to 100 posts per page' );
-npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-test-content-inventory']['input_schema']['properties']['per_page']['maximum'] ?? null, 'test content inventory scan is bounded to 100 items per section' );
-npcink_abilities_toolkit_assert_same( 200, $package_abilities['npcink-abilities-toolkit/build-test-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'test content cleanup plan bounds planned actions to Adapter batch execution limit' );
-npcink_abilities_toolkit_assert_same( true, $package_abilities['npcink-abilities-toolkit/build-test-content-cleanup-plan']['input_schema']['properties']['include_posts']['default'] ?? null, 'test content cleanup plan exposes include_posts control' );
-npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-test-content-cleanup-plan']['input_schema']['properties']['mode'] ), 'test content cleanup plan does not expose unused mode input' );
+npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-nonproduction-content-inventory']['input_schema']['properties']['per_page']['maximum'] ?? null, 'nonproduction content inventory scan is bounded to 100 items per section' );
+npcink_abilities_toolkit_assert_same( 200, $package_abilities['npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'nonproduction content cleanup plan bounds planned actions to Adapter batch execution limit' );
+npcink_abilities_toolkit_assert_same( true, $package_abilities['npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan']['input_schema']['properties']['include_posts']['default'] ?? null, 'nonproduction content cleanup plan exposes include_posts control' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan']['input_schema']['properties']['mode'] ), 'nonproduction content cleanup plan does not expose unused mode input' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/build-content-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'content inventory fix plan bounds planned actions' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-content-inventory-fix-plan']['required_scopes'] ?? array(), 'content inventory fix plan remains a read-scope planning ability' );
-foreach ( array( 'npcink-abilities-toolkit/get-test-content-inventory', 'npcink-abilities-toolkit/build-test-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan' ) as $planning_agent_usage_id ) {
+foreach ( array( 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan' ) as $planning_agent_usage_id ) {
 	npcink_abilities_toolkit_assert_true( ! empty( $package_abilities[ $planning_agent_usage_id ]['agent_usage']['when_to_use'] ), "{$planning_agent_usage_id} exposes agent usage guidance" );
 	npcink_abilities_toolkit_assert_true( ! empty( $package_abilities[ $planning_agent_usage_id ]['agent_usage']['stopping_points'] ), "{$planning_agent_usage_id} exposes agent stopping points" );
 }
@@ -1078,7 +1096,7 @@ npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-media-cleanup-opportunities']['input_schema']['properties']['per_page']['maximum'] ?? null, 'media cleanup opportunities scan is bounded to 100 assets per page' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['max_actions']['maximum'] ?? null, 'media inventory fix plan bounds planned actions' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['include_trash_parent_media']['default'] ?? null, 'media inventory fix plan keeps trash-parent delete opt-in disabled by default' );
-npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['include_unattached_test_media']['default'] ?? null, 'media inventory fix plan keeps parentless test-media delete opt-in disabled by default' );
+npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['include_unattached_nonproduction_media']['default'] ?? null, 'media inventory fix plan keeps parentless nonproduction-media delete opt-in disabled by default' );
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['required_scopes'] ?? array(), 'media inventory fix plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['agent_usage']['when_to_use'] ), 'media inventory fix plan exposes agent usage guidance' );
 npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['agent_usage']['stopping_points'] ), 'media inventory fix plan exposes agent stopping points' );
@@ -2033,15 +2051,15 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][79] = (object) array(
 	'post_author'  => 7,
 	'post_modified' => '2026-05-30 10:00:00',
 );
-$test_inventory = $core_read_package->get_test_content_inventory(
+$test_inventory = $core_read_package->get_nonproduction_content_inventory(
 	array(
 		'patterns' => array( 'Core Governance' ),
 		'per_page' => 10,
 	)
 );
-npcink_abilities_toolkit_assert_same( true, $test_inventory['success'] ?? null, 'get-test-content-inventory returns a success envelope' );
-npcink_abilities_toolkit_assert_same( true, $test_inventory['data']['detected'] ?? null, 'get-test-content-inventory detects matching smoke content' );
-npcink_abilities_toolkit_assert_same( 'Core Governance', $test_inventory['data']['posts']['items'][0]['matched_pattern'] ?? '', 'get-test-content-inventory returns matched pattern' );
+npcink_abilities_toolkit_assert_same( true, $test_inventory['success'] ?? null, 'get-nonproduction-content-inventory returns a success envelope' );
+npcink_abilities_toolkit_assert_same( true, $test_inventory['data']['detected'] ?? null, 'get-nonproduction-content-inventory detects matching smoke content' );
+npcink_abilities_toolkit_assert_same( 'Core Governance', $test_inventory['data']['posts']['items'][0]['matched_pattern'] ?? '', 'get-nonproduction-content-inventory returns matched pattern' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][81] = (object) array(
 	'ID'           => 81,
 	'post_title'   => 'Core Plan Bridge Content Candidate',
@@ -2053,7 +2071,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][81] = (object) array(
 	'post_author'  => 7,
 	'post_modified' => '2026-05-30 10:30:00',
 );
-$default_test_inventory = $core_read_package->get_test_content_inventory(
+$default_test_inventory = $core_read_package->get_nonproduction_content_inventory(
 	array(
 		'per_page' => 10,
 	)
@@ -2065,20 +2083,20 @@ foreach ( (array) ( $default_test_inventory['data']['posts']['items'] ?? array()
 		break;
 	}
 }
-npcink_abilities_toolkit_assert_same( true, $default_test_inventory['data']['detected'] ?? null, 'get-test-content-inventory detects Core Plan Bridge fixtures by default' );
-npcink_abilities_toolkit_assert_same( 'core plan bridge content candidate', $default_plan_bridge_match['matched_pattern'] ?? '', 'get-test-content-inventory includes Core Plan Bridge fixture patterns by default' );
-$cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+npcink_abilities_toolkit_assert_same( true, $default_test_inventory['data']['detected'] ?? null, 'get-nonproduction-content-inventory detects Core Plan Bridge fixtures by default' );
+npcink_abilities_toolkit_assert_same( 'core plan bridge content candidate', $default_plan_bridge_match['matched_pattern'] ?? '', 'get-nonproduction-content-inventory includes Core Plan Bridge fixture patterns by default' );
+$cleanup_plan = $core_read_package->build_nonproduction_content_cleanup_plan(
 	array(
 		'patterns'    => array( 'Core Governance' ),
 		'max_actions' => 5,
 	)
 );
-npcink_abilities_toolkit_assert_same( true, $cleanup_plan['success'] ?? null, 'build-test-content-cleanup-plan returns a success envelope' );
-npcink_abilities_toolkit_assert_same( 'batch', $cleanup_plan['data']['proposal_mode'] ?? '', 'test content cleanup plan requests batch proposal intake' );
-npcink_abilities_toolkit_assert_same( true, $cleanup_plan['data']['batch_approval'] ?? null, 'test content cleanup plan requests one approval for the generated action batch' );
-npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/trash-post', $cleanup_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'test content cleanup plan reuses trash-post' );
-npcink_abilities_toolkit_assert_same( false, $cleanup_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'test content cleanup plan does not execute commits' );
-$default_cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+npcink_abilities_toolkit_assert_same( true, $cleanup_plan['success'] ?? null, 'build-nonproduction-content-cleanup-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'batch', $cleanup_plan['data']['proposal_mode'] ?? '', 'nonproduction content cleanup plan requests batch proposal intake' );
+npcink_abilities_toolkit_assert_same( true, $cleanup_plan['data']['batch_approval'] ?? null, 'nonproduction content cleanup plan requests one approval for the generated action batch' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/trash-post', $cleanup_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'nonproduction content cleanup plan reuses trash-post' );
+npcink_abilities_toolkit_assert_same( false, $cleanup_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'nonproduction content cleanup plan does not execute commits' );
+$default_cleanup_plan = $core_read_package->build_nonproduction_content_cleanup_plan(
 	array(
 		'max_actions' => 5,
 	)
@@ -2090,8 +2108,8 @@ foreach ( (array) ( $default_cleanup_plan['data']['write_actions'] ?? array() ) 
 		break;
 	}
 }
-npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/trash-post', $default_cleanup_plan_bridge_action['target_ability_id'] ?? '', 'test content cleanup plan includes Core Plan Bridge fixture posts by default' );
-$terms_only_cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/trash-post', $default_cleanup_plan_bridge_action['target_ability_id'] ?? '', 'nonproduction content cleanup plan includes Core Plan Bridge fixture posts by default' );
+$terms_only_cleanup_plan = $core_read_package->build_nonproduction_content_cleanup_plan(
 	array(
 		'include_posts'    => false,
 		'include_terms'    => false,
@@ -2099,8 +2117,8 @@ $terms_only_cleanup_plan = $core_read_package->build_test_content_cleanup_plan(
 		'max_actions'      => 5,
 	)
 );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['preview']['posts'] ?? array() ) ), 'test content cleanup plan honors include_posts=false' );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['write_actions'] ?? array() ) ), 'test content cleanup plan does not generate post actions when include_posts=false' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['preview']['posts'] ?? array() ) ), 'nonproduction content cleanup plan honors include_posts=false' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $terms_only_cleanup_plan['data']['write_actions'] ?? array() ) ), 'nonproduction content cleanup plan does not generate post actions when include_posts=false' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][80] = (object) array(
 	'ID'           => 80,
 	'post_title'   => 'Inventory Fix Candidate',
@@ -3173,8 +3191,8 @@ $media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 		'include_delete_candidates'   => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $media_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan does not map delete candidates without unattached test-media opt-in' );
-npcink_abilities_toolkit_assert_same( 'unattached_test_media_not_enabled', $media_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit parentless test-media opt-in for destructive media deletes' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $media_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan does not map delete candidates without unattached nonproduction-media opt-in' );
+npcink_abilities_toolkit_assert_same( 'unattached_nonproduction_media_not_enabled', $media_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit parentless nonproduction-media opt-in for destructive media deletes' );
 $media_parentless_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
 		'attachment_ids'              => array( 79 ),
@@ -3184,7 +3202,7 @@ $media_parentless_delete_plan = $core_read_package->build_media_inventory_fix_pl
 	)
 );
 npcink_abilities_toolkit_assert_same( 0, count( (array) ( $media_parentless_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan does not map parentless media to delete actions' );
-npcink_abilities_toolkit_assert_same( 'unattached_test_media_not_enabled', $media_parentless_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit unattached test-media opt-in for parentless destructive media deletes' );
+npcink_abilities_toolkit_assert_same( 'unattached_nonproduction_media_not_enabled', $media_parentless_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan requires explicit unattached nonproduction-media opt-in for parentless destructive media deletes' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][96] = (object) array(
 	'ID'             => 96,
 	'post_title'     => 'Playwright Native Media ALT 1776483949900',
@@ -3202,12 +3220,12 @@ $media_parentless_test_delete_plan = $core_read_package->build_media_inventory_f
 		'attachment_ids'                 => array( 96 ),
 		'issue_types'                    => array( 'possibly_unattached' ),
 		'include_delete_candidates'      => true,
-		'include_unattached_test_media'  => true,
+		'include_unattached_nonproduction_media'  => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/delete-media-permanently', $media_parentless_test_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible parentless test media to delete action only with explicit opt-in' );
-npcink_abilities_toolkit_assert_same( 'high', $media_parentless_test_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'eligible parentless test media delete candidate is marked high risk' );
-npcink_abilities_toolkit_assert_same( false, $media_parentless_test_delete_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'eligible parentless test media delete candidate remains proposal-only' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/delete-media-permanently', $media_parentless_test_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible parentless nonproduction media to delete action only with explicit opt-in' );
+npcink_abilities_toolkit_assert_same( 'high', $media_parentless_test_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'eligible parentless nonproduction media delete candidate is marked high risk' );
+npcink_abilities_toolkit_assert_same( false, $media_parentless_test_delete_plan['data']['write_actions'][0]['commit_execution'] ?? null, 'eligible parentless nonproduction media delete candidate remains proposal-only' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][97] = (object) array(
 	'ID'             => 97,
 	'post_title'     => 'Content Assistant Test Image 1776483949901',
@@ -3226,7 +3244,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][98] = (object) array(
 	'post_status'  => 'draft',
 	'post_type'    => 'post',
 	'post_content' => '<!-- wp:image {"id":97} --><figure class="wp-block-image"><img class="wp-image-97" /></figure><!-- /wp:image -->',
-	'post_name'    => 'editorial-draft-with-parentless-test-media',
+	'post_name'    => 'editorial-draft-with-parentless-nonproduction-media',
 	'post_author'  => 7,
 	'post_parent'  => 0,
 );
@@ -3235,10 +3253,10 @@ $referenced_parentless_test_delete_plan = $core_read_package->build_media_invent
 		'attachment_ids'                 => array( 97 ),
 		'issue_types'                    => array( 'possibly_unattached' ),
 		'include_delete_candidates'      => true,
-		'include_unattached_test_media'  => true,
+		'include_unattached_nonproduction_media'  => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $referenced_parentless_test_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks parentless test media referenced by live content' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $referenced_parentless_test_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks parentless nonproduction media referenced by live content' );
 npcink_abilities_toolkit_assert_same( 'referenced_by_live_content', $referenced_parentless_test_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports parentless live reference policy failure' );
 npcink_abilities_toolkit_assert_true( (int) ( $referenced_parentless_test_delete_plan['data']['skipped_destructive_candidates'][0]['policy_checks']['live_reference_count'] ?? 0 ) >= 1, 'media inventory fix plan records parentless live reference count for blocked media delete' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][99] = (object) array(
@@ -3258,11 +3276,11 @@ $parentless_production_delete_plan = $core_read_package->build_media_inventory_f
 		'attachment_ids'                 => array( 99 ),
 		'issue_types'                    => array( 'possibly_unattached' ),
 		'include_delete_candidates'      => true,
-		'include_unattached_test_media'  => true,
+		'include_unattached_nonproduction_media'  => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $parentless_production_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks parentless media whose title is not test content' );
-npcink_abilities_toolkit_assert_same( 'media_not_test_content', $parentless_production_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports parentless media test-pattern policy failure' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $parentless_production_delete_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks parentless media whose title is not nonproduction content' );
+npcink_abilities_toolkit_assert_same( 'media_not_nonproduction_content', $parentless_production_delete_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports parentless media nonproduction-pattern policy failure' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][91] = (object) array(
 	'ID'           => 91,
 	'post_title'   => 'Runtime Smoke Media Parent',
@@ -3293,7 +3311,7 @@ $eligible_media_delete_plan = $core_read_package->build_media_inventory_fix_plan
 		'include_trash_parent_media'  => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/delete-media-permanently', $eligible_media_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible trash-parent test media to delete action' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/delete-media-permanently', $eligible_media_delete_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media inventory fix plan maps eligible trash-parent nonproduction media to delete action' );
 npcink_abilities_toolkit_assert_same( 'high', $eligible_media_delete_plan['data']['write_actions'][0]['risk'] ?? '', 'eligible media delete candidate is marked high risk' );
 npcink_abilities_toolkit_assert_same( 'trash', $eligible_media_delete_plan['data']['preview'][0]['parent_post_status'] ?? '', 'eligible media delete policy records trashed parent status in preview' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][93] = (object) array(
@@ -3316,8 +3334,8 @@ $blocked_media_title_plan = $core_read_package->build_media_inventory_fix_plan(
 		'include_trash_parent_media'  => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( 0, count( (array) ( $blocked_media_title_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks trash-parent media whose own title is not test content' );
-npcink_abilities_toolkit_assert_same( 'media_not_test_content', $blocked_media_title_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports media test-pattern policy failure' );
+npcink_abilities_toolkit_assert_same( 0, count( (array) ( $blocked_media_title_plan['data']['write_actions'] ?? array() ) ), 'media inventory fix plan blocks trash-parent media whose own title is not nonproduction content' );
+npcink_abilities_toolkit_assert_same( 'media_not_nonproduction_content', $blocked_media_title_plan['data']['skipped_destructive_candidates'][0]['blocked_reason'] ?? '', 'media inventory fix plan reports media nonproduction-pattern policy failure' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][94] = (object) array(
 	'ID'             => 94,
 	'post_title'     => 'Runtime Smoke Referenced Image',

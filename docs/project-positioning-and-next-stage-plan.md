@@ -9,13 +9,13 @@ Date: 2026-05-28
 
 It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, discover, and execute reusable WordPress abilities through the WordPress Abilities API.
 
-It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Npcink AI, Npcink Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
+It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Npcink AI, Npcink AI Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
 
 ## Why This Positioning
 
 The WordPress AI direction is moving away from each plugin owning its own model calls and toward shared platform primitives: AI Client, Connectors API, Abilities API, client-side abilities, and MCP-oriented ability exposure. In that environment, the defensible layer for this project is not another prompt UI. It is the machine-readable WordPress operation catalog that upper layers can safely compose.
 
-The China-market research points to a different product layer: site owners need domestic environment fixes, configuration wizards, Baidu/WeChat/CDN/ICP workflows, compliance help, documentation, and low-friction packaging. Those are important product opportunities, but they belong in Npcink Toolbox or another end-user product, not in this infrastructure package.
+The China-market research points to a different product layer: site owners need domestic environment fixes, configuration wizards, Baidu/WeChat/CDN/ICP workflows, compliance help, documentation, and low-friction packaging. Those are important product opportunities, but they belong in Npcink AI Toolbox or another end-user product, not in this infrastructure package.
 
 The project boundary already matches this conclusion:
 
@@ -36,7 +36,7 @@ Owns:
 - schema, annotation, metadata, risk, and MCP-facing normalization;
 - reusable WordPress-only ability callbacks;
 - dry-run preview behavior for write and destructive abilities;
-- local admin smoke/test surface;
+- local admin REST-check surface;
 - optional Npcink AI compatibility projection by filters.
 
 Does not own:
@@ -64,7 +64,7 @@ Owns:
 - cloud execution enhancement;
 - operations dashboards.
 
-### Npcink Toolbox Or Other End-User Products
+### Npcink AI Toolbox Or Other End-User Products
 
 Own:
 
@@ -101,7 +101,7 @@ This is not a conflict that should be solved by moving all product functionality
 
 ### P0: Stabilize The Ability Foundation
 
-Goal: make this package safe for Npcink AI, Toolbox, and third-party plugins to depend on.
+Goal: make this package safe for Npcink AI, Npcink AI Toolbox, and third-party plugins to depend on.
 
 Deliverables:
 

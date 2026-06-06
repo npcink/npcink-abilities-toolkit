@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Provides content inventory health, test-content inventory, and fix-plan callbacks.
+ * Provides content inventory health, nonproduction-content inventory, and fix-plan callbacks.
  */
 trait Content_Inventory_Read_Methods {
 	/**
@@ -159,28 +159,28 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Detects smoke, fixture, and test content without mutating anything.
+	 * Detects smoke, fixture, and nonproduction content without mutating anything.
 	 *
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function get_test_content_inventory( $input ) {
+	public function get_nonproduction_content_inventory( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read test content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read nonproduction content inventory.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
-		$patterns = $this->normalize_test_content_patterns( $input['patterns'] ?? array() );
-		$post_types = $this->normalize_test_content_post_types( $input['post_types'] ?? array( 'post', 'page' ) );
-		$statuses = $this->normalize_test_content_statuses( $input['statuses'] ?? array( 'publish', 'draft', 'pending', 'future', 'private' ) );
+		$patterns = $this->normalize_nonproduction_content_patterns( $input['patterns'] ?? array() );
+		$post_types = $this->normalize_nonproduction_content_post_types( $input['post_types'] ?? array( 'post', 'page' ) );
+		$statuses = $this->normalize_nonproduction_content_statuses( $input['statuses'] ?? array( 'publish', 'draft', 'pending', 'future', 'private' ) );
 		$per_page = max( 1, min( 100, $this->absint_value( $input['per_page'] ?? 50 ) ) );
 		$include_posts = ! array_key_exists( 'include_posts', $input ) || ! empty( $input['include_posts'] );
 		$include_terms = ! array_key_exists( 'include_terms', $input ) || ! empty( $input['include_terms'] );
 		$include_comments = ! array_key_exists( 'include_comments', $input ) || ! empty( $input['include_comments'] );
 
-		$posts = $include_posts ? $this->detect_test_content_posts( $patterns, $post_types, $statuses, $per_page ) : array( 'total' => 0, 'items' => array() );
-		$terms = $include_terms ? $this->detect_test_content_terms( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
-		$comments = $include_comments ? $this->detect_test_content_comments( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
+		$posts = $include_posts ? $this->detect_nonproduction_content_posts( $patterns, $post_types, $statuses, $per_page ) : array( 'total' => 0, 'items' => array() );
+		$terms = $include_terms ? $this->detect_nonproduction_content_terms( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
+		$comments = $include_comments ? $this->detect_nonproduction_content_comments( $patterns, $per_page ) : array( 'total' => 0, 'items' => array() );
 
 		$total = (int) ( $posts['total'] ?? 0 ) + (int) ( $terms['total'] ?? 0 ) + (int) ( $comments['total'] ?? 0 );
 
@@ -200,23 +200,23 @@ trait Content_Inventory_Read_Methods {
 				),
 			),
 			array(
-				'source'         => 'local_test_content_inventory',
+				'source'         => 'local_nonproduction_content_inventory',
 				'execution_mode' => 'deterministic',
 				'bounded'        => true,
 			),
-			'Test content inventory built.'
+			'Nonproduction content inventory built.'
 		);
 	}
 
 	/**
-	 * Builds a cleanup plan for detected test content without executing writes.
+	 * Builds a cleanup plan for detected nonproduction content without executing writes.
 	 *
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function build_test_content_cleanup_plan( $input ) {
+	public function build_nonproduction_content_cleanup_plan( $input ) {
 		$input = is_array( $input ) ? $input : array();
-		$inventory = $this->get_test_content_inventory(
+		$inventory = $this->get_nonproduction_content_inventory(
 			array(
 				'patterns'         => $input['patterns'] ?? array(),
 				'post_types'       => $input['post_types'] ?? array( 'post', 'page' ),
@@ -249,12 +249,12 @@ trait Content_Inventory_Read_Methods {
 				continue;
 			}
 			$actions[] = $this->build_plan_action(
-				'trash_test_post_' . $post_id,
+				'trash_nonproduction_post_' . $post_id,
 				'npcink-abilities-toolkit/trash-post',
 				array( 'post_id' => $post_id ),
 				array( 'post.delete' ),
 				'medium',
-				'Move detected test post to trash after approval.'
+				'Move detected nonproduction post to trash after approval.'
 			);
 			$preview['posts'][] = $post;
 		}
@@ -269,7 +269,7 @@ trait Content_Inventory_Read_Methods {
 				continue;
 			}
 			$actions[] = $this->build_plan_action(
-				'delete_unused_test_term_' . $term_id,
+				'delete_unused_nonproduction_term_' . $term_id,
 				'npcink-abilities-toolkit/delete-term',
 				array(
 					'taxonomy' => $taxonomy,
@@ -277,7 +277,7 @@ trait Content_Inventory_Read_Methods {
 				),
 				array( 'taxonomy.manage' ),
 				'high',
-				'Delete unused detected test term after approval.'
+				'Delete unused detected nonproduction term after approval.'
 			);
 			$preview['terms'][] = $term;
 		}
@@ -291,19 +291,19 @@ trait Content_Inventory_Read_Methods {
 				continue;
 			}
 			$actions[] = $this->build_plan_action(
-				'trash_test_comment_' . $comment_id,
+				'trash_nonproduction_comment_' . $comment_id,
 				'npcink-abilities-toolkit/trash-comment',
 				array( 'comment_id' => $comment_id ),
 				array( 'comments.manage' ),
 				'medium',
-				'Move detected test comment to trash after approval.'
+				'Move detected nonproduction comment to trash after approval.'
 			);
 			$preview['comments'][] = $comment;
 		}
 
 		return $this->build_analysis_success_response(
 			array(
-				'batch_id'          => 'test_content_cleanup_' . gmdate( 'Ymd_His' ),
+				'batch_id'          => 'nonproduction_content_cleanup_' . gmdate( 'Ymd_His' ),
 				'requires_approval' => true,
 				'commit_execution'  => false,
 				'dry_run'           => true,
@@ -319,11 +319,11 @@ trait Content_Inventory_Read_Methods {
 				'inventory_summary' => is_array( $data['summary'] ?? null ) ? $data['summary'] : array(),
 			),
 			array(
-				'source'         => 'local_test_content_cleanup_plan',
+				'source'         => 'local_nonproduction_content_cleanup_plan',
 				'execution_mode' => 'deterministic',
 				'plan_only'      => true,
 			),
-			'Test content cleanup plan built.'
+			'Nonproduction content cleanup plan built.'
 		);
 	}
 
@@ -410,11 +410,11 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Returns default test-content detection patterns.
+	 * Returns default nonproduction-content detection patterns.
 	 *
 	 * @return string[]
 	 */
-	private function default_test_content_patterns() {
+	private function default_nonproduction_content_patterns() {
 		return array(
 			'smoke',
 			'runtime smoke',
@@ -435,15 +435,15 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Normalizes test-content patterns.
+	 * Normalizes nonproduction-content patterns.
 	 *
 	 * @param mixed $patterns Raw patterns.
 	 * @return string[]
 	 */
-	private function normalize_test_content_patterns( $patterns ) {
+	private function normalize_nonproduction_content_patterns( $patterns ) {
 		$patterns = is_array( $patterns ) ? $patterns : array();
 		if ( empty( $patterns ) ) {
-			$patterns = $this->default_test_content_patterns();
+			$patterns = $this->default_nonproduction_content_patterns();
 		}
 
 		$normalized = array();
@@ -458,12 +458,12 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Normalizes test-content post types.
+	 * Normalizes nonproduction-content post types.
 	 *
 	 * @param mixed $post_types Raw post types.
 	 * @return string[]
 	 */
-	private function normalize_test_content_post_types( $post_types ) {
+	private function normalize_nonproduction_content_post_types( $post_types ) {
 		$post_types = is_array( $post_types ) ? $post_types : array( $post_types );
 		$normalized = array();
 		foreach ( $post_types as $post_type ) {
@@ -477,12 +477,12 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Normalizes test-content post statuses.
+	 * Normalizes nonproduction-content post statuses.
 	 *
 	 * @param mixed $statuses Raw statuses.
 	 * @return string[]
 	 */
-	private function normalize_test_content_statuses( $statuses ) {
+	private function normalize_nonproduction_content_statuses( $statuses ) {
 		$statuses = is_array( $statuses ) ? $statuses : array( $statuses );
 		$normalized = array();
 		foreach ( $statuses as $status ) {
@@ -496,7 +496,7 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Detects matching test posts.
+	 * Detects matching nonproduction posts.
 	 *
 	 * @param string[] $patterns Patterns.
 	 * @param string[] $post_types Post types.
@@ -504,7 +504,7 @@ trait Content_Inventory_Read_Methods {
 	 * @param int      $limit Max rows.
 	 * @return array<string,mixed>
 	 */
-	private function detect_test_content_posts( array $patterns, array $post_types, array $statuses, $limit ) {
+	private function detect_nonproduction_content_posts( array $patterns, array $post_types, array $statuses, $limit ) {
 		$limit = max( 1, min( 100, $this->absint_value( $limit ) ) );
 		$candidates = array();
 		if ( class_exists( '\WP_Query' ) ) {
@@ -554,7 +554,7 @@ trait Content_Inventory_Read_Methods {
 					$this->trim_words_value( $this->strip_all_tags_value( (string) ( $post->post_content ?? '' ) ), 80 ),
 				)
 			);
-			$matched = $this->match_test_content_pattern( $haystack, $patterns );
+			$matched = $this->match_nonproduction_content_pattern( $haystack, $patterns );
 			if ( '' === $matched ) {
 				continue;
 			}
@@ -576,13 +576,13 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Detects matching test terms.
+	 * Detects matching nonproduction terms.
 	 *
 	 * @param string[] $patterns Patterns.
 	 * @param int      $limit Max rows.
 	 * @return array<string,mixed>
 	 */
-	private function detect_test_content_terms( array $patterns, $limit ) {
+	private function detect_nonproduction_content_terms( array $patterns, $limit ) {
 		if ( ! function_exists( 'get_terms' ) ) {
 			return array( 'total' => 0, 'items' => array() );
 		}
@@ -604,7 +604,7 @@ trait Content_Inventory_Read_Methods {
 			if ( count( $items ) >= $limit || ! is_object( $term ) ) {
 				break;
 			}
-			$matched = $this->match_test_content_pattern( (string) ( $term->name ?? '' ) . ' ' . (string) ( $term->slug ?? '' ), $patterns );
+			$matched = $this->match_nonproduction_content_pattern( (string) ( $term->name ?? '' ) . ' ' . (string) ( $term->slug ?? '' ), $patterns );
 			if ( '' === $matched ) {
 				continue;
 			}
@@ -625,13 +625,13 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Detects matching test comments.
+	 * Detects matching nonproduction comments.
 	 *
 	 * @param string[] $patterns Patterns.
 	 * @param int      $limit Max rows.
 	 * @return array<string,mixed>
 	 */
-	private function detect_test_content_comments( array $patterns, $limit ) {
+	private function detect_nonproduction_content_comments( array $patterns, $limit ) {
 		if ( ! function_exists( 'get_comments' ) ) {
 			return array( 'total' => 0, 'items' => array() );
 		}
@@ -648,7 +648,7 @@ trait Content_Inventory_Read_Methods {
 			if ( count( $items ) >= $limit || ! is_object( $comment ) ) {
 				break;
 			}
-			$matched = $this->match_test_content_pattern(
+			$matched = $this->match_nonproduction_content_pattern(
 				(string) ( $comment->comment_author ?? '' ) . ' ' . (string) ( $comment->comment_content ?? '' ),
 				$patterns
 			);
@@ -673,13 +673,13 @@ trait Content_Inventory_Read_Methods {
 	}
 
 	/**
-	 * Finds the first matching test-content pattern.
+	 * Finds the first matching nonproduction-content pattern.
 	 *
 	 * @param string   $text Text to inspect.
 	 * @param string[] $patterns Patterns.
 	 * @return string
 	 */
-	private function match_test_content_pattern( $text, array $patterns ) {
+	private function match_nonproduction_content_pattern( $text, array $patterns ) {
 		$text = strtolower( (string) $text );
 		foreach ( $patterns as $pattern ) {
 			$pattern = (string) $pattern;

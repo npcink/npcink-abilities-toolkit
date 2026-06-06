@@ -57,10 +57,11 @@ are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governanc
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
-The 0.5 unreleased observation line is tracked in [docs/release-0.5-unreleased-verification.md](docs/release-0.5-unreleased-verification.md).
+The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
+Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface for Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.
 
 ## Minimal Example
 
@@ -117,7 +118,7 @@ Use `scripts/audit-ability-catalog.php` with one or more catalog JSON files to
 detect duplicate ability ids and governance metadata drift before merging
 cross-repo Core integration changes.
 
-## Test Page
+## Admin Page
 
 After activating the plugin with a Npcink AI host plugin, open
 **Npcink AI -> Abilities** in wp-admin. When this standalone package is
@@ -127,15 +128,19 @@ Packages** instead.
 The default page shows package readiness and the registered ability catalog:
 
 - WordPress Abilities API support
-- registered ability count and demo ability state
+- registered ability count and callback readiness
 - ability category, risk, callback, and schema signals
+- copyable REST endpoint values for host/client setup
 
-Advanced checks are kept behind disclosures and can:
+REST checks can:
 
-- verify whether the WordPress Abilities API is available
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce
 - fetch `/wp-json/wp-abilities/v1/categories`
-- enable and run a demo read-only ability: `npcink-abilities-toolkit/site-summary`
+- run `npcink-abilities-toolkit/site-info` and a bounded `npcink-abilities-toolkit/wp-diagnostics-summary` as read-only checks
+- copy endpoint values and ability IDs for host/catalog audits
+
+This page is a connection and discovery surface. It does not run showcase
+workflows, model calls, write abilities, or demo abilities.
 
 ## Built-In WordPress Read and Comment Packages
 

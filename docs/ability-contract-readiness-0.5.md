@@ -91,7 +91,8 @@ Those belong in product, provider, adapter, or host plugins.
 - `composer check:consumer` passes.
 - `composer check:catalog` passes.
 - `composer check:wporg` passes.
-- `composer check:plugin-package:local` passes before any WordPress.org upload.
+- `WP_PATH=/path/to/wordpress composer check:plugin-package` passes before any
+  WordPress.org upload.
 - `composer test:all` passes.
 - `composer smoke:wp` result is recorded when a Local WordPress site is
   available.

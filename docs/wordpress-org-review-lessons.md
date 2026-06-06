@@ -29,12 +29,12 @@ Before uploading a package to WordPress.org, the release owner must run:
 
 ```sh
 composer test:all
-composer check:plugin-package:local
+WP_PATH=/path/to/wordpress composer check:plugin-package
 ```
 
 `composer test:all` includes `composer check:wporg`, a static guard for the
-patterns above. `composer check:plugin-package:local` runs WordPress Plugin
-Check against the packaged plugin in the local WordPress environment.
+patterns above. `composer check:plugin-package` runs WordPress Plugin Check
+against the packaged plugin in the selected WordPress environment.
 
 If local WP-CLI or Plugin Check is unavailable, do not mark the package ready.
 Record the missing tool as a blocker instead of substituting functional smoke

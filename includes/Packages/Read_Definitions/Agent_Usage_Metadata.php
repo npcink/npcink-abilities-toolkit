@@ -74,14 +74,14 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Narrow exact or contains matching over up to ten non-sensitive meta keys, followed by get-post-context with scoped meta_keys when details are needed.' ),
 				'stopping_points' => array( 'Stop after matched post ids and bounded meta excerpts; final metadata changes require host-governed write abilities.' ),
 			),
-			'npcink-abilities-toolkit/get-test-content-inventory' => array(
-				'when_to_use'     => array( 'Detect bounded smoke, fixture, or test content before cleanup planning or before interpreting content, taxonomy, comment, and operations diagnostics.' ),
-				'not_for'         => array( 'Do not use this to trash posts, delete terms, delete comments, or mutate detected test content.' ),
-				'best_for'        => array( 'Separating real editorial data from local smoke/test artifacts before building cleanup or remediation proposals.' ),
-				'stopping_points' => array( 'Stop after inventory evidence; call build-test-content-cleanup-plan for dry-run actions and require host/Core approval before any write.' ),
+			'npcink-abilities-toolkit/get-nonproduction-content-inventory' => array(
+				'when_to_use'     => array( 'Detect bounded smoke, fixture, or nonproduction content before cleanup planning or before interpreting content, taxonomy, comment, and operations diagnostics.' ),
+				'not_for'         => array( 'Do not use this to trash posts, delete terms, delete comments, or mutate detected nonproduction content.' ),
+				'best_for'        => array( 'Separating real editorial data from local nonproduction artifacts before building cleanup or remediation proposals.' ),
+				'stopping_points' => array( 'Stop after inventory evidence; call build-nonproduction-content-cleanup-plan for dry-run actions and require host/Core approval before any write.' ),
 			),
-			'npcink-abilities-toolkit/build-test-content-cleanup-plan' => array(
-				'when_to_use'     => array( 'Turn detected smoke, fixture, or test content into a bounded dry-run cleanup plan mapped to existing governed write or destructive abilities.' ),
+			'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan' => array(
+				'when_to_use'     => array( 'Turn detected smoke, fixture, or nonproduction content into a bounded dry-run cleanup plan mapped to existing governed write or destructive abilities.' ),
 				'not_for'         => array( 'Do not use this as a cleanup executor, approval record, trash endpoint, delete endpoint, or bypass for destructive gating.' ),
 				'best_for'        => array( 'Preparing reviewable cleanup proposal input with write_actions, preview, requires_approval, and commit_execution=false.' ),
 				'stopping_points' => array( 'Stop at proposal-ready plan output; Core proposal creation, approval, commit-preflight, audit, and final execution belong to the host.' ),

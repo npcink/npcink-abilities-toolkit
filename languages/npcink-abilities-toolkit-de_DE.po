@@ -1,0 +1,3039 @@
+# Translation of Npcink Abilities Toolkit in German
+# This file is distributed under the same license as the Npcink Abilities Toolkit package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Npcink Abilities Toolkit 0.5.0\n"
+"Report-Msgid-Bugs-To: support@npc.ink\n"
+"POT-Creation-Date: 2026-06-06 14:31+0800\n"
+"PO-Revision-Date: 2026-06-06 14:40+0800\n"
+"Last-Translator: Npcink <support@npc.ink>\n"
+"Language-Team: German\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Codex release i18n pass\n"
+
+#: includes/Admin/Test_Page.php:97 includes/Admin/Test_Page.php:108
+msgid "Npcink Abilities Toolkit"
+msgstr "Npcink Fähigkeiten-Werkzeugkasten"
+
+#: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
+msgid "Abilities"
+msgstr "Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:109
+msgid "Abilities API Packages"
+msgstr "Abilities-API-Pakete"
+
+#: includes/Admin/Test_Page.php:140
+msgid "You do not have permission to access this page."
+msgstr "Sie haben keine Berechtigung, diese Seite aufzurufen."
+
+#: includes/Admin/Test_Page.php:149
+msgid "Copied"
+msgstr "Kopiert"
+
+#: includes/Admin/Test_Page.php:149
+msgid "Requesting"
+msgstr "Anfrage läuft"
+
+#: includes/Admin/Test_Page.php:149
+msgid "Running"
+msgstr "Wird ausgeführt"
+
+#: includes/Admin/Test_Page.php:151
+msgid ""
+"Confirm package readiness, inspect registered abilities, and check "
+"authenticated REST discovery."
+msgstr ""
+"Prüfen Sie die Paketbereitschaft, registrierte Fähigkeiten und die "
+"authentifizierte REST-Erkennung."
+
+#: includes/Admin/Test_Page.php:193
+msgid "Overview"
+msgstr "Übersicht"
+
+#: includes/Admin/Test_Page.php:194
+msgid "Catalog"
+msgstr "Katalog"
+
+#: includes/Admin/Test_Page.php:195
+msgid "REST checks"
+msgstr "REST-Prüfungen"
+
+#: includes/Admin/Test_Page.php:208
+msgid "Abilities page sections"
+msgstr "Abschnitte der Fähigkeiten-Seite"
+
+#: includes/Admin/Test_Page.php:292
+msgid "Status"
+msgstr "Status"
+
+#: includes/Admin/Test_Page.php:294
+msgid "Package"
+msgstr "Paket"
+
+#: includes/Admin/Test_Page.php:294
+msgid "ready"
+msgstr "bereit"
+
+#: includes/Admin/Test_Page.php:294
+msgid "needs review"
+msgstr "Prüfung nötig"
+
+#: includes/Admin/Test_Page.php:294
+msgid "Discovery and callbacks are available."
+msgstr "Erkennung und Callbacks sind verfügbar."
+
+#: includes/Admin/Test_Page.php:294
+msgid "Review the attention notes below."
+msgstr "Prüfen Sie die Hinweise unten."
+
+#: includes/Admin/Test_Page.php:295
+msgid "REST discovery"
+msgstr "REST-Erkennung"
+
+#: includes/Admin/Test_Page.php:295 includes/Admin/Test_Page.php:783
+msgid "available"
+msgstr "verfügbar"
+
+#: includes/Admin/Test_Page.php:295 includes/Admin/Test_Page.php:783
+msgid "missing"
+msgstr "fehlt"
+
+#: includes/Admin/Test_Page.php:295
+msgid "Client discovery endpoints."
+msgstr "Client-Erkennungsendpunkte."
+
+#: includes/Admin/Test_Page.php:296
+msgid "Registered abilities"
+msgstr "Registrierte Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:296
+msgid "Catalog rows available for inspection."
+msgstr "Katalogzeilen zur Prüfung verfügbar."
+
+#: includes/Admin/Test_Page.php:297
+msgid "Callback issues"
+msgstr "Callback-Probleme"
+
+#: includes/Admin/Test_Page.php:297
+msgid "Execution callbacks missing from registered rows."
+msgstr "Ausführungs-Callbacks fehlen in registrierten Zeilen."
+
+#: includes/Admin/Test_Page.php:298
+msgid "WordPress"
+msgstr "WordPress"
+
+#: includes/Admin/Test_Page.php:298
+msgid "Runtime version detected."
+msgstr "Laufzeitversion erkannt."
+
+#: includes/Admin/Test_Page.php:304
+msgid "Next actions"
+msgstr "Nächste Schritte"
+
+#: includes/Admin/Test_Page.php:307
+msgid "Inspect abilities"
+msgstr "Fähigkeiten prüfen"
+
+#: includes/Admin/Test_Page.php:308
+msgid ""
+"Review IDs, risk levels, categories, and callback readiness before "
+"connecting a host."
+msgstr ""
+"Prüfen Sie IDs, Risikostufen, Kategorien und Callback-Bereitschaft, bevor "
+"Sie einen Host verbinden."
+
+#: includes/Admin/Test_Page.php:309
+msgid "Open Catalog"
+msgstr "Katalog öffnen"
+
+#: includes/Admin/Test_Page.php:312
+msgid "Verify REST access"
+msgstr "REST-Zugriff prüfen"
+
+#: includes/Admin/Test_Page.php:313
+msgid ""
+"Fetch discovery endpoints with the current wp-admin session and REST nonce."
+msgstr ""
+"Rufen Sie Erkennungsendpunkte mit der aktuellen wp-admin-Sitzung und dem "
+"REST-Nonce ab."
+
+#: includes/Admin/Test_Page.php:314
+msgid "Open REST Checks"
+msgstr "REST-Prüfungen öffnen"
+
+#: includes/Admin/Test_Page.php:317
+msgid "Connect a host"
+msgstr "Host verbinden"
+
+#: includes/Admin/Test_Page.php:318
+msgid ""
+"Use the endpoint values for Npcink Core, OpenClaw Adapter, or another "
+"Abilities API client."
+msgstr ""
+"Verwenden Sie die Endpunktwerte für Npcink Core, OpenClaw Adapter oder einen "
+"anderen Abilities-API-Client."
+
+#: includes/Admin/Test_Page.php:319
+msgid "View Endpoints"
+msgstr "Endpunkte anzeigen"
+
+#: includes/Admin/Test_Page.php:323
+msgid ""
+"Final write approval stays with the host runtime. This package exposes "
+"reusable WordPress abilities and discovery metadata."
+msgstr ""
+"Die endgültige Schreibfreigabe bleibt bei der Host-Laufzeit. Dieses Paket "
+"stellt wiederverwendbare WordPress-Fähigkeiten und Erkennungsmetadaten "
+"bereit."
+
+#: includes/Admin/Test_Page.php:378
+msgid "Abilities API registration functions are unavailable."
+msgstr "Registrierungsfunktionen der Abilities API sind nicht verfügbar."
+
+#: includes/Admin/Test_Page.php:382
+msgid "Abilities API REST discovery routes are missing."
+msgstr "REST-Erkennungsrouten der Abilities API fehlen."
+
+#: includes/Admin/Test_Page.php:386 includes/Admin/Test_Page.php:430
+msgid "No abilities are registered by this package yet."
+msgstr "Dieses Paket hat noch keine Fähigkeiten registriert."
+
+#: includes/Admin/Test_Page.php:421
+msgid "Registered Ability Catalog"
+msgstr "Katalog registrierter Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:423
+msgid "Filter the catalog before opening grouped readiness details."
+msgstr ""
+"Filtern Sie den Katalog, bevor Sie gruppierte Bereitschaftsdetails öffnen."
+
+#. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
+#: includes/Admin/Test_Page.php:445
+#, php-format
+msgid "Showing %1$d-%2$d of %3$d abilities."
+msgstr ""
+
+#: includes/Admin/Test_Page.php:452
+msgid "No abilities match the current filters."
+msgstr "Keine Fähigkeiten entsprechen den aktuellen Filtern."
+
+#. translators: 1: ability count, 2: missing callback count.
+#: includes/Admin/Test_Page.php:478
+#, php-format
+msgid "%1$d abilities, %2$d callback issues"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:545
+msgid "Search"
+msgstr "Suchen"
+
+#: includes/Admin/Test_Page.php:546
+msgid "Ability ID, category, or label"
+msgstr "Fähigkeits-ID, Kategorie oder Bezeichnung"
+
+#: includes/Admin/Test_Page.php:550 includes/Admin/Test_Page.php:766
+msgid "Risk"
+msgstr "Risiko"
+
+#: includes/Admin/Test_Page.php:552
+msgid "All risks"
+msgstr "Alle Risiken"
+
+#: includes/Admin/Test_Page.php:553
+msgid "Read"
+msgstr "Lesen"
+
+#: includes/Admin/Test_Page.php:554
+msgid "Write"
+msgstr "Schreiben"
+
+#: includes/Admin/Test_Page.php:555
+msgid "Destructive"
+msgstr "Destruktiv"
+
+#: includes/Admin/Test_Page.php:556
+msgid "Other"
+msgstr "Andere"
+
+#: includes/Admin/Test_Page.php:561 includes/Admin/Test_Page.php:765
+msgid "Category"
+msgstr "Kategorie"
+
+#: includes/Admin/Test_Page.php:563
+msgid "All categories"
+msgstr "Alle Kategorien"
+
+#: includes/Admin/Test_Page.php:573
+msgid "Per page"
+msgstr "Pro Seite"
+
+#: includes/Admin/Test_Page.php:584
+msgid "Apply"
+msgstr "Anwenden"
+
+#: includes/Admin/Test_Page.php:585
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: includes/Admin/Test_Page.php:696
+msgid "Previous"
+msgstr "Zurück"
+
+#: includes/Admin/Test_Page.php:697
+msgid "Next"
+msgstr "Weiter"
+
+#: includes/Admin/Test_Page.php:744
+msgid "Read abilities"
+msgstr "Lesefähigkeiten"
+
+#: includes/Admin/Test_Page.php:745
+msgid "Write proposal abilities"
+msgstr "Schreibvorschlags-Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:746
+msgid "Destructive abilities"
+msgstr "Destruktive Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:747
+msgid "Other abilities"
+msgstr "Andere Fähigkeiten"
+
+#: includes/Admin/Test_Page.php:764
+msgid "Ability ID"
+msgstr "Fähigkeits-ID"
+
+#: includes/Admin/Test_Page.php:767
+msgid "Ready"
+msgstr "Bereit"
+
+#: includes/Admin/Test_Page.php:807
+msgid "REST discovery checks"
+msgstr "REST-Erkennungsprüfungen"
+
+#: includes/Admin/Test_Page.php:809
+msgid ""
+"Copy endpoint values for a host client, fetch discovery endpoints, or run "
+"read-only ability checks with the current wp-admin session and REST nonce."
+msgstr ""
+"Kopieren Sie Endpunktwerte für einen Host-Client, rufen Sie "
+"Erkennungsendpunkte ab oder führen Sie Nur-Lese-Prüfungen mit der aktuellen "
+"wp-admin-Sitzung und dem REST-Nonce aus."
+
+#: includes/Admin/Test_Page.php:812
+msgid "Connection values"
+msgstr "Verbindungswerte"
+
+#: includes/Admin/Test_Page.php:816
+msgid "Abilities Endpoint"
+msgstr "Fähigkeiten-Endpunkt"
+
+#: includes/Admin/Test_Page.php:820
+msgid "Copy Abilities Endpoint"
+msgstr "Fähigkeiten-Endpunkt kopieren"
+
+#: includes/Admin/Test_Page.php:825
+msgid "Categories Endpoint"
+msgstr "Kategorien-Endpunkt"
+
+#: includes/Admin/Test_Page.php:829
+msgid "Copy Categories Endpoint"
+msgstr "Kategorien-Endpunkt kopieren"
+
+#: includes/Admin/Test_Page.php:836
+msgid "Read-only ability checks"
+msgstr "Nur-Lese-Fähigkeitsprüfungen"
+
+#: includes/Admin/Test_Page.php:840
+msgid "Scope"
+msgstr "Umfang"
+
+#: includes/Admin/Test_Page.php:841
+msgid ""
+"These checks run registered read-only abilities with bounded admin input. "
+"They do not write content, call models, or contact external services; the "
+"diagnostics check omits plugin rows, current-user details, updates, and cron "
+"details."
+msgstr ""
+"Diese Prüfungen führen registrierte Nur-Lese-Fähigkeiten mit begrenzter "
+"Admin-Eingabe aus. Sie schreiben keine Inhalte, rufen keine Modelle auf und "
+"kontaktieren keine externen Dienste; die Diagnose lässt Plugin-Zeilen, "
+"aktuelle Benutzerdetails, Updates und Cron-Details aus."
+
+#: includes/Admin/Test_Page.php:847
+msgid "Run Site Info"
+msgstr "Site-Info ausführen"
+
+#: includes/Admin/Test_Page.php:850
+msgid "Run Diagnostics Summary"
+msgstr "Diagnoseübersicht ausführen"
+
+#: includes/Admin/Test_Page.php:854
+msgid "Discovery checks"
+msgstr "Erkennungsprüfungen"
+
+#: includes/Admin/Test_Page.php:858
+msgid "Browser Auth"
+msgstr "Browser-Authentifizierung"
+
+#: includes/Admin/Test_Page.php:859
+msgid ""
+"Buttons use the current wp-admin session with an X-WP-Nonce header. External "
+"clients should use WordPress REST authentication such as application "
+"passwords."
+msgstr ""
+"Die Buttons verwenden die aktuelle wp-admin-Sitzung mit einem X-WP-Nonce-"
+"Header. Externe Clients sollten WordPress-REST-Authentifizierung wie "
+"Anwendungspasswörter verwenden."
+
+#: includes/Admin/Test_Page.php:866
+msgid "Fetch Abilities"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:869
+msgid "Fetch Categories"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:887
+msgid "Catalog export"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:891
+msgid "Ability ID export"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:892
+msgid "Copyable ID list for host and catalog audits."
+msgstr ""
+
+#: includes/Admin/Test_Page.php:897
+msgid "Copy IDs"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:913
+msgid "You do not have permission to run this check."
+msgstr ""
+
+#: includes/Admin/Test_Page.php:924
+msgid "Unknown read-only check."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:46
+msgid "Build Comment Moderation Suggestion"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:47
+msgid ""
+"Reads one comment and builds a deterministic moderation suggestion without "
+"writing."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:89
+msgid "Compose Comment Moderation Result"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:90
+msgid ""
+"Composes one canonical comment moderation suggest/action result envelope."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:128
+msgid "Build Comment Mention Reply Suggestion"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:129
+msgid ""
+"Detects a comment mention/followup trigger and prepares a reply suggestion "
+"handoff without writing."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:159
+msgid "Read Comment Trigger Queue"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:160
+msgid ""
+"Reads existing comments and builds a trigger candidate queue without writing."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:193
+msgid "Get Comment Queue Health"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:194
+msgid ""
+"Reads a bounded comment queue and summarizes moderation, reply, and "
+"escalation health without writing."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:222
+msgid "Get Comment Action Priority Queue"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:223
+msgid ""
+"Reads a bounded comment queue and returns prioritized read-only moderation "
+"and reply handoff candidates."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:251
+msgid "Get Comment Compliance Handoff"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:252
+msgid ""
+"Aggregates comment queue health, action priority rows, and optional selected-"
+"comment suggestions for host-side compliance workflows without writing."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:284
+msgid "Compose Comment Mention Reply Result"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:285
+msgid ""
+"Composes one canonical mention-triggered comment reply suggestion envelope."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:309
+msgid "Build Comment Moderation Batch Suggestion"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:310
+msgid "Builds read-only moderation suggestions for a bounded list of comments."
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:351
+msgid "Compose Comment Moderation Batch Result"
+msgstr ""
+
+#: includes/Packages/Comment_Definitions/Core_Comment_Definitions.php:352
+msgid ""
+"Composes one canonical batch comment moderation suggestion result envelope."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:56
+msgid "WordPress Comment Abilities"
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:57
+msgid "Read-only comment moderation and reply helper abilities."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:55
+#: includes/Packages/Core_Write_Package.php:55
+msgid "WordPress Write Abilities"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:56
+msgid ""
+"Host-governed WordPress write and destructive abilities with dry-run "
+"previews and external approval."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:80
+msgid "Delete Term"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:81
+msgid ""
+"Deletes a taxonomy term after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:106
+msgid "Merge Terms"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:107
+msgid ""
+"Moves objects from source terms to a target term, then deletes source terms "
+"after host approval."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:142
+msgid "Bulk Update Post Terms"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:143
+msgid ""
+"Bulk updates post or page taxonomy terms after host approval, with computed "
+"dry-run previews and per-post before/after audit."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:242
+msgid "Spam Comment"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:243
+msgid ""
+"Marks one comment as spam after host approval, or returns a dry-run preview "
+"by default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:259
+msgid "Trash Comment"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:260
+msgid ""
+"Moves one comment to trash after host approval, or returns a dry-run preview "
+"by default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:276
+msgid "Delete Media Permanently"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:277
+msgid ""
+"Permanently deletes one media attachment after host approval, or returns a "
+"dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:301
+msgid "Trash Post"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:302
+msgid ""
+"Moves one post to trash after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:325
+msgid "Delete Post Permanently"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:326
+msgid ""
+"Permanently deletes one post after host approval, or returns a dry-run "
+"preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:397
+msgid "Term deletion failed."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:421
+msgid "Target term was not found."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:443
+msgid "At least one source term is required."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:454
+msgid "Source terms were not found."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:526
+#: includes/Packages/Core_Destructive_Package.php:1396
+#: includes/Packages/Core_Write_Package.php:6247
+msgid "Taxonomy is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:547
+msgid "Valid terms or term_ids are required for add/remove operations."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:566
+msgid "Current user cannot edit this post."
+msgstr ""
+
+#. translators: %d: query limit.
+#: includes/Packages/Core_Destructive_Package.php:598
+#, php-format
+msgid "Matched post count reached limit (%d); more matching posts may exist."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:603
+msgid ""
+"Replace operation has no valid terms; matching posts will have these terms "
+"cleared."
+msgstr ""
+
+#. translators: %s: comma-separated term labels.
+#: includes/Packages/Core_Destructive_Package.php:608
+#, php-format
+msgid "These terms will be created during approved commit: %s"
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:748
+#: includes/Packages/Core_Destructive_Package.php:1447
+#: includes/Packages/Core_Destructive_Package.php:1451
+#: includes/Packages/Core_Write_Package.php:3256
+#: includes/Packages/Core_Write_Package.php:3260
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:798
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1316
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1834
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2539
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2677
+msgid "Attachment ID is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:768
+msgid "You do not have permission to delete this attachment."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:796
+msgid "Attachment deletion failed."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:838
+msgid "Post trash failed."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:880
+msgid "Post deletion failed."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1024
+msgid ""
+"This destructive ability requires approval from a host runtime before commit."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1095
+#: includes/Packages/Core_Write_Package.php:4980
+msgid "Comment ID is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1099
+#: includes/Packages/Core_Write_Package.php:4984
+msgid "Comment was not found."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1102
+#: includes/Packages/Core_Write_Package.php:4987
+msgid "You do not have permission to moderate comments."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1116
+msgid "post_type only supports post and page."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1124
+msgid "taxonomy only supports category and post_tag."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1128
+msgid "operation only supports add, replace, and remove."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1414
+#: includes/Packages/Core_Write_Package.php:6265
+msgid "You do not have permission for this taxonomy operation."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1429
+#: includes/Packages/Core_Write_Package.php:6280
+msgid "Term ID is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1433
+#: includes/Packages/Core_Write_Package.php:6284
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:88
+msgid "Term was not found."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1465
+#: includes/Packages/Core_Write_Package.php:3213
+#: includes/Packages/Core_Write_Package.php:3235
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:125
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:162
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:223
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:504
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:889
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:946
+msgid "Post ID is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1469
+#: includes/Packages/Core_Write_Package.php:3217
+#: includes/Packages/Core_Write_Package.php:3239
+#: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:189
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:33
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:536
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:129
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:166
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:227
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:508
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:548
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:693
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:893
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:950
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:33
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:340
+msgid "Post was not found."
+msgstr ""
+
+#: includes/Packages/Core_Destructive_Package.php:1472
+msgid "You do not have permission to delete this post."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:73
+msgid "WordPress Read Abilities"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:74
+msgid "Read-only WordPress site, content, and structure abilities."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:80
+msgid "WordPress Page Abilities"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:81
+msgid "Read-only WordPress page discovery and inspection abilities."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:87
+msgid "WordPress Diagnostics"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:88
+msgid "Redacted WordPress environment diagnostics for Abilities API clients."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:94
+msgid "Workflow Recipe Definitions"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:95
+msgid ""
+"Read-only workflow recipe definitions for host-side ability composition."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:189
+msgid "List Workflow Recipes"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:190
+msgid ""
+"Returns read-only workflow recipe definitions for host-side ability "
+"composition without executing workflow steps."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:212
+msgid "Get Workflow Recipe"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:213
+msgid ""
+"Returns one read-only workflow recipe definition by recipe id or case id "
+"without executing workflow steps."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:233
+msgid "List Media"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:234
+msgid "Returns a paginated list of media library attachments."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:279
+msgid "Resolve Media Attachment By URL"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:280
+msgid ""
+"Resolves a same-site uploads URL to bounded media attachment candidates with "
+"read-only match evidence."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:327
+msgid "List Terms"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:328
+msgid "Returns a paginated list of terms for a taxonomy."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:371
+msgid "List Taxonomy Terms"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:372
+msgid ""
+"Returns a paginated term list for one taxonomy, including parent information."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:418
+msgid "List Categories"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:419
+msgid "Returns a paginated list of post categories."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:449
+msgid "List Tags"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:450
+msgid "Returns a paginated list of post tags."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:480
+msgid "Get Term"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:481
+msgid "Returns details for one taxonomy term by id or slug."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:510
+msgid "List Comments"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:511
+msgid "Returns a paginated list of comments."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:553
+msgid "Resolve Internal Link Targets"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:554
+msgid ""
+"Finds local published content that can serve as internal-link targets for a "
+"post draft or optimization workflow."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:599
+msgid "Build Inline Image Blocks"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:600
+msgid ""
+"Converts uploaded inline image rows into append-ready Gutenberg image blocks "
+"without writing post content."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:635
+msgid "Build Media SEO Assets"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:636
+msgid ""
+"Builds a canonical media SEO enrichment asset list from article media "
+"workflow upload outputs."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:668
+msgid "GEO Analysis"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:669
+msgid ""
+"Builds deterministic GEO and AI visibility issues, recommendations, and "
+"evidence from article text."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:701
+msgid "Optimize Media Metadata"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:702
+msgid ""
+"Builds deterministic media title, alt, caption, description, source, and "
+"disclosure suggestions from article and media context."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:735
+msgid "Position Inline Image Blocks"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:736
+msgid ""
+"Places generated inline image blocks after matching paragraph, heading, or "
+"anchor targets and falls back to append."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:771
+msgid "Build Article Optimization Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:772
+msgid ""
+"Composes SEO, GEO, internal-link, and media optimization sections into one "
+"deterministic report."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:807
+msgid "Build SEO Report Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:808
+msgid ""
+"Builds lightweight deterministic SEO issues and recommendations for article "
+"optimization workflows."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:840
+msgid "Read Post Optimization Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:841
+msgid ""
+"Reads a post title, excerpt, content, slug, categories, tags, SEO fields, "
+"template, and format snapshot for article optimization workflows."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:872
+msgid "Build Article Single Optimization Suggest"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:873
+msgid ""
+"Builds one canonical single-article optimization suggestion envelope for "
+"title, taxonomy, excerpt, slug, SEO, content, and GEO improvements."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:914
+msgid "Build Article Optimization Apply Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:915
+msgid ""
+"Builds one conservative apply plan from the read-only article optimization "
+"report without applying writes."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:950
+msgid "Compose Article Optimization Apply Result"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:951
+msgid ""
+"Composes report, apply plan, safe apply result, and remaining advisory "
+"changes into one deterministic envelope."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:984
+msgid "Extract Reference Post Style"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:985
+msgid ""
+"Reads reference posts and returns a compact writing-style profile for "
+"article workflows."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1032
+msgid "Extract Site Style Baseline"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1033
+msgid ""
+"Extracts a lightweight site-wide or author-specific writing-style baseline "
+"from recent posts."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1080
+msgid "Build Article Production Fingerprint"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1081
+msgid ""
+"Builds a stable lightweight production fingerprint for article dedupe and "
+"result summaries."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1124
+msgid "Check Article Production Duplicate"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1125
+msgid ""
+"Checks whether a lightweight article production fingerprint already exists "
+"on a post."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1152
+msgid "Review Article Output Light"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1153
+msgid ""
+"Builds lightweight local article quality, style, image, and AI-risk review "
+"signals without model calls."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1190
+msgid "Compose Article Production Result"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1191
+msgid ""
+"Summarizes the article production mainline with result mode, degraded "
+"reasons, fingerprint, handoff, and next action."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1226
+msgid "Compose Article Draft Result"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1227
+msgid ""
+"Composes one canonical draft workflow result with draft content, metadata "
+"resolution, shared SEO/GEO review, and handoff hints."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1263
+msgid "Resolve Article Publication Decision"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1264
+msgid ""
+"Resolves a deterministic article publish, schedule, review, or draft handoff "
+"after quality and duplicate checks."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1302
+msgid "Build Article Style Profile"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1303
+msgid ""
+"Merges baseline, reference, and explicit writing-style hints into one "
+"lightweight article style profile."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1339
+msgid "List Pages"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1340
+msgid ""
+"Lists WordPress pages with status, parent, search, sorting, and pagination "
+"filters."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1372
+msgid "Get Page"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1373
+msgid ""
+"Returns a single WordPress page, including content, template, hierarchy, "
+"author, and optional meta."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1419
+msgid "Inspect Page Structure"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1420
+msgid ""
+"Inspects WordPress page hierarchy, template usage, and orphaned parent "
+"relationships without modifying pages."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1449
+msgid "List Pages Tree"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1450
+msgid ""
+"Returns a hierarchical page tree for navigation and site-structure review."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1490
+msgid "Get Content Publishing Checklist"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1491
+msgid ""
+"Returns a deterministic pre-publish readiness checklist for one post or page "
+"without applying changes."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1535
+msgid "Get Content Inventory Health"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1536
+msgid ""
+"Scans a bounded content inventory and summarizes missing titles, thin "
+"content, excerpt gaps, media gaps, SEO metadata gaps, and stale content."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1581
+msgid "Get Nonproduction Content Inventory"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1582
+msgid ""
+"Detects bounded smoke, fixture, and nonproduction content that may distort "
+"content, taxonomy, comment, and operations diagnostics without mutating the "
+"site."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1615
+msgid "Build Nonproduction Content Cleanup Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1616
+msgid ""
+"Builds a read-only cleanup plan for detected nonproduction content, mapping "
+"each candidate to existing governed write abilities without trashing or "
+"deleting anything."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1650
+msgid "Build Content Inventory Fix Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1651
+msgid ""
+"Maps bounded content inventory issues to reviewable fix actions that reuse "
+"existing governed write abilities without mutating posts."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1685
+msgid "Get Bulk Publishing Checklist"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1686
+msgid ""
+"Runs the read-only publishing checklist for a bounded list of posts and "
+"returns batch readiness totals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1732
+msgid "Get Internal Link Opportunity Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1733
+msgid ""
+"Builds a post-id based internal-link opportunity report with candidate "
+"targets, anchor suggestions, and placement hints."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1773
+msgid "Get Site Operations Dashboard"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1774
+msgid ""
+"Builds a bounded read-only site operations dashboard for content status, "
+"inventory issues, taxonomy health, comments, and media signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1803
+msgid "Get Post Publish Risk Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1804
+msgid ""
+"Builds a read-only publish risk report for one post from checklist, SEO/GEO, "
+"revision, and internal-link signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1834
+msgid "Get Article Publish Preflight Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1835
+msgid ""
+"Aggregates post context, publishing checklist, publish risk, workflow "
+"context, and calendar context for host-side publish preflight workflows "
+"without writing."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1867
+msgid "Get Content Refresh Opportunities"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1868
+msgid ""
+"Scans a bounded content set and returns stale, thin, SEO-light, answer-"
+"light, and low-link refresh opportunities."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1900
+msgid "Get Old Article Refresh Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1901
+msgid ""
+"Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, "
+"internal-link graph health, and optional selected-post link opportunities "
+"for host-side old article refresh workflows."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1935
+msgid "Get Internal Link Graph Health"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1936
+msgid ""
+"Scans a bounded content set and summarizes outgoing links, incoming links, "
+"orphan posts, and candidate internal-link pairs."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1968
+msgid "Get Media Cleanup Opportunities"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1969
+msgid ""
+"Scans a bounded media inventory and returns cleanup opportunities for "
+"metadata gaps, source gaps, and likely unused assets."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1998
+msgid "List Media Backups"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1999
+msgid ""
+"Lists recorded backup files for one attachment media operation history "
+"without mutating media."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2028
+msgid "Build Media Inventory Fix Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2029
+msgid ""
+"Maps bounded media inventory issues to reviewable metadata and cleanup "
+"actions that reuse existing governed write abilities without mutating media."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2068
+msgid "Build Media Reference Repair Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2069
+msgid ""
+"Scans post content for hard-coded URLs to a previously replaced media file "
+"and builds governed patch-post-content actions without mutating posts."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2104
+msgid "Build Media Settings Reference Repair Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2105
+msgid ""
+"Scans selected WordPress options and theme mods for hard-coded URLs to a "
+"previously replaced media file and builds governed exact replacement actions "
+"without mutating settings."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2148
+msgid "Get Taxonomy Consolidation Suggestions"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2149
+msgid ""
+"Scans taxonomy terms and suggests read-only consolidation candidates for "
+"empty, duplicate, similar, and unused terms."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2179
+msgid "Propose Post Taxonomy Terms"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2180
+msgid ""
+"Builds a deterministic post taxonomy assignment proposal from existing terms "
+"without mutating the post or creating terms."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2224
+msgid "Get Page Structure Health"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2225
+msgid ""
+"Scans one page or a bounded page set and reports heading, CTA, content "
+"depth, and block structure health."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2254
+msgid "Get SEO GEO Gap Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2255
+msgid ""
+"Builds a bounded SEO/GEO gap report from topic coverage, refresh "
+"opportunities, answer structure, and SEO metadata signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2286
+msgid "Get Site Style Baseline"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2287
+msgid ""
+"Returns a compact read-only site-wide or author-specific writing style "
+"baseline from recent posts."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2316
+msgid "Build Article Workflow Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2317
+msgid ""
+"Builds one read-only context bundle for article refresh, publish, or new-"
+"article workflows without model routing."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2346
+msgid "Get Publishing Calendar Context"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2347
+msgid ""
+"Returns scheduled posts, draft backlog, pending review items, and near-term "
+"publishing cadence context."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2376
+msgid "Get Media Inventory Health"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2377
+msgid ""
+"Scans a bounded media inventory and summarizes missing alt text, captions, "
+"descriptions, source metadata, and format attention."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2420
+msgid "Inspect Media Asset"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2421
+msgid ""
+"Inspects one attachment file and returns read-only format, size, dimension, "
+"and optimization recommendations."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2473
+msgid "Build Media Derivative Cloud Request"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2474
+msgid ""
+"Builds a read-only request contract for a host or Cloud addon to generate an "
+"optimized media derivative without uploading, calling Cloud, or mutating "
+"WordPress."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2534
+msgid "Build Media Optimization Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2535
+msgid ""
+"Builds a read-only one-attachment optimization plan that combines reviewed "
+"media metadata updates with a governed derivative adoption action for one "
+"Core approval."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2568
+msgid "Build Media Rename Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2569
+msgid ""
+"Builds a read-only one-attachment rename plan for a reviewed target media "
+"file name and exact post-content reference updates without mutating "
+"WordPress."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2606
+msgid "Build Media Derivative Batch Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2607
+msgid ""
+"Builds a bounded read-only plan for batch Cloud media derivative previews "
+"from local media filters without calling Cloud, creating proposals, or "
+"mutating WordPress."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2690
+msgid "Get Post SEO GEO Readiness"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2691
+msgid ""
+"Returns one deterministic SEO/GEO readiness snapshot for a post, including "
+"metadata, content-depth, question, and media signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2732
+msgid "Get Site Topic Coverage Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2733
+msgid ""
+"Builds a bounded site topic coverage summary from post titles, terms, and "
+"content snippets without model routing."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2775
+msgid "Get Taxonomy Inventory Health"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2776
+msgid ""
+"Scans a bounded taxonomy term inventory and summarizes empty, unused, "
+"duplicate, and hierarchy attention signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2820
+msgid "Get Revision Change Risk Report"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2821
+msgid ""
+"Reads recent revisions for one post and summarizes title, content length, "
+"block count, and recency change-risk signals."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:2903
+msgid "Workflow recipe definition was not found."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3088
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:35
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:44
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:281
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:393
+msgid "Post type does not exist."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3116
+msgid "Content is required to generate an excerpt proposal."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3131
+msgid "Local read-only excerpt proposal generated from explicit content input."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3191
+msgid "Post metadata plan resolved."
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3343
+msgid "Menu was not found."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:56
+msgid ""
+"Host-governed WordPress write abilities with dry-run previews and external "
+"approval."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:79
+msgid "Create Draft"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:80
+msgid ""
+"Creates a draft post or page after host approval, or returns a dry-run "
+"preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:126
+msgid "Update Post"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:127
+msgid ""
+"Updates a post title, content, or excerpt after host approval, or returns a "
+"dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:160
+msgid "Set Post SEO Meta"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:161
+msgid ""
+"Updates SEO title and description metadata for one post after host approval, "
+"or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:192
+msgid "Patch Post Content"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:193
+msgid ""
+"Applies text patch operations to saved post content after host approval, or "
+"returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:242
+msgid "Patch Setting Value"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:243
+msgid ""
+"Applies exact text replacement operations to one option or theme mod after "
+"host approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:294
+msgid "Update Post Blocks"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:295
+msgid ""
+"Writes Gutenberg blocks into post content after host approval, or returns a "
+"dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:339
+msgid "Set Post Slug"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:340
+msgid ""
+"Updates a post slug after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:368
+msgid "Set Post Author"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:369
+msgid ""
+"Updates a post author after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:396
+msgid "Set Post Template"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:397
+msgid ""
+"Updates a post template after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:424
+msgid "Set Post Format"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:425
+msgid ""
+"Updates a post format after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:455
+msgid "Create Term"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:456
+msgid ""
+"Creates a taxonomy term after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:486
+msgid "Update Term"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:487
+msgid ""
+"Updates a taxonomy term after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:521
+msgid "Set Post Terms"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:522
+msgid ""
+"Updates a post taxonomy terms in replace, append, or remove mode after host "
+"approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:572
+msgid "Update Media Details"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:573
+msgid ""
+"Updates attachment title, alt, caption, description, and attribution fields "
+"after host approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:619
+msgid "Upload Media From URL"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:620
+msgid ""
+"Downloads one remote media asset into the WordPress media library after host "
+"approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:667
+msgid "Optimize Media Asset"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:668
+msgid ""
+"Generates an optimized derivative for one image attachment after host "
+"approval, preserving the original file."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:702
+msgid "Replace Media File"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:703
+msgid ""
+"Replaces one attachment main file with a previously generated optimized "
+"derivative after host approval, preserving backup metadata for restore-media-"
+"backup."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:742
+msgid "Restore Media Backup"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:743
+msgid ""
+"Restores one attachment by copying a recorded backup back to the original "
+"media path and URL after host approval."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:781
+msgid "Rename Media File"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:782
+msgid ""
+"Renames one attachment main file within its current uploads directory after "
+"host approval, preserving a backup and rollback metadata."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:820
+msgid "Adopt Cloud Media Derivative"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:821
+msgid ""
+"Adopts one approved short-lived Cloud derivative artifact as the attachment "
+"main file, with local backup and rollback metadata."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:862
+msgid "Set Post Featured Image"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:863
+msgid ""
+"Sets a post featured image from an attachment ID or approved remote media "
+"URL, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:893
+msgid "Schedule Post"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:894
+msgid ""
+"Schedules a post for future publication after host approval, or returns a "
+"dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:927
+msgid "Publish Post"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:928
+msgid ""
+"Publishes a draft or pending post after host approval. Only treat the post "
+"as publicly accessible after this succeeds."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:954
+msgid "Restore Post"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:955
+msgid ""
+"Restores a trashed post or page after host approval, or returns a dry-run "
+"preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:980
+msgid "Approve Comment"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:981
+msgid ""
+"Approves one comment after host approval, or returns a dry-run preview by "
+"default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1006
+msgid "Reply Comment"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1007
+msgid ""
+"Replies to one comment as the current user after host approval, or returns a "
+"dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1052
+msgid "Post type is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1057
+msgid "Post type does not support creation."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1061
+msgid "You do not have permission to create this post type."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1066
+msgid "Title is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1178
+#: includes/Packages/Core_Write_Package.php:1844
+#: includes/Packages/Core_Write_Package.php:2034
+msgid "No update fields were provided."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1231
+msgid "No SEO metadata fields were provided."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1374
+msgid "Setting target is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1378
+msgid "You do not have permission to patch this setting."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1414
+msgid "Theme mod writes are unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1419
+msgid "Option writes are unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1451
+msgid "Blocks are required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1457
+msgid "Blocks structure is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1517
+msgid "Blocks roundtrip validation failed; write was blocked."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1549
+msgid "Slug is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1607
+#: includes/Packages/Core_Write_Package.php:1610
+msgid "Author ID is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1661
+msgid "Template is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1709
+msgid "Post format is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1758
+msgid "Term name is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1764
+#: includes/Packages/Core_Write_Package.php:1838
+msgid "Parent term was not found."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2013
+msgid "You do not have permission to edit this attachment."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2111
+#: includes/Packages/Core_Write_Package.php:2612
+msgid "You do not have permission to upload media."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2116
+#: includes/Packages/Core_Write_Package.php:3276
+msgid "Media URL is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2120
+msgid "You do not have permission to attach media to this post."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2219
+msgid "You do not have permission to optimize media."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2228
+msgid "You do not have permission to optimize this media asset."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2284
+msgid "You do not have permission to replace media files."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2293
+#: includes/Packages/Core_Write_Package.php:2505
+msgid "You do not have permission to replace this media file."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2355
+msgid "You do not have permission to restore media backups."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2364
+msgid "You do not have permission to restore this media file."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2369
+#: includes/Packages/Core_Write_Package.php:4017
+msgid "A backup_id is required for media backup restore."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2430
+msgid "You do not have permission to rename media files."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2439
+msgid "You do not have permission to rename this media file."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2496
+msgid "You do not have permission to adopt media derivatives."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2584
+msgid "Either attachment_id or media_url is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2627
+msgid "You do not have permission to use this attachment."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2631
+msgid "Featured image runtime is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2656
+msgid "You do not have permission to schedule this post."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2663
+msgid "publish_at is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2667
+msgid "publish_at is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2670
+msgid "publish_at must be in the future."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2735
+msgid "You do not have permission to publish this post."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2792
+msgid "This post is not in the trash."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2815
+msgid "Post restore failed."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2884
+msgid "You do not have permission to reply to this comment."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2891
+msgid "Reply content is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:2932
+msgid "Comment reply failed."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3162
+msgid "No SEO metadata writer is available."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3195
+msgid "This write ability requires approval from a host runtime before commit."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3220
+msgid "You do not have permission to edit this post."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3279
+msgid "Media URL is not allowed."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3293
+msgid "Media runtime is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3309
+#: includes/Packages/Core_Write_Package.php:3333
+msgid "Remote media is not reachable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3313
+#: includes/Packages/Core_Write_Package.php:3339
+msgid "Remote media exceeds the allowed size."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3372
+msgid "Uploaded media file is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3383
+msgid "Remote media type is not allowed."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3458
+msgid "Only image attachments can be optimized."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3525
+msgid "The source attachment file is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3528
+msgid "WordPress image editor is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3551
+msgid "The attachment directory is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3563
+msgid "Optimized derivative file was not created."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3641
+#: includes/Packages/Core_Write_Package.php:3873
+msgid "The derivative MIME type did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3690
+msgid "A derivative artifact_id is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3694
+msgid ""
+"The derivative artifact MIME type is not supported for media replacement."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3703
+msgid "The derivative artifact expiry is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3706
+msgid ""
+"The derivative artifact has expired. Generate a new preview before adoption."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3713
+msgid "The derivative artifact format is not supported for media replacement."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3790
+msgid "Cloud Addon artifact download is unavailable on this site."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3799
+msgid "The downloaded derivative artifact was empty."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3804
+msgid "The downloaded derivative checksum did not match the proposal evidence."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3811
+msgid "The local derivative path is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3815
+msgid "The local derivative directory could not be created."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3832
+msgid "The local derivative file could not be written."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3865
+msgid "A derivative_relative_file is required for media file replacement."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3869
+msgid "The requested derivative is not recorded for this attachment."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3924
+#: includes/Packages/Core_Write_Package.php:4299
+msgid "Current attachment file metadata is unavailable."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3929
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2022
+msgid "Target file name must be a file basename, not a path."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3933
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2026
+msgid "Target file name is invalid after sanitization."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3944
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1865
+msgid "Target file extension must match the current media file extension."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3947
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1861
+msgid "Target file name matches the current file name."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:3958
+#: includes/Packages/Core_Write_Package.php:4168
+msgid "Target media file already exists."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4021
+msgid "Replacement history was not found for restore."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4028
+#: includes/Packages/Core_Write_Package.php:4228
+msgid "The backup file is unavailable for restore."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4035
+#: includes/Packages/Core_Write_Package.php:4231
+msgid "The original media file path is unavailable for restore."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4041
+#: includes/Packages/Core_Write_Package.php:4234
+msgid "The original media file path already exists with different content."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4102
+msgid "The current attachment file is unavailable for backup."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4105
+msgid "The derivative file is unavailable for replacement."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4109
+#: includes/Packages/Core_Write_Package.php:4171
+msgid "The current attachment file could not be backed up."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4162
+msgid "The current attachment file is unavailable for rename."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4165
+msgid "Target media file path is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4174
+msgid "The current attachment file could not be renamed."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4225
+msgid "The current attachment file is unavailable for restore backup."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4237
+msgid "The current attachment file could not be backed up before restore."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4240
+msgid "The backup file could not be restored to the original path."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4325
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1888
+msgid "The current media file did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4329
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1892
+msgid "The current media MIME type did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4348
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1874
+msgid "The expected current MD5 value is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4351
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1877
+msgid "The expected current SHA-256 value is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4358
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1880
+msgid "The current media file MD5 did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4361
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1883
+msgid "The current media file SHA-256 did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:4533
+msgid "Replacement file path is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5332
+#: includes/Packages/Core_Write_Package.php:5822
+msgid "Operations are required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5341
+msgid "Patch operation is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5345
+msgid "Patch find text is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5496
+msgid ""
+"You do not have permission to update a post that references this media item."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5515
+msgid "A post that references this media item was not found during repair."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5818
+#: includes/Packages/Core_Write_Package.php:5857
+msgid "Raw serialized setting strings require manual review."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5827
+msgid "Setting patch operations must be exact replacements."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:27
+msgid "Site Info"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:28
+msgid ""
+"Returns the site name, URLs, language, WordPress version, timezone, and "
+"active theme."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:56
+msgid "List Post Types"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:57
+msgid ""
+"Returns available post types, including REST exposure and hierarchy flags."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:94
+msgid "List Taxonomies"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:95
+msgid "Returns taxonomy definitions and bound object types."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:136
+msgid "Propose Post Excerpt"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:137
+msgid ""
+"Builds a read-only excerpt proposal from explicit content input without "
+"writing changes."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:170
+msgid "Resolve Post Metadata Plan"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:171
+msgid ""
+"Normalizes a post metadata plan into the canonical excerpt, taxonomy, slug, "
+"author, template, format, and publication handoff payload."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:212
+msgid "List Users"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:213
+msgid "Returns a paginated list of users and roles."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:256
+msgid "List Navigation Menus"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:257
+msgid "Returns available navigation menus and their assigned theme locations."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:282
+msgid "Get Navigation Menu"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:283
+msgid "Returns one navigation menu and its menu items."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:314
+msgid "Search Posts"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:315
+msgid ""
+"Searches local WordPress posts by keyword and bounded filters, returning "
+"matching post summaries."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:386
+msgid "Get Post Stats"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:387
+msgid ""
+"Returns word count, image count, reading time, comments, and dates for a "
+"post."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:416
+msgid "List Revisions"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:417
+msgid ""
+"Returns a paginated list of post revisions using the legacy response shape."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:447
+msgid "Get Post Meta"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:448
+msgid "Reads post meta for one post, optionally scoped to a single meta key."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:481
+msgid "Search Post Meta"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:482
+msgid ""
+"Searches explicitly named local post meta keys and returns bounded matching "
+"post summaries without writing."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:556
+msgid "Count Posts"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:557
+msgid "Counts posts for one post type and status."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:579
+msgid "List Posts"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:580
+msgid "Returns a paginated list of posts or pages."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:634
+msgid "Get Post"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:635
+msgid "Returns details for a single post or page."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:666
+msgid "Get Post Context"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:667
+msgid ""
+"Returns one agent-ready post context bundle with content, stats, terms, "
+"media, blocks, revisions, and optional scoped metadata."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:718
+msgid "Resolve URL to Post"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:719
+msgid ""
+"Resolves a URL or slug to a post ID, post type, status, edit link, and "
+"permalink."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:747
+msgid "Get Post Blocks"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:748
+msgid "Returns a Gutenberg block structure snapshot for a post or revision."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:781
+msgid "List Post Revisions"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/Core_WordPress_Read_Definitions.php:782
+msgid "Returns a paginated read-only revision history for a post."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:27
+msgid "WordPress Diagnostics Summary"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:28
+msgid ""
+"Returns a redacted local WordPress diagnostics summary without Npcink AI, "
+"MCP, filesystem path, database name, or secret details."
+msgstr ""
+
+#: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:76
+msgid "WordPress Operations Diagnostics Detail"
+msgstr ""
+
+#: includes/Packages/Read_Definitions/WordPress_Diagnostics_Definitions.php:77
+msgid ""
+"Returns bounded local WordPress operations diagnostics with plugin, caller "
+"capability, PHP, cache, rewrite, HTTPS, server, database, cron, structured "
+"log, content type, role, widget, block-theme, search, integration, SEO, "
+"security, and performance details."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:184
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:28
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:531
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:543
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:688
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:28
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:336
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:446
+msgid "post_id is invalid."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:192
+msgid "You are not allowed to read this post."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:49
+msgid ""
+"Template style risk is high; review and polish the article before scheduling "
+"or publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:52
+msgid "Quality review requires human review before scheduling or publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:58
+msgid ""
+"A duplicate production candidate was detected; review before scheduling or "
+"publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:27
+msgid "You do not have permission to read content inventory."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:170
+msgid "You do not have permission to read nonproduction content inventory."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:339
+msgid "You do not have permission to build content inventory fix plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:36
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:539
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:132
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:511
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:551
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:866
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:896
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:36
+msgid "You do not have permission to read this post."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:56
+msgid ""
+"Place one contextual internal link after the first paragraph that introduces "
+"this concept."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:97
+msgid "You do not have permission to read content refresh opportunities."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:209
+msgid "You do not have permission to read article refresh context."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:318
+msgid "You do not have permission to read internal link graph health."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:397
+msgid "Posts share topic terms and may support a contextual internal link."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:494
+msgid "Refresh scan found repeated SEO/GEO readiness gaps."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
+msgid "Focus keyword appears in title or content."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:559
+msgid ""
+"Add or confirm a focus keyword and place it naturally in the title or lead "
+"section."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
+msgid "SEO title metadata is present."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:560
+msgid "Add SEO title metadata before publication or optimization handoff."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
+msgid "SEO description metadata is present."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:561
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:73
+msgid "Add SEO description metadata for search and share snippets."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
+msgid "Content has enough depth for baseline SEO review."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:562
+msgid "Expand the content with clearer context, steps, evidence, or examples."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
+msgid "Content has answer-oriented question candidates."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:563
+msgid "Add direct answer sections or FAQ-style questions for GEO readiness."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
+msgid "Featured media is assigned."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:564
+msgid "Add featured media when the channel or theme expects one."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:616
+msgid "You do not have permission to read topic coverage."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:678
+msgid ""
+"Only one scanned post covers this topic; consider adding supporting content "
+"or internal links."
+msgstr ""
+
+#. translators: %s: Related term.
+#: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:847
+#, php-format
+msgid ""
+"Existing content is related to \"%s\" and can support the source post with "
+"contextual reading."
+msgstr ""
+
+#. translators: %s: Related search term.
+#: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:58
+#, php-format
+msgid ""
+"Existing site content related to \"%s\" can be used as supplemental reading."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:73
+msgid ""
+"Insert one internal link after the first paragraph that explains the core "
+"concept."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:83
+msgid ""
+"Keep titles, opening summaries, and CTA paragraphs link-free to avoid "
+"diluting the main answer."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:94
+msgid "Internal link targets resolved."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:135
+msgid "You do not have permission to resolve media attachments."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:728
+msgid "You do not have permission to read media cleanup opportunities."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:793
+msgid "You do not have permission to read media backups."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:802
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1321
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1838
+msgid "Attachment was not found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:805
+msgid "You do not have permission to read backups for this media item."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:891
+msgid "You do not have permission to read media inventory."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:964
+msgid "You do not have permission to inspect media assets."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:970
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1011
+msgid "Attachment not found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:973
+msgid "You do not have permission to inspect this media asset."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1005
+msgid "You do not have permission to prepare media derivative requests."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1014
+msgid ""
+"You do not have permission to prepare a derivative request for this media "
+"asset."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1122
+msgid "You do not have permission to prepare media derivative batch plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1129
+msgid "Unsupported media derivative target format."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1311
+msgid "You do not have permission to prepare media optimization plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1324
+msgid ""
+"You do not have permission to prepare an optimization plan for this media "
+"item."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1829
+msgid "You do not have permission to prepare media rename plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1841
+msgid ""
+"You do not have permission to prepare a rename plan for this media item."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1937
+msgid ""
+"Media rename plans with reference updates require permission to edit posts."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2101
+msgid ""
+"Media optimization plans require at least one reviewed media metadata field."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2121
+msgid "Media optimization plans require derivative_artifact evidence."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2159
+msgid ""
+"Only image and text watermarks are supported for Cloud media derivatives."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2423
+msgid "You do not have permission to build media inventory fix plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2534
+msgid "You do not have permission to build media reference repair plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2551
+msgid "Old and new media URLs are required for reference repair planning."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2622
+msgid ""
+"Replace hard-coded media URLs in post content after media file adoption."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2672
+msgid ""
+"You do not have permission to build media settings reference repair plans."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2687
+msgid ""
+"Old and new media URLs are required for settings reference repair planning."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:2784
+msgid ""
+"Replace exact hard-coded media URLs in a WordPress setting after local media "
+"adoption."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3295
+msgid ""
+"No completed media replacement history or explicit old/new URLs were found "
+"for this attachment."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3769
+msgid "A media URL is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3775
+msgid "The local uploads base URL is unavailable."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3785
+msgid ""
+"The media URL must be an absolute same-site uploads URL or a root-relative "
+"uploads URL."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3791
+msgid "Only local uploads URLs can be resolved to media attachments."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3797
+msgid "Only URLs under the local uploads directory can be resolved."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:3803
+msgid "The uploads URL path is not a valid media file path."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:27
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:118
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:183
+msgid "You do not have permission to read pages."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:123
+msgid "Page ID is invalid."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:127
+msgid "Page was not found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:130
+msgid "You do not have permission to read this page."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:335
+msgid "You do not have permission to read page structure health."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Page_Read_Methods.php:428
+msgid "Default Template"
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:41
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:275
+msgid "Search keyword cannot be empty."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:169
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:696
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:953
+msgid "You do not have permission to read this post revision history."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:230
+msgid "You do not have permission to read this post meta."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:278
+msgid "At least one non-sensitive meta key is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:826
+msgid "A URL or slug is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:858
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:863
+msgid "No matching post was found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:904
+msgid "Revision was not found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:907
+msgid "Revision does not belong to the requested post."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
+msgid "Title is present."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:59
+msgid "Add a clear post title before publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
+msgid "Body content has enough text for review."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
+msgid "Add more body content before publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
+msgid "Slug is set."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
+msgid "Set a stable URL slug before publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
+msgid "Author is assigned."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:62
+msgid "Assign an author before publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
+msgid "At least one category is assigned."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:65
+msgid "Assign at least one category before publishing."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
+msgid "Category lookup is available."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:67
+msgid ""
+"Category lookup is unavailable in this runtime; verify categories in "
+"WordPress."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
+msgid "Excerpt is present."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:70
+msgid "Add an excerpt for archive and social previews."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
+msgid "Featured image is assigned."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:71
+msgid "Add a featured image when the layout or channel expects one."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:72
+msgid "Add SEO title metadata if the site SEO plugin uses it."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
+msgid "Scheduled publish date is in the future."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:77
+msgid "Set a future publish date before scheduling."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:140
+msgid "At least one post id is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:234
+msgid "You do not have permission to read site operations."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:647
+msgid "You do not have permission to read publishing calendar context."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Style_Read_Methods.php:210
+msgid "Site style baseline built."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:77
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:119
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:215
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:334
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:795
+msgid "Taxonomy does not exist."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:111
+msgid "You do not have permission to read taxonomy consolidation suggestions."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:152
+msgid "Term has no associated content in the current scan."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:166
+msgid "Terms normalize to the same consolidation key."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:200
+msgid "A valid post_id is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:204
+msgid "Post not found."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:207
+msgid "You do not have permission to inspect taxonomy proposals for this post."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:226
+msgid "At least one candidate term id or term name is required."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:263
+msgid "No candidate terms matched existing taxonomy terms."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:326
+msgid "You do not have permission to read taxonomy inventory."
+msgstr ""
+
+#: includes/Registry/Category_Registrar.php:95
+msgid "Abilities API Packages: Read"
+msgstr "Abilities-API-Pakete: Lesen"
+
+#: includes/Registry/Category_Registrar.php:96
+msgid "Read-only abilities for discovery, diagnostics, and context retrieval."
+msgstr "Nur-Lese-Fähigkeiten für Erkennung, Diagnose und Kontextabruf."
+
+#: includes/Registry/Category_Registrar.php:102
+msgid "Abilities API Packages: Write Proposals"
+msgstr "Abilities-API-Pakete: Schreibvorschläge"
+
+#: includes/Registry/Category_Registrar.php:103
+msgid ""
+"Write-like abilities that produce proposals instead of committing changes "
+"directly."
+msgstr ""
+"Schreibähnliche Fähigkeiten, die Vorschläge erzeugen, statt Änderungen "
+"direkt zu übernehmen."
+
+#: includes/Registry/Category_Registrar.php:109
+msgid "Abilities API Packages: Tools"
+msgstr "Abilities-API-Pakete: Werkzeuge"
+
+#: includes/Registry/Category_Registrar.php:110
+msgid "Tool-backed abilities for agent workflows."
+msgstr "Werkzeuggestützte Fähigkeiten für Agent-Workflows."
+
+#: includes/Registry/Contract_Normalizer.php:176
+msgid "Ability execute callback is not configured."
+msgstr ""
+
+#: includes/Registry/Contract_Normalizer.php:207
+msgid "When true, return a host-governed preview without mutating WordPress."
+msgstr ""
+
+#: includes/Registry/Contract_Normalizer.php:212
+msgid ""
+"When true, attempt the final commit. Host approval context is still required."
+msgstr ""
+
+#: includes/Registry/Contract_Normalizer.php:218
+msgid ""
+"Optional host-provided idempotency key for audit and replay correlation."
+msgstr ""

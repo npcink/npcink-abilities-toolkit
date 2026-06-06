@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,11 +48,11 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability can download a medi
 * `npcink_abilities_toolkit_get_workflow_definitions()`
 * `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`
 
-== Test Page ==
+== Admin Page ==
 
 After activation with a Npcink AI host plugin, open Npcink AI -> Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Abilities API Packages instead.
 
-The page verifies Abilities API availability, fetches the authenticated REST ability and category catalogs, and can enable/run a demo readonly ability.
+The page verifies Abilities API availability, shows the registered ability catalog, provides copyable REST endpoint values for host/client setup, and can run two official read-only checks: site info and bounded redacted diagnostics summary. It is a connection and discovery surface; it does not run showcase workflows, model calls, write abilities, or demo abilities.
 
 == Built-In Abilities ==
 
@@ -66,7 +66,7 @@ It also includes `npcink-abilities-toolkit/list-workflow-recipes` and `npcink-ab
 
 Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `npcink-ai-core`.
 
-== Developer Smoke Test ==
+== Developer Verification ==
 
 When the plugin is installed in a local WordPress site, run:
 
@@ -78,12 +78,21 @@ For isolated bounded-chain performance validation, run:
 
 == Changelog ==
 
+= 0.5.0 =
+
+* Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks.
+* Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface.
+* Removed development demo ability controls from the admin page and kept showcase, model-call, write, and workflow execution outside this package surface.
+* Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public `test` terminology in released ability ids and schema fields.
+* Added taxonomy assignment proposal support and strengthened Core consumer handoff checks for harvested workflow surfaces.
+* Hardened media replacement and Cloud derivative adoption previews so approved replacements can repair exact post-content media URLs, including old intermediate-size URLs.
+
 = 0.4.0 =
 
 * Added read-only host composition recipe metadata discovery abilities and public PHP helpers.
 * Added Core governance handoff documentation, a catalog snapshot fixture, a permission matrix, and a schema boundary audit.
 * Hardened write-like contracts with `requires_approval`, explicit dry-run and commit defaults, and bounded idempotency keys.
-* Expanded smoke coverage for REST-exposed governance metadata and schemas.
+* Expanded REST verification coverage for governance metadata and schemas.
 * Added a consumer example for preparing Core proposal payloads from discovered ability contracts.
 
 = 0.3.0 =
@@ -93,7 +102,7 @@ For isolated bounded-chain performance validation, run:
 * Made Npcink AI catalog projection thin by default and added a projection-row filter for host-owned policy expansion.
 * Established `npcink-abilities-toolkit/*` as the canonical id namespace for abilities owned by this plugin.
 * Added explicit read/comment sub-pack maps as the split point for future source-file extraction.
-* Verified Npcink AI catalog compatibility against the local development site.
+* Verified Npcink AI catalog compatibility against a WordPress site.
 
 = 0.2.0 =
 
@@ -101,9 +110,9 @@ For isolated bounded-chain performance validation, run:
 * Documented host-governed write/destructive semantics and the Npcink AI integration boundary.
 * Added first-party ability pack grouping and 0.2 candidate verification evidence.
 * Strengthened lightweight tests for schema controls, Npcink catalog projection, provider defaults, and invalid ability ids.
-* Verified Local WP smoke coverage and Npcink AI consumer split-boundary checks.
+* Verified WordPress REST coverage and Npcink AI consumer split-boundary checks.
 
 = 0.1.0 =
 
-* Initial standalone development release.
+* Initial standalone release.
 * Added migrated WordPress read abilities, deterministic comment helpers, host-governed write/destructive abilities, and standalone redacted WordPress diagnostics.

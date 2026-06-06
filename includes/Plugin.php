@@ -84,7 +84,7 @@ final class Plugin {
 	private $core_comment_package;
 
 	/**
-	 * Admin test page.
+	 * Admin page.
 	 *
 	 * @var Test_Page
 	 */

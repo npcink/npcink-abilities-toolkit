@@ -1,14 +1,13 @@
-# 0.5 Unreleased Verification
+# 0.5 Release Verification
 
-Status: observation checklist.
-Date: 2026-05-30.
+Status: release verification.
+Date: 2026-06-06.
 
-This note records the current `0.5.0` unreleased line after adding the taxonomy
-terms proposal helper and starting the ability contract readiness gate. It is
-intentionally not a release checklist yet. The goal is to preserve the consumer
-proof, make clear that no additional ability batch should start without a
-concrete workflow gap, and verify the registered first-party ability surface
-directly.
+This note records the `0.5.0` release line after adding the taxonomy terms
+proposal helper, admin surface cleanup, public nonproduction naming cleanup, and
+the ability contract readiness gate. The goal is to preserve the consumer proof,
+make clear that no additional ability batch should start without a concrete
+workflow gap, and verify the registered first-party ability surface directly.
 
 ## Scope
 

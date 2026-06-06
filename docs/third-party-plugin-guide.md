@@ -173,4 +173,4 @@ When this plugin is installed in a WordPress site with WP-CLI available:
 WP_PATH=/path/to/wordpress composer smoke:wp
 ```
 
-The smoke test verifies Abilities API functions, REST catalog discovery, demo ability execution, and blocked anonymous REST access.
+The smoke test verifies Abilities API functions, REST catalog discovery, diagnostics ability execution, and blocked anonymous REST access.

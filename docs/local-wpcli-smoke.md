@@ -7,16 +7,16 @@ Use the WordPress smoke test against a Local site after the plugin is symlinked 
 Use this shared Local site for repeatable manual and smoke verification:
 
 - Site URL: `https://magick-ai.local`
-- WordPress path: `/Users/muze/Local Sites/npcink-abilities-toolkit/app/public`
+- WordPress path: `/Users/muze/Local Sites/magick-ai/app/public`
 - Local MySQL socket: `/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock`
 - WP-CLI phar: `/tmp/wp-cli.phar`
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
 - Test admin password: `[REDACTED_SECRET]`
 - Installed plugin slug: `npcink-abilities-toolkit`
-- Admin test page with a Npcink AI host menu:
+- Admin page with a Npcink AI host menu:
   `https://magick-ai.local/wp-admin/admin.php?page=npcink-abilities-toolkit`
-- Standalone fallback admin test page:
+- Standalone fallback admin page:
   `https://magick-ai.local/wp-admin/tools.php?page=npcink-abilities-toolkit`
 
 Verification status through 2026-05-30:
@@ -97,7 +97,7 @@ Verification status through 2026-05-30:
   `source_summary`: default profile `Smoke OK: 204 assertions`, light
   `core_wordpress_read` profile `Smoke OK: 15 assertions`.
 - On 2026-05-30, `composer smoke:wp` passed after adding content planning
-  abilities for test-content inventory, test-content cleanup plans, and content
+  abilities for nonproduction-content inventory, nonproduction-content cleanup plans, and content
   inventory fix plans: default profile `Smoke OK: 213 assertions`, light
   `core_wordpress_read` profile `Smoke OK: 18 assertions`.
 - On 2026-05-30, `composer smoke:wp` passed after adding the media inventory
@@ -129,7 +129,7 @@ WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
-WP_PATH="/Users/muze/Local Sites/npcink-abilities-toolkit/app/public" \
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:wp
 ```
 
@@ -141,10 +141,10 @@ Smoke OK: 19 assertions
 ```
 
 The default smoke profile verifies Abilities API availability, authenticated
-REST catalog access, the demo ability, the standalone diagnostics abilities,
+REST catalog access, the standalone diagnostics abilities,
 migrated core read/comment/write/destructive ability registration, individual
 ability execution, read-only content and media planning execution, workflow-chain
 execution, and anonymous REST blocking. The light profile verifies that a host
 can keep only generic `core_wordpress_read`
 abilities while disabling workflow helpers, diagnostics, write/destructive
-abilities, comment helpers, catalog bridge, admin test page, and cache hooks.
+abilities, comment helpers, catalog bridge, admin page, and cache hooks.

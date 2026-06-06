@@ -1577,9 +1577,9 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_content_inventory_health' ),
 			),
-			'npcink-abilities-toolkit/get-test-content-inventory' => array(
-				'label'            => __( 'Get Test Content Inventory', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Detects bounded smoke, fixture, and test content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site.', 'npcink-abilities-toolkit' ),
+			'npcink-abilities-toolkit/get-nonproduction-content-inventory' => array(
+				'label'            => __( 'Get Nonproduction Content Inventory', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Detects bounded smoke, fixture, and nonproduction content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site.', 'npcink-abilities-toolkit' ),
 				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1609,11 +1609,11 @@ final class Core_Read_Package {
 					),
 					'required'   => array( 'success', 'data' ),
 				),
-				'execute_callback' => array( $this, 'get_test_content_inventory' ),
+				'execute_callback' => array( $this, 'get_nonproduction_content_inventory' ),
 			),
-			'npcink-abilities-toolkit/build-test-content-cleanup-plan' => array(
-				'label'            => __( 'Build Test Content Cleanup Plan', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Builds a read-only cleanup plan for detected test content, mapping each candidate to existing governed write abilities without trashing or deleting anything.', 'npcink-abilities-toolkit' ),
+			'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan' => array(
+				'label'            => __( 'Build Nonproduction Content Cleanup Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a read-only cleanup plan for detected nonproduction content, mapping each candidate to existing governed write abilities without trashing or deleting anything.', 'npcink-abilities-toolkit' ),
 				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'post.read',
@@ -1644,7 +1644,7 @@ final class Core_Read_Package {
 					),
 					'required'   => array( 'success', 'data' ),
 				),
-				'execute_callback' => array( $this, 'build_test_content_cleanup_plan' ),
+				'execute_callback' => array( $this, 'build_nonproduction_content_cleanup_plan' ),
 			),
 			'npcink-abilities-toolkit/build-content-inventory-fix-plan' => array(
 				'label'            => __( 'Build Content Inventory Fix Plan', 'npcink-abilities-toolkit' ),
@@ -2048,7 +2048,7 @@ final class Core_Read_Package {
 						'max_actions'                 => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 50 ),
 						'include_delete_candidates'   => array( 'type' => 'boolean', 'default' => false ),
 						'include_trash_parent_media'  => array( 'type' => 'boolean', 'default' => false ),
-						'include_unattached_test_media' => array( 'type' => 'boolean', 'default' => false ),
+						'include_unattached_nonproduction_media' => array( 'type' => 'boolean', 'default' => false ),
 					),
 					'additionalProperties' => false,
 				),

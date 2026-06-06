@@ -38,8 +38,8 @@ and are projected to the Npcink AI catalog as `wp_ability` consumers.
 | `npcink-abilities-toolkit/build-article-workflow-context` | New standalone SEO/GEO Support Pack workflow context ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 | `npcink-abilities-toolkit/get-publishing-calendar-context` | New standalone Publishing Pack read-support calendar ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 | `npcink-abilities-toolkit/propose-post-taxonomy-terms` | New standalone taxonomy assignment proposal helper for existing terms | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
-| `npcink-abilities-toolkit/get-test-content-inventory` | New standalone Content Context Pack test-content inventory ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
-| `npcink-abilities-toolkit/build-test-content-cleanup-plan` | New standalone Content Context Pack read-only cleanup planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/get-nonproduction-content-inventory` | New standalone Content Context Pack nonproduction-content inventory ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
+| `npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan` | New standalone Content Context Pack read-only cleanup planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 | `npcink-abilities-toolkit/build-content-inventory-fix-plan` | New standalone Content Context Pack read-only remediation planning ability | `Npcink_Abilities_Toolkit\Packages\Core_Read_Package` | No | No |
 
 ## Migrated in 0.1

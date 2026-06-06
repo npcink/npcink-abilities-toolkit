@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin test page for Abilities API endpoints.
+ * Admin page for Abilities API endpoints.
  *
  * @package NpcinkAbilitiesToolkit
  */
@@ -14,10 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Renders a small operator-facing test surface.
+ * Renders a compact operator-facing Abilities surface.
  */
 final class Test_Page {
-	const OPTION_DEMO_ENABLED = 'npcink_abilities_toolkit_demo_enabled';
 	const PARENT_MENU_SLUG    = 'npcink-ai';
 	const MENU_SLUG           = 'npcink-abilities-toolkit';
 	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
@@ -28,6 +27,13 @@ final class Test_Page {
 	 * @var Ability_Registrar
 	 */
 	private $abilities;
+
+	/**
+	 * Admin hook suffixes that should load this page's assets.
+	 *
+	 * @var array<int,string>
+	 */
+	private $hook_suffixes = array();
 
 	/**
 	 * Constructor.
@@ -44,32 +50,9 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function boot() {
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-
-		if ( $this->is_demo_enabled() ) {
-			$this->register_demo_ability();
-		}
-	}
-
-	/**
-	 * Registers settings.
-	 *
-	 * @return void
-	 */
-	public function register_settings() {
-		register_setting(
-			'npcink_abilities_toolkit_test',
-			self::OPTION_DEMO_ENABLED,
-			array(
-				'type'              => 'boolean',
-				'sanitize_callback' => static function ( $value ) {
-					return ! empty( $value ) ? '1' : '';
-				},
-				'default'           => '',
-			)
-		);
+		add_action( 'wp_ajax_npcink_abilities_toolkit_readonly_check', array( $this, 'run_readonly_check' ) );
 	}
 
 	/**
@@ -79,11 +62,7 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function enqueue_assets( $hook_suffix ) {
-		$allowed_hooks = array(
-			self::PARENT_MENU_SLUG . '_page_' . self::MENU_SLUG,
-			'tools_page_' . self::MENU_SLUG,
-		);
-		if ( ! in_array( (string) $hook_suffix, $allowed_hooks, true ) ) {
+		if ( ! in_array( (string) $hook_suffix, $this->hook_suffixes, true ) ) {
 			return;
 		}
 
@@ -113,7 +92,7 @@ final class Test_Page {
 	 */
 	public function register_menu() {
 		if ( $this->has_npcink_parent_menu() ) {
-			add_submenu_page(
+			$this->hook_suffixes[] = add_submenu_page(
 				self::PARENT_MENU_SLUG,
 				__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),
 				__( 'Abilities', 'npcink-abilities-toolkit' ),
@@ -125,7 +104,7 @@ final class Test_Page {
 			return;
 		}
 
-		add_management_page(
+		$this->hook_suffixes[] = add_management_page(
 			__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ),
 			__( 'Abilities API Packages', 'npcink-abilities-toolkit' ),
 			'manage_options',
@@ -163,15 +142,13 @@ final class Test_Page {
 
 		$abilities_url  = rest_url( 'wp-abilities/v1/abilities' );
 		$categories_url = rest_url( 'wp-abilities/v1/categories' );
-		$demo_run_url   = rest_url( 'wp-abilities/v1/npcink-abilities-toolkit/site-summary/run' );
 		$status         = $this->get_environment_status();
-		$demo_enabled   = $this->is_demo_enabled();
 		$registered     = $this->abilities->all();
 		$active_tab     = $this->get_active_tab();
 		?>
-		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>">
-			<h1><?php echo esc_html__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ); ?></h1>
-			<p><?php echo esc_html__( 'Ability package status, schema visibility, and callback readiness for WordPress Abilities API.', 'npcink-abilities-toolkit' ); ?></p>
+		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>">
+			<h1><?php echo esc_html__( 'Abilities', 'npcink-abilities-toolkit' ); ?></h1>
+			<p><?php echo esc_html__( 'Confirm package readiness, inspect registered abilities, and check authenticated REST discovery.', 'npcink-abilities-toolkit' ); ?></p>
 
 			<?php $this->render_tab_nav( $active_tab ); ?>
 
@@ -180,9 +157,9 @@ final class Test_Page {
 				if ( 'catalog' === $active_tab ) {
 					$this->render_ability_catalog( $registered );
 				} elseif ( 'smoke' === $active_tab ) {
-					$this->render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled, $registered );
+					$this->render_smoke_tests( $abilities_url, $categories_url, $registered );
 				} else {
-					$this->render_status_summary( $status, $registered, $demo_enabled );
+					$this->render_status_summary( $status, $registered );
 				}
 				?>
 			</div>
@@ -215,7 +192,7 @@ final class Test_Page {
 		return array(
 			'overview' => __( 'Overview', 'npcink-abilities-toolkit' ),
 			'catalog'  => __( 'Catalog', 'npcink-abilities-toolkit' ),
-			'smoke'    => __( 'Smoke tests', 'npcink-abilities-toolkit' ),
+			'smoke'    => __( 'REST checks', 'npcink-abilities-toolkit' ),
 		);
 	}
 
@@ -230,12 +207,29 @@ final class Test_Page {
 		?>
 		<nav class="nav-tab-wrapper npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
 			<?php foreach ( $this->get_tabs() as $tab => $label ) : ?>
-				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $this->add_admin_request_nonce( add_query_arg( 'npcink_abilities_toolkit_tab', $tab, $base_url ) ) ); ?>">
+				<?php $tab_url = $this->get_tab_url( $tab ); ?>
+				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $tab_url ); ?>">
 					<?php echo esc_html( $label ); ?>
 				</a>
 			<?php endforeach; ?>
 		</nav>
 		<?php
+	}
+
+	/**
+	 * Returns an admin URL for one page tab.
+	 *
+	 * @param string $tab Tab key.
+	 * @return string
+	 */
+	private function get_tab_url( $tab ) {
+		$base_url = menu_page_url( self::MENU_SLUG, false );
+
+		if ( 'overview' === $tab ) {
+			return $base_url;
+		}
+
+		return $this->add_admin_request_nonce( add_query_arg( 'npcink_abilities_toolkit_tab', $tab, $base_url ) );
 	}
 
 	/**
@@ -287,28 +281,68 @@ final class Test_Page {
 	 *
 	 * @param array<string,mixed> $status Environment status.
 	 * @param array<string,mixed> $registered Registered abilities.
-	 * @param bool                $demo_enabled Whether demo ability is enabled.
 	 * @return void
 	 */
-	private function render_status_summary( array $status, array $registered, bool $demo_enabled ) {
+	private function render_status_summary( array $status, array $registered ) {
 		$ability_api_ready = $status['has_ability_registration'] && $status['has_category_registration'];
 		$rest_ready        = $status['has_rest_abilities_route'] && $status['has_rest_categories_route'];
+		$callback_issues   = $this->get_callback_issue_count( $registered );
+		$package_ready     = $ability_api_ready && $rest_ready && ! empty( $registered ) && 0 === $callback_issues;
 		?>
 		<h2><?php echo esc_html__( 'Status', 'npcink-abilities-toolkit' ); ?></h2>
 		<div class="npcink-abilities-toolkit-summary" role="list">
+			<?php $this->render_status_tile( __( 'Package', 'npcink-abilities-toolkit' ), $package_ready ? __( 'ready', 'npcink-abilities-toolkit' ) : __( 'needs review', 'npcink-abilities-toolkit' ), $package_ready ? 'ok' : 'warning', $package_ready ? __( 'Discovery and callbacks are available.', 'npcink-abilities-toolkit' ) : __( 'Review the attention notes below.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'REST discovery', 'npcink-abilities-toolkit' ), $rest_ready ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'missing', 'npcink-abilities-toolkit' ), $rest_ready ? 'ok' : 'error', __( 'Client discovery endpoints.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'Registered abilities', 'npcink-abilities-toolkit' ), (string) count( $registered ), empty( $registered ) ? 'warning' : 'ok', __( 'Catalog rows available for inspection.', 'npcink-abilities-toolkit' ) ); ?>
+			<?php $this->render_status_tile( __( 'Callback issues', 'npcink-abilities-toolkit' ), (string) $callback_issues, $callback_issues > 0 ? 'error' : 'ok', __( 'Execution callbacks missing from registered rows.', 'npcink-abilities-toolkit' ) ); ?>
 			<?php $this->render_status_tile( __( 'WordPress', 'npcink-abilities-toolkit' ), (string) $status['wp_version'], 'ok', __( 'Runtime version detected.', 'npcink-abilities-toolkit' ) ); ?>
-			<?php $this->render_status_tile( __( 'Ability API', 'npcink-abilities-toolkit' ), $ability_api_ready ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'unavailable', 'npcink-abilities-toolkit' ), $ability_api_ready ? 'ok' : 'error', __( 'Registration functions and categories.', 'npcink-abilities-toolkit' ) ); ?>
-			<?php $this->render_status_tile( __( 'REST routes', 'npcink-abilities-toolkit' ), $rest_ready ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'missing', 'npcink-abilities-toolkit' ), $rest_ready ? 'ok' : 'error', __( 'Discovery endpoints for clients.', 'npcink-abilities-toolkit' ) ); ?>
-			<?php $this->render_status_tile( __( 'Registered abilities', 'npcink-abilities-toolkit' ), (string) count( $registered ), empty( $registered ) ? 'warning' : 'ok', __( 'Open Catalog for grouped details.', 'npcink-abilities-toolkit' ) ); ?>
-			<?php $this->render_status_tile( __( 'Demo ability', 'npcink-abilities-toolkit' ), $demo_enabled ? __( 'enabled', 'npcink-abilities-toolkit' ) : __( 'disabled', 'npcink-abilities-toolkit' ), $demo_enabled ? 'ok' : 'inactive', __( 'Managed from Smoke tests.', 'npcink-abilities-toolkit' ) ); ?>
 		</div>
 
 		<?php $this->render_status_attention( $status, $registered ); ?>
 
-		<p class="description">
-			<?php echo esc_html__( 'This page is a package status and smoke-test surface. Catalog rows are separate, and low-frequency REST details stay under Smoke tests.', 'npcink-abilities-toolkit' ); ?>
-		</p>
+		<section class="npcink-abilities-toolkit-next" aria-labelledby="npcink-abilities-toolkit-next-title">
+			<h2 id="npcink-abilities-toolkit-next-title"><?php echo esc_html__( 'Next actions', 'npcink-abilities-toolkit' ); ?></h2>
+			<div class="npcink-abilities-toolkit-next__grid">
+				<div class="npcink-abilities-toolkit-next__item">
+					<h3><?php echo esc_html__( 'Inspect abilities', 'npcink-abilities-toolkit' ); ?></h3>
+					<p><?php echo esc_html__( 'Review IDs, risk levels, categories, and callback readiness before connecting a host.', 'npcink-abilities-toolkit' ); ?></p>
+					<a class="button button-primary" href="<?php echo esc_url( $this->get_tab_url( 'catalog' ) ); ?>"><?php echo esc_html__( 'Open Catalog', 'npcink-abilities-toolkit' ); ?></a>
+				</div>
+				<div class="npcink-abilities-toolkit-next__item">
+					<h3><?php echo esc_html__( 'Verify REST access', 'npcink-abilities-toolkit' ); ?></h3>
+					<p><?php echo esc_html__( 'Fetch discovery endpoints with the current wp-admin session and REST nonce.', 'npcink-abilities-toolkit' ); ?></p>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'smoke' ) ); ?>"><?php echo esc_html__( 'Open REST Checks', 'npcink-abilities-toolkit' ); ?></a>
+				</div>
+				<div class="npcink-abilities-toolkit-next__item">
+					<h3><?php echo esc_html__( 'Connect a host', 'npcink-abilities-toolkit' ); ?></h3>
+					<p><?php echo esc_html__( 'Use the endpoint values for Npcink Core, OpenClaw Adapter, or another Abilities API client.', 'npcink-abilities-toolkit' ); ?></p>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'smoke' ) ); ?>"><?php echo esc_html__( 'View Endpoints', 'npcink-abilities-toolkit' ); ?></a>
+				</div>
+			</div>
+			<p class="description">
+				<?php echo esc_html__( 'Final write approval stays with the host runtime. This package exposes reusable WordPress abilities and discovery metadata.', 'npcink-abilities-toolkit' ); ?>
+			</p>
+		</section>
 		<?php
+	}
+
+	/**
+	 * Counts registered abilities without callable execute callbacks.
+	 *
+	 * @param array<string,mixed> $registered Registered abilities.
+	 * @return int
+	 */
+	private function get_callback_issue_count( array $registered ) {
+		$issues = 0;
+
+		foreach ( $registered as $definition ) {
+			$definition = is_array( $definition ) ? $definition : array();
+			if ( ! is_callable( $definition['execute_callback'] ?? null ) ) {
+				++$issues;
+			}
+		}
+
+		return $issues;
 	}
 
 	/**
@@ -759,22 +793,65 @@ final class Test_Page {
 	}
 
 	/**
-	 * Renders REST smoke-test controls.
+	 * Renders REST discovery check controls.
 	 *
 	 * @param string $abilities_url Abilities endpoint URL.
 	 * @param string $categories_url Categories endpoint URL.
-	 * @param string $demo_run_url Demo run endpoint URL.
-	 * @param bool                $demo_enabled Whether demo ability is enabled.
 	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
 	 */
-	private function render_smoke_tests( $abilities_url, $categories_url, $demo_run_url, $demo_enabled, array $registered ) {
+	private function render_smoke_tests( $abilities_url, $categories_url, array $registered ) {
+		$site_info_available = isset( $registered['npcink-abilities-toolkit/site-info'] );
+		$diagnostics_available = isset( $registered['npcink-abilities-toolkit/wp-diagnostics-summary'] );
 		?>
-		<h2><?php echo esc_html__( 'REST endpoints and browser tests', 'npcink-abilities-toolkit' ); ?></h2>
+		<h2><?php echo esc_html__( 'REST discovery checks', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
-			<?php echo esc_html__( 'Run manual REST checks with the current wp-admin session and REST nonce.', 'npcink-abilities-toolkit' ); ?>
+			<?php echo esc_html__( 'Copy endpoint values for a host client, fetch discovery endpoints, or run read-only ability checks with the current wp-admin session and REST nonce.', 'npcink-abilities-toolkit' ); ?>
 		</p>
 
+		<h3><?php echo esc_html__( 'Connection values', 'npcink-abilities-toolkit' ); ?></h3>
+		<table class="widefat striped npcink-abilities-toolkit-connection-table">
+			<tbody>
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'npcink-abilities-toolkit' ); ?></th>
+					<td><code id="npcink-abilities-toolkit-abilities-endpoint"><?php echo esc_html( $abilities_url ); ?></code></td>
+					<td>
+						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-abilities-endpoint">
+							<?php echo esc_html__( 'Copy Abilities Endpoint', 'npcink-abilities-toolkit' ); ?>
+						</button>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'npcink-abilities-toolkit' ); ?></th>
+					<td><code id="npcink-abilities-toolkit-categories-endpoint"><?php echo esc_html( $categories_url ); ?></code></td>
+					<td>
+						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-categories-endpoint">
+							<?php echo esc_html__( 'Copy Categories Endpoint', 'npcink-abilities-toolkit' ); ?>
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3><?php echo esc_html__( 'Read-only ability checks', 'npcink-abilities-toolkit' ); ?></h3>
+		<table class="widefat striped" style="max-width: 960px;">
+			<tbody>
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Scope', 'npcink-abilities-toolkit' ); ?></th>
+					<td><?php echo esc_html__( 'These checks run registered read-only abilities with bounded admin input. They do not write content, call models, or contact external services; the diagnostics check omits plugin rows, current-user details, updates, and cron details.', 'npcink-abilities-toolkit' ); ?></td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="npcink-abilities-toolkit-actions">
+			<button type="button" class="button button-primary" data-npcink-abilities-toolkit-readonly-check="site-info" <?php disabled( ! $site_info_available ); ?>>
+				<?php echo esc_html__( 'Run Site Info', 'npcink-abilities-toolkit' ); ?>
+			</button>
+			<button type="button" class="button" data-npcink-abilities-toolkit-readonly-check="diagnostics-summary" <?php disabled( ! $diagnostics_available ); ?>>
+				<?php echo esc_html__( 'Run Diagnostics Summary', 'npcink-abilities-toolkit' ); ?>
+			</button>
+		</p>
+
+		<h3><?php echo esc_html__( 'Discovery checks', 'npcink-abilities-toolkit' ); ?></h3>
 		<table class="widefat striped" style="max-width: 960px;">
 			<tbody>
 				<tr>
@@ -791,71 +868,28 @@ final class Test_Page {
 			<button type="button" class="button" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $categories_url ); ?>">
 				<?php echo esc_html__( 'Fetch Categories', 'npcink-abilities-toolkit' ); ?>
 			</button>
-			<button type="button" class="button" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $demo_run_url ); ?>" <?php disabled( ! $demo_enabled ); ?>>
-				<?php echo esc_html__( 'Run Demo Ability', 'npcink-abilities-toolkit' ); ?>
-			</button>
 		</p>
 
 		<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
 
-		<details class="npcink-abilities-toolkit-disclosure">
-			<summary>
-				<strong><?php echo esc_html__( 'Demo ability control', 'npcink-abilities-toolkit' ); ?></strong>
-				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Enable or disable the read-only smoke ability.', 'npcink-abilities-toolkit' ); ?></span>
-			</summary>
-			<div class="npcink-abilities-toolkit-disclosure__body">
-				<form method="post" action="options.php">
-					<?php settings_fields( 'npcink_abilities_toolkit_test' ); ?>
-					<label>
-						<input type="checkbox" name="<?php echo esc_attr( self::OPTION_DEMO_ENABLED ); ?>" value="1" <?php checked( $demo_enabled ); ?> />
-						<?php echo esc_html__( 'Enable demo read-only ability: npcink-abilities-toolkit/site-summary', 'npcink-abilities-toolkit' ); ?>
-					</label>
-					<?php submit_button( __( 'Save', 'npcink-abilities-toolkit' ), 'secondary', 'submit', false ); ?>
-				</form>
-			</div>
-		</details>
-
-		<?php $this->render_advanced_checks( $abilities_url, $categories_url, $registered ); ?>
+		<?php $this->render_advanced_checks( $registered ); ?>
 		<?php
 	}
 
 	/**
-	 * Renders advanced checks and raw dumps.
+	 * Renders endpoint details and copyable ID lists.
 	 *
-	 * @param string              $abilities_url Abilities endpoint URL.
-	 * @param string              $categories_url Categories endpoint URL.
 	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
 	 */
-	private function render_advanced_checks( $abilities_url, $categories_url, array $registered ) {
+	private function render_advanced_checks( array $registered ) {
 		?>
-		<h2><?php echo esc_html__( 'Advanced Checks', 'npcink-abilities-toolkit' ); ?></h2>
+		<h2><?php echo esc_html__( 'Catalog export', 'npcink-abilities-toolkit' ); ?></h2>
 
 		<details class="npcink-abilities-toolkit-disclosure">
 			<summary>
-				<strong><?php echo esc_html__( 'Endpoint values', 'npcink-abilities-toolkit' ); ?></strong>
-				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Raw REST values for client setup and support checks.', 'npcink-abilities-toolkit' ); ?></span>
-			</summary>
-			<div class="npcink-abilities-toolkit-disclosure__body">
-				<table class="widefat striped">
-					<tbody>
-						<tr>
-							<th scope="row"><?php echo esc_html__( 'Abilities Endpoint', 'npcink-abilities-toolkit' ); ?></th>
-							<td><code><?php echo esc_html( $abilities_url ); ?></code></td>
-						</tr>
-						<tr>
-							<th scope="row"><?php echo esc_html__( 'Categories Endpoint', 'npcink-abilities-toolkit' ); ?></th>
-							<td><code><?php echo esc_html( $categories_url ); ?></code></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</details>
-
-		<details class="npcink-abilities-toolkit-disclosure">
-			<summary>
-				<strong><?php echo esc_html__( 'Raw ability ids', 'npcink-abilities-toolkit' ); ?></strong>
-				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Compatibility dump for catalog audits.', 'npcink-abilities-toolkit' ); ?></span>
+				<strong><?php echo esc_html__( 'Ability ID export', 'npcink-abilities-toolkit' ); ?></strong>
+				<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Copyable ID list for host and catalog audits.', 'npcink-abilities-toolkit' ); ?></span>
 			</summary>
 			<div class="npcink-abilities-toolkit-disclosure__body">
 				<p class="npcink-abilities-toolkit-actions">
@@ -870,46 +904,83 @@ final class Test_Page {
 	}
 
 	/**
-	 * Registers a small read-only demo ability.
+	 * Runs one allowlisted read-only ability check from the admin page.
 	 *
 	 * @return void
 	 */
-	private function register_demo_ability() {
-		$this->abilities->add_readonly(
-			'npcink-abilities-toolkit/site-summary',
-			array(
-				'label'            => __( 'Abilities API Site Summary', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a small site summary for testing WordPress Abilities API authentication and execution.', 'npcink-abilities-toolkit' ),
-				'capability'       => 'manage_options',
-				'input_schema'     => array(
-					'type'                 => 'object',
-					'additionalProperties' => false,
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'site_name'      => array( 'type' => 'string' ),
-						'site_url'       => array( 'type' => 'string' ),
-						'wp_version'     => array( 'type' => 'string' ),
-						'plugin_version' => array( 'type' => 'string' ),
-						'user'           => array( 'type' => 'string' ),
+	public function run_readonly_check() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to run this check.', 'npcink-abilities-toolkit' ) ), 403 );
+		}
+
+		check_ajax_referer( self::ADMIN_REQUEST_ACTION, 'nonce' );
+
+		$check = isset( $_POST['check'] ) ? sanitize_key( wp_unslash( $_POST['check'] ) ) : '';
+		$allowed = array(
+			'site-info'           => 'npcink-abilities-toolkit/site-info',
+			'diagnostics-summary' => 'npcink-abilities-toolkit/wp-diagnostics-summary',
+		);
+		if ( ! isset( $allowed[ $check ] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Unknown read-only check.', 'npcink-abilities-toolkit' ) ), 400 );
+		}
+
+		$ability_id = $allowed[ $check ];
+		$request    = new \WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $ability_id . '/run' );
+		$request->set_query_params( array( 'input' => $this->get_readonly_check_input( $check ) ) );
+		$response = rest_do_request( $request );
+
+		if ( function_exists( 'is_wp_error' ) && is_wp_error( $response ) ) {
+			wp_send_json(
+				array(
+					'ability_id' => $ability_id,
+					'status'     => 500,
+					'body'       => array(
+						'code'    => $response->get_error_code(),
+						'message' => $response->get_error_message(),
 					),
 				),
-				'execute_callback' => static function () {
-					return array(
-						'site_name'      => get_bloginfo( 'name' ),
-						'site_url'       => home_url(),
-						'wp_version'     => get_bloginfo( 'version' ),
-						'plugin_version' => defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '',
-						'user'           => wp_get_current_user()->user_login,
-					);
-				},
-			)
+				500
+			);
+		}
+
+		$status = is_object( $response ) && method_exists( $response, 'get_status' ) ? (int) $response->get_status() : 500;
+		$body   = is_object( $response ) && method_exists( $response, 'get_data' ) ? $response->get_data() : null;
+
+		wp_send_json(
+			array(
+				'ability_id' => $ability_id,
+				'status'     => $status,
+				'body'       => $body,
+			),
+			$status >= 400 ? $status : 200
 		);
 	}
 
 	/**
-	 * Returns environment status for the admin test page.
+	 * Returns bounded input for one admin read-only check.
+	 *
+	 * @param string $check Check key.
+	 * @return array<string,mixed>
+	 */
+	private function get_readonly_check_input( $check ) {
+		if ( 'diagnostics-summary' !== $check ) {
+			return array();
+		}
+
+		return array(
+			'include_plugins'      => false,
+			'include_theme'        => true,
+			'include_cron'         => false,
+			'include_updates'      => false,
+			'include_current_user' => false,
+			'include_object_cache' => true,
+			'include_rewrite'      => true,
+			'include_https'        => true,
+		);
+	}
+
+	/**
+	 * Returns environment status for the admin page.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -929,12 +1000,4 @@ final class Test_Page {
 		);
 	}
 
-	/**
-	 * Returns whether the demo ability is enabled.
-	 *
-	 * @return bool
-	 */
-	private function is_demo_enabled() {
-		return '1' === (string) get_option( self::OPTION_DEMO_ENABLED, '' );
-	}
 }
