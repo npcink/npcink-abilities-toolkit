@@ -86,3 +86,21 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 
 Record real-site smoke results in release verification when a Local WP site is
 available.
+
+## Next-Stage Gate
+
+Before broadening the ability surface or promoting another workflow recipe:
+
+1. Run `composer perf:smoke`.
+2. Confirm the promoted workflow can prefer an existing read-only entrypoint or
+   bounded read/proposal chain.
+3. Add a new performance smoke target only when the workflow adds a new
+   aggregator, cache path, or repeated scan pattern.
+4. Do not add cache coverage for write/destructive abilities or
+   approval-sensitive previews.
+5. Record real-site `composer smoke:wp` evidence in the relevant release
+   verification note when a Local WordPress site is available.
+
+The next promoted workflow definitions, `workflow/wordpress_article_optimization`
+and `workflow/wordpress_article_media_handoff`, intentionally reuse existing
+read/proposal abilities instead of introducing new scan or cache behavior.

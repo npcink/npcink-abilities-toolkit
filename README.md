@@ -56,9 +56,14 @@ are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governanc
 [docs/schema-boundary-audit.md](docs/schema-boundary-audit.md).
 Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
+Security and governance gates for this package's contract boundary are
+documented in [docs/security-and-governance-gates.md](docs/security-and-governance-gates.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
+The next-stage operating standard for freeze/observe mode, workflow proof,
+performance gates, and security boundaries is tracked in
+[docs/next-stage-operating-standard.md](docs/next-stage-operating-standard.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.

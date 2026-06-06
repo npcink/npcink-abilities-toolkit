@@ -2,10 +2,10 @@
 
 Status: active for 0.3 stabilization.
 
-This document defines the first three end-to-end workflows that should be proven
-before another large ability batch is added. The workflows are not a runtime
-owned by this package. They are consumption contracts for Npcink AI, WP Magick
-Toolbox, or any host that executes WordPress abilities.
+This document defines the first five end-to-end workflows that should be proven
+before another ability batch is added. The workflows are not a runtime owned by
+this package. They are consumption contracts for Npcink AI, WP Magick Toolbox,
+or any host that executes WordPress abilities.
 
 The broader public recipe catalog is documented in
 [Workflow Recipes](workflow-recipes.md). This validation document names the
@@ -91,6 +91,63 @@ Acceptance:
 - mention-trigger comments are detected as reply candidates;
 - moderation writes and destructive actions stay host-governed.
 
+## Workflow 4: Existing Article Optimization
+
+Goal: read an existing post, build optimization suggestions, and prepare a
+reviewable apply plan without patching content by default.
+
+Ability sequence:
+
+1. Prefer `npcink-abilities-toolkit/read-post-optimization-context` as the
+   entrypoint for the post optimization context.
+2. Run `npcink-abilities-toolkit/seo-report-context` when the host needs a
+   normalized report from SEO/GEO inputs.
+3. Run `npcink-abilities-toolkit/build-article-single-optimization-suggest` to
+   turn context and report signals into optimization suggestions.
+4. Run `npcink-abilities-toolkit/build-article-optimization-apply-plan` to
+   separate safe proposal fields from host-governed writes.
+5. Run `npcink-abilities-toolkit/compose-article-optimization-apply-result` to
+   normalize the host handoff result.
+6. Stop at proposal output unless the host explicitly approves
+   `npcink-abilities-toolkit/patch-post-content`,
+   `npcink-abilities-toolkit/set-post-seo-meta`, or
+   `npcink-abilities-toolkit/update-post-blocks`.
+
+Acceptance:
+
+- every read/proposal step returns HTTP 200 through WordPress Abilities API;
+- the entrypoint requires `post_id` and remains read-risk;
+- optimization suggestions and apply plans do not commit WordPress changes;
+- post mutation remains a separate host-governed write chain.
+
+## Workflow 5: Article Media Handoff
+
+Goal: prepare media SEO assets, inline image blocks, and placement guidance
+before a host imports media or applies metadata writes.
+
+Ability sequence:
+
+1. Prefer `npcink-abilities-toolkit/build-media-seo-assets` as the media handoff
+   entrypoint.
+2. Run `npcink-abilities-toolkit/get-post-context` when the host needs existing
+   article structure before placing media.
+3. Run `npcink-abilities-toolkit/build-inline-image-blocks` to build block
+   suggestions.
+4. Run `npcink-abilities-toolkit/position-inline-image-blocks` to prepare
+   placement output.
+5. Stop at proposal output unless the host explicitly approves
+   `npcink-abilities-toolkit/upload-media-from-url`,
+   `npcink-abilities-toolkit/update-media-details`, or
+   `npcink-abilities-toolkit/set-post-featured-image`.
+
+Acceptance:
+
+- every read/proposal step returns HTTP 200 through WordPress Abilities API;
+- the entrypoint remains read-risk and does not require host approval;
+- image source policy, copyright/license policy, uploads, metadata writes, and
+  featured-image writes remain host-owned;
+- media mutation remains a separate host-governed write chain.
+
 ## Smoke Mapping
 
 `tests/smoke-wp.php` now validates these workflow chains in addition to
@@ -102,13 +159,18 @@ single-ability registration and execution:
   baseline, link graph, link opportunity report, and refresh bundle.
 - Comment Compliance Handoff: compliance bundle, queue health, priority queue,
   moderation suggestion, and mention reply handoff.
+- Existing Article Optimization: optimization context, SEO report context,
+  optimization suggestion, apply plan, and composed apply result.
+- Article Media Handoff: media SEO assets, inline block generation, and inline
+  block placement, with upload and metadata writes kept out of the default
+  entrypoint.
 
 Use the Local WordPress command documented in
 [local-wpcli-smoke.md](local-wpcli-smoke.md) to rerun this validation.
 
 ## AI Consumer Replay Fixture
 
-`tests/fixtures/agent-workflow-replay.json` records the first three natural task
+`tests/fixtures/agent-workflow-replay.json` records the natural task
 replay cases for consumer-side validation. It is intentionally small and
 machine-readable:
 

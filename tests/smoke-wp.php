@@ -612,6 +612,8 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	npcink_abilities_toolkit_smoke_assert( 200 === (int) $workflow_recipes_run_response->get_status(), 'Authenticated workflow recipe discovery ability run returns 200.' );
 	$workflow_recipes_run_data = $workflow_recipes_run_response->get_data();
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_publish_preflight'] ), 'Workflow recipe discovery returns publish preflight definition.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_optimization'] ), 'Workflow recipe discovery returns article optimization definition.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_media_handoff'] ), 'Workflow recipe discovery returns article media handoff definition.' );
 
 	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-workflow-recipe/run' );
 	$workflow_recipe_run_request->set_query_params(
@@ -878,6 +880,133 @@ $old_article_refresh_run_response = rest_do_request( $old_article_refresh_run_re
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $old_article_refresh_run_response->get_status(), 'Authenticated old article refresh context ability run returns 200.' );
 $old_article_refresh_run_data = $old_article_refresh_run_response->get_data();
 
+$post_optimization_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/read-post-optimization-context/run' );
+$post_optimization_context_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post_id' => (int) $smoke_post_id,
+		),
+	)
+);
+$post_optimization_context_run_response = rest_do_request( $post_optimization_context_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $post_optimization_context_run_response->get_status(), 'Authenticated post optimization context ability run returns 200.' );
+$post_optimization_context_run_data = $post_optimization_context_run_response->get_data();
+
+$seo_report_context_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/seo-report-context/run' );
+$seo_report_context_run_request->set_query_params(
+	array(
+		'input' => array(
+			'input'         => 'This local smoke article needs more direct coverage for the workflow proof.',
+			'focus_keyword' => 'ability workflow',
+		),
+	)
+);
+$seo_report_context_run_response = rest_do_request( $seo_report_context_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $seo_report_context_run_response->get_status(), 'Authenticated SEO report context ability run returns 200.' );
+$seo_report_context_run_data = $seo_report_context_run_response->get_data();
+
+$article_optimization_suggest_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-single-optimization-suggest/run' );
+$article_optimization_suggest_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post'              => array(
+				'id'        => (int) $smoke_post_id,
+				'title'     => $npcink_abilities_toolkit_smoke_pattern . ' Context Post',
+				'status'    => 'draft',
+				'post_type' => 'post',
+				'excerpt'   => 'Smoke context post.',
+				'slug'      => 'npcink-abilities-toolkit-smoke-context-post',
+				'content'   => 'This local smoke article needs a clearer optimization handoff.',
+				'seo'       => array(
+					'provider'    => 'generic',
+					'title'       => '',
+					'description' => '',
+				),
+			),
+			'generated_excerpt' => array(
+				'proposal_text' => 'A concise smoke excerpt for the optimization workflow.',
+			),
+			'generated_seo'     => array(
+				'title'       => 'Ability Workflow Smoke',
+				'description' => 'A smoke-tested optimization workflow handoff.',
+			),
+			'seo_analysis'      => $seo_report_context_run_data['data'] ?? array(),
+			'geo_analysis'      => array(
+				'recommendations' => array(
+					array(
+						'type'     => 'faq_candidate',
+						'priority' => 'medium',
+						'title'    => 'Add an answer-first FAQ.',
+						'detail'   => 'Clarify the workflow proof with a direct answer.',
+					),
+				),
+			),
+			'focus_keyword'     => 'ability workflow',
+			'keywords'          => array( 'ability workflow' ),
+		),
+	)
+);
+$article_optimization_suggest_run_response = rest_do_request( $article_optimization_suggest_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_optimization_suggest_run_response->get_status(), 'Authenticated article optimization suggestion ability run returns 200.' );
+$article_optimization_suggest_run_data = $article_optimization_suggest_run_response->get_data();
+
+$article_optimization_apply_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-optimization-apply-plan/run' );
+$article_optimization_apply_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'post'              => array(
+				'id'      => (int) $smoke_post_id,
+				'title'   => $npcink_abilities_toolkit_smoke_pattern . ' Context Post',
+				'status'  => 'draft',
+				'excerpt' => 'Smoke context post.',
+			),
+			'report'            => array(
+				'summary' => array(
+					'status'                => 'needs_attention',
+					'high_priority_count'   => 1,
+					'total_recommendations' => 2,
+				),
+				'geo'     => array(
+					'summary' => array(
+						'faq_candidate_count' => 1,
+					),
+				),
+			),
+			'optimization_plan' => array(
+				'excerpt_mode' => 'apply',
+				'seo_mode'     => 'suggest',
+			),
+			'generated_excerpt' => array(
+				'proposal_text' => 'A concise smoke excerpt for the optimization workflow.',
+			),
+		),
+	)
+);
+$article_optimization_apply_plan_run_response = rest_do_request( $article_optimization_apply_plan_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_optimization_apply_plan_run_response->get_status(), 'Authenticated article optimization apply plan ability run returns 200.' );
+$article_optimization_apply_plan_run_data = $article_optimization_apply_plan_run_response->get_data();
+
+$article_optimization_apply_result_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/compose-article-optimization-apply-result/run' );
+$article_optimization_apply_result_run_request->set_query_params(
+	array(
+		'input' => array(
+			'report'        => array(
+				'summary' => array(
+					'status' => 'needs_attention',
+				),
+			),
+			'apply_plan'    => $article_optimization_apply_plan_run_data['data'] ?? array(),
+			'apply_excerpt' => array(
+				'updated' => false,
+				'post_id' => (int) $smoke_post_id,
+			),
+		),
+	)
+);
+$article_optimization_apply_result_run_response = rest_do_request( $article_optimization_apply_result_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_optimization_apply_result_run_response->get_status(), 'Authenticated article optimization apply result ability run returns 200.' );
+$article_optimization_apply_result_run_data = $article_optimization_apply_result_run_response->get_data();
+
 $smoke_attachment_id = wp_insert_post(
 	array(
 		'post_type'      => 'attachment',
@@ -1031,6 +1160,102 @@ $media_fix_plan_run_response = rest_do_request( $media_fix_plan_run_request );
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_fix_plan_run_response->get_status(), 'Authenticated media inventory fix plan ability run returns 200.' );
 $media_fix_plan_run_data = $media_fix_plan_run_response->get_data();
 npcink_abilities_toolkit_smoke_assert( false === ( $media_fix_plan_run_data['data']['commit_execution'] ?? null ), 'Media inventory fix plan does not execute commits.' );
+
+$media_seo_assets_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-media-seo-assets/run' );
+$media_seo_assets_run_request->set_query_params(
+	array(
+		'input' => array(
+			'article'                   => array(
+				'title'   => $npcink_abilities_toolkit_smoke_pattern . ' Context Post',
+				'excerpt' => 'Smoke media handoff context.',
+			),
+			'resolved_image_source'     => array(
+				'featured' => array(
+					'image_origin' => 'ai_generated',
+					'prompt'       => 'Generated smoke media prompt',
+					'role'         => 'featured',
+				),
+				'inline'   => array(
+					array(
+						'provider_hint'   => 'pexels',
+						'provider_title'  => 'Smoke provider image',
+						'section_heading' => 'Workflow proof',
+					),
+				),
+			),
+			'generated_featured_upload' => array(
+				'attachment_id' => (int) $smoke_attachment_id,
+				'url'           => content_url( 'uploads/2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg' ),
+				'file_name'     => 'npcink-abilities-toolkit-smoke-media-asset.jpg',
+			),
+		),
+	)
+);
+$media_seo_assets_run_response = rest_do_request( $media_seo_assets_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_seo_assets_run_response->get_status(), 'Authenticated media SEO assets ability run returns 200.' );
+$media_seo_assets_run_data = $media_seo_assets_run_response->get_data();
+
+$inline_image_blocks_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-inline-image-blocks/run' );
+$inline_image_blocks_run_request->set_query_params(
+	array(
+		'input' => array(
+			'uploaded_inline_media' => array(
+				array(
+					'attachment_id' => (int) $smoke_attachment_id,
+					'url'           => content_url( 'uploads/2026/06/npcink-abilities-toolkit-smoke-media-asset.jpg' ),
+					'alt'           => 'Smoke inline alt',
+					'caption'       => 'Smoke inline caption',
+				),
+			),
+			'inline_plan'           => array(
+				array(
+					'alt'           => 'Smoke inline alt',
+					'caption'       => 'Smoke inline caption',
+					'placement_key' => 'smoke-inline-proof',
+				),
+			),
+		),
+	)
+);
+$inline_image_blocks_run_response = rest_do_request( $inline_image_blocks_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $inline_image_blocks_run_response->get_status(), 'Authenticated inline image blocks ability run returns 200.' );
+$inline_image_blocks_run_data = $inline_image_blocks_run_response->get_data();
+
+$position_inline_blocks_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/position-inline-image-blocks/run' );
+$position_inline_blocks_run_request->set_query_params(
+	array(
+		'input' => array(
+			'existing_blocks' => array(
+				array(
+					'blockName'   => 'core/paragraph',
+					'attrs'       => array(),
+					'innerHTML'   => '<p>Intro</p>',
+					'innerBlocks' => array(),
+				),
+				array(
+					'blockName'   => 'core/heading',
+					'attrs'       => array(
+						'anchor' => 'workflow-proof',
+					),
+					'innerHTML'   => '<h2>Workflow proof</h2>',
+					'innerBlocks' => array(),
+				),
+			),
+			'inline_blocks'   => $inline_image_blocks_run_data['data']['blocks'] ?? array(),
+			'inline_plan'     => array(
+				array(
+					'placement_key'   => 'smoke-inline-proof',
+					'placement'       => 'after_heading',
+					'section_anchor'  => 'workflow-proof',
+					'section_heading' => 'Workflow proof',
+				),
+			),
+		),
+	)
+);
+$position_inline_blocks_run_response = rest_do_request( $position_inline_blocks_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $position_inline_blocks_run_response->get_status(), 'Authenticated inline image block positioning ability run returns 200.' );
+$position_inline_blocks_run_data = $position_inline_blocks_run_response->get_data();
 
 $seo_geo_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-post-seo-geo-readiness/run' );
 $seo_geo_run_request->set_query_params(
@@ -1309,6 +1534,25 @@ npcink_abilities_toolkit_smoke_assert(
 	&& true === ( $internal_link_run_data['success'] ?? null )
 	&& true === ( $old_article_refresh_run_data['success'] ?? null ),
 	'Content refresh workflow returns success envelopes across refresh, SEO/GEO gap, style, link graph, link opportunity, and refresh bundle context.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $post_optimization_context_run_data['success'] ?? null )
+	&& true === ( $seo_report_context_run_data['success'] ?? null )
+	&& true === ( $article_optimization_suggest_run_data['success'] ?? null )
+	&& true === ( $article_optimization_apply_plan_run_data['success'] ?? null )
+	&& true === ( $article_optimization_apply_result_run_data['success'] ?? null ),
+	'Article optimization workflow returns success envelopes across context, SEO report, suggestion, apply plan, and apply result.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $media_seo_assets_run_data['success'] ?? null )
+	&& true === ( $inline_image_blocks_run_data['success'] ?? null )
+	&& true === ( $position_inline_blocks_run_data['success'] ?? null ),
+	'Article media handoff workflow returns success envelopes across media assets, inline blocks, and positioning.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	false === ( $media_fix_plan_run_data['data']['commit_execution'] ?? null )
+	&& ! isset( $media_seo_assets_run_data['data']['commit_execution'] ),
+	'Article media handoff workflow keeps media write execution outside the default read chain.'
 );
 npcink_abilities_toolkit_smoke_assert(
 	true === ( $comment_queue_health_run_data['success'] ?? null )

@@ -2,6 +2,7 @@
 
 Status: release verification.
 Date: 2026-06-06.
+Updated: 2026-06-07.
 
 This note records the `0.5.0` release line after adding the taxonomy terms
 proposal helper, admin surface cleanup, public nonproduction naming cleanup, and
@@ -30,14 +31,26 @@ workflow gap, and verify the registered first-party ability surface directly.
 - `composer check:contracts` now audits the registered ability catalog after
   default plugin boot, including risk metadata, schemas, write controls, REST
   visibility, Magick/MCP metadata consistency, and workflow recipe references.
+- `docs/next-stage-operating-standard.md` records the freeze/observe operating
+  standard: workflow proof before ability expansion, declarative recipes,
+  performance gates, security contract discipline, and current release evidence.
+- `workflow/wordpress_article_optimization` and
+  `workflow/wordpress_article_media_handoff` were promoted to declarative
+  workflow definitions and replay-fixture cases without adding new abilities or
+  runtime ownership.
+- `docs/security-and-governance-gates.md` records the security boundary for
+  permission, metadata, dry-run, host-approval, schema, and diagnostics
+  redaction checks.
 
 ## Verification
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `composer check:contracts` | Pass | Registered first-party ability contract audit passed for 115 abilities. |
-| `composer test:all` | Pass | Composer validation, project boundary, consumer handoff, catalog audit, lightweight tests, and PHP lint passed; `OK: 2582 assertions`. |
-| `composer smoke:wp` | Pass | Full profile covered the taxonomy proposal helper; default profile reported `Smoke OK: 198 assertions`, light profile reported `Smoke OK: 14 assertions`. |
+| `composer check:contracts` | Pass | Registered first-party ability contract audit passed for 136 abilities. |
+| `composer test` | Pass | Lightweight tests passed; `OK: 3749 assertions`. |
+| `composer perf:smoke` | Pass | Content inventory, cached SEO/GEO gap, article publish preflight, old article refresh, and comment compliance handoff stayed within local budgets. |
+| `composer test:all` | Pass | Composer validation, project boundary, consumer handoff, catalog audit, WordPress.org guard, lightweight tests, and PHP lint passed; `OK: 3749 assertions`. |
+| `composer smoke:wp` | Pass | Shared Local site smoke covered taxonomy proposal, existing article optimization, and article media handoff; default profile reported `Smoke OK: 266 assertions`, light profile reported `Smoke OK: 21 assertions`. |
 | `npcink-ai-core composer test:all` | Pass | Core PHP lint and static contracts passed. |
 | `npcink-ai-core composer smoke:wp` | Pass | Core discovered `npcink-abilities-toolkit/propose-post-taxonomy-terms`, ran it through WordPress Abilities API, created and approved a `npcink-abilities-toolkit/set-post-terms` proposal, returned commit preflight with `commit_execution=false`, and did not mutate post terms. |
 
@@ -53,6 +66,8 @@ Keep `npcink-abilities-toolkit` in freeze/observe mode:
 - keep final taxonomy/media/write/destructive execution in host runtimes;
 - keep model routing, MCP governance, approval storage, audit, quota, and
   workflow runtime outside this package.
+- promote additional workflow recipes only when they can stay declarative and
+  reuse existing read/proposal ability contracts.
 
 The current harvest checkpoint is
 `docs/migration-notes/magick-ai-main-repo-harvest-2026-05-30.md`. It maps the
@@ -62,7 +77,8 @@ coverage and records that no new ability batch is open from those signals alone.
 ## Open Gaps
 
 No active `npcink-abilities-toolkit` schema, metadata, or ability contract gap is
-open for the taxonomy terms preview handoff.
+open for the taxonomy terms preview handoff, existing article optimization
+handoff, or article media handoff.
 
 Future work should start from a failed or incomplete host workflow proof, not
 from expanding the ability catalog opportunistically.

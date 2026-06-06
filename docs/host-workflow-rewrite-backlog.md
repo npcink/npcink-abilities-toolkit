@@ -25,10 +25,10 @@ For each candidate:
 | P0 | Article publish preflight | Already represented by read-only publishing context abilities and recipe docs. | Npcink AI Core, Content Assistant, or another publisher host. |
 | P0 | Old article refresh discovery | Already represented by refresh, SEO/GEO gap, style, and link graph abilities. | Content Assistant. |
 | P0 | Comment compliance handoff | Already represented by comment queue, priority, suggestion, and handoff abilities. | Content Assistant or comment compliance host. |
-| P1 | Existing article optimization | Good recipe fit: context -> suggestion -> apply plan -> dry-run write -> host approval. | Content Assistant. |
+| P1 | Existing article optimization | Promoted to declarative workflow definition and replay fixture. | Content Assistant. |
 | P1 | Article draft handoff | Good recipe fit, but model generation and editor UX belong to Content Assistant. | Content Assistant. |
 | P1 | Article production mainline | Good recipe fit for duplicate, style, review, media, and publish decision handoffs. | Content Assistant. |
-| P2 | Article media handoff | Good ability fit for media SEO assets, inline image blocks, upload preview, metadata preview. | Content Assistant. |
+| P2 | Article media handoff | Promoted to declarative workflow definition and replay fixture; host still owns upload and metadata approval. | Content Assistant. |
 | P2 | Media alt and SEO enrichment | Good proposal-first ability fit; batch scheduling belongs to the host. | Content Assistant or media tools host. |
 | P2 | Content tag completion | Useful candidate, but taxonomy proposal generation needs a stable schema decision. | Content Assistant or editorial taxonomy host. |
 | P3 | Cleanup old drafts | Keep as discovery until a host governance screen exists for destructive actions. | Toolbox or an operations host, not Npcink AI Core by default. |

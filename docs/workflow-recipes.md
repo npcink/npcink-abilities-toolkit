@@ -215,12 +215,14 @@ reviewable apply plan.
 
 Ability sequence:
 
-1. `npcink-abilities-toolkit/read-post-optimization-context`
-2. `npcink-abilities-toolkit/seo-report-context`
-3. `npcink-abilities-toolkit/build-article-single-optimization-suggest`
-4. `npcink-abilities-toolkit/build-article-optimization-apply-plan`
-5. `npcink-abilities-toolkit/compose-article-optimization-apply-result`
-6. Optional dry-run: `npcink-abilities-toolkit/patch-post-content`,
+1. Preferred entrypoint: `npcink-abilities-toolkit/read-post-optimization-context`
+2. Expanded sequence when the host needs individual calls:
+   `npcink-abilities-toolkit/read-post-optimization-context`,
+   `npcink-abilities-toolkit/seo-report-context`,
+   `npcink-abilities-toolkit/build-article-single-optimization-suggest`,
+   `npcink-abilities-toolkit/build-article-optimization-apply-plan`, and
+   `npcink-abilities-toolkit/compose-article-optimization-apply-result`
+3. Optional dry-run: `npcink-abilities-toolkit/patch-post-content`,
    `npcink-abilities-toolkit/set-post-seo-meta`, or `npcink-abilities-toolkit/update-post-blocks`
 
 Handoff:
@@ -233,6 +235,38 @@ Governance:
 
 - suggestions and apply plans are read/proposal outputs;
 - WordPress mutations are host-governed writes.
+
+## Recipe: Article Media Handoff
+
+Recipe id: `workflow/wordpress_article_media_handoff`
+
+Goal: prepare article media assets, inline image blocks, and placement guidance
+before a host imports media or applies metadata writes.
+
+Ability sequence:
+
+1. Preferred entrypoint: `npcink-abilities-toolkit/build-media-seo-assets`
+2. Expanded sequence when the host needs individual calls:
+   `npcink-abilities-toolkit/get-post-context`,
+   `npcink-abilities-toolkit/build-inline-image-blocks`,
+   `npcink-abilities-toolkit/build-media-seo-assets`, and
+   `npcink-abilities-toolkit/position-inline-image-blocks`
+3. Optional dry-run: `npcink-abilities-toolkit/upload-media-from-url`,
+   `npcink-abilities-toolkit/update-media-details`, or
+   `npcink-abilities-toolkit/set-post-featured-image`
+
+Handoff:
+
+- pass post context, media SEO assets, inline blocks, placement output, and any
+  write previews to the host;
+- let the host own source-image policy, copyright/license policy, upload
+  approval, and metadata commit decisions.
+
+Governance:
+
+- media asset and block steps are read/proposal outputs;
+- uploads, attachment metadata updates, and featured-image writes remain
+  host-governed.
 
 ## Recipe: Old Article Refresh Discovery
 
