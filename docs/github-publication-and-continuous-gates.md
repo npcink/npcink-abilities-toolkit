@@ -20,7 +20,8 @@ GitHub repository state verified on 2026-06-07:
 - visibility: public;
 - default branch: `master`;
 - published branch: `master`;
-- published tags: `0.2.0`, `0.4.0`, `0.5.0`.
+- published tags: `0.2.0`, `0.4.0`, `0.5.0`;
+- next maintenance tag: `0.5.1`.
 
 The local checkout now uses GitHub as `origin`:
 
@@ -107,5 +108,4 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 ```
 
 3. Record the smoke result in the next release verification note.
-4. Tag a new patch release, for example `0.5.1`, from the verified `master`
-   commit instead of retagging `0.5.0`.
+4. Tag `0.5.1` from the verified `master` commit instead of retagging `0.5.0`.

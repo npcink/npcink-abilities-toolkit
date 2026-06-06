@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.1 - 2026-06-07
+
+- Added Composer dependency advisory audit to the default `composer test:all`
+  source gate.
+- Aligned GitHub Actions and PHPStan with the package PHP 8.0 runtime floor.
+- Published the canonical public GitHub repository and documented the
+  post-publication gate baseline.
+- Upgraded GitHub Actions checkout to the Node 24-compatible
+  `actions/checkout@v5`.
+
 ## 0.5.0 - 2026-06-06
 
 - Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks.

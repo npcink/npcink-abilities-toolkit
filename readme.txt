@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,13 @@ For isolated bounded-chain performance validation, run:
 `composer perf:smoke`
 
 == Changelog ==
+
+= 0.5.1 =
+
+* Added Composer dependency advisory audit to the default local and CI source gate.
+* Aligned CI and PHPStan with the package PHP 8.0 runtime floor.
+* Published the canonical public GitHub repository and documented the post-publication gate baseline.
+* Upgraded GitHub Actions checkout to the Node 24-compatible `actions/checkout@v5`.
 
 = 0.5.0 =
 

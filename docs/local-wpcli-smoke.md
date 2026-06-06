@@ -107,6 +107,10 @@ Verification status through 2026-05-30:
   fingerprints, top-message summaries, and safe PHAR basename hints: default
   profile `Smoke OK: 218 assertions`, light `core_wordpress_read` profile
   `Smoke OK: 19 assertions`.
+- On 2026-06-07, `composer smoke:wp` passed for the 0.5.1 maintenance patch
+  after GitHub publication and continuous-gate hardening: default profile
+  `Smoke OK: 266 assertions`, light `core_wordpress_read` profile
+  `Smoke OK: 21 assertions`.
 
 The current WP-CLI phar emits PHP 8.5 deprecation notices from
 `vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
@@ -136,8 +140,8 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 218 assertions
-Smoke OK: 19 assertions
+Smoke OK: 266 assertions
+Smoke OK: 21 assertions
 ```
 
 The default smoke profile verifies Abilities API availability, authenticated
