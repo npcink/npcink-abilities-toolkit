@@ -18,16 +18,18 @@ write behavior:
 composer test:all
 ```
 
-`composer test:all` is the default local source gate. It runs composer validation,
-project boundary checks, contract readiness, consumer handoff, workflow consumer
-proof, official stack compatibility, MCP exposure, provider demo compatibility,
-catalog audit, WordPress.org static review checks, performance smoke,
-lightweight regression tests, and PHP syntax linting.
+`composer test:all` is the default local source gate. It runs composer
+validation, Composer dependency advisory audit, project boundary checks,
+contract readiness, consumer handoff, workflow consumer proof, official stack
+compatibility, MCP exposure, provider demo compatibility, catalog audit,
+WordPress.org static review checks, performance smoke, lightweight regression
+tests, and PHP syntax linting.
 
 Run targeted gates while iterating:
 
 ```bash
 composer test
+composer audit:composer
 composer check:boundary
 composer check:contracts
 composer check:consumer
@@ -79,6 +81,24 @@ change can affect:
 - consumer proposal payload handoff;
 - provider demo compatibility with public helpers;
 - diagnostic redaction and bounded performance behavior.
+
+## Change-To-Gate Rules
+
+Use these targeted rules while developing. The full `composer test:all` source
+gate still runs before merge, but these commands identify which contract should
+move with each kind of change.
+
+| Change type | Required coverage or gate |
+| --- | --- |
+| `includes/Registry/*`, public helper registration, schema normalization, or annotation normalization | Add or update focused assertions in `tests/run.php`, then run `composer test` and `composer check:contracts`. |
+| First-party ability ids, labels, descriptions, categories, schemas, risk metadata, approval flags, dry-run controls, or idempotency controls | Add or update `composer check:contracts` coverage, and update catalog or consumer fixtures when the public contract intentionally changes. |
+| Consumer handoff shape, Core governance proposal payloads, or high-value write/destructive target discovery | Run and update `composer check:consumer` and `composer check:catalog` as needed. |
+| Workflow definition provider, replay fixture, recipe entrypoints, expanded ability chains, or disallowed write defaults | Update the replay fixture and run `composer check:workflow-consumer`. |
+| MCP public exposure, MCP risk metadata, annotations, or read/write server routing | Update the MCP exposure assertions and run `composer check:mcp-exposure`. |
+| Provider helper behavior, third-party demo registration, or Npcink catalog projection defaults | Update the demo or projection assertions and run `composer check:provider-demo`. |
+| WordPress.org review-risk surfaces such as admin assets, nonce handling, escaping, or forbidden include paths | Update static guards when possible and run `composer check:wporg`; before packaging, also run `composer check:plugin-package` in a WordPress environment. |
+| Performance-sensitive read chains, bounded aggregators, diagnostics, or cache behavior | Update `tests/performance-smoke.php` when the budgeted path changes and run `composer perf:smoke`. |
+| Public PHP class boundaries, bootstrap assumptions, or typed contracts | Run `composer analyse:phpstan` in addition to the source gate. |
 
 ## What Not To Test Here
 
