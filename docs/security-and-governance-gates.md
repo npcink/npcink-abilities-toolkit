@@ -82,6 +82,7 @@ The contract audit must fail when:
 - write-like input schemas accept undeclared fields without a documented
   exception;
 - REST, MCP, Npcink, or annotation risk metadata drift apart;
+- MCP-public read abilities drift outside the ADR 0004 entrypoint allowlist;
 - required `agent_usage` guidance is missing from priority or high-risk
   abilities;
 - workflow recipes reference missing or non-read expanded abilities.

@@ -32,6 +32,13 @@ final class Core_WordPress_Read_Definitions {
 				'required_scopes'  => array( 'cap.workflowwp.env.diagnostics' ),
 				'contract_version' => 'v1',
 				'source'           => 'official',
+				'meta'             => array(
+					'mcp' => array(
+						'public' => true,
+						'server' => 'npcink-abilities-toolkit-read',
+						'risk'   => 'read',
+					),
+				),
 				'input_schema'     => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
@@ -59,6 +66,13 @@ final class Core_WordPress_Read_Definitions {
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
+				'meta'             => array(
+					'mcp' => array(
+						'public' => true,
+						'server' => 'npcink-abilities-toolkit-read',
+						'risk'   => 'read',
+					),
+				),
 				'input_schema'     => array(
 					'type'       => 'object',
 					'properties' => array(
@@ -97,6 +111,13 @@ final class Core_WordPress_Read_Definitions {
 				'capability'       => 'manage_categories',
 				'contract_version' => 'v1',
 				'source'           => 'official',
+				'meta'             => array(
+					'mcp' => array(
+						'public' => true,
+						'server' => 'npcink-abilities-toolkit-read',
+						'risk'   => 'read',
+					),
+				),
 				'input_schema'     => array(
 					'type'       => 'object',
 					'properties' => array(

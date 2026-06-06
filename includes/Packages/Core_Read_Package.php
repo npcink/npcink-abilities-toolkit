@@ -192,6 +192,13 @@ final class Core_Read_Package {
 					'capability'       => 'manage_options',
 					'contract_version' => 'v1',
 					'source'           => 'official',
+					'meta'             => array(
+						'mcp' => array(
+							'public' => true,
+							'server' => 'npcink-abilities-toolkit-read',
+							'risk'   => 'read',
+						),
+					),
 					'input_schema'     => array(
 						'type'                 => 'object',
 						'properties'           => array(),
@@ -215,6 +222,13 @@ final class Core_Read_Package {
 					'capability'       => 'manage_options',
 					'contract_version' => 'v1',
 					'source'           => 'official',
+					'meta'             => array(
+						'mcp' => array(
+							'public' => true,
+							'server' => 'npcink-abilities-toolkit-read',
+							'risk'   => 'read',
+						),
+					),
 					'input_schema'     => array(
 						'type'                 => 'object',
 						'properties'           => array(

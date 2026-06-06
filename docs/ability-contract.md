@@ -79,6 +79,8 @@ Rules:
 
 - `meta.show_in_rest` defaults to `true`.
 - `meta.mcp.public` is not the same as `meta.show_in_rest`.
+- Default MCP-public read abilities are limited to the approved entrypoint
+  allowlist recorded in [ADR 0004](adr/0004-default-mcp-exposure-policy.md).
 - `meta.npcink.channels` is not the same as REST exposure.
 - `project_to_npcink_catalog` controls Npcink AI compatibility projection and
   defaults to `false` for provider abilities.

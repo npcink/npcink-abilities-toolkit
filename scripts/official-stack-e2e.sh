@@ -351,11 +351,12 @@ validate_mcp_http_probe() {
 	local initialize_body="$1"
 	local tools_body="$2"
 	local discover_body="$3"
-	local execute_body="$4"
-	local summary_file="$5"
+	local execute_read_body="$4"
+	local execute_write_body="$5"
+	local summary_file="$6"
 
 	php -r '
-		[$initialize_file, $tools_file, $discover_file, $execute_file, $summary_file] = array_slice($argv, 1);
+		[$initialize_file, $tools_file, $discover_file, $execute_read_file, $execute_write_file, $summary_file] = array_slice($argv, 1);
 
 		$read_json = static function ($file, $label) {
 			$data = json_decode((string) file_get_contents($file), true);
@@ -369,7 +370,8 @@ validate_mcp_http_probe() {
 		$initialize = $read_json($initialize_file, "MCP initialize");
 		$tools = $read_json($tools_file, "MCP tools/list");
 		$discover = $read_json($discover_file, "MCP discover abilities");
-		$execute = $read_json($execute_file, "MCP execute ability");
+		$execute_read = $read_json($execute_read_file, "MCP execute read ability");
+		$execute_write = $read_json($execute_write_file, "MCP execute write ability");
 
 		if (($initialize["result"]["serverInfo"]["name"] ?? "") !== "MCP Adapter Default Server") {
 			fwrite(STDERR, "MCP initialize did not return the default server info\n");
@@ -400,22 +402,43 @@ validate_mcp_http_probe() {
 			static fn($ability) => 0 === strpos((string) ($ability["name"] ?? ""), "npcink-abilities-toolkit/")
 		));
 		$ability_names = array_map(static fn($ability) => $ability["name"] ?? "", $npcink_abilities);
-		if (!in_array("npcink-abilities-toolkit/create-draft", $ability_names, true)) {
-			fwrite(STDERR, "MCP discover abilities did not include npcink-abilities-toolkit/create-draft\n");
-			exit(1);
+		$expected_read_entrypoints = array(
+			"npcink-abilities-toolkit/site-info",
+			"npcink-abilities-toolkit/list-post-types",
+			"npcink-abilities-toolkit/list-taxonomies",
+			"npcink-abilities-toolkit/list-workflow-recipes",
+			"npcink-abilities-toolkit/get-workflow-recipe",
+		);
+		foreach (array_merge($expected_read_entrypoints, array("npcink-abilities-toolkit/create-draft")) as $required_ability) {
+			if (!in_array($required_ability, $ability_names, true)) {
+				fwrite(STDERR, "MCP discover abilities did not include {$required_ability}\n");
+				exit(1);
+			}
 		}
 
-		$structured = $execute["result"]["structuredContent"] ?? array();
-		if (true !== ($structured["success"] ?? null)) {
-			fwrite(STDERR, "MCP execute ability did not return success=true\n");
+		$read_structured = $execute_read["result"]["structuredContent"] ?? array();
+		if (true !== ($read_structured["success"] ?? null)) {
+			fwrite(STDERR, "MCP execute read ability did not return success=true\n");
 			exit(1);
 		}
-		if (true !== ($structured["data"]["dry_run"] ?? null)) {
-			fwrite(STDERR, "MCP execute ability did not preserve dry_run=true\n");
+		foreach (array("name", "home_url", "site_url") as $required_field) {
+			if (!is_string($read_structured["data"][$required_field] ?? null) || "" === $read_structured["data"][$required_field]) {
+				fwrite(STDERR, "MCP execute read ability did not return {$required_field}\n");
+				exit(1);
+			}
+		}
+
+		$write_structured = $execute_write["result"]["structuredContent"] ?? array();
+		if (true !== ($write_structured["success"] ?? null)) {
+			fwrite(STDERR, "MCP execute write ability did not return success=true\n");
 			exit(1);
 		}
-		if (true !== ($structured["data"]["commit_required"] ?? null)) {
-			fwrite(STDERR, "MCP execute ability did not report commit_required=true\n");
+		if (true !== ($write_structured["data"]["dry_run"] ?? null)) {
+			fwrite(STDERR, "MCP execute write ability did not preserve dry_run=true\n");
+			exit(1);
+		}
+		if (true !== ($write_structured["data"]["commit_required"] ?? null)) {
+			fwrite(STDERR, "MCP execute write ability did not report commit_required=true\n");
 			exit(1);
 		}
 
@@ -427,14 +450,16 @@ validate_mcp_http_probe() {
 					"tool_count" => count($tool_names),
 					"ability_count" => count($abilities),
 					"npcink_ability_count" => count($npcink_abilities),
-					"executed_ability" => "npcink-abilities-toolkit/create-draft",
-					"dry_run" => $structured["data"]["dry_run"] ?? null,
-					"commit_required" => $structured["data"]["commit_required"] ?? null,
+					"expected_read_entrypoints" => $expected_read_entrypoints,
+					"executed_read_ability" => "npcink-abilities-toolkit/site-info",
+					"executed_write_ability" => "npcink-abilities-toolkit/create-draft",
+					"dry_run" => $write_structured["data"]["dry_run"] ?? null,
+					"commit_required" => $write_structured["data"]["commit_required"] ?? null,
 				),
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			) . PHP_EOL
 		);
-	' "$initialize_body" "$tools_body" "$discover_body" "$execute_body" "$summary_file"
+	' "$initialize_body" "$tools_body" "$discover_body" "$execute_read_body" "$execute_write_body" "$summary_file"
 }
 
 run_mcp_http_probe() {
@@ -459,11 +484,13 @@ run_mcp_http_probe() {
 	local initialize_payload="$payload_dir/initialize.request.json"
 	local tools_payload="$payload_dir/tools-list.request.json"
 	local discover_payload="$payload_dir/discover-abilities.request.json"
-	local execute_payload="$payload_dir/execute-create-draft.request.json"
+	local execute_read_payload="$payload_dir/execute-site-info.request.json"
+	local execute_write_payload="$payload_dir/execute-create-draft.request.json"
 	local initialize_body="$payload_dir/initialize.response.json"
 	local tools_body="$payload_dir/tools-list.response.json"
 	local discover_body="$payload_dir/discover-abilities.response.json"
-	local execute_body="$payload_dir/execute-create-draft.response.json"
+	local execute_read_body="$payload_dir/execute-site-info.response.json"
+	local execute_write_body="$payload_dir/execute-create-draft.response.json"
 	local headers="$payload_dir/headers.txt"
 	local summary="$ARTIFACT_DIR/mcp-http-summary.json"
 
@@ -476,8 +503,11 @@ EOF
 	cat > "$discover_payload" <<'EOF'
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mcp-adapter-discover-abilities","arguments":{}}}
 EOF
-	cat > "$execute_payload" <<'EOF'
-{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
+	cat > "$execute_read_payload" <<'EOF'
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/site-info","parameters":{}}}}
+EOF
+	cat > "$execute_write_payload" <<'EOF'
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
 EOF
 
 	log "Running MCP HTTP initialize"
@@ -492,10 +522,13 @@ EOF
 	log "Running MCP HTTP discover abilities"
 	json_rpc_request "$app_password" "$session_id" "$discover_payload" "$discover_body" "$headers"
 
-	log "Running MCP HTTP dry-run execute"
-	json_rpc_request "$app_password" "$session_id" "$execute_payload" "$execute_body" "$headers"
+	log "Running MCP HTTP read entrypoint execute"
+	json_rpc_request "$app_password" "$session_id" "$execute_read_payload" "$execute_read_body" "$headers"
 
-	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$execute_body" "$summary"
+	log "Running MCP HTTP governed write dry-run execute"
+	json_rpc_request "$app_password" "$session_id" "$execute_write_payload" "$execute_write_body" "$headers"
+
+	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$execute_read_body" "$execute_write_body" "$summary"
 	delete_mcp_probe_app_passwords
 	trap - EXIT
 

@@ -125,10 +125,12 @@ The default MCP Adapter server exposes a small fixed tool set:
 
 Individual WordPress abilities are discovered and executed through those tools.
 Only abilities with `meta.mcp.public=true` appear through the default MCP
-server. This is why `npcink-abilities-toolkit/create-draft` is MCP-discoverable
-while read-only context abilities such as `npcink-abilities-toolkit/site-info`
-remain available through REST and the official Abilities Explorer, but not
-through the default MCP server.
+server. The default public surface is intentionally narrow: five read
+entrypoints (`site-info`, `list-post-types`, `list-taxonomies`,
+`list-workflow-recipes`, and `get-workflow-recipe`) plus governed write and
+destructive dry-run abilities. Diagnostics, broad content scans, media
+inventory scans, user lists, and comment queues remain available through REST
+and the official Abilities Explorer, but are not default MCP public abilities.
 
 ## Local Verification
 
@@ -147,7 +149,8 @@ Last verified on 2026-06-07 with the reusable Docker environment:
 - The official Abilities Explorer successfully invoked
   `npcink-abilities-toolkit/site-info` with `{}` input.
 - MCP HTTP verification initialized the default MCP server, listed the three
-  adapter tools, discovered public Npcink abilities, and executed
+  adapter tools, discovered public Npcink abilities, executed
+  `npcink-abilities-toolkit/site-info` as a read entrypoint, and executed
   `npcink-abilities-toolkit/create-draft` as a governed dry run.
 
 ## Local App Role

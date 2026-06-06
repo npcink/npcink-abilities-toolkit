@@ -336,7 +336,7 @@
       },
       "meta": {
         "show_in_rest": true,
-        "mcp_public": false,
+        "mcp_public": true,
         "mcp_server": "npcink-abilities-toolkit-read",
         "mcp_risk": "read"
       }
@@ -367,7 +367,7 @@
       },
       "meta": {
         "show_in_rest": true,
-        "mcp_public": false,
+        "mcp_public": true,
         "mcp_server": "npcink-abilities-toolkit-read",
         "mcp_risk": "read"
       }

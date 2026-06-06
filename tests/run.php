@@ -1192,6 +1192,26 @@ npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['
 npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media inventory fix plan is classified as media governance' );
 npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
+	$expected_mcp_public_read_ability_ids = array(
+		'npcink-abilities-toolkit/get-workflow-recipe',
+		'npcink-abilities-toolkit/list-post-types',
+		'npcink-abilities-toolkit/list-taxonomies',
+		'npcink-abilities-toolkit/list-workflow-recipes',
+		'npcink-abilities-toolkit/site-info',
+	);
+	$mcp_public_read_ability_ids = array();
+	foreach ( $package_abilities as $ability_id => $definition ) {
+		if ( 'read' === (string) ( $definition['risk_level'] ?? '' ) && true === (bool) ( $definition['meta']['mcp']['public'] ?? false ) ) {
+			$mcp_public_read_ability_ids[] = (string) $ability_id;
+		}
+	}
+	sort( $mcp_public_read_ability_ids );
+	npcink_abilities_toolkit_assert_same( $expected_mcp_public_read_ability_ids, $mcp_public_read_ability_ids, 'default MCP-public read surface stays limited to approved entrypoint abilities' );
+	foreach ( $expected_mcp_public_read_ability_ids as $ability_id ) {
+		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-read', $package_abilities[ $ability_id ]['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on the read MCP server" );
+	}
+	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['meta']['mcp']['public'] ?? null, 'diagnostics summary stays out of default MCP discovery' );
+	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['meta']['mcp']['public'] ?? null, 'site operations dashboard stays out of default MCP discovery' );
 	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );

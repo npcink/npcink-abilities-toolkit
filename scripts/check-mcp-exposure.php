@@ -23,6 +23,14 @@ function npcink_abilities_toolkit_mcp_exposure_assert( $condition, $message ) {
 Npcink_Abilities_Toolkit\Plugin::instance()->boot();
 
 $abilities = npcink_abilities_toolkit_get_registered();
+$expected_public_read_abilities = array(
+	'npcink-abilities-toolkit/site-info',
+	'npcink-abilities-toolkit/list-post-types',
+	'npcink-abilities-toolkit/list-taxonomies',
+	'npcink-abilities-toolkit/list-workflow-recipes',
+	'npcink-abilities-toolkit/get-workflow-recipe',
+);
+$public_read_abilities = array();
 
 foreach ( $abilities as $ability_id => $ability ) {
 	$ability_id = (string) $ability_id;
@@ -43,6 +51,9 @@ foreach ( $abilities as $ability_id => $ability ) {
 
 	if ( $is_public ) {
 		npcink_abilities_toolkit_mcp_exposure_assert( true === (bool) ( $meta['show_in_rest'] ?? false ), "{$ability_id} MCP-public abilities are also REST-discoverable" );
+		if ( ! $is_write ) {
+			$public_read_abilities[] = $ability_id;
+		}
 	}
 
 	if ( $is_write ) {
@@ -53,6 +64,10 @@ foreach ( $abilities as $ability_id => $ability ) {
 		npcink_abilities_toolkit_mcp_exposure_assert( false === (bool) ( $ability['input_schema']['properties']['commit']['default'] ?? true ), "{$ability_id} MCP write-like commit defaults to false" );
 	}
 }
+
+sort( $public_read_abilities );
+sort( $expected_public_read_abilities );
+npcink_abilities_toolkit_mcp_exposure_assert( $expected_public_read_abilities === $public_read_abilities, 'MCP-public read abilities match the approved entrypoint allowlist' );
 
 if ( ! empty( $failures ) ) {
 	foreach ( $failures as $failure ) {

@@ -87,9 +87,9 @@ For a disposable or local WordPress site with WordPress 7.0+ and PHP 8.0+:
    host-governed write ability such as `npcink-abilities-toolkit/create-draft`.
 6. In the AI plugin's ability/explorer surface, confirm the same abilities show
    labels, descriptions, input schemas, and risk annotations.
-7. In the MCP Adapter surface, confirm read abilities route to the read server
-   metadata and write/destructive abilities route to the governed write server
-   metadata with dry-run defaults.
+7. In the MCP Adapter surface, confirm the approved read entrypoints route to
+   the read server metadata and write/destructive abilities route to the
+   governed write server metadata with dry-run defaults.
 8. Run this repository's real-site smoke:
 
 ```bash
