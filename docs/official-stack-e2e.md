@@ -8,6 +8,9 @@ against the official WordPress AI stack. It is separate from `composer
 test:all` because it depends on Docker, network downloads, WordPress startup,
 and current official plugin release artifacts.
 
+The current official-stack MCP integration phase is summarized in
+[Official Stack MCP Phase Summary](official-stack-mcp-phase-summary.md).
+
 ## Why Docker First
 
 Use Docker for frequent compatibility testing because it is isolated,
