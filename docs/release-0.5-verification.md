@@ -50,7 +50,8 @@ workflow gap, and verify the registered first-party ability surface directly.
 - `docs/testing-strategy.md` documents the foundation-layer testing policy:
   contract and invariant gates are release-critical, while host runtime,
   approval storage, audit, quota, model routing, and product UX remain outside
-  this package's default local test loop.
+  this package's default local test loop. WordPress.org packaging still follows
+  the release runbook's additional PHPStan, smoke, and Plugin Check gates.
 
 ## Verification
 

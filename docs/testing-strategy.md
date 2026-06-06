@@ -10,15 +10,15 @@ grow into broad product workflow automation or coverage-driven test volume.
 
 ## Default Gate
 
-Run this before release work and before merging changes that affect registered
-abilities, schemas, metadata, workflow recipes, projection, diagnostics, or
-host-governed write behavior:
+Run this before merging source changes that affect registered abilities,
+schemas, metadata, workflow recipes, projection, diagnostics, or host-governed
+write behavior:
 
 ```bash
 composer test:all
 ```
 
-`composer test:all` is the local release gate. It runs composer validation,
+`composer test:all` is the default local source gate. It runs composer validation,
 project boundary checks, contract readiness, consumer handoff, workflow consumer
 proof, official stack compatibility, MCP exposure, provider demo compatibility,
 catalog audit, WordPress.org static review checks, performance smoke,
@@ -36,12 +36,31 @@ composer check:official-stack
 composer check:mcp-exposure
 composer check:provider-demo
 composer check:catalog
+composer check:wporg
 composer perf:smoke
 ```
 
 Use `composer smoke:wp` only when a real WordPress site is available. Use
 `composer e2e:official-stack` when changing assumptions about the official
 Abilities API, AI plugin, or MCP Adapter stack.
+
+## Release And Packaging Gates
+
+`composer test:all` is not the complete WordPress.org publishing gate. Before
+tagging or committing a package to WordPress.org SVN, follow
+[WordPress.org Release Runbook](wordpress-org-release-runbook.md) and run the
+additional release checks there:
+
+```bash
+composer analyse:phpstan
+composer smoke:wp
+composer check:plugin-package
+```
+
+Use `composer analyse:phpstan` when public PHP contracts, class boundaries, or
+bootstrap assumptions change, even outside a WordPress.org release. Use
+`composer check:plugin-package` only in a WordPress environment with WP-CLI and
+Plugin Check available.
 
 ## What To Test
 

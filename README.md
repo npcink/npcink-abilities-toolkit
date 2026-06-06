@@ -267,7 +267,7 @@ These abilities return read-only recipe definitions for host-side ability compos
 
 The testing strategy is documented in
 [docs/testing-strategy.md](docs/testing-strategy.md). The default local release
-gate is:
+source gate is:
 
 ```bash
 composer test:all

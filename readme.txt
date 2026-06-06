@@ -68,7 +68,7 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 
 == Developer Verification ==
 
-For the default local release gate, run:
+For the default local source gate, run:
 
 `composer test:all`
 
@@ -90,7 +90,7 @@ For isolated bounded-chain performance validation, run:
 * Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public `test` terminology in released ability ids and schema fields.
 * Added taxonomy assignment proposal support and strengthened Core consumer handoff checks for harvested workflow surfaces.
 * Hardened media replacement and Cloud derivative adoption previews so approved replacements can repair exact post-content media URLs, including old intermediate-size URLs.
-* Documented the foundation-layer testing strategy and default local release gate.
+* Documented the foundation-layer testing strategy and default local source gate.
 
 = 0.4.0 =
 
