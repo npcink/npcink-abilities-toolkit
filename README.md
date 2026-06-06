@@ -265,6 +265,14 @@ These abilities return read-only recipe definitions for host-side ability compos
 
 ## Development
 
+The testing strategy is documented in
+[docs/testing-strategy.md](docs/testing-strategy.md). The default local release
+gate is:
+
+```bash
+composer test:all
+```
+
 Run the lightweight regression tests:
 
 ```bash
@@ -277,7 +285,7 @@ Run syntax linting:
 composer lint:php
 ```
 
-Run both:
+Run syntax, contract, governance, performance, and lightweight regression gates:
 
 ```bash
 composer test:all

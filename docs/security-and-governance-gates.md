@@ -39,6 +39,9 @@ another consuming host.
 
 ## Required Local Gates
 
+The scope rules for when to add lightweight contract, smoke, performance, or E2E
+coverage are documented in [Testing Strategy](testing-strategy.md).
+
 Run these before release work:
 
 ```bash

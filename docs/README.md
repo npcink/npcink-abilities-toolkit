@@ -61,11 +61,13 @@ current WordPress user is allowed to execute.
 Use this path when changing this package.
 
 1. Run the lightweight local gates listed in [Security And Governance Gates](security-and-governance-gates.md).
-2. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
+2. Use [Testing Strategy](testing-strategy.md) to decide when to add contract,
+   smoke, performance, or E2E coverage.
+3. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
    when a WordPress site is available.
-3. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
+4. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
    official Abilities API, MCP, or AI plugin compatibility assumptions.
-4. Record release evidence in the relevant release verification document.
+5. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
