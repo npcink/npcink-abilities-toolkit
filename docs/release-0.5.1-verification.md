@@ -31,7 +31,7 @@ continuous gate hardening after the `0.5.0` release.
 | `composer test:all` | Pass | Composer validation, dependency advisory audit, project boundary, contract, consumer, workflow, official-stack, MCP, provider demo, catalog, WordPress.org guard, performance, lightweight tests, and PHP lint passed; `OK: 3757 assertions`. |
 | `composer analyse:phpstan` | Pass | PHPStan completed successfully with PHP version target `80000`. |
 | `composer smoke:wp` | Pass | Shared Local site smoke passed; default profile reported `Smoke OK: 266 assertions`, light profile reported `Smoke OK: 21 assertions`. |
-| GitHub Actions `master` CI | Pending | To be recorded after pushing the release commit. |
+| GitHub Actions `master` CI | Pass | Run `27071537457` passed on GitHub for commit `8bae2aa Prepare 0.5.1 maintenance release` across PHP 8.0 and 8.3. |
 
 ## Release Decision
 

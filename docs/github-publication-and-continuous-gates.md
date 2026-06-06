@@ -20,8 +20,7 @@ GitHub repository state verified on 2026-06-07:
 - visibility: public;
 - default branch: `master`;
 - published branch: `master`;
-- published tags: `0.2.0`, `0.4.0`, `0.5.0`;
-- next maintenance tag: `0.5.1`.
+- published tags: `0.2.0`, `0.4.0`, `0.5.0`, `0.5.1`.
 
 The local checkout now uses GitHub as `origin`:
 
@@ -90,9 +89,9 @@ tag's workflow still runs PHP `7.2` while the package already requires
 Do not move the published `0.5.0` tag only to make that historical CI green.
 Use the current `master` baseline for the next patch release instead.
 
-## Release Follow-Up
+## Future Release Follow-Up
 
-Before the next public patch release:
+Before the next public patch release after `0.5.1`:
 
 1. Run the default source gate:
 
@@ -108,4 +107,5 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 ```
 
 3. Record the smoke result in the next release verification note.
-4. Tag `0.5.1` from the verified `master` commit instead of retagging `0.5.0`.
+4. Tag a new patch release from the verified `master` commit instead of
+   retagging a historical release.
