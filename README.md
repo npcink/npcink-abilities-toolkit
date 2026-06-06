@@ -28,6 +28,20 @@ It does not own model routing, cloud execution, billing, quota, workflow runtime
 - WordPress 7.0+ with the Abilities API available
 - PHP 8.0+
 
+## External Integration Paths
+
+Use [docs/README.md](docs/README.md) as the documentation entry point for
+external integration and debugging:
+
+- plugin authors providing abilities should start with
+  [docs/third-party-plugin-guide.md](docs/third-party-plugin-guide.md);
+- REST and external clients should start with
+  [docs/rest-client-quickstart.md](docs/rest-client-quickstart.md);
+- host products should start with [docs/host-profiles.md](docs/host-profiles.md)
+  and [docs/permission-matrix.md](docs/permission-matrix.md);
+- common setup, authentication, permission, and dry-run failures are covered in
+  [docs/troubleshooting.md](docs/troubleshooting.md).
+
 ## Public API
 
 ```php
