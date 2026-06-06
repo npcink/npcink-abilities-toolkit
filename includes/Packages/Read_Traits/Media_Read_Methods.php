@@ -1333,6 +1333,10 @@ trait Media_Read_Methods {
 		if ( is_wp_error( $artifact ) ) {
 			return $artifact;
 		}
+		$reviewed_file_name = $this->normalize_media_optimization_file_name( (string) ( $input['file_name'] ?? '' ) );
+		if ( is_wp_error( $reviewed_file_name ) ) {
+			return $reviewed_file_name;
+		}
 
 		$current = $this->build_media_inventory_health_row( $attachment_id );
 		$current_relative_file = $this->normalize_media_relative_file( (string) ( function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_wp_attached_file', true ) : '' ) );
@@ -1353,6 +1357,9 @@ trait Media_Read_Methods {
 			'attachment_id'       => $attachment_id,
 			'derivative_artifact' => $artifact,
 		);
+		if ( '' !== $reviewed_file_name ) {
+			$derivative_input['file_name'] = $reviewed_file_name;
+		}
 		if ( '' !== $expected_current_relative_file ) {
 			$derivative_input['expected_current_relative_file'] = $expected_current_relative_file;
 		}
@@ -1395,7 +1402,7 @@ trait Media_Read_Methods {
 					'filesize_bytes' => $this->absint_value( $artifact['filesize_bytes'] ?? 0 ),
 				),
 			);
-			$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact );
+			$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
 
 			return $this->build_analysis_success_response(
 				array(
@@ -1404,8 +1411,8 @@ trait Media_Read_Methods {
 					'batch_id'            => 'media_optimization_' . $attachment_id . '_' . gmdate( 'Ymd_His' ),
 					'attachment_id'       => $attachment_id,
 					'optimization_goal'   => 'image_seo_and_derivative_adoption',
-				'requires_approval'   => true,
-				'dry_run'             => true,
+					'requires_approval'   => true,
+					'dry_run'             => true,
 					'commit_execution'    => false,
 					'proposal_mode'       => 'batch',
 					'batch_approval'      => true,
@@ -1448,12 +1455,13 @@ trait Media_Read_Methods {
 		 * @param int                 $attachment_id Attachment id.
 		 * @param string              $current_relative_file Current uploads-relative file.
 		 * @param array<string,mixed> $artifact Normalized derivative artifact.
+		 * @param string              $file_name Reviewed derivative file basename.
 		 * @return array<string,mixed>
 		 */
-		private function build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, array $artifact ) {
+		private function build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, array $artifact, $file_name = '' ) {
 			$attachment_id = $this->absint_value( $attachment_id );
 			$current_relative_file = $this->normalize_media_reference_relative( $current_relative_file );
-			$after = $this->media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, $artifact );
+			$after = $this->media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, $artifact, $file_name );
 			$before = array(
 				'attachment_id'  => $attachment_id,
 				'relative_file' => $current_relative_file,
@@ -1543,14 +1551,15 @@ trait Media_Read_Methods {
 		 * @param int                 $attachment_id Attachment id.
 		 * @param string              $current_relative_file Current uploads-relative file.
 		 * @param array<string,mixed> $artifact Normalized derivative artifact.
+		 * @param string              $file_name Reviewed derivative file basename.
 		 * @return array<string,string>
 		 */
-		private function media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, array $artifact ) {
+		private function media_optimization_derivative_reference_state( $attachment_id, $current_relative_file, array $artifact, $file_name = '' ) {
 			$current_relative_file = $this->normalize_media_reference_relative( $current_relative_file );
 			$dir = dirname( $current_relative_file );
 			$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
 			$current_basename = $this->sanitize_file_name_value( basename( $current_relative_file ) );
-			$custom_basename = $this->sanitize_file_name_value( (string) ( $artifact['suggested_filename'] ?? '' ) );
+			$custom_basename = $this->sanitize_file_name_value( '' !== (string) $file_name ? (string) $file_name : (string) ( $artifact['suggested_filename'] ?? '' ) );
 			$stem = '' !== $custom_basename ? preg_replace( '/\.[^.]+$/', '', $custom_basename ) : preg_replace( '/\.[^.]+$/', '', $current_basename );
 			$stem = '' !== (string) $stem ? $stem : 'attachment-' . $this->absint_value( $attachment_id );
 			$artifact_key = substr( sanitize_key( (string) ( $artifact['artifact_id'] ?? '' ) ), 0, 16 );
@@ -2136,6 +2145,28 @@ trait Media_Read_Methods {
 				if ( array_key_exists( $field, $artifact ) ) {
 					$normalized[ $field ] = $this->absint_value( $artifact[ $field ] );
 				}
+			}
+
+			return $normalized;
+		}
+
+		/**
+		 * Normalizes an optional reviewed derivative file name for a media optimization plan.
+		 *
+		 * @param string $file_name Raw reviewed file basename.
+		 * @return string|\WP_Error
+		 */
+		private function normalize_media_optimization_file_name( $file_name ) {
+			$raw_file_name = trim( (string) $file_name );
+			if ( '' === $raw_file_name ) {
+				return '';
+			}
+			if ( false !== strpos( $raw_file_name, '/' ) || false !== strpos( $raw_file_name, '\\' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_file_name_invalid', __( 'Media optimization file_name must be a file basename, not a path.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$normalized = $this->sanitize_file_name_value( $raw_file_name );
+			if ( '' === $normalized ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_file_name_invalid', __( 'Media optimization file_name is invalid after sanitization.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 
 			return $normalized;

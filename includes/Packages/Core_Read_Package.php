@@ -2545,6 +2545,7 @@ final class Core_Read_Package {
 						'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
 						'media_details_input'            => array( 'type' => 'object', 'additionalProperties' => true ),
 						'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
+						'file_name'                      => array( 'type' => 'string', 'maxLength' => 120 ),
 						'expected_current_relative_file' => array( 'type' => 'string' ),
 						'expected_current_mime_type'     => array( 'type' => 'string' ),
 						'expected_derivative_mime_type'  => array( 'type' => 'string' ),

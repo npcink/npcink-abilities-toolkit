@@ -1103,6 +1103,7 @@ npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilit
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan'] ), 'build-media-optimization-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['required_scopes'] ?? array(), 'media optimization plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'media_details_input', 'derivative_artifact' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['required'] ?? array(), 'media optimization plan requires metadata and artifact evidence' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['properties']['file_name'] ), 'media optimization plan accepts a reviewed custom derivative file name' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-rename-plan'] ), 'build-media-rename-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['required_scopes'] ?? array(), 'media rename plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['input_schema']['required'] ?? array(), 'media rename plan requires attachment and target filename' );
@@ -2435,15 +2436,16 @@ $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 			'source_type' => 'ai_generated',
 		),
 		'derivative_artifact'           => array(
-			'artifact_id'    => 'art_cloud_media_123',
-			'expires_at'     => gmdate( 'c', time() + 600 ),
-			'mime_type'      => 'image/webp',
-			'format'         => 'webp',
-			'width'          => 1600,
-			'height'         => 862,
-			'filesize_bytes' => 210000,
+			'artifact_id'        => 'art_cloud_media_123',
+			'expires_at'         => gmdate( 'c', time() + 600 ),
+			'mime_type'          => 'image/webp',
+			'format'             => 'webp',
+			'width'              => 1600,
+			'height'             => 862,
+			'filesize_bytes'     => 210000,
 			'suggested_filename' => 'workflow-diagram-cloud-plan.webp',
 		),
+		'file_name'                     => 'f553110d20d666349676892b1b0fbeb7.webp',
 		'expected_current_mime_type'    => 'image/jpeg',
 		'expected_derivative_mime_type' => 'image/webp',
 	)
@@ -2455,12 +2457,13 @@ npcink_abilities_toolkit_assert_same( true, $media_optimization_plan['data']['ba
 npcink_abilities_toolkit_assert_same( 2, count( (array) ( $media_optimization_plan['data']['write_actions'] ?? array() ) ), 'media optimization plan includes metadata and derivative actions' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $media_optimization_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media optimization plan starts with metadata action' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/adopt-cloud-media-derivative', $media_optimization_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media optimization plan includes Cloud derivative adoption action' );
+npcink_abilities_toolkit_assert_same( 'f553110d20d666349676892b1b0fbeb7.webp', $media_optimization_plan['data']['write_actions'][1]['input']['file_name'] ?? '', 'media optimization plan passes reviewed derivative file_name into adoption action' );
 npcink_abilities_toolkit_assert_same( false, $media_optimization_plan['data']['commit_execution'] ?? null, 'media optimization plan does not execute commits' );
 npcink_abilities_toolkit_assert_same( true, $media_optimization_plan['meta']['readonly'] ?? null, 'media optimization plan remains read-only' );
 npcink_abilities_toolkit_assert_same( 1, $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['post_count'] ?? 0, 'media optimization plan previews post content reference repairs inside derivative evidence' );
 npcink_abilities_toolkit_assert_same( 90, $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['post_id'] ?? 0, 'media optimization reference preview targets the referencing post' );
 npcink_abilities_toolkit_assert_true( (int) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['replacement_count'] ?? 0 ) >= 2, 'media optimization reference preview includes old main and sized image references' );
-npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'workflow-diagram-cloud-plan.webp' ), 'media optimization reference preview replaces inline URLs with the reviewed derivative filename' );
+npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'f553110d20d666349676892b1b0fbeb7.webp' ), 'media optimization reference preview replaces inline URLs with the reviewed derivative filename' );
 npcink_abilities_toolkit_assert_same( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs'], $media_optimization_plan['data']['content_reference_repairs_preview'] ?? array(), 'media optimization plan exposes content reference repairs at top level for Core review summaries' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][90] );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790] = (object) array(
