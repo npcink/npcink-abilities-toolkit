@@ -188,8 +188,9 @@ The current required consumer-side check belongs in `npcink-ai-core`. Future
 Agent Gateway, MCP, or other host tests may reuse the same fixture, but the
 abandoned legacy Npcink AI project is no longer a validation target.
 
-Use this fixture to prove that task selection prefers the bundled context entry
-before falling back to expanded individual calls or host-governed writes.
+Run `composer check:workflow-consumer` to prove that task selection prefers the
+bundled context entry before falling back to expanded individual calls or
+host-governed writes.
 
 Runtime consumers should prefer the read-only workflow definition helper or
 Abilities API discovery abilities documented in

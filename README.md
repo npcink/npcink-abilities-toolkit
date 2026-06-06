@@ -58,6 +58,8 @@ Recommended full and light host profiles are documented in [docs/host-profiles.m
 Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
 Security and governance gates for this package's contract boundary are
 documented in [docs/security-and-governance-gates.md](docs/security-and-governance-gates.md).
+Official WordPress AI stack compatibility guidance is documented in
+[docs/official-wordpress-ai-stack-compatibility.md](docs/official-wordpress-ai-stack-compatibility.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
@@ -116,6 +118,10 @@ available through:
 
 ```bash
 composer check:consumer
+composer check:workflow-consumer
+composer check:official-stack
+composer check:mcp-exposure
+composer check:provider-demo
 composer check:catalog
 ```
 

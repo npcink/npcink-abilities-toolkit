@@ -102,8 +102,9 @@ add_action(
 				'capability'       => 'edit_posts',
 				'required_scope'   => 'cap.content.write',
 				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => array(
 						'title'   => array( 'type' => 'string' ),
 						'content' => array( 'type' => 'string' ),
 					),

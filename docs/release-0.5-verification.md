@@ -41,15 +41,25 @@ workflow gap, and verify the registered first-party ability surface directly.
 - `docs/security-and-governance-gates.md` records the security boundary for
   permission, metadata, dry-run, host-approval, schema, and diagnostics
   redaction checks.
+- `docs/official-wordpress-ai-stack-compatibility.md` records how this package
+  should line up with official Abilities API, MCP Adapter, AI plugin, and AI
+  Client layers without duplicating their runtime ownership.
+- `composer test:all` now includes official-stack compatibility, workflow
+  consumer proof, MCP exposure, provider demo smoke, and performance smoke
+  gates.
 
 ## Verification
 
 | Check | Result | Evidence |
 | --- | --- | --- |
 | `composer check:contracts` | Pass | Registered first-party ability contract audit passed for 136 abilities. |
+| `composer check:workflow-consumer` | Pass | Workflow replay fixture matched the production provider and proved 6 host-discoverable recipes with read entrypoints and disallowed write defaults. |
+| `composer check:official-stack` | Pass | Official WordPress AI stack compatibility contract shape passed for 136 abilities. |
+| `composer check:mcp-exposure` | Pass | MCP risk, annotations, server routing, REST discoverability, and host-governed write defaults passed for 136 abilities. |
+| `composer check:provider-demo` | Pass | Demo provider plugin registered read, projected read, and write-proposal abilities through public helpers. |
 | `composer test` | Pass | Lightweight tests passed; `OK: 3749 assertions`. |
 | `composer perf:smoke` | Pass | Content inventory, cached SEO/GEO gap, article publish preflight, old article refresh, and comment compliance handoff stayed within local budgets. |
-| `composer test:all` | Pass | Composer validation, project boundary, consumer handoff, catalog audit, WordPress.org guard, lightweight tests, and PHP lint passed; `OK: 3749 assertions`. |
+| `composer test:all` | Pass | Composer validation, project boundary, contract, consumer, workflow, official-stack, MCP, provider demo, catalog, WordPress.org guard, performance, lightweight tests, and PHP lint passed; `OK: 3749 assertions`. |
 | `composer smoke:wp` | Pass | Shared Local site smoke covered taxonomy proposal, existing article optimization, and article media handoff; default profile reported `Smoke OK: 266 assertions`, light profile reported `Smoke OK: 21 assertions`. |
 | `npcink-ai-core composer test:all` | Pass | Core PHP lint and static contracts passed. |
 | `npcink-ai-core composer smoke:wp` | Pass | Core discovered `npcink-abilities-toolkit/propose-post-taxonomy-terms`, ran it through WordPress Abilities API, created and approved a `npcink-abilities-toolkit/set-post-terms` proposal, returned commit preflight with `commit_execution=false`, and did not mutate post terms. |

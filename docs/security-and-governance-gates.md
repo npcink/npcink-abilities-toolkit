@@ -45,6 +45,10 @@ Run these before release work:
 composer check:contracts
 composer check:boundary
 composer check:consumer
+composer check:workflow-consumer
+composer check:official-stack
+composer check:mcp-exposure
+composer check:provider-demo
 composer test:all
 ```
 
@@ -53,6 +57,9 @@ Run this when changing performance-sensitive read chains:
 ```bash
 composer perf:smoke
 ```
+
+`composer test:all` also runs `composer perf:smoke` so the local release gate
+catches accidental scan or aggregator cost regressions.
 
 Run this when a Local WordPress site is available:
 
@@ -78,6 +85,12 @@ The contract audit must fail when:
 - required `agent_usage` guidance is missing from priority or high-risk
   abilities;
 - workflow recipes reference missing or non-read expanded abilities.
+- workflow recipe fixtures drift from the production provider;
+- official-stack compatibility metadata drifts from the Abilities API, MCP
+  Adapter, or explorer-facing contract shape;
+- MCP public exposure, server metadata, risk metadata, annotations, or
+  dry-run/write boundaries drift;
+- the demo provider plugin stops proving the public helper contract.
 
 ## Diagnostic Redaction
 

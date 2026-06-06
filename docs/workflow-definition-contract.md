@@ -96,6 +96,12 @@ host runtime.
 
 ## Validation
 
+Run the standalone host-consumer proof with:
+
+```bash
+composer check:workflow-consumer
+```
+
 `composer test` should keep workflow definition checks focused on hard
 boundaries:
 
