@@ -83,3 +83,5 @@ and official Abilities Explorer surfaces.
 - `composer e2e:official-stack` verifies MCP HTTP discovery, ability detail
   inspection, read entrypoint execution, governed write dry-run execution, and
   destructive dry-run execution.
+- `build/official-stack-e2e/mcp-http-summary.json` is the versioned evidence
+  artifact for those MCP checks.

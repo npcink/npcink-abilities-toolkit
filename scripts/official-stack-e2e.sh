@@ -332,6 +332,31 @@ cleanup_mcp_http_probe() {
 	delete_mcp_destructive_fixture_post || true
 }
 
+count_mcp_probe_app_passwords() {
+	wp user application-password list "$ADMIN_USER" --fields=name --format=json | tail -n 1 | php -r '
+		$name = $argv[1];
+		$rows = json_decode(stream_get_contents(STDIN), true);
+		if (!is_array($rows)) {
+			echo "0";
+			exit(0);
+		}
+		$count = 0;
+		foreach ($rows as $row) {
+			if (($row["name"] ?? "") === $name) {
+				++$count;
+			}
+		}
+		echo $count;
+	' "$MCP_APP_PASSWORD_NAME"
+}
+
+count_mcp_destructive_fixture_posts() {
+	wp post list --post_type=post --post_status=any --name=mcp-e2e-destructive-fixture --fields=ID --format=json | tail -n 1 | php -r '
+		$rows = json_decode(stream_get_contents(STDIN), true);
+		echo is_array($rows) ? count($rows) : 0;
+	'
+}
+
 json_rpc_request() {
 	local app_password="$1"
 	local session_id="$2"
@@ -506,6 +531,7 @@ validate_mcp_http_probe() {
 			$summary_file,
 			json_encode(
 				array(
+					"schema_version" => "official-stack-mcp-http-summary/v1",
 					"server" => $initialize["result"]["serverInfo"],
 					"tool_count" => count($tool_names),
 					"ability_count" => count($abilities),
@@ -520,11 +546,74 @@ validate_mcp_http_probe() {
 					"destructive_dry_run" => $destructive_structured["data"]["dry_run"] ?? null,
 					"commit_required" => $write_structured["data"]["commit_required"] ?? null,
 					"destructive_commit_required" => $destructive_structured["data"]["commit_required"] ?? null,
+					"tools" => array(
+						"count" => count($tool_names),
+						"required" => array("mcp-adapter-discover-abilities", "mcp-adapter-get-ability-info", "mcp-adapter-execute-ability"),
+					),
+					"discovery" => array(
+						"ability_count" => count($abilities),
+						"npcink_ability_count" => count($npcink_abilities),
+						"expected_read_entrypoints" => $expected_read_entrypoints,
+						"required_public_abilities" => array_merge($expected_read_entrypoints, array("npcink-abilities-toolkit/create-draft", "npcink-abilities-toolkit/delete-post-permanently")),
+					),
+					"scenarios" => array(
+						"inspect_destructive_ability" => array(
+							"tool" => "mcp-adapter-get-ability-info",
+							"ability" => "npcink-abilities-toolkit/delete-post-permanently",
+							"passed" => true,
+						),
+						"execute_read_entrypoint" => array(
+							"tool" => "mcp-adapter-execute-ability",
+							"ability" => "npcink-abilities-toolkit/site-info",
+							"passed" => true,
+						),
+						"execute_governed_write_dry_run" => array(
+							"tool" => "mcp-adapter-execute-ability",
+							"ability" => "npcink-abilities-toolkit/create-draft",
+							"dry_run" => $write_structured["data"]["dry_run"] ?? null,
+							"commit_required" => $write_structured["data"]["commit_required"] ?? null,
+							"passed" => true,
+						),
+						"execute_destructive_dry_run" => array(
+							"tool" => "mcp-adapter-execute-ability",
+							"ability" => "npcink-abilities-toolkit/delete-post-permanently",
+							"fixture_post_id" => (int) $destructive_fixture_post_id,
+							"dry_run" => $destructive_structured["data"]["dry_run"] ?? null,
+							"commit_required" => $destructive_structured["data"]["commit_required"] ?? null,
+							"deleted" => $destructive_structured["data"]["deleted"] ?? null,
+							"passed" => true,
+						),
+					),
 				),
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			) . PHP_EOL
 		);
 	' "$initialize_body" "$tools_body" "$discover_body" "$get_info_body" "$execute_read_body" "$execute_write_body" "$execute_destructive_body" "$destructive_fixture_post_id" "$summary_file"
+}
+
+append_mcp_http_probe_cleanup_summary() {
+	local summary_file="$1"
+	local app_password_count="$2"
+	local fixture_post_count="$3"
+
+	php -r '
+		[$summary_file, $app_password_count, $fixture_post_count] = array_slice($argv, 1);
+		$data = json_decode((string) file_get_contents($summary_file), true);
+		if (!is_array($data)) {
+			fwrite(STDERR, "MCP HTTP summary did not return JSON before cleanup append\n");
+			exit(1);
+		}
+		$data["cleanup"] = array(
+			"application_passwords_remaining" => (int) $app_password_count,
+			"destructive_fixture_posts_remaining" => (int) $fixture_post_count,
+			"passed" => 0 === (int) $app_password_count && 0 === (int) $fixture_post_count,
+		);
+		if (true !== $data["cleanup"]["passed"]) {
+			fwrite(STDERR, "MCP HTTP probe cleanup did not pass\n");
+			exit(1);
+		}
+		file_put_contents($summary_file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+	' "$summary_file" "$app_password_count" "$fixture_post_count"
 }
 
 run_mcp_http_probe() {
@@ -637,6 +726,7 @@ EOF
 
 	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$get_info_body" "$execute_read_body" "$execute_write_body" "$execute_destructive_body" "$MCP_DESTRUCTIVE_FIXTURE_POST_ID" "$summary"
 	cleanup_mcp_http_probe
+	append_mcp_http_probe_cleanup_summary "$summary" "$(count_mcp_probe_app_passwords)" "$(count_mcp_destructive_fixture_posts)"
 	trap - EXIT
 
 	log "MCP HTTP probe complete. Summary: $summary"

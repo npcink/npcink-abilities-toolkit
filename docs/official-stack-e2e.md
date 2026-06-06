@@ -107,6 +107,33 @@ OFFICIAL_STACK_ABILITIES_API_ZIP=/path/to/abilities-api.zip composer e2e:officia
 The script caches downloads in `build/official-stack-cache/`, which is ignored
 by Git.
 
+## MCP HTTP Summary Contract
+
+The MCP HTTP probe writes a stable evidence artifact:
+
+```text
+build/official-stack-e2e/mcp-http-summary.json
+```
+
+The artifact uses `schema_version:
+official-stack-mcp-http-summary/v1`. Consumers may rely on these top-level
+objects:
+
+- `server`: MCP server name and version returned by `initialize`.
+- `tools`: required adapter tools and observed tool count.
+- `discovery`: observed ability counts, required public abilities, and the
+  approved read entrypoints.
+- `scenarios`: pass/fail evidence for ability detail inspection, read
+  execution, governed write dry-run execution, and destructive dry-run
+  execution.
+- `cleanup`: post-probe cleanup evidence for the temporary application
+  password and destructive fixture post.
+
+The top-level legacy fields such as `tool_count`, `ability_count`,
+`executed_read_ability`, and `dry_run` remain for quick manual inspection. New
+automation should prefer the structured `tools`, `discovery`, `scenarios`, and
+`cleanup` objects.
+
 ## Official UI And MCP Notes
 
 The official AI plugin shows Abilities Explorer only after AI is enabled and
