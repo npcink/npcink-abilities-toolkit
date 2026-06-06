@@ -36,7 +36,7 @@ The command:
 - records active plugin and REST route artifacts under
   `build/official-stack-e2e/`;
 - runs an MCP HTTP probe with a temporary WordPress application password,
-  then deletes that password;
+  temporary destructive dry-run fixture post, then deletes both;
 - runs the official-stack probes and the project WordPress smoke.
 
 ## Reuse And Reset
@@ -149,9 +149,13 @@ Last verified on 2026-06-07 with the reusable Docker environment:
 - The official Abilities Explorer successfully invoked
   `npcink-abilities-toolkit/site-info` with `{}` input.
 - MCP HTTP verification initialized the default MCP server, listed the three
-  adapter tools, discovered public Npcink abilities, executed
-  `npcink-abilities-toolkit/site-info` as a read entrypoint, and executed
-  `npcink-abilities-toolkit/create-draft` as a governed dry run.
+  adapter tools, discovered public Npcink abilities, inspected
+  `npcink-abilities-toolkit/delete-post-permanently` through
+  `mcp-adapter-get-ability-info`, executed
+  `npcink-abilities-toolkit/site-info` as a read entrypoint, executed
+  `npcink-abilities-toolkit/create-draft` as a governed dry run, and executed
+  `npcink-abilities-toolkit/delete-post-permanently` as a destructive dry run
+  against a temporary post fixture.
 
 ## Local App Role
 

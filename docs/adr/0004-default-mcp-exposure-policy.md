@@ -80,5 +80,6 @@ and official Abilities Explorer surfaces.
 - Default MCP discover returns a small entrypoint set plus governed write
   operations.
 - `composer check:mcp-exposure` guards accidental read-side MCP expansion.
-- `composer e2e:official-stack` verifies MCP HTTP discovery and execution for
-  both a read entrypoint and a governed write dry-run.
+- `composer e2e:official-stack` verifies MCP HTTP discovery, ability detail
+  inspection, read entrypoint execution, governed write dry-run execution, and
+  destructive dry-run execution.

@@ -19,6 +19,7 @@ INSTALL_MCP="${OFFICIAL_STACK_INSTALL_MCP:-1}"
 REINSTALL_OFFICIAL_PLUGINS="${OFFICIAL_STACK_REINSTALL_OFFICIAL_PLUGINS:-0}"
 RUN_MCP_HTTP_PROBE="${OFFICIAL_STACK_RUN_MCP_HTTP_PROBE:-1}"
 MCP_APP_PASSWORD_NAME="Npcink Official Stack MCP Probe"
+MCP_DESTRUCTIVE_FIXTURE_POST_ID=""
 RUN_FULL_SMOKE=1
 SETUP_ONLY=0
 FRESH=0
@@ -317,6 +318,20 @@ delete_mcp_probe_app_passwords() {
 	done <<< "$uuids"
 }
 
+delete_mcp_destructive_fixture_post() {
+	if [[ -z "$MCP_DESTRUCTIVE_FIXTURE_POST_ID" ]]; then
+		return
+	fi
+
+	wp post delete "$MCP_DESTRUCTIVE_FIXTURE_POST_ID" --force >/dev/null 2>&1 || true
+	MCP_DESTRUCTIVE_FIXTURE_POST_ID=""
+}
+
+cleanup_mcp_http_probe() {
+	delete_mcp_probe_app_passwords || true
+	delete_mcp_destructive_fixture_post || true
+}
+
 json_rpc_request() {
 	local app_password="$1"
 	local session_id="$2"
@@ -351,12 +366,15 @@ validate_mcp_http_probe() {
 	local initialize_body="$1"
 	local tools_body="$2"
 	local discover_body="$3"
-	local execute_read_body="$4"
-	local execute_write_body="$5"
-	local summary_file="$6"
+	local get_info_body="$4"
+	local execute_read_body="$5"
+	local execute_write_body="$6"
+	local execute_destructive_body="$7"
+	local destructive_fixture_post_id="$8"
+	local summary_file="$9"
 
 	php -r '
-		[$initialize_file, $tools_file, $discover_file, $execute_read_file, $execute_write_file, $summary_file] = array_slice($argv, 1);
+		[$initialize_file, $tools_file, $discover_file, $get_info_file, $execute_read_file, $execute_write_file, $execute_destructive_file, $destructive_fixture_post_id, $summary_file] = array_slice($argv, 1);
 
 		$read_json = static function ($file, $label) {
 			$data = json_decode((string) file_get_contents($file), true);
@@ -370,8 +388,10 @@ validate_mcp_http_probe() {
 		$initialize = $read_json($initialize_file, "MCP initialize");
 		$tools = $read_json($tools_file, "MCP tools/list");
 		$discover = $read_json($discover_file, "MCP discover abilities");
+		$get_info = $read_json($get_info_file, "MCP get ability info");
 		$execute_read = $read_json($execute_read_file, "MCP execute read ability");
 		$execute_write = $read_json($execute_write_file, "MCP execute write ability");
+		$execute_destructive = $read_json($execute_destructive_file, "MCP execute destructive ability");
 
 		if (($initialize["result"]["serverInfo"]["name"] ?? "") !== "MCP Adapter Default Server") {
 			fwrite(STDERR, "MCP initialize did not return the default server info\n");
@@ -409,11 +429,29 @@ validate_mcp_http_probe() {
 			"npcink-abilities-toolkit/list-workflow-recipes",
 			"npcink-abilities-toolkit/get-workflow-recipe",
 		);
-		foreach (array_merge($expected_read_entrypoints, array("npcink-abilities-toolkit/create-draft")) as $required_ability) {
+		foreach (array_merge($expected_read_entrypoints, array("npcink-abilities-toolkit/create-draft", "npcink-abilities-toolkit/delete-post-permanently")) as $required_ability) {
 			if (!in_array($required_ability, $ability_names, true)) {
 				fwrite(STDERR, "MCP discover abilities did not include {$required_ability}\n");
 				exit(1);
 			}
+		}
+
+		$get_info_structured = $get_info["result"]["structuredContent"] ?? array();
+		if (empty($get_info_structured)) {
+			$get_info_text = $get_info["result"]["content"][0]["text"] ?? "";
+			$get_info_structured = json_decode((string) $get_info_text, true);
+		}
+		if (!is_array($get_info_structured) || ($get_info_structured["name"] ?? "") !== "npcink-abilities-toolkit/delete-post-permanently") {
+			fwrite(STDERR, "MCP get ability info did not return delete-post-permanently details\n");
+			exit(1);
+		}
+		if (!isset($get_info_structured["input_schema"]["properties"]["post_id"])) {
+			fwrite(STDERR, "MCP get ability info did not expose delete-post-permanently post_id input schema\n");
+			exit(1);
+		}
+		if (($get_info_structured["meta"]["mcp"]["risk"] ?? "") !== "destructive") {
+			fwrite(STDERR, "MCP get ability info did not expose destructive MCP risk metadata\n");
+			exit(1);
 		}
 
 		$read_structured = $execute_read["result"]["structuredContent"] ?? array();
@@ -442,6 +480,28 @@ validate_mcp_http_probe() {
 			exit(1);
 		}
 
+		$destructive_structured = $execute_destructive["result"]["structuredContent"] ?? array();
+		if (true !== ($destructive_structured["success"] ?? null)) {
+			fwrite(STDERR, "MCP execute destructive ability did not return success=true\n");
+			exit(1);
+		}
+		if ((int) $destructive_fixture_post_id !== (int) ($destructive_structured["data"]["post_id"] ?? 0)) {
+			fwrite(STDERR, "MCP execute destructive ability did not target the fixture post\n");
+			exit(1);
+		}
+		if (false !== ($destructive_structured["data"]["deleted"] ?? null)) {
+			fwrite(STDERR, "MCP execute destructive ability did not preserve deleted=false during dry run\n");
+			exit(1);
+		}
+		if (true !== ($destructive_structured["data"]["dry_run"] ?? null)) {
+			fwrite(STDERR, "MCP execute destructive ability did not preserve dry_run=true\n");
+			exit(1);
+		}
+		if (true !== ($destructive_structured["data"]["commit_required"] ?? null)) {
+			fwrite(STDERR, "MCP execute destructive ability did not report commit_required=true\n");
+			exit(1);
+		}
+
 		file_put_contents(
 			$summary_file,
 			json_encode(
@@ -451,15 +511,20 @@ validate_mcp_http_probe() {
 					"ability_count" => count($abilities),
 					"npcink_ability_count" => count($npcink_abilities),
 					"expected_read_entrypoints" => $expected_read_entrypoints,
+					"inspected_ability" => "npcink-abilities-toolkit/delete-post-permanently",
 					"executed_read_ability" => "npcink-abilities-toolkit/site-info",
 					"executed_write_ability" => "npcink-abilities-toolkit/create-draft",
+					"executed_destructive_ability" => "npcink-abilities-toolkit/delete-post-permanently",
+					"destructive_fixture_post_id" => (int) $destructive_fixture_post_id,
 					"dry_run" => $write_structured["data"]["dry_run"] ?? null,
+					"destructive_dry_run" => $destructive_structured["data"]["dry_run"] ?? null,
 					"commit_required" => $write_structured["data"]["commit_required"] ?? null,
+					"destructive_commit_required" => $destructive_structured["data"]["commit_required"] ?? null,
 				),
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
 			) . PHP_EOL
 		);
-	' "$initialize_body" "$tools_body" "$discover_body" "$execute_read_body" "$execute_write_body" "$summary_file"
+	' "$initialize_body" "$tools_body" "$discover_body" "$get_info_body" "$execute_read_body" "$execute_write_body" "$execute_destructive_body" "$destructive_fixture_post_id" "$summary_file"
 }
 
 run_mcp_http_probe() {
@@ -479,20 +544,28 @@ run_mcp_http_probe() {
 	log "Creating temporary application password for MCP HTTP probe"
 	delete_mcp_probe_app_passwords
 	app_password="$(wp user application-password create "$ADMIN_USER" "$MCP_APP_PASSWORD_NAME" --porcelain | tail -n 1)"
-	trap delete_mcp_probe_app_passwords EXIT
+	trap cleanup_mcp_http_probe EXIT
 
 	local initialize_payload="$payload_dir/initialize.request.json"
 	local tools_payload="$payload_dir/tools-list.request.json"
 	local discover_payload="$payload_dir/discover-abilities.request.json"
+	local get_info_payload="$payload_dir/get-delete-post-permanently-info.request.json"
 	local execute_read_payload="$payload_dir/execute-site-info.request.json"
 	local execute_write_payload="$payload_dir/execute-create-draft.request.json"
+	local execute_destructive_payload="$payload_dir/execute-delete-post-permanently.request.json"
 	local initialize_body="$payload_dir/initialize.response.json"
 	local tools_body="$payload_dir/tools-list.response.json"
 	local discover_body="$payload_dir/discover-abilities.response.json"
+	local get_info_body="$payload_dir/get-delete-post-permanently-info.response.json"
 	local execute_read_body="$payload_dir/execute-site-info.response.json"
 	local execute_write_body="$payload_dir/execute-create-draft.response.json"
+	local execute_destructive_body="$payload_dir/execute-delete-post-permanently.response.json"
 	local headers="$payload_dir/headers.txt"
 	local summary="$ARTIFACT_DIR/mcp-http-summary.json"
+
+	log "Creating temporary post fixture for MCP destructive dry-run probe"
+	MCP_DESTRUCTIVE_FIXTURE_POST_ID="$(wp post create --post_type=post --post_status=draft --post_title='MCP E2E Destructive Fixture' --post_content='Temporary fixture for MCP destructive dry-run validation.' --porcelain | tail -n 1)"
+	[[ -n "$MCP_DESTRUCTIVE_FIXTURE_POST_ID" ]] || fail "Could not create MCP destructive dry-run fixture post."
 
 	cat > "$initialize_payload" <<'EOF'
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"npcink-official-stack-e2e","version":"0.1.0"}}}
@@ -503,12 +576,40 @@ EOF
 	cat > "$discover_payload" <<'EOF'
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"mcp-adapter-discover-abilities","arguments":{}}}
 EOF
+	cat > "$get_info_payload" <<'EOF'
+{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mcp-adapter-get-ability-info","arguments":{"ability_name":"npcink-abilities-toolkit/delete-post-permanently"}}}
+EOF
 	cat > "$execute_read_payload" <<'EOF'
-{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/site-info","parameters":{}}}}
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/site-info","parameters":{}}}}
 EOF
 	cat > "$execute_write_payload" <<'EOF'
-{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
+{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
 EOF
+	php -r '
+		$path = $argv[1];
+		$post_id = (int) $argv[2];
+		file_put_contents(
+			$path,
+			json_encode(
+				array(
+					"jsonrpc" => "2.0",
+					"id" => 7,
+					"method" => "tools/call",
+					"params" => array(
+						"name" => "mcp-adapter-execute-ability",
+						"arguments" => array(
+							"ability_name" => "npcink-abilities-toolkit/delete-post-permanently",
+							"parameters" => array(
+								"post_id" => $post_id,
+								"dry_run" => true,
+							),
+						),
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			) . PHP_EOL
+		);
+	' "$execute_destructive_payload" "$MCP_DESTRUCTIVE_FIXTURE_POST_ID"
 
 	log "Running MCP HTTP initialize"
 	json_rpc_request "$app_password" "" "$initialize_payload" "$initialize_body" "$headers"
@@ -522,14 +623,20 @@ EOF
 	log "Running MCP HTTP discover abilities"
 	json_rpc_request "$app_password" "$session_id" "$discover_payload" "$discover_body" "$headers"
 
+	log "Running MCP HTTP get ability info"
+	json_rpc_request "$app_password" "$session_id" "$get_info_payload" "$get_info_body" "$headers"
+
 	log "Running MCP HTTP read entrypoint execute"
 	json_rpc_request "$app_password" "$session_id" "$execute_read_payload" "$execute_read_body" "$headers"
 
 	log "Running MCP HTTP governed write dry-run execute"
 	json_rpc_request "$app_password" "$session_id" "$execute_write_payload" "$execute_write_body" "$headers"
 
-	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$execute_read_body" "$execute_write_body" "$summary"
-	delete_mcp_probe_app_passwords
+	log "Running MCP HTTP destructive dry-run execute"
+	json_rpc_request "$app_password" "$session_id" "$execute_destructive_payload" "$execute_destructive_body" "$headers"
+
+	validate_mcp_http_probe "$initialize_body" "$tools_body" "$discover_body" "$get_info_body" "$execute_read_body" "$execute_write_body" "$execute_destructive_body" "$MCP_DESTRUCTIVE_FIXTURE_POST_ID" "$summary"
+	cleanup_mcp_http_probe
 	trap - EXIT
 
 	log "MCP HTTP probe complete. Summary: $summary"
