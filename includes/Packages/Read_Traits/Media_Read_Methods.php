@@ -1482,6 +1482,9 @@ trait Media_Read_Methods {
 			$repairs = array();
 			$scanned_count = 0;
 			$replacement_count = 0;
+			$replacement_rule_count = 0;
+			$actual_replacement_count = 0;
+			$unmatched_rules = array();
 
 			foreach ( $this->media_reference_repair_candidate_posts( $max_posts * 3 ) as $post ) {
 				if ( count( $repairs ) >= $max_posts ) {
@@ -1529,16 +1532,42 @@ trait Media_Read_Methods {
 				}
 
 				$preview = $this->apply_media_optimization_reference_operations_preview( $content, $operations );
+				$patch_preview = (array) ( $preview['patch_preview'] ?? array() );
+				$repair_actual_replacement_count = 0;
+				$repair_unmatched_rules = array();
+				foreach ( $patch_preview as $operation_index => $patch_row ) {
+					if ( ! is_array( $patch_row ) ) {
+						continue;
+					}
+					$applied = $this->absint_value( $patch_row['applied'] ?? 0 );
+					$repair_actual_replacement_count += $applied;
+					if ( 0 === $applied ) {
+						$operation = is_array( $operations[ $operation_index ] ?? null ) ? $operations[ $operation_index ] : array();
+						$repair_unmatched_rules[] = array(
+							'post_id'         => $post_id,
+							'operation_index' => $this->absint_value( $operation_index ),
+							'find'            => (string) ( $operation['find'] ?? ( $patch_row['find'] ?? '' ) ),
+						);
+					}
+				}
+				$replacement_rule_count += count( $operations );
+				$actual_replacement_count += $repair_actual_replacement_count;
+				foreach ( $repair_unmatched_rules as $unmatched_rule ) {
+					$unmatched_rules[] = $unmatched_rule;
+				}
 				$repairs[] = array(
 					'post_id'               => $post_id,
 					'post_type'             => sanitize_key( (string) ( $post->post_type ?? '' ) ),
 					'post_status'           => sanitize_key( (string) ( $post->post_status ?? '' ) ),
 					'title'                 => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
 					'operation_count'       => count( $operations ),
+					'replacement_rule_count' => count( $operations ),
+					'actual_replacement_count' => $repair_actual_replacement_count,
+					'unmatched_rules'       => $repair_unmatched_rules,
 					'operations'            => $operations,
 					'content_length_before' => strlen( $content ),
 					'content_length_after'  => strlen( (string) ( $preview['content'] ?? $content ) ),
-					'patch_preview'         => (array) ( $preview['patch_preview'] ?? array() ),
+					'patch_preview'         => $patch_preview,
 					'updated'               => false,
 				);
 			}
@@ -1549,6 +1578,9 @@ trait Media_Read_Methods {
 				'scanned_count'      => $scanned_count,
 				'post_count'         => count( $repairs ),
 				'replacement_count'  => $replacement_count,
+				'replacement_rule_count' => $replacement_rule_count,
+				'actual_replacement_count' => $actual_replacement_count,
+				'unmatched_rules'    => $unmatched_rules,
 				'repairs'            => $repairs,
 				'reference_strategy' => 'replace_old_main_and_sized_upload_urls_with_new_main_file_url',
 			);

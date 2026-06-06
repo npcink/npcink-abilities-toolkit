@@ -729,6 +729,7 @@ final class Core_Write_Package {
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
+						'verification'       => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -768,6 +769,8 @@ final class Core_Write_Package {
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'current_backup'     => array( 'type' => 'object', 'additionalProperties' => true ),
+						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
+						'verification'       => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -852,6 +855,7 @@ final class Core_Write_Package {
 						'proposed_filename'  => array( 'type' => 'string' ),
 						'filename_policy'    => array( 'type' => 'object', 'additionalProperties' => true ),
 						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
+						'verification'       => array( 'type' => 'object', 'additionalProperties' => true ),
 						'history'            => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'          => array( 'type' => 'string' ),
 						'preview'            => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -2340,6 +2344,7 @@ final class Core_Write_Package {
 		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
 		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
+		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['backup'], $payload['content_reference_repairs'] );
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -2387,6 +2392,7 @@ final class Core_Write_Package {
 			'after'              => is_array( $plan['after'] ?? null ) ? $plan['after'] : array(),
 			'backup'             => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
 			'current_backup'     => is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array(),
+			'content_reference_repairs' => $this->build_media_content_reference_repairs( $attachment_id, $plan, false ),
 			'history'            => $this->get_media_file_replacement_history( $attachment_id ),
 			'edit_link'          => $this->edit_link( $attachment_id ),
 			'preview'            => array(
@@ -2415,6 +2421,8 @@ final class Core_Write_Package {
 		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
 		$payload['current_backup'] = is_array( $result['current_backup'] ?? null ) ? $result['current_backup'] : $payload['current_backup'];
+		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
+		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['current_backup'], $payload['content_reference_repairs'] );
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -2567,6 +2575,7 @@ final class Core_Write_Package {
 		$payload['after'] = is_array( $result['after'] ?? null ) ? $result['after'] : $payload['after'];
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
 		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
+		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['backup'], $payload['content_reference_repairs'] );
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -4239,6 +4248,11 @@ final class Core_Write_Package {
 			$target_path = (string) ( $plan['_target_path'] ?? '' );
 			$current_backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_current_backup_relative_file'] ?? '' ) );
 			$current_backup_path = $this->media_uploads_path_for_relative_file( $current_backup_relative );
+			$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
+			$permission_error = $this->validate_media_content_reference_repair_permissions( $content_reference_repairs );
+			if ( is_wp_error( $permission_error ) ) {
+				return $permission_error;
+			}
 			if ( '' === $current_path || ! is_readable( $current_path ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'The current attachment file is unavailable for restore backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 			}
@@ -4266,6 +4280,10 @@ final class Core_Write_Package {
 			if ( is_wp_error( $updated ) ) {
 				return $updated;
 			}
+			$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs );
+			if ( is_wp_error( $content_reference_repairs ) ) {
+				return $content_reference_repairs;
+			}
 			$this->mark_media_file_replacement_rolled_back( $attachment_id, (string) ( $plan['replacement_id'] ?? '' ) );
 			$this->append_media_file_replacement_history(
 				$attachment_id,
@@ -4288,6 +4306,7 @@ final class Core_Write_Package {
 				'after'          => $after,
 				'backup'         => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
 				'current_backup' => $current_backup,
+				'content_reference_repairs' => $content_reference_repairs,
 			);
 		}
 
@@ -5460,6 +5479,9 @@ final class Core_Write_Package {
 		$repairs = array();
 		$scanned_count = 0;
 		$replacement_count = 0;
+		$replacement_rule_count = 0;
+		$actual_replacement_count = 0;
+		$unmatched_rules = array();
 
 		foreach ( $this->media_content_reference_candidate_posts( $attachment_id, $needles, $max_posts * 3 ) as $post ) {
 			if ( count( $repairs ) >= $max_posts ) {
@@ -5501,16 +5523,28 @@ final class Core_Write_Package {
 				continue;
 			}
 			$preview = $this->apply_patch_operations( $content, $operations );
+			$patch_preview = is_wp_error( $preview ) ? array() : (array) ( $preview['patch_preview'] ?? array() );
+			$repair_counts = $this->media_reference_repair_count_summary( $post_id, $operations, $patch_preview );
+			$replacement_rule_count += absint( $repair_counts['replacement_rule_count'] ?? 0 );
+			$actual_replacement_count += absint( $repair_counts['actual_replacement_count'] ?? 0 );
+			foreach ( (array) ( $repair_counts['unmatched_rules'] ?? array() ) as $unmatched_rule ) {
+				if ( is_array( $unmatched_rule ) ) {
+					$unmatched_rules[] = $unmatched_rule;
+				}
+			}
 			$repairs[] = array(
 				'post_id'               => $post_id,
 				'post_type'             => sanitize_key( (string) ( $post->post_type ?? '' ) ),
 				'post_status'           => sanitize_key( (string) ( $post->post_status ?? '' ) ),
 				'title'                 => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
 				'operation_count'       => count( $operations ),
+				'replacement_rule_count' => absint( $repair_counts['replacement_rule_count'] ?? 0 ),
+				'actual_replacement_count' => absint( $repair_counts['actual_replacement_count'] ?? 0 ),
+				'unmatched_rules'       => (array) ( $repair_counts['unmatched_rules'] ?? array() ),
 				'operations'            => $operations,
 				'content_length_before' => strlen( $content ),
 				'content_length_after'  => is_wp_error( $preview ) ? strlen( $content ) : strlen( (string) ( $preview['content'] ?? $content ) ),
-				'patch_preview'         => is_wp_error( $preview ) ? array() : (array) ( $preview['patch_preview'] ?? array() ),
+				'patch_preview'         => $patch_preview,
 				'updated'               => false,
 			);
 		}
@@ -5521,6 +5555,9 @@ final class Core_Write_Package {
 			'scanned_count'      => $scanned_count,
 			'post_count'         => count( $repairs ),
 			'replacement_count'  => $replacement_count,
+			'replacement_rule_count' => $replacement_rule_count,
+			'actual_replacement_count' => $actual_replacement_count,
+			'unmatched_rules'    => $unmatched_rules,
 			'repairs'            => $repairs,
 			'reference_strategy' => 'replace_old_main_and_sized_upload_urls_with_new_main_file_url',
 		);
@@ -5638,10 +5675,125 @@ final class Core_Write_Package {
 			$repairs['repairs'][ $index ]['updated'] = $changed;
 			$repairs['repairs'][ $index ]['content_length_after'] = strlen( $after_content );
 			$repairs['repairs'][ $index ]['patch_preview'] = (array) ( $patch['patch_preview'] ?? array() );
+			$repair_counts = $this->media_reference_repair_count_summary( $post_id, (array) ( $repair['operations'] ?? array() ), (array) ( $patch['patch_preview'] ?? array() ) );
+			$repairs['repairs'][ $index ]['replacement_rule_count'] = absint( $repair_counts['replacement_rule_count'] ?? 0 );
+			$repairs['repairs'][ $index ]['actual_replacement_count'] = absint( $repair_counts['actual_replacement_count'] ?? 0 );
+			$repairs['repairs'][ $index ]['unmatched_rules'] = (array) ( $repair_counts['unmatched_rules'] ?? array() );
 		}
 		$repairs['applied'] = true;
 		$repairs['updated_count'] = $updated_count;
+		$repairs = $this->normalize_media_reference_repair_counts( $repairs );
 		return $repairs;
+	}
+
+	/**
+	 * Summarizes repair rule and actual replacement counts for one post.
+	 *
+	 * @param int                  $post_id Post id.
+	 * @param array<int,mixed>     $operations Patch operations.
+	 * @param array<int,mixed>     $patch_preview Patch preview rows.
+	 * @return array<string,mixed>
+	 */
+	private function media_reference_repair_count_summary( $post_id, array $operations, array $patch_preview ) {
+		$post_id = absint( $post_id );
+		$actual_replacement_count = 0;
+		$unmatched_rules = array();
+		foreach ( $patch_preview as $index => $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$applied = absint( $row['applied'] ?? 0 );
+			$actual_replacement_count += $applied;
+			if ( 0 === $applied ) {
+				$operation = is_array( $operations[ $index ] ?? null ) ? $operations[ $index ] : array();
+				$unmatched_rules[] = array(
+					'post_id'         => $post_id,
+					'operation_index' => absint( $index ),
+					'find'            => (string) ( $operation['find'] ?? ( $row['find'] ?? '' ) ),
+				);
+			}
+		}
+
+		return array(
+			'replacement_rule_count'   => count( $operations ),
+			'actual_replacement_count' => $actual_replacement_count,
+			'unmatched_rules'          => $unmatched_rules,
+		);
+	}
+
+	/**
+	 * Recomputes top-level repair count fields from repair rows.
+	 *
+	 * @param array<string,mixed> $repairs Repair plan/result.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_media_reference_repair_counts( array $repairs ) {
+		$replacement_rule_count = 0;
+		$actual_replacement_count = 0;
+		$unmatched_rules = array();
+		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $repair ) {
+			if ( ! is_array( $repair ) ) {
+				continue;
+			}
+			$replacement_rule_count += absint( $repair['replacement_rule_count'] ?? ( $repair['operation_count'] ?? 0 ) );
+			$actual_replacement_count += absint( $repair['actual_replacement_count'] ?? 0 );
+			foreach ( (array) ( $repair['unmatched_rules'] ?? array() ) as $unmatched_rule ) {
+				if ( is_array( $unmatched_rule ) ) {
+					$unmatched_rules[] = $unmatched_rule;
+				}
+			}
+		}
+		$repairs['replacement_rule_count'] = $replacement_rule_count;
+		$repairs['actual_replacement_count'] = $actual_replacement_count;
+		$repairs['unmatched_rules'] = $unmatched_rules;
+
+		return $repairs;
+	}
+
+	/**
+	 * Builds a compact verification summary after a media file operation.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $after Expected after state.
+	 * @param array<string,mixed> $rollback_backup Backup available for rollback.
+	 * @param array<string,mixed> $content_reference_repairs Applied reference repair result.
+	 * @return array<string,mixed>
+	 */
+	private function media_file_operation_verification( $attachment_id, array $after, array $rollback_backup, array $content_reference_repairs = array() ) {
+		$attachment_id = absint( $attachment_id );
+		$current = $this->current_media_file_state( $attachment_id );
+		$current = is_wp_error( $current ) ? array() : $current;
+		$backup_relative = $this->normalize_media_relative_file( (string) ( $rollback_backup['relative_file'] ?? '' ) );
+		$backup_path = '' !== $backup_relative ? $this->media_uploads_path_for_relative_file( $backup_relative ) : '';
+		$post_references = array();
+		foreach ( (array) ( $content_reference_repairs['repairs'] ?? array() ) as $repair ) {
+			if ( ! is_array( $repair ) ) {
+				continue;
+			}
+			$post_references[] = array(
+				'post_id'                  => absint( $repair['post_id'] ?? 0 ),
+				'updated'                  => (bool) ( $repair['updated'] ?? false ),
+				'replacement_rule_count'   => absint( $repair['replacement_rule_count'] ?? ( $repair['operation_count'] ?? 0 ) ),
+				'actual_replacement_count' => absint( $repair['actual_replacement_count'] ?? 0 ),
+				'unmatched_rules'          => (array) ( $repair['unmatched_rules'] ?? array() ),
+			);
+		}
+
+		return array(
+			'attachment_id'              => $attachment_id,
+			'media_current_file'         => (string) ( $current['relative_file'] ?? '' ),
+			'media_expected_file'        => (string) ( $after['relative_file'] ?? '' ),
+			'media_file_matches_expected' => (string) ( $current['relative_file'] ?? '' ) === (string) ( $after['relative_file'] ?? '' ),
+			'media_mime_type'            => (string) ( $current['mime_type'] ?? '' ),
+			'expected_mime_type'         => (string) ( $after['mime_type'] ?? '' ),
+			'media_mime_type_matches_expected' => (string) ( $current['mime_type'] ?? '' ) === (string) ( $after['mime_type'] ?? '' ),
+			'post_references_verified'   => $post_references,
+			'content_reference_repair_applied' => (bool) ( $content_reference_repairs['applied'] ?? false ),
+			'content_reference_updated_count' => absint( $content_reference_repairs['updated_count'] ?? 0 ),
+			'content_reference_actual_replacement_count' => absint( $content_reference_repairs['actual_replacement_count'] ?? 0 ),
+			'backup_available'           => '' !== $backup_path && is_readable( $backup_path ),
+			'rollback_available'         => '' !== $backup_path && is_readable( $backup_path ),
+		);
 	}
 
 	/**

@@ -132,6 +132,14 @@ attachment pointer to the approved replacement file. Media optimization plans
 pass reviewed post ids, post count, and replacement count as lightweight
 expectations on `npcink-abilities-toolkit/adopt-cloud-media-derivative`; commit
 recomputes repairs and blocks with a conflict if those reviewed targets drift.
+The repair evidence keeps backward-compatible `replacement_count` and also
+separates `replacement_rule_count`, `actual_replacement_count`, and
+`unmatched_rules` so review UIs can explain overlap or no-op replacement rules.
+`npcink-abilities-toolkit/restore-media-backup` uses the same repair evidence in reverse when
+rolling an attachment back to its original file. Media replacement, Cloud
+derivative adoption, and backup restore commits return a compact
+`verification` summary with the current file, MIME type, post-reference repair
+results, backup availability, and rollback availability.
 `npcink-abilities-toolkit/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 
