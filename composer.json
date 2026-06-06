@@ -20,6 +20,7 @@
   },
   "scripts": {
     "validate:composer": "composer validate --no-check-publish",
+    "audit:composer": "composer audit --locked --no-interaction",
     "check:boundary": "@php scripts/check-project-boundary.php",
     "check:contracts": "@php scripts/check-ability-contracts.php",
     "check:consumer": "@php scripts/check-consumer-handoff.php",
@@ -38,6 +39,7 @@
     "test": "@php tests/run.php",
     "test:all": [
       "@validate:composer",
+      "@audit:composer",
       "@check:boundary",
       "@check:contracts",
       "@check:consumer",

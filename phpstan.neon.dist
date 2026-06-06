@@ -3,7 +3,7 @@ includes:
 
 parameters:
 	level: 2
-	phpVersion: 70200
+	phpVersion: 80000
 	paths:
 		- includes
 		- npcink-abilities-toolkit.php
