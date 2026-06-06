@@ -1,0 +1,130 @@
+# Contributing
+
+Thanks for contributing to Npcink Abilities Toolkit. This project is a
+foundation-layer WordPress Abilities API plugin, so changes should preserve
+stable ability contracts, host-governed write boundaries, and bounded
+performance behavior.
+
+## Branches And Pull Requests
+
+Use pull requests for changes to `master`. The `master` branch is protected and
+requires GitHub Actions to pass before merge.
+
+Use short topic branches:
+
+```bash
+git switch -c codex/short-description
+```
+
+Before opening a pull request:
+
+```bash
+composer test:all
+composer analyse:phpstan
+```
+
+The required GitHub checks are:
+
+- `php (8.0)`
+- `php (8.3)`
+
+## Local Development Gate
+
+Run the default source gate before merging changes that affect registered
+abilities, schemas, metadata, workflow recipes, projection, diagnostics, or
+host-governed write behavior:
+
+```bash
+composer test:all
+```
+
+Use targeted gates while iterating:
+
+```bash
+composer test
+composer audit:composer
+composer check:contracts
+composer check:consumer
+composer check:workflow-consumer
+composer check:mcp-exposure
+composer check:provider-demo
+composer check:catalog
+composer check:wporg
+composer perf:smoke
+```
+
+Run PHPStan when public PHP contracts, class boundaries, bootstrap assumptions,
+or typed contracts change:
+
+```bash
+composer analyse:phpstan
+```
+
+## WordPress Smoke
+
+When a real WordPress site is available, run:
+
+```bash
+WP_PATH=/path/to/wordpress composer smoke:wp
+```
+
+For the current Local development site and socket-aware command, see
+[docs/local-wpcli-smoke.md](docs/local-wpcli-smoke.md).
+
+## What Belongs Here
+
+This package owns:
+
+- ability registration helpers and category helpers;
+- schema, annotation, and metadata normalization;
+- first-party read, write, and destructive ability contracts;
+- permission callbacks and risk metadata;
+- dry-run defaults and host approval-context requirements;
+- diagnostics redaction and bounded performance checks.
+
+This package does not own:
+
+- model routing or prompt selection;
+- workflow runtime execution;
+- final write authorization;
+- approval storage or audit truth;
+- quota, billing, app keys, cloud execution, or MCP gateway policy.
+
+If a change moves host-owned runtime behavior into this package, stop and write
+or update the relevant design document first.
+
+## Adding Or Changing Abilities
+
+Before adding a first-party ability, prove that existing abilities cannot cover
+the workflow through composition.
+
+When an ability contract changes, update the focused checks and fixtures that
+protect the public surface:
+
+- `composer check:contracts` for ids, schemas, risk metadata, dry-run controls,
+  approval flags, REST metadata, MCP metadata, and agent usage guidance;
+- `composer check:consumer` and `composer check:catalog` for Core governance
+  handoff and high-value consumer payloads;
+- `composer check:workflow-consumer` for workflow recipes and replay fixtures;
+- `composer check:mcp-exposure` for MCP public exposure and server routing;
+- `composer perf:smoke` for performance-sensitive read chains, aggregators,
+  diagnostics, or cache behavior.
+
+## Release Work
+
+Do not retag historical releases. For a patch release, update the plugin
+version, `readme.txt`, `CHANGELOG.md`, and a release verification note, then
+tag from the verified `master` commit.
+
+Before a GitHub release:
+
+```bash
+composer test:all
+composer analyse:phpstan
+WP_PATH=/path/to/wordpress composer smoke:wp
+```
+
+Record the evidence in the matching `docs/release-*-verification.md` file.
+
+Before publishing to WordPress.org, follow
+[docs/wordpress-org-release-runbook.md](docs/wordpress-org-release-runbook.md).
