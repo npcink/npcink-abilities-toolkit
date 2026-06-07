@@ -985,6 +985,14 @@ $article_optimization_apply_plan_run_request->set_query_params(
 $article_optimization_apply_plan_run_response = rest_do_request( $article_optimization_apply_plan_run_request );
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_optimization_apply_plan_run_response->get_status(), 'Authenticated article optimization apply plan ability run returns 200.' );
 $article_optimization_apply_plan_run_data = $article_optimization_apply_plan_run_response->get_data();
+npcink_abilities_toolkit_smoke_assert( 'article_optimization_apply_plan' === (string) ( $article_optimization_apply_plan_run_data['data']['artifact_type'] ?? '' ), 'Article optimization apply plan declares the Core-ready artifact type.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_optimization_apply_plan_run_data['data']['requires_approval'] ?? false ), 'Article optimization apply plan requires host approval.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_optimization_apply_plan_run_data['data']['dry_run'] ?? false ), 'Article optimization apply plan remains dry-run.' );
+npcink_abilities_toolkit_smoke_assert( false === (bool) ( $article_optimization_apply_plan_run_data['data']['commit_execution'] ?? true ), 'Article optimization apply plan does not execute commits.' );
+$article_optimization_smoke_actions = is_array( $article_optimization_apply_plan_run_data['data']['write_actions'] ?? null ) ? $article_optimization_apply_plan_run_data['data']['write_actions'] : array();
+npcink_abilities_toolkit_smoke_assert( 1 === count( $article_optimization_smoke_actions ), 'Article optimization apply plan emits one governed write action for the reviewed excerpt.' );
+npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/update-post' === (string) ( $article_optimization_smoke_actions[0]['target_ability_id'] ?? '' ), 'Article optimization apply plan targets update-post for excerpt changes.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_optimization_smoke_actions[0]['input']['dry_run'] ?? false ) && false === (bool) ( $article_optimization_smoke_actions[0]['input']['commit'] ?? true ), 'Article optimization apply plan write action is dry-run and non-commit.' );
 
 $article_optimization_apply_result_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/compose-article-optimization-apply-result/run' );
 $article_optimization_apply_result_run_request->set_query_params(

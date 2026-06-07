@@ -571,8 +571,26 @@ trait Article_Optimization_Read_Methods {
 		);
 
 		$safe_write_actions = array();
+		$write_actions = array();
 		if ( $excerpt_apply_generate ) {
 			$safe_write_actions[] = 'update_excerpt';
+			$write_actions[] = array(
+				'action_id'         => 'update_excerpt',
+				'target_ability_id' => 'npcink-abilities-toolkit/update-post',
+				'recipe_step'       => 'host_governed_update_excerpt',
+				'input'             => array(
+					'post_id' => $this->absint_value( $post['post_id'] ?? $post['id'] ?? 0 ),
+					'excerpt' => $regenerated_excerpt,
+					'dry_run' => true,
+					'commit'  => false,
+				),
+				'risk'              => 'medium',
+				'required_scopes'   => array( 'post.write' ),
+				'requires_approval' => true,
+				'commit_execution'  => false,
+				'proposal_ready'    => true,
+				'reason'            => __( 'Apply the reviewed article optimization excerpt through host governance.', 'npcink-abilities-toolkit' ),
+			);
 		}
 
 		$advisory_sections = array();
@@ -596,13 +614,36 @@ trait Article_Optimization_Read_Methods {
 
 		return $this->build_analysis_success_response(
 			array(
-				'post'    => array(
+				'artifact_type'          => 'article_optimization_apply_plan',
+				'composition_role'       => 'core_article_optimization_apply_plan',
+				'version'                => 1,
+				'source_recipe_id'       => 'article_optimization_v1',
+				'source_recipe_ref'      => 'workflow/wordpress_article_optimization',
+				'source_recipe_provider' => 'npcink-abilities-toolkit',
+				'recipe_execution'       => 'host_orchestration',
+				'write_posture'          => 'core_proposal_handoff',
+				'direct_wordpress_write' => false,
+				'requires_approval'      => true,
+				'dry_run'                => true,
+				'commit_execution'       => false,
+				'proposal_mode'          => 'single',
+				'batch_id'               => 'article_optimization_' . substr( md5( wp_json_encode( array( $summary['post_id'], $regenerated_excerpt, $safe_write_actions ) ) ?: '' ), 0, 12 ),
+				'post'                   => array(
 					'post_id' => $this->absint_value( $post['post_id'] ?? $post['id'] ?? 0 ),
 					'title'   => sanitize_text_field( (string) ( $post['title'] ?? '' ) ),
 					'status'  => sanitize_key( (string) ( $post['status'] ?? '' ) ),
 				),
-				'actions' => $actions,
-				'summary' => $summary,
+				'actions'                => $actions,
+				'write_actions'          => $write_actions,
+				'summary'                => $summary,
+				'handoff'                => array(
+					'plan_ability_id'        => 'npcink-abilities-toolkit/build-article-optimization-apply-plan',
+					'recipe_id'              => 'article_optimization_v1',
+					'recipe_ref'             => 'workflow/wordpress_article_optimization',
+					'core_route'             => '/wp-json/npcink-governance-core/v1/proposals/from-plan',
+					'final_write_path'       => 'core_proposal_required',
+					'direct_wordpress_write' => false,
+				),
 			),
 			array(
 				'source'         => 'local_article_optimization_apply_plan',
