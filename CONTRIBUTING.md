@@ -7,14 +7,28 @@ performance behavior.
 
 ## Branches And Pull Requests
 
-Use pull requests for changes to `master`. The `master` branch is protected and
-requires GitHub Actions to pass before merge.
+Use pull requests for changes to `master`. The `master` branch is protected,
+requires GitHub Actions to pass before merge, and should not receive direct
+pushes during normal development.
 
 Use short topic branches:
 
 ```bash
 git switch -c codex/short-description
 ```
+
+Publish the branch and open a pull request:
+
+```bash
+git push -u origin codex/short-description
+gh pr create --base master --head codex/short-description
+```
+
+Wait for the required GitHub checks to pass before merging. If GitHub reports
+that required status checks were bypassed, treat it as an operations exception:
+confirm that the pushed commit's checks completed successfully, record why a
+direct push was necessary, and return to the pull-request path for the next
+change.
 
 Before opening a pull request:
 

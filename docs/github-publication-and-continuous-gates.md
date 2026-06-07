@@ -22,6 +22,22 @@ GitHub repository state verified on 2026-06-07:
 - published branch: `master`;
 - published tags: `0.2.0`, `0.4.0`, `0.5.0`, `0.5.1`.
 
+## Master Branch Protection
+
+`master` is the published branch and should be updated through pull requests,
+not direct pushes.
+
+Required checks:
+
+- `php (8.0)`;
+- `php (8.3)`.
+
+The checks are strict, so pull requests should be current with `master` before
+merge. Administrator bypass should stay disabled in normal operations. If a
+break-glass direct push is ever used, verify the resulting commit's GitHub
+Actions run, record the reason in the release or operations note, and restore
+the pull-request path immediately.
+
 The local checkout now uses GitHub as `origin`:
 
 ```text
