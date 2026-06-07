@@ -3721,6 +3721,19 @@ $apply_plan = $core_read_package->build_article_optimization_apply_plan(
 npcink_abilities_toolkit_assert_same( true, $apply_plan['success'] ?? null, 'build-article-optimization-apply-plan returns a success envelope' );
 npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['actions']['excerpt']['apply_generate'] ?? null, 'build-article-optimization-apply-plan marks generated excerpt as safe apply when explicitly requested' );
 npcink_abilities_toolkit_assert_same( array( 'update_excerpt' ), $apply_plan['data']['summary']['safe_apply_supported'] ?? array(), 'build-article-optimization-apply-plan exposes safe apply action summary' );
+npcink_abilities_toolkit_assert_same( 'article_optimization_apply_plan', $apply_plan['data']['artifact_type'] ?? '', 'build-article-optimization-apply-plan declares a Core-ready artifact type' );
+npcink_abilities_toolkit_assert_same( 'workflow/wordpress_article_optimization', $apply_plan['data']['source_recipe_ref'] ?? '', 'build-article-optimization-apply-plan carries the article optimization recipe ref' );
+npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['requires_approval'] ?? null, 'build-article-optimization-apply-plan requires host approval' );
+npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['dry_run'] ?? null, 'build-article-optimization-apply-plan is dry-run only' );
+npcink_abilities_toolkit_assert_same( false, $apply_plan['data']['commit_execution'] ?? null, 'build-article-optimization-apply-plan does not execute commits' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-optimization-apply-plan', $apply_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-article-optimization-apply-plan identifies itself for Core from-plan intake' );
+$apply_plan_write_actions = is_array( $apply_plan['data']['write_actions'] ?? null ) ? $apply_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( 1, count( $apply_plan_write_actions ), 'build-article-optimization-apply-plan emits one safe excerpt write action when requested' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-post', $apply_plan_write_actions[0]['target_ability_id'] ?? '', 'build-article-optimization-apply-plan targets update-post for excerpt changes' );
+npcink_abilities_toolkit_assert_same( 77, $apply_plan_write_actions[0]['input']['post_id'] ?? null, 'build-article-optimization-apply-plan includes the target post id' );
+npcink_abilities_toolkit_assert_same( 'Generated excerpt.', $apply_plan_write_actions[0]['input']['excerpt'] ?? '', 'build-article-optimization-apply-plan includes the reviewed excerpt' );
+npcink_abilities_toolkit_assert_same( true, $apply_plan_write_actions[0]['input']['dry_run'] ?? null, 'build-article-optimization-apply-plan write action is dry-run' );
+npcink_abilities_toolkit_assert_same( false, $apply_plan_write_actions[0]['input']['commit'] ?? null, 'build-article-optimization-apply-plan write action does not request commit' );
 $apply_result = $core_read_package->compose_article_optimization_apply_result(
 	array(
 		'report'        => array(
