@@ -183,6 +183,11 @@ machine-readable:
   the default entry for the task;
 - `composer test` verifies the fixture against registered abilities and the
   optional `wp_ability` compatibility projection consumed by host projects.
+- `composer check:workflow-consumer` simulates natural-task routing against the
+  fixture, requires each task to resolve to one unambiguous recipe, checks that
+  the selected entrypoint is REST-discoverable read context, and verifies that
+  write/destructive targets remain disallowed defaults rather than expanded
+  read-chain steps.
 
 The current required consumer-side check belongs in `npcink-ai-core`. Future
 Agent Gateway, MCP, or other host tests may reuse the same fixture, but the

@@ -108,10 +108,18 @@ boundaries:
 - the fixture is valid JSON with schema version `v1`;
 - each preferred entrypoint points to a registered read-risk ability;
 - entrypoint `requires_confirm` is `false`;
+- entrypoint abilities are REST-discoverable while staying out of the default
+  MCP-public read allowlist unless explicitly approved there;
 - required scope and required inputs match the preferred entrypoint contract;
 - disallowed default abilities exist and are write-like;
 - the test fixture matches the production provider;
 - forbidden runtime and governance fields are absent.
+
+`composer check:workflow-consumer` is the standalone host-consumer proof. It
+also simulates routing every `natural_tasks` example to a single recipe and
+fails when a task is ambiguous, when the selected entrypoint is not the bundled
+read-only ability, or when a write/destructive target leaks into the expanded
+read chain.
 
 Tests should not lock down natural-language descriptions unless those strings
 are part of a consumer-facing compatibility guarantee.

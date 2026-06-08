@@ -93,7 +93,7 @@ move with each kind of change.
 | `includes/Registry/*`, public helper registration, schema normalization, or annotation normalization | Add or update focused assertions in `tests/run.php`, then run `composer test` and `composer check:contracts`. |
 | First-party ability ids, labels, descriptions, categories, schemas, risk metadata, approval flags, dry-run controls, or idempotency controls | Add or update `composer check:contracts` coverage, and update catalog or consumer fixtures when the public contract intentionally changes. |
 | Consumer handoff shape, Core governance proposal payloads, or high-value write/destructive target discovery | Run and update `composer check:consumer` and `composer check:catalog` as needed. |
-| Workflow definition provider, replay fixture, recipe entrypoints, expanded ability chains, or disallowed write defaults | Update the replay fixture and run `composer check:workflow-consumer`. |
+| Workflow definition provider, replay fixture, recipe entrypoints, natural-task routing examples, expanded ability chains, or disallowed write defaults | Update the replay fixture and run `composer check:workflow-consumer`. |
 | MCP public exposure, MCP risk metadata, annotations, or read/write server routing | Update the MCP exposure assertions and run `composer check:mcp-exposure`. |
 | Provider helper behavior, third-party demo registration, or Npcink catalog projection defaults | Update the demo or projection assertions and run `composer check:provider-demo`. |
 | WordPress.org review-risk surfaces such as admin assets, nonce handling, escaping, or forbidden include paths | Update static guards when possible and run `composer check:wporg`; before packaging, also run `composer check:plugin-package` in a WordPress environment. |
