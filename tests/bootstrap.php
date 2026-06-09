@@ -664,6 +664,7 @@ require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Refres
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Internal_Link_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Read_Methods.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Page_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php';

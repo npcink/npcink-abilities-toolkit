@@ -1474,7 +1474,7 @@ final class Core_Write_Package {
 			$target_blocks   = array_merge( $existing_blocks, $normalized_input_blocks );
 		}
 
-		$after_content            = $this->serialize_blocks_minimal( $target_blocks );
+		$after_content            = $this->serialize_blocks_native( $target_blocks );
 		$after_parsed_blocks      = function_exists( 'parse_blocks' ) ? parse_blocks( $after_content ) : array();
 		$after_block_count        = $this->count_blocks_recursive( $target_blocks );
 		$parsed_top_level_count   = is_array( $after_parsed_blocks ) ? count( $after_parsed_blocks ) : 0;
@@ -6298,10 +6298,11 @@ final class Core_Write_Package {
 				$errors = array_merge( $errors, $inner_blocks_errors );
 			}
 			$normalized[] = array(
-				'blockName'   => $block_name,
-				'attrs'       => is_array( $block['attrs'] ?? null ) ? $this->sanitize_block_attrs( $block['attrs'], 0 ) : array(),
-				'innerHTML'   => (string) ( $block['innerHTML'] ?? $block['inner_html'] ?? '' ),
-				'innerBlocks' => $inner_blocks,
+				'blockName'    => $block_name,
+				'attrs'        => is_array( $block['attrs'] ?? null ) ? $this->sanitize_block_attrs( $block['attrs'], 0 ) : array(),
+				'innerHTML'    => (string) ( $block['innerHTML'] ?? $block['inner_html'] ?? '' ),
+				'innerBlocks'  => $inner_blocks,
+				'innerContent' => $this->normalize_block_inner_content( $block, count( $inner_blocks ) ),
 			);
 		}
 		return $normalized;
@@ -6327,41 +6328,87 @@ final class Core_Write_Package {
 	}
 
 	/**
-	 * Serializes blocks using minimal Gutenberg comment syntax.
+	 * Serializes blocks using WordPress' native parsed-block format.
 	 *
 	 * @param array<mixed> $blocks Normalized blocks.
 	 * @return string
 	 */
-	private function serialize_blocks_minimal( array $blocks ) {
+	private function serialize_blocks_native( array $blocks ) {
+		if ( function_exists( 'serialize_blocks' ) ) {
+			return serialize_blocks( $blocks );
+		}
+
 		$serialized = '';
 		foreach ( $blocks as $block ) {
-			if ( ! is_array( $block ) ) {
-				continue;
-			}
-			$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? '' ) );
-			$block_name = preg_replace( '/[^A-Za-z0-9_\/-]/', '', $block_name );
-			$block_name = is_string( $block_name ) ? $block_name : '';
-			$comment_block_name = 0 === strpos( $block_name, 'core/' ) ? substr( $block_name, 5 ) : $block_name;
-			$attrs              = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
-			$inner_html         = (string) ( $block['innerHTML'] ?? '' );
-			$inner_blocks       = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array();
-			$inner_content      = $inner_html . $this->serialize_blocks_minimal( $inner_blocks );
-
-			if ( '' === $block_name || 'core/freeform' === $block_name ) {
-				$serialized .= $inner_content;
-				continue;
-			}
-
-			$attrs_json = '';
-			if ( ! empty( $attrs ) ) {
-				$encoded = wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-				if ( is_string( $encoded ) && '' !== $encoded && '{}' !== $encoded ) {
-					$attrs_json = ' ' . $encoded;
-				}
-			}
-			$serialized .= '<!-- wp:' . $comment_block_name . $attrs_json . ' -->' . $inner_content . '<!-- /wp:' . $comment_block_name . ' -->';
+			$serialized .= is_array( $block ) ? $this->serialize_block_fallback( $block ) : '';
 		}
 		return $serialized;
+	}
+
+	/**
+	 * Normalizes parsed-block innerContent chunks.
+	 *
+	 * @param array<string,mixed> $block Raw block.
+	 * @param int                 $inner_block_count Number of normalized inner blocks.
+	 * @return array<int,string|null>
+	 */
+	private function normalize_block_inner_content( array $block, $inner_block_count ) {
+		$raw_inner_content = $block['innerContent'] ?? ( $block['inner_content'] ?? null );
+		if ( is_array( $raw_inner_content ) ) {
+			$inner_content = array();
+			foreach ( $raw_inner_content as $chunk ) {
+				$inner_content[] = null === $chunk ? null : (string) $chunk;
+			}
+			return $inner_content;
+		}
+
+		$inner_html = (string) ( $block['innerHTML'] ?? ( $block['inner_html'] ?? '' ) );
+		if ( $inner_block_count <= 0 ) {
+			return array( $inner_html );
+		}
+
+		return array_merge( array( $inner_html ), array_fill( 0, absint( $inner_block_count ), null ) );
+	}
+
+	/**
+	 * Fallback for environments without WordPress' serialize_block().
+	 *
+	 * @param array<string,mixed> $block Normalized parsed block.
+	 * @return string
+	 */
+	private function serialize_block_fallback( array $block ) {
+		$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? '' ) );
+		$block_name = preg_replace( '/[^A-Za-z0-9_\/-]/', '', $block_name );
+		$block_name = is_string( $block_name ) ? $block_name : '';
+		$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+		$inner_content = is_array( $block['innerContent'] ?? null ) ? array_values( $block['innerContent'] ) : array( (string) ( $block['innerHTML'] ?? '' ) );
+		$content = '';
+		$inner_block_index = 0;
+		foreach ( $inner_content as $chunk ) {
+			if ( is_string( $chunk ) ) {
+				$content .= $chunk;
+				continue;
+			}
+			if ( isset( $inner_blocks[ $inner_block_index ] ) && is_array( $inner_blocks[ $inner_block_index ] ) ) {
+				$content .= $this->serialize_block_fallback( $inner_blocks[ $inner_block_index ] );
+			}
+			++$inner_block_index;
+		}
+
+		if ( '' === $block_name || 'core/freeform' === $block_name ) {
+			return $content;
+		}
+
+		$comment_block_name = 0 === strpos( $block_name, 'core/' ) ? substr( $block_name, 5 ) : $block_name;
+		$attrs              = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		$attrs_json         = '';
+		if ( ! empty( $attrs ) ) {
+			$encoded = wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+			if ( is_string( $encoded ) && '' !== $encoded && '{}' !== $encoded ) {
+				$attrs_json = ' ' . $encoded;
+			}
+		}
+		return '<!-- wp:' . $comment_block_name . $attrs_json . ' -->' . $content . '<!-- /wp:' . $comment_block_name . ' -->';
 	}
 
 	/**

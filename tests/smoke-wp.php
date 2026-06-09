@@ -432,7 +432,7 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
+		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
 			npcink_abilities_toolkit_smoke_assert(
 				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 				"Light profile disables optional ability {$disabled_ability_id}."
@@ -489,6 +489,7 @@ foreach (
 		'npcink-abilities-toolkit/resolve-url-to-post',
 		'npcink-abilities-toolkit/get-post-blocks',
 		'npcink-abilities-toolkit/list-post-revisions',
+		'npcink-abilities-toolkit/build-pattern-page-plan',
 		'npcink-abilities-toolkit/list-media',
 		'npcink-abilities-toolkit/list-terms',
 		'npcink-abilities-toolkit/list-taxonomy-terms',

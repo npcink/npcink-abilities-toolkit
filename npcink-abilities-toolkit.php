@@ -39,6 +39,7 @@ require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Conte
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Internal_Link_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Media_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Page_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php';
