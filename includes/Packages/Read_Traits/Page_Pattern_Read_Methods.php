@@ -53,6 +53,7 @@ trait Page_Pattern_Read_Methods {
 		}
 
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
+		$research_brief = $this->pattern_research_brief( $input['research_brief'] ?? ( $variables['research_brief'] ?? array() ) );
 		$title     = $this->pattern_text( $input['title'] ?? ( $variables['hero_title'] ?? 'WordPress AI' ), 'WordPress AI' );
 		$blocks    = $this->render_openai_style_landing_blocks(
 			$variables,
@@ -60,9 +61,10 @@ trait Page_Pattern_Read_Methods {
 				'responsive_profile' => $responsive_profile,
 				'visual_density'     => $visual_density,
 				'media_strategy'     => $media_strategy,
+				'research_brief'     => $research_brief,
 			)
 		);
-		$design_quality     = $this->pattern_design_quality_summary( $blocks );
+		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
 		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
@@ -111,6 +113,7 @@ trait Page_Pattern_Read_Methods {
 				'responsive_profile'     => $responsive_profile,
 				'visual_density'         => $visual_density,
 				'media_strategy'         => $media_strategy,
+				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
@@ -158,46 +161,71 @@ trait Page_Pattern_Read_Methods {
 		$primary_cta      = $this->pattern_text( $variables['primary_cta'] ?? '', '查看工作流' );
 		$secondary_cta    = $this->pattern_text( $variables['secondary_cta'] ?? '', '了解能力' );
 		$media_strategy   = sanitize_key( (string) ( $options['media_strategy'] ?? 'mock_or_existing_media' ) );
+		$research_brief   = is_array( $options['research_brief'] ?? null ) ? $options['research_brief'] : array();
 		$hero_media_url   = esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) );
 		$hero_media_alt   = $this->pattern_text( $variables['hero_media_alt'] ?? '', 'WordPress AI workflow interface' );
 		$proof_points     = $this->pattern_items(
 			$variables['proof_points'] ?? array(),
-			array(
+			$this->pattern_items(
+				$research_brief['proof_points'] ?? array(),
 				array(
-					'title'       => 'Proposal-first',
-					'description' => 'AI 只生成计划和提案，审批后才进入执行。',
+					array(
+						'title'       => 'Proposal-first',
+						'description' => 'AI 只生成计划和提案，审批后才进入执行。',
+					),
+					array(
+						'title'       => 'Gutenberg-native',
+						'description' => '页面结构以 WordPress 核心块保存，编辑器可继续维护。',
+					),
+					array(
+						'title'       => 'Auditable',
+						'description' => '每次写入都关联 proposal、preflight 和审计记录。',
+					),
+					array(
+						'title'       => 'Draft-safe',
+						'description' => '默认创建草稿，不直接发布生产内容。',
+					),
 				),
-				array(
-					'title'       => 'Gutenberg-native',
-					'description' => '页面结构以 WordPress 核心块保存，编辑器可继续维护。',
-				),
-				array(
-					'title'       => 'Auditable',
-					'description' => '每次写入都关联 proposal、preflight 和审计记录。',
-				),
-				array(
-					'title'       => 'Draft-safe',
-					'description' => '默认创建草稿，不直接发布生产内容。',
-				),
+				4
 			),
 			4
 		);
+		$comparison_angles = $this->pattern_items(
+			$research_brief['comparison_angles'] ?? array(),
+			array(),
+			0
+		);
+		$section_patterns  = $this->pattern_items(
+			$research_brief['section_patterns'] ?? array(),
+			array(),
+			0
+		);
+		$visual_recommendations = $this->pattern_items(
+			$research_brief['visual_asset_recommendations'] ?? array(),
+			array(),
+			0
+		);
+		$faq_seed_questions = $this->pattern_faq_seed_items( $research_brief['faq_seed_questions'] ?? array() );
+		$feature_fallback = array(
+			array(
+				'title'       => 'AI 内容草稿',
+				'description' => '从主题、上下文和站点知识出发，生成结构化草稿。',
+			),
+			array(
+				'title'       => '可审查提案',
+				'description' => '所有写入先形成 proposal，再经过审批和 preflight。',
+			),
+			array(
+				'title'       => 'Gutenberg 原生块',
+				'description' => '输出标准核心块结构，便于编辑器继续维护。',
+			),
+		);
+		if ( ! empty( $section_patterns ) ) {
+			$feature_fallback = $this->pattern_merge_item_lists( $section_patterns, $feature_fallback, 3 );
+		}
 		$features         = $this->pattern_items(
 			$variables['features'] ?? array(),
-			array(
-				array(
-					'title'       => 'AI 内容草稿',
-					'description' => '从主题、上下文和站点知识出发，生成结构化草稿。',
-				),
-				array(
-					'title'       => '可审查提案',
-					'description' => '所有写入先形成 proposal，再经过审批和 preflight。',
-				),
-				array(
-					'title'       => 'Gutenberg 原生块',
-					'description' => '输出标准核心块结构，便于编辑器继续维护。',
-				),
-			),
+			$feature_fallback,
 			3
 		);
 		$workflow         = $this->pattern_items(
@@ -224,19 +252,23 @@ trait Page_Pattern_Read_Methods {
 		);
 		$faq              = $this->pattern_items(
 			$variables['faq'] ?? array(),
-			array(
+			$this->pattern_merge_item_lists(
+				$faq_seed_questions,
 				array(
-					'title'       => '这个页面会直接发布吗？',
-					'description' => '不会。Pattern 计划只创建 proposal，最终写入仍由 Core 审批和 Adapter 执行 profile 控制。',
+					array(
+						'title'       => '这个页面会直接发布吗？',
+						'description' => '不会。Pattern 计划只创建 proposal，最终写入仍由 Core 审批和 Adapter 执行 profile 控制。',
+					),
+					array(
+						'title'       => '编辑器里还能继续改吗？',
+						'description' => '可以。页面由 Gutenberg 核心块组成，目标是保持块结构可读、可解析、可继续编辑。',
+					),
+					array(
+						'title'       => '移动端会怎么显示？',
+						'description' => '多列区块使用移动端堆叠策略，按钮和内容区保持可换行、可阅读。',
+					),
 				),
-				array(
-					'title'       => '编辑器里还能继续改吗？',
-					'description' => '可以。页面由 Gutenberg 核心块组成，目标是保持块结构可读、可解析、可继续编辑。',
-				),
-				array(
-					'title'       => '移动端会怎么显示？',
-					'description' => '多列区块使用移动端堆叠策略，按钮和内容区保持可换行、可阅读。',
-				),
+				3
 			),
 			3
 		);
@@ -319,8 +351,8 @@ trait Page_Pattern_Read_Methods {
 						$hero_media_alt,
 						array(
 							$this->pattern_paragraph_block( 'Responsive Pattern', 'npcink-ai-eyebrow', $this->pattern_eyebrow_attrs(), 'color:#555555;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
-							$this->pattern_heading_block( $this->pattern_text( $variables['media_title'] ?? '', '视觉结构和治理流程一起交付' ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
-							$this->pattern_paragraph_block( $this->pattern_text( $variables['media_description'] ?? '', 'OpenClaw 提供页面意图和素材引用，Toolkit 输出响应式 Gutenberg 模块，Core 继续保留审批和审计。' ), 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
+							$this->pattern_heading_block( $this->pattern_text( $variables['media_title'] ?? '', $this->pattern_research_item_title( $visual_recommendations, '视觉结构和治理流程一起交付' ) ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+							$this->pattern_paragraph_block( $this->pattern_text( $variables['media_description'] ?? '', $this->pattern_research_item_description( $visual_recommendations, 'OpenClaw 提供页面意图和素材引用，Toolkit 输出响应式 Gutenberg 模块，Core 继续保留审批和审计。' ) ), 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
 						),
 						'npcink-ai-media-text',
 						$this->pattern_media_text_attrs()
@@ -329,6 +361,11 @@ trait Page_Pattern_Read_Methods {
 				$this->pattern_section_attrs( '#f7f7f4', '72px', '72px', false ),
 				'background-color:#f7f7f4;padding-top:72px;padding-right:40px;padding-bottom:72px;padding-left:40px'
 			);
+		}
+
+		$research_sections = array();
+		if ( ! empty( $comparison_angles ) ) {
+			$research_sections[] = $this->pattern_comparison_block( $comparison_angles );
 		}
 
 		$blocks = array_merge(
@@ -394,6 +431,9 @@ trait Page_Pattern_Read_Methods {
 					$this->pattern_section_attrs( '#f7f7f4', '88px', '96px', false ),
 					'background-color:#f7f7f4;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px'
 				),
+			),
+			$research_sections,
+			array(
 				$this->pattern_group_block(
 					'npcink-ai-faq',
 					array(
@@ -471,6 +511,9 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-feature-card',
 			'npcink-ai-workflow',
 			'npcink-ai-workflow-step',
+			'npcink-ai-comparison',
+			'npcink-ai-comparison-grid',
+			'npcink-ai-comparison-card',
 			'npcink-ai-faq',
 			'npcink-ai-faq-list',
 			'npcink-ai-faq-item',
@@ -755,6 +798,46 @@ trait Page_Pattern_Read_Methods {
 			),
 			$this->pattern_dashboard_row_attrs(),
 			'border-top-color:#e5e5e5;border-top-width:1px;padding-top:12px;padding-right:0;padding-bottom:0;padding-left:0'
+		);
+	}
+
+	/**
+	 * Builds an optional research-backed comparison section.
+	 *
+	 * @param array<int,array<string,string>> $items Comparison angle items.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_comparison_block( array $items ) {
+		$items = array_slice( $items, 0, 3 );
+		return $this->pattern_group_block(
+			'npcink-ai-comparison',
+			array(
+				$this->pattern_heading_block( __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+				$this->pattern_columns_block(
+					array_map(
+						function ( $item ) {
+							return $this->pattern_column_block(
+								array(
+									$this->pattern_group_block(
+										'npcink-ai-comparison-card',
+										array(
+											$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_card_title_attrs(), 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
+											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
+										),
+										$this->pattern_card_attrs(),
+										'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
+									),
+								)
+							);
+						},
+						$items
+					),
+					'npcink-ai-comparison-grid',
+					$this->pattern_columns_attrs()
+				),
+			),
+			$this->pattern_section_attrs( '#f7f7f4', '88px', '88px', false ),
+			'background-color:#f7f7f4;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 		);
 	}
 
@@ -1229,6 +1312,141 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Normalizes a landing page research brief into bounded page-planning hints.
+	 *
+	 * @param mixed $brief Raw research brief.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_research_brief( $brief ) {
+		$brief = is_array( $brief ) ? $brief : array();
+		if ( 'landing_page_research_brief' !== sanitize_key( (string) ( $brief['artifact_type'] ?? '' ) ) ) {
+			return array();
+		}
+		if ( false !== (bool) ( $brief['direct_wordpress_write'] ?? false ) ) {
+			return array();
+		}
+
+		return array(
+			'artifact_type'                 => 'landing_page_research_brief',
+			'write_posture'                 => sanitize_key( (string) ( $brief['write_posture'] ?? 'suggestion_only' ) ),
+			'direct_wordpress_write'        => false,
+			'source_count'                  => absint( $brief['source_count'] ?? 0 ),
+			'section_patterns'              => $this->pattern_items( $brief['section_patterns'] ?? array(), array(), 0 ),
+			'visual_asset_recommendations' => $this->pattern_items( $brief['visual_asset_recommendations'] ?? array(), array(), 0 ),
+			'proof_points'                  => $this->pattern_items( $brief['proof_points'] ?? array(), array(), 0 ),
+			'comparison_angles'             => $this->pattern_items( $brief['comparison_angles'] ?? array(), array(), 0 ),
+			'faq_seed_questions'            => $this->pattern_faq_seed_items( $brief['faq_seed_questions'] ?? array() ),
+		);
+	}
+
+	/**
+	 * Returns a compact public-safe research brief summary.
+	 *
+	 * @param array<string,mixed> $brief Normalized research brief.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_research_brief_summary( array $brief ) {
+		$research_backed = ! empty( $brief );
+		return array(
+			'research_backed'                      => $research_backed,
+			'artifact_type'                        => $research_backed ? 'landing_page_research_brief' : '',
+			'source_count'                         => absint( $brief['source_count'] ?? 0 ),
+			'section_pattern_count'                => count( (array) ( $brief['section_patterns'] ?? array() ) ),
+			'visual_asset_recommendation_count'   => count( (array) ( $brief['visual_asset_recommendations'] ?? array() ) ),
+			'proof_point_count'                    => count( (array) ( $brief['proof_points'] ?? array() ) ),
+			'comparison_angle_count'               => count( (array) ( $brief['comparison_angles'] ?? array() ) ),
+			'faq_seed_question_count'              => count( (array) ( $brief['faq_seed_questions'] ?? array() ) ),
+			'reference_copying_allowed'            => false,
+			'direct_wordpress_write'               => false,
+		);
+	}
+
+	/**
+	 * Normalizes FAQ seed questions into title/description items.
+	 *
+	 * @param mixed $items Raw FAQ seeds.
+	 * @return array<int,array<string,string>>
+	 */
+	private function pattern_faq_seed_items( $items ) {
+		$items      = is_array( $items ) ? array_values( $items ) : array();
+		$normalized = array();
+		foreach ( $items as $item ) {
+			$item        = is_array( $item ) ? $item : array();
+			$title       = $this->pattern_text( $item['title'] ?? ( $item['question'] ?? '' ), '' );
+			$description = $this->pattern_text( $item['description'] ?? ( $item['answer'] ?? '' ), '用审查后的页面证据回答这个问题。' );
+			if ( '' === $title || '' === $description ) {
+				continue;
+			}
+			$normalized[] = array(
+				'title'       => $title,
+				'description' => $description,
+			);
+			if ( count( $normalized ) >= 4 ) {
+				break;
+			}
+		}
+		return $normalized;
+	}
+
+	/**
+	 * Merges item lists without duplicate titles.
+	 *
+	 * @param array<int,array<string,string>> $primary Primary items.
+	 * @param array<int,array<string,string>> $fallback Fallback items.
+	 * @param int                             $min_items Minimum item count before stopping fallback.
+	 * @return array<int,array<string,string>>
+	 */
+	private function pattern_merge_item_lists( array $primary, array $fallback, $min_items ) {
+		$merged = array();
+		foreach ( array_merge( $primary, $fallback ) as $item ) {
+			$title       = $this->pattern_text( $item['title'] ?? '', '' );
+			$description = $this->pattern_text( $item['description'] ?? '', '' );
+			if ( '' === $title || '' === $description ) {
+				continue;
+			}
+			$already_present = false;
+			foreach ( $merged as $existing ) {
+				if ( $title === (string) ( $existing['title'] ?? '' ) ) {
+					$already_present = true;
+					break;
+				}
+			}
+			if ( ! $already_present ) {
+				$merged[] = array(
+					'title'       => $title,
+					'description' => $description,
+				);
+			}
+			if ( count( $merged ) >= 6 ) {
+				break;
+			}
+		}
+		return array_slice( $merged, 0, max( 0, (int) $min_items, count( $primary ) ) );
+	}
+
+	/**
+	 * Returns a title from the first research item when available.
+	 *
+	 * @param array<int,array<string,string>> $items Items.
+	 * @param string                          $fallback Fallback.
+	 * @return string
+	 */
+	private function pattern_research_item_title( array $items, $fallback ) {
+		return $this->pattern_text( $items[0]['title'] ?? '', $fallback );
+	}
+
+	/**
+	 * Returns a description from the first research item when available.
+	 *
+	 * @param array<int,array<string,string>> $items Items.
+	 * @param string                          $fallback Fallback.
+	 * @return string
+	 */
+	private function pattern_research_item_description( array $items, $fallback ) {
+		return $this->pattern_text( $items[0]['description'] ?? '', $fallback );
+	}
+
+	/**
 	 * Normalizes variable item arrays.
 	 *
 	 * @param mixed                         $items Raw items.
@@ -1286,11 +1504,13 @@ trait Page_Pattern_Read_Methods {
 	 * @param array<int,array<string,mixed>> $blocks Blocks.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_design_quality_summary( array $blocks ) {
+	private function pattern_design_quality_summary( array $blocks, array $research_brief = array() ) {
 		return array(
 			'pattern_version'       => '2.0',
 			'style_strategy'        => 'gutenberg_native',
 			'uses_native_styles'    => true,
+			'research_backed'       => ! empty( $research_brief ),
+			'research_source_count' => absint( $research_brief['source_count'] ?? 0 ),
 			'top_level_count'       => count( $blocks ),
 			'section_count'         => count( $blocks ),
 			'block_count'           => $this->count_pattern_blocks_recursive( $blocks ),
@@ -1298,6 +1518,7 @@ trait Page_Pattern_Read_Methods {
 			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-card' ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
 			'has_media_text'        => $this->pattern_has_block_name( $blocks, 'core/media-text' ),
+			'has_comparison_section' => $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ),
 			'has_faq'               => $this->pattern_has_block_name( $blocks, 'core/details' ),
 			'has_final_cta'         => $this->pattern_has_class_name( $blocks, 'npcink-ai-final-cta' ),
 			'has_columns'           => $this->pattern_has_block_name( $blocks, 'core/columns' ),

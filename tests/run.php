@@ -1135,6 +1135,7 @@ npcink_abilities_toolkit_assert_same( array( 'title', 'pattern_id' ), $package_a
 npcink_abilities_toolkit_assert_same( array( 'landing_standard' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['responsive_profile']['enum'] ?? array(), 'pattern page plan exposes a bounded responsive profile' );
 npcink_abilities_toolkit_assert_same( array( 'balanced' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['visual_density']['enum'] ?? array(), 'pattern page plan exposes a bounded visual density' );
 npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
 npcink_abilities_toolkit_assert_same( array( 'owned', 'ai_generated', 'stock', 'external', 'test' ), $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['source_type']['enum'] ?? array(), 'update-media-details accepts canonical media source_type values' );
 npcink_abilities_toolkit_assert_same( 'external', $package_abilities['npcink-abilities-toolkit/upload-media-from-url']['input_schema']['properties']['source_type']['default'] ?? '', 'upload-media-from-url defaults remote imports to external source type' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/upload-media-from-url']['input_schema']['properties']['file_name'] ), 'upload-media-from-url accepts an approved custom media file name' );
@@ -4119,6 +4120,78 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
+$research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Research Backed WordPress AI',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'research_brief'     => array(
+			'artifact_type'                 => 'landing_page_research_brief',
+			'write_posture'                 => 'suggestion_only',
+			'direct_wordpress_write'        => false,
+			'source_count'                  => 3,
+			'section_patterns'              => array(
+				array(
+					'title'       => 'Evidence-led hero',
+					'description' => 'Open with product proof and reviewed workflow context before detailed feature cards.',
+				),
+			),
+			'visual_asset_recommendations' => array(
+				array(
+					'title'       => 'Proposal dashboard visual',
+					'description' => 'Use a reviewed product interface image that shows approval status and block validation.',
+				),
+			),
+			'proof_points'                  => array(
+				array(
+					'title'       => 'Reference-backed proof',
+					'description' => 'Show why reviewable drafts matter before asking visitors to compare features.',
+				),
+			),
+			'comparison_angles'             => array(
+				array(
+					'title'       => 'Direct automation',
+					'description' => 'Fast, but hard to audit when writes skip proposal review.',
+				),
+				array(
+					'title'       => 'Proposal-first pages',
+					'description' => 'Keeps final WordPress changes reviewable, reversible, and traceable.',
+				),
+			),
+			'faq_seed_questions'            => array(
+				array(
+					'question' => 'Can the page use external research safely?',
+					'answer'   => 'Yes, when references are summarized as evidence and not copied into the page.',
+				),
+			),
+		),
+		'variables'          => array(
+			'eyebrow'          => 'WordPress AI Plugin',
+			'hero_title'       => 'Research-backed Gutenberg landing page',
+			'hero_description' => 'Cloud search evidence shapes the brief while Toolkit keeps Gutenberg output native.',
+			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/research-backed-dashboard.jpg',
+			'hero_media_alt'   => 'Research-backed WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $research_backed_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts a reviewed landing page research brief' );
+npcink_abilities_toolkit_assert_same( true, $research_backed_pattern_page_plan['data']['research_brief']['research_backed'] ?? null, 'build-pattern-page-plan reports research-backed page planning' );
+npcink_abilities_toolkit_assert_same( 3, $research_backed_pattern_page_plan['data']['research_brief']['source_count'] ?? 0, 'build-pattern-page-plan preserves compact research source count' );
+npcink_abilities_toolkit_assert_same( 2, $research_backed_pattern_page_plan['data']['research_brief']['comparison_angle_count'] ?? 0, 'build-pattern-page-plan counts comparison angles from research brief' );
+npcink_abilities_toolkit_assert_same( false, $research_backed_pattern_page_plan['data']['research_brief']['reference_copying_allowed'] ?? true, 'build-pattern-page-plan keeps reference copying disabled' );
+npcink_abilities_toolkit_assert_same( true, $research_backed_pattern_page_plan['data']['design_quality']['research_backed'] ?? null, 'build-pattern-page-plan design quality marks research-backed output' );
+npcink_abilities_toolkit_assert_same( true, $research_backed_pattern_page_plan['data']['design_quality']['has_comparison_section'] ?? null, 'build-pattern-page-plan adds a comparison section from research angles' );
+npcink_abilities_toolkit_assert_same( 8, $research_backed_pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan adds one research-backed comparison section when media is supplied' );
+$research_backed_actions = is_array( $research_backed_pattern_page_plan['data']['write_actions'] ?? null ) ? $research_backed_pattern_page_plan['data']['write_actions'] : array();
+$research_backed_blocks = is_array( $research_backed_actions[1]['input']['blocks'] ?? null ) ? $research_backed_actions[1]['input']['blocks'] : array();
+$research_backed_markup = wp_json_encode( $research_backed_blocks );
+npcink_abilities_toolkit_assert_true( is_string( $research_backed_markup ) && false !== strpos( $research_backed_markup, 'npcink-ai-comparison' ), 'build-pattern-page-plan serializes research-backed comparison section blocks' );
+npcink_abilities_toolkit_assert_true( is_string( $research_backed_markup ) && false !== strpos( $research_backed_markup, 'Reference-backed proof' ), 'build-pattern-page-plan uses research proof points' );
+npcink_abilities_toolkit_assert_true( is_string( $research_backed_markup ) && false !== strpos( $research_backed_markup, 'Proposal dashboard visual' ), 'build-pattern-page-plan uses visual asset recommendations for media copy' );
+npcink_abilities_toolkit_assert_true( is_string( $research_backed_markup ) && false !== strpos( $research_backed_markup, 'Can the page use external research safely?' ), 'build-pattern-page-plan uses FAQ seeds from research brief' );
 $apply_result = $core_read_package->compose_article_optimization_apply_result(
 	array(
 		'report'        => array(
