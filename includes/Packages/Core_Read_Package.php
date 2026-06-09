@@ -30,6 +30,7 @@ final class Core_Read_Package {
 	use Diagnostics_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Read_Methods;
+	use Page_Pattern_Read_Methods;
 	use Page_Read_Methods;
 	use Post_Primitives_Read_Methods;
 	use Publishing_Workflow_Read_Methods;
@@ -1348,6 +1349,46 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'build_article_style_profile' ),
+			),
+			'npcink-abilities-toolkit/build-pattern-page-plan' => array(
+				'label'            => __( 'Build Pattern Page Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a governed page draft plan from a whitelisted Gutenberg page pattern without writing WordPress content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_pages',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Generate Core-ready write_actions only. Do not execute writes; final page creation and block updates require Core proposal approval and Adapter execution profiles.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'    => array( 'type' => 'string', 'enum' => array( 'page' ), 'default' => 'page' ),
+						'status'       => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
+						'title'        => array( 'type' => 'string', 'minLength' => 1 ),
+						'pattern_id'   => array( 'type' => 'string', 'enum' => array( 'openai-style-landing' ), 'default' => 'openai-style-landing' ),
+						'style_preset' => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light' ), 'default' => 'minimal-dark-light' ),
+						'variables'    => array(
+							'type'                 => 'object',
+							'additionalProperties' => true,
+						),
+					),
+					'required'             => array( 'title', 'pattern_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_pattern_page_plan' ),
 			),
 			'npcink-abilities-toolkit/list-pages'      => array(
 				'label'            => __( 'List Pages', 'npcink-abilities-toolkit' ),

@@ -61,6 +61,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/get-term'                                => 'taxonomy_governance',
 			'npcink-abilities-toolkit/propose-post-excerpt'                    => 'core_wordpress_read',
 			'npcink-abilities-toolkit/resolve-post-metadata-plan'              => 'core_wordpress_read',
+			'npcink-abilities-toolkit/build-pattern-page-plan'                 => 'page_governance',
 			'npcink-abilities-toolkit/list-users'                              => 'core_wordpress_read',
 			'npcink-abilities-toolkit/list-comments'                           => 'comment_workflow_context',
 			'npcink-abilities-toolkit/list-menus'                              => 'core_wordpress_read',
