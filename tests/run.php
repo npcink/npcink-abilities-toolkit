@@ -2633,6 +2633,8 @@ unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790], $GLOBALS['npc
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'npcink_abilities_toolkit_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative exposes a bounded artifact download filter for integration smoke tests' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'npcink_abilities_toolkit_media_file_write_blocked' ), 'media write execution exposes a bounded failure-injection hook for verification tests' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'npcink_abilities_toolkit_media_file_copy_blocked' ), 'media copy execution exposes a bounded failure-injection hook for verification tests' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'generate_attachment_metadata_for_file' ), 'media uploads share an explicit attachment metadata persistence helper' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'minimal_attachment_metadata_for_file' ), 'media uploads persist minimal dimensions when full WordPress image helpers are unavailable' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][88] = (object) array(
 	'ID'           => 88,
 	'post_title'   => 'Rename Reference Candidate',
