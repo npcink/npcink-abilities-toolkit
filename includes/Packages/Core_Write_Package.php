@@ -3848,7 +3848,18 @@ final class Core_Write_Package {
 			$relative_dir = '.' !== $relative_dir ? trim( $relative_dir, '/' ) : '';
 			$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $basename : $basename;
 		}
-		if ( false === file_put_contents( $destination, $contents ) ) {
+		if (
+			false === $this->write_media_file(
+				$destination,
+				$contents,
+				array(
+					'operation'     => 'adopt_cloud_media_derivative',
+					'step'          => 'write_derivative',
+					'attachment_id' => $attachment_id,
+					'relative_file' => $relative_file,
+				)
+			)
+		) {
 			return new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_write_failed', __( 'The local derivative file could not be written.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
@@ -4132,7 +4143,20 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_derivative_file_unavailable', __( 'The derivative file is unavailable for replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$backup_dir_ready = '' !== $backup_path && $this->ensure_media_directory( dirname( $backup_path ) );
-		if ( '' === $backup_path || ! $backup_dir_ready || ! copy( $current_path, $backup_path ) ) {
+		if (
+			'' === $backup_path ||
+			! $backup_dir_ready ||
+			! $this->copy_media_file(
+				$current_path,
+				$backup_path,
+				array(
+					'operation'     => 'replace_media_file',
+					'step'          => 'backup_current',
+					'attachment_id' => $attachment_id,
+					'relative_file' => $backup_relative,
+				)
+			)
+		) {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
@@ -4194,10 +4218,35 @@ final class Core_Write_Package {
 			if ( file_exists( $target_path ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_target_file_exists', __( 'Target media file already exists.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 			}
-			if ( '' === $backup_path || ! $this->ensure_media_directory( dirname( $backup_path ) ) || ! copy( $current_path, $backup_path ) ) {
+			if (
+				'' === $backup_path ||
+				! $this->ensure_media_directory( dirname( $backup_path ) ) ||
+				! $this->copy_media_file(
+					$current_path,
+					$backup_path,
+					array(
+						'operation'     => 'rename_media_file',
+						'step'          => 'backup_current',
+						'attachment_id' => $attachment_id,
+						'relative_file' => $backup_relative,
+					)
+				)
+			) {
 				return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
-			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! $this->move_media_file( $current_path, $target_path ) ) {
+			if (
+				! $this->ensure_media_directory( dirname( $target_path ) ) ||
+				! $this->move_media_file(
+					$current_path,
+					$target_path,
+					array(
+						'operation'     => 'rename_media_file',
+						'step'          => 'move_current',
+						'attachment_id' => $attachment_id,
+						'relative_file' => $target_relative,
+					)
+				)
+			) {
 				return new \WP_Error( 'npcink_abilities_toolkit_media_rename_failed', __( 'The current attachment file could not be renamed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
 
@@ -4265,10 +4314,35 @@ final class Core_Write_Package {
 			if ( file_exists( $target_path ) && 'overwrite' !== (string) ( $plan['conflict_mode'] ?? 'fail' ) && md5_file( $target_path ) !== md5_file( $backup_path ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 			}
-			if ( '' === $current_backup_path || ! $this->ensure_media_directory( dirname( $current_backup_path ) ) || ! copy( $current_path, $current_backup_path ) ) {
+			if (
+				'' === $current_backup_path ||
+				! $this->ensure_media_directory( dirname( $current_backup_path ) ) ||
+				! $this->copy_media_file(
+					$current_path,
+					$current_backup_path,
+					array(
+						'operation'     => 'restore_media_backup',
+						'step'          => 'backup_current',
+						'attachment_id' => $attachment_id,
+						'relative_file' => $current_backup_relative,
+					)
+				)
+			) {
 				return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
-			if ( ! $this->ensure_media_directory( dirname( $target_path ) ) || ! copy( $backup_path, $target_path ) ) {
+			if (
+				! $this->ensure_media_directory( dirname( $target_path ) ) ||
+				! $this->copy_media_file(
+					$backup_path,
+					$target_path,
+					array(
+						'operation'     => 'restore_media_backup',
+						'step'          => 'restore_backup',
+						'attachment_id' => $attachment_id,
+						'relative_file' => $target_relative,
+					)
+				)
+			) {
 				return new \WP_Error( 'npcink_abilities_toolkit_media_restore_failed', __( 'The backup file could not be restored to the original path.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 			}
 
@@ -4780,19 +4854,56 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Writes a media file with a bounded failure-injection hook for verification.
+	 *
+	 * @param string              $target_path Target path.
+	 * @param string              $contents File contents.
+	 * @param array<string,mixed> $context Operation context.
+	 * @return bool
+	 */
+	private function write_media_file( $target_path, $contents, array $context = array() ) {
+		$target_path = (string) $target_path;
+		$contents    = (string) $contents;
+		$blocked     = apply_filters( 'npcink_abilities_toolkit_media_file_write_blocked', false, $target_path, strlen( $contents ), $context );
+		if ( true === $blocked ) {
+			return false;
+		}
+		return false !== file_put_contents( $target_path, $contents );
+	}
+
+	/**
+	 * Copies a media file with a bounded failure-injection hook for verification.
+	 *
+	 * @param string              $source_path Source path.
+	 * @param string              $target_path Target path.
+	 * @param array<string,mixed> $context Operation context.
+	 * @return bool
+	 */
+	private function copy_media_file( $source_path, $target_path, array $context = array() ) {
+		$source_path = (string) $source_path;
+		$target_path = (string) $target_path;
+		$blocked     = apply_filters( 'npcink_abilities_toolkit_media_file_copy_blocked', false, $source_path, $target_path, $context );
+		if ( true === $blocked ) {
+			return false;
+		}
+		return copy( $source_path, $target_path );
+	}
+
+	/**
 	 * Moves a media file using WordPress filesystem-safe deletion semantics.
 	 *
 	 * @param string $source_path Source path.
 	 * @param string $target_path Target path.
+	 * @param array<string,mixed> $context Operation context.
 	 * @return bool
 	 */
-	private function move_media_file( $source_path, $target_path ) {
+	private function move_media_file( $source_path, $target_path, array $context = array() ) {
 		$source_path = (string) $source_path;
 		$target_path = (string) $target_path;
 		if ( '' === $source_path || '' === $target_path || ! is_readable( $source_path ) || file_exists( $target_path ) ) {
 			return false;
 		}
-		if ( ! copy( $source_path, $target_path ) ) {
+		if ( ! $this->copy_media_file( $source_path, $target_path, $context ) ) {
 			return false;
 		}
 		if ( function_exists( 'wp_delete_file' ) && wp_delete_file( $source_path ) ) {
