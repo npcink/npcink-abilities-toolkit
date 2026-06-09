@@ -22,7 +22,10 @@ cleanup() {
 trap cleanup EXIT
 
 package_dir="$tmpdir/$PLUGIN_SLUG"
-mapfile -t excluded_paths < <(sed -e 's/\r$//' "$DISTIGNORE_FILE" | awk 'NF && $1 !~ /^#/')
+excluded_paths=()
+while IFS= read -r excluded_path; do
+	excluded_paths+=("$excluded_path")
+done < <(sed -e 's/\r$//' "$DISTIGNORE_FILE" | awk 'NF && $1 !~ /^#/')
 
 if [[ "WORKTREE" == "$PACKAGE_REF" ]]; then
 	mkdir -p "$package_dir"
@@ -37,15 +40,33 @@ else
 		cd "$ROOT_DIR"
 		git archive --format=tar --prefix="$PLUGIN_SLUG/" "$PACKAGE_REF" | tar -x -C "$tmpdir"
 	)
+	shopt -s nullglob dotglob
+	for excluded_path in "${excluded_paths[@]}"; do
+		if [[ "$excluded_path" == *[\*\?\[]* ]]; then
+			matches=("$package_dir"/$excluded_path)
+			if [[ "${#matches[@]}" -gt 0 ]]; then
+				rm -rf -- "${matches[@]}"
+			fi
+		else
+			rm -rf -- "$package_dir/$excluded_path"
+		fi
+	done
+	shopt -u nullglob dotglob
 fi
 
 shopt -s nullglob dotglob
 for excluded_path in "${excluded_paths[@]}"; do
-	matches=("$package_dir"/$excluded_path)
-	if [[ "${#matches[@]}" -gt 0 ]]; then
+	if [[ "$excluded_path" == *[\*\?\[]* ]]; then
+		matches=("$package_dir"/$excluded_path)
+		if [[ "${#matches[@]}" -eq 0 ]]; then
+			continue
+		fi
+	elif [[ ! -e "$package_dir/$excluded_path" ]]; then
+		continue
+	fi
+
 		echo "Packaged plugin includes excluded path: $excluded_path" >&2
 		exit 1
-	fi
 done
 shopt -u nullglob dotglob
 
