@@ -5881,9 +5881,32 @@ final class Core_Write_Package {
 			if ( ! is_array( $repair ) ) {
 				continue;
 			}
+			$post_id = absint( $repair['post_id'] ?? 0 );
+			$post_content = '';
+			if ( $post_id > 0 && function_exists( 'get_post' ) ) {
+				$post = get_post( $post_id );
+				$post_content = is_object( $post ) ? (string) ( $post->post_content ?? '' ) : '';
+			}
+			$old_url_absent = true;
+			$new_url_present = true;
+			foreach ( (array) ( $repair['operations'] ?? array() ) as $operation ) {
+				if ( ! is_array( $operation ) ) {
+					continue;
+				}
+				$find = (string) ( $operation['find'] ?? '' );
+				$replace = (string) ( $operation['replace'] ?? '' );
+				if ( '' !== $find && false !== strpos( $post_content, $find ) ) {
+					$old_url_absent = false;
+				}
+				if ( '' !== $replace && false === strpos( $post_content, $replace ) ) {
+					$new_url_present = false;
+				}
+			}
 			$post_references[] = array(
-				'post_id'                  => absint( $repair['post_id'] ?? 0 ),
+				'post_id'                  => $post_id,
 				'updated'                  => (bool) ( $repair['updated'] ?? false ),
+				'old_url_absent'           => $old_url_absent,
+				'new_url_present'          => $new_url_present,
 				'replacement_rule_count'   => absint( $repair['replacement_rule_count'] ?? ( $repair['operation_count'] ?? 0 ) ),
 				'actual_replacement_count' => absint( $repair['actual_replacement_count'] ?? 0 ),
 				'unmatched_rules'          => (array) ( $repair['unmatched_rules'] ?? array() ),
