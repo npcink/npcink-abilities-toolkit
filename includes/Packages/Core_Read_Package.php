@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers low-risk WordPress read abilities migrated from the Npcink AI plugin.
  */
 final class Core_Read_Package {
+	use Article_Block_Plan_Read_Methods;
 	use Article_Optimization_Read_Methods;
 	use Article_Production_Read_Methods;
 	use Comment_Read_Methods;
@@ -1350,6 +1351,47 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_article_style_profile' ),
 			),
+			'npcink-abilities-toolkit/build-article-block-plan' => array(
+				'label'            => __( 'Build Article Block Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a governed draft post plan from whitelisted Gutenberg-native editorial article blocks without writing WordPress content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Generate Core-ready write_actions only. Do not execute writes; final post creation and block updates require Core proposal approval and Adapter execution profiles.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_type'          => array( 'type' => 'string', 'enum' => array( 'post' ), 'default' => 'post' ),
+						'status'             => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
+						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
+						'article_template'   => array( 'type' => 'string', 'enum' => array( 'editorial-longform', 'how-to-guide', 'comparison-review' ), 'default' => 'editorial-longform' ),
+						'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'article_standard' ), 'default' => 'article_standard' ),
+						'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'none', 'existing_media_url' ), 'default' => 'none' ),
+						'variables'          => array(
+							'type'                 => 'object',
+							'additionalProperties' => true,
+						),
+					),
+					'required'             => array( 'title', 'article_template' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_article_block_plan' ),
+			),
 			'npcink-abilities-toolkit/build-pattern-page-plan' => array(
 				'label'            => __( 'Build Pattern Page Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a governed page draft plan from a whitelisted Gutenberg page pattern without writing WordPress content.', 'npcink-abilities-toolkit' ),
@@ -1365,12 +1407,15 @@ final class Core_Read_Package {
 				'input_schema'     => array(
 					'type'                 => 'object',
 					'properties'           => array(
-						'post_type'    => array( 'type' => 'string', 'enum' => array( 'page' ), 'default' => 'page' ),
-						'status'       => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
-						'title'        => array( 'type' => 'string', 'minLength' => 1 ),
-						'pattern_id'   => array( 'type' => 'string', 'enum' => array( 'openai-style-landing' ), 'default' => 'openai-style-landing' ),
-						'style_preset' => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light' ), 'default' => 'minimal-dark-light' ),
-						'variables'    => array(
+						'post_type'          => array( 'type' => 'string', 'enum' => array( 'page' ), 'default' => 'page' ),
+						'status'             => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
+						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
+						'pattern_id'         => array( 'type' => 'string', 'enum' => array( 'openai-style-landing' ), 'default' => 'openai-style-landing' ),
+						'style_preset'       => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light' ), 'default' => 'minimal-dark-light' ),
+						'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'landing_standard' ), 'default' => 'landing_standard' ),
+						'visual_density'     => array( 'type' => 'string', 'enum' => array( 'balanced' ), 'default' => 'balanced' ),
+						'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'mock_or_existing_media', 'existing_media_url' ), 'default' => 'mock_or_existing_media' ),
+						'variables'          => array(
 							'type'                 => 'object',
 							'additionalProperties' => true,
 						),

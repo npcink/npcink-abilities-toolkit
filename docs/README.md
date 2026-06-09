@@ -63,14 +63,17 @@ Use this path when changing this package.
 1. Run the lightweight local gates listed in [Security And Governance Gates](security-and-governance-gates.md).
 2. Use [Testing Strategy](testing-strategy.md) to decide when to add contract,
    smoke, performance, or E2E coverage.
-3. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
+3. Use [Pattern Page Reference Spike](pattern-page-reference-spike.md) before
+   changing `build-pattern-page-plan`, page patterns, or Gutenberg-native page
+   composition.
+4. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
    when a WordPress site is available.
-4. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
+5. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
    official Abilities API, MCP, or AI plugin compatibility assumptions.
-5. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+6. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
    for the public repository handoff, CI baseline, and post-publication gate
    status.
-6. Record release evidence in the relevant release verification document.
+7. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

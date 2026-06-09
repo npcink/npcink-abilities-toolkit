@@ -31,6 +31,7 @@ require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Ability_Registrar
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Integration/Npcink_Catalog_Bridge.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Workflow/Workflow_Definition_Provider.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Read_Pack_Classifier.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Comment_Read_Methods.php';
