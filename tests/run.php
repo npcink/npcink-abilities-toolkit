@@ -218,6 +218,27 @@ foreach (
 	npcink_abilities_toolkit_assert_true( false !== strpos( $article_workflow_doc, $required ), 'article workflow ability map preserves boundary: ' . $required );
 }
 
+$docs_readme = file_get_contents( __DIR__ . '/../docs/README.md' );
+npcink_abilities_toolkit_assert_true( is_string( $docs_readme ) && false !== strpos( $docs_readme, 'pattern-page-reference-spike.md' ), 'docs guide links the pattern page reference spike' );
+$pattern_page_reference_doc = file_get_contents( __DIR__ . '/../docs/pattern-page-reference-spike.md' );
+foreach (
+	array(
+		'build-pattern-page-plan',
+		'WordPress Core Block Patterns',
+		'Spectra, CoBlocks, Getwid, Gutenverse, and Extendify',
+		'AI Page Builders',
+		'Do not add a third-party block dependency',
+		'core-block-only',
+		'Gutenberg-native',
+		'design_quality',
+		'custom_css_required',
+		'proposal-bound and draft-safe',
+		'Do not start by adding a generic visual DSL',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $pattern_page_reference_doc ) && false !== strpos( $pattern_page_reference_doc, $required ), 'pattern page reference spike preserves boundary: ' . $required );
+}
+
 function npcink_abilities_toolkit_schema_contract_fingerprint( array $schema ) {
 	$properties = array();
 	foreach ( (array) ( $schema['properties'] ?? array() ) as $property_key => $property_schema ) {
@@ -1111,6 +1132,9 @@ npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name'
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan'] ), 'build-pattern-page-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['required_scopes'] ?? array(), 'pattern page plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'title', 'pattern_id' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['required'] ?? array(), 'pattern page plan requires title and pattern id' );
+npcink_abilities_toolkit_assert_same( array( 'landing_standard' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['responsive_profile']['enum'] ?? array(), 'pattern page plan exposes a bounded responsive profile' );
+npcink_abilities_toolkit_assert_same( array( 'balanced' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['visual_density']['enum'] ?? array(), 'pattern page plan exposes a bounded visual density' );
+npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
 npcink_abilities_toolkit_assert_same( array( 'owned', 'ai_generated', 'stock', 'external', 'test' ), $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['source_type']['enum'] ?? array(), 'update-media-details accepts canonical media source_type values' );
 npcink_abilities_toolkit_assert_same( 'external', $package_abilities['npcink-abilities-toolkit/upload-media-from-url']['input_schema']['properties']['source_type']['default'] ?? '', 'upload-media-from-url defaults remote imports to external source type' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/upload-media-from-url']['input_schema']['properties']['file_name'] ), 'upload-media-from-url accepts an approved custom media file name' );
@@ -1231,9 +1255,13 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[16] ?? '', 'core read definitions keep pattern page planning near metadata planning' );
+		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[17] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
-		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids[83] ?? '', 'core read definitions keep URL resolver order after provider split' );
-		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids[85] ?? '', 'core read definitions keep revision list last after provider split' );
+		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
+		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
+		npcink_abilities_toolkit_assert_true( false !== $url_resolver_index, 'core read definitions include URL resolver after provider split' );
+		npcink_abilities_toolkit_assert_true( false !== $revision_list_index, 'core read definitions include revision list after provider split' );
+		npcink_abilities_toolkit_assert_true( false !== $url_resolver_index && false !== $revision_list_index && $url_resolver_index < $revision_list_index, 'core read definitions keep URL resolver before revision list after provider split' );
 $core_comment_definition_ids = array_keys( $core_comment_package->definitions() );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-comment-moderation-suggest', $core_comment_definition_ids[0] ?? '', 'core comment definitions keep moderation suggestion first after provider split' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-comment-compliance-handoff', $core_comment_definition_ids[6] ?? '', 'core comment definitions keep compliance handoff order after provider split' );
@@ -3771,17 +3799,111 @@ npcink_abilities_toolkit_assert_same( 77, $apply_plan_write_actions[0]['input'][
 npcink_abilities_toolkit_assert_same( 'Generated excerpt.', $apply_plan_write_actions[0]['input']['excerpt'] ?? '', 'build-article-optimization-apply-plan includes the reviewed excerpt' );
 npcink_abilities_toolkit_assert_same( true, $apply_plan_write_actions[0]['input']['dry_run'] ?? null, 'build-article-optimization-apply-plan write action is dry-run' );
 npcink_abilities_toolkit_assert_same( false, $apply_plan_write_actions[0]['input']['commit'] ?? null, 'build-article-optimization-apply-plan write action does not request commit' );
+$article_block_plan = $core_read_package->build_article_block_plan(
+	array(
+		'title'              => 'Gutenberg Article Draft',
+		'article_template'   => 'comparison-review',
+		'responsive_profile' => 'article_standard',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
+			'dek'            => '用 Gutenberg 原生模块组织文章，让编辑、审查和移动端阅读都更稳定。',
+			'intro'          => '文章计划应该和页面 Pattern 分开处理，重点放在语义结构和可编辑性。',
+			'hero_media_url' => 'https://example.test/wp-content/uploads/2026/06/article-hero.jpg',
+			'hero_media_alt' => 'Article hero preview',
+			'takeaways'      => array(
+				'文章使用核心块，不依赖自定义 CSS。',
+				'对比区使用 columns 并在移动端堆叠。',
+				'FAQ 使用 details 块，编辑器可以继续维护。',
+			),
+			'sections'       => array(
+				array(
+					'title'      => '文章块红利',
+					'paragraphs' => array( 'Gutenberg 让文章从纯 HTML 变成可回读、可编辑的内容结构。' ),
+					'bullets'    => array( '标题层级', '要点列表', '图片和 FAQ' ),
+				),
+				array(
+					'title'      => '治理路径',
+					'paragraphs' => array( 'AI 只生成计划，写入仍然经过 proposal 审批。' ),
+				),
+				array(
+					'title'      => '响应式验收',
+					'paragraphs' => array( '移动端重点检查图片、对比区和 FAQ 是否正常换行。' ),
+				),
+			),
+			'comparisons'    => array(
+				array(
+					'title'       => '纯 HTML',
+					'description' => '短期自由，但编辑器维护成本更高。',
+				),
+				array(
+					'title'       => 'Gutenberg blocks',
+					'description' => '结构更稳定，也更适合审查和二次编辑。',
+				),
+			),
+			'faq'            => array(
+				array(
+					'title'       => '会直接发布吗？',
+					'description' => '不会，只创建 draft proposal。',
+				),
+				array(
+					'title'       => '能继续编辑吗？',
+					'description' => '可以，内容由核心块组成。',
+				),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['success'] ?? null, 'build-article-block-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'article_block_plan', $article_block_plan['data']['artifact_type'] ?? '', 'build-article-block-plan declares an article block artifact type' );
+npcink_abilities_toolkit_assert_same( 'comparison-review', $article_block_plan['data']['article_template'] ?? '', 'build-article-block-plan preserves the article template' );
+npcink_abilities_toolkit_assert_same( 'article_standard', $article_block_plan['data']['responsive_profile'] ?? '', 'build-article-block-plan preserves the responsive profile' );
+npcink_abilities_toolkit_assert_same( 'existing_media_url', $article_block_plan['data']['media_strategy'] ?? '', 'build-article-block-plan preserves media strategy' );
+npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['direct_wordpress_write'] ?? null, 'build-article-block-plan does not directly write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['commit_execution'] ?? null, 'build-article-block-plan keeps commit execution disabled' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $article_block_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-article-block-plan identifies itself for Core from-plan intake' );
+npcink_abilities_toolkit_assert_same( '1.0', $article_block_plan['data']['editorial_quality']['pattern_version'] ?? '', 'build-article-block-plan reports the v1 editorial pattern version' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_native_editorial', $article_block_plan['data']['editorial_quality']['style_strategy'] ?? '', 'build-article-block-plan reports editorial Gutenberg-native strategy' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['uses_native_blocks'] ?? null, 'build-article-block-plan reports native block usage' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_takeaways'] ?? null, 'build-article-block-plan reports takeaways' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_faq'] ?? null, 'build-article-block-plan reports FAQ' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_comparison_columns'] ?? null, 'build-article-block-plan reports comparison columns' );
+npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['editorial_quality']['custom_css_required'] ?? true, 'build-article-block-plan reports no custom CSS requirement' );
+npcink_abilities_toolkit_assert_same( 'article_standard', $article_block_plan['data']['responsive_quality']['responsive_profile'] ?? '', 'build-article-block-plan reports responsive profile quality' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_core_responsive_blocks'] ?? null, 'build-article-block-plan reports core responsive blocks' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_mobile_stack'] ?? null, 'build-article-block-plan reports mobile column stacking' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['has_responsive_media'] ?? null, 'build-article-block-plan reports responsive media' );
+npcink_abilities_toolkit_assert_same( 2, $article_block_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-article-block-plan reports bounded comparison columns' );
+$article_block_actions = is_array( $article_block_plan['data']['write_actions'] ?? null ) ? $article_block_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( 2, count( $article_block_actions ), 'build-article-block-plan emits create and block update actions' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/create-draft', $article_block_actions[0]['target_ability_id'] ?? '', 'build-article-block-plan first creates a draft post' );
+npcink_abilities_toolkit_assert_same( 'post', $article_block_actions[0]['input']['post_type'] ?? '', 'build-article-block-plan create action targets a post' );
+npcink_abilities_toolkit_assert_same( 'draft', $article_block_actions[0]['input']['status'] ?? '', 'build-article-block-plan create action stays draft-only' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-post-blocks', $article_block_actions[1]['target_ability_id'] ?? '', 'build-article-block-plan second action updates Gutenberg blocks' );
+npcink_abilities_toolkit_assert_same( '$outputs.create-article-draft.post_id', $article_block_actions[1]['input']['post_id'] ?? '', 'build-article-block-plan uses exact output reference for the new post id' );
+$article_blocks = is_array( $article_block_actions[1]['input']['blocks'] ?? null ) ? $article_block_actions[1]['input']['blocks'] : array();
+$article_markup = wp_json_encode( $article_blocks );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/image"' ), 'build-article-block-plan uses core image for existing media' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/details"' ), 'build-article-block-plan uses details blocks for FAQ' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/columns"' ), 'build-article-block-plan uses columns for comparison sections' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"isStackedOnMobile":true' ), 'build-article-block-plan stacks comparison columns on mobile' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, 'wp-block-group has-border-color has-background' ), 'build-article-block-plan emits Gutenberg support classes for styled group blocks' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, 'border-color:#e5e5e5;border-width:1px;border-radius:16px;background-color:#f7f7f4;padding-top:24px' ), 'build-article-block-plan serializes styled group wrappers from attrs' );
 $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
-		'title'        => 'WordPress AI',
-		'pattern_id'   => 'openai-style-landing',
-		'style_preset' => 'minimal-dark-light',
-		'variables'    => array(
+		'title'              => 'WordPress AI',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
 			'eyebrow'          => 'WordPress AI Plugin',
 			'hero_title'       => '把 AI 工作流带进 WordPress 内容现场',
 			'hero_description' => '让内容生产、SEO 优化、媒体处理与发布协作在同一个可审计流程中完成。',
 			'primary_cta'      => '查看工作流',
 			'secondary_cta'    => '了解能力',
+			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_alt'   => 'WordPress AI dashboard preview',
 			'features'         => array(
 				array(
 					'title'       => 'AI 内容草稿',
@@ -3795,9 +3917,31 @@ npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['success'] ?? nul
 npcink_abilities_toolkit_assert_same( 'pattern_page_plan', $pattern_page_plan['data']['artifact_type'] ?? '', 'build-pattern-page-plan declares a pattern page artifact type' );
 npcink_abilities_toolkit_assert_same( 'openai-style-landing', $pattern_page_plan['data']['pattern_id'] ?? '', 'build-pattern-page-plan preserves the selected pattern id' );
 npcink_abilities_toolkit_assert_same( 'minimal-dark-light', $pattern_page_plan['data']['style_preset'] ?? '', 'build-pattern-page-plan preserves the selected style preset' );
+npcink_abilities_toolkit_assert_same( 'landing_standard', $pattern_page_plan['data']['responsive_profile'] ?? '', 'build-pattern-page-plan preserves the responsive profile' );
+npcink_abilities_toolkit_assert_same( 'balanced', $pattern_page_plan['data']['visual_density'] ?? '', 'build-pattern-page-plan preserves visual density' );
+npcink_abilities_toolkit_assert_same( 'existing_media_url', $pattern_page_plan['data']['media_strategy'] ?? '', 'build-pattern-page-plan preserves media strategy' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['direct_wordpress_write'] ?? null, 'build-pattern-page-plan does not directly write WordPress' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['commit_execution'] ?? null, 'build-pattern-page-plan keeps commit execution disabled' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $pattern_page_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-pattern-page-plan identifies itself for Core from-plan intake' );
+npcink_abilities_toolkit_assert_same( '2.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v2 Pattern quality version' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
+npcink_abilities_toolkit_assert_same( 7, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports seven v2 sections when media is supplied' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan reports dashboard mock' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_faq'] ?? null, 'build-pattern-page-plan reports FAQ section' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_final_cta'] ?? null, 'build-pattern-page-plan reports final CTA' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['custom_css_required'] ?? true, 'build-pattern-page-plan reports no custom CSS requirement' );
+npcink_abilities_toolkit_assert_same( 'landing_standard', $pattern_page_plan['data']['responsive_quality']['responsive_profile'] ?? '', 'build-pattern-page-plan reports responsive profile quality' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['uses_mobile_stack'] ?? null, 'build-pattern-page-plan reports mobile column stacking' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['uses_core_responsive_blocks'] ?? null, 'build-pattern-page-plan reports core responsive blocks' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['has_media_section'] ?? null, 'build-pattern-page-plan reports media section responsiveness' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['has_faq'] ?? null, 'build-pattern-page-plan reports responsive FAQ' );
+npcink_abilities_toolkit_assert_same( 4, $pattern_page_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-pattern-page-plan reports bounded max columns per row' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['button_groups_use_flex_layout'] ?? null, 'build-pattern-page-plan reports flex button groups' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['responsive_quality']['custom_css_required'] ?? true, 'build-pattern-page-plan reports responsive output without custom CSS' );
 $pattern_page_actions = is_array( $pattern_page_plan['data']['write_actions'] ?? null ) ? $pattern_page_plan['data']['write_actions'] : array();
 npcink_abilities_toolkit_assert_same( 2, count( $pattern_page_actions ), 'build-pattern-page-plan emits create and block update actions' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/create-draft', $pattern_page_actions[0]['target_ability_id'] ?? '', 'build-pattern-page-plan first creates a draft page' );
@@ -3810,6 +3954,34 @@ npcink_abilities_toolkit_assert_same( 'core/group', $pattern_blocks[0]['blockNam
 npcink_abilities_toolkit_assert_true( in_array( null, $pattern_blocks[0]['innerContent'] ?? array(), true ), 'build-pattern-page-plan group blocks include innerContent null markers' );
 npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-hero', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes a class whitelist' );
 npcink_abilities_toolkit_assert_same( 'npcink-ai-page npcink-ai-hero', $pattern_blocks[0]['attrs']['className'] ?? '', 'build-pattern-page-plan applies only whitelisted page classes' );
+npcink_abilities_toolkit_assert_same( 'full', $pattern_blocks[0]['attrs']['align'] ?? '', 'build-pattern-page-plan uses full-width Gutenberg sections' );
+npcink_abilities_toolkit_assert_same( 'constrained', $pattern_blocks[0]['attrs']['layout']['type'] ?? '', 'build-pattern-page-plan uses constrained section layout' );
+npcink_abilities_toolkit_assert_same( '1120px', $pattern_blocks[0]['attrs']['layout']['contentSize'] ?? '', 'build-pattern-page-plan sets native content width' );
+npcink_abilities_toolkit_assert_same( '96px', $pattern_blocks[0]['attrs']['style']['spacing']['padding']['top'] ?? '', 'build-pattern-page-plan sets native hero spacing' );
+npcink_abilities_toolkit_assert_same( '#f7f7f4', $pattern_blocks[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan sets native section background' );
+npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $pattern_blocks[0]['innerHTML'] ?? '' ), 'has-background' ), 'build-pattern-page-plan emits Gutenberg background support class for hero group' );
+$pattern_hero_layout = is_array( $pattern_blocks[0]['innerBlocks'][0] ?? null ) ? $pattern_blocks[0]['innerBlocks'][0] : array();
+npcink_abilities_toolkit_assert_same( 'core/columns', $pattern_hero_layout['blockName'] ?? '', 'build-pattern-page-plan uses a split hero columns block' );
+npcink_abilities_toolkit_assert_same( 'npcink-ai-hero-layout', $pattern_hero_layout['attrs']['className'] ?? '', 'build-pattern-page-plan marks the split hero layout' );
+$pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
+npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
+npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
+$pattern_buttons = is_array( $pattern_hero_copy[3]['innerBlocks'] ?? null ) ? $pattern_hero_copy[3]['innerBlocks'] : array();
+npcink_abilities_toolkit_assert_same( '999px', $pattern_buttons[0]['attrs']['style']['border']['radius'] ?? '', 'build-pattern-page-plan sets native button radius' );
+npcink_abilities_toolkit_assert_same( '#111111', $pattern_buttons[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan sets native primary button color' );
+$pattern_markup = wp_json_encode( $pattern_blocks );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'font-size:64px;font-weight:500;letter-spacing:0;line-height:1' ), 'build-pattern-page-plan serializes heading typography in Gutenberg save order' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'wp-block-button__link has-text-color has-background wp-element-button' ), 'build-pattern-page-plan emits Gutenberg support classes for primary button links' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/columns"' ), 'build-pattern-page-plan uses native columns for feature and workflow sections' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"isStackedOnMobile":true' ), 'build-pattern-page-plan stacks columns on mobile' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/media-text"' ), 'build-pattern-page-plan uses media-text when existing media is supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/details"' ), 'build-pattern-page-plan uses details blocks for FAQ' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-dashboard-card' ), 'build-pattern-page-plan includes a dashboard mock card' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-proof-strip' ), 'build-pattern-page-plan includes a proof strip' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-media-text' ), 'build-pattern-page-plan includes a media-text class handle' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
 $apply_result = $core_read_package->compose_article_optimization_apply_result(
 	array(
 		'report'        => array(

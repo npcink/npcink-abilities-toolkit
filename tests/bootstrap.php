@@ -656,6 +656,7 @@ require_once dirname( __DIR__ ) . '/includes/Integration/Npcink_Catalog_Bridge.p
 require_once dirname( __DIR__ ) . '/includes/Admin/Test_Page.php';
 require_once dirname( __DIR__ ) . '/includes/Workflow/Workflow_Definition_Provider.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Comment_Read_Methods.php';

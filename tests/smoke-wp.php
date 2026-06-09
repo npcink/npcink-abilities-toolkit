@@ -432,7 +432,7 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
+		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
 			npcink_abilities_toolkit_smoke_assert(
 				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 				"Light profile disables optional ability {$disabled_ability_id}."
@@ -490,6 +490,7 @@ foreach (
 		'npcink-abilities-toolkit/get-post-blocks',
 		'npcink-abilities-toolkit/list-post-revisions',
 		'npcink-abilities-toolkit/build-pattern-page-plan',
+		'npcink-abilities-toolkit/build-article-block-plan',
 		'npcink-abilities-toolkit/list-media',
 		'npcink-abilities-toolkit/list-terms',
 		'npcink-abilities-toolkit/list-taxonomy-terms',
@@ -994,6 +995,65 @@ $article_optimization_smoke_actions = is_array( $article_optimization_apply_plan
 npcink_abilities_toolkit_smoke_assert( 1 === count( $article_optimization_smoke_actions ), 'Article optimization apply plan emits one governed write action for the reviewed excerpt.' );
 npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/update-post' === (string) ( $article_optimization_smoke_actions[0]['target_ability_id'] ?? '' ), 'Article optimization apply plan targets update-post for excerpt changes.' );
 npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_optimization_smoke_actions[0]['input']['dry_run'] ?? false ) && false === (bool) ( $article_optimization_smoke_actions[0]['input']['commit'] ?? true ), 'Article optimization apply plan write action is dry-run and non-commit.' );
+
+$article_block_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-block-plan/run' );
+$article_block_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'title'              => 'Toolkit Article Block Smoke',
+			'article_template'   => 'comparison-review',
+			'responsive_profile' => 'article_standard',
+			'media_strategy'     => 'none',
+			'variables'          => array(
+				'dek'         => 'Gutenberg-native article block smoke.',
+				'intro'       => 'This verifies article block planning through the WordPress Abilities REST surface.',
+				'takeaways'   => array(
+					'Draft only',
+					'Proposal required',
+					'Mobile columns stack',
+				),
+				'sections'    => array(
+					array(
+						'title'      => 'Editorial structure',
+						'paragraphs' => array( 'The article is composed from headings, paragraphs, lists, comparison columns, and FAQ details.' ),
+					),
+					array(
+						'title'      => 'Governance',
+						'paragraphs' => array( 'The plan remains dry-run and hands off to Core proposals.' ),
+					),
+					array(
+						'title'      => 'Responsiveness',
+						'paragraphs' => array( 'Columns use Gutenberg mobile stacking.' ),
+					),
+				),
+				'comparisons' => array(
+					array(
+						'title'       => 'HTML',
+						'description' => 'Flexible but harder to keep editable.',
+					),
+					array(
+						'title'       => 'Blocks',
+						'description' => 'Structured and reviewable.',
+					),
+				),
+			),
+		),
+	)
+);
+$article_block_plan_run_response = rest_do_request( $article_block_plan_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_block_plan_run_response->get_status(), 'Authenticated article block plan ability run returns 200.' );
+$article_block_plan_run_data = $article_block_plan_run_response->get_data();
+npcink_abilities_toolkit_smoke_assert( 'article_block_plan' === (string) ( $article_block_plan_run_data['data']['artifact_type'] ?? '' ), 'Article block plan declares the Core-ready artifact type.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_block_plan_run_data['data']['requires_approval'] ?? false ), 'Article block plan requires host approval.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_block_plan_run_data['data']['dry_run'] ?? false ), 'Article block plan remains dry-run.' );
+npcink_abilities_toolkit_smoke_assert( false === (bool) ( $article_block_plan_run_data['data']['commit_execution'] ?? true ), 'Article block plan does not execute commits.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_block_plan_run_data['data']['editorial_quality']['uses_native_blocks'] ?? false ), 'Article block plan reports native block usage.' );
+npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_block_plan_run_data['data']['responsive_quality']['uses_mobile_stack'] ?? false ), 'Article block plan reports mobile stacking.' );
+$article_block_smoke_actions = is_array( $article_block_plan_run_data['data']['write_actions'] ?? null ) ? $article_block_plan_run_data['data']['write_actions'] : array();
+npcink_abilities_toolkit_smoke_assert( 2 === count( $article_block_smoke_actions ), 'Article block plan emits create and block update actions.' );
+npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/create-draft' === (string) ( $article_block_smoke_actions[0]['target_ability_id'] ?? '' ), 'Article block plan first targets create-draft.' );
+npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/update-post-blocks' === (string) ( $article_block_smoke_actions[1]['target_ability_id'] ?? '' ), 'Article block plan second targets update-post-blocks.' );
+npcink_abilities_toolkit_smoke_assert( '$outputs.create-article-draft.post_id' === (string) ( $article_block_smoke_actions[1]['input']['post_id'] ?? '' ), 'Article block plan uses the draft output reference.' );
 
 $article_optimization_apply_result_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/compose-article-optimization-apply-result/run' );
 $article_optimization_apply_result_run_request->set_query_params(
