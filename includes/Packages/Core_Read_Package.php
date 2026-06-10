@@ -1548,6 +1548,45 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_pattern_page_plan' ),
 			),
+				'npcink-abilities-toolkit/review-pattern-page' => array(
+					'label'            => __( 'Review Pattern Page', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Reviews a Gutenberg pattern page or proposed block tree for layout, media, responsive, and editor-risk signals without writing WordPress content.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_pages',
+					'required_scope'   => 'post.read',
+					'required_scopes'  => array( 'post.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'annotations'      => array(
+						'instructions' => 'Read-only pattern quality review. Do not execute writes; use findings to revise a future build-pattern-page-plan proposal.',
+					),
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'post_id'          => array( 'type' => 'integer', 'minimum' => 1 ),
+							'blocks'           => array(
+								'type'  => 'array',
+								'items' => array(
+									'type'                 => 'object',
+									'additionalProperties' => true,
+								),
+							),
+							'include_findings' => array( 'type' => 'boolean', 'default' => true ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'success' => array( 'type' => 'boolean' ),
+							'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'message' => array( 'type' => 'string' ),
+						),
+						'required'   => array( 'success', 'data' ),
+					),
+					'execute_callback' => array( $this, 'review_pattern_page' ),
+				),
 			'npcink-abilities-toolkit/list-pages'      => array(
 				'label'            => __( 'List Pages', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Lists WordPress pages with status, parent, search, sorting, and pagination filters.', 'npcink-abilities-toolkit' ),

@@ -98,17 +98,23 @@ The current `openai-style-landing` pattern follows these rules:
   generation or adoption. The default hero slot maps to `hero_media_url`,
   requires `16:9`, carries an aspect-ratio crop request, and recommends
   `openclaw_recipes.ai_image_ratio_crop_media_adoption`.
+- `review-pattern-page` can review either a saved `post_id` or proposed block
+  tree and report score, section variety, media completeness, responsive risk,
+  native style density, and server-observable invalid-block risk without
+  writing WordPress content.
 
-Version 2.0 uses six to seven sections:
+Version 3.0 uses seven to eight sections:
 
-1. split hero with CTA buttons and a dashboard-style proof panel;
+1. split hero with CTA buttons and either reviewed media or a dashboard-style
+   proof panel;
 2. proof strip;
 3. optional media-text section when OpenClaw or another caller supplies an
    existing media URL;
-4. feature grid;
+4. Gutenberg-native Bento feature grid;
 5. workflow steps;
-6. FAQ with core details blocks;
-7. final CTA.
+6. proposal-first comparison section;
+7. FAQ with core details blocks;
+8. final CTA.
 
 The default responsive profile is `landing_standard`. It keeps `core/columns`
 configured with `isStackedOnMobile=true`, uses `core/media-text` only for an
@@ -123,6 +129,8 @@ free-form page generator.
 Future changes should preserve these guardrails:
 
 - `build-pattern-page-plan` remains a read-only planning ability.
+- `review-pattern-page` remains a read-only quality review ability and must not
+  emit write actions.
 - Generated write actions remain proposal-bound and draft-safe.
 - The pattern uses core Gutenberg blocks before any custom CSS or custom HTML.
 - `responsive_profile` stays bounded to known profiles.
@@ -145,6 +153,8 @@ The next additions should be small and explicit:
 - add more `style_preset` values using Gutenberg-native attributes;
 - expose section toggles as validated variables;
 - add editor smoke coverage after a governed proposal creates a draft page.
+- feed `review-pattern-page` findings back into future Pattern variant
+  selection, while keeping it advisory and read-only.
 
 Do not start by adding a generic visual DSL, arbitrary CSS input, custom block
 dependencies, or a new editor surface.
