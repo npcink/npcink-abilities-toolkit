@@ -445,28 +445,7 @@ trait Page_Pattern_Read_Methods {
 					'npcink-ai-feature-grid',
 					array(
 						$this->pattern_heading_block( $this->pattern_text( $variables['features_title'] ?? '', 'AI 内容现场的基础能力' ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
-						$this->pattern_columns_block(
-							array_map(
-								function ( $item ) {
-									return $this->pattern_column_block(
-										array(
-											$this->pattern_group_block(
-												'npcink-ai-feature-card',
-												array(
-													$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_card_title_attrs(), 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
-													$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
-												),
-												$this->pattern_line_card_attrs(),
-												'border-top-color:#111111;border-top-width:1px;padding-top:28px;padding-right:0;padding-bottom:0;padding-left:0'
-											),
-										)
-									);
-								},
-								$features
-							),
-							'npcink-ai-feature-grid',
-							$this->pattern_columns_attrs()
-						),
+						$this->pattern_feature_bento_block( $features ),
 					),
 					$this->pattern_section_attrs( '#ffffff', '88px', '88px', false ),
 					'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
@@ -580,7 +559,9 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-media-section',
 			'npcink-ai-media-text',
 			'npcink-ai-feature-grid',
+			'npcink-ai-feature-bento',
 			'npcink-ai-feature-card',
+			'npcink-ai-feature-spotlight',
 			'npcink-ai-workflow',
 			'npcink-ai-workflow-step',
 			'npcink-ai-comparison',
@@ -930,32 +911,93 @@ trait Page_Pattern_Read_Methods {
 		return $this->pattern_group_block(
 			'npcink-ai-comparison',
 			array(
-				$this->pattern_heading_block( $title, 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+				$this->pattern_heading_block( $title, 2, 'npcink-ai-section-title', $this->pattern_light_section_title_attrs(), 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 				$this->pattern_columns_block(
 					array_map(
-						function ( $item ) {
+						function ( $item, $index ) {
+							$is_primary  = 0 === (int) $index;
+							$card_attrs  = $is_primary ? $this->pattern_comparison_primary_card_attrs() : $this->pattern_comparison_light_card_attrs();
+							$title_attrs = $is_primary ? $this->pattern_light_card_title_attrs() : $this->pattern_card_title_attrs();
+							$text_attrs  = $is_primary ? $this->pattern_light_card_text_attrs() : $this->pattern_card_text_attrs();
 							return $this->pattern_column_block(
 								array(
 									$this->pattern_group_block(
 										'npcink-ai-comparison-card',
 										array(
-											$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_card_title_attrs(), 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
-											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
+											$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $title_attrs, $is_primary ? 'color:#ffffff;font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' : 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
+											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $text_attrs, $is_primary ? 'color:#dddddd;font-size:16px;line-height:1.55' : 'color:#454545;font-size:16px;line-height:1.55' ),
 										),
-										$this->pattern_card_attrs(),
-										'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
+										$card_attrs,
+										$is_primary ? 'background-color:#1f1f1f;color:#ffffff;border-color:#3a3a3a;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px' : 'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
 									),
 								)
 							);
 						},
-						$items
+						$items,
+						array_keys( $items )
 					),
 					'npcink-ai-comparison-grid',
 					$this->pattern_columns_attrs()
 				),
 			),
-			$this->pattern_section_attrs( '#f7f7f4', '88px', '88px', false ),
-			'background-color:#f7f7f4;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
+			$this->pattern_section_attrs( '#111111', '88px', '88px', false ),
+			'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
+		);
+	}
+
+	/**
+	 * Builds a Gutenberg-native Bento feature section without plugin CSS.
+	 *
+	 * @param array<int,array<string,string>> $features Feature items.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_bento_block( array $features ) {
+		$features = array_values( $features );
+		while ( count( $features ) < 3 ) {
+			$features[] = array(
+				'title'       => 'Gutenberg 原生模块',
+				'description' => '用核心块、原生样式属性和移动端堆叠能力搭建可编辑页面。',
+			);
+		}
+
+		$primary   = $features[0];
+		$secondary = array_slice( $features, 1, 2 );
+
+		return $this->pattern_columns_block(
+			array(
+				$this->pattern_column_block(
+					array(
+						$this->pattern_group_block(
+							'npcink-ai-feature-card npcink-ai-feature-spotlight',
+							array(
+								$this->pattern_paragraph_block( 'Core capability', 'npcink-ai-eyebrow', $this->pattern_light_eyebrow_attrs(), 'color:#dddddd;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
+								$this->pattern_heading_block( (string) $primary['title'], 3, 'npcink-ai-card-title', $this->pattern_feature_spotlight_title_attrs(), 'color:#ffffff;font-size:30px;font-weight:500;line-height:1.08;letter-spacing:0;margin-top:0' ),
+								$this->pattern_paragraph_block( (string) $primary['description'], 'npcink-ai-card-text', $this->pattern_light_card_text_attrs(), 'color:#dddddd;font-size:16px;line-height:1.55' ),
+							),
+							$this->pattern_feature_spotlight_attrs(),
+							'background-color:#111111;color:#ffffff;border-color:#111111;border-width:1px;border-radius:24px;padding-top:36px;padding-right:36px;padding-bottom:36px;padding-left:36px'
+						),
+					)
+				),
+				$this->pattern_column_block(
+					array_map(
+						function ( $item ) {
+							return $this->pattern_group_block(
+								'npcink-ai-feature-card',
+								array(
+									$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_card_title_attrs(), 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
+									$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
+								),
+								$this->pattern_card_attrs(),
+								'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
+							);
+						},
+						$secondary
+					)
+				),
+			),
+			'npcink-ai-feature-bento',
+			$this->pattern_columns_attrs()
 		);
 	}
 
@@ -1039,6 +1081,26 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Light eyebrow paragraph attrs for dark cards.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_light_eyebrow_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#dddddd' ),
+				'typography' => array(
+					'fontSize'      => '13px',
+					'lineHeight'     => '1.2',
+					'letterSpacing' => '0',
+					'fontWeight'    => '600',
+					'textTransform' => 'uppercase',
+				),
+			),
+		);
+	}
+
+	/**
 	 * Lede paragraph attrs.
 	 *
 	 * @return array<string,mixed>
@@ -1091,6 +1153,25 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Light section title attrs for dark sections.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_light_section_title_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#ffffff' ),
+				'typography' => array(
+					'fontSize'      => '40px',
+					'lineHeight'     => '1.1',
+					'letterSpacing' => '0',
+					'fontWeight'    => '500',
+				),
+			),
+		);
+	}
+
+	/**
 	 * Card wrapper attrs.
 	 *
 	 * @return array<string,mixed>
@@ -1116,6 +1197,73 @@ trait Page_Pattern_Read_Methods {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Dark feature spotlight card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_spotlight_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '36px',
+						'right'  => '36px',
+						'bottom' => '36px',
+						'left'   => '36px',
+					),
+				),
+				'border'  => array(
+					'color'  => '#111111',
+					'width'  => '1px',
+					'radius' => '24px',
+				),
+				'color'   => array(
+					'background' => '#111111',
+					'text'       => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Dark comparison card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_comparison_primary_card_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '28px',
+						'right'  => '28px',
+						'bottom' => '28px',
+						'left'   => '28px',
+					),
+				),
+				'border'  => array(
+					'color'  => '#3a3a3a',
+					'width'  => '1px',
+					'radius' => '20px',
+				),
+				'color'   => array(
+					'background' => '#1f1f1f',
+					'text'       => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Light comparison card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_comparison_light_card_attrs() {
+		return $this->pattern_card_attrs();
 	}
 
 	/**
@@ -1217,6 +1365,44 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Large light feature title attrs for the Bento spotlight card.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_spotlight_title_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#ffffff' ),
+				'typography' => array(
+					'fontSize'      => '30px',
+					'lineHeight'     => '1.08',
+					'letterSpacing' => '0',
+					'fontWeight'    => '500',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Light card title attrs for dark cards.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_light_card_title_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#ffffff' ),
+				'typography' => array(
+					'fontSize'      => '22px',
+					'lineHeight'     => '1.2',
+					'letterSpacing' => '0',
+					'fontWeight'    => '500',
+				),
+			),
+		);
+	}
+
+	/**
 	 * Card body text attrs.
 	 *
 	 * @return array<string,mixed>
@@ -1225,6 +1411,23 @@ trait Page_Pattern_Read_Methods {
 		return array(
 			'style' => array(
 				'color'      => array( 'text' => '#454545' ),
+				'typography' => array(
+					'fontSize'  => '16px',
+					'lineHeight' => '1.55',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Light card body text attrs for dark cards.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_light_card_text_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#dddddd' ),
 				'typography' => array(
 					'fontSize'  => '16px',
 					'lineHeight' => '1.55',
@@ -1624,7 +1827,7 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_design_quality_summary( array $blocks, array $research_brief = array() ) {
 		return array(
-			'pattern_version'       => '2.0',
+			'pattern_version'       => '3.0',
 			'style_strategy'        => 'gutenberg_native',
 			'uses_native_styles'    => true,
 			'research_backed'       => ! empty( $research_brief ),
@@ -1636,6 +1839,7 @@ trait Page_Pattern_Read_Methods {
 			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ),
 			'has_hero_media'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
+			'has_bento_grid'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-bento' ),
 			'has_media_text'        => $this->pattern_has_block_name( $blocks, 'core/media-text' ),
 			'has_comparison_section' => $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ),
 			'has_faq'               => $this->pattern_has_block_name( $blocks, 'core/details' ),
