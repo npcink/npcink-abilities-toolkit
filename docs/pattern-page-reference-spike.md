@@ -94,6 +94,10 @@ The current `openai-style-landing` pattern follows these rules:
   `style.typography`, and `style.border` attributes for visual structure;
 - it emits `design_quality` and `responsive_quality` summaries so hosts can
   verify the pattern strategy before proposal execution.
+- it emits `media_slots` so OpenClaw can determine target media ratios before
+  generation or adoption. The default hero slot maps to `hero_media_url`,
+  requires `16:9`, carries an aspect-ratio crop request, and recommends
+  `openclaw_recipes.ai_image_ratio_crop_media_adoption`.
 
 Version 2.0 uses six to seven sections:
 
@@ -125,6 +129,9 @@ Future changes should preserve these guardrails:
 - Column-based sections keep mobile stacking enabled.
 - Media sections use existing media URLs supplied by the caller; this package
   must not fetch, upload, or invent remote assets.
+- Media slot requirements stay metadata-only. They can guide OpenClaw image
+  generation and Cloud crop requests, but this package must not call image
+  providers, import media, or crop assets.
 - `custom_css_required` stays `false` for the default `minimal-dark-light`
   preset.
 - External references are used for product and composition lessons only; they

@@ -4182,6 +4182,15 @@ npcink_abilities_toolkit_assert_same( 'existing_media_url', $pattern_page_plan['
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['direct_wordpress_write'] ?? null, 'build-pattern-page-plan does not directly write WordPress' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['commit_execution'] ?? null, 'build-pattern-page-plan keeps commit execution disabled' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $pattern_page_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-pattern-page-plan identifies itself for Core from-plan intake' );
+npcink_abilities_toolkit_assert_same( 'openclaw_recipes.ai_image_ratio_crop_media_adoption', $pattern_page_plan['data']['handoff']['media_recipe_ref'] ?? '', 'build-pattern-page-plan points media handoff at the AI image crop adoption recipe' );
+$pattern_media_slots = is_array( $pattern_page_plan['data']['media_slots'] ?? null ) ? $pattern_page_plan['data']['media_slots'] : array();
+npcink_abilities_toolkit_assert_same( 'hero_media', $pattern_media_slots[0]['id'] ?? '', 'build-pattern-page-plan declares a hero media slot' );
+npcink_abilities_toolkit_assert_same( 'hero_media_url', $pattern_media_slots[0]['variable'] ?? '', 'build-pattern-page-plan maps hero media slot to hero_media_url variable' );
+npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['target_aspect_ratio'] ?? '', 'build-pattern-page-plan declares hero media target aspect ratio' );
+npcink_abilities_toolkit_assert_same( 'aspect_ratio', $pattern_media_slots[0]['crop']['type'] ?? '', 'build-pattern-page-plan declares bounded crop type for hero media' );
+npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['crop']['aspect_ratio'] ?? '', 'build-pattern-page-plan carries hero aspect ratio into crop guidance' );
+npcink_abilities_toolkit_assert_same( 'ai_image_ratio_crop_media_adoption', $pattern_media_slots[0]['recommended_recipe_id'] ?? '', 'build-pattern-page-plan recommends the AI image crop adoption recipe for hero media' );
+npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
 npcink_abilities_toolkit_assert_same( '2.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v2 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
