@@ -2638,6 +2638,15 @@ final class Core_Read_Package {
 						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
 						'preferred_format'           => array( 'type' => 'string', 'enum' => array( 'webp', 'avif', 'jpeg', 'png', 'original' ), 'default' => 'webp' ),
 						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'crop'                       => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'         => array( 'type' => 'string', 'enum' => array( 'aspect_ratio' ), 'default' => 'aspect_ratio' ),
+								'aspect_ratio' => array( 'type' => 'string', 'pattern' => '^[1-9][0-9]{0,2}:[1-9][0-9]{0,2}$', 'default' => '16:9' ),
+								'position'     => array( 'type' => 'string', 'enum' => array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), 'default' => 'center' ),
+							),
+							'additionalProperties' => false,
+						),
 						'watermark'                  => array(
 							'type'                 => 'object',
 							'properties'           => array(
@@ -2717,6 +2726,56 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_media_optimization_plan' ),
 			),
+			'npcink-abilities-toolkit/build-media-adoption-preflight-summary' => array(
+				'label'            => __( 'Build Media Adoption Preflight Summary', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a read-only preflight summary for adopting one reviewed media derivative artifact, including current asset evidence, derivative comparison, bounded content-reference impact, and next-step guidance without mutating WordPress.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read', 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'attachment_id'        => array( 'type' => 'integer', 'minimum' => 1 ),
+						'derivative_artifact'  => array( 'type' => 'object', 'additionalProperties' => true ),
+						'file_name'            => array( 'type' => 'string', 'maxLength' => 120 ),
+						'include_settings_scan' => array( 'type' => 'boolean', 'default' => false ),
+					),
+					'required'             => array( 'attachment_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'artifact_type'             => array( 'type' => 'string' ),
+								'attachment_id'             => array( 'type' => 'integer' ),
+								'readonly'                  => array( 'type' => 'boolean' ),
+								'direct_wordpress_write'    => array( 'type' => 'boolean' ),
+								'proposal_created'          => array( 'type' => 'boolean' ),
+								'cloud_call_included'       => array( 'type' => 'boolean' ),
+								'current'                   => array( 'type' => 'object', 'additionalProperties' => true ),
+								'derivative'                => array( 'type' => 'object', 'additionalProperties' => true ),
+								'comparison'                => array( 'type' => 'object', 'additionalProperties' => true ),
+								'content_reference_summary' => array( 'type' => 'object', 'additionalProperties' => true ),
+								'readiness'                 => array( 'type' => 'object', 'additionalProperties' => true ),
+								'next_steps'                => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+							),
+							'required'             => array( 'artifact_type', 'attachment_id', 'readonly', 'direct_wordpress_write', 'proposal_created', 'cloud_call_included', 'current', 'derivative', 'comparison', 'content_reference_summary', 'readiness', 'next_steps' ),
+							'additionalProperties' => true,
+						),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_adoption_preflight_summary' ),
+			),
 			'npcink-abilities-toolkit/build-media-rename-plan' => array(
 				'label'            => __( 'Build Media Rename Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a read-only one-attachment rename plan for a reviewed target media file name and exact post-content reference updates without mutating WordPress.', 'npcink-abilities-toolkit' ),
@@ -2785,6 +2844,15 @@ final class Core_Read_Package {
 						'target_max_width'           => array( 'type' => 'integer', 'minimum' => 320, 'maximum' => 7680, 'default' => 1920 ),
 						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
 						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'crop'                       => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'         => array( 'type' => 'string', 'enum' => array( 'aspect_ratio' ), 'default' => 'aspect_ratio' ),
+								'aspect_ratio' => array( 'type' => 'string', 'pattern' => '^[1-9][0-9]{0,2}:[1-9][0-9]{0,2}$', 'default' => '16:9' ),
+								'position'     => array( 'type' => 'string', 'enum' => array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), 'default' => 'center' ),
+							),
+							'additionalProperties' => false,
+						),
 						'min_width'                  => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
 						'min_height'                 => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
 						'min_filesize_bytes'         => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),

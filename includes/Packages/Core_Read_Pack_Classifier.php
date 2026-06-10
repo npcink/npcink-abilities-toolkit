@@ -138,6 +138,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/inspect-media-asset'                     => 'media_governance',
 			'npcink-abilities-toolkit/build-media-derivative-cloud-request'    => 'media_governance',
 			'npcink-abilities-toolkit/build-media-optimization-plan'           => 'media_governance',
+			'npcink-abilities-toolkit/build-media-adoption-preflight-summary'  => 'media_governance',
 			'npcink-abilities-toolkit/build-media-rename-plan'                 => 'media_governance',
 			'npcink-abilities-toolkit/build-media-derivative-batch-plan'       => 'media_governance',
 		);
