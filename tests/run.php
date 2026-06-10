@@ -4300,12 +4300,13 @@ npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2
 npcink_abilities_toolkit_assert_same( '2.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v2 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
-npcink_abilities_toolkit_assert_same( 7, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports seven v2 sections when media is supplied' );
+npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports eight v2 sections when media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan reports reviewed hero media in the split hero' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_comparison_section'] ?? null, 'build-pattern-page-plan reports the default proposal-first comparison section' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_faq'] ?? null, 'build-pattern-page-plan reports FAQ section' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_final_cta'] ?? null, 'build-pattern-page-plan reports final CTA' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['custom_css_required'] ?? true, 'build-pattern-page-plan reports no custom CSS requirement' );
@@ -4362,6 +4363,9 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false === 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-hero-media-card' ), 'build-pattern-page-plan includes a hero media card class handle' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-proof-strip' ), 'build-pattern-page-plan includes a proof strip' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-media-text' ), 'build-pattern-page-plan includes a media-text class handle' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison' ), 'build-pattern-page-plan includes a default proposal-first comparison section' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison-card' ), 'build-pattern-page-plan includes comparison cards' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'OpenClaw proposal-first' ), 'build-pattern-page-plan includes the proposal-first comparison side' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
