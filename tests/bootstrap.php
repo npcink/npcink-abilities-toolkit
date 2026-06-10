@@ -258,7 +258,7 @@ if ( ! function_exists( 'get_post' ) ) {
 
 if ( ! function_exists( 'post_type_exists' ) ) {
 	function post_type_exists( $post_type ) {
-		return in_array( (string) $post_type, array( 'post', 'page' ), true );
+		return in_array( (string) $post_type, array( 'post', 'page', 'wp_template', 'wp_template_part', 'wp_navigation' ), true );
 	}
 }
 
@@ -457,6 +457,19 @@ if ( ! function_exists( 'get_posts' ) ) {
 		$posts = isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			? array_values( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] )
 			: array();
+		if ( isset( $args['post_type'] ) ) {
+			$post_types = is_array( $args['post_type'] ) ? array_values( $args['post_type'] ) : array( (string) $args['post_type'] );
+			if ( ! in_array( 'any', $post_types, true ) ) {
+				$posts = array_values(
+					array_filter(
+						$posts,
+						static function ( $post ) use ( $post_types ) {
+							return is_object( $post ) && in_array( (string) ( $post->post_type ?? 'post' ), $post_types, true );
+						}
+					)
+				);
+			}
+		}
 		if ( isset( $args['author'] ) ) {
 			$author_id = (int) $args['author'];
 			$posts = array_values(
@@ -470,6 +483,30 @@ if ( ! function_exists( 'get_posts' ) ) {
 		}
 		$limit = isset( $args['posts_per_page'] ) ? max( 1, (int) $args['posts_per_page'] ) : count( $posts );
 		return array_slice( $posts, 0, $limit );
+	}
+}
+
+if ( ! function_exists( 'wp_is_block_theme' ) ) {
+	function wp_is_block_theme() {
+		return ! empty( $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] );
+	}
+}
+
+if ( ! function_exists( 'wp_get_theme' ) ) {
+	function wp_get_theme() {
+		return new class() {
+			public function get( $field ) {
+				$field = (string) $field;
+				if ( 'Name' === $field ) {
+					return (string) ( $GLOBALS['npcink_abilities_toolkit_unit_active_theme']['name'] ?? 'Unit Block Theme' );
+				}
+				return '';
+			}
+
+			public function get_stylesheet() {
+				return (string) ( $GLOBALS['npcink_abilities_toolkit_unit_active_theme']['stylesheet'] ?? 'unit-block-theme' );
+			}
+		};
 	}
 }
 
@@ -659,6 +696,7 @@ require_once dirname( __DIR__ ) . '/includes/Packages/Core_Read_Pack_Classifier.
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Block_Theme_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Comment_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';
