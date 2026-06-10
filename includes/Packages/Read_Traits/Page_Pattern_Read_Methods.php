@@ -331,6 +331,9 @@ trait Page_Pattern_Read_Methods {
 		$final_cta_description = $this->pattern_text( $variables['final_cta_description'] ?? '', '用 Gutenberg-native Pattern 生成页面计划，再通过 Core proposal 审批进入写入。' );
 		$final_cta_primary     = $this->pattern_text( $variables['final_cta_primary'] ?? '', '创建页面计划' );
 		$final_cta_secondary   = $this->pattern_text( $variables['final_cta_secondary'] ?? '', '查看治理流程' );
+		$hero_visual_blocks    = '' !== $hero_media_url && in_array( $media_strategy, array( 'mock_or_existing_media', 'existing_media_url' ), true )
+			? array( $this->pattern_hero_media_block( $hero_media_url, $hero_media_alt ) )
+			: array( $this->pattern_dashboard_mock_block() );
 
 		$blocks = array(
 			$this->pattern_group_block(
@@ -355,7 +358,7 @@ trait Page_Pattern_Read_Methods {
 								'npcink-ai-hero-copy'
 							),
 							$this->pattern_column_block(
-								array( $this->pattern_dashboard_mock_block() ),
+								$hero_visual_blocks,
 								'npcink-ai-hero-dashboard'
 							),
 						),
@@ -555,6 +558,8 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-hero-copy',
 			'npcink-ai-hero-dashboard',
 			'npcink-ai-dashboard-card',
+			'npcink-ai-dashboard-mock',
+			'npcink-ai-hero-media-card',
 			'npcink-ai-dashboard-label',
 			'npcink-ai-dashboard-value',
 			'npcink-ai-dashboard-row',
@@ -786,6 +791,30 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Builds an image block from a reviewed media URL.
+	 *
+	 * @param string $media_url Media URL.
+	 * @param string $media_alt Media alt text.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_image_block( $media_url, $media_alt ) {
+		$media_url = esc_url_raw( (string) $media_url );
+		$media_alt = sanitize_text_field( (string) $media_alt );
+		$html      = '<figure class="wp-block-image size-large"><img src="' . $this->pattern_attr( $media_url ) . '" alt="' . $this->pattern_attr( $media_alt ) . '"/></figure>';
+		return array(
+			'blockName'    => 'core/image',
+			'attrs'        => array(
+				'url'      => $media_url,
+				'alt'      => $media_alt,
+				'sizeSlug' => 'large',
+			),
+			'innerHTML'    => $html,
+			'innerContent' => array( $html ),
+			'innerBlocks'  => array(),
+		);
+	}
+
+	/**
 	 * Builds a details FAQ item.
 	 *
 	 * @param string              $summary Summary text.
@@ -823,7 +852,7 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_dashboard_mock_block() {
 		return $this->pattern_group_block(
-			'npcink-ai-dashboard-card',
+			'npcink-ai-dashboard-card npcink-ai-dashboard-mock',
 			array(
 				$this->pattern_paragraph_block( 'Proposal preview', 'npcink-ai-dashboard-label', $this->pattern_eyebrow_attrs(), 'color:#555555;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
 				$this->pattern_heading_block( 'Manual approval required', 3, 'npcink-ai-dashboard-value', $this->pattern_card_title_attrs(), 'font-size:24px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
@@ -831,6 +860,26 @@ trait Page_Pattern_Read_Methods {
 				$this->pattern_dashboard_row_block( 'Write actions', '2' ),
 				$this->pattern_dashboard_row_block( 'Blocks', 'Gutenberg-native' ),
 				$this->pattern_dashboard_row_block( 'Validation', 'Roundtrip ready' ),
+			),
+			$this->pattern_dashboard_card_attrs(),
+			'background-color:#ffffff;border-color:#dcdcdc;border-width:1px;border-radius:24px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
+		);
+	}
+
+	/**
+	 * Builds the hero visual panel when a reviewed media URL is supplied.
+	 *
+	 * @param string $media_url Media URL.
+	 * @param string $media_alt Media alt text.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_hero_media_block( $media_url, $media_alt ) {
+		return $this->pattern_group_block(
+			'npcink-ai-dashboard-card npcink-ai-hero-media-card',
+			array(
+				$this->pattern_image_block( $media_url, $media_alt ),
+				$this->pattern_dashboard_row_block( 'Media', 'Reviewed 16:9 WebP hero asset' ),
+				$this->pattern_dashboard_row_block( 'Adoption', 'Core proposal executed' ),
 			),
 			$this->pattern_dashboard_card_attrs(),
 			'background-color:#ffffff;border-color:#dcdcdc;border-width:1px;border-radius:24px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
@@ -1570,7 +1619,8 @@ trait Page_Pattern_Read_Methods {
 			'section_count'         => count( $blocks ),
 			'block_count'           => $this->count_pattern_blocks_recursive( $blocks ),
 			'has_split_hero'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-layout' ),
-			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-card' ),
+			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ),
+			'has_hero_media'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
 			'has_media_text'        => $this->pattern_has_block_name( $blocks, 'core/media-text' ),
 			'has_comparison_section' => $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ),

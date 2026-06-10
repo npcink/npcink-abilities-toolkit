@@ -4302,7 +4302,8 @@ npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['da
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
 npcink_abilities_toolkit_assert_same( 7, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports seven v2 sections when media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
-npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan reports dashboard mock' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan reports reviewed hero media in the split hero' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_faq'] ?? null, 'build-pattern-page-plan reports FAQ section' );
@@ -4337,6 +4338,11 @@ npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $pattern_bloc
 $pattern_hero_layout = is_array( $pattern_blocks[0]['innerBlocks'][0] ?? null ) ? $pattern_blocks[0]['innerBlocks'][0] : array();
 npcink_abilities_toolkit_assert_same( 'core/columns', $pattern_hero_layout['blockName'] ?? '', 'build-pattern-page-plan uses a split hero columns block' );
 npcink_abilities_toolkit_assert_same( 'npcink-ai-hero-layout', $pattern_hero_layout['attrs']['className'] ?? '', 'build-pattern-page-plan marks the split hero layout' );
+$pattern_hero_visual = is_array( $pattern_hero_layout['innerBlocks'][1]['innerBlocks'][0] ?? null ) ? $pattern_hero_layout['innerBlocks'][1]['innerBlocks'][0] : array();
+npcink_abilities_toolkit_assert_same( 'core/group', $pattern_hero_visual['blockName'] ?? '', 'build-pattern-page-plan wraps reviewed hero media in a native group panel' );
+npcink_abilities_toolkit_assert_same( 'npcink-ai-dashboard-card npcink-ai-hero-media-card', $pattern_hero_visual['attrs']['className'] ?? '', 'build-pattern-page-plan marks the hero media panel with whitelisted classes' );
+npcink_abilities_toolkit_assert_same( 'core/image', $pattern_hero_visual['innerBlocks'][0]['blockName'] ?? '', 'build-pattern-page-plan places reviewed media in the hero visual column' );
+npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
 $pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
 npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
 npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
@@ -4349,8 +4355,11 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/columns"' ), 'build-pattern-page-plan uses native columns for feature and workflow sections' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"isStackedOnMobile":true' ), 'build-pattern-page-plan stacks columns on mobile' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/media-text"' ), 'build-pattern-page-plan uses media-text when existing media is supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/image"' ), 'build-pattern-page-plan uses core image for hero media when supplied' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/details"' ), 'build-pattern-page-plan uses details blocks for FAQ' );
-npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-dashboard-card' ), 'build-pattern-page-plan includes a dashboard mock card' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-dashboard-card' ), 'build-pattern-page-plan includes a styled hero visual card' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false === strpos( $pattern_markup, 'npcink-ai-dashboard-mock' ), 'build-pattern-page-plan omits the dashboard mock when reviewed hero media is supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-hero-media-card' ), 'build-pattern-page-plan includes a hero media card class handle' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-proof-strip' ), 'build-pattern-page-plan includes a proof strip' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-media-text' ), 'build-pattern-page-plan includes a media-text class handle' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
