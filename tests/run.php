@@ -1662,7 +1662,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 			'slug'    => 'single',
 			'source'  => 'theme',
 			'title'   => 'Single',
-			'content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->',
+			'content' => "<!-- wp:group --><div class=\"wp-block-group\"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->\n\n<!-- wp:template-part {\"slug\":\"footer\"} /-->\n",
 		),
 	);
 	$file_template_context = $core_read_package->get_block_theme_context( array() );
@@ -1679,6 +1679,9 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 1, count( $file_template_actions ), 'build-block-theme-site-plan emits an action for a file-backed template' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/upsert-template-blocks', $file_template_actions[0]['target_ability_id'] ?? '', 'file-backed block theme plan targets template override upsert' );
 	npcink_abilities_toolkit_assert_same( 'single', $file_template_actions[0]['input']['slug'] ?? '', 'file-backed block theme plan carries template slug into upsert input' );
+	foreach ( (array) ( $file_template_actions[0]['input']['blocks'] ?? array() ) as $file_template_action_block ) {
+		npcink_abilities_toolkit_assert_true( is_array( $file_template_action_block ) && ! empty( $file_template_action_block['blockName'] ), 'file-backed block theme plan omits whitespace-only freeform spacer blocks' );
+	}
 	$upsert_preview = $core_write_package->upsert_template_blocks(
 		array(
 			'slug'   => 'single',
@@ -1705,7 +1708,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( false, $upsert_written['dry_run'] ?? null, 'upsert-template-blocks commits after host approval' );
 	npcink_abilities_toolkit_assert_same( true, $upsert_written['created'] ?? null, 'upsert-template-blocks creates a custom template override' );
 	npcink_abilities_toolkit_assert_true( ! empty( $upsert_written['post_id'] ), 'upsert-template-blocks returns the created template post id' );
-	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $upsert_written['post_id'] ]->post_name ?? '' ), 'unit-block-theme//single' ), 'upsert-template-blocks stores the theme-qualified template name' );
+	npcink_abilities_toolkit_assert_same( 'single', (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $upsert_written['post_id'] ]->post_name ?? '' ), 'upsert-template-blocks stores the template slug as the post name' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $upsert_written['post_id'] ]->post_content ?? '' ), 'openclaw-breadcrumbs' ), 'upsert-template-blocks writes breadcrumb scaffold markup' );
 	unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'], $GLOBALS['npcink_abilities_toolkit_unit_post_meta'], $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'], $GLOBALS['npcink_abilities_toolkit_unit_active_theme'], $GLOBALS['npcink_abilities_toolkit_unit_file_templates'] );
 $inspect_page_structure = $package_abilities['npcink-abilities-toolkit/inspect-page-structure'];

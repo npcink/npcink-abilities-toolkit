@@ -106,6 +106,7 @@ trait Block_Theme_Read_Methods {
 			$template_title = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
 			$template_source = sanitize_key( (string) ( $template['source'] ?? '' ) );
 			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
+			$current_blocks = $this->block_theme_blocks_for_write_plan( $current_blocks );
 			$next_blocks    = $this->block_theme_insert_breadcrumbs_block(
 				$current_blocks,
 				array(
@@ -520,6 +521,56 @@ trait Block_Theme_Read_Methods {
 				)
 			);
 		return $blocks;
+	}
+
+	/**
+	 * Removes parse_blocks() whitespace-only freeform nodes from write plans.
+	 *
+	 * File-backed templates often parse into real blocks plus null blockName
+	 * spacer nodes. The write abilities intentionally require named blocks, so
+	 * only discard empty spacer nodes here and keep non-empty freeform content
+	 * visible to validation.
+	 *
+	 * @param mixed $blocks Parsed blocks.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_blocks_for_write_plan( $blocks ) {
+		$blocks     = is_array( $blocks ) ? array_values( $blocks ) : array();
+		$normalized = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( '' === $block_name && $this->block_theme_is_empty_freeform_block( $block ) ) {
+				continue;
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$block['innerBlocks'] = $this->block_theme_blocks_for_write_plan( $block['innerBlocks'] );
+			}
+			$normalized[] = $block;
+		}
+		return $normalized;
+	}
+
+	/**
+	 * Reports whether a parsed freeform block carries only whitespace.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function block_theme_is_empty_freeform_block( array $block ) {
+		$html = (string) ( $block['innerHTML'] ?? '' );
+		if ( '' !== trim( $html ) ) {
+			return false;
+		}
+		$inner_content = is_array( $block['innerContent'] ?? null ) ? $block['innerContent'] : array();
+		foreach ( $inner_content as $content ) {
+			if ( null !== $content && '' !== trim( (string) $content ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

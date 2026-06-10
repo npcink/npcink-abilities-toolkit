@@ -412,6 +412,7 @@ final class Core_Write_Package {
 							'post_type'             => array( 'type' => 'string' ),
 							'slug'                  => array( 'type' => 'string' ),
 							'theme'                 => array( 'type' => 'string' ),
+							'source_template_id'    => array( 'type' => 'string' ),
 							'created'               => array( 'type' => 'boolean' ),
 							'updated'               => array( 'type' => 'boolean' ),
 							'status'                => array( 'type' => 'string' ),
@@ -419,7 +420,12 @@ final class Core_Write_Package {
 							'edit_link'             => array( 'type' => 'string' ),
 							'block_count_before'    => array( 'type' => 'integer' ),
 							'block_count_after'     => array( 'type' => 'integer' ),
+							'content_length_before' => array( 'type' => 'integer' ),
+							'content_length_after'  => array( 'type' => 'integer' ),
 							'validation'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'impact_ranges'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+							'diff_preview'          => array( 'type' => 'object', 'additionalProperties' => true ),
+							'preview'               => array( 'type' => 'object', 'additionalProperties' => true ),
 							'dry_run'               => array( 'type' => 'boolean' ),
 						),
 						array( 'post_id', 'post_type', 'slug', 'created', 'updated', 'mode', 'block_count_before', 'block_count_after', 'validation', 'dry_run' )
@@ -1805,7 +1811,7 @@ final class Core_Write_Package {
 					'post_type'    => 'wp_template',
 					'post_status'  => 'publish',
 					'post_title'   => $title,
-					'post_name'    => $theme . '//' . $slug,
+					'post_name'    => $slug,
 					'post_content' => $after_content,
 				),
 				true
@@ -3558,7 +3564,22 @@ final class Core_Write_Package {
 			}
 			$post_slug = $this->normalize_template_slug( (string) ( $post->post_name ?? '' ) );
 			$post_name = (string) ( $post->post_name ?? '' );
-			if ( $slug === $post_slug && ( false === strpos( $post_name, '//' ) || 0 === strpos( $post_name, $theme . '//' ) ) ) {
+			if ( $slug !== $post_slug ) {
+				continue;
+			}
+			if ( false !== strpos( $post_name, '//' ) ) {
+				if ( 0 === strpos( $post_name, $theme . '//' ) ) {
+					return $post;
+				}
+				continue;
+			}
+			if ( function_exists( 'taxonomy_exists' ) && taxonomy_exists( 'wp_theme' ) && function_exists( 'wp_get_post_terms' ) ) {
+				$terms = wp_get_post_terms( absint( $post->ID ?? 0 ), 'wp_theme', array( 'fields' => 'names' ) );
+				if ( ! is_wp_error( $terms ) && ! in_array( $theme, array_map( 'sanitize_key', (array) $terms ), true ) ) {
+					continue;
+				}
+			}
+			if ( $slug === $post_slug ) {
 				return $post;
 			}
 		}
