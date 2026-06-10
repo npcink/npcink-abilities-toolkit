@@ -3425,14 +3425,96 @@ final class Core_Write_Package {
 			return $attachment_id;
 		}
 
-		if ( function_exists( 'wp_generate_attachment_metadata' ) && function_exists( 'wp_update_attachment_metadata' ) ) {
-			$metadata = wp_generate_attachment_metadata( absint( $attachment_id ), $file_path );
-			if ( is_array( $metadata ) ) {
-				wp_update_attachment_metadata( absint( $attachment_id ), $metadata );
+		$this->generate_attachment_metadata_for_file( absint( $attachment_id ), $file_path );
+
+		return absint( $attachment_id );
+	}
+
+	/**
+	 * Generates and persists attachment metadata for a media file.
+	 *
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $file_path Absolute media file path.
+	 * @return array<string,mixed>
+	 */
+	private function generate_attachment_metadata_for_file( $attachment_id, $file_path ) {
+		$attachment_id = absint( $attachment_id );
+		$file_path = (string) $file_path;
+		if ( $attachment_id <= 0 || '' === $file_path || ! is_readable( $file_path ) ) {
+			return array();
+		}
+
+		$metadata = array();
+		if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+			$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
+			if ( is_array( $generated ) && ! empty( $generated ) ) {
+				$metadata = $generated;
 			}
 		}
 
-		return absint( $attachment_id );
+		if ( empty( $metadata ) ) {
+			$metadata = $this->minimal_attachment_metadata_for_file( $file_path );
+		}
+		if ( ! empty( $metadata ) ) {
+			if ( function_exists( 'wp_update_attachment_metadata' ) ) {
+				wp_update_attachment_metadata( $attachment_id, $metadata );
+			} elseif ( function_exists( 'update_post_meta' ) ) {
+				update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
+			}
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Builds minimal WordPress attachment metadata when full image helpers are unavailable.
+	 *
+	 * @param string $file_path Absolute media file path.
+	 * @return array<string,mixed>
+	 */
+	private function minimal_attachment_metadata_for_file( $file_path ) {
+		$file_path = (string) $file_path;
+		if ( '' === $file_path || ! is_readable( $file_path ) ) {
+			return array();
+		}
+
+		$image_size = function_exists( 'wp_getimagesize' ) ? wp_getimagesize( $file_path ) : @getimagesize( $file_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( ! is_array( $image_size ) || empty( $image_size[0] ) || empty( $image_size[1] ) ) {
+			return array();
+		}
+
+		return array(
+			'file'     => $this->uploads_relative_file_from_path( $file_path ),
+			'width'    => absint( $image_size[0] ),
+			'height'   => absint( $image_size[1] ),
+			'filesize' => is_readable( $file_path ) ? absint( filesize( $file_path ) ) : 0,
+			'sizes'    => array(),
+		);
+	}
+
+	/**
+	 * Converts an absolute uploads path to WordPress attachment metadata's relative file.
+	 *
+	 * @param string $file_path Absolute media file path.
+	 * @return string
+	 */
+	private function uploads_relative_file_from_path( $file_path ) {
+		$file_path = str_replace( '\\', '/', (string) $file_path );
+		if ( '' === $file_path ) {
+			return '';
+		}
+		if ( function_exists( 'wp_upload_dir' ) ) {
+			$upload_dir = wp_upload_dir();
+			$basedir = is_array( $upload_dir ) ? str_replace( '\\', '/', (string) ( $upload_dir['basedir'] ?? '' ) ) : '';
+			if ( '' !== $basedir ) {
+				$basedir = rtrim( $basedir, '/' ) . '/';
+				if ( 0 === strpos( $file_path, $basedir ) ) {
+					return $this->normalize_media_relative_file( substr( $file_path, strlen( $basedir ) ) );
+				}
+			}
+		}
+
+		return $this->sanitize_media_file_name( basename( $file_path ) );
 	}
 
 	/**
@@ -4688,9 +4770,9 @@ final class Core_Write_Package {
 			);
 			if ( is_array( $state['_metadata'] ?? null ) ) {
 				$metadata = $state['_metadata'];
-			} elseif ( function_exists( 'wp_generate_attachment_metadata' ) && is_readable( $file_path ) ) {
-				$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
-				if ( is_array( $generated ) && ! empty( $generated ) ) {
+			} elseif ( is_readable( $file_path ) ) {
+				$generated = $this->generate_attachment_metadata_for_file( $attachment_id, $file_path );
+				if ( ! empty( $generated ) ) {
 					$metadata = $generated;
 				}
 			}

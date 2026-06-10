@@ -1415,6 +1415,10 @@ final class Core_Read_Package {
 						'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'landing_standard' ), 'default' => 'landing_standard' ),
 						'visual_density'     => array( 'type' => 'string', 'enum' => array( 'balanced' ), 'default' => 'balanced' ),
 						'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'mock_or_existing_media', 'existing_media_url' ), 'default' => 'mock_or_existing_media' ),
+						'research_brief'     => array(
+							'type'                 => 'object',
+							'additionalProperties' => true,
+						),
 						'variables'          => array(
 							'type'                 => 'object',
 							'additionalProperties' => true,
