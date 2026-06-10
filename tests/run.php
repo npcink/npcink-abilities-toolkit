@@ -4297,7 +4297,7 @@ npcink_abilities_toolkit_assert_same( 'aspect_ratio', $pattern_media_slots[0]['c
 npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['crop']['aspect_ratio'] ?? '', 'build-pattern-page-plan carries hero aspect ratio into crop guidance' );
 npcink_abilities_toolkit_assert_same( 'ai_image_ratio_crop_media_adoption', $pattern_media_slots[0]['recommended_recipe_id'] ?? '', 'build-pattern-page-plan recommends the AI image crop adoption recipe for hero media' );
 npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
-npcink_abilities_toolkit_assert_same( '2.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v2 Pattern quality version' );
+npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports eight v2 sections when media is supplied' );
@@ -4305,6 +4305,7 @@ npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_q
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan reports reviewed hero media in the split hero' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_bento_grid'] ?? null, 'build-pattern-page-plan reports the Gutenberg-native Bento feature grid' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_comparison_section'] ?? null, 'build-pattern-page-plan reports the default proposal-first comparison section' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_faq'] ?? null, 'build-pattern-page-plan reports FAQ section' );
@@ -4329,6 +4330,8 @@ $pattern_blocks = is_array( $pattern_page_actions[1]['input']['blocks'] ?? null 
 npcink_abilities_toolkit_assert_same( 'core/group', $pattern_blocks[0]['blockName'] ?? '', 'build-pattern-page-plan renders core group blocks' );
 npcink_abilities_toolkit_assert_true( in_array( null, $pattern_blocks[0]['innerContent'] ?? array(), true ), 'build-pattern-page-plan group blocks include innerContent null markers' );
 npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-hero', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes a class whitelist' );
+npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-feature-bento', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes the Bento feature class handle' );
+npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-feature-spotlight', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes the Bento spotlight class handle' );
 npcink_abilities_toolkit_assert_same( 'npcink-ai-page npcink-ai-hero', $pattern_blocks[0]['attrs']['className'] ?? '', 'build-pattern-page-plan applies only whitelisted page classes' );
 npcink_abilities_toolkit_assert_same( 'full', $pattern_blocks[0]['attrs']['align'] ?? '', 'build-pattern-page-plan uses full-width Gutenberg sections' );
 npcink_abilities_toolkit_assert_same( 'constrained', $pattern_blocks[0]['attrs']['layout']['type'] ?? '', 'build-pattern-page-plan uses constrained section layout' );
@@ -4363,8 +4366,12 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false === 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-hero-media-card' ), 'build-pattern-page-plan includes a hero media card class handle' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-proof-strip' ), 'build-pattern-page-plan includes a proof strip' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-media-text' ), 'build-pattern-page-plan includes a media-text class handle' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-feature-bento' ), 'build-pattern-page-plan includes a Gutenberg-native Bento feature layout' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-feature-spotlight' ), 'build-pattern-page-plan includes a dark spotlight feature card' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-color:#111111;border-width:1px;border-radius:24px;background-color:#111111;color:#ffffff' ), 'build-pattern-page-plan serializes the spotlight card with native color and border styles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison' ), 'build-pattern-page-plan includes a default proposal-first comparison section' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison-card' ), 'build-pattern-page-plan includes comparison cards' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' ), 'build-pattern-page-plan renders the comparison section as a native dark contrast band' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'OpenClaw proposal-first' ), 'build-pattern-page-plan includes the proposal-first comparison side' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
