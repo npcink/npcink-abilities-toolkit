@@ -66,6 +66,7 @@ trait Page_Pattern_Read_Methods {
 		);
 		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
+		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 		$write_actions = array(
@@ -115,6 +116,7 @@ trait Page_Pattern_Read_Methods {
 				'media_strategy'         => $media_strategy,
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
+				'media_slots'            => $media_slots,
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
 				'requires_approval'      => true,
@@ -134,6 +136,7 @@ trait Page_Pattern_Read_Methods {
 					'plan_ability_id'        => 'npcink-abilities-toolkit/build-pattern-page-plan',
 					'recipe_id'              => 'pattern_page_v1',
 					'recipe_ref'             => 'workflow/pattern_page_plan',
+					'media_recipe_ref'       => 'openclaw_recipes.ai_image_ratio_crop_media_adoption',
 					'core_route'             => '/wp-json/npcink-governance-core/v1/proposals/from-plan',
 					'final_write_path'       => 'core_proposal_required',
 					'direct_wordpress_write' => false,
@@ -145,6 +148,58 @@ trait Page_Pattern_Read_Methods {
 			),
 			'Pattern page plan built.'
 		);
+	}
+
+	/**
+	 * Returns media slot requirements for clients composing visual assets.
+	 *
+	 * @param array<string,mixed> $variables Pattern variables.
+	 * @param string              $media_strategy Media strategy.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function pattern_media_slots( array $variables, string $media_strategy ): array {
+		$hero_ratio = $this->pattern_aspect_ratio( $variables['hero_media_target_aspect_ratio'] ?? '16:9', '16:9' );
+		return array(
+			array(
+				'id'                    => 'hero_media',
+				'variable'              => 'hero_media_url',
+				'alt_variable'          => 'hero_media_alt',
+				'target_slot'           => 'hero',
+				'target_aspect_ratio'   => $hero_ratio,
+				'preferred_format'      => 'webp',
+				'quality'               => 84,
+				'crop'                  => array(
+					'type'         => 'aspect_ratio',
+					'aspect_ratio' => $hero_ratio,
+					'position'     => 'center',
+				),
+				'media_strategy'        => $media_strategy,
+				'required_for_quality'  => true,
+				'recommended_recipe_id' => 'ai_image_ratio_crop_media_adoption',
+				'recommended_openclaw_recipe' => 'openclaw_recipes.ai_image_ratio_crop_media_adoption',
+				'existing_media_url'    => esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) ),
+			),
+		);
+	}
+
+	/**
+	 * Sanitizes a W:H aspect ratio for media slot planning.
+	 *
+	 * @param mixed  $value Ratio candidate.
+	 * @param string $fallback Fallback ratio.
+	 * @return string
+	 */
+	private function pattern_aspect_ratio( $value, string $fallback ): string {
+		$ratio = trim( sanitize_text_field( (string) $value ) );
+		if ( 1 !== preg_match( '/^([1-9][0-9]{0,2}):([1-9][0-9]{0,2})$/', $ratio, $matches ) ) {
+			return $fallback;
+		}
+		$width  = absint( $matches[1] );
+		$height = absint( $matches[2] );
+		if ( $width < 1 || $width > 100 || $height < 1 || $height > 100 ) {
+			return $fallback;
+		}
+		return $ratio;
 	}
 
 	/**
