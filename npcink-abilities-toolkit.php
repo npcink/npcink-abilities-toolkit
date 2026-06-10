@@ -34,6 +34,7 @@ require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Read_Pack_Cl
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Block_Theme_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Comment_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';

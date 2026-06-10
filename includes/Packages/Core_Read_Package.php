@@ -25,6 +25,7 @@ final class Core_Read_Package {
 	use Article_Block_Plan_Read_Methods;
 	use Article_Optimization_Read_Methods;
 	use Article_Production_Read_Methods;
+	use Block_Theme_Read_Methods;
 	use Comment_Read_Methods;
 	use Content_Inventory_Read_Methods;
 	use Content_Refresh_SEO_Read_Methods;
@@ -1392,7 +1393,115 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_article_block_plan' ),
 			),
-			'npcink-abilities-toolkit/build-pattern-page-plan' => array(
+				'npcink-abilities-toolkit/get-block-theme-context' => array(
+					'label'            => __( 'Get Block Theme Context', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Returns compact active block theme Site Editor context for governed OpenClaw planning.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_theme_options',
+					'required_scope'   => 'site.read',
+					'required_scopes'  => array( 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'annotations'      => array(
+						'instructions' => 'Read Site Editor context only. Do not treat this as approval to write templates, template parts, navigation, or global styles.',
+					),
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'                 => 'object',
+						'additionalProperties' => true,
+					),
+					'execute_callback' => array( $this, 'get_block_theme_context' ),
+				),
+				'npcink-abilities-toolkit/get-template-blocks'      => array(
+					'label'            => __( 'Get Template Blocks', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Returns parsed blocks from one wp_template entity for review and verification.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_theme_options',
+					'required_scope'   => 'site.read',
+					'required_scopes'  => array( 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'post_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+							'slug'    => array( 'type' => 'string' ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'                 => 'object',
+						'additionalProperties' => true,
+					),
+					'execute_callback' => array( $this, 'get_template_blocks' ),
+				),
+				'npcink-abilities-toolkit/get-template-part-blocks' => array(
+					'label'            => __( 'Get Template Part Blocks', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Returns parsed blocks from one wp_template_part entity for review and verification.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_theme_options',
+					'required_scope'   => 'site.read',
+					'required_scopes'  => array( 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'post_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+							'slug'    => array( 'type' => 'string' ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'                 => 'object',
+						'additionalProperties' => true,
+					),
+					'execute_callback' => array( $this, 'get_template_part_blocks' ),
+				),
+				'npcink-abilities-toolkit/build-block-theme-site-plan' => array(
+					'label'            => __( 'Build Block Theme Site Plan', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Builds a governed block theme site configuration plan without writing WordPress Site Editor entities.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_theme_options',
+					'required_scope'   => 'site.read',
+					'required_scopes'  => array( 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'annotations'      => array(
+						'instructions' => 'Generate Core-ready write_actions only. Final template writes require Core proposal approval and Adapter execution profiles.',
+					),
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs' ), 'default' => 'add_breadcrumbs' ),
+							'target_templates'   => array(
+								'type'  => 'array',
+								'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'archive', 'index' ) ),
+							),
+							'separator'          => array( 'type' => 'string', 'default' => '/' ),
+							'show_current_item'  => array( 'type' => 'boolean', 'default' => true ),
+							'show_home_item'     => array( 'type' => 'boolean', 'default' => true ),
+							'show_on_home_page'  => array( 'type' => 'boolean', 'default' => false ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'success' => array( 'type' => 'boolean' ),
+							'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'message' => array( 'type' => 'string' ),
+						),
+						'required'   => array( 'success', 'data' ),
+					),
+					'execute_callback' => array( $this, 'build_block_theme_site_plan' ),
+				),
+				'npcink-abilities-toolkit/build-pattern-page-plan' => array(
 				'label'            => __( 'Build Pattern Page Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a governed page draft plan from a whitelisted Gutenberg page pattern without writing WordPress content.', 'npcink-abilities-toolkit' ),
 				'category'         => 'npcink-abilities-toolkit-pages',
