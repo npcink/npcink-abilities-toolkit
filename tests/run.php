@@ -4345,6 +4345,7 @@ npcink_abilities_toolkit_assert_true( in_array( null, $pattern_blocks[0]['innerC
 npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-hero', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes a class whitelist' );
 npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-feature-bento', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes the Bento feature class handle' );
 npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-feature-spotlight', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes the Bento spotlight class handle' );
+npcink_abilities_toolkit_assert_true( in_array( 'npcink-ai-visual-delta', $pattern_page_plan['data']['allowed_classes'] ?? array(), true ), 'build-pattern-page-plan exposes the visual-delta class handle for review revisions' );
 npcink_abilities_toolkit_assert_same( 'npcink-ai-page npcink-ai-hero', $pattern_blocks[0]['attrs']['className'] ?? '', 'build-pattern-page-plan applies only whitelisted page classes' );
 npcink_abilities_toolkit_assert_same( 'full', $pattern_blocks[0]['attrs']['align'] ?? '', 'build-pattern-page-plan uses full-width Gutenberg sections' );
 npcink_abilities_toolkit_assert_same( 'constrained', $pattern_blocks[0]['attrs']['layout']['type'] ?? '', 'build-pattern-page-plan uses constrained section layout' );
@@ -4462,6 +4463,16 @@ npcink_abilities_toolkit_assert_true( in_array( 'editor_invalid_block_risk', $re
 npcink_abilities_toolkit_assert_true( in_array( 'native_style_density_low', $review_revised_pattern_page_plan['data']['revision_strategy']['applied_finding_codes'] ?? array(), true ), 'build-pattern-page-plan reports previous native-style finding as addressed by the new plan' );
 npcink_abilities_toolkit_assert_same( array(), $review_revised_pattern_page_plan['data']['revision_strategy']['remaining_finding_codes'] ?? array( 'unexpected' ), 'build-pattern-page-plan reports no remaining previous findings after a high-quality revision' );
 npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['data']['revision_strategy']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks review-revised plans ready for Core proposal handoff' );
+$review_revised_actions = is_array( $review_revised_pattern_page_plan['data']['write_actions'] ?? null ) ? $review_revised_pattern_page_plan['data']['write_actions'] : array();
+$review_revised_blocks = is_array( $review_revised_actions[1]['input']['blocks'] ?? null ) ? $review_revised_actions[1]['input']['blocks'] : array();
+$review_revised_markup = wp_json_encode( $review_revised_blocks );
+npcink_abilities_toolkit_assert_same( '4.0', $review_revised_pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan upgrades feedback revisions to the v4 visual-delta Pattern quality version' );
+npcink_abilities_toolkit_assert_same( 'strong_revision', $review_revised_pattern_page_plan['data']['design_quality']['visual_delta_mode'] ?? '', 'build-pattern-page-plan marks feedback revisions as strong visual revisions' );
+npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['data']['design_quality']['has_visual_delta_section'] ?? null, 'build-pattern-page-plan reports the visual-delta feature section' );
+npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['data']['design_quality']['has_feature_proof_row'] ?? null, 'build-pattern-page-plan reports the added feature proof row' );
+npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'npcink-ai-feature-grid npcink-ai-visual-delta' ), 'build-pattern-page-plan serializes the feedback revision as a visibly different feature section' );
+npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' ), 'build-pattern-page-plan renders the visual-delta feature section as a native dark band' );
+npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'npcink-ai-feature-proof-row' ), 'build-pattern-page-plan adds a native proof row to make feedback revisions visually distinct' );
 $research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Research Backed WordPress AI',

@@ -63,6 +63,7 @@ trait Page_Pattern_Read_Methods {
 				'visual_density'     => $visual_density,
 				'media_strategy'     => $media_strategy,
 				'research_brief'     => $research_brief,
+				'review_feedback'    => $review_feedback,
 			)
 		);
 		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
@@ -375,6 +376,13 @@ trait Page_Pattern_Read_Methods {
 		}
 		$next_actions = array_values( array_unique( $next_actions ) );
 		$finding_codes = $this->pattern_finding_codes( $findings );
+		foreach ( array_slice( is_array( $feedback['finding_codes'] ?? null ) ? $feedback['finding_codes'] : array(), 0, 12 ) as $code ) {
+			$code = sanitize_key( (string) $code );
+			if ( '' !== $code ) {
+				$finding_codes[] = $code;
+			}
+		}
+		$finding_codes = array_values( array_unique( $finding_codes ) );
 
 		return array(
 			'feedback_received'  => true,
@@ -480,6 +488,26 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Returns whether review feedback should force a visibly different native Pattern revision.
+	 *
+	 * @param array<string,mixed> $feedback Normalized previous feedback.
+	 * @return bool
+	 */
+	private function pattern_should_render_visual_delta( array $feedback ): bool {
+		if ( empty( $feedback['feedback_received'] ) ) {
+			return false;
+		}
+		$finding_codes = array_values( array_filter( is_array( $feedback['finding_codes'] ?? null ) ? $feedback['finding_codes'] : array(), 'is_string' ) );
+		$next_actions  = array_values( array_filter( is_array( $feedback['next_actions'] ?? null ) ? $feedback['next_actions'] : array(), 'is_string' ) );
+		foreach ( array( 'bento_grid_missing', 'section_variety_low', 'native_style_density_low', 'text_heaviness_high' ) as $code ) {
+			if ( in_array( $code, $finding_codes, true ) ) {
+				return true;
+			}
+		}
+		return in_array( 'revise_pattern_page_plan', $next_actions, true );
+	}
+
+	/**
 	 * Sanitizes a W:H aspect ratio for media slot planning.
 	 *
 	 * @param mixed  $value Ratio candidate.
@@ -514,6 +542,8 @@ trait Page_Pattern_Read_Methods {
 		$secondary_cta    = $this->pattern_text( $variables['secondary_cta'] ?? '', '了解能力' );
 		$media_strategy   = sanitize_key( (string) ( $options['media_strategy'] ?? 'mock_or_existing_media' ) );
 		$research_brief   = is_array( $options['research_brief'] ?? null ) ? $options['research_brief'] : array();
+		$review_feedback  = is_array( $options['review_feedback'] ?? null ) ? $options['review_feedback'] : array();
+		$visual_delta     = $this->pattern_should_render_visual_delta( $review_feedback );
 		$hero_media_url   = esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) );
 		$hero_media_alt   = $this->pattern_text( $variables['hero_media_alt'] ?? '', 'WordPress AI workflow interface' );
 		$proof_points     = $this->pattern_items(
@@ -739,13 +769,19 @@ trait Page_Pattern_Read_Methods {
 			$blocks,
 			array(
 				$this->pattern_group_block(
-					'npcink-ai-feature-grid',
+					$visual_delta ? 'npcink-ai-feature-grid npcink-ai-visual-delta' : 'npcink-ai-feature-grid',
 					array(
-						$this->pattern_heading_block( $this->pattern_text( $variables['features_title'] ?? '', 'AI 内容现场的基础能力' ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
-						$this->pattern_feature_bento_block( $features ),
+						$this->pattern_heading_block(
+							$this->pattern_text( $variables['features_title'] ?? '', $visual_delta ? '让页面一眼看出产品节奏' : 'AI 内容现场的基础能力' ),
+							2,
+							$visual_delta ? 'npcink-ai-section-title npcink-ai-section-title-light' : 'npcink-ai-section-title',
+							$visual_delta ? $this->pattern_light_section_title_attrs() : $this->pattern_section_title_attrs(),
+							$visual_delta ? 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' : 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0'
+						),
+						$visual_delta ? $this->pattern_feature_visual_delta_block( $features ) : $this->pattern_feature_bento_block( $features ),
 					),
-					$this->pattern_section_attrs( '#ffffff', '88px', '88px', false ),
-					'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
+					$this->pattern_section_attrs( $visual_delta ? '#111111' : '#ffffff', '88px', '88px', false ),
+					$visual_delta ? 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' : 'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 				),
 				$this->pattern_group_block(
 					'npcink-ai-workflow',
@@ -859,6 +895,11 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-feature-bento',
 			'npcink-ai-feature-card',
 			'npcink-ai-feature-spotlight',
+			'npcink-ai-visual-delta',
+			'npcink-ai-section-title-light',
+			'npcink-ai-feature-proof',
+			'npcink-ai-feature-proof-row',
+			'npcink-ai-feature-rail',
 			'npcink-ai-workflow',
 			'npcink-ai-workflow-step',
 			'npcink-ai-comparison',
@@ -1299,6 +1340,110 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Builds a higher-contrast revision Bento when review feedback says the page still feels flat.
+	 *
+	 * @param array<int,array<string,string>> $features Feature items.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_visual_delta_block( array $features ) {
+		$features = array_values( $features );
+		while ( count( $features ) < 3 ) {
+			$features[] = array(
+				'title'       => 'Gutenberg 原生模块',
+				'description' => '用核心块、原生样式属性和移动端堆叠能力搭建可编辑页面。',
+			);
+		}
+
+		$primary   = $features[0];
+		$secondary = array_slice( $features, 1, 2 );
+		$proofs    = array(
+			array(
+				'title'       => '01',
+				'description' => '先生成计划',
+			),
+			array(
+				'title'       => '02',
+				'description' => '再审批写入',
+			),
+			array(
+				'title'       => '03',
+				'description' => '最后回读验证',
+			),
+		);
+
+		return $this->pattern_group_block(
+			'npcink-ai-feature-bento npcink-ai-feature-rail',
+			array(
+				$this->pattern_columns_block(
+					array(
+						$this->pattern_column_block(
+							array(
+								$this->pattern_group_block(
+									'npcink-ai-feature-card npcink-ai-feature-spotlight',
+									array(
+										$this->pattern_paragraph_block( 'Revision focus', 'npcink-ai-eyebrow', $this->pattern_eyebrow_attrs(), 'color:#555555;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
+										$this->pattern_heading_block( (string) $primary['title'], 3, 'npcink-ai-card-title', $this->pattern_feature_hero_title_attrs(), 'color:#111111;font-size:40px;font-weight:500;line-height:1.02;letter-spacing:0;margin-top:0' ),
+										$this->pattern_paragraph_block( (string) $primary['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
+									),
+									$this->pattern_feature_delta_spotlight_attrs(),
+									'background-color:#f7f7f4;color:#111111;border-color:#f7f7f4;border-width:1px;border-radius:28px;padding-top:44px;padding-right:44px;padding-bottom:44px;padding-left:44px'
+								),
+							)
+						),
+						$this->pattern_column_block(
+							array_map(
+								function ( $item, $index ) {
+									$is_dark     = 1 === (int) $index;
+									$card_attrs  = $is_dark ? $this->pattern_feature_delta_dark_card_attrs() : $this->pattern_feature_delta_light_card_attrs();
+									$title_attrs = $is_dark ? $this->pattern_light_card_title_attrs() : $this->pattern_card_title_attrs();
+									$text_attrs  = $is_dark ? $this->pattern_light_card_text_attrs() : $this->pattern_card_text_attrs();
+									return $this->pattern_group_block(
+										'npcink-ai-feature-card',
+										array(
+											$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $title_attrs, $is_dark ? 'color:#ffffff;font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' : 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
+											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $text_attrs, $is_dark ? 'color:#dddddd;font-size:16px;line-height:1.55' : 'color:#454545;font-size:16px;line-height:1.55' ),
+										),
+										$card_attrs,
+										$is_dark ? 'background-color:#1f1f1f;color:#ffffff;border-color:#3a3a3a;border-width:1px;border-radius:24px;padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px' : 'background-color:#ffffff;border-color:#ffffff;border-width:1px;border-radius:24px;padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px'
+									);
+								},
+								$secondary,
+								array_keys( $secondary )
+							)
+						),
+					),
+					'npcink-ai-feature-bento',
+					$this->pattern_columns_attrs()
+				),
+				$this->pattern_columns_block(
+					array_map(
+						function ( $item ) {
+							return $this->pattern_column_block(
+								array(
+									$this->pattern_group_block(
+										'npcink-ai-feature-proof',
+										array(
+											$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_light_card_title_attrs(), 'color:#ffffff;font-size:30px;font-weight:500;line-height:1.1;letter-spacing:0;margin-top:0' ),
+											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_light_card_text_attrs(), 'color:#dddddd;font-size:15px;line-height:1.45' ),
+										),
+										$this->pattern_feature_proof_attrs(),
+										'background-color:#1f1f1f;color:#ffffff;border-top-color:#4a4a4a;border-top-width:1px;padding-top:22px;padding-right:0;padding-bottom:0;padding-left:0'
+									),
+								)
+							);
+						},
+						$proofs
+					),
+					'npcink-ai-feature-proof-row',
+					$this->pattern_columns_attrs( '20px' )
+				),
+			),
+			$this->pattern_feature_rail_attrs(),
+			'background-color:#111111;color:#ffffff;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0'
+		);
+	}
+
+	/**
 	 * Section attrs using Gutenberg native layout, spacing, color, and border supports.
 	 *
 	 * @param string $background Background color.
@@ -1516,6 +1661,165 @@ trait Page_Pattern_Read_Methods {
 					'color'  => '#111111',
 					'width'  => '1px',
 					'radius' => '24px',
+				),
+				'color'   => array(
+					'background' => '#111111',
+					'text'       => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Large dark title attrs for the visual-delta feature lead card.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_hero_title_attrs() {
+		return array(
+			'style' => array(
+				'color'      => array( 'text' => '#111111' ),
+				'typography' => array(
+					'fontSize'      => '40px',
+					'lineHeight'     => '1.02',
+					'letterSpacing' => '0',
+					'fontWeight'    => '500',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Visual-delta lead card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_delta_spotlight_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '44px',
+						'right'  => '44px',
+						'bottom' => '44px',
+						'left'   => '44px',
+					),
+				),
+				'border'  => array(
+					'color'  => '#f7f7f4',
+					'width'  => '1px',
+					'radius' => '28px',
+				),
+				'color'   => array(
+					'background' => '#f7f7f4',
+					'text'       => '#111111',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Visual-delta light feature card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_delta_light_card_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '30px',
+						'right'  => '30px',
+						'bottom' => '30px',
+						'left'   => '30px',
+					),
+				),
+				'border'  => array(
+					'color'  => '#ffffff',
+					'width'  => '1px',
+					'radius' => '24px',
+				),
+				'color'   => array(
+					'background' => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Visual-delta dark feature card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_delta_dark_card_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '30px',
+						'right'  => '30px',
+						'bottom' => '30px',
+						'left'   => '30px',
+					),
+				),
+				'border'  => array(
+					'color'  => '#3a3a3a',
+					'width'  => '1px',
+					'radius' => '24px',
+				),
+				'color'   => array(
+					'background' => '#1f1f1f',
+					'text'       => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Visual-delta proof card attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_proof_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '22px',
+						'right'  => '0',
+						'bottom' => '0',
+						'left'   => '0',
+					),
+				),
+				'border'  => array(
+					'top' => array(
+						'color' => '#4a4a4a',
+						'width' => '1px',
+					),
+				),
+				'color'   => array(
+					'background' => '#1f1f1f',
+					'text'       => '#ffffff',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Visual-delta feature rail attrs.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_feature_rail_attrs() {
+		return array(
+			'style' => array(
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '0',
+						'right'  => '0',
+						'bottom' => '0',
+						'left'   => '0',
+					),
 				),
 				'color'   => array(
 					'background' => '#111111',
@@ -2123,10 +2427,12 @@ trait Page_Pattern_Read_Methods {
 	 * @return array<string,mixed>
 	 */
 	private function pattern_design_quality_summary( array $blocks, array $research_brief = array() ) {
+		$has_visual_delta = $this->pattern_has_class_name( $blocks, 'npcink-ai-visual-delta' );
 		return array(
-			'pattern_version'       => '3.0',
+			'pattern_version'       => $has_visual_delta ? '4.0' : '3.0',
 			'style_strategy'        => 'gutenberg_native',
 			'uses_native_styles'    => true,
+			'visual_delta_mode'     => $has_visual_delta ? 'strong_revision' : 'standard',
 			'research_backed'       => ! empty( $research_brief ),
 			'research_source_count' => absint( $research_brief['source_count'] ?? 0 ),
 			'top_level_count'       => count( $blocks ),
@@ -2137,6 +2443,8 @@ trait Page_Pattern_Read_Methods {
 			'has_hero_media'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
 			'has_bento_grid'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-bento' ),
+			'has_visual_delta_section' => $has_visual_delta,
+			'has_feature_proof_row' => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-proof-row' ),
 			'has_media_text'        => $this->pattern_has_block_name( $blocks, 'core/media-text' ),
 			'has_comparison_section' => $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ),
 			'has_faq'               => $this->pattern_has_block_name( $blocks, 'core/details' ),
