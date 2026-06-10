@@ -247,7 +247,16 @@ trait Page_Pattern_Read_Methods {
 		);
 		$comparison_angles = $this->pattern_items(
 			$research_brief['comparison_angles'] ?? array(),
-			array(),
+			array(
+				array(
+					'title'       => '普通 AI 直接写入',
+					'description' => '自动化看起来更快，但写入意图、审批上下文和回滚证据往往分散在流程之外。',
+				),
+				array(
+					'title'       => 'OpenClaw proposal-first',
+					'description' => '先形成可审查计划，再由 Core 审批、preflight 和 Adapter 执行 profile 进入 WordPress。',
+				),
+			),
 			0
 		);
 		$section_patterns  = $this->pattern_items(
@@ -423,7 +432,10 @@ trait Page_Pattern_Read_Methods {
 
 		$research_sections = array();
 		if ( ! empty( $comparison_angles ) ) {
-			$research_sections[] = $this->pattern_comparison_block( $comparison_angles );
+			$research_sections[] = $this->pattern_comparison_block(
+				$comparison_angles,
+				! empty( $research_brief ) ? __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ) : __( '为什么坚持 proposal-first', 'npcink-abilities-toolkit' )
+			);
 		}
 
 		$blocks = array_merge(
@@ -906,17 +918,19 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
-	 * Builds an optional research-backed comparison section.
+	 * Builds a proposal-first comparison section.
 	 *
 	 * @param array<int,array<string,string>> $items Comparison angle items.
+	 * @param string                          $title Section title.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_comparison_block( array $items ) {
+	private function pattern_comparison_block( array $items, $title = '' ) {
 		$items = array_slice( $items, 0, 3 );
+		$title = $this->pattern_text( $title, '为什么坚持 proposal-first' );
 		return $this->pattern_group_block(
 			'npcink-ai-comparison',
 			array(
-				$this->pattern_heading_block( __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+				$this->pattern_heading_block( $title, 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 				$this->pattern_columns_block(
 					array_map(
 						function ( $item ) {
