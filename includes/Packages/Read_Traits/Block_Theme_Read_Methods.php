@@ -90,8 +90,8 @@ trait Block_Theme_Read_Methods {
 		$warnings         = array();
 
 		foreach ( $target_templates as $template_slug ) {
-			$template = $this->block_theme_find_entity_post( 'wp_template', $template_slug, 0 );
-			if ( ! $template ) {
+			$template = $this->block_theme_find_entity( 'wp_template', $template_slug, 0 );
+			if ( empty( $template ) ) {
 				$warnings[] = array(
 					'target_type' => 'wp_template',
 					'slug'        => $template_slug,
@@ -100,8 +100,12 @@ trait Block_Theme_Read_Methods {
 				continue;
 			}
 
-			$template_id   = absint( $template->ID ?? 0 );
-			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template->post_content ?? '' ) ) : array();
+			$template_id    = absint( $template['post_id'] ?? 0 );
+			$template_slug  = sanitize_key( (string) ( $template['slug'] ?? $template_slug ) );
+			$template_theme = sanitize_key( (string) ( $template['theme'] ?? '' ) );
+			$template_title = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
+			$template_source = sanitize_key( (string) ( $template['source'] ?? '' ) );
+			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
 			$next_blocks    = $this->block_theme_insert_breadcrumbs_block(
 				$current_blocks,
 				array(
@@ -111,24 +115,40 @@ trait Block_Theme_Read_Methods {
 					'showOnHomePage'     => $show_on_home,
 				)
 			);
-			$action_id      = 'update-template-' . sanitize_key( $template_slug ) . '-breadcrumbs';
+			$is_existing_custom_template = $template_id > 0;
+			$target_ability_id           = $is_existing_custom_template ? 'npcink-abilities-toolkit/update-template-blocks' : 'npcink-abilities-toolkit/upsert-template-blocks';
+			$action_input                = array(
+				'mode'               => 'replace',
+				'validate_roundtrip' => true,
+				'blocks'             => $next_blocks,
+			);
+			if ( $is_existing_custom_template ) {
+				$action_input['post_id'] = $template_id;
+			} else {
+				$action_input['slug']               = $template_slug;
+				$action_input['theme']              = $template_theme;
+				$action_input['title']              = $template_title;
+				$action_input['source_template_id'] = sanitize_text_field( (string) ( $template['template_id'] ?? '' ) );
+			}
+			$action_id       = ( $is_existing_custom_template ? 'update-template-' : 'upsert-template-' ) . sanitize_key( $template_slug ) . '-breadcrumbs';
 			$write_actions[] = $this->build_plan_action(
 				$action_id,
-				'npcink-abilities-toolkit/update-template-blocks',
-				array(
-					'post_id'            => $template_id,
-					'mode'               => 'replace',
-					'validate_roundtrip' => true,
-					'blocks'             => $next_blocks,
-				),
+				$target_ability_id,
+				$action_input,
 				array( 'site.write' ),
 				'high',
-				__( 'Update one block theme template with reviewed breadcrumb blocks after Core approval.', 'npcink-abilities-toolkit' )
+				$is_existing_custom_template
+					? __( 'Update one existing Site Editor template with reviewed breadcrumb blocks after Core approval.', 'npcink-abilities-toolkit' )
+					: __( 'Create a reviewed Site Editor template override from the active theme file template after Core approval.', 'npcink-abilities-toolkit' )
 			);
 			$preview[] = array(
 				'target_type'        => 'wp_template',
 				'post_id'            => $template_id,
-				'slug'               => sanitize_key( (string) ( $template->post_name ?? $template_slug ) ),
+				'slug'               => $template_slug,
+				'theme'              => $template_theme,
+				'source'             => $template_source,
+				'creates_template_override' => ! $is_existing_custom_template,
+				'target_ability_id'  => $target_ability_id,
 				'block_count_before' => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'  => $this->block_theme_count_blocks( $next_blocks ),
 					'inserted_block'     => 'core/group.openclaw-breadcrumbs',
@@ -193,25 +213,28 @@ trait Block_Theme_Read_Methods {
 
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$slug    = sanitize_key( (string) ( $input['slug'] ?? '' ) );
-		$post    = $post_id > 0 ? get_post( $post_id ) : $this->block_theme_find_entity_post( $post_type, $slug, 0 );
-		if ( ! $post ) {
+		$entity  = $this->block_theme_find_entity( $post_type, $slug, $post_id );
+		if ( empty( $entity ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_block_theme_entity_not_found', __( 'Block theme entity was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
-		if ( $post_type !== sanitize_key( (string) ( $post->post_type ?? '' ) ) ) {
+		if ( $post_type !== sanitize_key( (string) ( $entity['post_type'] ?? '' ) ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_block_theme_entity_type_invalid', __( 'Block theme entity type is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$content = (string) ( $post->post_content ?? '' );
+		$content = (string) ( $entity['content'] ?? '' );
 		$blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
 		return array(
-			'post_id'        => absint( $post->ID ?? 0 ),
+			'post_id'        => absint( $entity['post_id'] ?? 0 ),
+			'template_id'    => sanitize_text_field( (string) ( $entity['template_id'] ?? '' ) ),
 			'post_type'      => $post_type,
-			'slug'           => sanitize_key( (string) ( $post->post_name ?? '' ) ),
-			'title'          => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+			'slug'           => sanitize_key( (string) ( $entity['slug'] ?? '' ) ),
+			'theme'          => sanitize_key( (string) ( $entity['theme'] ?? '' ) ),
+			'source'         => sanitize_key( (string) ( $entity['source'] ?? '' ) ),
+			'title'          => sanitize_text_field( (string) ( $entity['title'] ?? '' ) ),
 			'block_count'    => $this->block_theme_count_blocks( $blocks ),
 			'content_length' => strlen( $content ),
 			'blocks'         => is_array( $blocks ) ? array_values( $blocks ) : array(),
-			'edit_link'      => function_exists( 'get_edit_post_link' ) ? $this->esc_url_value( (string) get_edit_post_link( absint( $post->ID ?? 0 ), 'raw' ) ) : '',
+			'edit_link'      => function_exists( 'get_edit_post_link' ) && absint( $entity['post_id'] ?? 0 ) > 0 ? $this->esc_url_value( (string) get_edit_post_link( absint( $entity['post_id'] ?? 0 ), 'raw' ) ) : '',
 		);
 	}
 
@@ -267,17 +290,20 @@ trait Block_Theme_Read_Methods {
 	private function block_theme_template_rows( $post_type, array $preferred_slugs ) {
 		$rows = array();
 		foreach ( $preferred_slugs as $slug ) {
-			$post = $this->block_theme_find_entity_post( $post_type, $slug, 0 );
-			if ( ! $post ) {
+			$entity = $this->block_theme_find_entity( $post_type, $slug, 0 );
+			if ( empty( $entity ) ) {
 				continue;
 			}
-			$content = (string) ( $post->post_content ?? '' );
+			$content = (string) ( $entity['content'] ?? '' );
 			$blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
 			$rows[]  = array(
-				'post_id'        => absint( $post->ID ?? 0 ),
+				'post_id'        => absint( $entity['post_id'] ?? 0 ),
+				'template_id'    => sanitize_text_field( (string) ( $entity['template_id'] ?? '' ) ),
 				'post_type'      => $post_type,
-				'slug'           => sanitize_key( (string) ( $post->post_name ?? $slug ) ),
-				'title'          => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+				'slug'           => sanitize_key( (string) ( $entity['slug'] ?? $slug ) ),
+				'theme'          => sanitize_key( (string) ( $entity['theme'] ?? '' ) ),
+				'source'         => sanitize_key( (string) ( $entity['source'] ?? '' ) ),
+				'title'          => sanitize_text_field( (string) ( $entity['title'] ?? '' ) ),
 				'block_count'    => $this->block_theme_count_blocks( $blocks ),
 				'content_length' => strlen( $content ),
 			);
@@ -286,22 +312,38 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
-	 * Finds a Site Editor post by id or slug.
+	 * Finds a Site Editor template entity by id or slug.
 	 *
 	 * @param string $post_type Post type.
 	 * @param string $slug Slug.
 	 * @param int    $post_id Post id.
-	 * @return object|null
+	 * @return array<string,mixed>|null
 	 */
-	private function block_theme_find_entity_post( $post_type, $slug, $post_id ) {
+	private function block_theme_find_entity( $post_type, $slug, $post_id ) {
 		$post_type = sanitize_key( (string) $post_type );
 		$post_id   = absint( $post_id );
 		if ( $post_id > 0 ) {
 			$post = get_post( $post_id );
-			return is_object( $post ) && $post_type === sanitize_key( (string) ( $post->post_type ?? '' ) ) ? $post : null;
+			return is_object( $post ) && $post_type === sanitize_key( (string) ( $post->post_type ?? '' ) ) ? $this->block_theme_entity_from_post( $post, $post_type ) : null;
 		}
 
 		$slug  = sanitize_key( (string) $slug );
+		if ( function_exists( 'get_block_templates' ) ) {
+			$templates = get_block_templates(
+				'' === $slug ? array() : array( 'slug__in' => array( $slug ) ),
+				$post_type
+			);
+			foreach ( is_array( $templates ) ? $templates : array() as $template ) {
+				$entity = $this->block_theme_entity_from_block_template( $template, $post_type );
+				if ( empty( $entity ) ) {
+					continue;
+				}
+				if ( '' === $slug || $slug === sanitize_key( (string) ( $entity['slug'] ?? '' ) ) ) {
+					return $entity;
+				}
+			}
+		}
+
 		$posts = function_exists( 'get_posts' )
 			? get_posts(
 				array(
@@ -320,12 +362,85 @@ trait Block_Theme_Read_Methods {
 				continue;
 			}
 			$post_slug = sanitize_key( (string) ( $post->post_name ?? '' ) );
+			$template_slug = $this->block_theme_slug_from_post_name( (string) ( $post->post_name ?? '' ) );
 			$post_title = sanitize_key( (string) ( $post->post_title ?? '' ) );
-			if ( '' === $slug || $slug === $post_slug || $slug === $post_title ) {
-				return $post;
+			if ( '' === $slug || $slug === $post_slug || $slug === $template_slug || $slug === $post_title ) {
+				return $this->block_theme_entity_from_post( $post, $post_type );
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Builds a Site Editor entity row from a custom template post.
+	 *
+	 * @param object $post Post object.
+	 * @param string $post_type Expected post type.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_entity_from_post( $post, $post_type ) {
+		$post_id = absint( $post->ID ?? 0 );
+		$theme   = $this->block_theme_active_theme_summary();
+		$slug    = $this->block_theme_slug_from_post_name( (string) ( $post->post_name ?? '' ) );
+		return array(
+			'post_id'     => $post_id,
+			'template_id' => sanitize_text_field( (string) ( $theme['stylesheet'] ?? '' ) . '//' . $slug ),
+			'post_type'   => sanitize_key( (string) $post_type ),
+			'slug'        => $slug,
+			'theme'       => sanitize_key( (string) ( $theme['stylesheet'] ?? '' ) ),
+			'source'      => 'custom',
+			'title'       => sanitize_text_field( (string) ( $post->post_title ?? $slug ) ),
+			'content'     => (string) ( $post->post_content ?? '' ),
+		);
+	}
+
+	/**
+	 * Builds a Site Editor entity row from a WP_Block_Template object.
+	 *
+	 * @param object $template Block template object.
+	 * @param string $post_type Expected template post type.
+	 * @return array<string,mixed>|null
+	 */
+	private function block_theme_entity_from_block_template( $template, $post_type ) {
+		if ( ! is_object( $template ) ) {
+			return null;
+		}
+		$slug = sanitize_key( (string) ( $template->slug ?? '' ) );
+		if ( '' === $slug ) {
+			$slug = $this->block_theme_slug_from_post_name( (string) ( $template->id ?? '' ) );
+		}
+		if ( '' === $slug ) {
+			return null;
+		}
+		$title = $template->title ?? $slug;
+		if ( is_object( $title ) && isset( $title->rendered ) ) {
+			$title = (string) $title->rendered;
+		}
+		return array(
+			'post_id'     => absint( $template->wp_id ?? 0 ),
+			'template_id' => sanitize_text_field( (string) ( $template->id ?? '' ) ),
+			'post_type'   => sanitize_key( (string) ( $template->type ?? $post_type ) ),
+			'slug'        => $slug,
+			'theme'       => sanitize_key( (string) ( $template->theme ?? ( $this->block_theme_active_theme_summary()['stylesheet'] ?? '' ) ) ),
+			'source'      => sanitize_key( (string) ( $template->source ?? '' ) ),
+			'title'       => sanitize_text_field( (string) $title ),
+			'content'     => (string) ( $template->content ?? '' ),
+		);
+	}
+
+	/**
+	 * Extracts the template slug from a raw post_name or template id.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private function block_theme_slug_from_post_name( $value ) {
+		$value = (string) $value;
+		if ( false !== strpos( $value, '//' ) ) {
+			$parts = explode( '//', $value );
+			$value = (string) end( $parts );
+		}
+		return sanitize_key( $value );
 	}
 
 	/**

@@ -553,6 +553,7 @@ foreach (
 			'npcink-abilities-toolkit/patch-post-content',
 			'npcink-abilities-toolkit/update-post-blocks',
 			'npcink-abilities-toolkit/update-template-blocks',
+			'npcink-abilities-toolkit/upsert-template-blocks',
 			'npcink-abilities-toolkit/update-template-part-blocks',
 			'npcink-abilities-toolkit/set-post-slug',
 		'npcink-abilities-toolkit/set-post-author',

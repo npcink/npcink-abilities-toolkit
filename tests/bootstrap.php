@@ -314,6 +314,19 @@ if ( ! function_exists( 'wp_update_post' ) ) {
 	}
 }
 
+if ( ! function_exists( 'taxonomy_exists' ) ) {
+	function taxonomy_exists( $taxonomy ) {
+		return in_array( (string) $taxonomy, array( 'category', 'post_tag', 'wp_theme' ), true );
+	}
+}
+
+if ( ! function_exists( 'wp_set_post_terms' ) ) {
+	function wp_set_post_terms( $post_id, $terms, $taxonomy ) {
+		unset( $post_id, $terms );
+		return taxonomy_exists( $taxonomy ) ? array() : new WP_Error( 'invalid_taxonomy', 'Invalid taxonomy.' );
+	}
+}
+
 if ( ! function_exists( 'update_post_meta' ) ) {
 	function update_post_meta( $post_id, $meta_key, $meta_value ) {
 		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) ) {
@@ -483,6 +496,62 @@ if ( ! function_exists( 'get_posts' ) ) {
 		}
 		$limit = isset( $args['posts_per_page'] ) ? max( 1, (int) $args['posts_per_page'] ) : count( $posts );
 		return array_slice( $posts, 0, $limit );
+	}
+}
+
+if ( ! function_exists( 'get_block_templates' ) ) {
+	function get_block_templates( $query = array(), $template_type = 'wp_template' ) {
+		$query         = is_array( $query ) ? $query : array();
+		$template_type = (string) $template_type;
+		$slugs         = isset( $query['slug__in'] ) && is_array( $query['slug__in'] )
+			? array_values( array_map( 'sanitize_key', $query['slug__in'] ) )
+			: array();
+		$theme         = (string) ( $GLOBALS['npcink_abilities_toolkit_unit_active_theme']['stylesheet'] ?? 'unit-block-theme' );
+		$templates     = array();
+		foreach ( get_posts( array( 'post_type' => $template_type, 'posts_per_page' => 50 ) ) as $post ) {
+			$slug = (string) ( $post->post_name ?? '' );
+			if ( false !== strpos( $slug, '//' ) ) {
+				$parts = explode( '//', $slug );
+				$slug  = (string) end( $parts );
+			}
+			$slug = sanitize_key( $slug );
+			if ( ! empty( $slugs ) && ! in_array( $slug, $slugs, true ) ) {
+				continue;
+			}
+			$templates[] = (object) array(
+				'id'      => $theme . '//' . $slug,
+				'theme'   => $theme,
+				'slug'    => $slug,
+				'source'  => 'custom',
+				'type'    => $template_type,
+				'wp_id'   => (int) ( $post->ID ?? 0 ),
+				'title'   => (string) ( $post->post_title ?? $slug ),
+				'content' => (string) ( $post->post_content ?? '' ),
+			);
+		}
+		$file_templates = isset( $GLOBALS['npcink_abilities_toolkit_unit_file_templates'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_file_templates'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_file_templates']
+			: array();
+		foreach ( $file_templates as $template ) {
+			if ( ! is_array( $template ) || $template_type !== (string) ( $template['type'] ?? 'wp_template' ) ) {
+				continue;
+			}
+			$slug = sanitize_key( (string) ( $template['slug'] ?? '' ) );
+			if ( '' === $slug || ( ! empty( $slugs ) && ! in_array( $slug, $slugs, true ) ) ) {
+				continue;
+			}
+			$templates[] = (object) array(
+				'id'      => (string) ( $template['id'] ?? $theme . '//' . $slug ),
+				'theme'   => (string) ( $template['theme'] ?? $theme ),
+				'slug'    => $slug,
+				'source'  => (string) ( $template['source'] ?? 'theme' ),
+				'type'    => $template_type,
+				'wp_id'   => (int) ( $template['wp_id'] ?? 0 ),
+				'title'   => (string) ( $template['title'] ?? $slug ),
+				'content' => (string) ( $template['content'] ?? '' ),
+			);
+		}
+		return $templates;
 	}
 }
 
