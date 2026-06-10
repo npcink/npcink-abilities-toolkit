@@ -689,6 +689,8 @@ final class Core_Write_Package {
 						'replace_original'    => array( 'type' => 'boolean' ),
 						'source'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'derivative'          => array( 'type' => 'object', 'additionalProperties' => true ),
+						'derivative_url'      => array( 'type' => 'string' ),
+						'derivative_relative_file' => array( 'type' => 'string' ),
 						'derivatives'         => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
 						'edit_link'           => array( 'type' => 'string' ),
 						'preview'             => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -2273,6 +2275,8 @@ final class Core_Write_Package {
 
 		$payload['optimized'] = true;
 		$payload['derivative'] = $result;
+		$payload['derivative_url'] = esc_url_raw( (string) ( $result['url'] ?? '' ) );
+		$payload['derivative_relative_file'] = sanitize_text_field( (string) ( $result['relative_file'] ?? '' ) );
 		$payload['derivatives'] = $derivatives;
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );

@@ -2733,6 +2733,223 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Builds one proposal-ready plan for importing, optimizing, and optionally repairing page media references.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_adoption_enhancement_plan( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to build media adoption enhancement plans.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$url = esc_url_raw( (string) ( $input['url'] ?? '' ) );
+		if ( '' === $url ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_required', __( 'Media URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( function_exists( 'wp_http_validate_url' ) && ! wp_http_validate_url( $url ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_url_blocked', __( 'Media URL is not allowed.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$post_id = $this->absint_value( $input['post_id'] ?? 0 );
+		if ( $post_id > 0 && ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to repair media references for this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+		$attach_to_post_id = $this->absint_value( $input['attach_to_post_id'] ?? $post_id );
+		if ( $attach_to_post_id > 0 && ! current_user_can( 'edit_post', $attach_to_post_id ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to attach media to this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$file_name = $this->normalize_media_optimization_file_name( (string) ( $input['file_name'] ?? '' ) );
+		if ( is_wp_error( $file_name ) ) {
+			return $file_name;
+		}
+		$preferred_format = sanitize_key( (string) ( $input['preferred_format'] ?? 'webp' ) );
+		if ( ! in_array( $preferred_format, array( 'webp', 'jpeg', 'png' ), true ) ) {
+			$preferred_format = 'webp';
+		}
+		$target_max_width = max( 320, min( 7680, $this->absint_value( $input['target_max_width'] ?? 1920 ) ) );
+		$quality = max( 1, min( 100, $this->absint_value( $input['quality'] ?? 82 ) ) );
+		$derivative_suffix = sanitize_key( (string) ( $input['derivative_suffix'] ?? 'optimized' ) );
+		if ( '' === $derivative_suffix ) {
+			$derivative_suffix = 'optimized';
+		}
+
+		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
+		$alt = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
+		$caption = sanitize_textarea_field( (string) ( $input['caption'] ?? '' ) );
+		$description = sanitize_textarea_field( (string) ( $input['description'] ?? '' ) );
+		$source_metadata = $this->media_source_metadata_with_defaults(
+			array(
+				'source_type'       => $this->normalize_media_source_type( $input['source_type'] ?? 'external', 'external' ),
+				'source_page_url'   => $this->esc_url_value( (string) ( $input['source_page_url'] ?? $url ) ),
+				'photographer_name' => sanitize_text_field( (string) ( $input['photographer_name'] ?? '' ) ),
+				'attribution_text'  => sanitize_textarea_field( (string) ( $input['attribution_text'] ?? '' ) ),
+				'copyright_notice'  => sanitize_textarea_field( (string) ( $input['copyright_notice'] ?? '' ) ),
+			)
+		);
+
+		$batch_seed = wp_json_encode( array( $url, $post_id, $attach_to_post_id, $file_name, $preferred_format, $target_max_width, $quality ) );
+		$batch_id = 'media_adoption_enhancement_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $url ), 0, 12 );
+		$upload_action_id = 'upload-media-asset';
+		$optimize_action_id = 'optimize-media-asset';
+
+		$upload_input = array(
+			'url'               => $url,
+			'title'             => $title,
+			'file_name'         => $file_name,
+			'alt'               => $alt,
+			'caption'           => $caption,
+			'description'       => $description,
+			'source_type'       => $source_metadata['source_type'],
+			'source_page_url'   => $source_metadata['source_page_url'],
+			'photographer_name' => $source_metadata['photographer_name'],
+			'attribution_text'  => $source_metadata['attribution_text'],
+			'copyright_notice'  => $source_metadata['copyright_notice'],
+			'dry_run'           => true,
+			'commit'            => false,
+		);
+		if ( $attach_to_post_id > 0 ) {
+			$upload_input['attach_to_post_id'] = $attach_to_post_id;
+		}
+
+		$actions = array(
+			array(
+				'action_id'         => $upload_action_id,
+				'target_ability_id' => 'npcink-abilities-toolkit/upload-media-from-url',
+				'depends_on'        => array(),
+				'input'             => $upload_input,
+				'requires_approval' => true,
+				'commit_execution'  => false,
+				'proposal_ready'    => true,
+				'reason'            => __( 'Import the reviewed remote media asset into the local WordPress media library.', 'npcink-abilities-toolkit' ),
+			),
+			array(
+				'action_id'         => $optimize_action_id,
+				'target_ability_id' => 'npcink-abilities-toolkit/optimize-media-asset',
+				'depends_on'        => array( $upload_action_id ),
+				'input'             => array(
+					'attachment_id'     => '$outputs.' . $upload_action_id . '.attachment_id',
+					'target_max_width'  => $target_max_width,
+					'preferred_format'  => $preferred_format,
+					'quality'           => $quality,
+					'derivative_suffix' => $derivative_suffix,
+					'dry_run'           => true,
+					'commit'            => false,
+				),
+				'requires_approval' => true,
+				'commit_execution'  => false,
+				'proposal_ready'    => true,
+				'reason'            => __( 'Generate an optimized derivative while preserving the imported original media file.', 'npcink-abilities-toolkit' ),
+			),
+		);
+
+		$manual_review = array();
+		$reference_preview = array();
+		$old_url = esc_url_raw( (string) ( $input['old_url'] ?? '' ) );
+		$include_reference_repair = ! array_key_exists( 'include_reference_repair', $input ) || ! empty( $input['include_reference_repair'] );
+		if ( $include_reference_repair && $post_id > 0 && '' !== $old_url ) {
+			$post = get_post( $post_id );
+			$content = is_object( $post ) ? (string) ( $post->post_content ?? '' ) : '';
+			$old_url_count = '' !== $content ? substr_count( $content, $old_url ) : 0;
+			if ( $old_url_count > 0 ) {
+				$max_replacements = max( 1, min( 20, $this->absint_value( $input['max_replacements_per_post'] ?? 20 ) ) );
+				$actions[] = array(
+					'action_id'         => 'repair-post-media-reference',
+					'target_ability_id' => 'npcink-abilities-toolkit/patch-post-content',
+					'depends_on'        => array( $optimize_action_id ),
+					'input'             => array(
+						'post_id'    => $post_id,
+						'operations' => array(
+							array(
+								'op'      => 'replace',
+								'find'    => $old_url,
+								'replace' => '$outputs.' . $optimize_action_id . '.derivative_url',
+								'limit'   => min( $max_replacements, $old_url_count ),
+							),
+						),
+						'dry_run'    => true,
+						'commit'     => false,
+					),
+					'requires_approval' => true,
+					'commit_execution'  => false,
+					'proposal_ready'    => true,
+					'reason'            => __( 'Replace reviewed hard-coded post media URLs with the optimized derivative URL after approval.', 'npcink-abilities-toolkit' ),
+				);
+				$reference_preview[] = array(
+					'post_id'       => $post_id,
+					'old_url'       => $old_url,
+					'new_url_ref'   => '$outputs.' . $optimize_action_id . '.derivative_url',
+					'match_count'   => $old_url_count,
+					'planned_limit' => min( $max_replacements, $old_url_count ),
+				);
+			} else {
+				$manual_review[] = array(
+					'post_id' => $post_id,
+					'reason'  => 'old_url_not_found_in_post_content',
+					'old_url' => $old_url,
+				);
+			}
+		}
+
+		$data = array(
+			'artifact_type'          => 'media_adoption_enhancement_plan',
+			'plan_contract_version'  => '1.0',
+			'batch_id'               => $batch_id,
+			'proposal_mode'          => 'batch',
+			'batch_approval'         => true,
+			'requires_approval'      => true,
+			'commit_execution'       => false,
+			'dry_run'                => true,
+			'direct_wordpress_write' => false,
+			'action_count'           => count( $actions ),
+			'write_actions'          => $actions,
+			'media'                  => array(
+				'url'               => $url,
+				'file_name'         => $file_name,
+				'title'             => $title,
+				'alt'               => $alt,
+				'source_type'       => $source_metadata['source_type'],
+				'attach_to_post_id' => $attach_to_post_id,
+			),
+			'optimization'           => array(
+				'preferred_format'  => $preferred_format,
+				'target_max_width'  => $target_max_width,
+				'quality'           => $quality,
+				'derivative_suffix' => $derivative_suffix,
+			),
+			'reference_repair'       => array(
+				'enabled' => $include_reference_repair,
+				'post_id' => $post_id,
+				'old_url' => $old_url,
+				'preview' => $reference_preview,
+			),
+			'manual_review'          => $manual_review,
+			'proposal_ready'         => true,
+			'handoff'                => array(
+				'plan_ability_id'      => 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan',
+				'preferred_core_route' => 'POST /proposals/from-plan',
+			),
+			'risk'                   => array(
+				'level'  => ! empty( $manual_review ) ? 'medium' : 'low',
+				'reason' => ! empty( $manual_review ) ? 'The media can be imported and optimized, but one requested reference repair needs review.' : 'All planned writes are explicit governed media or exact post-content actions.',
+			),
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_media_adoption_enhancement_plan',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+				'readonly'       => true,
+			),
+			'Media adoption enhancement plan built.'
+		);
+	}
+
+	/**
 	 * Builds a governed settings patch plan for hard-coded media URLs.
 	 *
 	 * @param mixed $input Input args.

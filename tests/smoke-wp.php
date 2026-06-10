@@ -432,10 +432,10 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-		foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
-			npcink_abilities_toolkit_smoke_assert(
-				! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
-				"Light profile disables optional ability {$disabled_ability_id}."
+	foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
+		npcink_abilities_toolkit_smoke_assert(
+			! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
+			"Light profile disables optional ability {$disabled_ability_id}."
 		);
 	}
 
@@ -444,10 +444,10 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 }
 foreach (
 	array(
-			'npcink-abilities-toolkit/site-info',
-			'npcink-abilities-toolkit/list-workflow-recipes',
-			'npcink-abilities-toolkit/get-workflow-recipe',
-			'npcink-abilities-toolkit/list-post-types',
+		'npcink-abilities-toolkit/site-info',
+		'npcink-abilities-toolkit/list-workflow-recipes',
+		'npcink-abilities-toolkit/get-workflow-recipe',
+		'npcink-abilities-toolkit/list-post-types',
 		'npcink-abilities-toolkit/list-taxonomies',
 		'npcink-abilities-toolkit/count-posts',
 		'npcink-abilities-toolkit/list-pages-tree',
@@ -467,13 +467,14 @@ foreach (
 		'npcink-abilities-toolkit/get-content-refresh-opportunities',
 		'npcink-abilities-toolkit/get-old-article-refresh-context',
 		'npcink-abilities-toolkit/get-internal-link-graph-health',
-			'npcink-abilities-toolkit/get-media-cleanup-opportunities',
-			'npcink-abilities-toolkit/list-media-backups',
-			'npcink-abilities-toolkit/build-media-inventory-fix-plan',
-			'npcink-abilities-toolkit/build-media-reference-repair-plan',
-			'npcink-abilities-toolkit/build-media-settings-reference-repair-plan',
-			'npcink-abilities-toolkit/build-media-rename-plan',
-			'npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions',
+		'npcink-abilities-toolkit/get-media-cleanup-opportunities',
+		'npcink-abilities-toolkit/list-media-backups',
+		'npcink-abilities-toolkit/build-media-inventory-fix-plan',
+		'npcink-abilities-toolkit/build-media-reference-repair-plan',
+		'npcink-abilities-toolkit/build-media-adoption-enhancement-plan',
+		'npcink-abilities-toolkit/build-media-settings-reference-repair-plan',
+		'npcink-abilities-toolkit/build-media-rename-plan',
+		'npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions',
 		'npcink-abilities-toolkit/propose-post-taxonomy-terms',
 		'npcink-abilities-toolkit/get-page-structure-health',
 		'npcink-abilities-toolkit/get-seo-geo-gap-report',

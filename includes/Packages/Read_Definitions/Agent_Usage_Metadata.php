@@ -128,6 +128,12 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Preparing one Core batch proposal for the user intent "optimize this media item" with metadata and derivative adoption actions.' ),
 				'stopping_points' => array( 'Stop at proposal-ready write_actions; Core/host owns proposal creation, approval, commit-preflight, audit, and final execution.' ),
 			),
+			'npcink-abilities-toolkit/build-media-adoption-enhancement-plan' => array(
+				'when_to_use'     => array( 'Turn one reviewed remote image URL into a proposal-ready import, local optimized derivative, and optional exact post-content media reference repair plan.' ),
+				'not_for'         => array( 'Do not use this to search for images, generate images, approve proposals, download files immediately, or mutate WordPress.' ),
+				'best_for'        => array( 'OpenClaw page-building flows that already selected a visual asset and need one Core batch proposal for local adoption, WebP-style optimization, and page URL repair.' ),
+				'stopping_points' => array( 'Stop at proposal-ready write_actions; final media import, derivative generation, and post-content patching require Core/host approval plus commit-preflight.' ),
+			),
 				'npcink-abilities-toolkit/build-media-rename-plan' => array(
 					'when_to_use'     => array( 'Turn a reviewed target media basename into proposal-ready rename-media-file plus exact post-content reference patch actions.' ),
 					'not_for'         => array( 'Do not use this to choose naming policy, compute generated names without caller intent, mutate WordPress, or move files between directories.' ),

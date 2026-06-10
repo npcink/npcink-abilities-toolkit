@@ -121,9 +121,13 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Npcink AI parent slug' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const PARENT_MENU_SLUG    = 'npcink-ai';" ), 'admin test page targets the shared Npcink AI parent menu.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes a Settings shortcut when the admin page is enabled.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'Settings', 'npcink-abilities-toolkit' )" ), 'plugin screen Settings shortcut uses the plugin text domain.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen Settings shortcut targets the registered menu page or standalone Tools fallback.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook_suffixes' ), 'admin test page stores real WordPress hook suffixes for asset loading.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Open Catalog' ) && false !== strpos( $admin_test_page, 'Open REST Checks' ), 'admin overview links post-install users to catalog and REST checks.' );
@@ -913,8 +917,9 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/get-internal-link-graph-health',
 			'npcink-abilities-toolkit/get-media-cleanup-opportunities',
 			'npcink-abilities-toolkit/list-media-backups',
-			'npcink-abilities-toolkit/build-media-inventory-fix-plan',
+		'npcink-abilities-toolkit/build-media-inventory-fix-plan',
 		'npcink-abilities-toolkit/build-media-reference-repair-plan',
+		'npcink-abilities-toolkit/build-media-adoption-enhancement-plan',
 		'npcink-abilities-toolkit/build-media-settings-reference-repair-plan',
 		'npcink-abilities-toolkit/build-media-optimization-plan',
 		'npcink-abilities-toolkit/build-media-rename-plan',
@@ -1120,6 +1125,7 @@ npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['include_trash_parent_media']['default'] ?? null, 'media inventory fix plan keeps trash-parent delete opt-in disabled by default' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['input_schema']['properties']['include_unattached_nonproduction_media']['default'] ?? null, 'media inventory fix plan keeps parentless nonproduction-media delete opt-in disabled by default' );
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['required_scopes'] ?? array(), 'media inventory fix plan remains a read-scope planning ability' );
+npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media adoption enhancement plan is classified as media governance' );
 npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['agent_usage']['when_to_use'] ), 'media inventory fix plan exposes agent usage guidance' );
 npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['agent_usage']['stopping_points'] ), 'media inventory fix plan exposes agent stopping points' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan'] ), 'build-media-optimization-plan is registered as a read-only planning ability' );
@@ -1141,6 +1147,7 @@ npcink_abilities_toolkit_assert_same( 'external', $package_abilities['npcink-abi
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/upload-media-from-url']['input_schema']['properties']['file_name'] ), 'upload-media-from-url accepts an approved custom media file name' );
 npcink_abilities_toolkit_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'optimize-media-asset exposes bounded derivative formats' );
 npcink_abilities_toolkit_assert_same( 82, $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['output_schema']['properties']['derivative_url'] ), 'optimize-media-asset exposes a top-level derivative_url for batch output references' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['input_schema']['properties']['mode'] ), 'replace-media-file does not expose media restore modes' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-backup', $package_abilities['npcink-abilities-toolkit/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Npcink backup suffix' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['output_schema']['properties']['content_reference_repairs'] ), 'replace-media-file exposes post content reference repair preview evidence' );
@@ -1166,6 +1173,12 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'derivative_artifact' ), $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['required'] ?? array(), 'adopt-cloud-media-derivative requires attachment and artifact evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-reference-repair-plan'] ), 'build-media-reference-repair-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/build-media-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-reference-repair-plan requires attachment id' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan'] ), 'build-media-adoption-enhancement-plan is registered as a read-only planning ability' );
+npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['required_scopes'] ?? array(), 'media adoption enhancement plan reads media and post references' );
+npcink_abilities_toolkit_assert_same( array( 'url' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['required'] ?? array(), 'media adoption enhancement plan requires a reviewed remote URL' );
+npcink_abilities_toolkit_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media adoption enhancement plan exposes bounded local derivative formats' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['commit'] ), 'media adoption enhancement plan does not expose a commit control' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['dry_run'] ), 'media adoption enhancement plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan'] ), 'build-media-settings-reference-repair-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-settings-reference-repair-plan requires attachment id' );
 npcink_abilities_toolkit_assert_same( array( 'svg', 'gif', 'ico', 'pdf' ), $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan']['input_schema']['properties']['excluded_formats']['default'] ?? array(), 'media settings reference repair defaults excluded formats' );
@@ -3356,6 +3369,49 @@ npcink_abilities_toolkit_assert_same( 'replace', $media_reference_repair_plan['d
 npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $media_reference_repair_plan['data']['write_actions'][0]['input']['operations'][0]['find'] ?? '' ), 'workflow-diagram-image.jpg' ), 'media reference repair action finds old media URL' );
 npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $media_reference_repair_plan['data']['write_actions'][0]['input']['operations'][0]['replace'] ?? '' ), 'workflow-diagram-image-optimized.webp' ), 'media reference repair action replaces with new media URL' );
 npcink_abilities_toolkit_assert_same( 'old_sized_variant_reference_detected', $media_reference_repair_plan['data']['manual_review'][0]['reason'] ?? '', 'media reference repair plan sends old size variants to manual review' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][82] = (object) array(
+	'ID'           => 82,
+	'post_title'   => 'Media Adoption Enhancement Candidate',
+	'post_status'  => 'draft',
+	'post_type'    => 'page',
+	'post_excerpt' => '',
+	'post_content' => '<!-- wp:media-text {"mediaUrl":"https://example.test/wp-content/uploads/2026/06/raw-dashboard.png"} --><div><img src="https://example.test/wp-content/uploads/2026/06/raw-dashboard.png" /></div><!-- /wp:media-text -->',
+	'post_name'    => 'media-adoption-enhancement-candidate',
+	'post_author'  => 7,
+);
+$media_adoption_enhancement_plan = $core_read_package->build_media_adoption_enhancement_plan(
+	array(
+		'url'               => 'https://cdn.example.test/generated/raw-dashboard.png',
+		'post_id'           => 82,
+		'old_url'           => 'https://example.test/wp-content/uploads/2026/06/raw-dashboard.png',
+		'file_name'         => 'raw-dashboard.png',
+		'title'             => 'Dashboard visual',
+		'alt'               => 'Dashboard visual showing proposal approval.',
+		'description'       => 'Reviewed page visual.',
+		'source_type'       => 'ai_generated',
+		'preferred_format'  => 'webp',
+		'target_max_width'  => 1024,
+		'quality'           => 82,
+		'derivative_suffix' => 'optimized',
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $media_adoption_enhancement_plan['success'] ?? null, 'build-media-adoption-enhancement-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'media_adoption_enhancement_plan', $media_adoption_enhancement_plan['data']['artifact_type'] ?? '', 'media adoption enhancement plan declares artifact type' );
+npcink_abilities_toolkit_assert_same( 'batch', $media_adoption_enhancement_plan['data']['proposal_mode'] ?? '', 'media adoption enhancement plan requests batch proposal mode' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_enhancement_plan['data']['direct_wordpress_write'] ?? null, 'media adoption enhancement plan does not directly write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_enhancement_plan['data']['commit_execution'] ?? null, 'media adoption enhancement plan keeps commit execution disabled' );
+npcink_abilities_toolkit_assert_same( true, $media_adoption_enhancement_plan['meta']['readonly'] ?? null, 'media adoption enhancement plan remains read-only' );
+$media_adoption_actions = (array) ( $media_adoption_enhancement_plan['data']['write_actions'] ?? array() );
+npcink_abilities_toolkit_assert_same( 3, count( $media_adoption_actions ), 'media adoption enhancement plan emits upload, optimize, and patch actions when old URL is present' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/upload-media-from-url', $media_adoption_actions[0]['target_ability_id'] ?? '', 'media adoption enhancement plan starts with media upload' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/optimize-media-asset', $media_adoption_actions[1]['target_ability_id'] ?? '', 'media adoption enhancement plan optimizes the uploaded media' );
+npcink_abilities_toolkit_assert_same( '$outputs.upload-media-asset.attachment_id', $media_adoption_actions[1]['input']['attachment_id'] ?? '', 'media adoption enhancement plan optimizes the uploaded attachment output' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/patch-post-content', $media_adoption_actions[2]['target_ability_id'] ?? '', 'media adoption enhancement plan patches reviewed page references' );
+npcink_abilities_toolkit_assert_same( array( 'optimize-media-asset' ), $media_adoption_actions[2]['depends_on'] ?? array(), 'media adoption enhancement patch waits for optimized derivative output' );
+npcink_abilities_toolkit_assert_same( '$outputs.optimize-media-asset.derivative_url', $media_adoption_actions[2]['input']['operations'][0]['replace'] ?? '', 'media adoption enhancement patch uses a whole-field derivative URL output reference' );
+npcink_abilities_toolkit_assert_same( 2, $media_adoption_actions[2]['input']['operations'][0]['limit'] ?? 0, 'media adoption enhancement patch limits replacements to reviewed matches' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', $media_adoption_enhancement_plan['data']['handoff']['plan_ability_id'] ?? '', 'media adoption enhancement plan identifies itself for Core from-plan intake' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][82] );
 $GLOBALS['npcink_abilities_toolkit_unit_options']['theme_builder_media_setting'] = array(
 	'hero' => array(
 		'image' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
