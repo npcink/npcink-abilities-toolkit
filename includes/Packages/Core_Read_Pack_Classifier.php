@@ -66,6 +66,7 @@ final class Core_Read_Pack_Classifier {
 					'npcink-abilities-toolkit/get-template-part-blocks'                 => 'page_governance',
 					'npcink-abilities-toolkit/build-block-theme-site-plan'              => 'page_governance',
 					'npcink-abilities-toolkit/build-pattern-page-plan'                 => 'page_governance',
+					'npcink-abilities-toolkit/review-pattern-page'                     => 'page_governance',
 			'npcink-abilities-toolkit/build-article-block-plan'                => 'article_workflow_context',
 			'npcink-abilities-toolkit/list-users'                              => 'core_wordpress_read',
 			'npcink-abilities-toolkit/list-comments'                           => 'comment_workflow_context',

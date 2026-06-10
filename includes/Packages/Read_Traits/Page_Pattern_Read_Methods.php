@@ -151,6 +151,126 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Reviews an existing or proposed pattern page block tree.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function review_pattern_page( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review page patterns.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$post_id        = absint( $input['post_id'] ?? 0 );
+		$blocks         = array();
+		$content_length = 0;
+		$source         = 'blocks_input';
+		$post_context   = array();
+
+		if ( $post_id > 0 ) {
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $post_id ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$content        = (string) ( $post->post_content ?? '' );
+			$content_length = strlen( $content );
+			$parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+			$blocks         = $this->pattern_review_normalize_blocks( is_array( $parsed_blocks ) ? $parsed_blocks : array() );
+			if ( empty( $blocks ) && '' !== trim( $content ) ) {
+				$blocks[] = array(
+					'blockName'    => 'core/freeform',
+					'attrs'        => array(),
+					'innerHTML'    => $content,
+					'innerContent' => array( $content ),
+					'innerBlocks'  => array(),
+				);
+			}
+			$source       = 'post_content';
+			$post_context = array(
+				'post_id'   => $post_id,
+				'post_type' => sanitize_key( (string) ( $post->post_type ?? '' ) ),
+				'status'    => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+			);
+		} elseif ( is_array( $input['blocks'] ?? null ) ) {
+			$blocks = $this->pattern_review_normalize_blocks( $input['blocks'] );
+		} else {
+			return new \WP_Error( 'npcink_abilities_toolkit_pattern_review_input_missing', __( 'Provide either post_id or blocks to review a pattern page.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$metrics            = $this->pattern_review_metrics( $blocks );
+		$design_quality     = array_merge(
+			$this->pattern_design_quality_summary( $blocks ),
+			array(
+				'section_shape_variety' => $metrics['section_shape_variety'],
+				'visual_asset_count'    => $metrics['visual_asset_count'],
+				'native_style_density'  => $metrics['native_style_density'],
+				'text_heaviness_score'  => $metrics['text_heaviness_score'],
+			)
+		);
+		$responsive_quality = array_merge(
+			$this->pattern_responsive_quality_summary( $blocks, 'landing_standard' ),
+			array(
+				'responsive_risk_level' => $this->pattern_review_responsive_risk_level( $blocks, $metrics ),
+			)
+		);
+		$media_quality      = array(
+			'visual_asset_count'      => $metrics['visual_asset_count'],
+			'image_block_count'       => $metrics['image_block_count'],
+			'media_text_block_count'  => $metrics['media_text_block_count'],
+			'image_alt_missing_count' => $metrics['image_alt_missing_count'],
+			'image_alt_complete'      => 0 === (int) $metrics['image_alt_missing_count'],
+		);
+		$content_quality    = array(
+			'heading_count'         => $metrics['heading_count'],
+			'paragraph_count'       => $metrics['paragraph_count'],
+			'button_count'          => $metrics['button_count'],
+			'cta_count'             => $metrics['button_count'],
+			'text_heaviness_score'  => $metrics['text_heaviness_score'],
+			'native_style_density'  => $metrics['native_style_density'],
+			'class_dependency_ratio' => $metrics['class_dependency_ratio'],
+		);
+		$risk_review        = $this->pattern_review_editor_risk( $metrics );
+		$findings           = $this->pattern_review_findings( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
+		$score              = $this->pattern_review_score( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
+		$review_status      = $score >= 80 && 'high' !== $risk_review['invalid_block_risk_level'] ? 'pass' : 'needs_revision';
+
+		return $this->build_analysis_success_response(
+			array(
+				'artifact_type'          => 'pattern_page_review',
+				'version'                => 1,
+				'source'                 => $source,
+				'post'                   => $post_context,
+				'block_count'            => $metrics['block_count'],
+				'top_level_count'        => $metrics['top_level_count'],
+				'content_length'         => $content_length,
+				'review_status'          => $review_status,
+				'score'                  => $score,
+				'direct_wordpress_write' => false,
+				'commit_execution'       => false,
+				'server_side_review_only' => true,
+				'editor_validation_note' => 'Server-side review checks structure, native attrs, media, and responsive signals; Gutenberg editor save() validation still requires opening the editor.',
+				'design_quality'         => $design_quality,
+				'responsive_quality'     => $responsive_quality,
+				'media_quality'          => $media_quality,
+				'content_quality'        => $content_quality,
+				'editor_risk'            => $risk_review,
+				'findings'               => ! array_key_exists( 'include_findings', $input ) || ! empty( $input['include_findings'] ) ? $findings : array(),
+				'next_actions'           => $this->pattern_review_next_actions( $review_status, $findings ),
+			),
+			array(
+				'source'         => 'local_pattern_page_review',
+				'execution_mode' => 'deterministic_readonly',
+			),
+			'Pattern page review built.'
+		);
+	}
+
+	/**
 	 * Returns media slot requirements for clients composing visual assets.
 	 *
 	 * @param array<string,mixed> $variables Pattern variables.
@@ -1867,6 +1987,355 @@ trait Page_Pattern_Read_Methods {
 			'button_groups_use_flex_layout' => $this->pattern_button_groups_use_flex_layout( $blocks ),
 			'custom_css_required'          => false,
 		);
+	}
+
+	/**
+	 * Normalizes block rows for pattern review without mutating content.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function pattern_review_normalize_blocks( array $blocks ) {
+		$normalized = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$normalized[] = array(
+				'blockName'    => sanitize_text_field( (string) ( $block['blockName'] ?? '' ) ),
+				'attrs'        => is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array(),
+				'innerHTML'    => (string) ( $block['innerHTML'] ?? '' ),
+				'innerContent' => is_array( $block['innerContent'] ?? null ) ? $block['innerContent'] : array(),
+				'innerBlocks'  => $this->pattern_review_normalize_blocks( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() ),
+				'_hasInnerContent' => array_key_exists( 'innerContent', $block ),
+			);
+		}
+		return $normalized;
+	}
+
+	/**
+	 * Collects bounded deterministic pattern review metrics.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_review_metrics( array $blocks ) {
+		$metrics = array(
+			'top_level_count'        => count( $blocks ),
+			'block_count'            => 0,
+			'block_names'            => array(),
+			'heading_count'          => 0,
+			'paragraph_count'        => 0,
+			'button_count'           => 0,
+			'image_block_count'      => 0,
+			'media_text_block_count' => 0,
+			'visual_asset_count'     => 0,
+			'image_alt_missing_count' => 0,
+			'native_style_block_count' => 0,
+			'class_name_block_count' => 0,
+			'empty_block_name_count' => 0,
+			'unknown_block_count'    => 0,
+			'custom_html_block_count' => 0,
+			'freeform_block_count'   => 0,
+			'missing_inner_content_count' => 0,
+			'section_shape_variety'  => $this->pattern_review_section_shape_variety( $blocks ),
+			'native_style_density'   => 0,
+			'class_dependency_ratio' => 0,
+			'text_heaviness_score'   => 0,
+		);
+		$this->pattern_review_metrics_walk( $blocks, $metrics );
+
+		$block_count = max( 1, (int) $metrics['block_count'] );
+		$text_count  = (int) $metrics['heading_count'] + (int) $metrics['paragraph_count'];
+		$visual_count = max( 0, (int) $metrics['visual_asset_count'] );
+
+		$metrics['native_style_density']   = (int) round( ( (int) $metrics['native_style_block_count'] / $block_count ) * 100 );
+		$metrics['class_dependency_ratio'] = (int) round( ( (int) $metrics['class_name_block_count'] / $block_count ) * 100 );
+		$metrics['text_heaviness_score']   = min( 100, max( 0, (int) round( ( $text_count - ( $visual_count * 4 ) - (int) $metrics['button_count'] ) * 2 ) ) );
+		ksort( $metrics['block_names'] );
+
+		return $metrics;
+	}
+
+	/**
+	 * Walks blocks and updates review metrics.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $metrics Metrics.
+	 * @return void
+	 */
+	private function pattern_review_metrics_walk( array $blocks, array &$metrics ) {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			++$metrics['block_count'];
+			$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? '' ) );
+			if ( '' === $block_name ) {
+				++$metrics['empty_block_name_count'];
+			} else {
+				$metrics['block_names'][ $block_name ] = (int) ( $metrics['block_names'][ $block_name ] ?? 0 ) + 1;
+				if ( 0 !== strpos( $block_name, 'core/' ) ) {
+					++$metrics['unknown_block_count'];
+				}
+			}
+
+			$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			if ( '' !== (string) ( $attrs['className'] ?? '' ) ) {
+				++$metrics['class_name_block_count'];
+			}
+			if ( $this->pattern_review_block_uses_native_attrs( $attrs ) ) {
+				++$metrics['native_style_block_count'];
+			}
+			if ( ! empty( $block['_hasInnerContent'] ) && empty( $block['innerContent'] ) && ! empty( $block['innerBlocks'] ) ) {
+				++$metrics['missing_inner_content_count'];
+			}
+
+			if ( 'core/heading' === $block_name ) {
+				++$metrics['heading_count'];
+			} elseif ( 'core/paragraph' === $block_name ) {
+				++$metrics['paragraph_count'];
+			} elseif ( 'core/button' === $block_name ) {
+				++$metrics['button_count'];
+			} elseif ( 'core/image' === $block_name ) {
+				++$metrics['image_block_count'];
+				++$metrics['visual_asset_count'];
+				if ( '' === trim( (string) ( $attrs['alt'] ?? '' ) ) ) {
+					++$metrics['image_alt_missing_count'];
+				}
+			} elseif ( 'core/media-text' === $block_name ) {
+				++$metrics['media_text_block_count'];
+				++$metrics['visual_asset_count'];
+				if ( '' === trim( (string) ( $attrs['mediaAlt'] ?? '' ) ) ) {
+					++$metrics['image_alt_missing_count'];
+				}
+			} elseif ( 'core/html' === $block_name ) {
+				++$metrics['custom_html_block_count'];
+			} elseif ( 'core/freeform' === $block_name ) {
+				++$metrics['freeform_block_count'];
+			}
+
+			$this->pattern_review_metrics_walk( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array(), $metrics );
+		}
+	}
+
+	/**
+	 * Returns whether a block uses Gutenberg native visual attrs.
+	 *
+	 * @param array<string,mixed> $attrs Block attrs.
+	 * @return bool
+	 */
+	private function pattern_review_block_uses_native_attrs( array $attrs ) {
+		return ! empty( $attrs['align'] ) || ! empty( $attrs['layout'] ) || ! empty( $attrs['style'] ) || ! empty( $attrs['backgroundColor'] ) || ! empty( $attrs['textColor'] ) || ! empty( $attrs['fontSize'] );
+	}
+
+	/**
+	 * Counts top-level section shape variety from class handles and child block names.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return int
+	 */
+	private function pattern_review_section_shape_variety( array $blocks ) {
+		$shapes = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$attrs       = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			$class_names = preg_split( '/\s+/', (string) ( $attrs['className'] ?? '' ) );
+			$first_class = is_array( $class_names ) && ! empty( $class_names[0] ) ? (string) $class_names[0] : '';
+			$child_names = array();
+			foreach ( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() as $inner_block ) {
+				if ( is_array( $inner_block ) ) {
+					$child_names[] = (string) ( $inner_block['blockName'] ?? '' );
+				}
+			}
+			$shapes[] = (string) ( $block['blockName'] ?? '' ) . ':' . $first_class . ':' . implode( ',', array_slice( $child_names, 0, 3 ) );
+		}
+		return count( array_unique( $shapes ) );
+	}
+
+	/**
+	 * Reviews editor invalid-block risk from server-observable signals.
+	 *
+	 * @param array<string,mixed> $metrics Metrics.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_review_editor_risk( array $metrics ) {
+		$level   = 'low';
+		$reasons = array();
+		if ( (int) $metrics['empty_block_name_count'] > 0 ) {
+			$level     = 'high';
+			$reasons[] = 'empty_block_name_detected';
+		}
+		if ( (int) $metrics['unknown_block_count'] > 0 ) {
+			$level     = 'high' === $level ? 'high' : 'medium';
+			$reasons[] = 'non_core_block_detected';
+		}
+		if ( (int) $metrics['custom_html_block_count'] > 0 || (int) $metrics['freeform_block_count'] > 0 ) {
+			$level     = 'high' === $level ? 'high' : 'medium';
+			$reasons[] = 'custom_html_or_freeform_detected';
+		}
+		if ( (int) $metrics['missing_inner_content_count'] > 0 ) {
+			$level     = 'high' === $level ? 'high' : 'medium';
+			$reasons[] = 'container_missing_inner_content_markers';
+		}
+		if ( empty( $reasons ) ) {
+			$reasons[] = 'server_observable_block_structure_clean';
+		}
+		return array(
+			'invalid_block_risk_level' => $level,
+			'risk_reasons'             => $reasons,
+			'server_side_only'         => true,
+			'editor_save_validation_required' => true,
+		);
+	}
+
+	/**
+	 * Returns responsive risk level from core responsive signals.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $metrics Metrics.
+	 * @return string
+	 */
+	private function pattern_review_responsive_risk_level( array $blocks, array $metrics ) {
+		if ( (int) $metrics['block_count'] <= 0 ) {
+			return 'high';
+		}
+		if ( $this->pattern_max_columns_per_row( $blocks ) > 4 ) {
+			return 'high';
+		}
+		if ( $this->pattern_has_block_name( $blocks, 'core/columns' ) && ! $this->pattern_all_columns_stack_on_mobile( $blocks ) ) {
+			return 'medium';
+		}
+		if ( ! $this->pattern_has_block_name( $blocks, 'core/columns' ) && ! $this->pattern_has_block_name( $blocks, 'core/media-text' ) ) {
+			return 'medium';
+		}
+		return 'low';
+	}
+
+	/**
+	 * Builds review findings.
+	 *
+	 * @param array<string,mixed> $design Design quality.
+	 * @param array<string,mixed> $responsive Responsive quality.
+	 * @param array<string,mixed> $media Media quality.
+	 * @param array<string,mixed> $content Content quality.
+	 * @param array<string,mixed> $risk Risk review.
+	 * @return array<int,array<string,string>>
+	 */
+	private function pattern_review_findings( array $design, array $responsive, array $media, array $content, array $risk ) {
+		$findings = array();
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_split_hero'] ), 'pass', 'split_hero_present', '页面包含 split hero 结构。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_hero_media'] ) || (int) $media['visual_asset_count'] > 0, 'medium', 'hero_media_missing', '页面缺少强视觉资产，建议补 reviewed media 或产品面板。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_bento_grid'] ), 'medium', 'bento_grid_missing', 'Feature 区仍偏普通网格，建议使用 Bento 或非重复 section 形态。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_comparison_section'] ), 'medium', 'comparison_missing', '页面缺少 proposal-first 对比区，说服力会偏弱。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_faq'] ), 'low', 'faq_missing', '页面缺少 FAQ，可编辑说明和异议处理不完整。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $design['has_final_cta'] ), 'medium', 'final_cta_missing', '页面缺少收束 CTA。' );
+		$this->pattern_review_add_finding( $findings, (int) $design['section_shape_variety'] >= 5, 'low', 'section_variety_low', 'Section 形态变化不足，页面容易显得模板化。' );
+		$this->pattern_review_add_finding( $findings, (int) $design['native_style_density'] >= 40, 'medium', 'native_style_density_low', '原生 Gutenberg style/layout attrs 使用不足，页面会过度依赖主题默认样式。' );
+		$this->pattern_review_add_finding( $findings, 'low' === (string) $responsive['responsive_risk_level'], 'medium', 'responsive_risk_detected', '响应式信号不足，请检查 columns 是否移动端堆叠、列数是否受控。' );
+		$this->pattern_review_add_finding( $findings, ! empty( $media['image_alt_complete'] ), 'medium', 'image_alt_missing', '存在图片或 media-text 缺少 alt 文本。' );
+		$this->pattern_review_add_finding( $findings, 'low' === (string) $risk['invalid_block_risk_level'], 'medium', 'editor_invalid_block_risk', '存在服务端可见的编辑器无效块风险信号。' );
+		if ( (int) $content['text_heaviness_score'] >= 70 ) {
+			$findings[] = array(
+				'severity' => 'info',
+				'code'     => 'text_heaviness_high',
+				'message'  => '页面文字密度偏高；可考虑增加截图、流程图或更强视觉节奏。',
+			);
+		}
+		return $findings;
+	}
+
+	/**
+	 * Adds a finding when a condition is not satisfied.
+	 *
+	 * @param array<int,array<string,string>> $findings Findings.
+	 * @param bool                            $condition Condition.
+	 * @param string                          $severity Severity.
+	 * @param string                          $code Code.
+	 * @param string                          $message Message.
+	 * @return void
+	 */
+	private function pattern_review_add_finding( array &$findings, $condition, $severity, $code, $message ) {
+		if ( $condition ) {
+			return;
+		}
+		$findings[] = array(
+			'severity' => sanitize_key( (string) $severity ),
+			'code'     => sanitize_key( (string) $code ),
+			'message'  => sanitize_text_field( (string) $message ),
+		);
+	}
+
+	/**
+	 * Scores pattern review signals.
+	 *
+	 * @param array<string,mixed> $design Design quality.
+	 * @param array<string,mixed> $responsive Responsive quality.
+	 * @param array<string,mixed> $media Media quality.
+	 * @param array<string,mixed> $content Content quality.
+	 * @param array<string,mixed> $risk Risk review.
+	 * @return int
+	 */
+	private function pattern_review_score( array $design, array $responsive, array $media, array $content, array $risk ) {
+		$score = 100;
+		foreach ( array( 'has_split_hero', 'has_bento_grid', 'has_comparison_section', 'has_faq', 'has_final_cta' ) as $signal ) {
+			if ( empty( $design[ $signal ] ) ) {
+				$score -= in_array( $signal, array( 'has_split_hero', 'has_comparison_section', 'has_final_cta' ), true ) ? 10 : 6;
+			}
+		}
+		if ( empty( $design['has_hero_media'] ) && (int) $media['visual_asset_count'] <= 0 ) {
+			$score -= 15;
+		}
+		if ( (int) $design['section_shape_variety'] < 5 ) {
+			$score -= 8;
+		}
+		if ( (int) $design['native_style_density'] < 40 ) {
+			$score -= 12;
+		}
+		if ( ! empty( $media['image_alt_missing_count'] ) ) {
+			$score -= 10;
+		}
+		if ( 'high' === (string) $responsive['responsive_risk_level'] ) {
+			$score -= 20;
+		} elseif ( 'medium' === (string) $responsive['responsive_risk_level'] ) {
+			$score -= 10;
+		}
+		if ( 'high' === (string) $risk['invalid_block_risk_level'] ) {
+			$score -= 30;
+		} elseif ( 'medium' === (string) $risk['invalid_block_risk_level'] ) {
+			$score -= 15;
+		}
+		if ( (int) $content['text_heaviness_score'] >= 85 ) {
+			$score -= 5;
+		}
+		return max( 0, min( 100, (int) $score ) );
+	}
+
+	/**
+	 * Returns recommended next actions.
+	 *
+	 * @param string                          $review_status Review status.
+	 * @param array<int,array<string,string>> $findings Findings.
+	 * @return string[]
+	 */
+	private function pattern_review_next_actions( $review_status, array $findings ) {
+		if ( 'pass' === $review_status ) {
+			return array( 'preview_page_in_editor', 'confirm_mobile_stack', 'reuse_pattern_or_submit_next_proposal' );
+		}
+		$actions = array( 'revise_pattern_page_plan' );
+		foreach ( $findings as $finding ) {
+			$code = (string) ( $finding['code'] ?? '' );
+			if ( 'hero_media_missing' === $code || 'image_alt_missing' === $code ) {
+				$actions[] = 'repair_media_inputs';
+			} elseif ( 'responsive_risk_detected' === $code ) {
+				$actions[] = 'review_responsive_columns';
+			} elseif ( 'editor_invalid_block_risk' === $code ) {
+				$actions[] = 'open_editor_and_rebuild_invalid_blocks';
+			}
+		}
+		return array_values( array_unique( $actions ) );
 	}
 
 	/**

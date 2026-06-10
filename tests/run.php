@@ -927,6 +927,7 @@ $migrated_read_ability_ids = array(
 		'npcink-abilities-toolkit/propose-post-taxonomy-terms',
 		'npcink-abilities-toolkit/get-page-structure-health',
 		'npcink-abilities-toolkit/build-pattern-page-plan',
+		'npcink-abilities-toolkit/review-pattern-page',
 	'npcink-abilities-toolkit/get-seo-geo-gap-report',
 	'npcink-abilities-toolkit/get-site-style-baseline',
 	'npcink-abilities-toolkit/build-article-workflow-context',
@@ -1148,6 +1149,10 @@ npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name'
 	npcink_abilities_toolkit_assert_same( array( 'balanced' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['visual_density']['enum'] ?? array(), 'pattern page plan exposes a bounded visual density' );
 	npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page'] ), 'review-pattern-page is registered as a read-only page quality review ability' );
+	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/review-pattern-page']['required_scopes'] ?? array(), 'pattern page review remains a read-scope ability' );
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['post_id'] ), 'pattern page review accepts a post id' );
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['blocks'] ), 'pattern page review accepts proposed blocks before write' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/get-block-theme-context'] ), 'get-block-theme-context is registered as a read-only Site Editor context ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/get-block-theme-context']['required_scopes'] ?? array(), 'block theme context remains a site read ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan'] ), 'build-block-theme-site-plan is registered as a read-only planning ability' );
@@ -1255,6 +1260,7 @@ npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['
 npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media inventory fix plan is classified as media governance' );
 npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page plan is classified as page governance' );
+	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/review-pattern-page']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page review is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'block theme site plan is classified as page governance' );
 npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
 	$expected_mcp_public_read_ability_ids = array(
@@ -1289,7 +1295,8 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[16] ?? '', 'core read definitions keep block theme context near page planning' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[19] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[20] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[21] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[21] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[22] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
@@ -4376,6 +4383,45 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
+$pattern_page_review = $core_read_package->review_pattern_page(
+	array(
+		'blocks' => $pattern_blocks,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['success'] ?? null, 'review-pattern-page returns a success envelope for proposed blocks' );
+npcink_abilities_toolkit_assert_same( 'pattern_page_review', $pattern_page_review['data']['artifact_type'] ?? '', 'review-pattern-page declares a pattern page review artifact' );
+npcink_abilities_toolkit_assert_same( 'blocks_input', $pattern_page_review['data']['source'] ?? '', 'review-pattern-page can review blocks before they are written' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_review['data']['direct_wordpress_write'] ?? null, 'review-pattern-page does not write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_review['data']['commit_execution'] ?? null, 'review-pattern-page keeps commit execution disabled' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['server_side_review_only'] ?? null, 'review-pattern-page identifies server-side review limits' );
+npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_review['data']['review_status'] ?? '', 'review-pattern-page passes the v3 native pattern blocks' );
+npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['score'] ?? 0 ) >= 80, 'review-pattern-page scores the v3 native pattern above the pass threshold' );
+npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['top_level_count'] ?? 0, 'review-pattern-page reports top-level sections' );
+npcink_abilities_toolkit_assert_same( 101, $pattern_page_review['data']['block_count'] ?? 0, 'review-pattern-page reports recursive block count' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_bento_grid'] ?? null, 'review-pattern-page carries Bento design quality' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_hero_media'] ?? null, 'review-pattern-page carries hero media design quality' );
+npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['section_shape_variety'] ?? 0 ) >= 5, 'review-pattern-page reports section shape variety' );
+npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['native_style_density'] ?? 0 ) >= 40, 'review-pattern-page reports native style density' );
+npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['responsive_quality']['responsive_risk_level'] ?? '', 'review-pattern-page reports low responsive risk for stacked native columns' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['image_alt_complete'] ?? null, 'review-pattern-page reports complete image alt text' );
+npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports low server-observable invalid block risk' );
+npcink_abilities_toolkit_assert_true( in_array( 'preview_page_in_editor', $pattern_page_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends final editor preview after a pass' );
+$custom_html_pattern_review = $core_read_package->review_pattern_page(
+	array(
+		'blocks' => array(
+			array(
+				'blockName'    => 'core/html',
+				'attrs'        => array(),
+				'innerHTML'    => '<div style="display:grid">Unsafe custom section</div>',
+				'innerContent' => array( '<div style="display:grid">Unsafe custom section</div>' ),
+				'innerBlocks'  => array(),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( 'needs_revision', $custom_html_pattern_review['data']['review_status'] ?? '', 'review-pattern-page flags custom HTML-only patterns for revision' );
+npcink_abilities_toolkit_assert_same( 'medium', $custom_html_pattern_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports custom HTML as medium editor risk' );
+npcink_abilities_toolkit_assert_true( in_array( 'revise_pattern_page_plan', $custom_html_pattern_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends revising risky pattern plans' );
 $research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Research Backed WordPress AI',
