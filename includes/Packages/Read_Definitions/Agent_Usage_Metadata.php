@@ -128,6 +128,12 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Preparing one Core batch proposal for the user intent "optimize this media item" with metadata and derivative adoption actions.' ),
 				'stopping_points' => array( 'Stop at proposal-ready write_actions; Core/host owns proposal creation, approval, commit-preflight, audit, and final execution.' ),
 			),
+			'npcink-abilities-toolkit/build-media-adoption-preflight-summary' => array(
+				'when_to_use'     => array( 'Summarize whether one reviewed derivative artifact is ready to hand into a governed Core media adoption proposal.' ),
+				'not_for'         => array( 'Do not use this to generate derivatives, create proposals, approve proposals, replace files, scan all settings, or execute WordPress writes.' ),
+				'best_for'        => array( 'Showing a lightweight operator or agent preflight before submitting build-media-optimization-plan or adopt-cloud-media-derivative through Core governance.' ),
+				'stopping_points' => array( 'Stop at evidence and next-step guidance; final proposal creation, approval, commit-preflight, adoption, and rollback history remain host/Core-owned.' ),
+			),
 			'npcink-abilities-toolkit/build-media-adoption-enhancement-plan' => array(
 				'when_to_use'     => array( 'Turn one reviewed remote image URL into a proposal-ready import, local optimized derivative, and optional exact post-content media reference repair plan.' ),
 				'not_for'         => array( 'Do not use this to search for images, generate images, approve proposals, download files immediately, or mutate WordPress.' ),

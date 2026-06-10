@@ -1475,6 +1475,196 @@ trait Media_Read_Methods {
 		}
 
 		/**
+		 * Builds a read-only adoption preflight summary for one derivative artifact.
+		 *
+		 * @param mixed $input Input args.
+		 * @return array<string,mixed>|\WP_Error
+		 */
+		public function build_media_adoption_preflight_summary( $input ) {
+			$input = is_array( $input ) ? $input : array();
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect media adoption readiness.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
+			if ( $attachment_id <= 0 ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+
+			$attachment = get_post( $attachment_id );
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect this media item.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+
+			$current = $this->build_media_inventory_health_row( $attachment_id );
+			$format_inspection = is_array( $current['format_inspection'] ?? null ) ? $current['format_inspection'] : array();
+			$current_relative_file = $this->normalize_media_relative_file( (string) ( $format_inspection['current_relative_file'] ?? ( function_exists( 'get_post_meta' ) ? get_post_meta( $attachment_id, '_wp_attached_file', true ) : '' ) ) );
+			$current_size = $this->absint_value( $format_inspection['filesize_bytes'] ?? 0 );
+			$current_width = $this->absint_value( $format_inspection['width'] ?? 0 );
+			$current_height = $this->absint_value( $format_inspection['height'] ?? 0 );
+			$current_mime_type = sanitize_text_field( (string) ( $current['mime_type'] ?? ( $format_inspection['mime_type'] ?? '' ) ) );
+			$current_summary = array(
+				'attachment_id'         => $attachment_id,
+				'title'                 => sanitize_text_field( (string) ( $current['title'] ?? '' ) ),
+				'url'                   => $this->esc_url_value( (string) ( $current['url'] ?? ( $format_inspection['url'] ?? '' ) ) ),
+				'relative_file'         => $current_relative_file,
+				'file_basename'         => $this->sanitize_file_name_value( (string) ( $format_inspection['file_basename'] ?? basename( $current_relative_file ) ) ),
+				'mime_type'             => $current_mime_type,
+				'format'                => sanitize_key( (string) ( $format_inspection['source_format'] ?? '' ) ),
+				'width'                 => $current_width,
+				'height'                => $current_height,
+				'filesize_bytes'        => $current_size,
+				'metadata_issue_count'  => $this->absint_value( $current['issue_count'] ?? 0 ),
+				'format_warnings'       => array_values( array_map( 'sanitize_key', (array) ( $format_inspection['warnings'] ?? array() ) ) ),
+			);
+
+			$artifact_input = is_array( $input['derivative_artifact'] ?? null ) ? $input['derivative_artifact'] : array();
+			$artifact = array();
+			$reviewed_file_name = '';
+			if ( ! empty( $artifact_input ) ) {
+				$artifact = $this->normalize_media_optimization_derivative_artifact( $artifact_input );
+				if ( is_wp_error( $artifact ) ) {
+					return $artifact;
+				}
+				$reviewed_file_name = $this->normalize_media_optimization_file_name( (string) ( $input['file_name'] ?? '' ) );
+				if ( is_wp_error( $reviewed_file_name ) ) {
+					return $reviewed_file_name;
+				}
+			}
+
+			$has_artifact = ! empty( $artifact );
+			$derivative_summary = array(
+				'available' => $has_artifact,
+			);
+			$comparison = array(
+				'available' => false,
+			);
+			$content_reference_summary = array(
+				'scan_available'        => $has_artifact,
+				'scan_included'         => false,
+				'post_count'            => 0,
+				'replacement_count'     => 0,
+				'replacement_rule_count' => 0,
+				'repair_plan_available' => false,
+				'reference_strategy'    => '',
+				'repairs_preview'       => array(),
+			);
+			$warnings = array();
+
+			if ( $has_artifact ) {
+				$artifact_size = $this->absint_value( $artifact['filesize_bytes'] ?? 0 );
+				$artifact_width = $this->absint_value( $artifact['width'] ?? 0 );
+				$artifact_height = $this->absint_value( $artifact['height'] ?? 0 );
+				$filesize_delta = $artifact_size - $current_size;
+				$derivative_summary = array(
+					'available'           => true,
+					'artifact_id'         => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
+					'expires_at'          => sanitize_text_field( (string) ( $artifact['expires_at'] ?? '' ) ),
+					'mime_type'           => sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) ),
+					'format'              => sanitize_key( (string) ( $artifact['format'] ?? '' ) ),
+					'width'               => $artifact_width,
+					'height'              => $artifact_height,
+					'filesize_bytes'      => $artifact_size,
+					'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? '' ) ),
+					'reviewed_file_name'  => $reviewed_file_name,
+					'processing_warnings' => array_values( array_map( 'sanitize_key', (array) ( $artifact['processing_warnings'] ?? array() ) ) ),
+				);
+				$comparison = array(
+					'available'               => true,
+					'mime_type_before'        => $current_mime_type,
+					'mime_type_after'         => $derivative_summary['mime_type'],
+					'format_before'           => $current_summary['format'],
+					'format_after'            => $derivative_summary['format'],
+					'width_before'            => $current_width,
+					'height_before'           => $current_height,
+					'width_after'             => $artifact_width,
+					'height_after'            => $artifact_height,
+					'filesize_before_bytes'   => $current_size,
+					'filesize_after_bytes'    => $artifact_size,
+					'filesize_delta_bytes'    => $filesize_delta,
+					'filesize_delta_percent'  => $current_size > 0 ? round( ( $filesize_delta / $current_size ) * 100, 2 ) : null,
+					'will_change_main_file'   => true,
+					'will_update_wp_metadata' => false,
+				);
+				$content_reference_repairs = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
+				$repairs = array_values( (array) ( $content_reference_repairs['repairs'] ?? array() ) );
+				$content_reference_summary = array(
+					'scan_available'        => true,
+					'scan_included'         => true,
+					'scanned_count'         => $this->absint_value( $content_reference_repairs['scanned_count'] ?? 0 ),
+					'post_count'            => $this->absint_value( $content_reference_repairs['post_count'] ?? 0 ),
+					'replacement_count'     => $this->absint_value( $content_reference_repairs['replacement_count'] ?? 0 ),
+					'replacement_rule_count' => $this->absint_value( $content_reference_repairs['replacement_rule_count'] ?? 0 ),
+					'actual_replacement_count' => $this->absint_value( $content_reference_repairs['actual_replacement_count'] ?? 0 ),
+					'unmatched_rule_count'  => count( (array) ( $content_reference_repairs['unmatched_rules'] ?? array() ) ),
+					'repair_plan_available' => ! empty( $repairs ),
+					'reference_strategy'    => sanitize_key( (string) ( $content_reference_repairs['reference_strategy'] ?? '' ) ),
+					'repairs_preview'       => array_slice( $repairs, 0, 5 ),
+				);
+				$warnings = array_merge( $warnings, $derivative_summary['processing_warnings'] );
+			} else {
+				$warnings[] = 'derivative_artifact_missing';
+			}
+
+			$settings_reference_summary = array(
+				'scan_available'        => current_user_can( 'manage_options' ),
+				'scan_included'         => false,
+				'action_count'          => null,
+				'suggested_next_step'   => 'build-media-settings-reference-repair-plan',
+				'note'                  => 'Settings and theme option references use the dedicated bounded settings repair plan ability.',
+			);
+			if ( ! empty( $input['include_settings_scan'] ) ) {
+				$warnings[] = 'settings_reference_scan_deferred';
+			}
+
+			$next_steps = $has_artifact
+				? array( 'review_preflight_summary', 'submit_media_optimization_proposal' )
+				: array( 'generate_derivative_preview' );
+			if ( ! empty( $content_reference_summary['repair_plan_available'] ) ) {
+				$next_steps[] = 'review_content_reference_repairs';
+			}
+			if ( ! empty( $settings_reference_summary['scan_available'] ) ) {
+				$next_steps[] = 'optionally_build_settings_reference_repair_plan';
+			}
+
+			return $this->build_analysis_success_response(
+				array(
+					'artifact_type'              => 'media_adoption_preflight_summary',
+					'version'                    => 1,
+					'attachment_id'              => $attachment_id,
+					'readonly'                   => true,
+					'direct_wordpress_write'     => false,
+					'proposal_created'           => false,
+					'cloud_call_included'        => false,
+					'current'                    => $current_summary,
+					'derivative'                 => $derivative_summary,
+					'comparison'                 => $comparison,
+					'content_reference_summary'  => $content_reference_summary,
+					'settings_reference_summary' => $settings_reference_summary,
+					'readiness'                  => array(
+						'can_submit_core_proposal' => $has_artifact,
+						'requires_core_approval'   => true,
+						'requires_operator_review' => true,
+						'requires_fresh_artifact'  => $has_artifact,
+					),
+					'next_steps'                 => array_values( array_unique( $next_steps ) ),
+					'warnings'                   => array_values( array_unique( array_filter( $warnings ) ) ),
+				),
+				array(
+					'source'              => 'local_media_adoption_preflight_summary',
+					'execution_mode'      => 'deterministic',
+					'readonly'            => true,
+					'plan_only'           => true,
+					'wordpress_write_owner' => 'core_host_approval_flow',
+				),
+				'Media adoption preflight summary built.'
+			);
+		}
+
+		/**
 		 * Builds read-only post-content repair evidence for a pending media optimization.
 		 *
 		 * @param int                 $attachment_id Attachment id.

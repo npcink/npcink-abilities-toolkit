@@ -1132,6 +1132,12 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['required_scopes'] ?? array(), 'media optimization plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'media_details_input', 'derivative_artifact' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['required'] ?? array(), 'media optimization plan requires metadata and artifact evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['properties']['file_name'] ), 'media optimization plan accepts a reviewed custom derivative file name' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary'] ), 'build-media-adoption-preflight-summary is registered as a read-only summary ability' );
+npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['required_scopes'] ?? array(), 'media adoption preflight summary reads media and bounded post references' );
+npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['input_schema']['required'] ?? array(), 'media adoption preflight summary only requires an attachment id' );
+npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['input_schema']['properties']['include_settings_scan']['default'] ?? null, 'media adoption preflight summary keeps settings scans disabled by default' );
+npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media adoption preflight summary is classified as media governance' );
+npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['agent_usage']['stopping_points'] ), 'media adoption preflight summary exposes agent stopping points' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-rename-plan'] ), 'build-media-rename-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['required_scopes'] ?? array(), 'media rename plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['input_schema']['required'] ?? array(), 'media rename plan requires attachment and target filename' );
@@ -2588,6 +2594,45 @@ npcink_abilities_toolkit_assert_true( (int) ( $media_optimization_plan['data']['
 npcink_abilities_toolkit_assert_true( isset( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['unmatched_rules'] ), 'media optimization reference preview exposes unmatched rules' );
 npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs']['repairs'][0]['operations'][0]['replace'] ?? '' ), 'f553110d20d666349676892b1b0fbeb7.webp' ), 'media optimization reference preview replaces inline URLs with the reviewed derivative filename' );
 npcink_abilities_toolkit_assert_same( $media_optimization_plan['data']['derivative_preview']['content_reference_repairs'], $media_optimization_plan['data']['content_reference_repairs_preview'] ?? array(), 'media optimization plan exposes content reference repairs at top level for Core review summaries' );
+$media_adoption_preflight_summary = $core_read_package->build_media_adoption_preflight_summary(
+	array(
+		'attachment_id'        => 79,
+		'derivative_artifact'  => array(
+			'artifact_id'        => 'art_cloud_media_preflight_123',
+			'expires_at'         => gmdate( 'c', time() + 600 ),
+			'mime_type'          => 'image/webp',
+			'format'             => 'webp',
+			'width'              => 1600,
+			'height'             => 862,
+			'filesize_bytes'     => 210000,
+			'checksum'           => 'sha256:media-preflight-checksum',
+			'processing_warnings' => array( 'source_resized' ),
+		),
+		'file_name'            => 'f553110d20d666349676892b1b0fbeb7.webp',
+		'include_settings_scan' => true,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $media_adoption_preflight_summary['success'] ?? null, 'media adoption preflight summary returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'media_adoption_preflight_summary', $media_adoption_preflight_summary['data']['artifact_type'] ?? '', 'media adoption preflight summary declares its artifact type' );
+npcink_abilities_toolkit_assert_same( true, $media_adoption_preflight_summary['data']['readonly'] ?? null, 'media adoption preflight summary is read-only' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_preflight_summary['data']['direct_wordpress_write'] ?? null, 'media adoption preflight summary declares no direct WordPress write' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_preflight_summary['data']['proposal_created'] ?? null, 'media adoption preflight summary does not create Core proposals' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_preflight_summary['data']['cloud_call_included'] ?? null, 'media adoption preflight summary does not call Cloud' );
+npcink_abilities_toolkit_assert_true( ! isset( $media_adoption_preflight_summary['data']['write_actions'] ), 'media adoption preflight summary does not expose write actions' );
+npcink_abilities_toolkit_assert_same( 'art_cloud_media_preflight_123', $media_adoption_preflight_summary['data']['derivative']['artifact_id'] ?? '', 'media adoption preflight summary includes derivative artifact evidence' );
+npcink_abilities_toolkit_assert_same( true, $media_adoption_preflight_summary['data']['readiness']['can_submit_core_proposal'] ?? null, 'media adoption preflight summary marks artifact-backed adoption as proposal-ready' );
+npcink_abilities_toolkit_assert_same( 1, $media_adoption_preflight_summary['data']['content_reference_summary']['post_count'] ?? 0, 'media adoption preflight summary includes bounded content reference impact' );
+npcink_abilities_toolkit_assert_true( in_array( 'settings_reference_scan_deferred', (array) ( $media_adoption_preflight_summary['data']['warnings'] ?? array() ), true ), 'media adoption preflight summary defers settings scans to the dedicated repair plan ability' );
+npcink_abilities_toolkit_assert_true( in_array( 'submit_media_optimization_proposal', (array) ( $media_adoption_preflight_summary['data']['next_steps'] ?? array() ), true ), 'media adoption preflight summary points to governed Core proposal submission' );
+$media_adoption_preflight_missing_artifact = $core_read_package->build_media_adoption_preflight_summary(
+	array(
+		'attachment_id' => 79,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $media_adoption_preflight_missing_artifact['success'] ?? null, 'media adoption preflight summary succeeds without derivative artifact' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_preflight_missing_artifact['data']['derivative']['available'] ?? null, 'media adoption preflight summary reports a missing derivative artifact' );
+npcink_abilities_toolkit_assert_same( false, $media_adoption_preflight_missing_artifact['data']['readiness']['can_submit_core_proposal'] ?? null, 'media adoption preflight summary blocks proposal readiness without artifact evidence' );
+npcink_abilities_toolkit_assert_true( in_array( 'generate_derivative_preview', (array) ( $media_adoption_preflight_missing_artifact['data']['next_steps'] ?? array() ), true ), 'media adoption preflight summary points missing artifacts to preview generation' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][90] );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790] = (object) array(
 	'ID'             => 790,
