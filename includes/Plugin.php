@@ -157,10 +157,65 @@ final class Plugin {
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
 			$this->test_page->boot();
+			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) ) {
+				add_filter( 'plugin_action_links_' . plugin_basename( NPCINK_ABILITIES_TOOLKIT_FILE ), array( $this, 'filter_plugin_action_links' ) );
+			}
 		}
 		if ( $this->is_package_enabled( 'read_cache_hooks' ) ) {
 			$this->register_cache_invalidation_hooks();
 		}
+	}
+
+	/**
+	 * Adds a settings shortcut on the WordPress plugins screen.
+	 *
+	 * @param array<int|string,string> $links Existing plugin action links.
+	 * @return array<int|string,string>
+	 */
+	public function filter_plugin_action_links( array $links ): array {
+		array_unshift(
+			$links,
+			sprintf(
+				'<a href="%1$s">%2$s</a>',
+				esc_url( $this->plugin_settings_url() ),
+				esc_html__( 'Settings', 'npcink-abilities-toolkit' )
+			)
+		);
+
+		return $links;
+	}
+
+	/**
+	 * Returns the best admin URL for the Abilities page.
+	 *
+	 * @return string
+	 */
+	private function plugin_settings_url(): string {
+		if ( function_exists( 'menu_page_url' ) ) {
+			$url = menu_page_url( 'npcink-abilities-toolkit', false );
+			if ( is_string( $url ) && '' !== $url ) {
+				return $url;
+			}
+		}
+
+		return admin_url( $this->has_npcink_parent_menu() ? 'admin.php?page=npcink-abilities-toolkit' : 'tools.php?page=npcink-abilities-toolkit' );
+	}
+
+	/**
+	 * Returns whether a Npcink AI parent menu was registered by a host plugin.
+	 *
+	 * @return bool
+	 */
+	private function has_npcink_parent_menu(): bool {
+		global $menu;
+
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'npcink-ai' === $item[2] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
