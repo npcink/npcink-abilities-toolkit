@@ -133,6 +133,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/get-post-blocks'                         => 'core_wordpress_read',
 			'npcink-abilities-toolkit/list-post-revisions'                     => 'core_wordpress_read',
 			'npcink-abilities-toolkit/build-media-reference-repair-plan'       => 'media_governance',
+			'npcink-abilities-toolkit/build-media-adoption-enhancement-plan'   => 'media_governance',
 			'npcink-abilities-toolkit/build-media-settings-reference-repair-plan' => 'media_governance',
 			'npcink-abilities-toolkit/inspect-media-asset'                     => 'media_governance',
 			'npcink-abilities-toolkit/build-media-derivative-cloud-request'    => 'media_governance',
