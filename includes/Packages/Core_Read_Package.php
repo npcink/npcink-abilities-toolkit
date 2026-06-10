@@ -2638,6 +2638,15 @@ final class Core_Read_Package {
 						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
 						'preferred_format'           => array( 'type' => 'string', 'enum' => array( 'webp', 'avif', 'jpeg', 'png', 'original' ), 'default' => 'webp' ),
 						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'crop'                       => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'         => array( 'type' => 'string', 'enum' => array( 'aspect_ratio' ), 'default' => 'aspect_ratio' ),
+								'aspect_ratio' => array( 'type' => 'string', 'pattern' => '^[1-9][0-9]{0,2}:[1-9][0-9]{0,2}$', 'default' => '16:9' ),
+								'position'     => array( 'type' => 'string', 'enum' => array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), 'default' => 'center' ),
+							),
+							'additionalProperties' => false,
+						),
 						'watermark'                  => array(
 							'type'                 => 'object',
 							'properties'           => array(
@@ -2785,6 +2794,15 @@ final class Core_Read_Package {
 						'target_max_width'           => array( 'type' => 'integer', 'minimum' => 320, 'maximum' => 7680, 'default' => 1920 ),
 						'large_file_threshold_bytes' => array( 'type' => 'integer', 'minimum' => 102400, 'maximum' => 104857600, 'default' => 524288 ),
 						'quality'                    => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 82 ),
+						'crop'                       => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'type'         => array( 'type' => 'string', 'enum' => array( 'aspect_ratio' ), 'default' => 'aspect_ratio' ),
+								'aspect_ratio' => array( 'type' => 'string', 'pattern' => '^[1-9][0-9]{0,2}:[1-9][0-9]{0,2}$', 'default' => '16:9' ),
+								'position'     => array( 'type' => 'string', 'enum' => array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), 'default' => 'center' ),
+							),
+							'additionalProperties' => false,
+						),
 						'min_width'                  => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
 						'min_height'                 => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),
 						'min_filesize_bytes'         => array( 'type' => 'integer', 'minimum' => 0, 'default' => 0 ),

@@ -1039,6 +1039,10 @@ trait Media_Read_Methods {
 		if ( is_wp_error( $watermark ) ) {
 			return $watermark;
 		}
+		$crop = $this->normalize_media_derivative_crop( $input['crop'] ?? array() );
+		if ( is_wp_error( $crop ) ) {
+			return $crop;
+		}
 
 		$cloud_job_payload = array(
 			'job_type'        => 'generate_optimized_media_derivative',
@@ -1069,6 +1073,10 @@ trait Media_Read_Methods {
 		);
 		if ( ! empty( $watermark ) ) {
 			$cloud_job_payload['watermark'] = $watermark;
+		}
+		if ( ! empty( $crop ) ) {
+			$cloud_job_payload['crop'] = $crop;
+			$cloud_job_payload['requested_derivative']['crop'] = $crop;
 		}
 
 		return $this->build_analysis_success_response(
@@ -1134,6 +1142,10 @@ trait Media_Read_Methods {
 	$watermark = $this->normalize_media_derivative_watermark( $input['watermark'] ?? array() );
 	if ( is_wp_error( $watermark ) ) {
 		return $watermark;
+	}
+	$crop = $this->normalize_media_derivative_crop( $input['crop'] ?? array() );
+	if ( is_wp_error( $crop ) ) {
+		return $crop;
 	}
 
 	$max_items = max( 1, min( 50, $this->absint_value( $input['max_items'] ?? 20 ) ) );
@@ -1215,6 +1227,9 @@ trait Media_Read_Methods {
 		if ( ! empty( $watermark ) ) {
 			$cloud_request_input['watermark'] = $watermark;
 		}
+		if ( ! empty( $crop ) ) {
+			$cloud_request_input['crop'] = $crop;
+		}
 
 		$candidates[] = array(
 			'attachment_id'          => $attachment_id,
@@ -1253,6 +1268,7 @@ trait Media_Read_Methods {
 				'target_max_width'           => $target_max_width,
 				'large_file_threshold_bytes' => $large_file_threshold,
 				'quality'                    => $quality,
+				'crop'                       => $crop,
 				'min_width'                  => $min_width,
 				'min_height'                 => $min_height,
 				'min_filesize_bytes'         => $min_filesize_bytes,
@@ -2212,6 +2228,54 @@ trait Media_Read_Methods {
 
 			return $normalized;
 		}
+
+	/**
+	 * Normalizes an optional crop plan for Cloud derivative requests.
+	 *
+	 * @param mixed $crop Raw crop input.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function normalize_media_derivative_crop( $crop ) {
+		if ( ! is_array( $crop ) || empty( $crop ) ) {
+			return array();
+		}
+
+		$type = sanitize_key( (string) ( $crop['type'] ?? 'aspect_ratio' ) );
+		if ( 'aspect_ratio' !== $type ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_media_derivative_crop_type_invalid',
+				__( 'Only aspect-ratio crop plans are supported for Cloud media derivatives.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$aspect_ratio = trim( sanitize_text_field( (string) ( $crop['aspect_ratio'] ?? '16:9' ) ) );
+		if ( 1 !== preg_match( '/^([1-9][0-9]{0,2}):([1-9][0-9]{0,2})$/', $aspect_ratio, $matches ) ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_media_derivative_crop_ratio_invalid',
+				__( 'Media derivative crop aspect_ratio must use a W:H ratio such as 16:9 or 1:1.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 400 )
+			);
+		}
+		if ( (int) $matches[1] > 100 || (int) $matches[2] > 100 ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_media_derivative_crop_ratio_invalid',
+				__( 'Media derivative crop aspect_ratio values must be between 1 and 100.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$position = sanitize_key( (string) ( $crop['position'] ?? 'center' ) );
+		if ( ! in_array( $position, array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), true ) ) {
+			$position = 'center';
+		}
+
+		return array(
+			'type'         => 'aspect_ratio',
+			'aspect_ratio' => $aspect_ratio,
+			'position'     => $position,
+		);
+	}
 
 	/**
 	 * Normalizes an optional watermark plan for Cloud derivative requests.

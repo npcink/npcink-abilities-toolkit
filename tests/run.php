@@ -1196,6 +1196,8 @@ npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities[
 npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['required'] ?? array(), 'media derivative cloud request requires an attachment id' );
 npcink_abilities_toolkit_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media derivative cloud request exposes bounded preferred output formats' );
 npcink_abilities_toolkit_assert_same( 82, $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['quality']['default'] ?? null, 'media derivative cloud request defaults to quality 82' );
+npcink_abilities_toolkit_assert_same( array( 'aspect_ratio' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['crop']['properties']['type']['enum'] ?? array(), 'media derivative cloud request supports bounded aspect-ratio crop plans' );
+npcink_abilities_toolkit_assert_same( array( 'top_left', 'top', 'top_right', 'left', 'center', 'right', 'bottom_left', 'bottom', 'bottom_right' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['crop']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded crop positions' );
 npcink_abilities_toolkit_assert_same( array( 'image', 'text' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['type']['enum'] ?? array(), 'media derivative cloud request supports image and text watermark plans' );
 npcink_abilities_toolkit_assert_same( array( 'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['position']['enum'] ?? array(), 'media derivative cloud request exposes bounded watermark positions' );
 npcink_abilities_toolkit_assert_same( 0.75, $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['input_schema']['properties']['watermark']['properties']['opacity']['default'] ?? null, 'media derivative cloud request defaults watermark opacity' );
@@ -1205,6 +1207,7 @@ npcink_abilities_toolkit_assert_same( 48, $package_abilities['npcink-abilities-t
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan'] ), 'media derivative batch plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['required_scopes'] ?? array(), 'media derivative batch plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
+npcink_abilities_toolkit_assert_same( array( 'aspect_ratio' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['crop']['properties']['type']['enum'] ?? array(), 'media derivative batch plan supports bounded aspect-ratio crop plans' );
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['max_items']['maximum'] ?? null, 'media derivative batch plan bounds candidates to 50 items' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
@@ -2454,6 +2457,11 @@ $media_cloud_request = $core_read_package->build_media_derivative_cloud_request(
 		'large_file_threshold_bytes' => 524288,
 		'preferred_format'           => 'webp',
 		'quality'                    => 82,
+		'crop'                       => array(
+			'type'         => 'aspect_ratio',
+			'aspect_ratio' => '16:9',
+			'position'     => 'center',
+		),
 	)
 );
 npcink_abilities_toolkit_assert_same( true, $media_cloud_request['success'] ?? null, 'build-media-derivative-cloud-request returns a success envelope' );
@@ -2463,6 +2471,9 @@ npcink_abilities_toolkit_assert_same( 'generate_optimized_media_derivative', $me
 npcink_abilities_toolkit_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['target_format'] ?? '', 'media derivative cloud request exposes Cloud target format' );
 npcink_abilities_toolkit_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['max_width'] ?? 0, 'media derivative cloud request exposes Cloud max width' );
 npcink_abilities_toolkit_assert_same( 82, $media_cloud_request['data']['cloud_job_payload']['quality'] ?? 0, 'media derivative cloud request exposes Cloud quality' );
+npcink_abilities_toolkit_assert_same( 'aspect_ratio', $media_cloud_request['data']['cloud_job_payload']['crop']['type'] ?? '', 'media derivative cloud request preserves crop type' );
+npcink_abilities_toolkit_assert_same( '16:9', $media_cloud_request['data']['cloud_job_payload']['crop']['aspect_ratio'] ?? '', 'media derivative cloud request preserves crop aspect ratio' );
+npcink_abilities_toolkit_assert_same( 'center', $media_cloud_request['data']['cloud_job_payload']['crop']['position'] ?? '', 'media derivative cloud request preserves crop position' );
 npcink_abilities_toolkit_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['format'] ?? '', 'media derivative cloud request preserves preferred format' );
 npcink_abilities_toolkit_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['requested_derivative']['max_width'] ?? 0, 'media derivative cloud request preserves target max width' );
 npcink_abilities_toolkit_assert_same( true, $media_cloud_request['data']['cloud_execution']['source_upload_required'] ?? null, 'media derivative cloud request requires host-provided source upload' );
@@ -2793,6 +2804,11 @@ $media_derivative_batch_plan_text_watermark = $core_read_package->build_media_de
 		'attachment_ids' => array( 84 ),
 		'target_format'  => 'webp',
 		'max_items'      => 1,
+		'crop'           => array(
+			'type'         => 'aspect_ratio',
+			'aspect_ratio' => '1:1',
+			'position'     => 'top',
+		),
 		'watermark'      => array(
 			'type'     => 'text',
 			'text'     => 'AI',
@@ -2801,6 +2817,8 @@ $media_derivative_batch_plan_text_watermark = $core_read_package->build_media_de
 	)
 );
 npcink_abilities_toolkit_assert_same( true, $media_derivative_batch_plan_text_watermark['success'] ?? null, 'media derivative batch plan accepts text watermark input' );
+npcink_abilities_toolkit_assert_same( '1:1', $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['crop']['aspect_ratio'] ?? '', 'media derivative batch plan carries crop requests into candidate cloud inputs' );
+npcink_abilities_toolkit_assert_same( 'top', $media_derivative_batch_plan_text_watermark['data']['filters']['crop']['position'] ?? '', 'media derivative batch plan records crop intent in reviewable filters' );
 npcink_abilities_toolkit_assert_same( 'text', $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['type'] ?? '', 'media derivative batch plan carries text watermark requests into candidate cloud inputs' );
 npcink_abilities_toolkit_assert_same( 'AI', $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['text'] ?? '', 'media derivative batch plan carries text watermark content into candidate cloud inputs' );
 npcink_abilities_toolkit_assert_true( ! isset( $media_derivative_batch_plan_text_watermark['data']['candidates'][0]['cloud_request_input']['watermark']['artifact_id'] ), 'media derivative batch plan text watermark does not require an artifact id' );
