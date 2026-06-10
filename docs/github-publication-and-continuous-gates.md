@@ -109,19 +109,16 @@ Use the current `master` baseline for the next patch release instead.
 
 Before the next public patch release after `0.5.1`:
 
-1. Run the default source gate:
+1. Run the release gate from a clean, verified source checkout:
 
 ```bash
-composer test:all
-composer analyse:phpstan
+WP_PATH=/path/to/wordpress composer release:verify
 ```
 
-2. Run real-site WordPress smoke when a site is available:
+For Local.app sites that require a MySQL socket, include
+`WP_CLI_MYSQL_SOCKET=/path/to/mysqld.sock`.
 
-```bash
-WP_PATH=/path/to/wordpress composer smoke:wp
-```
-
-3. Record the smoke result in the next release verification note.
-4. Tag a new patch release from the verified `master` commit instead of
+2. Record the smoke and Plugin Check result in the next release verification
+   note.
+3. Tag a new patch release from the verified `master` commit instead of
    retagging a historical release.

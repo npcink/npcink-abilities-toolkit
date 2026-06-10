@@ -28,13 +28,13 @@ as advisory noise.
 Before uploading a package to WordPress.org, the release owner must run:
 
 ```sh
-composer test:all
-WP_PATH=/path/to/wordpress composer check:plugin-package
+WP_PATH=/path/to/wordpress composer release:verify
 ```
 
-`composer test:all` includes `composer check:wporg`, a static guard for the
-patterns above. `composer check:plugin-package` runs WordPress Plugin Check
-against the packaged plugin in the selected WordPress environment.
+`composer release:verify` runs the source gate, PHPStan, whitespace checks,
+real-site smoke, and WordPress Plugin Check against the packaged plugin in the
+selected WordPress environment. `composer test:all` includes
+`composer check:wporg`, a static guard for the patterns above.
 
 If local WP-CLI or Plugin Check is unavailable, do not mark the package ready.
 Record the missing tool as a blocker instead of substituting functional smoke

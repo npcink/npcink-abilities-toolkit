@@ -35,6 +35,11 @@ The commit helper is:
 ```
 
 `build/` is ignored by Git. Treat it as local release state, not source code.
+The source-controlled helper for preparing that local SVN working copy is:
+
+```sh
+VERSION=X.Y.Z composer release:prepare-wporg
+```
 
 ## Pre-Commit Verification
 
@@ -43,11 +48,16 @@ Git workspace:
 
 ```sh
 cd /Users/muze/gitee/npcink-abilities-toolkit
-composer test:all
-composer analyse:phpstan
-git diff --check
-composer smoke:wp
-composer check:plugin-package
+WP_PATH=/path/to/wordpress composer release:verify
+```
+
+For Local.app sites that expose MySQL only through a socket, pass the socket to
+WP-CLI through the package check helper:
+
+```sh
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+composer release:verify
 ```
 
 For the `0.5.0` release line, these checks passed before SVN publishing:
@@ -79,6 +89,7 @@ the intended release changes, including the new tag directory and trunk updates.
 For future releases, replace the commit message version:
 
 ```sh
+VERSION=X.Y.Z composer release:prepare-wporg
 SVN_USERNAME=muze233 COMMIT_MESSAGE="Release X.Y.Z" build/commit-wporg-release.sh
 ```
 
@@ -121,6 +132,27 @@ If `svn` is missing, install it with Homebrew:
 ```sh
 brew install subversion
 ```
+
+## WP-CLI Availability On This Device
+
+WP-CLI is installed globally through Homebrew on this macOS device:
+
+```sh
+command -v wp
+wp --info
+```
+
+The current path is:
+
+```sh
+/opt/homebrew/bin/wp
+```
+
+This is a device-level CLI tool, so other local WordPress projects can use the
+same `wp` command when they pass their own `--path` or `WP_PATH`. WP-CLI does
+not replace a WordPress installation; it operates against an existing site. Keep
+the Local.app WordPress environment for release smoke checks, Plugin Check, and
+site-specific verification.
 
 ## Homebrew Portable Ruby Failure
 

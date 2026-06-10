@@ -36,6 +36,8 @@
     "perf:smoke": "@php tests/performance-smoke.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
     "e2e:official-stack": "bash scripts/official-stack-e2e.sh",
+    "release:verify": "bash scripts/release-verify.sh",
+    "release:prepare-wporg": "bash scripts/prepare-wporg-svn-release.sh",
     "test": "@php tests/run.php",
     "test:all": [
       "@validate:composer",
