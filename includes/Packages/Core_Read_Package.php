@@ -1528,6 +1528,10 @@ final class Core_Read_Package {
 							'type'                 => 'object',
 							'additionalProperties' => true,
 						),
+						'review_feedback'   => array(
+							'type'                 => 'object',
+							'additionalProperties' => true,
+						),
 						'variables'          => array(
 							'type'                 => 'object',
 							'additionalProperties' => true,

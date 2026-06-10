@@ -54,6 +54,7 @@ trait Page_Pattern_Read_Methods {
 
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
 		$research_brief = $this->pattern_research_brief( $input['research_brief'] ?? ( $variables['research_brief'] ?? array() ) );
+		$review_feedback = $this->pattern_review_feedback( $input['review_feedback'] ?? ( $variables['review_feedback'] ?? array() ) );
 		$title     = $this->pattern_text( $input['title'] ?? ( $variables['hero_title'] ?? 'WordPress AI' ), 'WordPress AI' );
 		$blocks    = $this->render_openai_style_landing_blocks(
 			$variables,
@@ -67,6 +68,8 @@ trait Page_Pattern_Read_Methods {
 		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
+		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
+		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
 		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 		$write_actions = array(
@@ -117,6 +120,9 @@ trait Page_Pattern_Read_Methods {
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'media_slots'            => $media_slots,
+				'quality_feedback'       => $review_feedback,
+				'quality_review'         => $quality_review,
+				'revision_strategy'      => $revision_strategy,
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
 				'requires_approval'      => true,
@@ -202,42 +208,7 @@ trait Page_Pattern_Read_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_review_input_missing', __( 'Provide either post_id or blocks to review a pattern page.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$metrics            = $this->pattern_review_metrics( $blocks );
-		$design_quality     = array_merge(
-			$this->pattern_design_quality_summary( $blocks ),
-			array(
-				'section_shape_variety' => $metrics['section_shape_variety'],
-				'visual_asset_count'    => $metrics['visual_asset_count'],
-				'native_style_density'  => $metrics['native_style_density'],
-				'text_heaviness_score'  => $metrics['text_heaviness_score'],
-			)
-		);
-		$responsive_quality = array_merge(
-			$this->pattern_responsive_quality_summary( $blocks, 'landing_standard' ),
-			array(
-				'responsive_risk_level' => $this->pattern_review_responsive_risk_level( $blocks, $metrics ),
-			)
-		);
-		$media_quality      = array(
-			'visual_asset_count'      => $metrics['visual_asset_count'],
-			'image_block_count'       => $metrics['image_block_count'],
-			'media_text_block_count'  => $metrics['media_text_block_count'],
-			'image_alt_missing_count' => $metrics['image_alt_missing_count'],
-			'image_alt_complete'      => 0 === (int) $metrics['image_alt_missing_count'],
-		);
-		$content_quality    = array(
-			'heading_count'         => $metrics['heading_count'],
-			'paragraph_count'       => $metrics['paragraph_count'],
-			'button_count'          => $metrics['button_count'],
-			'cta_count'             => $metrics['button_count'],
-			'text_heaviness_score'  => $metrics['text_heaviness_score'],
-			'native_style_density'  => $metrics['native_style_density'],
-			'class_dependency_ratio' => $metrics['class_dependency_ratio'],
-		);
-		$risk_review        = $this->pattern_review_editor_risk( $metrics );
-		$findings           = $this->pattern_review_findings( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
-		$score              = $this->pattern_review_score( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
-		$review_status      = $score >= 80 && 'high' !== $risk_review['invalid_block_risk_level'] ? 'pass' : 'needs_revision';
+		$review_summary     = $this->pattern_review_summary_for_blocks( $blocks, ! array_key_exists( 'include_findings', $input ) || ! empty( $input['include_findings'] ) );
 
 		return $this->build_analysis_success_response(
 			array(
@@ -245,22 +216,22 @@ trait Page_Pattern_Read_Methods {
 				'version'                => 1,
 				'source'                 => $source,
 				'post'                   => $post_context,
-				'block_count'            => $metrics['block_count'],
-				'top_level_count'        => $metrics['top_level_count'],
+				'block_count'            => $review_summary['block_count'],
+				'top_level_count'        => $review_summary['top_level_count'],
 				'content_length'         => $content_length,
-				'review_status'          => $review_status,
-				'score'                  => $score,
+				'review_status'          => $review_summary['review_status'],
+				'score'                  => $review_summary['score'],
 				'direct_wordpress_write' => false,
 				'commit_execution'       => false,
 				'server_side_review_only' => true,
 				'editor_validation_note' => 'Server-side review checks structure, native attrs, media, and responsive signals; Gutenberg editor save() validation still requires opening the editor.',
-				'design_quality'         => $design_quality,
-				'responsive_quality'     => $responsive_quality,
-				'media_quality'          => $media_quality,
-				'content_quality'        => $content_quality,
-				'editor_risk'            => $risk_review,
-				'findings'               => ! array_key_exists( 'include_findings', $input ) || ! empty( $input['include_findings'] ) ? $findings : array(),
-				'next_actions'           => $this->pattern_review_next_actions( $review_status, $findings ),
+				'design_quality'         => $review_summary['design_quality'],
+				'responsive_quality'     => $review_summary['responsive_quality'],
+				'media_quality'          => $review_summary['media_quality'],
+				'content_quality'        => $review_summary['content_quality'],
+				'editor_risk'            => $review_summary['editor_risk'],
+				'findings'               => $review_summary['findings'],
+				'next_actions'           => $review_summary['next_actions'],
 			),
 			array(
 				'source'         => 'local_pattern_page_review',
@@ -299,6 +270,212 @@ trait Page_Pattern_Read_Methods {
 				'recommended_openclaw_recipe' => 'openclaw_recipes.ai_image_ratio_crop_media_adoption',
 				'existing_media_url'    => esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) ),
 			),
+		);
+	}
+
+	/**
+	 * Builds the reusable server-side review summary for a block tree.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param bool                           $include_findings Whether findings should be returned.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_review_summary_for_blocks( array $blocks, bool $include_findings ): array {
+		$metrics            = $this->pattern_review_metrics( $blocks );
+		$design_quality     = array_merge(
+			$this->pattern_design_quality_summary( $blocks ),
+			array(
+				'section_shape_variety' => $metrics['section_shape_variety'],
+				'visual_asset_count'    => $metrics['visual_asset_count'],
+				'native_style_density'  => $metrics['native_style_density'],
+				'text_heaviness_score'  => $metrics['text_heaviness_score'],
+			)
+		);
+		$responsive_quality = array_merge(
+			$this->pattern_responsive_quality_summary( $blocks, 'landing_standard' ),
+			array(
+				'responsive_risk_level' => $this->pattern_review_responsive_risk_level( $blocks, $metrics ),
+			)
+		);
+		$media_quality      = array(
+			'visual_asset_count'      => $metrics['visual_asset_count'],
+			'image_block_count'       => $metrics['image_block_count'],
+			'media_text_block_count'  => $metrics['media_text_block_count'],
+			'image_alt_missing_count' => $metrics['image_alt_missing_count'],
+			'image_alt_complete'      => 0 === (int) $metrics['image_alt_missing_count'],
+		);
+		$content_quality    = array(
+			'heading_count'         => $metrics['heading_count'],
+			'paragraph_count'       => $metrics['paragraph_count'],
+			'button_count'          => $metrics['button_count'],
+			'cta_count'             => $metrics['button_count'],
+			'text_heaviness_score'  => $metrics['text_heaviness_score'],
+			'native_style_density'  => $metrics['native_style_density'],
+			'class_dependency_ratio' => $metrics['class_dependency_ratio'],
+		);
+		$risk_review        = $this->pattern_review_editor_risk( $metrics );
+		$findings           = $this->pattern_review_findings( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
+		$score              = $this->pattern_review_score( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
+		$review_status      = $score >= 80 && 'high' !== $risk_review['invalid_block_risk_level'] ? 'pass' : 'needs_revision';
+
+		return array(
+			'review_status'      => $review_status,
+			'score'              => $score,
+			'block_count'        => $metrics['block_count'],
+			'top_level_count'    => $metrics['top_level_count'],
+			'design_quality'     => $design_quality,
+			'responsive_quality' => $responsive_quality,
+			'media_quality'      => $media_quality,
+			'content_quality'    => $content_quality,
+			'editor_risk'        => $risk_review,
+			'findings'           => $include_findings ? $findings : array(),
+			'finding_codes'      => $this->pattern_finding_codes( $findings ),
+			'next_actions'       => $this->pattern_review_next_actions( $review_status, $findings ),
+		);
+	}
+
+	/**
+	 * Normalizes optional review feedback for the next Pattern plan.
+	 *
+	 * @param mixed $feedback Previous review feedback.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_review_feedback( $feedback ): array {
+		if ( ! is_array( $feedback ) || empty( $feedback ) ) {
+			return array(
+				'feedback_received' => false,
+				'finding_codes'     => array(),
+				'next_actions'      => array(),
+				'revision_goals'    => array(),
+			);
+		}
+
+		$findings = array();
+		foreach ( array_slice( is_array( $feedback['findings'] ?? null ) ? $feedback['findings'] : array(), 0, 12 ) as $finding ) {
+			if ( ! is_array( $finding ) ) {
+				continue;
+			}
+			$code = sanitize_key( (string) ( $finding['code'] ?? '' ) );
+			if ( '' === $code ) {
+				continue;
+			}
+			$findings[] = array(
+				'severity' => sanitize_key( (string) ( $finding['severity'] ?? 'info' ) ),
+				'code'     => $code,
+				'message'  => sanitize_text_field( (string) ( $finding['message'] ?? '' ) ),
+			);
+		}
+
+		$next_actions = array();
+		foreach ( array_slice( is_array( $feedback['next_actions'] ?? null ) ? $feedback['next_actions'] : array(), 0, 12 ) as $action ) {
+			$action = sanitize_key( (string) $action );
+			if ( '' !== $action ) {
+				$next_actions[] = $action;
+			}
+		}
+		$next_actions = array_values( array_unique( $next_actions ) );
+		$finding_codes = $this->pattern_finding_codes( $findings );
+
+		return array(
+			'feedback_received'  => true,
+			'source_review_status' => sanitize_key( (string) ( $feedback['review_status'] ?? '' ) ),
+			'source_score'       => array_key_exists( 'score', $feedback ) ? max( 0, min( 100, absint( $feedback['score'] ) ) ) : null,
+			'finding_codes'      => $finding_codes,
+			'next_actions'       => $next_actions,
+			'revision_goals'     => $this->pattern_revision_goals_from_codes( $finding_codes, $next_actions ),
+		);
+	}
+
+	/**
+	 * Returns normalized finding codes.
+	 *
+	 * @param array<int,array<string,string>> $findings Findings.
+	 * @return string[]
+	 */
+	private function pattern_finding_codes( array $findings ): array {
+		$codes = array();
+		foreach ( $findings as $finding ) {
+			$code = sanitize_key( (string) ( is_array( $finding ) ? ( $finding['code'] ?? '' ) : '' ) );
+			if ( '' !== $code ) {
+				$codes[] = $code;
+			}
+		}
+		return array_values( array_unique( $codes ) );
+	}
+
+	/**
+	 * Maps review finding codes to bounded revision goals.
+	 *
+	 * @param string[] $finding_codes Finding codes.
+	 * @param string[] $next_actions Next action ids.
+	 * @return array<int,array<string,string>>
+	 */
+	private function pattern_revision_goals_from_codes( array $finding_codes, array $next_actions ): array {
+		$goal_map = array(
+			'split_hero_present'        => array( 'goal' => 'use_split_hero', 'strategy' => 'render_native_columns_hero' ),
+			'hero_media_missing'        => array( 'goal' => 'add_reviewed_hero_media', 'strategy' => 'request_or_reuse_16_9_hero_asset' ),
+			'bento_grid_missing'        => array( 'goal' => 'use_bento_feature_grid', 'strategy' => 'render_native_columns_bento' ),
+			'comparison_missing'        => array( 'goal' => 'add_proposal_first_comparison', 'strategy' => 'render_dark_native_comparison_band' ),
+			'faq_missing'               => array( 'goal' => 'add_faq', 'strategy' => 'render_core_details_faq' ),
+			'final_cta_missing'         => array( 'goal' => 'add_final_cta', 'strategy' => 'render_contrast_cta_band' ),
+			'section_variety_low'       => array( 'goal' => 'increase_section_variety', 'strategy' => 'mix_hero_proof_bento_workflow_comparison_faq_cta' ),
+			'native_style_density_low'  => array( 'goal' => 'increase_native_styles', 'strategy' => 'prefer_gutenberg_style_layout_spacing_attrs' ),
+			'responsive_risk_detected'  => array( 'goal' => 'reduce_responsive_risk', 'strategy' => 'use_core_columns_with_mobile_stacking' ),
+			'image_alt_missing'         => array( 'goal' => 'complete_media_alt_text', 'strategy' => 'require_alt_for_image_and_media_text_blocks' ),
+			'editor_invalid_block_risk' => array( 'goal' => 'avoid_invalid_blocks', 'strategy' => 'avoid_custom_html_and_non_core_blocks' ),
+			'text_heaviness_high'       => array( 'goal' => 'reduce_text_heaviness', 'strategy' => 'add_visual_asset_or_split_copy_into_cards' ),
+		);
+
+		$goals = array();
+		foreach ( $finding_codes as $code ) {
+			if ( isset( $goal_map[ $code ] ) ) {
+				$goals[ $code ] = array_merge( array( 'finding_code' => $code ), $goal_map[ $code ] );
+			}
+		}
+		if ( in_array( 'repair_media_inputs', $next_actions, true ) && ! isset( $goals['hero_media_missing'] ) ) {
+			$goals['repair_media_inputs'] = array(
+				'finding_code' => 'repair_media_inputs',
+				'goal'         => 'repair_media_inputs',
+				'strategy'     => 'request_reviewed_media_url_and_alt_before_final_proposal',
+			);
+		}
+		if ( in_array( 'open_editor_and_rebuild_invalid_blocks', $next_actions, true ) && ! isset( $goals['editor_invalid_block_risk'] ) ) {
+			$goals['open_editor_and_rebuild_invalid_blocks'] = array(
+				'finding_code' => 'open_editor_and_rebuild_invalid_blocks',
+				'goal'         => 'avoid_invalid_blocks',
+				'strategy'     => 'rebuild_with_core_blocks_before_resubmitting',
+			);
+		}
+
+		return array_values( $goals );
+	}
+
+	/**
+	 * Compares previous feedback with the newly generated plan review.
+	 *
+	 * @param array<string,mixed> $feedback Normalized previous feedback.
+	 * @param array<string,mixed> $quality_review Generated plan quality review.
+	 * @param array<int,array<string,mixed>> $media_slots Media slot requirements.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_revision_strategy( array $feedback, array $quality_review, array $media_slots ): array {
+		$previous_codes = array_values( array_filter( is_array( $feedback['finding_codes'] ?? null ) ? $feedback['finding_codes'] : array(), 'is_string' ) );
+		$current_codes  = array_values( array_filter( is_array( $quality_review['finding_codes'] ?? null ) ? $quality_review['finding_codes'] : array(), 'is_string' ) );
+		$remaining      = array_values( array_intersect( $previous_codes, $current_codes ) );
+		$applied        = array_values( array_diff( $previous_codes, $remaining ) );
+		$needs_media    = in_array( 'hero_media_missing', $current_codes, true ) || in_array( 'image_alt_missing', $current_codes, true );
+
+		return array(
+			'feedback_received'       => ! empty( $feedback['feedback_received'] ),
+			'generated_review_status' => sanitize_key( (string) ( $quality_review['review_status'] ?? '' ) ),
+			'generated_score'         => absint( $quality_review['score'] ?? 0 ),
+			'applied_finding_codes'   => $applied,
+			'remaining_finding_codes' => $remaining,
+			'current_finding_codes'   => $current_codes,
+			'ready_for_proposal'      => 'pass' === (string) ( $quality_review['review_status'] ?? '' ),
+			'recommended_next_step'   => 'pass' === (string) ( $quality_review['review_status'] ?? '' ) ? 'submit_core_proposal' : 'revise_pattern_page_plan',
+			'media_inputs_required'   => $needs_media,
+			'required_media_slots'    => $needs_media ? $media_slots : array(),
 		);
 	}
 

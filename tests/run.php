@@ -1149,6 +1149,7 @@ npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name'
 	npcink_abilities_toolkit_assert_same( array( 'balanced' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['visual_density']['enum'] ?? array(), 'pattern page plan exposes a bounded visual density' );
 	npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['review_feedback'] ), 'pattern page plan accepts optional review feedback for revision loops' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page'] ), 'review-pattern-page is registered as a read-only page quality review ability' );
 	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/review-pattern-page']['required_scopes'] ?? array(), 'pattern page review remains a read-scope ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['post_id'] ), 'pattern page review accepts a post id' );
@@ -4326,6 +4327,11 @@ npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsi
 npcink_abilities_toolkit_assert_same( 4, $pattern_page_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-pattern-page-plan reports bounded max columns per row' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['button_groups_use_flex_layout'] ?? null, 'build-pattern-page-plan reports flex button groups' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['responsive_quality']['custom_css_required'] ?? true, 'build-pattern-page-plan reports responsive output without custom CSS' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['quality_feedback']['feedback_received'] ?? true, 'build-pattern-page-plan reports no review feedback on first-generation plans' );
+npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_plan['data']['quality_review']['review_status'] ?? '', 'build-pattern-page-plan self-reviews generated Pattern blocks' );
+npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_plan['data']['quality_review']['score'] ?? 0 ) >= 80, 'build-pattern-page-plan self-review scores generated Pattern blocks above threshold' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['revision_strategy']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks high-quality generated plans ready for Core proposal handoff' );
+npcink_abilities_toolkit_assert_same( 'submit_core_proposal', $pattern_page_plan['data']['revision_strategy']['recommended_next_step'] ?? '', 'build-pattern-page-plan recommends Core proposal handoff when self-review passes' );
 $pattern_page_actions = is_array( $pattern_page_plan['data']['write_actions'] ?? null ) ? $pattern_page_plan['data']['write_actions'] : array();
 npcink_abilities_toolkit_assert_same( 2, count( $pattern_page_actions ), 'build-pattern-page-plan emits create and block update actions' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/create-draft', $pattern_page_actions[0]['target_ability_id'] ?? '', 'build-pattern-page-plan first creates a draft page' );
@@ -4422,6 +4428,40 @@ $custom_html_pattern_review = $core_read_package->review_pattern_page(
 npcink_abilities_toolkit_assert_same( 'needs_revision', $custom_html_pattern_review['data']['review_status'] ?? '', 'review-pattern-page flags custom HTML-only patterns for revision' );
 npcink_abilities_toolkit_assert_same( 'medium', $custom_html_pattern_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports custom HTML as medium editor risk' );
 npcink_abilities_toolkit_assert_true( in_array( 'revise_pattern_page_plan', $custom_html_pattern_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends revising risky pattern plans' );
+$review_revised_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Revised WordPress AI',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'review_feedback'    => $custom_html_pattern_review['data'],
+		'variables'          => array(
+			'eyebrow'          => 'WordPress AI Plugin',
+			'hero_title'       => 'Review-revised Gutenberg landing page',
+			'hero_description' => 'Previous review findings are converted into bounded Pattern revision goals.',
+			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/review-revised-dashboard.jpg',
+			'hero_media_alt'   => 'Review-revised WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts review feedback from a previous Pattern review' );
+npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['data']['quality_feedback']['feedback_received'] ?? null, 'build-pattern-page-plan reports received review feedback' );
+npcink_abilities_toolkit_assert_same( 'needs_revision', $review_revised_pattern_page_plan['data']['quality_feedback']['source_review_status'] ?? '', 'build-pattern-page-plan preserves previous review status in feedback summary' );
+npcink_abilities_toolkit_assert_true( in_array( 'editor_invalid_block_risk', $review_revised_pattern_page_plan['data']['quality_feedback']['finding_codes'] ?? array(), true ), 'build-pattern-page-plan carries previous editor-risk finding code' );
+$review_revised_goals = array_map(
+	static function ( $goal ) {
+		return is_array( $goal ) ? (string) ( $goal['goal'] ?? '' ) : '';
+	},
+	is_array( $review_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] ?? null ) ? $review_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] : array()
+);
+npcink_abilities_toolkit_assert_true( in_array( 'avoid_invalid_blocks', $review_revised_goals, true ), 'build-pattern-page-plan converts editor-risk feedback into a bounded revision goal' );
+npcink_abilities_toolkit_assert_same( 'pass', $review_revised_pattern_page_plan['data']['quality_review']['review_status'] ?? '', 'build-pattern-page-plan self-review passes after applying Pattern revision defaults' );
+npcink_abilities_toolkit_assert_true( in_array( 'editor_invalid_block_risk', $review_revised_pattern_page_plan['data']['revision_strategy']['applied_finding_codes'] ?? array(), true ), 'build-pattern-page-plan reports previous editor-risk finding as addressed by the new plan' );
+npcink_abilities_toolkit_assert_true( in_array( 'native_style_density_low', $review_revised_pattern_page_plan['data']['revision_strategy']['applied_finding_codes'] ?? array(), true ), 'build-pattern-page-plan reports previous native-style finding as addressed by the new plan' );
+npcink_abilities_toolkit_assert_same( array(), $review_revised_pattern_page_plan['data']['revision_strategy']['remaining_finding_codes'] ?? array( 'unexpected' ), 'build-pattern-page-plan reports no remaining previous findings after a high-quality revision' );
+npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['data']['revision_strategy']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks review-revised plans ready for Core proposal handoff' );
 $research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Research Backed WordPress AI',
