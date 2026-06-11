@@ -4441,6 +4441,7 @@ $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 			'primary_cta'      => '查看工作流',
 			'secondary_cta'    => '了解能力',
 			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_attachment_id' => 8053,
 			'hero_media_alt'   => 'WordPress AI dashboard preview',
 			'features'         => array(
 				array(
@@ -4476,14 +4477,20 @@ npcink_abilities_toolkit_assert_same( 'aspect_ratio', $pattern_media_slots[0]['c
 npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['crop']['aspect_ratio'] ?? '', 'build-pattern-page-plan carries hero aspect ratio into crop guidance' );
 npcink_abilities_toolkit_assert_same( 'ai_image_ratio_crop_media_adoption', $pattern_media_slots[0]['recommended_recipe_id'] ?? '', 'build-pattern-page-plan recommends the AI image crop adoption recipe for hero media' );
 npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
+npcink_abilities_toolkit_assert_same( 'hero_media_attachment_id', $pattern_media_slots[0]['attachment_id_variable'] ?? '', 'build-pattern-page-plan declares the hero media attachment id variable' );
+npcink_abilities_toolkit_assert_same( 8053, $pattern_media_slots[0]['existing_media_attachment_id'] ?? 0, 'build-pattern-page-plan echoes reviewed hero media attachment id in media slot metadata' );
 npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_valid'] ?? null, 'build-pattern-page-plan marks reviewed media URLs valid' );
+npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_has_attachment_id'] ?? null, 'build-pattern-page-plan marks reviewed media attachment ids present' );
 npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
+npcink_abilities_toolkit_assert_same( 'minimal-dark-light', $pattern_page_plan['data']['design_quality']['color_story'] ?? '', 'build-pattern-page-plan reports the native color story in design quality' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? true, 'build-pattern-page-plan does not report editorial accents for the default monochrome story' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports eight v2 sections when media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan reports reviewed hero media in the split hero' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media_attachment_id'] ?? null, 'build-pattern-page-plan reports reviewed hero media attachment binding' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_bento_grid'] ?? null, 'build-pattern-page-plan reports the Gutenberg-native Bento feature grid' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
@@ -4545,6 +4552,7 @@ npcink_abilities_toolkit_assert_same( 'core/group', $pattern_hero_visual['blockN
 npcink_abilities_toolkit_assert_same( 'npcink-ai-dashboard-card npcink-ai-hero-media-card', $pattern_hero_visual['attrs']['className'] ?? '', 'build-pattern-page-plan marks the hero media panel with whitelisted classes' );
 npcink_abilities_toolkit_assert_same( 'core/image', $pattern_hero_visual['innerBlocks'][0]['blockName'] ?? '', 'build-pattern-page-plan places reviewed media in the hero visual column' );
 npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
+npcink_abilities_toolkit_assert_same( 8053, $pattern_hero_visual['innerBlocks'][0]['attrs']['id'] ?? 0, 'build-pattern-page-plan binds the reviewed hero image block to the attachment id' );
 $pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
 npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
 npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
@@ -4557,7 +4565,10 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/columns"' ), 'build-pattern-page-plan uses native columns for feature and workflow sections' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"isStackedOnMobile":true' ), 'build-pattern-page-plan stacks columns on mobile' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/media-text"' ), 'build-pattern-page-plan uses media-text when existing media is supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"mediaId":8053' ), 'build-pattern-page-plan binds media-text to the reviewed attachment id' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/image"' ), 'build-pattern-page-plan uses core image for hero media when supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"id":8053' ), 'build-pattern-page-plan serializes image attachment id attrs' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'class=\"wp-image-8053\"' ), 'build-pattern-page-plan serializes wp-image attachment classes' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/details"' ), 'build-pattern-page-plan uses details blocks for FAQ' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-dashboard-card' ), 'build-pattern-page-plan includes a styled hero visual card' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false === strpos( $pattern_markup, 'npcink-ai-dashboard-mock' ), 'build-pattern-page-plan omits the dashboard mock when reviewed hero media is supplied' );
@@ -4575,6 +4586,8 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'OpenClaw proposal-first' ), 'build-pattern-page-plan includes the proposal-first comparison side' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'wp-block-heading has-text-align-center has-text-color npcink-ai-section-title npcink-ai-section-title-light' ), 'build-pattern-page-plan centers the final CTA heading and emits Gutenberg text color classes' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'has-text-align-center has-text-color npcink-ai-lede' ), 'build-pattern-page-plan centers the final CTA description and emits Gutenberg text color classes' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'background-color:#111111;color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px' ), 'build-pattern-page-plan makes the dark final CTA text color explicit' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-radius:999px;background-color:#ffffff;color:#111111;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan renders a visible primary CTA button on dark bands' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-color:#ffffff;border-width:1px;border-radius:999px;background-color:#111111;color:#ffffff;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan renders a matching secondary CTA button on dark bands' );
@@ -4603,12 +4616,30 @@ $accent_blocks = is_array( $accent_actions[1]['input']['blocks'] ?? null ) ? $ac
 $accent_markup = wp_json_encode( $accent_blocks );
 npcink_abilities_toolkit_assert_same( true, $accent_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts the editorial accent color story' );
 npcink_abilities_toolkit_assert_same( 'editorial-accent', $accent_pattern_page_plan['data']['color_story'] ?? '', 'build-pattern-page-plan preserves the editorial accent color story' );
+npcink_abilities_toolkit_assert_same( 'editorial-accent', $accent_pattern_page_plan['data']['design_quality']['color_story'] ?? '', 'build-pattern-page-plan reports the editorial accent story in design quality' );
+npcink_abilities_toolkit_assert_same( true, $accent_pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? null, 'build-pattern-page-plan marks editorial accent pages as visually accented' );
+npcink_abilities_toolkit_assert_true( (int) ( $accent_pattern_page_plan['data']['design_quality']['accent_surface_count'] ?? 0 ) >= 4, 'build-pattern-page-plan counts accent surfaces in design quality' );
 npcink_abilities_toolkit_assert_same( '#f4f8f7', $accent_blocks[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan applies the accent hero background natively' );
+$accent_hero_layout = is_array( $accent_blocks[0]['innerBlocks'][0] ?? null ) ? $accent_blocks[0]['innerBlocks'][0] : array();
+$accent_hero_copy = is_array( $accent_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $accent_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
+$accent_buttons = is_array( $accent_hero_copy[3]['innerBlocks'] ?? null ) ? $accent_hero_copy[3]['innerBlocks'] : array();
+npcink_abilities_toolkit_assert_same( '#102b2d', $accent_buttons[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan uses the accent contrast color for the primary hero button' );
+npcink_abilities_toolkit_assert_same( '#102b2d', $accent_buttons[1]['attrs']['style']['border']['color'] ?? '', 'build-pattern-page-plan uses the accent contrast color for the secondary hero button border' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'color:#2f6f68;font-size:13px' ), 'build-pattern-page-plan serializes the active accent color on eyebrow copy' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, '"top":{"color":"#2f6f68","width":"1px"}' ), 'build-pattern-page-plan applies the accent color to proof card top rules' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#102b2d;border-width:1px;border-radius:24px;background-color:#102b2d;color:#ffffff' ), 'build-pattern-page-plan uses the accent contrast color for the feature spotlight card' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#2f6f68;border-width:1px;border-radius:20px;background-color:#153f42;color:#ffffff' ), 'build-pattern-page-plan gives the accent comparison card a distinct native background' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'background-color:#dfeee9;padding-top:72px;padding-right:40px;padding-bottom:72px;padding-left:40px' ), 'build-pattern-page-plan applies the accent media section background natively' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'background-color:#102b2d;color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px' ), 'build-pattern-page-plan applies the accent dark final CTA background natively' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#ffffff;border-width:1px;border-radius:999px;background-color:#102b2d;color:#ffffff;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan keeps the secondary CTA visible on accent dark bands' );
 npcink_abilities_toolkit_assert_true( (int) ( $accent_pattern_page_plan['data']['quality_review']['layout_fingerprint']['accent_color_count'] ?? 0 ) >= 1, 'build-pattern-page-plan review fingerprint detects accent color usage' );
+$accent_review_finding_codes = array_map(
+	static function ( $finding ) {
+		return is_array( $finding ) ? (string) ( $finding['code'] ?? '' ) : '';
+	},
+	is_array( $accent_pattern_page_plan['data']['quality_review']['visual_quality_findings'] ?? null ) ? $accent_pattern_page_plan['data']['quality_review']['visual_quality_findings'] : array()
+);
+npcink_abilities_toolkit_assert_true( ! in_array( 'color_story_monochrome', $accent_review_finding_codes, true ), 'build-pattern-page-plan does not flag the editorial accent story as monochrome' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280973] = (object) array(
 	'ID'           => 280973,
 	'post_type'    => 'page',
@@ -4728,10 +4759,14 @@ npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['top_level
 npcink_abilities_toolkit_assert_same( 101, $pattern_page_review['data']['block_count'] ?? 0, 'review-pattern-page reports recursive block count' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_bento_grid'] ?? null, 'review-pattern-page carries Bento design quality' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_hero_media'] ?? null, 'review-pattern-page carries hero media design quality' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_hero_media_attachment_id'] ?? null, 'review-pattern-page carries hero media attachment binding quality' );
 npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['section_shape_variety'] ?? 0 ) >= 5, 'review-pattern-page reports section shape variety' );
 npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['native_style_density'] ?? 0 ) >= 40, 'review-pattern-page reports native style density' );
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['responsive_quality']['responsive_risk_level'] ?? '', 'review-pattern-page reports low responsive risk for stacked native columns' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['image_alt_complete'] ?? null, 'review-pattern-page reports complete image alt text' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['has_hero_media_url'] ?? null, 'review-pattern-page reports local hero media URLs present' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['has_hero_media_attachment_id'] ?? null, 'review-pattern-page reports hero media attachment ids present' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_review['data']['media_quality']['has_temporary_cloud_preview_url'] ?? true, 'review-pattern-page reports no temporary Cloud preview URLs' );
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports low server-observable invalid block risk' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['layout_fingerprint']['section_count'] ?? 0, 'review-pattern-page reports layout fingerprint section count' );
 npcink_abilities_toolkit_assert_same( 'center', $pattern_page_review['data']['layout_fingerprint']['comparison_title_alignment'] ?? '', 'review-pattern-page reports centered comparison title alignment' );
@@ -4744,6 +4779,34 @@ $pattern_page_review_finding_codes = array_map(
 );
 npcink_abilities_toolkit_assert_true( in_array( 'color_story_monochrome', $pattern_page_review_finding_codes, true ), 'review-pattern-page reports monochrome color stories as a non-blocking visual finding' );
 npcink_abilities_toolkit_assert_true( in_array( 'preview_page_in_editor', $pattern_page_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends final editor preview after a pass' );
+$color_revised_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Color Revised WordPress AI',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'review_feedback'    => $pattern_page_review['data'],
+		'variables'          => array(
+			'hero_title'     => 'Color-revised Gutenberg landing page',
+			'hero_media_url' => 'https://magick-ai.local/wp-content/uploads/2026/06/color-revised-dashboard.jpg',
+			'hero_media_alt' => 'Color-revised WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $color_revised_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts monochrome review feedback for color revision' );
+npcink_abilities_toolkit_assert_same( 'editorial-accent', $color_revised_pattern_page_plan['data']['color_story'] ?? '', 'build-pattern-page-plan upgrades monochrome feedback to the editorial accent story when no color story is explicit' );
+npcink_abilities_toolkit_assert_same( true, $color_revised_pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? null, 'build-pattern-page-plan reports editorial accents after monochrome feedback revision' );
+$color_revised_goals = array_map(
+	static function ( $goal ) {
+		return is_array( $goal ) ? (string) ( $goal['goal'] ?? '' ) : '';
+	},
+	is_array( $color_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] ?? null ) ? $color_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] : array()
+);
+npcink_abilities_toolkit_assert_true( in_array( 'increase_color_rhythm', $color_revised_goals, true ), 'build-pattern-page-plan converts monochrome findings into a bounded color rhythm revision goal' );
+npcink_abilities_toolkit_assert_true( in_array( 'color_story_monochrome', $color_revised_pattern_page_plan['data']['revision_strategy']['applied_finding_codes'] ?? array(), true ), 'build-pattern-page-plan reports the monochrome finding as addressed by the accent revision' );
+npcink_abilities_toolkit_assert_true( ! in_array( 'color_story_monochrome', $color_revised_pattern_page_plan['data']['revision_strategy']['current_finding_codes'] ?? array(), true ), 'build-pattern-page-plan removes the monochrome finding from current review after accent revision' );
 $block_surface_blocks_review = $core_read_package->review_block_editor_surface(
 	array(
 		'surface_kind' => 'blocks_input',
