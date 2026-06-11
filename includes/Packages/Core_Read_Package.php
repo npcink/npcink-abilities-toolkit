@@ -1519,6 +1519,7 @@ final class Core_Read_Package {
 						'post_type'          => array( 'type' => 'string', 'enum' => array( 'page' ), 'default' => 'page' ),
 						'status'             => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
 						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
+						'target_post_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
 						'pattern_id'         => array( 'type' => 'string', 'enum' => array( 'openai-style-landing' ), 'default' => 'openai-style-landing' ),
 						'style_preset'       => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light' ), 'default' => 'minimal-dark-light' ),
 						'color_story'        => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light', 'editorial-accent' ), 'default' => 'minimal-dark-light' ),

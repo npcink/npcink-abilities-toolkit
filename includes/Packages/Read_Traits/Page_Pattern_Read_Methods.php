@@ -34,6 +34,7 @@ trait Page_Pattern_Read_Methods {
 		$visual_density     = sanitize_key( (string) ( $input['visual_density'] ?? 'balanced' ) );
 		$media_strategy     = sanitize_key( (string) ( $input['media_strategy'] ?? 'mock_or_existing_media' ) );
 		$post_type          = sanitize_key( (string) ( $input['post_type'] ?? 'page' ) );
+		$target_post_id     = absint( $input['target_post_id'] ?? 0 );
 		if ( 'page' !== $post_type ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_post_type_invalid', __( 'Pattern page plans currently support post_type=page only.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
@@ -54,6 +55,22 @@ trait Page_Pattern_Read_Methods {
 		}
 		if ( ! in_array( $media_strategy, array( 'mock_or_existing_media', 'existing_media_url' ), true ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_media_strategy_invalid', __( 'Media strategy is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$target_post = null;
+		if ( $target_post_id > 0 ) {
+			$target_post = get_post( $target_post_id );
+			if ( ! is_object( $target_post ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_not_found', __( 'Target page was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $target_post_id ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to update the target page.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			if ( 'page' !== sanitize_key( (string) ( $target_post->post_type ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_type_invalid', __( 'Target post must be a page.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( 'draft' !== sanitize_key( (string) ( $target_post->post_status ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_status_invalid', __( 'Target page must be a draft.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
 		}
 
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
@@ -78,43 +95,61 @@ trait Page_Pattern_Read_Methods {
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
 		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
-		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $title, $variables, $section_variant_hints ) );
+		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $target_post_id, $title, $variables, $section_variant_hints ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
-		$write_actions = array(
-			$this->build_plan_action(
-				'create-pattern-page',
-				'npcink-abilities-toolkit/create-draft',
-				array(
-					'post_type'      => 'page',
-					'status'         => 'draft',
-					'title'          => $title,
-					'content'        => '',
-					'content_format' => 'html',
-					'meta'           => array(
-						'npcink_pattern_id'         => $pattern_id,
-						'npcink_style_preset'       => $style_preset,
-						'npcink_color_story'        => $color_story,
-						'npcink_responsive_profile' => $responsive_profile,
+		if ( $target_post_id > 0 ) {
+			$write_actions = array(
+				$this->build_plan_action(
+					'update-pattern-page-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => $target_post_id,
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
 					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the existing draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
 				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Create a draft page before applying reviewed Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
-			),
-			$this->build_plan_action(
-				'update-pattern-page-blocks',
-				'npcink-abilities-toolkit/update-post-blocks',
-				array(
-					'post_id'            => '$outputs.create-pattern-page.post_id',
-					'mode'               => 'replace',
-					'validate_roundtrip' => true,
-					'blocks'             => $blocks,
+			);
+		} else {
+			$write_actions = array(
+				$this->build_plan_action(
+					'create-pattern-page',
+					'npcink-abilities-toolkit/create-draft',
+					array(
+						'post_type'      => 'page',
+						'status'         => 'draft',
+						'title'          => $title,
+						'content'        => '',
+						'content_format' => 'html',
+						'meta'           => array(
+							'npcink_pattern_id'         => $pattern_id,
+							'npcink_style_preset'       => $style_preset,
+							'npcink_color_story'        => $color_story,
+							'npcink_responsive_profile' => $responsive_profile,
+						),
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Create a draft page before applying reviewed Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
 				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Replace the draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
-			),
-		);
+				$this->build_plan_action(
+					'update-pattern-page-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => '$outputs.create-pattern-page.post_id',
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
+				),
+			);
+		}
 
 		return $this->build_analysis_success_response(
 			array(
@@ -131,6 +166,19 @@ trait Page_Pattern_Read_Methods {
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'media_slots'            => $media_slots,
+				'target_post'            => $target_post_id > 0 ? array(
+					'mode'      => 'update_existing',
+					'post_id'   => $target_post_id,
+					'post_type' => sanitize_key( (string) ( $target_post->post_type ?? 'page' ) ),
+					'status'    => sanitize_key( (string) ( $target_post->post_status ?? 'draft' ) ),
+					'title'     => sanitize_text_field( (string) ( $target_post->post_title ?? '' ) ),
+				) : array(
+					'mode'      => 'create_draft',
+					'post_id'   => 0,
+					'post_type' => 'page',
+					'status'    => 'draft',
+					'title'     => $title,
+				),
 				'quality_feedback'       => $review_feedback,
 				'quality_review'         => $quality_review,
 				'revision_strategy'      => $revision_strategy,

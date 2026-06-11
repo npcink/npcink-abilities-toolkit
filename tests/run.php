@@ -1142,15 +1142,16 @@ npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilit
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-rename-plan'] ), 'build-media-rename-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['required_scopes'] ?? array(), 'media rename plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['input_schema']['required'] ?? array(), 'media rename plan requires attachment and target filename' );
-	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan'] ), 'build-pattern-page-plan is registered as a read-only planning ability' );
-	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['required_scopes'] ?? array(), 'pattern page plan remains a read-scope planning ability' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan'] ), 'build-pattern-page-plan is registered as a read-only planning ability' );
+npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['required_scopes'] ?? array(), 'pattern page plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'title', 'pattern_id' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['required'] ?? array(), 'pattern page plan requires title and pattern id' );
+npcink_abilities_toolkit_assert_same( 1, $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['target_post_id']['minimum'] ?? null, 'pattern page plan accepts a bounded target page id for existing draft updates' );
 npcink_abilities_toolkit_assert_same( array( 'landing_standard' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['responsive_profile']['enum'] ?? array(), 'pattern page plan exposes a bounded responsive profile' );
 npcink_abilities_toolkit_assert_same( array( 'minimal-dark-light', 'editorial-accent' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['color_story']['enum'] ?? array(), 'pattern page plan exposes bounded color stories' );
 npcink_abilities_toolkit_assert_same( array( 'balanced' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['visual_density']['enum'] ?? array(), 'pattern page plan exposes a bounded visual density' );
-	npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
-	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
-	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['review_feedback'] ), 'pattern page plan accepts optional review feedback for revision loops' );
+npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['review_feedback'] ), 'pattern page plan accepts optional review feedback for revision loops' );
 	npcink_abilities_toolkit_assert_same( array( 'center-title-two-cards', 'left-title-two-cards' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['section_variant_hints']['properties']['comparison']['enum'] ?? array(), 'pattern page plan exposes bounded section variant hints' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page'] ), 'review-pattern-page is registered as a read-only page quality review ability' );
 	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/review-pattern-page']['required_scopes'] ?? array(), 'pattern page review remains a read-scope ability' );
@@ -4503,6 +4504,57 @@ npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== s
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'background-color:#102b2d;color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px' ), 'build-pattern-page-plan applies the accent dark final CTA background natively' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#ffffff;border-width:1px;border-radius:999px;background-color:#102b2d;color:#ffffff;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan keeps the secondary CTA visible on accent dark bands' );
 npcink_abilities_toolkit_assert_true( (int) ( $accent_pattern_page_plan['data']['quality_review']['layout_fingerprint']['accent_color_count'] ?? 0 ) >= 1, 'build-pattern-page-plan review fingerprint detects accent color usage' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280973] = (object) array(
+	'ID'           => 280973,
+	'post_type'    => 'page',
+	'post_status'  => 'draft',
+	'post_title'   => 'Existing Pattern Draft',
+	'post_content' => '<!-- wp:paragraph --><p>Existing draft body.</p><!-- /wp:paragraph -->',
+);
+$target_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Update Existing WordPress AI',
+		'target_post_id'     => 280973,
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'color_story'        => 'editorial-accent',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
+			'hero_title'     => 'Update an existing Gutenberg draft',
+			'hero_media_url' => 'https://magick-ai.local/wp-content/uploads/2026/06/existing-target-dashboard.jpg',
+			'hero_media_alt' => 'Existing target WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $target_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts an existing draft page target' );
+npcink_abilities_toolkit_assert_same( 'update_existing', $target_pattern_page_plan['data']['target_post']['mode'] ?? '', 'build-pattern-page-plan reports existing draft update mode' );
+npcink_abilities_toolkit_assert_same( 280973, $target_pattern_page_plan['data']['target_post']['post_id'] ?? 0, 'build-pattern-page-plan preserves the target draft id' );
+npcink_abilities_toolkit_assert_same( 'draft', $target_pattern_page_plan['data']['target_post']['status'] ?? '', 'build-pattern-page-plan reports the target draft status' );
+npcink_abilities_toolkit_assert_same( 1, $target_pattern_page_plan['data']['summary']['action_count'] ?? 0, 'build-pattern-page-plan emits one action when updating an existing draft page' );
+$target_pattern_actions = is_array( $target_pattern_page_plan['data']['write_actions'] ?? null ) ? $target_pattern_page_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( 1, count( $target_pattern_actions ), 'build-pattern-page-plan omits create-draft when target_post_id is supplied' );
+npcink_abilities_toolkit_assert_same( 'update-pattern-page-blocks', $target_pattern_actions[0]['action_id'] ?? '', 'build-pattern-page-plan keeps the update action id for existing drafts' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-post-blocks', $target_pattern_actions[0]['target_ability_id'] ?? '', 'build-pattern-page-plan targets update-post-blocks for existing drafts' );
+npcink_abilities_toolkit_assert_same( 280973, $target_pattern_actions[0]['input']['post_id'] ?? 0, 'build-pattern-page-plan uses the concrete target draft id' );
+npcink_abilities_toolkit_assert_same( false, $target_pattern_actions[0]['input']['commit'] ?? true, 'build-pattern-page-plan keeps existing draft update actions non-committing' );
+npcink_abilities_toolkit_assert_same( true, $target_pattern_actions[0]['input']['dry_run'] ?? false, 'build-pattern-page-plan keeps existing draft update actions dry-run by default' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280974] = (object) array(
+	'ID'           => 280974,
+	'post_type'    => 'page',
+	'post_status'  => 'publish',
+	'post_title'   => 'Published Pattern Page',
+	'post_content' => '<!-- wp:paragraph --><p>Published body.</p><!-- /wp:paragraph -->',
+);
+$published_target_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'          => 'Reject Published Target',
+		'target_post_id' => 280974,
+		'pattern_id'     => 'openai-style-landing',
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $published_target_pattern_page_plan ) && 'npcink_abilities_toolkit_pattern_page_target_status_invalid' === $published_target_pattern_page_plan->get_error_code(), 'build-pattern-page-plan rejects published target pages for replacement proposals' );
 $placeholder_media_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Placeholder Media Pattern',
