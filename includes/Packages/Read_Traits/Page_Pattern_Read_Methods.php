@@ -1218,8 +1218,8 @@ trait Page_Pattern_Read_Methods {
 				$this->pattern_group_block(
 					'npcink-ai-final-cta',
 					array(
-						$this->pattern_heading_block( $final_cta_title, 2, 'npcink-ai-section-title npcink-ai-section-title-light', $this->pattern_light_section_title_attrs(), 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
-						$this->pattern_paragraph_block( $final_cta_description, 'npcink-ai-lede', $this->pattern_light_lede_attrs(), 'color:#f2f2f2;font-size:22px;line-height:1.4' ),
+						$this->pattern_heading_block( $final_cta_title, 2, 'npcink-ai-section-title npcink-ai-section-title-light', $this->pattern_centered_light_section_title_attrs(), 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+						$this->pattern_paragraph_block( $final_cta_description, 'npcink-ai-lede', $this->pattern_centered_light_lede_attrs(), 'color:#f2f2f2;font-size:22px;line-height:1.4' ),
 						$this->pattern_buttons_block(
 							array(
 								$this->pattern_button_block( $final_cta_primary, 'npcink-ai-button-primary', $this->pattern_dark_primary_button_attrs(), 'background-color:#ffffff;color:#111111;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
@@ -1342,6 +1342,7 @@ trait Page_Pattern_Read_Methods {
 		if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
 			$classes[] = 'has-text-align-' . $text_align;
 		}
+		$classes = array_merge( $classes, $this->pattern_color_support_classes( $attrs ) );
 		foreach ( preg_split( '/\s+/', $class_name ) ?: array() as $class ) {
 			if ( '' !== $class ) {
 				$classes[] = $class;
@@ -1371,7 +1372,18 @@ trait Page_Pattern_Read_Methods {
 		$attrs      = array_merge( $attrs, array( 'className' => $class_name ) );
 		$style_attr = $this->pattern_style_from_attrs( $attrs );
 		$style_html = '' !== $style_attr ? ' style="' . $this->pattern_attr( $style_attr ) . '"' : '';
-		$html       = '<p class="' . $this->pattern_attr( $class_name ) . '"' . $style_html . '>' . esc_html( $text ) . '</p>';
+		$text_align = sanitize_key( (string) ( $attrs['textAlign'] ?? '' ) );
+		$classes    = array();
+		if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
+			$classes[] = 'has-text-align-' . $text_align;
+		}
+		$classes = array_merge( $classes, $this->pattern_color_support_classes( $attrs ) );
+		foreach ( preg_split( '/\s+/', $class_name ) ?: array() as $class ) {
+			if ( '' !== $class ) {
+				$classes[] = $class;
+			}
+		}
+		$html = '<p class="' . $this->pattern_attr( implode( ' ', array_values( array_unique( $classes ) ) ) ) . '"' . $style_html . '>' . esc_html( $text ) . '</p>';
 		return array(
 			'blockName'    => 'core/paragraph',
 			'attrs'        => $attrs,
@@ -2095,6 +2107,20 @@ trait Page_Pattern_Read_Methods {
 	private function pattern_centered_light_section_title_attrs() {
 		return array_merge(
 			$this->pattern_light_section_title_attrs(),
+			array(
+				'textAlign' => 'center',
+			)
+		);
+	}
+
+	/**
+	 * Centered light lede attrs for symmetric CTA bands.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_centered_light_lede_attrs() {
+		return array_merge(
+			$this->pattern_light_lede_attrs(),
 			array(
 				'textAlign' => 'center',
 			)
@@ -3965,6 +3991,25 @@ trait Page_Pattern_Read_Methods {
 		}
 		$classes[] = 'wp-element-button';
 		return implode( ' ', $classes );
+	}
+
+	/**
+	 * Builds color support classes expected by Gutenberg save().
+	 *
+	 * @param array<string,mixed> $attrs Block attrs.
+	 * @return string[]
+	 */
+	private function pattern_color_support_classes( array $attrs ) {
+		$classes = array();
+		$style   = is_array( $attrs['style'] ?? null ) ? $attrs['style'] : array();
+		$color   = is_array( $style['color'] ?? null ) ? $style['color'] : array();
+		if ( ! empty( $color['text'] ) ) {
+			$classes[] = 'has-text-color';
+		}
+		if ( ! empty( $color['background'] ) ) {
+			$classes[] = 'has-background';
+		}
+		return $classes;
 	}
 
 	/**
