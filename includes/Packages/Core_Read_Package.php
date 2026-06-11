@@ -1521,6 +1521,7 @@ final class Core_Read_Package {
 						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
 						'pattern_id'         => array( 'type' => 'string', 'enum' => array( 'openai-style-landing' ), 'default' => 'openai-style-landing' ),
 						'style_preset'       => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light' ), 'default' => 'minimal-dark-light' ),
+						'color_story'        => array( 'type' => 'string', 'enum' => array( 'minimal-dark-light', 'editorial-accent' ), 'default' => 'minimal-dark-light' ),
 						'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'landing_standard' ), 'default' => 'landing_standard' ),
 						'visual_density'     => array( 'type' => 'string', 'enum' => array( 'balanced' ), 'default' => 'balanced' ),
 						'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'mock_or_existing_media', 'existing_media_url' ), 'default' => 'mock_or_existing_media' ),

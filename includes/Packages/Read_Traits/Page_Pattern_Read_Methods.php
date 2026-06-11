@@ -29,6 +29,7 @@ trait Page_Pattern_Read_Methods {
 
 		$pattern_id         = sanitize_key( (string) ( $input['pattern_id'] ?? 'openai-style-landing' ) );
 		$style_preset       = sanitize_key( (string) ( $input['style_preset'] ?? 'minimal-dark-light' ) );
+		$color_story        = sanitize_key( (string) ( $input['color_story'] ?? ( $input['variables']['color_story'] ?? 'minimal-dark-light' ) ) );
 		$responsive_profile = sanitize_key( (string) ( $input['responsive_profile'] ?? 'landing_standard' ) );
 		$visual_density     = sanitize_key( (string) ( $input['visual_density'] ?? 'balanced' ) );
 		$media_strategy     = sanitize_key( (string) ( $input['media_strategy'] ?? 'mock_or_existing_media' ) );
@@ -41,6 +42,9 @@ trait Page_Pattern_Read_Methods {
 		}
 		if ( 'minimal-dark-light' !== $style_preset ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_style_invalid', __( 'Style preset is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( ! in_array( $color_story, array( 'minimal-dark-light', 'editorial-accent' ), true ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_color_story_invalid', __( 'Color story is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( 'landing_standard' !== $responsive_profile ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_responsive_profile_invalid', __( 'Responsive profile is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -63,6 +67,7 @@ trait Page_Pattern_Read_Methods {
 				'responsive_profile'    => $responsive_profile,
 				'visual_density'        => $visual_density,
 				'media_strategy'        => $media_strategy,
+				'color_story'           => $color_story,
 				'research_brief'        => $research_brief,
 				'review_feedback'       => $review_feedback,
 				'section_variant_hints' => $section_variant_hints,
@@ -73,7 +78,7 @@ trait Page_Pattern_Read_Methods {
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
 		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
-		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables, $section_variant_hints ) );
+		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $title, $variables, $section_variant_hints ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 		$write_actions = array(
 			$this->build_plan_action(
@@ -88,6 +93,7 @@ trait Page_Pattern_Read_Methods {
 					'meta'           => array(
 						'npcink_pattern_id'         => $pattern_id,
 						'npcink_style_preset'       => $style_preset,
+						'npcink_color_story'        => $color_story,
 						'npcink_responsive_profile' => $responsive_profile,
 					),
 				),
@@ -117,6 +123,7 @@ trait Page_Pattern_Read_Methods {
 				'version'                => 1,
 				'pattern_id'             => $pattern_id,
 				'style_preset'           => $style_preset,
+				'color_story'            => $color_story,
 				'responsive_profile'     => $responsive_profile,
 				'visual_density'         => $visual_density,
 				'media_strategy'         => $media_strategy,
@@ -583,6 +590,7 @@ trait Page_Pattern_Read_Methods {
 		$research_brief   = is_array( $options['research_brief'] ?? null ) ? $options['research_brief'] : array();
 		$review_feedback  = is_array( $options['review_feedback'] ?? null ) ? $options['review_feedback'] : array();
 		$section_variant_hints = is_array( $options['section_variant_hints'] ?? null ) ? $this->pattern_section_variant_hints( $options['section_variant_hints'] ) : $this->pattern_section_variant_hints( array() );
+		$palette          = $this->pattern_color_story_palette( $options['color_story'] ?? 'minimal-dark-light' );
 		$comparison_variant = (string) ( $section_variant_hints['comparison'] ?? 'center-title-two-cards' );
 		$visual_delta     = $this->pattern_should_render_visual_delta( $review_feedback );
 		$hero_media_url   = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
@@ -720,7 +728,7 @@ trait Page_Pattern_Read_Methods {
 						array(
 							$this->pattern_column_block(
 								array(
-									$this->pattern_paragraph_block( $eyebrow, 'npcink-ai-eyebrow', $this->pattern_eyebrow_attrs(), 'color:#555555;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
+									$this->pattern_paragraph_block( $eyebrow, 'npcink-ai-eyebrow', $this->pattern_accent_eyebrow_attrs( $palette ), 'color:' . $palette['accent'] . ';font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
 									$this->pattern_heading_block( $hero_title, 1, 'npcink-ai-title', $this->pattern_hero_title_attrs(), 'font-size:64px;font-weight:500;line-height:1;letter-spacing:0;margin-top:0;margin-bottom:0' ),
 									$this->pattern_paragraph_block( $hero_description, 'npcink-ai-lede', $this->pattern_lede_attrs(), 'color:#333333;font-size:22px;line-height:1.4' ),
 									$this->pattern_buttons_block(
@@ -743,7 +751,7 @@ trait Page_Pattern_Read_Methods {
 						$this->pattern_columns_attrs( '40px' )
 					),
 				),
-				$this->pattern_section_attrs( '#f7f7f4', '96px', '88px', true ),
+				$this->pattern_section_attrs( $palette['hero_background'], '96px', '88px', true ),
 				'background-color:#f7f7f4;border-bottom-color:#e5e5e5;border-bottom-width:1px;padding-top:96px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 			),
 			$this->pattern_group_block(
@@ -772,7 +780,7 @@ trait Page_Pattern_Read_Methods {
 						$this->pattern_columns_attrs( '24px' )
 					),
 				),
-				$this->pattern_section_attrs( '#ffffff', '48px', '56px', false ),
+				$this->pattern_section_attrs( $palette['surface'], '48px', '56px', false ),
 				'background-color:#ffffff;padding-top:48px;padding-right:40px;padding-bottom:56px;padding-left:40px'
 			),
 		);
@@ -785,7 +793,7 @@ trait Page_Pattern_Read_Methods {
 						$hero_media_url,
 						$hero_media_alt,
 						array(
-							$this->pattern_paragraph_block( 'Responsive Pattern', 'npcink-ai-eyebrow', $this->pattern_eyebrow_attrs(), 'color:#555555;font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
+							$this->pattern_paragraph_block( 'Responsive Pattern', 'npcink-ai-eyebrow', $this->pattern_accent_eyebrow_attrs( $palette ), 'color:' . $palette['accent'] . ';font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
 							$this->pattern_heading_block( $this->pattern_text( $variables['media_title'] ?? '', $this->pattern_research_item_title( $visual_recommendations, '视觉结构和治理流程一起交付' ) ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 							$this->pattern_paragraph_block( $this->pattern_text( $variables['media_description'] ?? '', $this->pattern_research_item_description( $visual_recommendations, 'OpenClaw 提供页面意图和素材引用，Toolkit 输出响应式 Gutenberg 模块，Core 继续保留审批和审计。' ) ), 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
 						),
@@ -793,7 +801,7 @@ trait Page_Pattern_Read_Methods {
 						$this->pattern_media_text_attrs()
 					),
 				),
-				$this->pattern_section_attrs( '#f7f7f4', '72px', '72px', false ),
+				$this->pattern_section_attrs( $palette['media_background'], '72px', '72px', false ),
 				'background-color:#f7f7f4;padding-top:72px;padding-right:40px;padding-bottom:72px;padding-left:40px'
 			);
 		}
@@ -803,7 +811,8 @@ trait Page_Pattern_Read_Methods {
 			$research_sections[] = $this->pattern_comparison_block(
 				$comparison_angles,
 				! empty( $research_brief ) ? __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ) : __( '为什么坚持 proposal-first', 'npcink-abilities-toolkit' ),
-				$comparison_variant
+				$comparison_variant,
+				$palette
 			);
 		}
 
@@ -822,7 +831,7 @@ trait Page_Pattern_Read_Methods {
 						),
 						$visual_delta ? $this->pattern_feature_visual_delta_block( $features ) : $this->pattern_feature_bento_block( $features ),
 					),
-					$this->pattern_section_attrs( $visual_delta ? '#111111' : '#ffffff', '88px', '88px', false ),
+					$this->pattern_section_attrs( $visual_delta ? $palette['contrast_background'] : $palette['surface'], '88px', '88px', false ),
 					$visual_delta ? 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' : 'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 				),
 				$this->pattern_group_block(
@@ -852,7 +861,7 @@ trait Page_Pattern_Read_Methods {
 							$this->pattern_columns_attrs()
 						),
 					),
-					$this->pattern_section_attrs( '#f7f7f4', '88px', '96px', false ),
+					$this->pattern_section_attrs( $palette['workflow_background'], '88px', '96px', false ),
 					'background-color:#f7f7f4;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px'
 				),
 			),
@@ -879,24 +888,24 @@ trait Page_Pattern_Read_Methods {
 							''
 						),
 					),
-					$this->pattern_section_attrs( '#ffffff', '88px', '88px', false ),
+					$this->pattern_section_attrs( $palette['surface'], '88px', '88px', false ),
 					'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 				),
 				$this->pattern_group_block(
 					'npcink-ai-final-cta',
 					array(
-						$this->pattern_heading_block( $final_cta_title, 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+						$this->pattern_heading_block( $final_cta_title, 2, 'npcink-ai-section-title npcink-ai-section-title-light', $this->pattern_light_section_title_attrs(), 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 						$this->pattern_paragraph_block( $final_cta_description, 'npcink-ai-lede', $this->pattern_light_lede_attrs(), 'color:#f2f2f2;font-size:22px;line-height:1.4' ),
 						$this->pattern_buttons_block(
 							array(
-								$this->pattern_button_block( $final_cta_primary, 'npcink-ai-button-primary', $this->pattern_primary_button_attrs(), 'background-color:#111111;color:#ffffff;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
-								$this->pattern_button_block( $final_cta_secondary, 'npcink-ai-button-secondary', $this->pattern_secondary_button_attrs(), 'background-color:#ffffff;color:#111111;border:1px solid #111111;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
+								$this->pattern_button_block( $final_cta_primary, 'npcink-ai-button-primary', $this->pattern_dark_primary_button_attrs(), 'background-color:#ffffff;color:#111111;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
+								$this->pattern_button_block( $final_cta_secondary, 'npcink-ai-button-secondary', $this->pattern_dark_secondary_button_attrs( $palette['contrast_background'] ), 'background-color:' . $palette['contrast_background'] . ';color:#ffffff;border:1px solid #ffffff;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
 							),
 							'npcink-ai-cta',
 							$this->pattern_buttons_attrs( 'center' )
 						),
 					),
-					$this->pattern_section_attrs( '#111111', '88px', '96px', false ),
+					$this->pattern_dark_section_attrs( $palette['contrast_background'], '88px', '96px', false ),
 					'background-color:#111111;color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px'
 				),
 			)
@@ -1319,7 +1328,8 @@ trait Page_Pattern_Read_Methods {
 	 * @param string                          $variant Section layout variant.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_comparison_block( array $items, $title = '', $variant = 'center-title-two-cards' ) {
+	private function pattern_comparison_block( array $items, $title = '', $variant = 'center-title-two-cards', array $palette = array() ) {
+		$palette = ! empty( $palette ) ? $palette : $this->pattern_color_story_palette( 'minimal-dark-light' );
 		$items = array_slice( $items, 0, 3 );
 		$title = $this->pattern_text( $title, '为什么坚持 proposal-first' );
 		$variant = sanitize_key( (string) $variant );
@@ -1358,7 +1368,7 @@ trait Page_Pattern_Read_Methods {
 					$this->pattern_columns_attrs()
 				),
 			),
-			$this->pattern_section_attrs( '#111111', '88px', '88px', false ),
+			$this->pattern_dark_section_attrs( $palette['contrast_background'], '88px', '88px', false ),
 			'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
 		);
 	}
@@ -1565,6 +1575,51 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Section attrs for dark bands that must explicitly set readable text color.
+	 *
+	 * @param string $background Background color.
+	 * @param string $padding_top Top padding.
+	 * @param string $padding_bottom Bottom padding.
+	 * @param bool   $with_bottom_border Whether to add bottom border.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_dark_section_attrs( $background, $padding_top, $padding_bottom, $with_bottom_border ) {
+		$attrs = $this->pattern_section_attrs( $background, $padding_top, $padding_bottom, $with_bottom_border );
+		$attrs['style']['color']['text'] = '#ffffff';
+		return $attrs;
+	}
+
+	/**
+	 * Returns bounded Gutenberg-native color tokens for Pattern rendering.
+	 *
+	 * @param mixed $color_story Requested color story.
+	 * @return array<string,string>
+	 */
+	private function pattern_color_story_palette( $color_story ) {
+		$color_story = sanitize_key( (string) $color_story );
+		if ( 'editorial-accent' === $color_story ) {
+			return array(
+				'name'                => 'editorial-accent',
+				'surface'             => '#ffffff',
+				'hero_background'     => '#f4f8f7',
+				'media_background'    => '#dfeee9',
+				'workflow_background' => '#eef6f3',
+				'contrast_background' => '#102b2d',
+				'accent'              => '#2f6f68',
+			);
+		}
+		return array(
+			'name'                => 'minimal-dark-light',
+			'surface'             => '#ffffff',
+			'hero_background'     => '#f7f7f4',
+			'media_background'    => '#f7f7f4',
+			'workflow_background' => '#f7f7f4',
+			'contrast_background' => '#111111',
+			'accent'              => '#555555',
+		);
+	}
+
+	/**
 	 * Hero title typography attrs.
 	 *
 	 * @return array<string,mixed>
@@ -1600,6 +1655,18 @@ trait Page_Pattern_Read_Methods {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Eyebrow attrs with the active color story accent.
+	 *
+	 * @param array<string,string> $palette Color story palette.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_accent_eyebrow_attrs( array $palette ) {
+		$attrs = $this->pattern_eyebrow_attrs();
+		$attrs['style']['color']['text'] = (string) ( $palette['accent'] ?? '#555555' );
+		return $attrs;
 	}
 
 	/**
@@ -2241,6 +2308,61 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Primary button attrs for dark CTA bands.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_dark_primary_button_attrs() {
+		return array(
+			'style' => array(
+				'border'  => array( 'radius' => '999px' ),
+				'color'   => array(
+					'background' => '#ffffff',
+					'text'       => '#111111',
+				),
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '14px',
+						'right'  => '24px',
+						'bottom' => '14px',
+						'left'   => '24px',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Secondary button attrs for dark CTA bands.
+	 *
+	 * @param string $background Section background color.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_dark_secondary_button_attrs( $background = '#111111' ) {
+		return array(
+			'style' => array(
+				'border'  => array(
+					'color'  => '#ffffff',
+					'width'  => '1px',
+					'radius' => '999px',
+				),
+				'color'   => array(
+					'background' => (string) $background,
+					'text'       => '#ffffff',
+				),
+				'spacing' => array(
+					'padding' => array(
+						'top'    => '14px',
+						'right'  => '24px',
+						'bottom' => '14px',
+						'left'   => '24px',
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Columns layout attrs.
 	 *
 	 * @return array<string,mixed>
@@ -2838,6 +2960,8 @@ trait Page_Pattern_Read_Methods {
 		$section_sequence      = array();
 		$section_alignment_map = array();
 		$alignment_mix         = array();
+		$section_backgrounds   = array();
+		$accent_color_count    = 0;
 		$contrast_band_count   = 0;
 		$media_section_count   = 0;
 		$card_grid_count       = 0;
@@ -2860,6 +2984,14 @@ trait Page_Pattern_Read_Methods {
 				'alignment' => $alignment,
 			);
 			$alignment_mix[] = $alignment;
+
+			$background = $this->pattern_block_background_color( $block );
+			if ( '' !== $background ) {
+				$section_backgrounds[] = $background;
+				if ( ! in_array( $background, array( '#111111', '#1f1f1f', '#ffffff', '#f7f7f4', '#e5e5e5', '#dddddd', 'black', 'white' ), true ) ) {
+					++$accent_color_count;
+				}
+			}
 
 			if ( $this->pattern_section_is_dark_contrast_band( $block ) ) {
 				++$contrast_band_count;
@@ -2887,6 +3019,9 @@ trait Page_Pattern_Read_Methods {
 			'section_count'              => count( $section_sequence ),
 			'section_sequence'           => $section_sequence,
 			'section_sequence_hash'      => substr( md5( implode( '|', $section_sequence ) ), 0, 12 ),
+			'section_backgrounds'        => array_values( array_unique( $section_backgrounds ) ),
+			'unique_background_count'    => count( array_unique( $section_backgrounds ) ),
+			'accent_color_count'         => $accent_color_count,
 			'section_alignment_map'      => $section_alignment_map,
 			'alignment_mix'              => $alignment_mix,
 			'contrast_band_count'        => $contrast_band_count,
@@ -2940,6 +3075,13 @@ trait Page_Pattern_Read_Methods {
 				'severity' => 'low',
 				'code'     => 'layout_similarity_risk',
 				'message'  => 'Section 序列变化不足，后续页面可能显得模板化。',
+			);
+		}
+		if ( (int) ( $layout_fingerprint['section_count'] ?? 0 ) >= 6 && (int) ( $layout_fingerprint['accent_color_count'] ?? 0 ) < 1 && (int) ( $layout_fingerprint['unique_background_count'] ?? 0 ) <= 3 ) {
+			$findings[] = array(
+				'severity' => 'low',
+				'code'     => 'color_story_monochrome',
+				'message'  => '页面色彩主要停留在黑白灰，建议改用受控强调色 story 或补充视觉资产。',
 			);
 		}
 
@@ -3047,7 +3189,7 @@ trait Page_Pattern_Read_Methods {
 				$actions[] = 'review_responsive_columns';
 			} elseif ( 'editor_invalid_block_risk' === $code ) {
 				$actions[] = 'open_editor_and_rebuild_invalid_blocks';
-			} elseif ( in_array( $code, array( 'insufficient_card_padding', 'light_card_inherits_light_text', 'layout_similarity_risk', 'section_title_alignment_suggestion' ), true ) ) {
+			} elseif ( in_array( $code, array( 'insufficient_card_padding', 'light_card_inherits_light_text', 'layout_similarity_risk', 'section_title_alignment_suggestion', 'color_story_monochrome' ), true ) ) {
 				$actions[] = 'revise_visual_pattern_variants';
 			}
 		}
@@ -3172,11 +3314,21 @@ trait Page_Pattern_Read_Methods {
 	 * @return bool
 	 */
 	private function pattern_section_is_dark_contrast_band( array $block ): bool {
+		$background = $this->pattern_block_background_color( $block );
+		return in_array( $background, array( '#111111', '#1f1f1f', '#102b2d', 'black' ), true );
+	}
+
+	/**
+	 * Returns one block's native background color token.
+	 *
+	 * @param array<string,mixed> $block Block.
+	 * @return string
+	 */
+	private function pattern_block_background_color( array $block ): string {
 		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
 		$style = is_array( $attrs['style'] ?? null ) ? $attrs['style'] : array();
 		$color = is_array( $style['color'] ?? null ) ? $style['color'] : array();
-		$background = strtolower( (string) ( $color['background'] ?? '' ) );
-		return in_array( $background, array( '#111111', '#1f1f1f', 'black' ), true );
+		return strtolower( trim( (string) ( $color['background'] ?? '' ) ) );
 	}
 
 	/**
