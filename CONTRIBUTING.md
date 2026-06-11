@@ -48,6 +48,34 @@ The required GitHub checks are:
 - `php (8.0)`
 - `php (8.3)`
 
+## Post-Merge Cleanup
+
+After a pull request is merged, keep the repository easy for the next AI session
+to reason about:
+
+```bash
+git fetch --prune origin
+git switch master
+git pull --ff-only origin master
+git worktree list --porcelain
+git branch --merged master
+git ls-remote --heads origin
+```
+
+Remove clean auxiliary worktrees and delete local topic branches only when they
+are already merged. Delete stale remote `codex/...` branches only after their
+useful commits have landed on `master` or have been moved into a new pull
+request. Do not include unrelated local edits in cleanup commits; report them
+separately.
+
+The preferred end state is:
+
+- one local worktree on `master`;
+- no stale local Codex branches;
+- no obsolete remote Codex branches;
+- no open pull requests that have already been superseded;
+- `master` aligned with `origin/master`.
+
 ## Agent-Assisted Development
 
 AI agents should read [AGENTS.md](AGENTS.md) before making changes. That file is

@@ -38,6 +38,28 @@ host-governed where the existing contracts require it.
   solo-maintainer repository.
 - Required CI and required conversation resolution are the main merge gates.
 
+## Post-Merge Cleanup
+
+After useful code is merged to `master`:
+
+1. Fetch and prune remotes, then fast-forward the main worktree to
+   `origin/master`.
+2. Confirm the main worktree is on `master` with `git status --short --branch`.
+3. Inspect `git worktree list --porcelain`; remove only clean auxiliary
+   worktrees whose branches are fully merged.
+4. Delete local merged topic branches with `git branch -d`, not force delete.
+5. Check remote branches with `git ls-remote --heads origin`; delete stale
+   Codex branches only after their useful commits are merged or intentionally
+   preserved in a new pull request.
+6. Leave Dependabot or other maintenance branches alone unless their pull
+   requests are reviewed, current with `master`, and required CI has passed.
+7. If unrelated local edits remain, call them out explicitly and do not revert,
+   stage, or include them in cleanup commits.
+
+The target steady state after cleanup is one local worktree on `master`, no
+stale Codex branches, no open obsolete pull requests, and `origin/master` as
+the only non-maintenance remote branch.
+
 ## When To Open Issues
 
 Do not create an issue for every small fix. Open issues for durable work that
