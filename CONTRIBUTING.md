@@ -5,6 +5,9 @@ foundation-layer WordPress Abilities API plugin, so changes should preserve
 stable ability contracts, host-governed write boundaries, and bounded
 performance behavior.
 
+For the complete solo-maintainer plus AI-agent operating workflow, see
+[docs/solo-ai-development-workflow.md](docs/solo-ai-development-workflow.md).
+
 ## Branches And Pull Requests
 
 Use pull requests for changes to `master`. The `master` branch is protected,
