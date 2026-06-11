@@ -94,6 +94,10 @@ The current `openai-style-landing` pattern follows these rules:
   `style.typography`, and `style.border` attributes for visual structure;
 - it emits `design_quality` and `responsive_quality` summaries so hosts can
   verify the pattern strategy before proposal execution.
+- it exposes bounded `color_story` choices. `minimal-dark-light` remains the
+  conservative monochrome story, while `editorial-accent` uses only
+  Gutenberg-native color, border, and spacing attributes to add a controlled
+  accent rhythm without custom CSS.
 - it emits `media_slots` so OpenClaw can determine target media ratios before
   generation or adoption. The default hero slot maps to `hero_media_url`,
   requires `16:9`, carries an aspect-ratio crop request, and recommends
@@ -120,6 +124,12 @@ The default responsive profile is `landing_standard`. It keeps `core/columns`
 configured with `isStackedOnMobile=true`, uses `core/media-text` only for an
 existing media URL, and reports max column count, FAQ presence, media presence,
 button flex layout, and custom CSS requirements in `responsive_quality`.
+
+`review-pattern-page` reports `color_story_monochrome` as a non-blocking visual
+finding when a complete page still reads too black-and-white. If that review is
+fed back into `build-pattern-page-plan` and the caller has not explicitly chosen
+a `color_story`, the next plan switches to `editorial-accent` so the review loop
+can improve visual rhythm while staying inside core blocks and native attrs.
 
 This is intentionally closer to a reusable WordPress pattern library than to a
 free-form page generator.
@@ -150,7 +160,8 @@ Future changes should preserve these guardrails:
 The next additions should be small and explicit:
 
 - add optional sections such as use cases, comparison, or governance proof;
-- add more `style_preset` values using Gutenberg-native attributes;
+- add more `style_preset` or `color_story` values using Gutenberg-native
+  attributes;
 - expose section toggles as validated variables;
 - add editor smoke coverage after a governed proposal creates a draft page.
 - feed `review-pattern-page` findings back into future Pattern variant
