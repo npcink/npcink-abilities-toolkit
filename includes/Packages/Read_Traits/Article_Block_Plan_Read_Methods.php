@@ -76,8 +76,19 @@ trait Article_Block_Plan_Read_Methods {
 				'media_strategy'     => $media_strategy,
 			)
 		);
-		$editorial_quality  = $this->article_block_editorial_quality_summary( $blocks, $article_template );
-		$responsive_quality = $this->article_block_responsive_quality_summary( $blocks, $responsive_profile );
+		$editorial_quality         = $this->article_block_editorial_quality_summary( $blocks, $article_template );
+		$responsive_quality        = $this->article_block_responsive_quality_summary( $blocks, $responsive_profile );
+		$block_editor_review       = $this->pattern_review_summary_for_blocks( $blocks, true );
+		$block_editor_quality_gate = $this->block_editor_plan_quality_gate(
+			$block_editor_review,
+			array(
+				'profile'      => 'article_editor_safety',
+				'surface_kind' => 'post_content',
+				'editor'       => 'block_editor',
+				'post_type'    => 'post',
+				'target_mode'  => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+			)
+		);
 		$batch_seed         = wp_json_encode( array( $title, $article_template, $responsive_profile, $media_strategy, $target_post_id, $variables ) );
 		$batch_id           = 'article_block_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 
@@ -166,17 +177,19 @@ trait Article_Block_Plan_Read_Methods {
 				'direct_wordpress_write' => false,
 				'requires_approval'      => true,
 				'dry_run'                => true,
-				'commit_execution'       => false,
-				'proposal_mode'          => 'batch',
-				'batch_id'               => $batch_id,
-				'summary'                => array(
-					'title'        => $title,
-					'block_count'  => $this->article_block_count_recursive( $blocks ),
-					'action_count' => count( $write_actions ),
-				),
-				'editorial_quality'      => $editorial_quality,
-				'responsive_quality'     => $responsive_quality,
-				'write_actions'          => $write_actions,
+					'commit_execution'       => false,
+					'proposal_mode'          => 'batch',
+					'batch_id'               => $batch_id,
+					'summary'                => array(
+						'title'        => $title,
+						'block_count'  => $this->article_block_count_recursive( $blocks ),
+						'action_count' => count( $write_actions ),
+					),
+					'editorial_quality'      => $editorial_quality,
+					'responsive_quality'     => $responsive_quality,
+					'block_editor_review'    => $this->block_editor_plan_review_excerpt( $block_editor_review ),
+					'block_editor_quality_gate' => $block_editor_quality_gate,
+					'write_actions'          => $write_actions,
 				'handoff'                => array(
 					'plan_ability_id'        => 'npcink-abilities-toolkit/build-article-block-plan',
 					'recipe_id'              => 'article_block_v1',

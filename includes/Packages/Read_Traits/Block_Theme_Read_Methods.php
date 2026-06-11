@@ -88,6 +88,7 @@ trait Block_Theme_Read_Methods {
 		$write_actions    = array();
 		$preview          = array();
 		$warnings         = array();
+		$block_editor_reviews = array();
 
 		foreach ( $target_templates as $template_slug ) {
 			$template = $this->block_theme_find_entity( 'wp_template', $template_slug, 0 );
@@ -116,8 +117,20 @@ trait Block_Theme_Read_Methods {
 					'showOnHomePage'     => $show_on_home,
 				)
 			);
+			$block_editor_review = $this->pattern_review_summary_for_blocks( $next_blocks, true );
 			$is_existing_custom_template = $template_id > 0;
 			$target_ability_id           = $is_existing_custom_template ? 'npcink-abilities-toolkit/update-template-blocks' : 'npcink-abilities-toolkit/upsert-template-blocks';
+			$block_editor_quality_gate   = $this->block_editor_plan_quality_gate(
+				$block_editor_review,
+				array(
+					'profile'      => 'site_editor_template_safety',
+					'surface_kind' => 'site_editor_template',
+					'editor'       => 'site_editor',
+					'post_type'    => 'wp_template',
+					'target_mode'  => $is_existing_custom_template ? 'update_existing' : 'create_template_override',
+					'gate_id'      => 'block_editor_quality_gate_' . sanitize_key( $template_slug ),
+				)
+			);
 			$action_input                = array(
 				'mode'               => 'replace',
 				'validate_roundtrip' => true,
@@ -153,11 +166,45 @@ trait Block_Theme_Read_Methods {
 				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
 				'inserted_block'            => 'core/group.openclaw-breadcrumbs',
+				'block_editor_quality_gate' => $block_editor_quality_gate,
+			);
+			$block_editor_reviews[] = array(
+				'target_type'               => 'wp_template',
+				'post_id'                   => $template_id,
+				'slug'                      => $template_slug,
+				'theme'                     => $template_theme,
+				'target_ability_id'         => $target_ability_id,
+				'creates_template_override' => ! $is_existing_custom_template,
+				'review'                    => $this->block_editor_plan_review_excerpt( $block_editor_review ),
+				'quality_gate'              => $block_editor_quality_gate,
 			);
 		}
 
 		$batch_seed = wp_json_encode( array( $intent, $target_templates, $separator, $show_current, $show_home, $show_on_home ) );
 		$batch_id   = 'block_theme_site_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $intent ), 0, 12 );
+		$batch_blocking_targets = array();
+		foreach ( $block_editor_reviews as $block_editor_review_row ) {
+			if ( empty( $block_editor_review_row['quality_gate']['ready_for_proposal'] ) ) {
+				$batch_blocking_targets[] = sanitize_key( (string) ( $block_editor_review_row['slug'] ?? '' ) );
+			}
+		}
+		$batch_ready_for_proposal = ! empty( $write_actions ) && empty( $batch_blocking_targets );
+		$block_editor_quality_gate = array(
+			'gate_id'             => 'block_editor_quality_gate',
+			'review_ability_id'   => 'npcink-abilities-toolkit/review-block-editor-surface',
+			'profile'             => 'site_editor_template_batch',
+			'surface_kind'        => 'site_editor_template',
+			'editor'              => 'site_editor',
+			'post_type'           => 'wp_template',
+			'target_mode'         => 'update_or_create_template_override',
+			'review_count'        => count( $block_editor_reviews ),
+			'action_count'        => count( $write_actions ),
+			'blocking_targets'    => array_values( array_filter( $batch_blocking_targets ) ),
+			'ready_for_proposal'  => $batch_ready_for_proposal,
+			'recommended_next_step' => $batch_ready_for_proposal ? 'submit_core_proposal' : 'revise_block_theme_site_plan',
+			'direct_wordpress_write' => false,
+			'commit_execution'    => false,
+		);
 
 		return $this->build_analysis_success_response(
 			array(
@@ -186,6 +233,8 @@ trait Block_Theme_Read_Methods {
 				),
 				'preview'                => $preview,
 				'warnings'               => $warnings,
+				'block_editor_reviews'   => $block_editor_reviews,
+				'block_editor_quality_gate' => $block_editor_quality_gate,
 				'risk'                   => array(
 					'level'   => 'high',
 					'reasons' => array( 'site_editor_template_change', 'affects_multiple_frontend_views' ),

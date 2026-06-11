@@ -37,6 +37,19 @@ function npcink_abilities_toolkit_assert_same( $expected, $actual, $message ) {
 	npcink_abilities_toolkit_assert_true( $expected === $actual, $message . ' Expected ' . var_export( $expected, true ) . ', got ' . var_export( $actual, true ) );
 }
 
+function npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( array $schema, array $payload, $message ) {
+	$properties = is_array( $schema['properties'] ?? null ) ? $schema['properties'] : array();
+	$missing    = array();
+	foreach ( array_keys( $payload ) as $key ) {
+		if ( is_string( $key ) && ! array_key_exists( $key, $properties ) ) {
+			$missing[] = $key;
+		}
+	}
+	sort( $missing );
+	npcink_abilities_toolkit_assert_same( false, $schema['additionalProperties'] ?? null, "{$message} keeps a strict output schema" );
+	npcink_abilities_toolkit_assert_same( array(), $missing, "{$message} output schema declares returned payload keys" );
+}
+
 function npcink_abilities_toolkit_count_plan_actions_for_ability( array $actions, $ability_id ) {
 	$count = 0;
 	foreach ( $actions as $action ) {
@@ -1635,14 +1648,20 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'site_editor_template', $block_theme_plan['data']['block_editor_surface']['surface_kind'] ?? '', 'build-block-theme-site-plan declares a Site Editor template surface' );
 	npcink_abilities_toolkit_assert_same( 'site_editor', $block_theme_plan['data']['block_editor_surface']['editor'] ?? '', 'build-block-theme-site-plan declares the Site Editor owner' );
 	npcink_abilities_toolkit_assert_same( array( 'wp_template' ), $block_theme_plan['data']['block_editor_surface']['post_types'] ?? array(), 'build-block-theme-site-plan declares template post types' );
-	npcink_abilities_toolkit_assert_same( 'update_or_create_template_override', $block_theme_plan['data']['block_editor_surface']['target_mode'] ?? '', 'build-block-theme-site-plan reports template override target mode' );
-	npcink_abilities_toolkit_assert_same( false, $block_theme_plan['data']['direct_wordpress_write'] ?? null, 'build-block-theme-site-plan does not directly write WordPress' );
-	npcink_abilities_toolkit_assert_same( false, $block_theme_plan['data']['commit_execution'] ?? null, 'build-block-theme-site-plan keeps commit execution disabled' );
-	$block_theme_actions = is_array( $block_theme_plan['data']['write_actions'] ?? null ) ? $block_theme_plan['data']['write_actions'] : array();
-	npcink_abilities_toolkit_assert_same( 2, count( $block_theme_actions ), 'build-block-theme-site-plan emits one action per found template target' );
-	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $block_theme_actions[0]['target_ability_id'] ?? '', 'block theme site plan targets template block writes' );
-	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan inserts a stable Core group first' );
-	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][0]['attrs']['className'] ?? '', 'block theme site plan marks the group as a breadcrumb scaffold' );
+		npcink_abilities_toolkit_assert_same( 'update_or_create_template_override', $block_theme_plan['data']['block_editor_surface']['target_mode'] ?? '', 'build-block-theme-site-plan reports template override target mode' );
+		npcink_abilities_toolkit_assert_same( false, $block_theme_plan['data']['direct_wordpress_write'] ?? null, 'build-block-theme-site-plan does not directly write WordPress' );
+		npcink_abilities_toolkit_assert_same( false, $block_theme_plan['data']['commit_execution'] ?? null, 'build-block-theme-site-plan keeps commit execution disabled' );
+		npcink_abilities_toolkit_assert_same( 'site_editor_template_batch', $block_theme_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-block-theme-site-plan exposes a Site Editor template batch quality gate' );
+		npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'build-block-theme-site-plan marks reviewed template changes ready for proposal' );
+		npcink_abilities_toolkit_assert_same( false, $block_theme_plan['data']['block_editor_quality_gate']['commit_execution'] ?? null, 'build-block-theme-site-plan quality gate does not execute commits' );
+		npcink_abilities_toolkit_assert_same( 2, count( $block_theme_plan['data']['block_editor_reviews'] ?? array() ), 'build-block-theme-site-plan reviews each generated template block change' );
+		$block_theme_actions = is_array( $block_theme_plan['data']['write_actions'] ?? null ) ? $block_theme_plan['data']['write_actions'] : array();
+		npcink_abilities_toolkit_assert_same( 2, count( $block_theme_actions ), 'build-block-theme-site-plan emits one action per found template target' );
+		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $block_theme_actions[0]['target_ability_id'] ?? '', 'block theme site plan targets template block writes' );
+		npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan inserts a stable Core group first' );
+		npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][0]['attrs']['className'] ?? '', 'block theme site plan marks the group as a breadcrumb scaffold' );
+		npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'block theme site plan preview carries the per-template quality gate' );
+	$template_update_output_schema = $package_abilities['npcink-abilities-toolkit/update-template-blocks']['output_schema'] ?? array();
 	$template_preview = $core_write_package->update_template_blocks(
 		array(
 			'post_id' => 601,
@@ -1652,6 +1671,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	npcink_abilities_toolkit_assert_same( true, $template_preview['dry_run'] ?? null, 'update-template-blocks returns a governed dry-run preview' );
 	npcink_abilities_toolkit_assert_same( 'wp_template', $template_preview['post_type'] ?? '', 'update-template-blocks reports the template post type' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_preview, 'update-template-blocks dry-run' );
 	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 	$template_written = $core_write_package->update_template_blocks(
 		array(
@@ -1663,6 +1683,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_written, 'update-template-blocks commit' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' ), 'openclaw-breadcrumbs' ), 'update-template-blocks writes breadcrumb scaffold markup' );
 	$template_part_preview = $core_write_package->update_template_part_blocks(
 		array(
@@ -4335,10 +4356,14 @@ npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editori
 npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['editorial_quality']['custom_css_required'] ?? true, 'build-article-block-plan reports no custom CSS requirement' );
 npcink_abilities_toolkit_assert_same( 'article_standard', $article_block_plan['data']['responsive_quality']['responsive_profile'] ?? '', 'build-article-block-plan reports responsive profile quality' );
 npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_core_responsive_blocks'] ?? null, 'build-article-block-plan reports core responsive blocks' );
-npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_mobile_stack'] ?? null, 'build-article-block-plan reports mobile column stacking' );
-npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['has_responsive_media'] ?? null, 'build-article-block-plan reports responsive media' );
-npcink_abilities_toolkit_assert_same( 2, $article_block_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-article-block-plan reports bounded comparison columns' );
-$article_block_actions = is_array( $article_block_plan['data']['write_actions'] ?? null ) ? $article_block_plan['data']['write_actions'] : array();
+	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_mobile_stack'] ?? null, 'build-article-block-plan reports mobile column stacking' );
+	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['has_responsive_media'] ?? null, 'build-article-block-plan reports responsive media' );
+	npcink_abilities_toolkit_assert_same( 2, $article_block_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-article-block-plan reports bounded comparison columns' );
+	npcink_abilities_toolkit_assert_same( 'block_editor_surface_review', $article_block_plan['data']['block_editor_review']['artifact_type'] ?? '', 'build-article-block-plan includes a block-editor self-review excerpt' );
+	npcink_abilities_toolkit_assert_same( 'article_editor_safety', $article_block_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-article-block-plan uses an article editor-safety quality gate' );
+	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'build-article-block-plan marks editor-safe article blocks ready for proposal' );
+	npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['block_editor_quality_gate']['commit_execution'] ?? null, 'build-article-block-plan quality gate does not execute commits' );
+	$article_block_actions = is_array( $article_block_plan['data']['write_actions'] ?? null ) ? $article_block_plan['data']['write_actions'] : array();
 npcink_abilities_toolkit_assert_same( 2, count( $article_block_actions ), 'build-article-block-plan emits create and block update actions' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/create-draft', $article_block_actions[0]['target_ability_id'] ?? '', 'build-article-block-plan first creates a draft post' );
 npcink_abilities_toolkit_assert_same( 'post', $article_block_actions[0]['input']['post_type'] ?? '', 'build-article-block-plan create action targets a post' );
@@ -4475,9 +4500,12 @@ npcink_abilities_toolkit_assert_same( 4, $pattern_page_plan['data']['responsive_
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['responsive_quality']['button_groups_use_flex_layout'] ?? null, 'build-pattern-page-plan reports flex button groups' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['responsive_quality']['custom_css_required'] ?? true, 'build-pattern-page-plan reports responsive output without custom CSS' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['quality_feedback']['feedback_received'] ?? true, 'build-pattern-page-plan reports no review feedback on first-generation plans' );
-npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_plan['data']['quality_review']['review_status'] ?? '', 'build-pattern-page-plan self-reviews generated Pattern blocks' );
-npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_plan['data']['quality_review']['score'] ?? 0 ) >= 80, 'build-pattern-page-plan self-review scores generated Pattern blocks above threshold' );
-npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['quality_review']['layout_fingerprint']['section_count'] ?? 0, 'build-pattern-page-plan self-review includes a layout fingerprint' );
+	npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_plan['data']['quality_review']['review_status'] ?? '', 'build-pattern-page-plan self-reviews generated Pattern blocks' );
+	npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_plan['data']['quality_review']['score'] ?? 0 ) >= 80, 'build-pattern-page-plan self-review scores generated Pattern blocks above threshold' );
+	npcink_abilities_toolkit_assert_same( 'landing_design', $pattern_page_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-pattern-page-plan uses the full landing design quality gate' );
+	npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks high-quality blocks ready through the block-editor quality gate' );
+	npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['block_editor_quality_gate']['commit_execution'] ?? null, 'build-pattern-page-plan quality gate does not execute commits' );
+	npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['quality_review']['layout_fingerprint']['section_count'] ?? 0, 'build-pattern-page-plan self-review includes a layout fingerprint' );
 npcink_abilities_toolkit_assert_true( in_array( 'center', $pattern_page_plan['data']['quality_review']['layout_fingerprint']['alignment_mix'] ?? array(), true ), 'build-pattern-page-plan self-review sees centered section alignment' );
 $pattern_self_review_finding_codes = array_map(
 	static function ( $finding ) {
@@ -4727,6 +4755,28 @@ npcink_abilities_toolkit_assert_same( 'blocks_input', $block_surface_blocks_revi
 npcink_abilities_toolkit_assert_same( 'review_blocks_input', $block_surface_blocks_review['data']['block_editor_surface']['target_mode'] ?? '', 'review-block-editor-surface reports proposed block review mode' );
 npcink_abilities_toolkit_assert_same( 'pass', $block_surface_blocks_review['data']['review_status'] ?? '', 'review-block-editor-surface reuses quality review for proposed blocks' );
 npcink_abilities_toolkit_assert_true( in_array( 'choose_target_block_editor_surface', $block_surface_blocks_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface asks callers to choose a target surface for proposed blocks' );
+$paragraph_only_surface_review = $core_read_package->review_block_editor_surface(
+	array(
+		'surface_kind' => 'blocks_input',
+		'blocks'       => array(
+			array(
+				'blockName'    => 'core/paragraph',
+				'attrs'        => array(),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<p>Adapter verification paragraph.</p>',
+				'innerContent' => array( '<p>Adapter verification paragraph.</p>' ),
+			),
+		),
+	)
+);
+$paragraph_only_finding_codes = array_map(
+	static function ( $finding ) {
+		return is_array( $finding ) ? (string) ( $finding['code'] ?? '' ) : '';
+	},
+	is_array( $paragraph_only_surface_review['data']['findings'] ?? null ) ? $paragraph_only_surface_review['data']['findings'] : array()
+);
+npcink_abilities_toolkit_assert_same( false, $paragraph_only_surface_review['data']['design_quality']['has_split_hero'] ?? null, 'review-block-editor-surface detects missing split hero in paragraph-only blocks' );
+npcink_abilities_toolkit_assert_true( ! in_array( 'split_hero_present', $paragraph_only_finding_codes, true ), 'review-block-editor-surface does not report split hero pass finding when no split hero exists' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280977] = (object) array(
 	'ID'           => 280977,
 	'post_type'    => 'page',
