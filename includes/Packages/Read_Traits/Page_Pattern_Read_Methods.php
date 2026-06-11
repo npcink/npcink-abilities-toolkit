@@ -94,6 +94,16 @@ trait Page_Pattern_Read_Methods {
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
+		$block_editor_quality_gate = $this->block_editor_plan_quality_gate(
+			$quality_review,
+			array(
+				'profile'      => 'landing_design',
+				'surface_kind' => 'post_content',
+				'editor'       => 'block_editor',
+				'post_type'    => 'page',
+				'target_mode'  => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+			)
+		);
 		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
 		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $target_post_id, $title, $variables, $section_variant_hints ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
@@ -189,6 +199,7 @@ trait Page_Pattern_Read_Methods {
 				),
 				'quality_feedback'       => $review_feedback,
 				'quality_review'         => $quality_review,
+				'block_editor_quality_gate' => $block_editor_quality_gate,
 				'revision_strategy'      => $revision_strategy,
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
@@ -486,6 +497,79 @@ trait Page_Pattern_Read_Methods {
 		}
 
 		return array_values( array_unique( $next_actions ) );
+	}
+
+	/**
+	 * Builds a proposal-readiness gate from block-editor review signals.
+	 *
+	 * @param array<string,mixed> $review_summary Review summary.
+	 * @param array<string,mixed> $surface Surface metadata.
+	 * @return array<string,mixed>
+	 */
+	private function block_editor_plan_quality_gate( array $review_summary, array $surface ): array {
+		$profile         = sanitize_key( (string) ( $surface['profile'] ?? 'editor_safety' ) );
+		$review_status   = sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) );
+		$score           = absint( $review_summary['score'] ?? 0 );
+		$editor_risk     = sanitize_key( (string) ( $review_summary['editor_risk']['invalid_block_risk_level'] ?? '' ) );
+		$responsive_risk = sanitize_key( (string) ( $review_summary['responsive_quality']['responsive_risk_level'] ?? '' ) );
+		$finding_codes   = is_array( $review_summary['finding_codes'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['finding_codes'] ) ) ) : array();
+
+		$blocking_codes = array();
+		if ( 'low' !== $editor_risk ) {
+			$blocking_codes[] = 'editor_invalid_block_risk';
+		}
+		if ( ! in_array( $responsive_risk, array( 'low', 'medium' ), true ) ) {
+			$blocking_codes[] = 'responsive_risk_detected';
+		}
+		if ( 'landing_design' === $profile && ( 'pass' !== $review_status || $score < 80 ) ) {
+			$blocking_codes = array_merge( $blocking_codes, $finding_codes );
+		}
+
+		$blocking_codes = array_values( array_unique( array_filter( $blocking_codes ) ) );
+		$ready          = empty( $blocking_codes );
+
+		return array(
+			'gate_id'             => sanitize_key( (string) ( $surface['gate_id'] ?? 'block_editor_quality_gate' ) ),
+			'review_ability_id'   => 'npcink-abilities-toolkit/review-block-editor-surface',
+			'profile'             => $profile,
+			'surface_kind'        => sanitize_key( (string) ( $surface['surface_kind'] ?? '' ) ),
+			'editor'              => sanitize_key( (string) ( $surface['editor'] ?? '' ) ),
+			'post_type'           => sanitize_key( (string) ( $surface['post_type'] ?? '' ) ),
+			'target_mode'         => sanitize_key( (string) ( $surface['target_mode'] ?? '' ) ),
+			'review_status'       => $review_status,
+			'score'               => $score,
+			'editor_risk_level'   => $editor_risk,
+			'responsive_risk_level' => $responsive_risk,
+			'finding_codes'       => $finding_codes,
+			'blocking_finding_codes' => $blocking_codes,
+			'ready_for_proposal'  => $ready,
+			'recommended_next_step' => $ready ? 'submit_core_proposal' : 'revise_block_editor_plan',
+			'direct_wordpress_write' => false,
+			'commit_execution'    => false,
+		);
+	}
+
+	/**
+	 * Returns a compact block-editor review payload for generated plans.
+	 *
+	 * @param array<string,mixed> $review_summary Review summary.
+	 * @return array<string,mixed>
+	 */
+	private function block_editor_plan_review_excerpt( array $review_summary ): array {
+		return array(
+			'artifact_type'       => 'block_editor_surface_review',
+			'review_status'       => sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) ),
+			'score'               => absint( $review_summary['score'] ?? 0 ),
+			'block_count'         => absint( $review_summary['block_count'] ?? 0 ),
+			'top_level_count'     => absint( $review_summary['top_level_count'] ?? 0 ),
+			'editor_risk'         => is_array( $review_summary['editor_risk'] ?? null ) ? $review_summary['editor_risk'] : array(),
+			'responsive_quality'  => is_array( $review_summary['responsive_quality'] ?? null ) ? $review_summary['responsive_quality'] : array(),
+			'media_quality'       => is_array( $review_summary['media_quality'] ?? null ) ? $review_summary['media_quality'] : array(),
+			'finding_codes'       => is_array( $review_summary['finding_codes'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['finding_codes'] ) ) ) : array(),
+			'next_actions'        => is_array( $review_summary['next_actions'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['next_actions'] ) ) ) : array(),
+			'server_side_review_only' => true,
+			'editor_validation_note' => 'Server-side review checks structure, native attrs, media, and responsive signals; Gutenberg editor save() validation still requires opening the editor.',
+		);
 	}
 
 	/**
