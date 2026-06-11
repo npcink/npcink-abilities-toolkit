@@ -251,6 +251,7 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_media_slots( array $variables, string $media_strategy ): array {
 		$hero_ratio = $this->pattern_aspect_ratio( $variables['hero_media_target_aspect_ratio'] ?? '16:9', '16:9' );
+		$hero_media_url = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
 		return array(
 			array(
 				'id'                    => 'hero_media',
@@ -269,7 +270,8 @@ trait Page_Pattern_Read_Methods {
 				'required_for_quality'  => true,
 				'recommended_recipe_id' => 'ai_image_ratio_crop_media_adoption',
 				'recommended_openclaw_recipe' => 'openclaw_recipes.ai_image_ratio_crop_media_adoption',
-				'existing_media_url'    => esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) ),
+				'existing_media_url'    => $hero_media_url,
+				'media_input_valid'     => '' !== $hero_media_url,
 			),
 		);
 	}
@@ -544,7 +546,7 @@ trait Page_Pattern_Read_Methods {
 		$research_brief   = is_array( $options['research_brief'] ?? null ) ? $options['research_brief'] : array();
 		$review_feedback  = is_array( $options['review_feedback'] ?? null ) ? $options['review_feedback'] : array();
 		$visual_delta     = $this->pattern_should_render_visual_delta( $review_feedback );
-		$hero_media_url   = esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) );
+		$hero_media_url   = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
 		$hero_media_alt   = $this->pattern_text( $variables['hero_media_alt'] ?? '', 'WordPress AI workflow interface' );
 		$proof_points     = $this->pattern_items(
 			$variables['proof_points'] ?? array(),
@@ -1146,6 +1148,28 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Sanitizes a Pattern media URL and rejects documentation/example placeholders.
+	 *
+	 * @param mixed $value URL candidate.
+	 * @return string
+	 */
+	private function pattern_sanitized_media_url( $value ): string {
+		$url = esc_url_raw( (string) $value );
+		if ( '' === $url ) {
+			return '';
+		}
+		$parts = parse_url( $url );
+		$host  = is_array( $parts ) ? strtolower( (string) ( $parts['host'] ?? '' ) ) : '';
+		if ( '' === $host ) {
+			return '';
+		}
+		if ( preg_match( '/(^|\\.)example\\.(com|net|org|test)$/', $host ) ) {
+			return '';
+		}
+		return $url;
+	}
+
+	/**
 	 * Builds a details FAQ item.
 	 *
 	 * @param string              $summary Summary text.
@@ -1427,7 +1451,7 @@ trait Page_Pattern_Read_Methods {
 											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_light_card_text_attrs(), 'color:#dddddd;font-size:15px;line-height:1.45' ),
 										),
 										$this->pattern_feature_proof_attrs(),
-										'background-color:#1f1f1f;color:#ffffff;border-top-color:#4a4a4a;border-top-width:1px;padding-top:22px;padding-right:0;padding-bottom:0;padding-left:0'
+										'background-color:#1f1f1f;color:#ffffff;border-color:#3a3a3a;border-width:1px;border-radius:20px;padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px'
 									),
 								)
 							);
@@ -1636,6 +1660,7 @@ trait Page_Pattern_Read_Methods {
 				),
 				'color'   => array(
 					'background' => '#ffffff',
+					'text'       => '#111111',
 				),
 			),
 		);
@@ -1741,6 +1766,7 @@ trait Page_Pattern_Read_Methods {
 				),
 				'color'   => array(
 					'background' => '#ffffff',
+					'text'       => '#111111',
 				),
 			),
 		);
@@ -1785,17 +1811,16 @@ trait Page_Pattern_Read_Methods {
 			'style' => array(
 				'spacing' => array(
 					'padding' => array(
-						'top'    => '22px',
-						'right'  => '0',
-						'bottom' => '0',
-						'left'   => '0',
+						'top'    => '24px',
+						'right'  => '24px',
+						'bottom' => '24px',
+						'left'   => '24px',
 					),
 				),
 				'border'  => array(
-					'top' => array(
-						'color' => '#4a4a4a',
-						'width' => '1px',
-					),
+					'color'  => '#3a3a3a',
+					'width'  => '1px',
+					'radius' => '20px',
 				),
 				'color'   => array(
 					'background' => '#1f1f1f',
