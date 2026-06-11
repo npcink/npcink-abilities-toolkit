@@ -3162,7 +3162,13 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_review_findings( array $design, array $responsive, array $media, array $content, array $risk ) {
 		$findings = array();
-		$this->pattern_review_add_finding( $findings, ! empty( $design['has_split_hero'] ), 'pass', 'split_hero_present', '页面包含 split hero 结构。' );
+		if ( ! empty( $design['has_split_hero'] ) ) {
+			$findings[] = array(
+				'severity' => 'pass',
+				'code'     => 'split_hero_present',
+				'message'  => '页面包含 split hero 结构。',
+			);
+		}
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_hero_media'] ) || (int) $media['visual_asset_count'] > 0, 'medium', 'hero_media_missing', '页面缺少强视觉资产，建议补 reviewed media 或产品面板。' );
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_bento_grid'] ), 'medium', 'bento_grid_missing', 'Feature 区仍偏普通网格，建议使用 Bento 或非重复 section 形态。' );
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_comparison_section'] ), 'medium', 'comparison_missing', '页面缺少 proposal-first 对比区，说服力会偏弱。' );

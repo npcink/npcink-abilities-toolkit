@@ -4727,6 +4727,28 @@ npcink_abilities_toolkit_assert_same( 'blocks_input', $block_surface_blocks_revi
 npcink_abilities_toolkit_assert_same( 'review_blocks_input', $block_surface_blocks_review['data']['block_editor_surface']['target_mode'] ?? '', 'review-block-editor-surface reports proposed block review mode' );
 npcink_abilities_toolkit_assert_same( 'pass', $block_surface_blocks_review['data']['review_status'] ?? '', 'review-block-editor-surface reuses quality review for proposed blocks' );
 npcink_abilities_toolkit_assert_true( in_array( 'choose_target_block_editor_surface', $block_surface_blocks_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface asks callers to choose a target surface for proposed blocks' );
+$paragraph_only_surface_review = $core_read_package->review_block_editor_surface(
+	array(
+		'surface_kind' => 'blocks_input',
+		'blocks'       => array(
+			array(
+				'blockName'    => 'core/paragraph',
+				'attrs'        => array(),
+				'innerBlocks'  => array(),
+				'innerHTML'    => '<p>Adapter verification paragraph.</p>',
+				'innerContent' => array( '<p>Adapter verification paragraph.</p>' ),
+			),
+		),
+	)
+);
+$paragraph_only_finding_codes = array_map(
+	static function ( $finding ) {
+		return is_array( $finding ) ? (string) ( $finding['code'] ?? '' ) : '';
+	},
+	is_array( $paragraph_only_surface_review['data']['findings'] ?? null ) ? $paragraph_only_surface_review['data']['findings'] : array()
+);
+npcink_abilities_toolkit_assert_same( false, $paragraph_only_surface_review['data']['design_quality']['has_split_hero'] ?? null, 'review-block-editor-surface detects missing split hero in paragraph-only blocks' );
+npcink_abilities_toolkit_assert_true( ! in_array( 'split_hero_present', $paragraph_only_finding_codes, true ), 'review-block-editor-surface does not report split hero pass finding when no split hero exists' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280977] = (object) array(
 	'ID'           => 280977,
 	'post_type'    => 'page',
