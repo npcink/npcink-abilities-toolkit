@@ -4,6 +4,9 @@ This repository is usually developed by one maintainer working with AI agents.
 Keep the process light, but preserve reviewable changes, stable contracts, and
 WordPress.org release safety.
 
+The full solo AI development operating workflow is summarized in
+`docs/solo-ai-development-workflow.md`.
+
 ## Startup Checklist
 
 Before changing files:
