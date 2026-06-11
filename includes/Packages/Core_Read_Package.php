@@ -1532,6 +1532,17 @@ final class Core_Read_Package {
 							'type'                 => 'object',
 							'additionalProperties' => true,
 						),
+						'section_variant_hints' => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'comparison' => array(
+									'type' => 'string',
+									'enum' => array( 'center-title-two-cards', 'left-title-two-cards' ),
+									'default' => 'center-title-two-cards',
+								),
+							),
+							'additionalProperties' => false,
+						),
 						'variables'          => array(
 							'type'                 => 'object',
 							'additionalProperties' => true,
