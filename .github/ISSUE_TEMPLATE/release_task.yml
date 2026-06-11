@@ -1,0 +1,32 @@
+name: Release Task
+description: Track a WordPress.org or GitHub release.
+title: "[Release]: "
+labels:
+  - release
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.6.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: release_checks
+    attributes:
+      label: Release Checklist
+      options:
+        - label: Plugin header version updated.
+        - label: "`NPCINK_ABILITIES_TOOLKIT_VERSION` updated."
+        - label: "`readme.txt` Stable tag and changelog updated."
+        - label: "`CHANGELOG.md` updated."
+        - label: "`docs/release-X.Y.Z-verification.md` added."
+        - label: "`composer release:verify` passed."
+        - label: GitHub Actions passed on the release commit.
+        - label: "`VERSION=X.Y.Z composer release:prepare-wporg` reviewed before SVN commit."
+        - label: WordPress.org SVN revision recorded after release.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Link CI runs, GitHub release, SVN revision, Plugin Check result, and local smoke output.

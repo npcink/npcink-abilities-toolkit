@@ -32,31 +32,38 @@ if [[ -n "${WP_PATH:-}" ]]; then
 fi
 
 run_wp() {
-	if [[ "$WP_CLI_BIN" == *.phar ]]; then
-		php_args=()
-		if [[ -n "$WP_CLI_ERROR_REPORTING" ]]; then
-			php_args+=("-d" "error_reporting=$WP_CLI_ERROR_REPORTING")
-		fi
-		if [[ -n "$WP_CLI_MYSQL_SOCKET" ]]; then
-			php_args+=("-d" "mysqli.default_socket=$WP_CLI_MYSQL_SOCKET")
-		fi
-		if [[ -n "$WP_CLI_PHP_ARGS" ]]; then
-			extra_php_args=()
-			read -r -a extra_php_args <<< "$WP_CLI_PHP_ARGS"
-			php_args+=("${extra_php_args[@]}")
-		fi
+	php_args=()
+	if [[ -n "$WP_CLI_ERROR_REPORTING" ]]; then
+		php_args+=("-d" "error_reporting=$WP_CLI_ERROR_REPORTING")
+	fi
+	if [[ -n "$WP_CLI_MYSQL_SOCKET" ]]; then
+		php_args+=("-d" "mysqli.default_socket=$WP_CLI_MYSQL_SOCKET")
+		php_args+=("-d" "pdo_mysql.default_socket=$WP_CLI_MYSQL_SOCKET")
+	fi
+	if [[ -n "$WP_CLI_PHP_ARGS" ]]; then
+		extra_php_args=()
+		read -r -a extra_php_args <<< "$WP_CLI_PHP_ARGS"
+		php_args+=("${extra_php_args[@]}")
+	fi
+
+	wp_cli_command="$WP_CLI_BIN"
+	if [[ "$WP_CLI_BIN" != */* ]] && command -v "$WP_CLI_BIN" >/dev/null 2>&1; then
+		wp_cli_command="$(command -v "$WP_CLI_BIN")"
+	fi
+
+	if [[ "$WP_CLI_BIN" == *.phar ]] || [[ "${#php_args[@]}" -gt 0 ]]; then
 		if [[ ${#wp_args[@]} -gt 0 ]]; then
-			"$WP_CLI_PHP" "${php_args[@]}" "$WP_CLI_BIN" "${wp_args[@]}" "$@"
+			"$WP_CLI_PHP" "${php_args[@]}" "$wp_cli_command" "${wp_args[@]}" "$@"
 		else
-			"$WP_CLI_PHP" "${php_args[@]}" "$WP_CLI_BIN" "$@"
+			"$WP_CLI_PHP" "${php_args[@]}" "$wp_cli_command" "$@"
 		fi
 		return
 	fi
 
 	if [[ ${#wp_args[@]} -gt 0 ]]; then
-		"$WP_CLI_BIN" "${wp_args[@]}" "$@"
+		"$wp_cli_command" "${wp_args[@]}" "$@"
 	else
-		"$WP_CLI_BIN" "$@"
+		"$wp_cli_command" "$@"
 	fi
 }
 
