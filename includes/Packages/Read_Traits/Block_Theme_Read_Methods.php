@@ -174,6 +174,16 @@ trait Block_Theme_Read_Methods {
 				'proposal_mode'          => 'batch',
 				'batch_id'               => $batch_id,
 				'affected_templates'     => $target_templates,
+				'block_editor_surface'   => array(
+					'surface_kind'      => 'site_editor_template',
+					'editor'            => 'site_editor',
+					'post_types'        => array( 'wp_template' ),
+					'target_mode'       => 'update_or_create_template_override',
+					'write_ability_ids' => array(
+						'npcink-abilities-toolkit/update-template-blocks',
+						'npcink-abilities-toolkit/upsert-template-blocks',
+					),
+				),
 				'preview'                => $preview,
 				'warnings'               => $warnings,
 				'risk'                   => array(

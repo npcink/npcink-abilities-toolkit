@@ -166,6 +166,14 @@ trait Page_Pattern_Read_Methods {
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'media_slots'            => $media_slots,
+				'block_editor_surface'   => array(
+					'surface_kind'      => 'post_content',
+					'editor'            => 'block_editor',
+					'post_type'         => 'page',
+					'target_mode'       => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+					'write_ability_id'  => 'npcink-abilities-toolkit/update-post-blocks',
+					'create_ability_id' => $target_post_id > 0 ? null : 'npcink-abilities-toolkit/create-draft',
+				),
 				'target_post'            => $target_post_id > 0 ? array(
 					'mode'      => 'update_existing',
 					'post_id'   => $target_post_id,

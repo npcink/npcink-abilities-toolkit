@@ -32,6 +32,7 @@ trait Article_Block_Plan_Read_Methods {
 		$article_template   = sanitize_key( (string) ( $input['article_template'] ?? 'editorial-longform' ) );
 		$responsive_profile = sanitize_key( (string) ( $input['responsive_profile'] ?? 'article_standard' ) );
 		$media_strategy     = sanitize_key( (string) ( $input['media_strategy'] ?? 'none' ) );
+		$target_post_id     = absint( $input['target_post_id'] ?? 0 );
 
 		if ( 'post' !== $post_type ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_article_block_post_type_invalid', __( 'Article block plans currently support post_type=post only.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -48,6 +49,22 @@ trait Article_Block_Plan_Read_Methods {
 		if ( ! in_array( $media_strategy, array( 'none', 'existing_media_url' ), true ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_article_block_media_strategy_invalid', __( 'Media strategy is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
+		$target_post = null;
+		if ( $target_post_id > 0 ) {
+			$target_post = get_post( $target_post_id );
+			if ( ! is_object( $target_post ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_article_block_target_not_found', __( 'Target post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $target_post_id ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to update the target post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			if ( 'post' !== sanitize_key( (string) ( $target_post->post_type ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_article_block_target_type_invalid', __( 'Target post must be a post.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( 'draft' !== sanitize_key( (string) ( $target_post->post_status ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_article_block_target_status_invalid', __( 'Target post must be a draft.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+		}
 
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
 		$title     = $this->article_block_text( $input['title'] ?? ( $variables['title'] ?? 'Gutenberg Article Draft' ), 'Gutenberg Article Draft' );
@@ -61,42 +78,60 @@ trait Article_Block_Plan_Read_Methods {
 		);
 		$editorial_quality  = $this->article_block_editorial_quality_summary( $blocks, $article_template );
 		$responsive_quality = $this->article_block_responsive_quality_summary( $blocks, $responsive_profile );
-		$batch_seed         = wp_json_encode( array( $title, $article_template, $responsive_profile, $media_strategy, $variables ) );
+		$batch_seed         = wp_json_encode( array( $title, $article_template, $responsive_profile, $media_strategy, $target_post_id, $variables ) );
 		$batch_id           = 'article_block_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 
-		$write_actions = array(
-			$this->build_plan_action(
-				'create-article-draft',
-				'npcink-abilities-toolkit/create-draft',
-				array(
-					'post_type'      => 'post',
-					'status'         => 'draft',
-					'title'          => $title,
-					'content'        => '',
-					'content_format' => 'html',
-					'meta'           => array(
-						'npcink_article_template'   => $article_template,
-						'npcink_responsive_profile' => $responsive_profile,
+		if ( $target_post_id > 0 ) {
+			$write_actions = array(
+				$this->build_plan_action(
+					'update-article-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => $target_post_id,
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
 					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the existing draft post body with reviewed Gutenberg-native editorial blocks.', 'npcink-abilities-toolkit' )
 				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Create a draft post before applying reviewed Gutenberg article blocks.', 'npcink-abilities-toolkit' )
-			),
-			$this->build_plan_action(
-				'update-article-blocks',
-				'npcink-abilities-toolkit/update-post-blocks',
-				array(
-					'post_id'            => '$outputs.create-article-draft.post_id',
-					'mode'               => 'replace',
-					'validate_roundtrip' => true,
-					'blocks'             => $blocks,
+			);
+		} else {
+			$write_actions = array(
+				$this->build_plan_action(
+					'create-article-draft',
+					'npcink-abilities-toolkit/create-draft',
+					array(
+						'post_type'      => 'post',
+						'status'         => 'draft',
+						'title'          => $title,
+						'content'        => '',
+						'content_format' => 'html',
+						'meta'           => array(
+							'npcink_article_template'   => $article_template,
+							'npcink_responsive_profile' => $responsive_profile,
+						),
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Create a draft post before applying reviewed Gutenberg article blocks.', 'npcink-abilities-toolkit' )
 				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Replace the draft post body with reviewed Gutenberg-native editorial blocks.', 'npcink-abilities-toolkit' )
-			),
-		);
+				$this->build_plan_action(
+					'update-article-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => '$outputs.create-article-draft.post_id',
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the draft post body with reviewed Gutenberg-native editorial blocks.', 'npcink-abilities-toolkit' )
+				),
+			);
+		}
 
 		return $this->build_analysis_success_response(
 			array(
@@ -106,6 +141,27 @@ trait Article_Block_Plan_Read_Methods {
 				'article_template'       => $article_template,
 				'responsive_profile'     => $responsive_profile,
 				'media_strategy'         => $media_strategy,
+				'block_editor_surface'   => array(
+					'surface_kind'     => 'post_content',
+					'editor'           => 'block_editor',
+					'post_type'        => 'post',
+					'target_mode'      => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+					'write_ability_id' => 'npcink-abilities-toolkit/update-post-blocks',
+					'create_ability_id' => $target_post_id > 0 ? null : 'npcink-abilities-toolkit/create-draft',
+				),
+				'target_post'            => $target_post_id > 0 ? array(
+					'mode'      => 'update_existing',
+					'post_id'   => $target_post_id,
+					'post_type' => sanitize_key( (string) ( $target_post->post_type ?? 'post' ) ),
+					'status'    => sanitize_key( (string) ( $target_post->post_status ?? 'draft' ) ),
+					'title'     => sanitize_text_field( (string) ( $target_post->post_title ?? '' ) ),
+				) : array(
+					'mode'      => 'create_draft',
+					'post_id'   => 0,
+					'post_type' => 'post',
+					'status'    => 'draft',
+					'title'     => $title,
+				),
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
 				'requires_approval'      => true,

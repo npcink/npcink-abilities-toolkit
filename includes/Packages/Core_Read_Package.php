@@ -1366,13 +1366,14 @@ final class Core_Read_Package {
 				),
 				'input_schema'     => array(
 					'type'                 => 'object',
-					'properties'           => array(
-						'post_type'          => array( 'type' => 'string', 'enum' => array( 'post' ), 'default' => 'post' ),
-						'status'             => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
-						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
-						'article_template'   => array( 'type' => 'string', 'enum' => array( 'editorial-longform', 'how-to-guide', 'comparison-review' ), 'default' => 'editorial-longform' ),
-						'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'article_standard' ), 'default' => 'article_standard' ),
-						'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'none', 'existing_media_url' ), 'default' => 'none' ),
+						'properties'           => array(
+							'post_type'          => array( 'type' => 'string', 'enum' => array( 'post' ), 'default' => 'post' ),
+							'status'             => array( 'type' => 'string', 'enum' => array( 'draft' ), 'default' => 'draft' ),
+							'title'              => array( 'type' => 'string', 'minLength' => 1 ),
+							'target_post_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
+							'article_template'   => array( 'type' => 'string', 'enum' => array( 'editorial-longform', 'how-to-guide', 'comparison-review' ), 'default' => 'editorial-longform' ),
+							'responsive_profile' => array( 'type' => 'string', 'enum' => array( 'article_standard' ), 'default' => 'article_standard' ),
+							'media_strategy'     => array( 'type' => 'string', 'enum' => array( 'none', 'existing_media_url' ), 'default' => 'none' ),
 						'variables'          => array(
 							'type'                 => 'object',
 							'additionalProperties' => true,
