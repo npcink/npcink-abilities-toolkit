@@ -1,0 +1,36 @@
+name: Bug Report
+description: Report broken behavior in the plugin or release tooling.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Include commands, WordPress/PHP versions, and the smallest steps that reproduce the issue.
+      placeholder: |
+        1. Run ...
+        2. Call ability ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paste relevant logs, REST responses, CI links, or screenshots. Do not include secrets.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Local Checks
+      options:
+        - label: I checked that this is not caused by a dirty local WordPress site.
+        - label: I removed or redacted secrets from the report.

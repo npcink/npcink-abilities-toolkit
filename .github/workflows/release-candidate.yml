@@ -1,0 +1,45 @@
+name: Release Candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release candidate version, matching plugin header and readme Stable tag"
+        required: true
+        type: string
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
+          coverage: none
+
+      - name: Validate composer metadata
+        run: composer validate --no-check-publish
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run source gate
+        run: composer test:all
+
+      - name: Run PHPStan
+        run: composer analyse:phpstan
+
+      - name: Build release candidate zip
+        run: VERSION="${{ inputs.version }}" composer release:zip
+
+      - name: Upload release candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: npcink-abilities-toolkit-${{ inputs.version }}
+          path: dist/npcink-abilities-toolkit-${{ inputs.version }}.zip
+          if-no-files-found: error

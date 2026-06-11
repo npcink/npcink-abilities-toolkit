@@ -1,0 +1,29 @@
+name: WordPress.org Review Feedback
+description: Track feedback from WordPress.org Plugin Review.
+title: "[WP.org Review]: "
+labels:
+  - wporg
+  - plugin-check
+body:
+  - type: textarea
+    id: message
+    attributes:
+      label: Current Review Message
+      description: Paste the current top-level message only. Exclude quoted older threads and redact private data.
+    validations:
+      required: true
+  - type: textarea
+    id: cited_patterns
+    attributes:
+      label: Cited Files Or Patterns
+      description: List every file, line, or pattern mentioned by reviewers.
+  - type: checkboxes
+    id: loop
+    attributes:
+      label: Feedback Loop
+      options:
+        - label: Decode and extract only the current reviewer message.
+        - label: Search exact patterns and adjacent variants in the current worktree.
+        - label: Fix the pattern class, not only the cited line.
+        - label: Add or update a local guard where practical.
+        - label: Record evidence in the release verification note.

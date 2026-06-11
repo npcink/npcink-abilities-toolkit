@@ -1,0 +1,45 @@
+name: Ability Contract Change
+description: Propose a new ability, schema change, or behavior change.
+title: "[Ability]: "
+labels:
+  - ability-contract
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What user or host workflow needs this contract change?
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk Level
+      options:
+        - read-only
+        - write-proposal
+        - destructive
+        - workflow metadata only
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Contract Shape
+      description: List ability id, input schema, output schema, annotations, and approval expectations.
+      placeholder: |
+        ability_id:
+        input_schema:
+        output_schema:
+        requires_approval:
+        dry_run default:
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary Checks
+      options:
+        - label: This does not create a second workflow registry or control plane.
+        - label: Final writes remain host-governed where required.
+        - label: Tests and catalog snapshots will be updated in the same change set.
