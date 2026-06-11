@@ -586,10 +586,12 @@ trait Page_Pattern_Read_Methods {
 	private function pattern_media_slots( array $variables, string $media_strategy ): array {
 		$hero_ratio = $this->pattern_aspect_ratio( $variables['hero_media_target_aspect_ratio'] ?? '16:9', '16:9' );
 		$hero_media_url = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
+		$hero_media_attachment_id = $this->pattern_media_attachment_id( $variables['hero_media_attachment_id'] ?? ( $variables['hero_media_id'] ?? 0 ) );
 		return array(
 			array(
 				'id'                    => 'hero_media',
 				'variable'              => 'hero_media_url',
+				'attachment_id_variable' => 'hero_media_attachment_id',
 				'alt_variable'          => 'hero_media_alt',
 				'target_slot'           => 'hero',
 				'target_aspect_ratio'   => $hero_ratio,
@@ -605,7 +607,9 @@ trait Page_Pattern_Read_Methods {
 				'recommended_recipe_id' => 'ai_image_ratio_crop_media_adoption',
 				'recommended_openclaw_recipe' => 'openclaw_recipes.ai_image_ratio_crop_media_adoption',
 				'existing_media_url'    => $hero_media_url,
+				'existing_media_attachment_id' => $hero_media_attachment_id,
 				'media_input_valid'     => '' !== $hero_media_url,
+				'media_input_has_attachment_id' => $hero_media_attachment_id > 0,
 			),
 		);
 	}
@@ -638,6 +642,14 @@ trait Page_Pattern_Read_Methods {
 			'visual_asset_count'      => $metrics['visual_asset_count'],
 			'image_block_count'       => $metrics['image_block_count'],
 			'media_text_block_count'  => $metrics['media_text_block_count'],
+			'image_attachment_id_count' => $metrics['image_attachment_id_count'],
+			'media_text_attachment_id_count' => $metrics['media_text_attachment_id_count'],
+			'hero_media_url_count'    => $metrics['hero_media_url_count'],
+			'hero_media_attachment_id_count' => $metrics['hero_media_attachment_id_count'],
+			'has_hero_media_url'      => (int) $metrics['hero_media_url_count'] > 0,
+			'has_hero_media_attachment_id' => (int) $metrics['hero_media_attachment_id_count'] > 0,
+			'temporary_cloud_preview_url_count' => $metrics['temporary_cloud_preview_url_count'],
+			'has_temporary_cloud_preview_url' => (int) $metrics['temporary_cloud_preview_url_count'] > 0,
 			'image_alt_missing_count' => $metrics['image_alt_missing_count'],
 			'image_alt_complete'      => 0 === (int) $metrics['image_alt_missing_count'],
 		);
@@ -917,6 +929,7 @@ trait Page_Pattern_Read_Methods {
 		$comparison_variant = (string) ( $section_variant_hints['comparison'] ?? 'center-title-two-cards' );
 		$visual_delta     = $this->pattern_should_render_visual_delta( $review_feedback );
 		$hero_media_url   = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
+		$hero_media_attachment_id = $this->pattern_media_attachment_id( $variables['hero_media_attachment_id'] ?? ( $variables['hero_media_id'] ?? 0 ) );
 		$hero_media_alt   = $this->pattern_text( $variables['hero_media_alt'] ?? '', 'WordPress AI workflow interface' );
 		$proof_points     = $this->pattern_items(
 			$variables['proof_points'] ?? array(),
@@ -1040,7 +1053,7 @@ trait Page_Pattern_Read_Methods {
 		$final_cta_primary     = $this->pattern_text( $variables['final_cta_primary'] ?? '', '创建页面计划' );
 		$final_cta_secondary   = $this->pattern_text( $variables['final_cta_secondary'] ?? '', '查看治理流程' );
 		$hero_visual_blocks    = '' !== $hero_media_url && in_array( $media_strategy, array( 'mock_or_existing_media', 'existing_media_url' ), true )
-			? array( $this->pattern_hero_media_block( $hero_media_url, $hero_media_alt ) )
+			? array( $this->pattern_hero_media_block( $hero_media_url, $hero_media_alt, $hero_media_attachment_id ) )
 			: array( $this->pattern_dashboard_mock_block() );
 
 		$blocks = array(
@@ -1116,6 +1129,7 @@ trait Page_Pattern_Read_Methods {
 					$this->pattern_media_text_block(
 						$hero_media_url,
 						$hero_media_alt,
+						$hero_media_attachment_id,
 						array(
 							$this->pattern_paragraph_block( 'Responsive Pattern', 'npcink-ai-eyebrow', $this->pattern_accent_eyebrow_attrs( $palette ), 'color:' . $palette['accent'] . ';font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
 							$this->pattern_heading_block( $this->pattern_text( $variables['media_title'] ?? '', $this->pattern_research_item_title( $visual_recommendations, '视觉结构和治理流程一起交付' ) ), 2, 'npcink-ai-section-title', $this->pattern_section_title_attrs(), 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
@@ -1484,15 +1498,17 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @param string                         $media_url Media URL.
 	 * @param string                         $media_alt Media alt text.
+	 * @param int                            $media_attachment_id Attachment id.
 	 * @param array<int,array<string,mixed>> $inner_blocks Content blocks.
 	 * @param string                         $class_name CSS classes.
 	 * @param array<string,mixed>            $attrs Additional block attrs.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_media_text_block( $media_url, $media_alt, array $inner_blocks, $class_name, array $attrs = array() ) {
+	private function pattern_media_text_block( $media_url, $media_alt, $media_attachment_id, array $inner_blocks, $class_name, array $attrs = array() ) {
 		$class_name  = $this->pattern_class_names( $class_name );
 		$media_url   = esc_url_raw( (string) $media_url );
 		$media_alt   = sanitize_text_field( (string) $media_alt );
+		$media_attachment_id = $this->pattern_media_attachment_id( $media_attachment_id );
 		$attrs       = array_merge(
 			array(
 				'align'              => 'wide',
@@ -1505,9 +1521,13 @@ trait Page_Pattern_Read_Methods {
 			$attrs,
 			array( 'className' => $class_name )
 		);
+		if ( $media_attachment_id > 0 ) {
+			$attrs['mediaId'] = $media_attachment_id;
+		}
 		$classes     = trim( 'wp-block-media-text alignwide is-stacked-on-mobile ' . $this->pattern_attr( $class_name ) );
 		$style_html  = ' style="grid-template-columns:48% auto"';
-		$media_html  = '<figure class="wp-block-media-text__media"><img src="' . $this->pattern_attr( $media_url ) . '" alt="' . $this->pattern_attr( $media_alt ) . '"/></figure>';
+		$image_class = $media_attachment_id > 0 ? ' class="wp-image-' . $media_attachment_id . '"' : '';
+		$media_html  = '<figure class="wp-block-media-text__media"><img src="' . $this->pattern_attr( $media_url ) . '" alt="' . $this->pattern_attr( $media_alt ) . '"' . $image_class . '/></figure>';
 		$open_html   = '<div class="' . $this->pattern_attr( $classes ) . '"' . $style_html . '>' . $media_html . '<div class="wp-block-media-text__content">';
 		$close_html  = '</div></div>';
 		return array(
@@ -1524,19 +1544,26 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @param string $media_url Media URL.
 	 * @param string $media_alt Media alt text.
+	 * @param int    $media_attachment_id Attachment id.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_image_block( $media_url, $media_alt ) {
+	private function pattern_image_block( $media_url, $media_alt, $media_attachment_id = 0 ) {
 		$media_url = esc_url_raw( (string) $media_url );
 		$media_alt = sanitize_text_field( (string) $media_alt );
-		$html      = '<figure class="wp-block-image size-large"><img src="' . $this->pattern_attr( $media_url ) . '" alt="' . $this->pattern_attr( $media_alt ) . '"/></figure>';
+		$media_attachment_id = $this->pattern_media_attachment_id( $media_attachment_id );
+		$image_class = $media_attachment_id > 0 ? ' class="wp-image-' . $media_attachment_id . '"' : '';
+		$html      = '<figure class="wp-block-image size-large"><img src="' . $this->pattern_attr( $media_url ) . '" alt="' . $this->pattern_attr( $media_alt ) . '"' . $image_class . '/></figure>';
+		$attrs     = array(
+			'url'      => $media_url,
+			'alt'      => $media_alt,
+			'sizeSlug' => 'large',
+		);
+		if ( $media_attachment_id > 0 ) {
+			$attrs['id'] = $media_attachment_id;
+		}
 		return array(
 			'blockName'    => 'core/image',
-			'attrs'        => array(
-				'url'      => $media_url,
-				'alt'      => $media_alt,
-				'sizeSlug' => 'large',
-			),
+			'attrs'        => $attrs,
 			'innerHTML'    => $html,
 			'innerContent' => array( $html ),
 			'innerBlocks'  => array(),
@@ -1563,6 +1590,33 @@ trait Page_Pattern_Read_Methods {
 			return '';
 		}
 		return $url;
+	}
+
+	/**
+	 * Normalizes an optional media attachment id for Pattern block attrs.
+	 *
+	 * @param mixed $value Attachment id candidate.
+	 * @return int
+	 */
+	private function pattern_media_attachment_id( $value ): int {
+		$attachment_id = absint( $value );
+		return $attachment_id > 0 ? $attachment_id : 0;
+	}
+
+	/**
+	 * Returns whether a media URL looks like a temporary Cloud derivative preview.
+	 *
+	 * @param mixed $value URL candidate.
+	 * @return bool
+	 */
+	private function pattern_is_temporary_cloud_preview_url( $value ): bool {
+		$url = (string) $value;
+		if ( '' === $url ) {
+			return false;
+		}
+		return false !== strpos( $url, '/media-derivative-artifacts/' )
+			|| false !== strpos( $url, 'preview_sig=' )
+			|| false !== strpos( $url, 'artifact_id=' );
 	}
 
 	/**
@@ -1622,13 +1676,14 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @param string $media_url Media URL.
 	 * @param string $media_alt Media alt text.
+	 * @param int    $media_attachment_id Attachment id.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_hero_media_block( $media_url, $media_alt ) {
+	private function pattern_hero_media_block( $media_url, $media_alt, $media_attachment_id = 0 ) {
 		return $this->pattern_group_block(
 			'npcink-ai-dashboard-card npcink-ai-hero-media-card',
 			array(
-				$this->pattern_image_block( $media_url, $media_alt ),
+				$this->pattern_image_block( $media_url, $media_alt, $media_attachment_id ),
 				$this->pattern_dashboard_row_block( 'Media', 'Reviewed 16:9 WebP hero asset' ),
 				$this->pattern_dashboard_row_block( 'Adoption', 'Core proposal executed' ),
 			),
@@ -3024,6 +3079,7 @@ trait Page_Pattern_Read_Methods {
 			'has_split_hero'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-layout' ),
 			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ),
 			'has_hero_media'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ),
+			'has_hero_media_attachment_id' => $this->pattern_has_media_attachment_binding( $blocks ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
 			'has_bento_grid'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-bento' ),
 			'has_visual_delta_section' => $has_visual_delta,
@@ -3128,7 +3184,12 @@ trait Page_Pattern_Read_Methods {
 			'button_count'           => 0,
 			'image_block_count'      => 0,
 			'media_text_block_count' => 0,
+			'image_attachment_id_count' => 0,
+			'media_text_attachment_id_count' => 0,
 			'visual_asset_count'     => 0,
+			'hero_media_url_count'   => 0,
+			'hero_media_attachment_id_count' => 0,
+			'temporary_cloud_preview_url_count' => 0,
 			'image_alt_missing_count' => 0,
 			'native_style_block_count' => 0,
 			'class_name_block_count' => 0,
@@ -3199,12 +3260,32 @@ trait Page_Pattern_Read_Methods {
 			} elseif ( 'core/image' === $block_name ) {
 				++$metrics['image_block_count'];
 				++$metrics['visual_asset_count'];
+				if ( '' !== trim( (string) ( $attrs['url'] ?? '' ) ) ) {
+					++$metrics['hero_media_url_count'];
+				}
+				if ( $this->pattern_media_attachment_id( $attrs['id'] ?? 0 ) > 0 ) {
+					++$metrics['image_attachment_id_count'];
+					++$metrics['hero_media_attachment_id_count'];
+				}
+				if ( $this->pattern_is_temporary_cloud_preview_url( $attrs['url'] ?? '' ) ) {
+					++$metrics['temporary_cloud_preview_url_count'];
+				}
 				if ( '' === trim( (string) ( $attrs['alt'] ?? '' ) ) ) {
 					++$metrics['image_alt_missing_count'];
 				}
 			} elseif ( 'core/media-text' === $block_name ) {
 				++$metrics['media_text_block_count'];
 				++$metrics['visual_asset_count'];
+				if ( '' !== trim( (string) ( $attrs['mediaUrl'] ?? '' ) ) ) {
+					++$metrics['hero_media_url_count'];
+				}
+				if ( $this->pattern_media_attachment_id( $attrs['mediaId'] ?? 0 ) > 0 ) {
+					++$metrics['media_text_attachment_id_count'];
+					++$metrics['hero_media_attachment_id_count'];
+				}
+				if ( $this->pattern_is_temporary_cloud_preview_url( $attrs['mediaUrl'] ?? '' ) ) {
+					++$metrics['temporary_cloud_preview_url_count'];
+				}
 				if ( '' === trim( (string) ( $attrs['mediaAlt'] ?? '' ) ) ) {
 					++$metrics['image_alt_missing_count'];
 				}
@@ -3341,6 +3422,7 @@ trait Page_Pattern_Read_Methods {
 		$this->pattern_review_add_finding( $findings, (int) $design['native_style_density'] >= 40, 'medium', 'native_style_density_low', '原生 Gutenberg style/layout attrs 使用不足，页面会过度依赖主题默认样式。' );
 		$this->pattern_review_add_finding( $findings, 'low' === (string) $responsive['responsive_risk_level'], 'medium', 'responsive_risk_detected', '响应式信号不足，请检查 columns 是否移动端堆叠、列数是否受控。' );
 		$this->pattern_review_add_finding( $findings, ! empty( $media['image_alt_complete'] ), 'medium', 'image_alt_missing', '存在图片或 media-text 缺少 alt 文本。' );
+		$this->pattern_review_add_finding( $findings, empty( $media['has_temporary_cloud_preview_url'] ), 'medium', 'temporary_cloud_preview_url', '页面仍引用临时 Cloud preview URL，应先采纳为本地媒体 URL。' );
 		$this->pattern_review_add_finding( $findings, 'low' === (string) $risk['invalid_block_risk_level'], 'medium', 'editor_invalid_block_risk', '存在服务端可见的编辑器无效块风险信号。' );
 		if ( (int) $content['text_heaviness_score'] >= 70 ) {
 			$findings[] = array(
@@ -3556,6 +3638,9 @@ trait Page_Pattern_Read_Methods {
 		if ( ! empty( $media['image_alt_missing_count'] ) ) {
 			$score -= 10;
 		}
+		if ( ! empty( $media['has_temporary_cloud_preview_url'] ) ) {
+			$score -= 15;
+		}
 		if ( 'high' === (string) $responsive['responsive_risk_level'] ) {
 			$score -= 20;
 		} elseif ( 'medium' === (string) $responsive['responsive_risk_level'] ) {
@@ -3586,7 +3671,7 @@ trait Page_Pattern_Read_Methods {
 		$actions = array( 'revise_pattern_page_plan' );
 		foreach ( $findings as $finding ) {
 			$code = (string) ( $finding['code'] ?? '' );
-			if ( 'hero_media_missing' === $code || 'image_alt_missing' === $code || 'placeholder_media_url' === $code ) {
+			if ( 'hero_media_missing' === $code || 'image_alt_missing' === $code || 'placeholder_media_url' === $code || 'temporary_cloud_preview_url' === $code ) {
 				$actions[] = 'repair_media_inputs';
 			} elseif ( 'responsive_risk_detected' === $code ) {
 				$actions[] = 'review_responsive_columns';
@@ -3615,6 +3700,32 @@ trait Page_Pattern_Read_Methods {
 				return true;
 			}
 			if ( $this->pattern_has_block_name( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array(), $block_name ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether a block tree includes image/media-text attachment bindings.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return bool
+	 */
+	private function pattern_has_media_attachment_binding( array $blocks ): bool {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			$attrs      = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			if ( 'core/image' === $block_name && $this->pattern_media_attachment_id( $attrs['id'] ?? 0 ) > 0 ) {
+				return true;
+			}
+			if ( 'core/media-text' === $block_name && $this->pattern_media_attachment_id( $attrs['mediaId'] ?? 0 ) > 0 ) {
+				return true;
+			}
+			if ( $this->pattern_has_media_attachment_binding( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() ) ) {
 				return true;
 			}
 		}

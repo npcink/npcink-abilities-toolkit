@@ -4441,6 +4441,7 @@ $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 			'primary_cta'      => '查看工作流',
 			'secondary_cta'    => '了解能力',
 			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_attachment_id' => 8053,
 			'hero_media_alt'   => 'WordPress AI dashboard preview',
 			'features'         => array(
 				array(
@@ -4476,7 +4477,10 @@ npcink_abilities_toolkit_assert_same( 'aspect_ratio', $pattern_media_slots[0]['c
 npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['crop']['aspect_ratio'] ?? '', 'build-pattern-page-plan carries hero aspect ratio into crop guidance' );
 npcink_abilities_toolkit_assert_same( 'ai_image_ratio_crop_media_adoption', $pattern_media_slots[0]['recommended_recipe_id'] ?? '', 'build-pattern-page-plan recommends the AI image crop adoption recipe for hero media' );
 npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
+npcink_abilities_toolkit_assert_same( 'hero_media_attachment_id', $pattern_media_slots[0]['attachment_id_variable'] ?? '', 'build-pattern-page-plan declares the hero media attachment id variable' );
+npcink_abilities_toolkit_assert_same( 8053, $pattern_media_slots[0]['existing_media_attachment_id'] ?? 0, 'build-pattern-page-plan echoes reviewed hero media attachment id in media slot metadata' );
 npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_valid'] ?? null, 'build-pattern-page-plan marks reviewed media URLs valid' );
+npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_has_attachment_id'] ?? null, 'build-pattern-page-plan marks reviewed media attachment ids present' );
 npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
@@ -4486,6 +4490,7 @@ npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_qual
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan reports reviewed hero media in the split hero' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_hero_media_attachment_id'] ?? null, 'build-pattern-page-plan reports reviewed hero media attachment binding' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_proof_strip'] ?? null, 'build-pattern-page-plan reports proof strip' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_bento_grid'] ?? null, 'build-pattern-page-plan reports the Gutenberg-native Bento feature grid' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_media_text'] ?? null, 'build-pattern-page-plan reports media-text section' );
@@ -4547,6 +4552,7 @@ npcink_abilities_toolkit_assert_same( 'core/group', $pattern_hero_visual['blockN
 npcink_abilities_toolkit_assert_same( 'npcink-ai-dashboard-card npcink-ai-hero-media-card', $pattern_hero_visual['attrs']['className'] ?? '', 'build-pattern-page-plan marks the hero media panel with whitelisted classes' );
 npcink_abilities_toolkit_assert_same( 'core/image', $pattern_hero_visual['innerBlocks'][0]['blockName'] ?? '', 'build-pattern-page-plan places reviewed media in the hero visual column' );
 npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
+npcink_abilities_toolkit_assert_same( 8053, $pattern_hero_visual['innerBlocks'][0]['attrs']['id'] ?? 0, 'build-pattern-page-plan binds the reviewed hero image block to the attachment id' );
 $pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
 npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
 npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
@@ -4559,7 +4565,10 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/columns"' ), 'build-pattern-page-plan uses native columns for feature and workflow sections' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"isStackedOnMobile":true' ), 'build-pattern-page-plan stacks columns on mobile' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/media-text"' ), 'build-pattern-page-plan uses media-text when existing media is supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"mediaId":8053' ), 'build-pattern-page-plan binds media-text to the reviewed attachment id' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/image"' ), 'build-pattern-page-plan uses core image for hero media when supplied' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"id":8053' ), 'build-pattern-page-plan serializes image attachment id attrs' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'class=\"wp-image-8053\"' ), 'build-pattern-page-plan serializes wp-image attachment classes' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/details"' ), 'build-pattern-page-plan uses details blocks for FAQ' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-dashboard-card' ), 'build-pattern-page-plan includes a styled hero visual card' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false === strpos( $pattern_markup, 'npcink-ai-dashboard-mock' ), 'build-pattern-page-plan omits the dashboard mock when reviewed hero media is supplied' );
@@ -4750,10 +4759,14 @@ npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['top_level
 npcink_abilities_toolkit_assert_same( 101, $pattern_page_review['data']['block_count'] ?? 0, 'review-pattern-page reports recursive block count' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_bento_grid'] ?? null, 'review-pattern-page carries Bento design quality' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_hero_media'] ?? null, 'review-pattern-page carries hero media design quality' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['design_quality']['has_hero_media_attachment_id'] ?? null, 'review-pattern-page carries hero media attachment binding quality' );
 npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['section_shape_variety'] ?? 0 ) >= 5, 'review-pattern-page reports section shape variety' );
 npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['design_quality']['native_style_density'] ?? 0 ) >= 40, 'review-pattern-page reports native style density' );
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['responsive_quality']['responsive_risk_level'] ?? '', 'review-pattern-page reports low responsive risk for stacked native columns' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['image_alt_complete'] ?? null, 'review-pattern-page reports complete image alt text' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['has_hero_media_url'] ?? null, 'review-pattern-page reports local hero media URLs present' );
+npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['has_hero_media_attachment_id'] ?? null, 'review-pattern-page reports hero media attachment ids present' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_review['data']['media_quality']['has_temporary_cloud_preview_url'] ?? true, 'review-pattern-page reports no temporary Cloud preview URLs' );
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports low server-observable invalid block risk' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['layout_fingerprint']['section_count'] ?? 0, 'review-pattern-page reports layout fingerprint section count' );
 npcink_abilities_toolkit_assert_same( 'center', $pattern_page_review['data']['layout_fingerprint']['comparison_title_alignment'] ?? '', 'review-pattern-page reports centered comparison title alignment' );
