@@ -220,6 +220,7 @@ trait Article_Block_Plan_Read_Methods {
 		$intro          = $this->article_block_text( $variables['intro'] ?? '', '文章先给出背景和核心判断，再用清晰的小节、要点和 FAQ 帮助读者快速理解。' );
 		$media_strategy = sanitize_key( (string) ( $options['media_strategy'] ?? 'none' ) );
 		$hero_media_url = esc_url_raw( (string) ( $variables['hero_media_url'] ?? '' ) );
+		$hero_media_attachment_id = $this->article_media_attachment_id( $variables['hero_media_attachment_id'] ?? ( $variables['hero_media_id'] ?? 0 ) );
 		$hero_media_alt = $this->article_block_text( $variables['hero_media_alt'] ?? '', 'Article illustration' );
 		$takeaways      = $this->article_block_strings(
 			$variables['takeaways'] ?? array(),
@@ -259,7 +260,7 @@ trait Article_Block_Plan_Read_Methods {
 		);
 
 		if ( 'existing_media_url' === $media_strategy && '' !== $hero_media_url ) {
-			$blocks[] = $this->article_image_block( $hero_media_url, $hero_media_alt );
+			$blocks[] = $this->article_image_block( $hero_media_url, $hero_media_alt, $hero_media_attachment_id );
 		}
 
 		$blocks[] = $this->article_group_block(
@@ -470,20 +471,27 @@ trait Article_Block_Plan_Read_Methods {
 	 *
 	 * @param string $url URL.
 	 * @param string $alt Alt text.
+	 * @param int    $attachment_id Attachment id.
 	 * @return array<string,mixed>
 	 */
-	private function article_image_block( $url, $alt ) {
-		$url  = esc_url_raw( (string) $url );
-		$alt  = sanitize_text_field( (string) $alt );
-		$html = '<figure class="wp-block-image size-large"><img src="' . $this->article_block_attr( $url ) . '" alt="' . $this->article_block_attr( $alt ) . '"/></figure>';
+	private function article_image_block( $url, $alt, $attachment_id = 0 ) {
+		$url           = esc_url_raw( (string) $url );
+		$alt           = sanitize_text_field( (string) $alt );
+		$attachment_id = $this->article_media_attachment_id( $attachment_id );
+		$image_class   = $attachment_id > 0 ? ' class="wp-image-' . $attachment_id . '"' : '';
+		$html          = '<figure class="wp-block-image size-large"><img src="' . $this->article_block_attr( $url ) . '" alt="' . $this->article_block_attr( $alt ) . '"' . $image_class . '/></figure>';
+		$attrs         = array(
+			'url'             => $url,
+			'alt'             => $alt,
+			'sizeSlug'        => 'large',
+			'linkDestination' => 'none',
+		);
+		if ( $attachment_id > 0 ) {
+			$attrs['id'] = $attachment_id;
+		}
 		return array(
 			'blockName'    => 'core/image',
-			'attrs'        => array(
-				'url'             => $url,
-				'alt'             => $alt,
-				'sizeSlug'        => 'large',
-				'linkDestination' => 'none',
-			),
+			'attrs'        => $attrs,
 			'innerHTML'    => $html,
 			'innerContent' => array( $html ),
 			'innerBlocks'  => array(),
@@ -807,9 +815,43 @@ trait Article_Block_Plan_Read_Methods {
 			'has_takeaways'            => $this->article_block_has_name( $blocks, 'core/list' ),
 			'has_faq'                  => $this->article_block_has_name( $blocks, 'core/details' ),
 			'has_comparison_columns'   => $this->article_block_has_name( $blocks, 'core/columns' ),
+			'has_hero_media_attachment_id' => $this->article_block_has_image_attachment_binding( $blocks ),
 			'custom_css_required'      => false,
 			'block_count'              => $this->article_block_count_recursive( $blocks ),
 		);
+	}
+
+	/**
+	 * Normalizes an optional media attachment id for article image blocks.
+	 *
+	 * @param mixed $value Attachment id candidate.
+	 * @return int
+	 */
+	private function article_media_attachment_id( $value ): int {
+		$attachment_id = absint( $value );
+		return $attachment_id > 0 ? $attachment_id : 0;
+	}
+
+	/**
+	 * Returns whether an article block tree includes image attachment bindings.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return bool
+	 */
+	private function article_block_has_image_attachment_binding( array $blocks ): bool {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			if ( 'core/image' === (string) ( $block['blockName'] ?? '' ) && $this->article_media_attachment_id( $attrs['id'] ?? 0 ) > 0 ) {
+				return true;
+			}
+			if ( $this->article_block_has_image_attachment_binding( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
