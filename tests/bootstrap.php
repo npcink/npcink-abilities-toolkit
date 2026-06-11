@@ -767,6 +767,7 @@ require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Optimi
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Article_Production_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Block_Theme_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Comment_Read_Methods.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
