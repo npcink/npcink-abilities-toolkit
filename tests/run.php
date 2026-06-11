@@ -1150,6 +1150,7 @@ npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name'
 	npcink_abilities_toolkit_assert_same( array( 'mock_or_existing_media', 'existing_media_url' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['media_strategy']['enum'] ?? array(), 'pattern page plan exposes bounded media strategies' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['research_brief'] ), 'pattern page plan accepts an optional landing page research brief' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['review_feedback'] ), 'pattern page plan accepts optional review feedback for revision loops' );
+	npcink_abilities_toolkit_assert_same( array( 'center-title-two-cards', 'left-title-two-cards' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['section_variant_hints']['properties']['comparison']['enum'] ?? array(), 'pattern page plan exposes bounded section variant hints' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page'] ), 'review-pattern-page is registered as a read-only page quality review ability' );
 	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/review-pattern-page']['required_scopes'] ?? array(), 'pattern page review remains a read-scope ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['post_id'] ), 'pattern page review accepts a post id' );
@@ -4330,6 +4331,9 @@ $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 		'responsive_profile' => 'landing_standard',
 		'visual_density'     => 'balanced',
 		'media_strategy'     => 'existing_media_url',
+		'section_variant_hints' => array(
+			'comparison' => 'center-title-two-cards',
+		),
 		'variables'          => array(
 			'eyebrow'          => 'WordPress AI Plugin',
 			'hero_title'       => '把 AI 工作流带进 WordPress 内容现场',
@@ -4354,6 +4358,7 @@ npcink_abilities_toolkit_assert_same( 'minimal-dark-light', $pattern_page_plan['
 npcink_abilities_toolkit_assert_same( 'landing_standard', $pattern_page_plan['data']['responsive_profile'] ?? '', 'build-pattern-page-plan preserves the responsive profile' );
 npcink_abilities_toolkit_assert_same( 'balanced', $pattern_page_plan['data']['visual_density'] ?? '', 'build-pattern-page-plan preserves visual density' );
 npcink_abilities_toolkit_assert_same( 'existing_media_url', $pattern_page_plan['data']['media_strategy'] ?? '', 'build-pattern-page-plan preserves media strategy' );
+npcink_abilities_toolkit_assert_same( 'center-title-two-cards', $pattern_page_plan['data']['section_variant_hints']['comparison'] ?? '', 'build-pattern-page-plan preserves bounded section variant hints' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['direct_wordpress_write'] ?? null, 'build-pattern-page-plan does not directly write WordPress' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['commit_execution'] ?? null, 'build-pattern-page-plan keeps commit execution disabled' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $pattern_page_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-pattern-page-plan identifies itself for Core from-plan intake' );
@@ -4392,6 +4397,8 @@ npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['respons
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['quality_feedback']['feedback_received'] ?? true, 'build-pattern-page-plan reports no review feedback on first-generation plans' );
 npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_plan['data']['quality_review']['review_status'] ?? '', 'build-pattern-page-plan self-reviews generated Pattern blocks' );
 npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_plan['data']['quality_review']['score'] ?? 0 ) >= 80, 'build-pattern-page-plan self-review scores generated Pattern blocks above threshold' );
+npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['quality_review']['layout_fingerprint']['section_count'] ?? 0, 'build-pattern-page-plan self-review includes a layout fingerprint' );
+npcink_abilities_toolkit_assert_true( in_array( 'center', $pattern_page_plan['data']['quality_review']['layout_fingerprint']['alignment_mix'] ?? array(), true ), 'build-pattern-page-plan self-review sees centered section alignment' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['revision_strategy']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks high-quality generated plans ready for Core proposal handoff' );
 npcink_abilities_toolkit_assert_same( 'submit_core_proposal', $pattern_page_plan['data']['revision_strategy']['recommended_next_step'] ?? '', 'build-pattern-page-plan recommends Core proposal handoff when self-review passes' );
 $pattern_page_actions = is_array( $pattern_page_plan['data']['write_actions'] ?? null ) ? $pattern_page_plan['data']['write_actions'] : array();
@@ -4447,6 +4454,8 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-color:#111111;border-width:1px;border-radius:24px;background-color:#111111;color:#ffffff' ), 'build-pattern-page-plan serializes the spotlight card with native color and border styles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison' ), 'build-pattern-page-plan includes a default proposal-first comparison section' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-comparison-card' ), 'build-pattern-page-plan includes comparison cards' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-section-title-center' ), 'build-pattern-page-plan uses the centered comparison title variant by default' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'has-text-align-center' ), 'build-pattern-page-plan serializes centered heading classes for Gutenberg validation' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' ), 'build-pattern-page-plan renders the comparison section as a native dark contrast band' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'OpenClaw proposal-first' ), 'build-pattern-page-plan includes the proposal-first comparison side' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
@@ -4478,6 +4487,30 @@ npcink_abilities_toolkit_assert_same( true, $placeholder_media_pattern_page_plan
 npcink_abilities_toolkit_assert_same( false, $placeholder_media_pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan does not report placeholder media as hero media' );
 npcink_abilities_toolkit_assert_true( is_string( $placeholder_markup ) && false === strpos( $placeholder_markup, 'placeholder-dashboard.jpg' ), 'build-pattern-page-plan does not serialize placeholder media URLs into blocks' );
 npcink_abilities_toolkit_assert_true( is_string( $placeholder_markup ) && false !== strpos( $placeholder_markup, 'npcink-ai-dashboard-mock' ), 'build-pattern-page-plan serializes a mock panel instead of a broken image' );
+$left_variant_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Left Variant Pattern',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'section_variant_hints' => array(
+			'comparison' => 'left-title-two-cards',
+		),
+		'variables'          => array(
+			'hero_title'     => 'Left comparison variant',
+			'hero_media_url' => 'https://magick-ai.local/wp-content/uploads/2026/06/left-variant-dashboard.jpg',
+			'hero_media_alt' => 'Left comparison variant dashboard preview',
+		),
+	)
+);
+$left_variant_actions = is_array( $left_variant_pattern_page_plan['data']['write_actions'] ?? null ) ? $left_variant_pattern_page_plan['data']['write_actions'] : array();
+$left_variant_blocks = is_array( $left_variant_actions[1]['input']['blocks'] ?? null ) ? $left_variant_actions[1]['input']['blocks'] : array();
+$left_variant_markup = wp_json_encode( $left_variant_blocks );
+npcink_abilities_toolkit_assert_same( true, $left_variant_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts the left comparison title variant' );
+npcink_abilities_toolkit_assert_same( 'left-title-two-cards', $left_variant_pattern_page_plan['data']['section_variant_hints']['comparison'] ?? '', 'build-pattern-page-plan preserves the left comparison title variant' );
+npcink_abilities_toolkit_assert_true( is_string( $left_variant_markup ) && false === strpos( $left_variant_markup, 'npcink-ai-section-title-center' ), 'build-pattern-page-plan omits centered title class for the left comparison variant' );
 $pattern_page_review = $core_read_package->review_pattern_page(
 	array(
 		'blocks' => $pattern_blocks,
@@ -4500,6 +4533,10 @@ npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_review['data']['desi
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['responsive_quality']['responsive_risk_level'] ?? '', 'review-pattern-page reports low responsive risk for stacked native columns' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_review['data']['media_quality']['image_alt_complete'] ?? null, 'review-pattern-page reports complete image alt text' );
 npcink_abilities_toolkit_assert_same( 'low', $pattern_page_review['data']['editor_risk']['invalid_block_risk_level'] ?? '', 'review-pattern-page reports low server-observable invalid block risk' );
+npcink_abilities_toolkit_assert_same( 8, $pattern_page_review['data']['layout_fingerprint']['section_count'] ?? 0, 'review-pattern-page reports layout fingerprint section count' );
+npcink_abilities_toolkit_assert_same( 'center', $pattern_page_review['data']['layout_fingerprint']['comparison_title_alignment'] ?? '', 'review-pattern-page reports centered comparison title alignment' );
+npcink_abilities_toolkit_assert_true( in_array( 'center', $pattern_page_review['data']['layout_fingerprint']['alignment_mix'] ?? array(), true ), 'review-pattern-page reports centered alignment in the alignment mix' );
+npcink_abilities_toolkit_assert_same( array(), $pattern_page_review['data']['visual_quality_findings'] ?? array( 'unexpected' ), 'review-pattern-page reports no visual findings for the generated centered native pattern' );
 npcink_abilities_toolkit_assert_true( in_array( 'preview_page_in_editor', $pattern_page_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends final editor preview after a pass' );
 $custom_html_pattern_review = $core_read_package->review_pattern_page(
 	array(

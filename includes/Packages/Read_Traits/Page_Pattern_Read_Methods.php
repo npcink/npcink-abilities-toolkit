@@ -55,15 +55,17 @@ trait Page_Pattern_Read_Methods {
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
 		$research_brief = $this->pattern_research_brief( $input['research_brief'] ?? ( $variables['research_brief'] ?? array() ) );
 		$review_feedback = $this->pattern_review_feedback( $input['review_feedback'] ?? ( $variables['review_feedback'] ?? array() ) );
+		$section_variant_hints = $this->pattern_section_variant_hints( $input['section_variant_hints'] ?? ( $variables['section_variant_hints'] ?? array() ) );
 		$title     = $this->pattern_text( $input['title'] ?? ( $variables['hero_title'] ?? 'WordPress AI' ), 'WordPress AI' );
 		$blocks    = $this->render_openai_style_landing_blocks(
 			$variables,
 			array(
-				'responsive_profile' => $responsive_profile,
-				'visual_density'     => $visual_density,
-				'media_strategy'     => $media_strategy,
-				'research_brief'     => $research_brief,
-				'review_feedback'    => $review_feedback,
+				'responsive_profile'    => $responsive_profile,
+				'visual_density'        => $visual_density,
+				'media_strategy'        => $media_strategy,
+				'research_brief'        => $research_brief,
+				'review_feedback'       => $review_feedback,
+				'section_variant_hints' => $section_variant_hints,
 			)
 		);
 		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
@@ -71,7 +73,7 @@ trait Page_Pattern_Read_Methods {
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
 		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
-		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables ) );
+		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $responsive_profile, $visual_density, $media_strategy, $title, $variables, $section_variant_hints ) );
 		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
 		$write_actions = array(
 			$this->build_plan_action(
@@ -118,6 +120,7 @@ trait Page_Pattern_Read_Methods {
 				'responsive_profile'     => $responsive_profile,
 				'visual_density'         => $visual_density,
 				'media_strategy'         => $media_strategy,
+				'section_variant_hints'  => $section_variant_hints,
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'media_slots'            => $media_slots,
@@ -231,6 +234,8 @@ trait Page_Pattern_Read_Methods {
 				'media_quality'          => $review_summary['media_quality'],
 				'content_quality'        => $review_summary['content_quality'],
 				'editor_risk'            => $review_summary['editor_risk'],
+				'layout_fingerprint'     => $review_summary['layout_fingerprint'],
+				'visual_quality_findings' => $review_summary['visual_quality_findings'],
 				'findings'               => $review_summary['findings'],
 				'next_actions'           => $review_summary['next_actions'],
 			),
@@ -317,9 +322,11 @@ trait Page_Pattern_Read_Methods {
 			'class_dependency_ratio' => $metrics['class_dependency_ratio'],
 		);
 		$risk_review        = $this->pattern_review_editor_risk( $metrics );
-		$findings           = $this->pattern_review_findings( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
+		$layout_fingerprint = $this->pattern_layout_fingerprint( $blocks, $metrics );
+		$visual_quality_findings = $this->pattern_visual_quality_findings( $blocks, $layout_fingerprint );
+		$findings           = array_merge( $this->pattern_review_findings( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review ), $visual_quality_findings );
 		$score              = $this->pattern_review_score( $design_quality, $responsive_quality, $media_quality, $content_quality, $risk_review );
-		$review_status      = $score >= 80 && 'high' !== $risk_review['invalid_block_risk_level'] ? 'pass' : 'needs_revision';
+		$review_status      = $score >= 80 && 'high' !== $risk_review['invalid_block_risk_level'] && ! $this->pattern_has_blocking_visual_findings( $visual_quality_findings ) ? 'pass' : 'needs_revision';
 
 		return array(
 			'review_status'      => $review_status,
@@ -331,6 +338,8 @@ trait Page_Pattern_Read_Methods {
 			'media_quality'      => $media_quality,
 			'content_quality'    => $content_quality,
 			'editor_risk'        => $risk_review,
+			'layout_fingerprint' => $layout_fingerprint,
+			'visual_quality_findings' => $include_findings ? $visual_quality_findings : array(),
 			'findings'           => $include_findings ? $findings : array(),
 			'finding_codes'      => $this->pattern_finding_codes( $findings ),
 			'next_actions'       => $this->pattern_review_next_actions( $review_status, $findings ),
@@ -397,6 +406,29 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Normalizes bounded section variant hints.
+	 *
+	 * @param mixed $hints Section variant hints.
+	 * @return array<string,string>
+	 */
+	private function pattern_section_variant_hints( $hints ): array {
+		if ( ! is_array( $hints ) ) {
+			return array(
+				'comparison' => 'center-title-two-cards',
+			);
+		}
+
+		$comparison = sanitize_key( (string) ( $hints['comparison'] ?? 'center-title-two-cards' ) );
+		if ( ! in_array( $comparison, array( 'center-title-two-cards', 'left-title-two-cards' ), true ) ) {
+			$comparison = 'center-title-two-cards';
+		}
+
+		return array(
+			'comparison' => $comparison,
+		);
+	}
+
+	/**
 	 * Returns normalized finding codes.
 	 *
 	 * @param array<int,array<string,string>> $findings Findings.
@@ -434,6 +466,11 @@ trait Page_Pattern_Read_Methods {
 			'image_alt_missing'         => array( 'goal' => 'complete_media_alt_text', 'strategy' => 'require_alt_for_image_and_media_text_blocks' ),
 			'editor_invalid_block_risk' => array( 'goal' => 'avoid_invalid_blocks', 'strategy' => 'avoid_custom_html_and_non_core_blocks' ),
 			'text_heaviness_high'       => array( 'goal' => 'reduce_text_heaviness', 'strategy' => 'add_visual_asset_or_split_copy_into_cards' ),
+			'placeholder_media_url'     => array( 'goal' => 'repair_media_inputs', 'strategy' => 'replace_placeholder_media_with_reviewed_site_media_or_mock_panel' ),
+			'insufficient_card_padding' => array( 'goal' => 'repair_card_spacing', 'strategy' => 'use_complete_gutenberg_spacing_padding_attrs' ),
+			'light_card_inherits_light_text' => array( 'goal' => 'repair_card_contrast', 'strategy' => 'set_text_color_on_light_cards_inside_dark_sections' ),
+			'section_title_alignment_suggestion' => array( 'goal' => 'improve_section_alignment', 'strategy' => 'choose_center_title_variant_for_symmetric_comparison_sections' ),
+			'layout_similarity_risk'    => array( 'goal' => 'increase_layout_variation', 'strategy' => 'mix_section_variants_and_visual_rhythm' ),
 		);
 
 		$goals = array();
@@ -545,6 +582,8 @@ trait Page_Pattern_Read_Methods {
 		$media_strategy   = sanitize_key( (string) ( $options['media_strategy'] ?? 'mock_or_existing_media' ) );
 		$research_brief   = is_array( $options['research_brief'] ?? null ) ? $options['research_brief'] : array();
 		$review_feedback  = is_array( $options['review_feedback'] ?? null ) ? $options['review_feedback'] : array();
+		$section_variant_hints = is_array( $options['section_variant_hints'] ?? null ) ? $this->pattern_section_variant_hints( $options['section_variant_hints'] ) : $this->pattern_section_variant_hints( array() );
+		$comparison_variant = (string) ( $section_variant_hints['comparison'] ?? 'center-title-two-cards' );
 		$visual_delta     = $this->pattern_should_render_visual_delta( $review_feedback );
 		$hero_media_url   = $this->pattern_sanitized_media_url( $variables['hero_media_url'] ?? '' );
 		$hero_media_alt   = $this->pattern_text( $variables['hero_media_alt'] ?? '', 'WordPress AI workflow interface' );
@@ -763,7 +802,8 @@ trait Page_Pattern_Read_Methods {
 		if ( ! empty( $comparison_angles ) ) {
 			$research_sections[] = $this->pattern_comparison_block(
 				$comparison_angles,
-				! empty( $research_brief ) ? __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ) : __( '为什么坚持 proposal-first', 'npcink-abilities-toolkit' )
+				! empty( $research_brief ) ? __( '研究驱动的页面取舍', 'npcink-abilities-toolkit' ) : __( '为什么坚持 proposal-first', 'npcink-abilities-toolkit' ),
+				$comparison_variant
 			);
 		}
 
@@ -907,6 +947,7 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-comparison',
 			'npcink-ai-comparison-grid',
 			'npcink-ai-comparison-card',
+			'npcink-ai-section-title-center',
 			'npcink-ai-faq',
 			'npcink-ai-faq-list',
 			'npcink-ai-faq-item',
@@ -963,7 +1004,17 @@ trait Page_Pattern_Read_Methods {
 		);
 		$style_attr = $this->pattern_style_from_attrs( $attrs );
 		$style_html = '' !== $style_attr ? ' style="' . $this->pattern_attr( $style_attr ) . '"' : '';
-		$html       = '<h' . $level . ' class="wp-block-heading ' . $this->pattern_attr( $class_name ) . '"' . $style_html . '>' . esc_html( $text ) . '</h' . $level . '>';
+		$text_align = sanitize_key( (string) ( $attrs['textAlign'] ?? '' ) );
+		$classes    = array( 'wp-block-heading' );
+		if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
+			$classes[] = 'has-text-align-' . $text_align;
+		}
+		foreach ( preg_split( '/\s+/', $class_name ) ?: array() as $class ) {
+			if ( '' !== $class ) {
+				$classes[] = $class;
+			}
+		}
+		$html       = '<h' . $level . ' class="' . $this->pattern_attr( implode( ' ', array_values( array_unique( $classes ) ) ) ) . '"' . $style_html . '>' . esc_html( $text ) . '</h' . $level . '>';
 		return array(
 			'blockName'    => 'core/heading',
 			'attrs'        => $attrs,
@@ -1265,15 +1316,20 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @param array<int,array<string,string>> $items Comparison angle items.
 	 * @param string                          $title Section title.
+	 * @param string                          $variant Section layout variant.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_comparison_block( array $items, $title = '' ) {
+	private function pattern_comparison_block( array $items, $title = '', $variant = 'center-title-two-cards' ) {
 		$items = array_slice( $items, 0, 3 );
 		$title = $this->pattern_text( $title, '为什么坚持 proposal-first' );
+		$variant = sanitize_key( (string) $variant );
+		$center_title = 'left-title-two-cards' !== $variant;
+		$title_class  = $center_title ? 'npcink-ai-section-title npcink-ai-section-title-center' : 'npcink-ai-section-title';
+		$title_attrs  = $center_title ? $this->pattern_centered_light_section_title_attrs() : $this->pattern_light_section_title_attrs();
 		return $this->pattern_group_block(
 			'npcink-ai-comparison',
 			array(
-				$this->pattern_heading_block( $title, 2, 'npcink-ai-section-title', $this->pattern_light_section_title_attrs(), 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
+				$this->pattern_heading_block( $title, 2, $title_class, $title_attrs, 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 				$this->pattern_columns_block(
 					array_map(
 						function ( $item, $index ) {
@@ -1634,6 +1690,20 @@ trait Page_Pattern_Read_Methods {
 					'fontWeight'    => '500',
 				),
 			),
+		);
+	}
+
+	/**
+	 * Centered light section title attrs for symmetric dark sections.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function pattern_centered_light_section_title_attrs() {
+		return array_merge(
+			$this->pattern_light_section_title_attrs(),
+			array(
+				'textAlign' => 'center',
+			)
 		);
 	}
 
@@ -2758,6 +2828,140 @@ trait Page_Pattern_Read_Methods {
 	}
 
 	/**
+	 * Builds a stable layout fingerprint so clients can detect template sameness.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $metrics Review metrics.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_layout_fingerprint( array $blocks, array $metrics ): array {
+		$section_sequence      = array();
+		$section_alignment_map = array();
+		$alignment_mix         = array();
+		$contrast_band_count   = 0;
+		$media_section_count   = 0;
+		$card_grid_count       = 0;
+		$comparison_title_alignment = '';
+
+		foreach ( $blocks as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$section_signature = $this->pattern_section_signature( $block );
+			$section_sequence[] = $section_signature;
+
+			$alignment = $this->pattern_first_heading_alignment( array( $block ) );
+			if ( '' === $alignment ) {
+				$alignment = 'left';
+			}
+			$section_alignment_map[] = array(
+				'index'     => $index,
+				'section'   => $section_signature,
+				'alignment' => $alignment,
+			);
+			$alignment_mix[] = $alignment;
+
+			if ( $this->pattern_section_is_dark_contrast_band( $block ) ) {
+				++$contrast_band_count;
+			}
+			if ( $this->pattern_has_block_name( array( $block ), 'core/image' ) || $this->pattern_has_block_name( array( $block ), 'core/media-text' ) ) {
+				++$media_section_count;
+			}
+			if ( $this->pattern_section_uses_card_grid( $block ) ) {
+				++$card_grid_count;
+			}
+			if ( $this->pattern_block_has_class_token( $block, 'npcink-ai-comparison' ) ) {
+				$comparison_title_alignment = $alignment;
+			}
+		}
+
+		$alignment_mix = array_values( array_unique( array_filter( $alignment_mix ) ) );
+		$similarity_risk = 'low';
+		if ( count( $section_sequence ) < 6 || (int) ( $metrics['section_shape_variety'] ?? 0 ) < 4 ) {
+			$similarity_risk = 'high';
+		} elseif ( $card_grid_count >= 4 && $contrast_band_count < 1 ) {
+			$similarity_risk = 'medium';
+		}
+
+		return array(
+			'section_count'              => count( $section_sequence ),
+			'section_sequence'           => $section_sequence,
+			'section_sequence_hash'      => substr( md5( implode( '|', $section_sequence ) ), 0, 12 ),
+			'section_alignment_map'      => $section_alignment_map,
+			'alignment_mix'              => $alignment_mix,
+			'contrast_band_count'        => $contrast_band_count,
+			'media_section_count'        => $media_section_count,
+			'card_grid_count'            => $card_grid_count,
+			'comparison_title_alignment' => $comparison_title_alignment,
+			'visual_similarity_risk'     => $similarity_risk,
+		);
+	}
+
+	/**
+	 * Finds visual quality issues that are not captured by block validity alone.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $layout_fingerprint Layout fingerprint.
+	 * @return array<int,array<string,string>>
+	 */
+	private function pattern_visual_quality_findings( array $blocks, array $layout_fingerprint ): array {
+		$findings = array();
+		$encoded  = wp_json_encode( $blocks );
+		if ( is_string( $encoded ) && false !== strpos( $encoded, 'example.test' ) ) {
+			$findings[] = array(
+				'severity' => 'medium',
+				'code'     => 'placeholder_media_url',
+				'message'  => '页面块里仍包含 placeholder media URL，前台会出现破图。',
+			);
+		}
+		if ( $this->pattern_has_underpadded_cards( $blocks ) ) {
+			$findings[] = array(
+				'severity' => 'medium',
+				'code'     => 'insufficient_card_padding',
+				'message'  => '部分卡片缺少完整 Gutenberg spacing padding，容易出现文字贴边。',
+			);
+		}
+		if ( $this->pattern_has_light_cards_inheriting_light_text( $blocks ) ) {
+			$findings[] = array(
+				'severity' => 'medium',
+				'code'     => 'light_card_inherits_light_text',
+				'message'  => '浅色卡片处在深色区时未重设文字颜色，可能导致标题或正文不可见。',
+			);
+		}
+		if ( 'center' !== (string) ( $layout_fingerprint['comparison_title_alignment'] ?? '' ) && $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ) ) {
+			$findings[] = array(
+				'severity' => 'info',
+				'code'     => 'section_title_alignment_suggestion',
+				'message'  => '对称 comparison 区标题可考虑居中，减少和下方双卡布局的错位感。',
+			);
+		}
+		if ( in_array( (string) ( $layout_fingerprint['visual_similarity_risk'] ?? 'low' ), array( 'medium', 'high' ), true ) ) {
+			$findings[] = array(
+				'severity' => 'low',
+				'code'     => 'layout_similarity_risk',
+				'message'  => 'Section 序列变化不足，后续页面可能显得模板化。',
+			);
+		}
+
+		return $findings;
+	}
+
+	/**
+	 * Returns whether visual findings should block a passing review.
+	 *
+	 * @param array<int,array<string,string>> $findings Visual findings.
+	 * @return bool
+	 */
+	private function pattern_has_blocking_visual_findings( array $findings ): bool {
+		foreach ( $findings as $finding ) {
+			if ( in_array( (string) ( $finding['severity'] ?? '' ), array( 'medium', 'high' ), true ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Adds a finding when a condition is not satisfied.
 	 *
 	 * @param array<int,array<string,string>> $findings Findings.
@@ -2837,12 +3041,14 @@ trait Page_Pattern_Read_Methods {
 		$actions = array( 'revise_pattern_page_plan' );
 		foreach ( $findings as $finding ) {
 			$code = (string) ( $finding['code'] ?? '' );
-			if ( 'hero_media_missing' === $code || 'image_alt_missing' === $code ) {
+			if ( 'hero_media_missing' === $code || 'image_alt_missing' === $code || 'placeholder_media_url' === $code ) {
 				$actions[] = 'repair_media_inputs';
 			} elseif ( 'responsive_risk_detected' === $code ) {
 				$actions[] = 'review_responsive_columns';
 			} elseif ( 'editor_invalid_block_risk' === $code ) {
 				$actions[] = 'open_editor_and_rebuild_invalid_blocks';
+			} elseif ( in_array( $code, array( 'insufficient_card_padding', 'light_card_inherits_light_text', 'layout_similarity_risk', 'section_title_alignment_suggestion' ), true ) ) {
+				$actions[] = 'revise_visual_pattern_variants';
 			}
 		}
 		return array_values( array_unique( $actions ) );
@@ -2892,6 +3098,185 @@ trait Page_Pattern_Read_Methods {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a stable top-level section signature.
+	 *
+	 * @param array<string,mixed> $block Block.
+	 * @return string
+	 */
+	private function pattern_section_signature( array $block ): string {
+		$attrs   = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		$classes = preg_split( '/\s+/', (string) ( $attrs['className'] ?? '' ) );
+		foreach ( is_array( $classes ) ? $classes : array() as $class ) {
+			$class = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $class );
+			$class = is_string( $class ) ? $class : '';
+			if ( '' !== $class && 'npcink-ai-page' !== $class ) {
+				return $class;
+			}
+		}
+		return sanitize_text_field( (string) ( $block['blockName'] ?? 'unknown' ) );
+	}
+
+	/**
+	 * Returns whether one block has a class token.
+	 *
+	 * @param array<string,mixed> $block Block.
+	 * @param string              $class_name Class token.
+	 * @return bool
+	 */
+	private function pattern_block_has_class_token( array $block, string $class_name ): bool {
+		$attrs   = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		$classes = preg_split( '/\s+/', (string) ( $attrs['className'] ?? '' ) );
+		return in_array( $class_name, is_array( $classes ) ? $classes : array(), true );
+	}
+
+	/**
+	 * Returns the first heading alignment in a block tree.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return string
+	 */
+	private function pattern_first_heading_alignment( array $blocks ): string {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'core/heading' === (string) ( $block['blockName'] ?? '' ) ) {
+				$attrs      = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+				$text_align = sanitize_key( (string) ( $attrs['textAlign'] ?? '' ) );
+				if ( in_array( $text_align, array( 'left', 'center', 'right' ), true ) ) {
+					return $text_align;
+				}
+				$inner_html = (string) ( $block['innerHTML'] ?? '' );
+				foreach ( array( 'left', 'center', 'right' ) as $align ) {
+					if ( false !== strpos( $inner_html, 'has-text-align-' . $align ) ) {
+						return $align;
+					}
+				}
+				return 'left';
+			}
+			$inner_alignment = $this->pattern_first_heading_alignment( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() );
+			if ( '' !== $inner_alignment ) {
+				return $inner_alignment;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Returns whether a section is a dark contrast band.
+	 *
+	 * @param array<string,mixed> $block Block.
+	 * @return bool
+	 */
+	private function pattern_section_is_dark_contrast_band( array $block ): bool {
+		$attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+		$style = is_array( $attrs['style'] ?? null ) ? $attrs['style'] : array();
+		$color = is_array( $style['color'] ?? null ) ? $style['color'] : array();
+		$background = strtolower( (string) ( $color['background'] ?? '' ) );
+		return in_array( $background, array( '#111111', '#1f1f1f', 'black' ), true );
+	}
+
+	/**
+	 * Returns whether a section uses a repeated-card grid shape.
+	 *
+	 * @param array<string,mixed> $block Block.
+	 * @return bool
+	 */
+	private function pattern_section_uses_card_grid( array $block ): bool {
+		foreach ( array( 'npcink-ai-proof-strip', 'npcink-ai-feature-grid', 'npcink-ai-workflow', 'npcink-ai-comparison' ) as $class_name ) {
+			if ( $this->pattern_has_class_name( array( $block ), $class_name ) ) {
+				return true;
+			}
+		}
+		return $this->pattern_max_columns_per_row( array( $block ) ) >= 2;
+	}
+
+	/**
+	 * Returns whether known card blocks are missing complete native padding.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return bool
+	 */
+	private function pattern_has_underpadded_cards( array $blocks ): bool {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$is_card = false;
+			foreach ( array( 'npcink-ai-comparison-card', 'npcink-ai-feature-proof', 'npcink-ai-workflow-step', 'npcink-ai-feature-card' ) as $class_name ) {
+				if ( $this->pattern_block_has_class_token( $block, $class_name ) ) {
+					$is_card = true;
+					break;
+				}
+			}
+			if ( $is_card ) {
+				$attrs   = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+				$style   = is_array( $attrs['style'] ?? null ) ? $attrs['style'] : array();
+				$spacing = is_array( $style['spacing'] ?? null ) ? $style['spacing'] : array();
+				$padding = is_array( $spacing['padding'] ?? null ) ? $spacing['padding'] : array();
+				foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
+					if ( $this->pattern_px_value( $padding[ $side ] ?? '' ) < 16 ) {
+						return true;
+					}
+				}
+			}
+			if ( $this->pattern_has_underpadded_cards( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether a dark parent contains a light card without explicit text color.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param string                         $inherited_text_color Inherited text color.
+	 * @return bool
+	 */
+	private function pattern_has_light_cards_inheriting_light_text( array $blocks, string $inherited_text_color = '' ): bool {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$attrs   = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : array();
+			$style   = is_array( $attrs['style'] ?? null ) ? $attrs['style'] : array();
+			$color   = is_array( $style['color'] ?? null ) ? $style['color'] : array();
+			$text    = strtolower( (string) ( $color['text'] ?? $inherited_text_color ) );
+			$bg      = strtolower( (string) ( $color['background'] ?? '' ) );
+			$is_light_card = in_array( $bg, array( '#ffffff', '#f7f7f4' ), true ) && (
+				$this->pattern_block_has_class_token( $block, 'npcink-ai-comparison-card' ) ||
+				$this->pattern_block_has_class_token( $block, 'npcink-ai-feature-proof' ) ||
+				$this->pattern_block_has_class_token( $block, 'npcink-ai-feature-card' )
+			);
+			if ( $is_light_card && ! isset( $color['text'] ) && in_array( $text, array( '#ffffff', '#f2f2f2' ), true ) ) {
+				return true;
+			}
+			if ( $this->pattern_has_light_cards_inheriting_light_text( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array(), $text ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Parses a px value for coarse spacing checks.
+	 *
+	 * @param mixed $value CSS value.
+	 * @return int
+	 */
+	private function pattern_px_value( $value ): int {
+		$value = trim( (string) $value );
+		if ( 1 === preg_match( '/^([0-9]+)px$/', $value, $matches ) ) {
+			return absint( $matches[1] );
+		}
+		if ( is_numeric( $value ) ) {
+			return absint( $value );
+		}
+		return 0;
 	}
 
 	/**
