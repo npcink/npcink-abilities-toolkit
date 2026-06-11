@@ -30,6 +30,12 @@ confirm that the pushed commit's checks completed successfully, record why a
 direct push was necessary, and return to the pull-request path for the next
 change.
 
+This repository is usually maintained by one person working with AI agents. Keep
+pull requests lightweight and reviewable. Draft PRs are appropriate while an
+agent-produced change is still being checked. Required CI and required
+conversation resolution are the normal merge gates; do not add mandatory human
+review requirements unless the maintenance model changes.
+
 Before opening a pull request:
 
 ```bash
@@ -41,6 +47,27 @@ The required GitHub checks are:
 
 - `php (8.0)`
 - `php (8.3)`
+
+## Agent-Assisted Development
+
+AI agents should read [AGENTS.md](AGENTS.md) before making changes. That file is
+the reusable project prompt and records the repository-specific rules for
+branching, boundaries, verification, Local.app, WP-CLI, and release work.
+
+At minimum, agents should:
+
+- run `git status --short --branch` before editing;
+- avoid staging unrelated local changes;
+- preserve host-governed write and approval boundaries;
+- use `composer test:all`, `composer analyse:phpstan`, and `git diff --check`
+  before handoff when code or contracts change;
+- use `WP_PATH=/path/to/wordpress composer release:verify` for release-facing
+  changes.
+
+Do not open an issue for every small fix. Use GitHub issues for durable work
+that needs tracking across sessions: WordPress.org review feedback, release
+tasks, ability contract changes, security or governance-boundary risks, and
+multi-day work.
 
 ## Local Development Gate
 
@@ -130,12 +157,10 @@ Do not retag historical releases. For a patch release, update the plugin
 version, `readme.txt`, `CHANGELOG.md`, and a release verification note, then
 tag from the verified `master` commit.
 
-Before a GitHub release:
+Before a GitHub or WordPress.org release:
 
 ```bash
-composer test:all
-composer analyse:phpstan
-WP_PATH=/path/to/wordpress composer smoke:wp
+WP_PATH=/path/to/wordpress composer release:verify
 ```
 
 Record the evidence in the matching `docs/release-*-verification.md` file.
