@@ -928,6 +928,7 @@ $migrated_read_ability_ids = array(
 		'npcink-abilities-toolkit/get-page-structure-health',
 		'npcink-abilities-toolkit/build-pattern-page-plan',
 		'npcink-abilities-toolkit/review-pattern-page',
+		'npcink-abilities-toolkit/review-block-editor-surface',
 	'npcink-abilities-toolkit/get-seo-geo-gap-report',
 	'npcink-abilities-toolkit/get-site-style-baseline',
 	'npcink-abilities-toolkit/build-article-workflow-context',
@@ -1158,6 +1159,10 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 	npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/review-pattern-page']['required_scopes'] ?? array(), 'pattern page review remains a read-scope ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['post_id'] ), 'pattern page review accepts a post id' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-pattern-page']['input_schema']['properties']['blocks'] ), 'pattern page review accepts proposed blocks before write' );
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/review-block-editor-surface'] ), 'review-block-editor-surface is registered as a read-only block surface review ability' );
+	npcink_abilities_toolkit_assert_same( array( 'post.read', 'site.read' ), $package_abilities['npcink-abilities-toolkit/review-block-editor-surface']['required_scopes'] ?? array(), 'block surface review advertises post and Site Editor read scopes' );
+	npcink_abilities_toolkit_assert_same( array( 'post_content', 'site_editor_template', 'site_editor_template_part', 'blocks_input' ), $package_abilities['npcink-abilities-toolkit/review-block-editor-surface']['input_schema']['properties']['surface_kind']['enum'] ?? array(), 'block surface review exposes bounded surface kinds' );
+	npcink_abilities_toolkit_assert_same( array( 'post', 'page', 'wp_template', 'wp_template_part' ), $package_abilities['npcink-abilities-toolkit/review-block-editor-surface']['input_schema']['properties']['post_type']['enum'] ?? array(), 'block surface review exposes bounded post types' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/get-block-theme-context'] ), 'get-block-theme-context is registered as a read-only Site Editor context ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/get-block-theme-context']['required_scopes'] ?? array(), 'block theme context remains a site read ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan'] ), 'build-block-theme-site-plan is registered as a read-only planning ability' );
@@ -1303,7 +1308,8 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[19] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[20] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[21] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[22] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[22] ?? '', 'core read definitions keep block surface review near pattern page review' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[23] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
@@ -1604,6 +1610,19 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	$template_blocks = $core_read_package->get_template_blocks( array( 'slug' => 'single' ) );
 	npcink_abilities_toolkit_assert_same( 601, $template_blocks['post_id'] ?? 0, 'get-template-blocks resolves a template by slug' );
 	npcink_abilities_toolkit_assert_true( ( $template_blocks['block_count'] ?? 0 ) > 0, 'get-template-blocks parses template blocks' );
+	$template_surface_review = $core_read_package->review_block_editor_surface(
+		array(
+			'post_type' => 'wp_template',
+			'slug'      => 'single',
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $template_surface_review['success'] ?? null, 'review-block-editor-surface reviews Site Editor templates by slug' );
+	npcink_abilities_toolkit_assert_same( 'block_editor_surface_review', $template_surface_review['data']['artifact_type'] ?? '', 'review-block-editor-surface declares a generic block surface review artifact' );
+	npcink_abilities_toolkit_assert_same( 'site_editor_template', $template_surface_review['data']['block_editor_surface']['surface_kind'] ?? '', 'review-block-editor-surface identifies template surfaces' );
+	npcink_abilities_toolkit_assert_same( 'site_editor', $template_surface_review['data']['block_editor_surface']['editor'] ?? '', 'review-block-editor-surface reports Site Editor ownership' );
+	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-template-blocks', $template_surface_review['data']['block_editor_surface']['read_ability_id'] ?? '', 'review-block-editor-surface points template reads at get-template-blocks' );
+	npcink_abilities_toolkit_assert_same( false, $template_surface_review['data']['direct_wordpress_write'] ?? null, 'review-block-editor-surface does not write Site Editor templates' );
+	npcink_abilities_toolkit_assert_true( in_array( 'plan_site_editor_block_change', $template_surface_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface recommends governed Site Editor planning for template changes' );
 	$block_theme_plan = $core_read_package->build_block_theme_site_plan(
 		array(
 			'intent' => 'add_breadcrumbs',
@@ -4697,6 +4716,52 @@ $pattern_page_review_finding_codes = array_map(
 );
 npcink_abilities_toolkit_assert_true( in_array( 'color_story_monochrome', $pattern_page_review_finding_codes, true ), 'review-pattern-page reports monochrome color stories as a non-blocking visual finding' );
 npcink_abilities_toolkit_assert_true( in_array( 'preview_page_in_editor', $pattern_page_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends final editor preview after a pass' );
+$block_surface_blocks_review = $core_read_package->review_block_editor_surface(
+	array(
+		'surface_kind' => 'blocks_input',
+		'blocks'       => $pattern_blocks,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $block_surface_blocks_review['success'] ?? null, 'review-block-editor-surface reviews proposed blocks before write' );
+npcink_abilities_toolkit_assert_same( 'blocks_input', $block_surface_blocks_review['data']['block_editor_surface']['surface_kind'] ?? '', 'review-block-editor-surface identifies proposed block input' );
+npcink_abilities_toolkit_assert_same( 'review_blocks_input', $block_surface_blocks_review['data']['block_editor_surface']['target_mode'] ?? '', 'review-block-editor-surface reports proposed block review mode' );
+npcink_abilities_toolkit_assert_same( 'pass', $block_surface_blocks_review['data']['review_status'] ?? '', 'review-block-editor-surface reuses quality review for proposed blocks' );
+npcink_abilities_toolkit_assert_true( in_array( 'choose_target_block_editor_surface', $block_surface_blocks_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface asks callers to choose a target surface for proposed blocks' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280977] = (object) array(
+	'ID'           => 280977,
+	'post_type'    => 'page',
+	'post_status'  => 'draft',
+	'post_title'   => 'Surface Review Page',
+	'post_content' => '<!-- wp:heading --><h2>Surface review</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Review this page through the generic block editor surface ability.</p><!-- /wp:paragraph -->',
+);
+$page_surface_review = $core_read_package->review_block_editor_surface(
+	array(
+		'post_id' => 280977,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $page_surface_review['success'] ?? null, 'review-block-editor-surface reviews pages by post id' );
+npcink_abilities_toolkit_assert_same( 'post_content', $page_surface_review['data']['block_editor_surface']['surface_kind'] ?? '', 'review-block-editor-surface identifies post content surfaces' );
+npcink_abilities_toolkit_assert_same( 'page', $page_surface_review['data']['block_editor_surface']['post_type'] ?? '', 'review-block-editor-surface reports the page post type' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-post-blocks', $page_surface_review['data']['block_editor_surface']['read_ability_id'] ?? '', 'review-block-editor-surface points post content reads at get-post-blocks' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $page_surface_review['data']['block_editor_surface']['plan_ability_id'] ?? '', 'review-block-editor-surface points page revisions at the page Pattern planner' );
+npcink_abilities_toolkit_assert_same( false, $page_surface_review['data']['direct_wordpress_write'] ?? null, 'review-block-editor-surface does not write pages' );
+npcink_abilities_toolkit_assert_true( in_array( 'revise_pattern_page_plan', $page_surface_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface recommends the page Pattern revision loop for page surfaces' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280978] = (object) array(
+	'ID'           => 280978,
+	'post_type'    => 'post',
+	'post_status'  => 'draft',
+	'post_title'   => 'Surface Review Article',
+	'post_content' => '<!-- wp:heading --><h2>Article surface review</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Review this article through the generic block editor surface ability.</p><!-- /wp:paragraph -->',
+);
+$article_surface_review = $core_read_package->review_block_editor_surface(
+	array(
+		'post_id' => 280978,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_surface_review['success'] ?? null, 'review-block-editor-surface reviews posts by post id' );
+npcink_abilities_toolkit_assert_same( 'post', $article_surface_review['data']['block_editor_surface']['post_type'] ?? '', 'review-block-editor-surface reports the article post type' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $article_surface_review['data']['block_editor_surface']['plan_ability_id'] ?? '', 'review-block-editor-surface points article revisions at the article block planner' );
+npcink_abilities_toolkit_assert_true( in_array( 'revise_article_block_plan', $article_surface_review['data']['next_actions'] ?? array(), true ), 'review-block-editor-surface recommends the article block revision loop for post surfaces' );
 $custom_html_pattern_review = $core_read_package->review_pattern_page(
 	array(
 		'blocks' => array(

@@ -1605,6 +1605,54 @@ final class Core_Read_Package {
 					),
 					'execute_callback' => array( $this, 'review_pattern_page' ),
 				),
+				'npcink-abilities-toolkit/review-block-editor-surface' => array(
+					'label'            => __( 'Review Block Editor Surface', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Reviews a post, page, Site Editor template, template part, or proposed block tree for block-editor quality signals without writing WordPress content.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_posts',
+					'required_scope'   => 'post.read',
+					'required_scopes'  => array( 'post.read', 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'annotations'      => array(
+						'instructions' => 'Read-only block-editor surface review. Do not execute writes; use findings to revise future governed page, article, or Site Editor plans.',
+					),
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'surface_kind'     => array(
+								'type' => 'string',
+								'enum' => array( 'post_content', 'site_editor_template', 'site_editor_template_part', 'blocks_input' ),
+							),
+							'post_id'          => array( 'type' => 'integer', 'minimum' => 1 ),
+							'post_type'        => array(
+								'type' => 'string',
+								'enum' => array( 'post', 'page', 'wp_template', 'wp_template_part' ),
+							),
+							'slug'             => array( 'type' => 'string' ),
+							'blocks'           => array(
+								'type'  => 'array',
+								'items' => array(
+									'type'                 => 'object',
+									'additionalProperties' => true,
+								),
+							),
+							'include_findings' => array( 'type' => 'boolean', 'default' => true ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'success' => array( 'type' => 'boolean' ),
+							'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'message' => array( 'type' => 'string' ),
+						),
+						'required'   => array( 'success', 'data' ),
+					),
+					'execute_callback' => array( $this, 'review_block_editor_surface' ),
+				),
 			'npcink-abilities-toolkit/list-pages'      => array(
 				'label'            => __( 'List Pages', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Lists WordPress pages with status, parent, search, sorting, and pagination filters.', 'npcink-abilities-toolkit' ),
