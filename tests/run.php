@@ -4291,6 +4291,7 @@ $article_block_plan = $core_read_package->build_article_block_plan(
 			'dek'            => '用 Gutenberg 原生模块组织文章，让编辑、审查和移动端阅读都更稳定。',
 			'intro'          => '文章计划应该和页面 Pattern 分开处理，重点放在语义结构和可编辑性。',
 			'hero_media_url' => 'https://example.test/wp-content/uploads/2026/06/article-hero.jpg',
+			'hero_media_attachment_id' => 9053,
 			'hero_media_alt' => 'Article hero preview',
 			'takeaways'      => array(
 				'文章使用核心块，不依赖自定义 CSS。',
@@ -4353,6 +4354,7 @@ npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editori
 npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_takeaways'] ?? null, 'build-article-block-plan reports takeaways' );
 npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_faq'] ?? null, 'build-article-block-plan reports FAQ' );
 npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_comparison_columns'] ?? null, 'build-article-block-plan reports comparison columns' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['editorial_quality']['has_hero_media_attachment_id'] ?? null, 'build-article-block-plan reports hero media attachment binding' );
 npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['editorial_quality']['custom_css_required'] ?? true, 'build-article-block-plan reports no custom CSS requirement' );
 npcink_abilities_toolkit_assert_same( 'article_standard', $article_block_plan['data']['responsive_quality']['responsive_profile'] ?? '', 'build-article-block-plan reports responsive profile quality' );
 npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['uses_core_responsive_blocks'] ?? null, 'build-article-block-plan reports core responsive blocks' );
@@ -4360,6 +4362,8 @@ npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['respons
 	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['responsive_quality']['has_responsive_media'] ?? null, 'build-article-block-plan reports responsive media' );
 	npcink_abilities_toolkit_assert_same( 2, $article_block_plan['data']['responsive_quality']['max_columns_per_row'] ?? 0, 'build-article-block-plan reports bounded comparison columns' );
 	npcink_abilities_toolkit_assert_same( 'block_editor_surface_review', $article_block_plan['data']['block_editor_review']['artifact_type'] ?? '', 'build-article-block-plan includes a block-editor self-review excerpt' );
+	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['block_editor_review']['media_quality']['has_hero_media_attachment_id'] ?? null, 'build-article-block-plan review reports hero media attachment ids present' );
+	npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['block_editor_review']['media_quality']['has_temporary_cloud_preview_url'] ?? true, 'build-article-block-plan review reports no temporary Cloud preview URLs' );
 	npcink_abilities_toolkit_assert_same( 'article_editor_safety', $article_block_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-article-block-plan uses an article editor-safety quality gate' );
 	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'build-article-block-plan marks editor-safe article blocks ready for proposal' );
 	npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['block_editor_quality_gate']['commit_execution'] ?? null, 'build-article-block-plan quality gate does not execute commits' );
@@ -4373,6 +4377,8 @@ npcink_abilities_toolkit_assert_same( '$outputs.create-article-draft.post_id', $
 $article_blocks = is_array( $article_block_actions[1]['input']['blocks'] ?? null ) ? $article_block_actions[1]['input']['blocks'] : array();
 $article_markup = wp_json_encode( $article_blocks );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/image"' ), 'build-article-block-plan uses core image for existing media' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"id":9053' ), 'build-article-block-plan binds hero image to the reviewed attachment id' );
+npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, 'class=\"wp-image-9053\"' ), 'build-article-block-plan serializes wp-image attachment classes' );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/details"' ), 'build-article-block-plan uses details blocks for FAQ' );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"blockName":"core\\/columns"' ), 'build-article-block-plan uses columns for comparison sections' );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"isStackedOnMobile":true' ), 'build-article-block-plan stacks comparison columns on mobile' );
