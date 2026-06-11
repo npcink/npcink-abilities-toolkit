@@ -37,6 +37,17 @@ function npcink_abilities_toolkit_assert_same( $expected, $actual, $message ) {
 	npcink_abilities_toolkit_assert_true( $expected === $actual, $message . ' Expected ' . var_export( $expected, true ) . ', got ' . var_export( $actual, true ) );
 }
 
+function npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( array $schema, array $payload, $message ) {
+	npcink_abilities_toolkit_assert_same( false, $schema['additionalProperties'] ?? null, "{$message} keeps a strict output schema" );
+	$properties = is_array( $schema['properties'] ?? null ) ? $schema['properties'] : array();
+	foreach ( array_keys( $payload ) as $payload_key ) {
+		npcink_abilities_toolkit_assert_true(
+			isset( $properties[ $payload_key ] ),
+			"{$message} output schema declares {$payload_key}"
+		);
+	}
+}
+
 function npcink_abilities_toolkit_count_plan_actions_for_ability( array $actions, $ability_id ) {
 	$count = 0;
 	foreach ( $actions as $action ) {
@@ -1618,6 +1629,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $block_theme_actions[0]['target_ability_id'] ?? '', 'block theme site plan targets template block writes' );
 	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan inserts a stable Core group first' );
 	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][0]['attrs']['className'] ?? '', 'block theme site plan marks the group as a breadcrumb scaffold' );
+	$template_update_output_schema = $package_abilities['npcink-abilities-toolkit/update-template-blocks']['output_schema'] ?? array();
 	$template_preview = $core_write_package->update_template_blocks(
 		array(
 			'post_id' => 601,
@@ -1627,6 +1639,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	npcink_abilities_toolkit_assert_same( true, $template_preview['dry_run'] ?? null, 'update-template-blocks returns a governed dry-run preview' );
 	npcink_abilities_toolkit_assert_same( 'wp_template', $template_preview['post_type'] ?? '', 'update-template-blocks reports the template post type' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_preview, 'update-template-blocks dry-run payload' );
 	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 	$template_written = $core_write_package->update_template_blocks(
 		array(
@@ -1638,6 +1651,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_written, 'update-template-blocks commit payload' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' ), 'openclaw-breadcrumbs' ), 'update-template-blocks writes breadcrumb scaffold markup' );
 	$template_part_preview = $core_write_package->update_template_part_blocks(
 		array(
