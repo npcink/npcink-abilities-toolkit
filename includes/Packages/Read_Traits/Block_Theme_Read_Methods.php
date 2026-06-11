@@ -100,10 +100,10 @@ trait Block_Theme_Read_Methods {
 				continue;
 			}
 
-			$template_id    = absint( $template['post_id'] ?? 0 );
-			$template_slug  = sanitize_key( (string) ( $template['slug'] ?? $template_slug ) );
-			$template_theme = sanitize_key( (string) ( $template['theme'] ?? '' ) );
-			$template_title = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
+			$template_id     = absint( $template['post_id'] ?? 0 );
+			$template_slug   = sanitize_key( (string) ( $template['slug'] ?? $template_slug ) );
+			$template_theme  = sanitize_key( (string) ( $template['theme'] ?? '' ) );
+			$template_title  = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
 			$template_source = sanitize_key( (string) ( $template['source'] ?? '' ) );
 			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
 			$current_blocks = $this->block_theme_blocks_for_write_plan( $current_blocks );
@@ -143,16 +143,16 @@ trait Block_Theme_Read_Methods {
 					: __( 'Create a reviewed Site Editor template override from the active theme file template after Core approval.', 'npcink-abilities-toolkit' )
 			);
 			$preview[] = array(
-				'target_type'        => 'wp_template',
-				'post_id'            => $template_id,
-				'slug'               => $template_slug,
-				'theme'              => $template_theme,
-				'source'             => $template_source,
+				'target_type'               => 'wp_template',
+				'post_id'                   => $template_id,
+				'slug'                      => $template_slug,
+				'theme'                     => $template_theme,
+				'source'                    => $template_source,
 				'creates_template_override' => ! $is_existing_custom_template,
-				'target_ability_id'  => $target_ability_id,
-				'block_count_before' => $this->block_theme_count_blocks( $current_blocks ),
-				'block_count_after'  => $this->block_theme_count_blocks( $next_blocks ),
-					'inserted_block'     => 'core/group.openclaw-breadcrumbs',
+				'target_ability_id'         => $target_ability_id,
+				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
+				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
+				'inserted_block'            => 'core/group.openclaw-breadcrumbs',
 			);
 		}
 

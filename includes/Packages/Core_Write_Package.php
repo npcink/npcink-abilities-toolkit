@@ -1581,7 +1581,7 @@ final class Core_Write_Package {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-		public function update_post_blocks( $input ) {
+	public function update_post_blocks( $input ) {
 		$input   = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$post    = $this->get_editable_post( $post_id );
