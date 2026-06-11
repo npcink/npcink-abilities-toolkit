@@ -467,16 +467,22 @@ final class Core_Write_Package {
 						array(
 							'post_id'               => array( 'type' => 'integer' ),
 							'post_type'             => array( 'type' => 'string' ),
+							'slug'                  => array( 'type' => 'string' ),
 							'updated'               => array( 'type' => 'boolean' ),
 							'status'                => array( 'type' => 'string' ),
 							'mode'                  => array( 'type' => 'string' ),
 							'edit_link'             => array( 'type' => 'string' ),
 							'block_count_before'    => array( 'type' => 'integer' ),
 							'block_count_after'     => array( 'type' => 'integer' ),
+							'content_length_before' => array( 'type' => 'integer' ),
+							'content_length_after'  => array( 'type' => 'integer' ),
 							'validation'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'impact_ranges'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
+							'diff_preview'          => array( 'type' => 'object', 'additionalProperties' => true ),
+							'preview'               => array( 'type' => 'object', 'additionalProperties' => true ),
 							'dry_run'               => array( 'type' => 'boolean' ),
 						),
-						array( 'post_id', 'post_type', 'updated', 'mode', 'block_count_before', 'block_count_after', 'validation', 'dry_run' )
+						array( 'post_id', 'post_type', 'slug', 'updated', 'mode', 'block_count_before', 'block_count_after', 'validation', 'dry_run' )
 					),
 					'execute_callback' => array( $this, 'update_template_part_blocks' ),
 				),

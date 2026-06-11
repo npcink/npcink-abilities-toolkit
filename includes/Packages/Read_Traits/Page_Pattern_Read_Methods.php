@@ -34,6 +34,7 @@ trait Page_Pattern_Read_Methods {
 		$visual_density     = sanitize_key( (string) ( $input['visual_density'] ?? 'balanced' ) );
 		$media_strategy     = sanitize_key( (string) ( $input['media_strategy'] ?? 'mock_or_existing_media' ) );
 		$post_type          = sanitize_key( (string) ( $input['post_type'] ?? 'page' ) );
+		$target_post_id     = absint( $input['target_post_id'] ?? 0 );
 		if ( 'page' !== $post_type ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_post_type_invalid', __( 'Pattern page plans currently support post_type=page only.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
@@ -54,6 +55,22 @@ trait Page_Pattern_Read_Methods {
 		}
 		if ( ! in_array( $media_strategy, array( 'mock_or_existing_media', 'existing_media_url' ), true ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_media_strategy_invalid', __( 'Media strategy is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$target_post = null;
+		if ( $target_post_id > 0 ) {
+			$target_post = get_post( $target_post_id );
+			if ( ! is_object( $target_post ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_not_found', __( 'Target page was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+			}
+			if ( ! current_user_can( 'edit_post', $target_post_id ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to update the target page.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			if ( 'page' !== sanitize_key( (string) ( $target_post->post_type ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_type_invalid', __( 'Target post must be a page.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( 'draft' !== sanitize_key( (string) ( $target_post->post_status ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_pattern_page_target_status_invalid', __( 'Target page must be a draft.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
 		}
 
 		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
@@ -77,44 +94,72 @@ trait Page_Pattern_Read_Methods {
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
-		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
-		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $title, $variables, $section_variant_hints ) );
-		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
-		$write_actions = array(
-			$this->build_plan_action(
-				'create-pattern-page',
-				'npcink-abilities-toolkit/create-draft',
-				array(
-					'post_type'      => 'page',
-					'status'         => 'draft',
-					'title'          => $title,
-					'content'        => '',
-					'content_format' => 'html',
-					'meta'           => array(
-						'npcink_pattern_id'         => $pattern_id,
-						'npcink_style_preset'       => $style_preset,
-						'npcink_color_story'        => $color_story,
-						'npcink_responsive_profile' => $responsive_profile,
-					),
-				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Create a draft page before applying reviewed Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
-			),
-			$this->build_plan_action(
-				'update-pattern-page-blocks',
-				'npcink-abilities-toolkit/update-post-blocks',
-				array(
-					'post_id'            => '$outputs.create-pattern-page.post_id',
-					'mode'               => 'replace',
-					'validate_roundtrip' => true,
-					'blocks'             => $blocks,
-				),
-				array( 'post.write' ),
-				'medium',
-				__( 'Replace the draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
-			),
+		$block_editor_quality_gate = $this->block_editor_plan_quality_gate(
+			$quality_review,
+			array(
+				'profile'      => 'landing_design',
+				'surface_kind' => 'post_content',
+				'editor'       => 'block_editor',
+				'post_type'    => 'page',
+				'target_mode'  => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+			)
 		);
+		$revision_strategy  = $this->pattern_revision_strategy( $review_feedback, $quality_review, $media_slots );
+		$batch_seed         = wp_json_encode( array( $pattern_id, $style_preset, $color_story, $responsive_profile, $visual_density, $media_strategy, $target_post_id, $title, $variables, $section_variant_hints ) );
+		$batch_id           = 'pattern_page_' . substr( md5( is_string( $batch_seed ) ? $batch_seed : $title ), 0, 12 );
+		if ( $target_post_id > 0 ) {
+			$write_actions = array(
+				$this->build_plan_action(
+					'update-pattern-page-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => $target_post_id,
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the existing draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
+				),
+			);
+		} else {
+			$write_actions = array(
+				$this->build_plan_action(
+					'create-pattern-page',
+					'npcink-abilities-toolkit/create-draft',
+					array(
+						'post_type'      => 'page',
+						'status'         => 'draft',
+						'title'          => $title,
+						'content'        => '',
+						'content_format' => 'html',
+						'meta'           => array(
+							'npcink_pattern_id'         => $pattern_id,
+							'npcink_style_preset'       => $style_preset,
+							'npcink_color_story'        => $color_story,
+							'npcink_responsive_profile' => $responsive_profile,
+						),
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Create a draft page before applying reviewed Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
+				),
+				$this->build_plan_action(
+					'update-pattern-page-blocks',
+					'npcink-abilities-toolkit/update-post-blocks',
+					array(
+						'post_id'            => '$outputs.create-pattern-page.post_id',
+						'mode'               => 'replace',
+						'validate_roundtrip' => true,
+						'blocks'             => $blocks,
+					),
+					array( 'post.write' ),
+					'medium',
+					__( 'Replace the draft page body with whitelist-class Gutenberg pattern blocks.', 'npcink-abilities-toolkit' )
+				),
+			);
+		}
 
 		return $this->build_analysis_success_response(
 			array(
@@ -131,8 +176,30 @@ trait Page_Pattern_Read_Methods {
 				'research_brief'         => $this->pattern_research_brief_summary( $research_brief ),
 				'allowed_classes'        => $this->pattern_allowed_classes(),
 				'media_slots'            => $media_slots,
+				'block_editor_surface'   => array(
+					'surface_kind'      => 'post_content',
+					'editor'            => 'block_editor',
+					'post_type'         => 'page',
+					'target_mode'       => $target_post_id > 0 ? 'update_existing' : 'create_draft',
+					'write_ability_id'  => 'npcink-abilities-toolkit/update-post-blocks',
+					'create_ability_id' => $target_post_id > 0 ? null : 'npcink-abilities-toolkit/create-draft',
+				),
+				'target_post'            => $target_post_id > 0 ? array(
+					'mode'      => 'update_existing',
+					'post_id'   => $target_post_id,
+					'post_type' => sanitize_key( (string) ( $target_post->post_type ?? 'page' ) ),
+					'status'    => sanitize_key( (string) ( $target_post->post_status ?? 'draft' ) ),
+					'title'     => sanitize_text_field( (string) ( $target_post->post_title ?? '' ) ),
+				) : array(
+					'mode'      => 'create_draft',
+					'post_id'   => 0,
+					'post_type' => 'page',
+					'status'    => 'draft',
+					'title'     => $title,
+				),
 				'quality_feedback'       => $review_feedback,
 				'quality_review'         => $quality_review,
+				'block_editor_quality_gate' => $block_editor_quality_gate,
 				'revision_strategy'      => $revision_strategy,
 				'write_posture'          => 'core_proposal_handoff',
 				'direct_wordpress_write' => false,
@@ -251,6 +318,257 @@ trait Page_Pattern_Read_Methods {
 				'execution_mode' => 'deterministic_readonly',
 			),
 			'Pattern page review built.'
+		);
+	}
+
+	/**
+	 * Reviews any supported block-editor surface without writing content.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function review_block_editor_surface( $input ) {
+		$input            = is_array( $input ) ? $input : array();
+		$surface_kind     = sanitize_key( (string) ( $input['surface_kind'] ?? '' ) );
+		$post_type        = sanitize_key( (string) ( $input['post_type'] ?? '' ) );
+		$post_id          = absint( $input['post_id'] ?? 0 );
+		$slug             = sanitize_key( (string) ( $input['slug'] ?? '' ) );
+		$include_findings = ! array_key_exists( 'include_findings', $input ) || ! empty( $input['include_findings'] );
+		$blocks           = array();
+		$content          = '';
+		$content_length   = 0;
+		$source           = 'blocks_input';
+		$surface          = array(
+			'surface_kind' => '' !== $surface_kind ? $surface_kind : 'blocks_input',
+			'editor'       => 'block_editor',
+			'post_type'    => '' !== $post_type ? $post_type : '',
+			'post_id'      => 0,
+			'slug'         => '',
+			'status'       => '',
+			'title'        => '',
+			'source'       => '',
+		);
+
+		if ( is_array( $input['blocks'] ?? null ) ) {
+			if ( ! current_user_can( 'edit_posts' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review proposed blocks.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			$blocks = $this->pattern_review_normalize_blocks( $input['blocks'] );
+			$surface['target_mode'] = 'review_blocks_input';
+		} else {
+			if ( '' === $post_type && $post_id > 0 ) {
+				$post = get_post( $post_id );
+				if ( ! $post ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				$post_type = sanitize_key( (string) ( $post->post_type ?? '' ) );
+			}
+
+			if ( in_array( $surface_kind, array( 'site_editor_template', 'site_editor_template_part' ), true ) && '' === $post_type ) {
+				$post_type = 'site_editor_template_part' === $surface_kind ? 'wp_template_part' : 'wp_template';
+			}
+
+			if ( in_array( $post_type, array( 'wp_template', 'wp_template_part' ), true ) ) {
+				if ( ! current_user_can( 'edit_theme_options' ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review block theme templates.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				}
+				$entity = $this->block_theme_find_entity( $post_type, $slug, $post_id );
+				if ( empty( $entity ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_block_theme_entity_not_found', __( 'Block theme entity was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				$content        = (string) ( $entity['content'] ?? '' );
+				$content_length = strlen( $content );
+				$parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+				$blocks         = $this->pattern_review_normalize_blocks( is_array( $parsed_blocks ) ? $parsed_blocks : array() );
+				$source         = 'site_editor_entity';
+				$surface        = array(
+					'surface_kind'      => 'wp_template_part' === $post_type ? 'site_editor_template_part' : 'site_editor_template',
+					'editor'            => 'site_editor',
+					'post_type'         => $post_type,
+					'post_id'           => absint( $entity['post_id'] ?? 0 ),
+					'slug'              => sanitize_key( (string) ( $entity['slug'] ?? '' ) ),
+					'template_id'       => sanitize_text_field( (string) ( $entity['template_id'] ?? '' ) ),
+					'theme'             => sanitize_key( (string) ( $entity['theme'] ?? '' ) ),
+					'source'            => sanitize_key( (string) ( $entity['source'] ?? '' ) ),
+					'title'             => sanitize_text_field( (string) ( $entity['title'] ?? '' ) ),
+					'target_mode'       => 'review_existing',
+					'read_ability_id'   => 'wp_template_part' === $post_type ? 'npcink-abilities-toolkit/get-template-part-blocks' : 'npcink-abilities-toolkit/get-template-blocks',
+					'write_ability_ids' => 'wp_template_part' === $post_type
+						? array( 'npcink-abilities-toolkit/update-template-part-blocks' )
+						: array( 'npcink-abilities-toolkit/update-template-blocks', 'npcink-abilities-toolkit/upsert-template-blocks' ),
+				);
+			} else {
+				if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_block_editor_surface_type_invalid', __( 'Block editor surface type is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+				}
+				$post = get_post( $post_id );
+				if ( ! $post ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				if ( ! current_user_can( 'edit_post', $post_id ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				}
+				$content        = (string) ( $post->post_content ?? '' );
+				$content_length = strlen( $content );
+				$parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+				$blocks         = $this->pattern_review_normalize_blocks( is_array( $parsed_blocks ) ? $parsed_blocks : array() );
+				$source         = 'post_content';
+				$surface        = array(
+					'surface_kind'       => 'post_content',
+					'editor'             => 'block_editor',
+					'post_type'          => $post_type,
+					'post_id'            => $post_id,
+					'slug'               => sanitize_title( (string) ( $post->post_name ?? '' ) ),
+					'status'             => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+					'title'              => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+					'target_mode'        => 'review_existing',
+					'read_ability_id'    => 'npcink-abilities-toolkit/get-post-blocks',
+					'write_ability_id'   => 'npcink-abilities-toolkit/update-post-blocks',
+					'plan_ability_id'    => 'page' === $post_type ? 'npcink-abilities-toolkit/build-pattern-page-plan' : 'npcink-abilities-toolkit/build-article-block-plan',
+				);
+			}
+		}
+
+		if ( empty( $blocks ) && ! empty( $content ) ) {
+			$blocks[] = array(
+				'blockName'    => 'core/freeform',
+				'attrs'        => array(),
+				'innerHTML'    => $content,
+				'innerContent' => array( $content ),
+				'innerBlocks'  => array(),
+			);
+		}
+
+		$review_summary = $this->pattern_review_summary_for_blocks( $blocks, $include_findings );
+
+		return $this->build_analysis_success_response(
+			array(
+				'artifact_type'          => 'block_editor_surface_review',
+				'version'                => 1,
+				'source'                 => $source,
+				'block_editor_surface'   => $surface,
+				'block_count'            => $review_summary['block_count'],
+				'top_level_count'        => $review_summary['top_level_count'],
+				'content_length'         => $content_length,
+				'review_status'          => $review_summary['review_status'],
+				'score'                  => $review_summary['score'],
+				'direct_wordpress_write' => false,
+				'commit_execution'       => false,
+				'server_side_review_only' => true,
+				'editor_validation_note' => 'Server-side review checks structure, native attrs, media, and responsive signals; Gutenberg editor save() validation still requires opening the editor.',
+				'design_quality'         => $review_summary['design_quality'],
+				'responsive_quality'     => $review_summary['responsive_quality'],
+				'media_quality'          => $review_summary['media_quality'],
+				'content_quality'        => $review_summary['content_quality'],
+				'editor_risk'            => $review_summary['editor_risk'],
+				'layout_fingerprint'     => $review_summary['layout_fingerprint'],
+				'visual_quality_findings' => $review_summary['visual_quality_findings'],
+				'findings'               => $review_summary['findings'],
+				'next_actions'           => $this->block_editor_surface_next_actions( $surface, $review_summary['next_actions'] ),
+			),
+			array(
+				'source'         => 'local_block_editor_surface_review',
+				'execution_mode' => 'deterministic_readonly',
+			),
+			'Block editor surface review built.'
+		);
+	}
+
+	/**
+	 * Adds surface-specific next actions to generic review advice.
+	 *
+	 * @param array<string,mixed> $surface Surface metadata.
+	 * @param array<int,string>   $review_next_actions Generic next actions.
+	 * @return array<int,string>
+	 */
+	private function block_editor_surface_next_actions( array $surface, array $review_next_actions ): array {
+		$next_actions = array_values( array_filter( array_map( 'sanitize_key', $review_next_actions ) ) );
+		$surface_kind = sanitize_key( (string) ( $surface['surface_kind'] ?? '' ) );
+		$post_type    = sanitize_key( (string) ( $surface['post_type'] ?? '' ) );
+
+		if ( 'post_content' === $surface_kind && 'page' === $post_type ) {
+			$next_actions[] = 'revise_pattern_page_plan';
+		} elseif ( 'post_content' === $surface_kind && 'post' === $post_type ) {
+			$next_actions[] = 'revise_article_block_plan';
+		} elseif ( in_array( $surface_kind, array( 'site_editor_template', 'site_editor_template_part' ), true ) ) {
+			$next_actions[] = 'plan_site_editor_block_change';
+		} elseif ( 'blocks_input' === $surface_kind ) {
+			$next_actions[] = 'choose_target_block_editor_surface';
+		}
+
+		return array_values( array_unique( $next_actions ) );
+	}
+
+	/**
+	 * Builds a proposal-readiness gate from block-editor review signals.
+	 *
+	 * @param array<string,mixed> $review_summary Review summary.
+	 * @param array<string,mixed> $surface Surface metadata.
+	 * @return array<string,mixed>
+	 */
+	private function block_editor_plan_quality_gate( array $review_summary, array $surface ): array {
+		$profile         = sanitize_key( (string) ( $surface['profile'] ?? 'editor_safety' ) );
+		$review_status   = sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) );
+		$score           = absint( $review_summary['score'] ?? 0 );
+		$editor_risk     = sanitize_key( (string) ( $review_summary['editor_risk']['invalid_block_risk_level'] ?? '' ) );
+		$responsive_risk = sanitize_key( (string) ( $review_summary['responsive_quality']['responsive_risk_level'] ?? '' ) );
+		$finding_codes   = is_array( $review_summary['finding_codes'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['finding_codes'] ) ) ) : array();
+
+		$blocking_codes = array();
+		if ( 'low' !== $editor_risk ) {
+			$blocking_codes[] = 'editor_invalid_block_risk';
+		}
+		if ( ! in_array( $responsive_risk, array( 'low', 'medium' ), true ) ) {
+			$blocking_codes[] = 'responsive_risk_detected';
+		}
+		if ( 'landing_design' === $profile && ( 'pass' !== $review_status || $score < 80 ) ) {
+			$blocking_codes = array_merge( $blocking_codes, $finding_codes );
+		}
+
+		$blocking_codes = array_values( array_unique( array_filter( $blocking_codes ) ) );
+		$ready          = empty( $blocking_codes );
+
+		return array(
+			'gate_id'             => sanitize_key( (string) ( $surface['gate_id'] ?? 'block_editor_quality_gate' ) ),
+			'review_ability_id'   => 'npcink-abilities-toolkit/review-block-editor-surface',
+			'profile'             => $profile,
+			'surface_kind'        => sanitize_key( (string) ( $surface['surface_kind'] ?? '' ) ),
+			'editor'              => sanitize_key( (string) ( $surface['editor'] ?? '' ) ),
+			'post_type'           => sanitize_key( (string) ( $surface['post_type'] ?? '' ) ),
+			'target_mode'         => sanitize_key( (string) ( $surface['target_mode'] ?? '' ) ),
+			'review_status'       => $review_status,
+			'score'               => $score,
+			'editor_risk_level'   => $editor_risk,
+			'responsive_risk_level' => $responsive_risk,
+			'finding_codes'       => $finding_codes,
+			'blocking_finding_codes' => $blocking_codes,
+			'ready_for_proposal'  => $ready,
+			'recommended_next_step' => $ready ? 'submit_core_proposal' : 'revise_block_editor_plan',
+			'direct_wordpress_write' => false,
+			'commit_execution'    => false,
+		);
+	}
+
+	/**
+	 * Returns a compact block-editor review payload for generated plans.
+	 *
+	 * @param array<string,mixed> $review_summary Review summary.
+	 * @return array<string,mixed>
+	 */
+	private function block_editor_plan_review_excerpt( array $review_summary ): array {
+		return array(
+			'artifact_type'       => 'block_editor_surface_review',
+			'review_status'       => sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) ),
+			'score'               => absint( $review_summary['score'] ?? 0 ),
+			'block_count'         => absint( $review_summary['block_count'] ?? 0 ),
+			'top_level_count'     => absint( $review_summary['top_level_count'] ?? 0 ),
+			'editor_risk'         => is_array( $review_summary['editor_risk'] ?? null ) ? $review_summary['editor_risk'] : array(),
+			'responsive_quality'  => is_array( $review_summary['responsive_quality'] ?? null ) ? $review_summary['responsive_quality'] : array(),
+			'media_quality'       => is_array( $review_summary['media_quality'] ?? null ) ? $review_summary['media_quality'] : array(),
+			'finding_codes'       => is_array( $review_summary['finding_codes'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['finding_codes'] ) ) ) : array(),
+			'next_actions'        => is_array( $review_summary['next_actions'] ?? null ) ? array_values( array_filter( array_map( 'sanitize_key', $review_summary['next_actions'] ) ) ) : array(),
+			'server_side_review_only' => true,
+			'editor_validation_note' => 'Server-side review checks structure, native attrs, media, and responsive signals; Gutenberg editor save() validation still requires opening the editor.',
 		);
 	}
 
@@ -2928,7 +3246,13 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_review_findings( array $design, array $responsive, array $media, array $content, array $risk ) {
 		$findings = array();
-		$this->pattern_review_add_finding( $findings, ! empty( $design['has_split_hero'] ), 'pass', 'split_hero_present', '页面包含 split hero 结构。' );
+		if ( ! empty( $design['has_split_hero'] ) ) {
+			$findings[] = array(
+				'severity' => 'pass',
+				'code'     => 'split_hero_present',
+				'message'  => '页面包含 split hero 结构。',
+			);
+		}
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_hero_media'] ) || (int) $media['visual_asset_count'] > 0, 'medium', 'hero_media_missing', '页面缺少强视觉资产，建议补 reviewed media 或产品面板。' );
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_bento_grid'] ), 'medium', 'bento_grid_missing', 'Feature 区仍偏普通网格，建议使用 Bento 或非重复 section 形态。' );
 		$this->pattern_review_add_finding( $findings, ! empty( $design['has_comparison_section'] ), 'medium', 'comparison_missing', '页面缺少 proposal-first 对比区，说服力会偏弱。' );
