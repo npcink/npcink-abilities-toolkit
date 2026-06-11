@@ -4275,7 +4275,7 @@ $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 			'hero_description' => '让内容生产、SEO 优化、媒体处理与发布协作在同一个可审计流程中完成。',
 			'primary_cta'      => '查看工作流',
 			'secondary_cta'    => '了解能力',
-			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
 			'hero_media_alt'   => 'WordPress AI dashboard preview',
 			'features'         => array(
 				array(
@@ -4304,7 +4304,8 @@ npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['target_as
 npcink_abilities_toolkit_assert_same( 'aspect_ratio', $pattern_media_slots[0]['crop']['type'] ?? '', 'build-pattern-page-plan declares bounded crop type for hero media' );
 npcink_abilities_toolkit_assert_same( '16:9', $pattern_media_slots[0]['crop']['aspect_ratio'] ?? '', 'build-pattern-page-plan carries hero aspect ratio into crop guidance' );
 npcink_abilities_toolkit_assert_same( 'ai_image_ratio_crop_media_adoption', $pattern_media_slots[0]['recommended_recipe_id'] ?? '', 'build-pattern-page-plan recommends the AI image crop adoption recipe for hero media' );
-npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
+npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_media_slots[0]['existing_media_url'] ?? '', 'build-pattern-page-plan echoes reviewed existing hero media URL in media slot metadata' );
+npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_valid'] ?? null, 'build-pattern-page-plan marks reviewed media URLs valid' );
 npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
@@ -4360,7 +4361,7 @@ $pattern_hero_visual = is_array( $pattern_hero_layout['innerBlocks'][1]['innerBl
 npcink_abilities_toolkit_assert_same( 'core/group', $pattern_hero_visual['blockName'] ?? '', 'build-pattern-page-plan wraps reviewed hero media in a native group panel' );
 npcink_abilities_toolkit_assert_same( 'npcink-ai-dashboard-card npcink-ai-hero-media-card', $pattern_hero_visual['attrs']['className'] ?? '', 'build-pattern-page-plan marks the hero media panel with whitelisted classes' );
 npcink_abilities_toolkit_assert_same( 'core/image', $pattern_hero_visual['innerBlocks'][0]['blockName'] ?? '', 'build-pattern-page-plan places reviewed media in the hero visual column' );
-npcink_abilities_toolkit_assert_same( 'https://example.test/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
+npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
 $pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
 npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
 npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
@@ -4390,6 +4391,32 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-faq-item' ), 'build-pattern-page-plan includes FAQ item class handles' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'npcink-ai-final-cta' ), 'build-pattern-page-plan includes a final CTA' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
+$placeholder_media_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Placeholder Media Pattern',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
+			'hero_title'     => 'Placeholder media should not render',
+			'hero_media_url' => 'https://example.test/wp-content/uploads/2026/06/placeholder-dashboard.jpg',
+			'hero_media_alt' => 'Placeholder dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $placeholder_media_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts placeholder media inputs for repair planning' );
+$placeholder_media_slots = is_array( $placeholder_media_pattern_page_plan['data']['media_slots'] ?? null ) ? $placeholder_media_pattern_page_plan['data']['media_slots'] : array();
+npcink_abilities_toolkit_assert_same( '', $placeholder_media_slots[0]['existing_media_url'] ?? 'unexpected', 'build-pattern-page-plan does not echo placeholder media URLs as reviewed media' );
+npcink_abilities_toolkit_assert_same( false, $placeholder_media_slots[0]['media_input_valid'] ?? null, 'build-pattern-page-plan marks placeholder media URLs invalid' );
+$placeholder_actions = is_array( $placeholder_media_pattern_page_plan['data']['write_actions'] ?? null ) ? $placeholder_media_pattern_page_plan['data']['write_actions'] : array();
+$placeholder_blocks = is_array( $placeholder_actions[1]['input']['blocks'] ?? null ) ? $placeholder_actions[1]['input']['blocks'] : array();
+$placeholder_markup = wp_json_encode( $placeholder_blocks );
+npcink_abilities_toolkit_assert_same( true, $placeholder_media_pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan falls back to the dashboard mock for placeholder media URLs' );
+npcink_abilities_toolkit_assert_same( false, $placeholder_media_pattern_page_plan['data']['design_quality']['has_hero_media'] ?? null, 'build-pattern-page-plan does not report placeholder media as hero media' );
+npcink_abilities_toolkit_assert_true( is_string( $placeholder_markup ) && false === strpos( $placeholder_markup, 'placeholder-dashboard.jpg' ), 'build-pattern-page-plan does not serialize placeholder media URLs into blocks' );
+npcink_abilities_toolkit_assert_true( is_string( $placeholder_markup ) && false !== strpos( $placeholder_markup, 'npcink-ai-dashboard-mock' ), 'build-pattern-page-plan serializes a mock panel instead of a broken image' );
 $pattern_page_review = $core_read_package->review_pattern_page(
 	array(
 		'blocks' => $pattern_blocks,
@@ -4442,7 +4469,7 @@ $review_revised_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 			'eyebrow'          => 'WordPress AI Plugin',
 			'hero_title'       => 'Review-revised Gutenberg landing page',
 			'hero_description' => 'Previous review findings are converted into bounded Pattern revision goals.',
-			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/review-revised-dashboard.jpg',
+			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/review-revised-dashboard.jpg',
 			'hero_media_alt'   => 'Review-revised WordPress AI dashboard preview',
 		),
 	)
@@ -4473,6 +4500,8 @@ npcink_abilities_toolkit_assert_same( true, $review_revised_pattern_page_plan['d
 npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'npcink-ai-feature-grid npcink-ai-visual-delta' ), 'build-pattern-page-plan serializes the feedback revision as a visibly different feature section' );
 npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' ), 'build-pattern-page-plan renders the visual-delta feature section as a native dark band' );
 npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'npcink-ai-feature-proof-row' ), 'build-pattern-page-plan adds a native proof row to make feedback revisions visually distinct' );
+npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'background-color:#ffffff;color:#111111' ), 'build-pattern-page-plan resets light visual-delta card text color instead of inheriting dark-section text' );
+npcink_abilities_toolkit_assert_true( is_string( $review_revised_markup ) && false !== strpos( $review_revised_markup, 'border-color:#3a3a3a;border-width:1px;border-radius:20px;background-color:#1f1f1f;color:#ffffff;padding-top:24px;padding-right:24px;padding-bottom:24px;padding-left:24px' ), 'build-pattern-page-plan gives proof row cards complete native padding' );
 $research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Research Backed WordPress AI',
@@ -4525,7 +4554,7 @@ $research_backed_pattern_page_plan = $core_read_package->build_pattern_page_plan
 			'eyebrow'          => 'WordPress AI Plugin',
 			'hero_title'       => 'Research-backed Gutenberg landing page',
 			'hero_description' => 'Cloud search evidence shapes the brief while Toolkit keeps Gutenberg output native.',
-			'hero_media_url'   => 'https://example.test/wp-content/uploads/2026/06/research-backed-dashboard.jpg',
+			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/research-backed-dashboard.jpg',
 			'hero_media_alt'   => 'Research-backed WordPress AI dashboard preview',
 		),
 	)
