@@ -432,7 +432,7 @@ if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
-	foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
+	foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', 'npcink-abilities-toolkit/route-content-intent', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
 		npcink_abilities_toolkit_smoke_assert(
 			! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
 			"Light profile disables optional ability {$disabled_ability_id}."
@@ -491,10 +491,11 @@ foreach (
 			'npcink-abilities-toolkit/get-post-blocks',
 			'npcink-abilities-toolkit/list-post-revisions',
 			'npcink-abilities-toolkit/get-block-theme-context',
-			'npcink-abilities-toolkit/get-template-blocks',
-			'npcink-abilities-toolkit/get-template-part-blocks',
-			'npcink-abilities-toolkit/build-block-theme-site-plan',
-			'npcink-abilities-toolkit/build-pattern-page-plan',
+				'npcink-abilities-toolkit/get-template-blocks',
+				'npcink-abilities-toolkit/get-template-part-blocks',
+				'npcink-abilities-toolkit/build-block-theme-site-plan',
+				'npcink-abilities-toolkit/route-content-intent',
+				'npcink-abilities-toolkit/build-pattern-page-plan',
 			'npcink-abilities-toolkit/build-article-block-plan',
 		'npcink-abilities-toolkit/list-media',
 		'npcink-abilities-toolkit/list-terms',
@@ -1003,6 +1004,22 @@ $article_optimization_smoke_actions = is_array( $article_optimization_apply_plan
 npcink_abilities_toolkit_smoke_assert( 1 === count( $article_optimization_smoke_actions ), 'Article optimization apply plan emits one governed write action for the reviewed excerpt.' );
 npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/update-post' === (string) ( $article_optimization_smoke_actions[0]['target_ability_id'] ?? '' ), 'Article optimization apply plan targets update-post for excerpt changes.' );
 npcink_abilities_toolkit_smoke_assert( true === (bool) ( $article_optimization_smoke_actions[0]['input']['dry_run'] ?? false ) && false === (bool) ( $article_optimization_smoke_actions[0]['input']['commit'] ?? true ), 'Article optimization apply plan write action is dry-run and non-commit.' );
+
+$content_intent_route_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/route-content-intent/run' );
+$content_intent_route_run_request->set_query_params(
+	array(
+		'input' => array(
+			'prompt' => 'Build a modern landing page with an image and responsive layout.',
+		),
+	)
+);
+$content_intent_route_run_response = rest_do_request( $content_intent_route_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $content_intent_route_run_response->get_status(), 'Authenticated content intent route ability run returns 200.' );
+$content_intent_route_run_data = $content_intent_route_run_response->get_data();
+npcink_abilities_toolkit_smoke_assert( 'content_intent_route' === (string) ( $content_intent_route_run_data['data']['artifact_type'] ?? '' ), 'Content intent route declares the routing artifact type.' );
+npcink_abilities_toolkit_smoke_assert( 'pattern_page_plan' === (string) ( $content_intent_route_run_data['data']['route']['route'] ?? '' ), 'Content intent route maps landing page prompts to the pattern page recipe.' );
+npcink_abilities_toolkit_smoke_assert( false === (bool) ( $content_intent_route_run_data['data']['prompt_is_authorization'] ?? true ), 'Content intent route keeps prompts non-authorizing.' );
+npcink_abilities_toolkit_smoke_assert( false === isset( $content_intent_route_run_data['data']['write_actions'] ), 'Content intent route does not emit write actions.' );
 
 $article_block_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-block-plan/run' );
 $article_block_plan_run_request->set_query_params(
