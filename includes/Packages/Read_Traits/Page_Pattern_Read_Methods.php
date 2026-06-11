@@ -29,7 +29,9 @@ trait Page_Pattern_Read_Methods {
 
 		$pattern_id         = sanitize_key( (string) ( $input['pattern_id'] ?? 'openai-style-landing' ) );
 		$style_preset       = sanitize_key( (string) ( $input['style_preset'] ?? 'minimal-dark-light' ) );
-		$color_story        = sanitize_key( (string) ( $input['color_story'] ?? ( $input['variables']['color_story'] ?? 'minimal-dark-light' ) ) );
+		$variables          = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
+		$has_explicit_color_story = array_key_exists( 'color_story', $input ) || array_key_exists( 'color_story', $variables );
+		$color_story        = sanitize_key( (string) ( $input['color_story'] ?? ( $variables['color_story'] ?? 'minimal-dark-light' ) ) );
 		$responsive_profile = sanitize_key( (string) ( $input['responsive_profile'] ?? 'landing_standard' ) );
 		$visual_density     = sanitize_key( (string) ( $input['visual_density'] ?? 'balanced' ) );
 		$media_strategy     = sanitize_key( (string) ( $input['media_strategy'] ?? 'mock_or_existing_media' ) );
@@ -73,9 +75,11 @@ trait Page_Pattern_Read_Methods {
 			}
 		}
 
-		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
 		$research_brief = $this->pattern_research_brief( $input['research_brief'] ?? ( $variables['research_brief'] ?? array() ) );
 		$review_feedback = $this->pattern_review_feedback( $input['review_feedback'] ?? ( $variables['review_feedback'] ?? array() ) );
+		if ( ! $has_explicit_color_story && in_array( 'color_story_monochrome', (array) ( $review_feedback['finding_codes'] ?? array() ), true ) ) {
+			$color_story = 'editorial-accent';
+		}
 		$section_variant_hints = $this->pattern_section_variant_hints( $input['section_variant_hints'] ?? ( $variables['section_variant_hints'] ?? array() ) );
 		$title     = $this->pattern_text( $input['title'] ?? ( $variables['hero_title'] ?? 'WordPress AI' ), 'WordPress AI' );
 		$blocks    = $this->render_openai_style_landing_blocks(
@@ -90,7 +94,7 @@ trait Page_Pattern_Read_Methods {
 				'section_variant_hints' => $section_variant_hints,
 			)
 		);
-		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief );
+		$design_quality     = $this->pattern_design_quality_summary( $blocks, $research_brief, $color_story );
 		$responsive_quality = $this->pattern_responsive_quality_summary( $blocks, $responsive_profile );
 		$media_slots        = $this->pattern_media_slots( $variables, $media_strategy );
 		$quality_review     = $this->pattern_review_summary_for_blocks( $blocks, true );
@@ -796,6 +800,7 @@ trait Page_Pattern_Read_Methods {
 			'light_card_inherits_light_text' => array( 'goal' => 'repair_card_contrast', 'strategy' => 'set_text_color_on_light_cards_inside_dark_sections' ),
 			'section_title_alignment_suggestion' => array( 'goal' => 'improve_section_alignment', 'strategy' => 'choose_center_title_variant_for_symmetric_comparison_sections' ),
 			'layout_similarity_risk'    => array( 'goal' => 'increase_layout_variation', 'strategy' => 'mix_section_variants_and_visual_rhythm' ),
+			'color_story_monochrome'     => array( 'goal' => 'increase_color_rhythm', 'strategy' => 'switch_to_editorial_accent_color_story' ),
 		);
 
 		$goals = array();
@@ -1051,8 +1056,8 @@ trait Page_Pattern_Read_Methods {
 									$this->pattern_paragraph_block( $hero_description, 'npcink-ai-lede', $this->pattern_lede_attrs(), 'color:#333333;font-size:22px;line-height:1.4' ),
 									$this->pattern_buttons_block(
 										array(
-											$this->pattern_button_block( $primary_cta, 'npcink-ai-button-primary', $this->pattern_primary_button_attrs(), 'background-color:#111111;color:#ffffff;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
-											$this->pattern_button_block( $secondary_cta, 'npcink-ai-button-secondary', $this->pattern_secondary_button_attrs(), 'background-color:#ffffff;color:#111111;border:1px solid #111111;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
+											$this->pattern_button_block( $primary_cta, 'npcink-ai-button-primary', $this->pattern_primary_button_attrs( $palette ), 'background-color:' . $palette['contrast_background'] . ';color:#ffffff;border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
+											$this->pattern_button_block( $secondary_cta, 'npcink-ai-button-secondary', $this->pattern_secondary_button_attrs( $palette ), 'background-color:#ffffff;color:' . $palette['contrast_background'] . ';border:1px solid ' . $palette['contrast_background'] . ';border-radius:999px;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ),
 										),
 										'npcink-ai-cta',
 										$this->pattern_buttons_attrs()
@@ -1077,7 +1082,8 @@ trait Page_Pattern_Read_Methods {
 				array(
 					$this->pattern_columns_block(
 						array_map(
-							function ( $item ) {
+							function ( $item ) use ( $palette ) {
+								$line_color = 'editorial-accent' === (string) ( $palette['name'] ?? '' ) ? (string) $palette['accent'] : '#111111';
 								return $this->pattern_column_block(
 									array(
 										$this->pattern_group_block(
@@ -1086,8 +1092,8 @@ trait Page_Pattern_Read_Methods {
 												$this->pattern_heading_block( (string) $item['title'], 3, 'npcink-ai-card-title', $this->pattern_card_title_attrs(), 'font-size:22px;font-weight:500;line-height:1.2;letter-spacing:0;margin-top:0' ),
 												$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $this->pattern_card_text_attrs(), 'color:#454545;font-size:16px;line-height:1.55' ),
 											),
-											$this->pattern_line_card_attrs(),
-											'border-top-color:#111111;border-top-width:1px;padding-top:22px;padding-right:0;padding-bottom:0;padding-left:0'
+											$this->pattern_line_card_attrs( $palette ),
+											'border-top-color:' . $line_color . ';border-top-width:1px;padding-top:22px;padding-right:0;padding-bottom:0;padding-left:0'
 										),
 									)
 								);
@@ -1147,7 +1153,7 @@ trait Page_Pattern_Read_Methods {
 							$visual_delta ? $this->pattern_light_section_title_attrs() : $this->pattern_section_title_attrs(),
 							$visual_delta ? 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' : 'font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0'
 						),
-						$visual_delta ? $this->pattern_feature_visual_delta_block( $features ) : $this->pattern_feature_bento_block( $features ),
+						$visual_delta ? $this->pattern_feature_visual_delta_block( $features ) : $this->pattern_feature_bento_block( $features, $palette ),
 					),
 					$this->pattern_section_attrs( $visual_delta ? $palette['contrast_background'] : $palette['surface'], '88px', '88px', false ),
 					$visual_delta ? 'background-color:#111111;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px' : 'background-color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:88px;padding-left:40px'
@@ -1660,11 +1666,13 @@ trait Page_Pattern_Read_Methods {
 				$this->pattern_heading_block( $title, 2, $title_class, $title_attrs, 'color:#ffffff;font-size:40px;font-weight:500;line-height:1.1;letter-spacing:0' ),
 				$this->pattern_columns_block(
 					array_map(
-						function ( $item, $index ) {
+						function ( $item, $index ) use ( $palette ) {
 							$is_primary  = 0 === (int) $index;
-							$card_attrs  = $is_primary ? $this->pattern_comparison_primary_card_attrs() : $this->pattern_comparison_light_card_attrs();
+							$card_attrs  = $is_primary ? $this->pattern_comparison_primary_card_attrs( $palette ) : $this->pattern_comparison_light_card_attrs();
 							$title_attrs = $is_primary ? $this->pattern_light_card_title_attrs() : $this->pattern_card_title_attrs();
 							$text_attrs  = $is_primary ? $this->pattern_light_card_text_attrs() : $this->pattern_card_text_attrs();
+							$primary_background = ( 'editorial-accent' === (string) ( $palette['name'] ?? '' ) ) ? '#153f42' : '#1f1f1f';
+							$primary_border     = ( 'editorial-accent' === (string) ( $palette['name'] ?? '' ) ) ? (string) $palette['accent'] : '#3a3a3a';
 							return $this->pattern_column_block(
 								array(
 									$this->pattern_group_block(
@@ -1674,7 +1682,7 @@ trait Page_Pattern_Read_Methods {
 											$this->pattern_paragraph_block( (string) $item['description'], 'npcink-ai-card-text', $text_attrs, $is_primary ? 'color:#dddddd;font-size:16px;line-height:1.55' : 'color:#454545;font-size:16px;line-height:1.55' ),
 										),
 										$card_attrs,
-										$is_primary ? 'background-color:#1f1f1f;color:#ffffff;border-color:#3a3a3a;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px' : 'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
+										$is_primary ? 'background-color:' . $primary_background . ';color:#ffffff;border-color:' . $primary_border . ';border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px' : 'background-color:#ffffff;border-color:#dddddd;border-width:1px;border-radius:20px;padding-top:28px;padding-right:28px;padding-bottom:28px;padding-left:28px'
 									),
 								)
 							);
@@ -1697,7 +1705,8 @@ trait Page_Pattern_Read_Methods {
 	 * @param array<int,array<string,string>> $features Feature items.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_feature_bento_block( array $features ) {
+	private function pattern_feature_bento_block( array $features, array $palette = array() ) {
+		$palette  = ! empty( $palette ) ? $palette : $this->pattern_color_story_palette( 'minimal-dark-light' );
 		$features = array_values( $features );
 		while ( count( $features ) < 3 ) {
 			$features[] = array(
@@ -1720,8 +1729,8 @@ trait Page_Pattern_Read_Methods {
 								$this->pattern_heading_block( (string) $primary['title'], 3, 'npcink-ai-card-title', $this->pattern_feature_spotlight_title_attrs(), 'color:#ffffff;font-size:30px;font-weight:500;line-height:1.08;letter-spacing:0;margin-top:0' ),
 								$this->pattern_paragraph_block( (string) $primary['description'], 'npcink-ai-card-text', $this->pattern_light_card_text_attrs(), 'color:#dddddd;font-size:16px;line-height:1.55' ),
 							),
-							$this->pattern_feature_spotlight_attrs(),
-							'background-color:#111111;color:#ffffff;border-color:#111111;border-width:1px;border-radius:24px;padding-top:36px;padding-right:36px;padding-bottom:36px;padding-left:36px'
+							$this->pattern_feature_spotlight_attrs( $palette ),
+							'background-color:' . $palette['contrast_background'] . ';color:#ffffff;border-color:' . $palette['contrast_background'] . ';border-width:1px;border-radius:24px;padding-top:36px;padding-right:36px;padding-bottom:36px;padding-left:36px'
 						),
 					)
 				),
@@ -2126,7 +2135,9 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function pattern_feature_spotlight_attrs() {
+	private function pattern_feature_spotlight_attrs( array $palette = array() ) {
+		$palette    = ! empty( $palette ) ? $palette : $this->pattern_color_story_palette( 'minimal-dark-light' );
+		$background = (string) ( $palette['contrast_background'] ?? '#111111' );
 		return array(
 			'style' => array(
 				'spacing' => array(
@@ -2138,12 +2149,12 @@ trait Page_Pattern_Read_Methods {
 					),
 				),
 				'border'  => array(
-					'color'  => '#111111',
+					'color'  => $background,
 					'width'  => '1px',
 					'radius' => '24px',
 				),
 				'color'   => array(
-					'background' => '#111111',
+					'background' => $background,
 					'text'       => '#ffffff',
 				),
 			),
@@ -2314,7 +2325,10 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function pattern_comparison_primary_card_attrs() {
+	private function pattern_comparison_primary_card_attrs( array $palette = array() ) {
+		$is_accent  = 'editorial-accent' === (string) ( $palette['name'] ?? '' );
+		$background = $is_accent ? '#153f42' : '#1f1f1f';
+		$border     = $is_accent ? (string) ( $palette['accent'] ?? '#2f6f68' ) : '#3a3a3a';
 		return array(
 			'style' => array(
 				'spacing' => array(
@@ -2326,12 +2340,12 @@ trait Page_Pattern_Read_Methods {
 					),
 				),
 				'border'  => array(
-					'color'  => '#3a3a3a',
+					'color'  => $border,
 					'width'  => '1px',
 					'radius' => '20px',
 				),
 				'color'   => array(
-					'background' => '#1f1f1f',
+					'background' => $background,
 					'text'       => '#ffffff',
 				),
 			),
@@ -2352,7 +2366,8 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function pattern_line_card_attrs() {
+	private function pattern_line_card_attrs( array $palette = array() ) {
+		$line_color = 'editorial-accent' === (string) ( $palette['name'] ?? '' ) ? (string) $palette['accent'] : '#111111';
 		return array(
 			'style' => array(
 				'spacing' => array(
@@ -2365,7 +2380,7 @@ trait Page_Pattern_Read_Methods {
 				),
 				'border'  => array(
 					'top' => array(
-						'color' => '#111111',
+						'color' => $line_color,
 						'width' => '1px',
 					),
 				),
@@ -2576,12 +2591,13 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function pattern_primary_button_attrs() {
+	private function pattern_primary_button_attrs( array $palette = array() ) {
+		$background = (string) ( $palette['contrast_background'] ?? '#111111' );
 		return array(
 			'style' => array(
 				'border'  => array( 'radius' => '999px' ),
 				'color'   => array(
-					'background' => '#111111',
+					'background' => $background,
 					'text'       => '#ffffff',
 				),
 				'spacing' => array(
@@ -2601,17 +2617,18 @@ trait Page_Pattern_Read_Methods {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function pattern_secondary_button_attrs() {
+	private function pattern_secondary_button_attrs( array $palette = array() ) {
+		$color = (string) ( $palette['contrast_background'] ?? '#111111' );
 		return array(
 			'style' => array(
 				'border'  => array(
-					'color'  => '#111111',
+					'color'  => $color,
 					'width'  => '1px',
 					'radius' => '999px',
 				),
 				'color'   => array(
 					'background' => '#ffffff',
-					'text'       => '#111111',
+					'text'       => $color,
 				),
 				'spacing' => array(
 					'padding' => array(
@@ -2961,12 +2978,17 @@ trait Page_Pattern_Read_Methods {
 	 * @param array<int,array<string,mixed>> $blocks Blocks.
 	 * @return array<string,mixed>
 	 */
-	private function pattern_design_quality_summary( array $blocks, array $research_brief = array() ) {
+	private function pattern_design_quality_summary( array $blocks, array $research_brief = array(), $color_story = '' ) {
 		$has_visual_delta = $this->pattern_has_class_name( $blocks, 'npcink-ai-visual-delta' );
+		$color_story      = '' !== (string) $color_story ? sanitize_key( (string) $color_story ) : $this->pattern_detect_color_story( $blocks );
+		$accent_surface_count = $this->pattern_accent_surface_count( $blocks );
 		return array(
 			'pattern_version'       => $has_visual_delta ? '4.0' : '3.0',
 			'style_strategy'        => 'gutenberg_native',
 			'uses_native_styles'    => true,
+			'color_story'           => $color_story,
+			'has_editorial_accent'  => 'editorial-accent' === $color_story || $accent_surface_count > 0,
+			'accent_surface_count'  => $accent_surface_count,
 			'visual_delta_mode'     => $has_visual_delta ? 'strong_revision' : 'standard',
 			'research_backed'       => ! empty( $research_brief ),
 			'research_source_count' => absint( $research_brief['source_count'] ?? 0 ),
@@ -2987,6 +3009,37 @@ trait Page_Pattern_Read_Methods {
 			'has_columns'           => $this->pattern_has_block_name( $blocks, 'core/columns' ),
 			'custom_css_required'   => false,
 		);
+	}
+
+	/**
+	 * Detects the bounded color story from generated native block backgrounds.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return string
+	 */
+	private function pattern_detect_color_story( array $blocks ): string {
+		return $this->pattern_accent_surface_count( $blocks ) > 0 ? 'editorial-accent' : 'minimal-dark-light';
+	}
+
+	/**
+	 * Counts non-neutral Pattern section/card backgrounds used for visual rhythm.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return int
+	 */
+	private function pattern_accent_surface_count( array $blocks ): int {
+		$count = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$background = $this->pattern_block_background_color( $block );
+			if ( '' !== $background && ! in_array( $background, array( '#111111', '#1f1f1f', '#ffffff', '#f7f7f4', '#e5e5e5', '#dddddd', '#dcdcdc', 'black', 'white' ), true ) ) {
+				++$count;
+			}
+			$count += $this->pattern_accent_surface_count( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() );
+		}
+		return $count;
 	}
 
 	/**

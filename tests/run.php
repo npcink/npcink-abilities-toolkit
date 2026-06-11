@@ -4480,6 +4480,8 @@ npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input
 npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
+npcink_abilities_toolkit_assert_same( 'minimal-dark-light', $pattern_page_plan['data']['design_quality']['color_story'] ?? '', 'build-pattern-page-plan reports the native color story in design quality' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? true, 'build-pattern-page-plan does not report editorial accents for the default monochrome story' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports eight v2 sections when media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );
@@ -4603,12 +4605,30 @@ $accent_blocks = is_array( $accent_actions[1]['input']['blocks'] ?? null ) ? $ac
 $accent_markup = wp_json_encode( $accent_blocks );
 npcink_abilities_toolkit_assert_same( true, $accent_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts the editorial accent color story' );
 npcink_abilities_toolkit_assert_same( 'editorial-accent', $accent_pattern_page_plan['data']['color_story'] ?? '', 'build-pattern-page-plan preserves the editorial accent color story' );
+npcink_abilities_toolkit_assert_same( 'editorial-accent', $accent_pattern_page_plan['data']['design_quality']['color_story'] ?? '', 'build-pattern-page-plan reports the editorial accent story in design quality' );
+npcink_abilities_toolkit_assert_same( true, $accent_pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? null, 'build-pattern-page-plan marks editorial accent pages as visually accented' );
+npcink_abilities_toolkit_assert_true( (int) ( $accent_pattern_page_plan['data']['design_quality']['accent_surface_count'] ?? 0 ) >= 4, 'build-pattern-page-plan counts accent surfaces in design quality' );
 npcink_abilities_toolkit_assert_same( '#f4f8f7', $accent_blocks[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan applies the accent hero background natively' );
+$accent_hero_layout = is_array( $accent_blocks[0]['innerBlocks'][0] ?? null ) ? $accent_blocks[0]['innerBlocks'][0] : array();
+$accent_hero_copy = is_array( $accent_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $accent_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
+$accent_buttons = is_array( $accent_hero_copy[3]['innerBlocks'] ?? null ) ? $accent_hero_copy[3]['innerBlocks'] : array();
+npcink_abilities_toolkit_assert_same( '#102b2d', $accent_buttons[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan uses the accent contrast color for the primary hero button' );
+npcink_abilities_toolkit_assert_same( '#102b2d', $accent_buttons[1]['attrs']['style']['border']['color'] ?? '', 'build-pattern-page-plan uses the accent contrast color for the secondary hero button border' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'color:#2f6f68;font-size:13px' ), 'build-pattern-page-plan serializes the active accent color on eyebrow copy' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, '"top":{"color":"#2f6f68","width":"1px"}' ), 'build-pattern-page-plan applies the accent color to proof card top rules' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#102b2d;border-width:1px;border-radius:24px;background-color:#102b2d;color:#ffffff' ), 'build-pattern-page-plan uses the accent contrast color for the feature spotlight card' );
+npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#2f6f68;border-width:1px;border-radius:20px;background-color:#153f42;color:#ffffff' ), 'build-pattern-page-plan gives the accent comparison card a distinct native background' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'background-color:#dfeee9;padding-top:72px;padding-right:40px;padding-bottom:72px;padding-left:40px' ), 'build-pattern-page-plan applies the accent media section background natively' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'background-color:#102b2d;color:#ffffff;padding-top:88px;padding-right:40px;padding-bottom:96px;padding-left:40px' ), 'build-pattern-page-plan applies the accent dark final CTA background natively' );
 npcink_abilities_toolkit_assert_true( is_string( $accent_markup ) && false !== strpos( $accent_markup, 'border-color:#ffffff;border-width:1px;border-radius:999px;background-color:#102b2d;color:#ffffff;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan keeps the secondary CTA visible on accent dark bands' );
 npcink_abilities_toolkit_assert_true( (int) ( $accent_pattern_page_plan['data']['quality_review']['layout_fingerprint']['accent_color_count'] ?? 0 ) >= 1, 'build-pattern-page-plan review fingerprint detects accent color usage' );
+$accent_review_finding_codes = array_map(
+	static function ( $finding ) {
+		return is_array( $finding ) ? (string) ( $finding['code'] ?? '' ) : '';
+	},
+	is_array( $accent_pattern_page_plan['data']['quality_review']['visual_quality_findings'] ?? null ) ? $accent_pattern_page_plan['data']['quality_review']['visual_quality_findings'] : array()
+);
+npcink_abilities_toolkit_assert_true( ! in_array( 'color_story_monochrome', $accent_review_finding_codes, true ), 'build-pattern-page-plan does not flag the editorial accent story as monochrome' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280973] = (object) array(
 	'ID'           => 280973,
 	'post_type'    => 'page',
@@ -4744,6 +4764,34 @@ $pattern_page_review_finding_codes = array_map(
 );
 npcink_abilities_toolkit_assert_true( in_array( 'color_story_monochrome', $pattern_page_review_finding_codes, true ), 'review-pattern-page reports monochrome color stories as a non-blocking visual finding' );
 npcink_abilities_toolkit_assert_true( in_array( 'preview_page_in_editor', $pattern_page_review['data']['next_actions'] ?? array(), true ), 'review-pattern-page recommends final editor preview after a pass' );
+$color_revised_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Color Revised WordPress AI',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'review_feedback'    => $pattern_page_review['data'],
+		'variables'          => array(
+			'hero_title'     => 'Color-revised Gutenberg landing page',
+			'hero_media_url' => 'https://magick-ai.local/wp-content/uploads/2026/06/color-revised-dashboard.jpg',
+			'hero_media_alt' => 'Color-revised WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $color_revised_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts monochrome review feedback for color revision' );
+npcink_abilities_toolkit_assert_same( 'editorial-accent', $color_revised_pattern_page_plan['data']['color_story'] ?? '', 'build-pattern-page-plan upgrades monochrome feedback to the editorial accent story when no color story is explicit' );
+npcink_abilities_toolkit_assert_same( true, $color_revised_pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? null, 'build-pattern-page-plan reports editorial accents after monochrome feedback revision' );
+$color_revised_goals = array_map(
+	static function ( $goal ) {
+		return is_array( $goal ) ? (string) ( $goal['goal'] ?? '' ) : '';
+	},
+	is_array( $color_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] ?? null ) ? $color_revised_pattern_page_plan['data']['quality_feedback']['revision_goals'] : array()
+);
+npcink_abilities_toolkit_assert_true( in_array( 'increase_color_rhythm', $color_revised_goals, true ), 'build-pattern-page-plan converts monochrome findings into a bounded color rhythm revision goal' );
+npcink_abilities_toolkit_assert_true( in_array( 'color_story_monochrome', $color_revised_pattern_page_plan['data']['revision_strategy']['applied_finding_codes'] ?? array(), true ), 'build-pattern-page-plan reports the monochrome finding as addressed by the accent revision' );
+npcink_abilities_toolkit_assert_true( ! in_array( 'color_story_monochrome', $color_revised_pattern_page_plan['data']['revision_strategy']['current_finding_codes'] ?? array(), true ), 'build-pattern-page-plan removes the monochrome finding from current review after accent revision' );
 $block_surface_blocks_review = $core_read_package->review_block_editor_surface(
 	array(
 		'surface_kind' => 'blocks_input',
