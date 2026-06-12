@@ -1065,7 +1065,7 @@ trait Page_Pattern_Read_Methods {
 							$this->pattern_column_block(
 								array(
 									$this->pattern_paragraph_block( $eyebrow, 'npcink-ai-eyebrow', $this->pattern_accent_eyebrow_attrs( $palette ), 'color:' . $palette['accent'] . ';font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
-									$this->pattern_heading_block( $hero_title, 1, 'npcink-ai-title', $this->pattern_hero_title_attrs(), 'font-size:64px;font-weight:500;line-height:1;letter-spacing:0;margin-top:0;margin-bottom:0' ),
+									$this->pattern_heading_block( $hero_title, 1, 'npcink-ai-title', $this->pattern_hero_title_attrs(), 'font-size:56px;font-weight:500;line-height:1.08;letter-spacing:0;margin-top:0;margin-bottom:0' ),
 									$this->pattern_paragraph_block( $hero_description, 'npcink-ai-lede', $this->pattern_lede_attrs(), 'color:#333333;font-size:22px;line-height:1.4' ),
 									$this->pattern_buttons_block(
 										array(
@@ -2022,8 +2022,8 @@ trait Page_Pattern_Read_Methods {
 		return array(
 			'style' => array(
 				'typography' => array(
-					'fontSize'      => '64px',
-					'lineHeight'     => '1',
+					'fontSize'      => '56px',
+					'lineHeight'     => '1.08',
 					'letterSpacing' => '0',
 					'fontWeight'    => '500',
 				),
