@@ -50,7 +50,7 @@ outputs, then a cross-judge comparison to identify cases that need human review.
 Cases with missing judge results, low scores, large score gaps, failed judge
 assertions, or risky reasons are marked for human review.
 
-## Eval-Lab Dual Judge
+## Eval-Lab Triad Judge
 
 Provider-backed model calls live in `magick-ai-eval-lab`, not this plugin repo.
 After exporting cases, run the eval-lab wrapper:
@@ -74,8 +74,9 @@ MAGICK_AI_EVAL_LAB_PATH=/Users/muze/gitee/magick-ai-eval-lab \
 composer eval:gutenberg-recipe:judge:eval-lab
 ```
 
-Eval-lab owns `.env.evaluation.local`, model profiles, provider calls, and
-generated cross-judge outputs. This repo only passes the case CSV path.
+Eval-lab owns `.env.evaluation.local`, model profiles, provider calls, triad
+arbitration, and generated cross-judge outputs. This repo only passes the case
+CSV path.
 
 Default eval-lab output is under
 `magick-ai-eval-lab/gutenberg-recipe/generated/`.
