@@ -1590,7 +1590,7 @@ trait Page_Pattern_Read_Methods {
 		if ( '' === $url ) {
 			return '';
 		}
-		$parts = parse_url( $url );
+		$parts = wp_parse_url( $url );
 		$host  = is_array( $parts ) ? strtolower( (string) ( $parts['host'] ?? '' ) ) : '';
 		if ( '' === $host ) {
 			return '';
