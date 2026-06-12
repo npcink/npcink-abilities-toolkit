@@ -4998,7 +4998,7 @@ npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_default_eval['data'
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_default_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'default Gutenberg recipe evaluation reports no built-in failure codes' );
 $gutenberg_recipe_composer = file_get_contents( dirname( __DIR__ ) . '/composer.json' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:judge:eval-lab' ), 'Composer exposes Gutenberg recipe eval-lab judge wrapper command' );
-npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg:judge:cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg cross-judge command' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'task=gutenberg_judge_cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg task registry' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false === strpos( $gutenberg_recipe_composer, 'sk-' ), 'Gutenberg recipe eval-lab wrapper does not contain committed API keys' );
 $gutenberg_recipe_eval_lab_wrapper = file_get_contents( dirname( __DIR__ ) . '/scripts/eval-lab.sh' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'MAGICK_AI_EVAL_LAB_PATH' ), 'Gutenberg recipe eval-lab wrapper keeps provider calls outside Toolkit' );

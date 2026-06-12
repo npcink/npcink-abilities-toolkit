@@ -75,8 +75,8 @@ composer eval:gutenberg-recipe:judge:eval-lab
 ```
 
 Eval-lab owns `.env.evaluation.local`, model profiles, provider calls, triad
-arbitration, and generated cross-judge outputs. This repo only passes the case
-CSV path.
+arbitration, task dispatch, run manifests, and generated cross-judge outputs.
+This repo only passes the case CSV path with `task=gutenberg_judge_cross`.
 
 Default eval-lab output is under
 `magick-ai-eval-lab/gutenberg-recipe/generated/`.
