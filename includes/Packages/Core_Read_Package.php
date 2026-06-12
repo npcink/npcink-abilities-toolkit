@@ -3424,7 +3424,7 @@ final class Core_Read_Package {
 		$include_theme = ! array_key_exists( 'include_theme', $input ) || ! empty( $input['include_theme'] );
 		$include_cron = ! array_key_exists( 'include_cron', $input ) || ! empty( $input['include_cron'] );
 		$include_updates = ! array_key_exists( 'include_updates', $input ) || ! empty( $input['include_updates'] );
-		$include_current_user = ! array_key_exists( 'include_current_user', $input ) || ! empty( $input['include_current_user'] );
+		$include_current_user = ! empty( $input['include_current_user'] );
 		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
 		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
 		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
@@ -3473,13 +3473,13 @@ final class Core_Read_Package {
 		$include_plugin_updates = ! array_key_exists( 'include_plugin_updates', $input ) || ! empty( $input['include_plugin_updates'] );
 		$include_must_use_plugins = ! array_key_exists( 'include_must_use_plugins', $input ) || ! empty( $input['include_must_use_plugins'] );
 		$include_dropins = ! array_key_exists( 'include_dropins', $input ) || ! empty( $input['include_dropins'] );
-		$include_current_user = ! array_key_exists( 'include_current_user', $input ) || ! empty( $input['include_current_user'] );
+		$include_current_user = ! empty( $input['include_current_user'] );
 		$include_php = ! array_key_exists( 'include_php', $input ) || ! empty( $input['include_php'] );
 		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
 		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
 		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
 		$include_server = ! array_key_exists( 'include_server', $input ) || ! empty( $input['include_server'] );
-		$include_database = ! array_key_exists( 'include_database', $input ) || ! empty( $input['include_database'] );
+		$include_database = ! empty( $input['include_database'] );
 		$include_cron_events = ! array_key_exists( 'include_cron_events', $input ) || ! empty( $input['include_cron_events'] );
 		$include_error_log = ! array_key_exists( 'include_error_log', $input ) || ! empty( $input['include_error_log'] );
 		$include_log_contents = ! empty( $input['include_log_contents'] );

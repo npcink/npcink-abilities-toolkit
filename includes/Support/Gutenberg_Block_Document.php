@@ -16,16 +16,43 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Gutenberg_Block_Document {
 	/**
+	 * Maximum normalized blocks allowed in one submitted block tree.
+	 */
+	public const MAX_BLOCKS = 200;
+
+	/**
+	 * Maximum nested block depth allowed in one submitted block tree.
+	 */
+	public const MAX_DEPTH = 8;
+
+	/**
+	 * Maximum cumulative raw block text payload size before serialization.
+	 */
+	public const MAX_SERIALIZED_BYTES = 262144;
+
+	/**
 	 * Normalizes one block list payload recursively.
 	 *
 	 * @param mixed        $blocks Raw block list.
 	 * @param array<mixed> $errors Validation error rows.
 	 * @param string       $path Path hint.
+	 * @param int          $depth Current recursion depth.
+	 * @param array<mixed> $stats Traversal stats.
 	 * @return array<int,array<string,mixed>>
 	 */
-	public function normalize_blocks( $blocks, &$errors, $path = 'root' ) {
+	public function normalize_blocks( $blocks, &$errors, $path = 'root', $depth = 0, &$stats = null ) {
 		$blocks     = is_array( $blocks ) ? array_values( $blocks ) : array();
 		$errors     = is_array( $errors ) ? $errors : array();
+		$depth      = absint( $depth );
+		if ( ! is_array( $stats ) ) {
+			$stats = array(
+				'count'                => 0,
+				'bytes'                => 0,
+				'block_count_exceeded' => false,
+				'block_bytes_exceeded' => false,
+				'block_depth_exceeded' => false,
+			);
+		}
 		$normalized = array();
 		foreach ( $blocks as $index => $block ) {
 			$current_path = $path . '.' . $index;
@@ -33,13 +60,38 @@ final class Gutenberg_Block_Document {
 				$errors[] = array( 'path' => $current_path, 'error' => 'block_must_be_object' );
 				continue;
 			}
+			if ( $depth >= self::MAX_DEPTH ) {
+				if ( empty( $stats['block_depth_exceeded'] ) ) {
+					$errors[]                      = array( 'path' => $current_path, 'error' => 'block_depth_exceeded', 'max_depth' => self::MAX_DEPTH );
+					$stats['block_depth_exceeded'] = true;
+				}
+				continue;
+			}
+			$stats['count'] = absint( $stats['count'] ?? 0 ) + 1;
+			if ( $stats['count'] > self::MAX_BLOCKS ) {
+				if ( empty( $stats['block_count_exceeded'] ) ) {
+					$errors[]                      = array( 'path' => $current_path, 'error' => 'block_count_exceeded', 'max_blocks' => self::MAX_BLOCKS );
+					$stats['block_count_exceeded'] = true;
+				}
+				break;
+			}
 			$block_name = sanitize_text_field( (string) ( $block['blockName'] ?? $block['block_name'] ?? '' ) );
 			if ( '' === $block_name ) {
 				$errors[] = array( 'path' => $current_path . '.blockName', 'error' => 'block_name_required' );
 				continue;
 			}
+			$this->track_block_text_bytes( $block_name, $stats, $errors, $current_path . '.blockName' );
+			$this->track_block_text_bytes( (string) ( $block['innerHTML'] ?? $block['inner_html'] ?? '' ), $stats, $errors, $current_path . '.innerHTML' );
+			$raw_inner_content = $block['innerContent'] ?? ( $block['inner_content'] ?? null );
+			if ( is_array( $raw_inner_content ) ) {
+				foreach ( $raw_inner_content as $content_index => $chunk ) {
+					if ( null !== $chunk ) {
+						$this->track_block_text_bytes( (string) $chunk, $stats, $errors, $current_path . '.innerContent.' . absint( $content_index ) );
+					}
+				}
+			}
 			$inner_blocks_errors = array();
-			$inner_blocks        = $this->normalize_blocks( $block['innerBlocks'] ?? array(), $inner_blocks_errors, $current_path . '.innerBlocks' );
+			$inner_blocks        = $this->normalize_blocks( $block['innerBlocks'] ?? array(), $inner_blocks_errors, $current_path . '.innerBlocks', $depth + 1, $stats );
 			if ( ! empty( $inner_blocks_errors ) ) {
 				$errors = array_merge( $errors, $inner_blocks_errors );
 			}
@@ -52,6 +104,23 @@ final class Gutenberg_Block_Document {
 			);
 		}
 		return $normalized;
+	}
+
+	/**
+	 * Tracks cumulative block text bytes and records the first overflow.
+	 *
+	 * @param string       $text Text fragment.
+	 * @param array<mixed> $stats Traversal stats.
+	 * @param array<mixed> $errors Validation error rows.
+	 * @param string       $path Path hint.
+	 * @return void
+	 */
+	private function track_block_text_bytes( $text, array &$stats, array &$errors, $path ) {
+		$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $text );
+		if ( $stats['bytes'] > self::MAX_SERIALIZED_BYTES && empty( $stats['block_bytes_exceeded'] ) ) {
+			$errors[]                       = array( 'path' => $path, 'error' => 'block_payload_too_large', 'max_bytes' => self::MAX_SERIALIZED_BYTES );
+			$stats['block_bytes_exceeded'] = true;
+		}
 	}
 
 	/**

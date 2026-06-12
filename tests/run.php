@@ -257,7 +257,7 @@ function npcink_abilities_toolkit_schema_contract_fingerprint( array $schema ) {
 		}
 
 		$fingerprint = array();
-		foreach ( array( 'type', 'enum', 'default', 'minimum', 'maximum', 'minLength', 'maxLength' ) as $field ) {
+		foreach ( array( 'type', 'enum', 'default', 'minimum', 'maximum', 'minLength', 'maxLength', 'maxItems' ) as $field ) {
 			if ( array_key_exists( $field, $property_schema ) ) {
 				$fingerprint[ $field ] = $property_schema[ $field ];
 			}
@@ -1034,11 +1034,14 @@ npcink_abilities_toolkit_assert_true( isset( $package_categories->all()['npcink-
 npcink_abilities_toolkit_assert_true( isset( $package_categories->all()['npcink-abilities-toolkit-diagnostics'] ), 'core read package registers the standalone diagnostics category' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary'] ), 'core read package owns standalone wp-diagnostics-summary ability' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-diagnostics', $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['category'], 'wp-diagnostics-summary uses standalone diagnostics category' );
+npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['input_schema']['properties']['include_current_user']['default'] ?? null, 'wp-diagnostics-summary omits current user details by default' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail'] ), 'core read package owns standalone wp-ops-diagnostics-detail ability' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-diagnostics', $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['category'], 'wp-ops-diagnostics-detail uses standalone diagnostics category' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['description'] ?? '', 'plugin' ), 'ops diagnostics description mentions plugin details' );
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['max_cron_events']['maximum'] ?? null, 'ops diagnostics bounds returned cron events' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_contents']['default'] ?? null, 'ops diagnostics does not include log contents by default' );
+npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_current_user']['default'] ?? null, 'ops diagnostics omits current user details by default' );
+npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_database']['default'] ?? null, 'ops diagnostics omits database table status by default' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_log_tail'] ), 'ops diagnostics uses one log contents control' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_inactive_plugins']['default'] ?? null, 'ops diagnostics omits inactive plugin rows by default' );
 npcink_abilities_toolkit_assert_same( true, $package_abilities['npcink-abilities-toolkit/wp-ops-diagnostics-detail']['input_schema']['properties']['include_plugin_updates']['default'] ?? null, 'ops diagnostics includes plugin update rows by default' );
@@ -1461,6 +1464,11 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'name'       => 'Unit Block Theme',
 		'stylesheet' => 'unit-block-theme',
 	);
+npcink_abilities_toolkit_assert_same( 262144, $package_abilities['npcink-abilities-toolkit/create-draft']['input_schema']['properties']['content']['maxLength'] ?? null, 'create-draft bounds content input size' );
+npcink_abilities_toolkit_assert_same( 262144, $package_abilities['npcink-abilities-toolkit/update-post']['input_schema']['properties']['content']['maxLength'] ?? null, 'update-post bounds content input size' );
+npcink_abilities_toolkit_assert_same( 20, $package_abilities['npcink-abilities-toolkit/patch-post-content']['input_schema']['properties']['operations']['maxItems'] ?? null, 'patch-post-content bounds operation count' );
+npcink_abilities_toolkit_assert_same( 262144, $package_abilities['npcink-abilities-toolkit/patch-post-content']['input_schema']['properties']['operations']['items']['properties']['replace']['maxLength'] ?? null, 'patch-post-content bounds replacement size' );
+npcink_abilities_toolkit_assert_same( 200, $package_abilities['npcink-abilities-toolkit/update-post-blocks']['input_schema']['properties']['blocks']['maxItems'] ?? null, 'update-post-blocks bounds submitted block count' );
 $create_preview = $core_write_package->create_draft(
 	array(
 		'title' => 'Preview title',
@@ -1470,6 +1478,15 @@ $create_preview = $core_write_package->create_draft(
 );
 npcink_abilities_toolkit_assert_same( true, $create_preview['dry_run'] ?? null, 'create-draft defaults to governed dry-run preview when requested' );
 npcink_abilities_toolkit_assert_same( 'create_draft', $create_preview['preview']['action'] ?? '', 'create-draft dry-run reports preview action' );
+$oversized_create_preview = $core_write_package->create_draft(
+	array(
+		'title'   => 'Oversized preview',
+		'content' => str_repeat( 'x', 262145 ),
+		'dry_run' => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_create_preview ), 'create-draft rejects oversized content before preview generation' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_create_preview->code ?? '', 'create-draft oversized content fails with stable code' );
 
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 $created = $core_write_package->create_draft(
@@ -1584,6 +1601,41 @@ $patch_preview = $core_write_package->patch_post_content(
 );
 npcink_abilities_toolkit_assert_same( true, $patch_preview['dry_run'] ?? null, 'patch-post-content returns a governed dry-run preview after migration' );
 npcink_abilities_toolkit_assert_same( 1, $patch_preview['patch_preview'][0]['applied'] ?? null, 'patch-post-content reports applied operation count after migration' );
+$too_many_patch_operations = $core_write_package->patch_post_content(
+	array(
+		'post_id'    => 501,
+		'operations' => array_fill(
+			0,
+			21,
+			array(
+				'op'      => 'replace',
+				'find'    => 'Original body marker',
+				'replace' => 'Patched body marker',
+			)
+		),
+		'dry_run'    => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $too_many_patch_operations ), 'patch-post-content rejects oversized operation lists before diff generation' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_patch_operations_too_many', $too_many_patch_operations->code ?? '', 'patch-post-content oversized operation list fails with stable code' );
+$original_patch_post_content = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content ?? '';
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content = str_repeat( 'x', 262145 );
+$oversized_existing_post_patch = $core_write_package->patch_post_content(
+	array(
+		'post_id'    => 501,
+		'operations' => array(
+			array(
+				'op'      => 'replace',
+				'find'    => 'x',
+				'replace' => 'y',
+			),
+		),
+		'dry_run'    => true,
+	)
+);
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content = $original_patch_post_content;
+npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_existing_post_patch ), 'patch-post-content rejects oversized existing content before patching' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_existing_post_patch->code ?? '', 'patch-post-content oversized existing content fails with stable code' );
 
 $blocks_preview = $core_write_package->update_post_blocks(
 	array(
@@ -1599,6 +1651,44 @@ $blocks_preview = $core_write_package->update_post_blocks(
 );
 npcink_abilities_toolkit_assert_same( true, $blocks_preview['dry_run'] ?? null, 'update-post-blocks returns a governed dry-run preview after migration' );
 npcink_abilities_toolkit_assert_same( true, $blocks_preview['validation']['valid'] ?? null, 'update-post-blocks validates serialized blocks after migration' );
+$too_many_blocks = $core_write_package->update_post_blocks(
+	array(
+		'post_id' => 501,
+		'blocks'  => array_fill(
+			0,
+			201,
+			array(
+				'blockName' => 'core/paragraph',
+				'innerHTML' => '<p>Block body.</p>',
+			)
+		),
+		'dry_run' => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $too_many_blocks ), 'update-post-blocks rejects block trees over the bounded block count' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_blocks_invalid', $too_many_blocks->code ?? '', 'update-post-blocks oversized block tree fails with stable code' );
+npcink_abilities_toolkit_assert_same( 'block_count_exceeded', $too_many_blocks->data['errors'][0]['error'] ?? '', 'update-post-blocks reports block count overflow detail' );
+$deep_block = array(
+	'blockName'   => 'core/group',
+	'innerHTML'   => '<div class="wp-block-group"></div>',
+	'innerBlocks' => array(),
+);
+for ( $deep_index = 0; $deep_index < 9; ++$deep_index ) {
+	$deep_block = array(
+		'blockName'   => 'core/group',
+		'innerHTML'   => '<div class="wp-block-group"></div>',
+		'innerBlocks' => array( $deep_block ),
+	);
+}
+$too_deep_blocks = $core_write_package->update_post_blocks(
+	array(
+		'post_id' => 501,
+		'blocks'  => array( $deep_block ),
+		'dry_run' => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $too_deep_blocks ), 'update-post-blocks rejects excessively deep block trees' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_blocks_invalid', $too_deep_blocks->code ?? '', 'update-post-blocks deep block tree fails with stable code' );
 
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 $nested_blocks_written = $core_write_package->update_post_blocks(
@@ -3880,6 +3970,24 @@ $patch_setting_preview = $core_write_package->patch_setting_value(
 );
 npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
 npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+$GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] = str_repeat( 'x', 262145 );
+$oversized_patch_setting = $core_write_package->patch_setting_value(
+	array(
+		'target_type' => 'option',
+		'target_name' => 'oversized_setting_value',
+		'operations'  => array(
+			array(
+				'op'      => 'replace',
+				'find'    => 'x',
+				'replace' => 'y',
+			),
+		),
+		'dry_run'     => true,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] );
+npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_patch_setting ), 'patch-setting-value rejects oversized setting values before recursive patching' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_patch_setting->code ?? '', 'patch-setting-value oversized setting value fails with stable code' );
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 $patch_setting_commit = $core_write_package->patch_setting_value(
 	array(

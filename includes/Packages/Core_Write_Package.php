@@ -19,6 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers low-risk WordPress write abilities migrated from the Npcink AI plugin.
  */
 final class Core_Write_Package {
+	private const MAX_TITLE_INPUT_BYTES = 512;
+	private const MAX_TEXT_INPUT_BYTES = 8192;
+	private const MAX_CONTENT_INPUT_BYTES = 262144;
+	private const MAX_PATCH_OPERATIONS = 20;
+	private const MAX_SETTING_PATCH_DEPTH = 8;
+	private const MAX_SETTING_PATCH_NODES = 500;
+
 	/**
 	 * Category registrar.
 	 *
@@ -80,8 +87,16 @@ final class Core_Write_Package {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public function definitions() {
-		$post_id = array( 'type' => 'integer', 'minimum' => 1 );
-		$text    = array( 'type' => 'string' );
+		$post_id      = array( 'type' => 'integer', 'minimum' => 1 );
+		$title_text   = array( 'type' => 'string', 'maxLength' => self::MAX_TITLE_INPUT_BYTES );
+		$text         = array( 'type' => 'string', 'maxLength' => self::MAX_TEXT_INPUT_BYTES );
+		$content_text = array( 'type' => 'string', 'maxLength' => self::MAX_CONTENT_INPUT_BYTES );
+		$blocks       = array(
+			'type'     => 'array',
+			'minItems' => 1,
+			'maxItems' => Gutenberg_Block_Document::MAX_BLOCKS,
+			'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
+		);
 
 		return array(
 			'npcink-abilities-toolkit/create-draft'       => array(
@@ -100,8 +115,8 @@ final class Core_Write_Package {
 							'enum'    => array( 'draft' ),
 							'default' => 'draft',
 						),
-						'title'              => array( 'type' => 'string', 'minLength' => 1 ),
-						'content'            => $text,
+						'title'              => array_merge( $title_text, array( 'minLength' => 1 ) ),
+						'content'            => $content_text,
 						'content_format'     => array(
 							'type' => 'string',
 							'enum' => array( 'html', 'markdown', 'plain' ),
@@ -142,8 +157,8 @@ final class Core_Write_Package {
 				'input_schema'    => $this->schema(
 					array(
 						'post_id'        => $post_id,
-						'title'          => $text,
-						'content'        => $text,
+						'title'          => $title_text,
+						'content'        => $content_text,
 						'content_format' => array(
 							'type' => 'string',
 							'enum' => array( 'html', 'markdown', 'plain' ),
@@ -211,6 +226,7 @@ final class Core_Write_Package {
 						'operations' => array(
 							'type'     => 'array',
 							'minItems' => 1,
+							'maxItems' => self::MAX_PATCH_OPERATIONS,
 							'items'    => array(
 								'type'                 => 'object',
 								'properties'           => array(
@@ -218,8 +234,8 @@ final class Core_Write_Package {
 										'type' => 'string',
 										'enum' => array( 'replace', 'delete', 'insert_before', 'insert_after' ),
 									),
-									'find'           => array( 'type' => 'string', 'minLength' => 1 ),
-									'replace'        => $text,
+									'find'           => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => self::MAX_TEXT_INPUT_BYTES ),
+									'replace'        => $content_text,
 									'limit'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 1 ),
 									'case_sensitive' => array( 'type' => 'boolean', 'default' => true ),
 								),
@@ -265,6 +281,7 @@ final class Core_Write_Package {
 						'operations'  => array(
 							'type'     => 'array',
 							'minItems' => 1,
+							'maxItems' => self::MAX_PATCH_OPERATIONS,
 							'items'    => array(
 								'type'                 => 'object',
 								'properties'           => array(
@@ -272,7 +289,7 @@ final class Core_Write_Package {
 										'type' => 'string',
 										'enum' => array( 'replace' ),
 									),
-									'find'           => array( 'type' => 'string', 'minLength' => 1 ),
+									'find'           => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => self::MAX_TEXT_INPUT_BYTES ),
 									'replace'        => $text,
 									'limit'          => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 20, 'default' => 1 ),
 									'case_sensitive' => array( 'type' => 'boolean', 'default' => true ),
@@ -316,11 +333,7 @@ final class Core_Write_Package {
 							'default' => 'replace',
 						),
 						'validate_roundtrip' => array( 'type' => 'boolean', 'default' => true ),
-						'blocks'             => array(
-							'type'     => 'array',
-							'minItems' => 1,
-							'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
-						),
+						'blocks'             => $blocks,
 					),
 					array( 'post_id', 'blocks' )
 				),
@@ -361,11 +374,7 @@ final class Core_Write_Package {
 								'default' => 'replace',
 							),
 							'validate_roundtrip' => array( 'type' => 'boolean', 'default' => true ),
-							'blocks'             => array(
-								'type'     => 'array',
-								'minItems' => 1,
-								'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
-							),
+							'blocks'             => $blocks,
 						),
 						array( 'post_id', 'blocks' )
 					),
@@ -405,7 +414,7 @@ final class Core_Write_Package {
 							'post_id'            => $post_id,
 							'slug'               => array( 'type' => 'string' ),
 							'theme'              => array( 'type' => 'string' ),
-							'title'              => array( 'type' => 'string' ),
+							'title'              => $title_text,
 							'source_template_id' => array( 'type' => 'string' ),
 							'mode'               => array(
 								'type'    => 'string',
@@ -413,11 +422,7 @@ final class Core_Write_Package {
 								'default' => 'replace',
 							),
 							'validate_roundtrip' => array( 'type' => 'boolean', 'default' => true ),
-							'blocks'             => array(
-								'type'     => 'array',
-								'minItems' => 1,
-								'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
-							),
+							'blocks'             => $blocks,
 						),
 						array( 'slug', 'blocks' )
 					),
@@ -464,11 +469,7 @@ final class Core_Write_Package {
 								'default' => 'replace',
 							),
 							'validate_roundtrip' => array( 'type' => 'boolean', 'default' => true ),
-							'blocks'             => array(
-								'type'     => 'array',
-								'minItems' => 1,
-								'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
-							),
+							'blocks'             => $blocks,
 						),
 						array( 'post_id', 'blocks' )
 					),
@@ -1182,7 +1183,7 @@ final class Core_Write_Package {
 				'input_schema'    => $this->schema(
 					array(
 						'comment_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
-						'content'        => array( 'type' => 'string', 'minLength' => 1 ),
+						'content'        => array_merge( $content_text, array( 'minLength' => 1 ) ),
 						'content_format' => array(
 							'type' => 'string',
 							'enum' => array( 'html', 'markdown', 'plain' ),
@@ -1230,6 +1231,21 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to create this post type.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
+		foreach (
+			array(
+				'title'              => self::MAX_TITLE_INPUT_BYTES,
+				'content'            => self::MAX_CONTENT_INPUT_BYTES,
+				'excerpt'            => self::MAX_TEXT_INPUT_BYTES,
+				'soft_block_reason'  => self::MAX_TEXT_INPUT_BYTES,
+				'soft_block_summary' => self::MAX_TEXT_INPUT_BYTES,
+			) as $field => $max_bytes
+		) {
+			$size_check = $this->assert_string_input_size( $input, $field, $max_bytes );
+			if ( is_wp_error( $size_check ) ) {
+				return $size_check;
+			}
+		}
+
 		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
 		if ( '' === $title ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_title_required', __( 'Title is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -1237,6 +1253,10 @@ final class Core_Write_Package {
 
 		$content_payload    = $this->normalize_content_input( $input, 'content', $title );
 		$content            = (string) ( $content_payload['content'] ?? '' );
+		$content_size_check = $this->assert_text_size( $content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$excerpt            = array_key_exists( 'excerpt', $input ) ? sanitize_textarea_field( (string) $input['excerpt'] ) : '';
 		$soft_block_reason  = sanitize_key( (string) ( $input['soft_block_reason'] ?? '' ) );
 		$soft_block_summary = sanitize_textarea_field( (string) ( $input['soft_block_summary'] ?? '' ) );
@@ -1317,6 +1337,10 @@ final class Core_Write_Package {
 		$changes = array();
 		$update  = array( 'ID' => $post_id );
 		if ( array_key_exists( 'title', $input ) ) {
+			$size_check = $this->assert_string_input_size( $input, 'title', self::MAX_TITLE_INPUT_BYTES );
+			if ( is_wp_error( $size_check ) ) {
+				return $size_check;
+			}
 			$new_title            = sanitize_text_field( (string) $input['title'] );
 			$update['post_title'] = $new_title;
 			$changes['title']     = array(
@@ -1325,9 +1349,17 @@ final class Core_Write_Package {
 			);
 		}
 		if ( array_key_exists( 'content', $input ) ) {
+			$size_check = $this->assert_string_input_size( $input, 'content', self::MAX_CONTENT_INPUT_BYTES );
+			if ( is_wp_error( $size_check ) ) {
+				return $size_check;
+			}
 			$title_for_content      = array_key_exists( 'title', $input ) ? sanitize_text_field( (string) $input['title'] ) : (string) ( $post->post_title ?? '' );
 			$content_payload        = $this->normalize_content_input( $input, 'content', $title_for_content );
 			$new_content            = (string) ( $content_payload['content'] ?? '' );
+			$content_size_check     = $this->assert_text_size( $new_content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+			if ( is_wp_error( $content_size_check ) ) {
+				return $content_size_check;
+			}
 			$update['post_content'] = $new_content;
 			$changes['content']     = array(
 				'before'         => (string) ( $post->post_content ?? '' ),
@@ -1336,6 +1368,10 @@ final class Core_Write_Package {
 			);
 		}
 		if ( array_key_exists( 'excerpt', $input ) ) {
+			$size_check = $this->assert_string_input_size( $input, 'excerpt', self::MAX_TEXT_INPUT_BYTES );
+			if ( is_wp_error( $size_check ) ) {
+				return $size_check;
+			}
 			$new_excerpt            = sanitize_textarea_field( (string) $input['excerpt'] );
 			$update['post_excerpt'] = $new_excerpt;
 			$changes['excerpt']     = array(
@@ -1476,12 +1512,20 @@ final class Core_Write_Package {
 		}
 
 		$before_content = (string) ( $post->post_content ?? '' );
+		$before_size_check = $this->assert_text_size( $before_content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $before_size_check ) ) {
+			return $before_size_check;
+		}
 		$patch_result   = $this->apply_patch_operations( $before_content, is_array( $input['operations'] ?? null ) ? $input['operations'] : array() );
 		if ( is_wp_error( $patch_result ) ) {
 			return $patch_result;
 		}
 
 		$after_content = (string) ( $patch_result['content'] ?? $before_content );
+		$content_size_check = $this->assert_text_size( $after_content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$updated       = $before_content !== $after_content;
 		$impact_ranges = is_array( $patch_result['impact_ranges'] ?? null ) ? $patch_result['impact_ranges'] : array();
 		$patch_preview = is_array( $patch_result['patch_preview'] ?? null ) ? $patch_result['patch_preview'] : array();
@@ -1555,6 +1599,14 @@ final class Core_Write_Package {
 		$after_value = $patch_result['value'] ?? $before_value;
 		$before_text = $this->setting_value_preview_text( $before_value );
 		$after_text = $this->setting_value_preview_text( $after_value );
+		$before_text_size_check = $this->assert_text_size( $before_text, 'setting_value', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $before_text_size_check ) ) {
+			return $before_text_size_check;
+		}
+		$after_text_size_check = $this->assert_text_size( $after_text, 'setting_value', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $after_text_size_check ) ) {
+			return $after_text_size_check;
+		}
 		$updated = $before_text !== $after_text;
 
 		$payload = array(
@@ -1637,6 +1689,10 @@ final class Core_Write_Package {
 		}
 
 		$after_content            = $this->serialize_blocks_native( $target_blocks );
+		$content_size_check       = $this->assert_text_size( $after_content, 'blocks', Gutenberg_Block_Document::MAX_SERIALIZED_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$after_parsed_blocks      = function_exists( 'parse_blocks' ) ? parse_blocks( $after_content ) : array();
 		$after_block_count        = $this->count_blocks_recursive( $target_blocks );
 		$parsed_top_level_count   = is_array( $after_parsed_blocks ) ? count( $after_parsed_blocks ) : 0;
@@ -1759,6 +1815,10 @@ final class Core_Write_Package {
 		$before_content       = is_object( $existing_post ) ? (string) ( $existing_post->post_content ?? '' ) : '';
 		$before_parsed_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( $before_content ) : array();
 		$after_content        = $this->serialize_blocks_native( $target_blocks );
+		$content_size_check   = $this->assert_text_size( $after_content, 'blocks', Gutenberg_Block_Document::MAX_SERIALIZED_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$after_parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $after_content ) : array();
 		$roundtrip_checked    = $validate_roundtrip && function_exists( 'parse_blocks' );
 		$roundtrip_ok         = true;
@@ -1906,6 +1966,10 @@ final class Core_Write_Package {
 		$before_content       = (string) ( $post->post_content ?? '' );
 		$before_parsed_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( $before_content ) : array();
 		$after_content        = $this->serialize_blocks_native( $target_blocks );
+		$content_size_check   = $this->assert_text_size( $after_content, 'blocks', Gutenberg_Block_Document::MAX_SERIALIZED_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$after_parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $after_content ) : array();
 		$roundtrip_checked    = $validate_roundtrip && function_exists( 'parse_blocks' );
 		$roundtrip_ok         = true;
@@ -3336,8 +3400,16 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to reply to this comment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
+		$size_check = $this->assert_string_input_size( $input, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $size_check ) ) {
+			return $size_check;
+		}
 		$content_payload = $this->normalize_content_input( $input, 'content' );
 		$content         = (string) ( $content_payload['content'] ?? '' );
+		$content_size_check = $this->assert_text_size( $content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $content_size_check ) ) {
+			return $content_size_check;
+		}
 		$stripped        = wp_strip_all_tags( $content );
 		if ( '' === trim( (string) $stripped ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_comment_content_required', __( 'Reply content is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -5756,6 +5828,138 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Checks one optional string input field against a byte limit.
+	 *
+	 * @param array<string,mixed> $input Input args.
+	 * @param string              $field Field name.
+	 * @param int                 $max_bytes Maximum allowed bytes.
+	 * @return true|\WP_Error
+	 */
+	private function assert_string_input_size( array $input, $field, $max_bytes ) {
+		if ( ! array_key_exists( $field, $input ) ) {
+			return true;
+		}
+		return $this->assert_text_size( (string) $input[ $field ], (string) $field, $max_bytes );
+	}
+
+	/**
+	 * Checks one text value against a byte limit.
+	 *
+	 * @param string $text Text value.
+	 * @param string $field Field name.
+	 * @param int    $max_bytes Maximum allowed bytes.
+	 * @return true|\WP_Error
+	 */
+	private function assert_text_size( $text, $field, $max_bytes ) {
+		$max_bytes = max( 1, absint( $max_bytes ) );
+		if ( strlen( (string) $text ) <= $max_bytes ) {
+			return true;
+		}
+		return new \WP_Error(
+			'npcink_abilities_toolkit_input_too_large',
+			__( 'Input is too large.', 'npcink-abilities-toolkit' ),
+			array(
+				'status'    => 400,
+				'field'     => sanitize_key( (string) $field ),
+				'max_bytes' => $max_bytes,
+			)
+		);
+	}
+
+	/**
+	 * Checks a setting value before recursive patching or preview encoding.
+	 *
+	 * @param mixed $value Setting value.
+	 * @return true|\WP_Error
+	 */
+	private function assert_setting_value_patchable_size( $value ) {
+		$stats = array(
+			'bytes' => 0,
+			'nodes' => 0,
+		);
+		$result = $this->collect_setting_value_patch_stats( $value, $stats, 0 );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		if ( absint( $stats['bytes'] ?? 0 ) > self::MAX_CONTENT_INPUT_BYTES ) {
+			return $this->setting_value_too_large_error( 'bytes' );
+		}
+		return true;
+	}
+
+	/**
+	 * Collects bounded complexity stats for a setting value.
+	 *
+	 * @param mixed        $value Setting value.
+	 * @param array<mixed> $stats Stats.
+	 * @param int          $depth Current depth.
+	 * @return true|\WP_Error
+	 */
+	private function collect_setting_value_patch_stats( $value, array &$stats, $depth ) {
+		$depth = absint( $depth );
+		if ( $depth > self::MAX_SETTING_PATCH_DEPTH ) {
+			return $this->setting_value_too_large_error( 'depth' );
+		}
+		$stats['nodes'] = absint( $stats['nodes'] ?? 0 ) + 1;
+		if ( absint( $stats['nodes'] ?? 0 ) > self::MAX_SETTING_PATCH_NODES ) {
+			return $this->setting_value_too_large_error( 'nodes' );
+		}
+		if ( is_string( $value ) || is_numeric( $value ) || is_bool( $value ) ) {
+			$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $value );
+			if ( absint( $stats['bytes'] ?? 0 ) > self::MAX_CONTENT_INPUT_BYTES ) {
+				return $this->setting_value_too_large_error( 'bytes' );
+			}
+			return true;
+		}
+		if ( null === $value ) {
+			return true;
+		}
+		if ( is_array( $value ) ) {
+			foreach ( $value as $key => $child ) {
+				$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $key );
+				$result         = $this->collect_setting_value_patch_stats( $child, $stats, $depth + 1 );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			return true;
+		}
+		if ( is_object( $value ) ) {
+			foreach ( get_object_vars( $value ) as $key => $child ) {
+				$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $key );
+				$result         = $this->collect_setting_value_patch_stats( $child, $stats, $depth + 1 );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			return true;
+		}
+		$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $value );
+		return true;
+	}
+
+	/**
+	 * Returns a consistent too-large setting value error.
+	 *
+	 * @param string $reason Reason.
+	 * @return \WP_Error
+	 */
+	private function setting_value_too_large_error( $reason ) {
+		return new \WP_Error(
+			'npcink_abilities_toolkit_input_too_large',
+			__( 'Input is too large.', 'npcink-abilities-toolkit' ),
+			array(
+				'status'    => 400,
+				'field'     => 'setting_value',
+				'max_bytes' => self::MAX_CONTENT_INPUT_BYTES,
+				'max_depth' => self::MAX_SETTING_PATCH_DEPTH,
+				'max_nodes' => self::MAX_SETTING_PATCH_NODES,
+				'reason'    => sanitize_key( (string) $reason ),
+			)
+		);
+	}
+
+	/**
 	 * Normalizes write content into safe HTML.
 	 *
 	 * @param array<string,mixed> $input Input args.
@@ -6047,6 +6251,9 @@ final class Core_Write_Package {
 		if ( empty( $operations ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_patch_operations_required', __( 'Operations are required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
+		if ( count( $operations ) > self::MAX_PATCH_OPERATIONS ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_patch_operations_too_many', __( 'Too many patch operations were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400, 'max_operations' => self::MAX_PATCH_OPERATIONS ) );
+		}
 
 		$impact_ranges = array();
 		$patch_preview = array();
@@ -6061,6 +6268,14 @@ final class Core_Write_Package {
 				return new \WP_Error( 'npcink_abilities_toolkit_patch_find_required', __( 'Patch find text is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$replace       = 'delete' === $op ? '' : (string) ( $operation['replace'] ?? '' );
+			$find_size     = $this->assert_text_size( $find, 'find', self::MAX_TEXT_INPUT_BYTES );
+			if ( is_wp_error( $find_size ) ) {
+				return $find_size;
+			}
+			$replace_size = $this->assert_text_size( $replace, 'replace', self::MAX_CONTENT_INPUT_BYTES );
+			if ( is_wp_error( $replace_size ) ) {
+				return $replace_size;
+			}
 			$limit         = max( 1, min( 20, absint( $operation['limit'] ?? 1 ) ) );
 			$case_sensitive = ! array_key_exists( 'case_sensitive', $operation ) || ! empty( $operation['case_sensitive'] );
 			$needle_len    = strlen( $find );
@@ -6085,6 +6300,10 @@ final class Core_Write_Package {
 				}
 
 				$content         = substr( $content, 0, $position ) . $after_segment . substr( $content, $position + $needle_len );
+				$content_size    = $this->assert_text_size( $content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+				if ( is_wp_error( $content_size ) ) {
+					return $content_size;
+				}
 				$impact_ranges[] = array(
 					'operation_index' => $index,
 					'op'              => $op,
@@ -6754,9 +6973,16 @@ final class Core_Write_Package {
 		if ( is_string( $value ) && $this->looks_serialized_setting_string( $value ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_serialized_setting_patch_blocked', __( 'Raw serialized setting strings require manual review.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
+		$value_size_check = $this->assert_setting_value_patchable_size( $value );
+		if ( is_wp_error( $value_size_check ) ) {
+			return $value_size_check;
+		}
 		$operations = array_values( $operations );
 		if ( empty( $operations ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_patch_operations_required', __( 'Operations are required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( count( $operations ) > self::MAX_PATCH_OPERATIONS ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_patch_operations_too_many', __( 'Too many patch operations were provided.', 'npcink-abilities-toolkit' ), array( 'status' => 400, 'max_operations' => self::MAX_PATCH_OPERATIONS ) );
 		}
 		foreach ( $operations as $operation ) {
 			$op = sanitize_key( (string) ( is_array( $operation ) ? ( $operation['op'] ?? '' ) : '' ) );

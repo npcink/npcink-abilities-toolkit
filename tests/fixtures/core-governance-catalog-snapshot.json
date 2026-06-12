@@ -31,10 +31,12 @@
           },
           "title": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 512
           },
           "content": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 262144
           },
           "content_format": {
             "type": "string",
@@ -45,13 +47,16 @@
             ]
           },
           "excerpt": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 8192
           },
           "soft_block_reason": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 8192
           },
           "soft_block_summary": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 8192
           },
           "meta": {
             "type": "object",
