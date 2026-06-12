@@ -20,6 +20,7 @@ use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 $assertions = 0;
 $core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
@@ -37,17 +38,9 @@ function npcink_abilities_toolkit_assert_same( $expected, $actual, $message ) {
 	npcink_abilities_toolkit_assert_true( $expected === $actual, $message . ' Expected ' . var_export( $expected, true ) . ', got ' . var_export( $actual, true ) );
 }
 
-function npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( array $schema, array $payload, $message ) {
-	$properties = is_array( $schema['properties'] ?? null ) ? $schema['properties'] : array();
-	$missing    = array();
-	foreach ( array_keys( $payload ) as $key ) {
-		if ( is_string( $key ) && ! array_key_exists( $key, $properties ) ) {
-			$missing[] = $key;
-		}
-	}
-	sort( $missing );
+function npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( Gutenberg_Block_Document $document, array $schema, array $payload, $message ) {
 	npcink_abilities_toolkit_assert_same( false, $schema['additionalProperties'] ?? null, "{$message} keeps a strict output schema" );
-	npcink_abilities_toolkit_assert_same( array(), $missing, "{$message} output schema declares returned payload keys" );
+	npcink_abilities_toolkit_assert_same( array(), $document->output_schema_missing_payload_keys( $schema, $payload ), "{$message} output schema declares returned payload keys" );
 }
 
 function npcink_abilities_toolkit_count_plan_actions_for_ability( array $actions, $ability_id ) {
@@ -839,6 +832,7 @@ npcink_abilities_toolkit_assert_true( ! isset( $catalog['npcink-abilities-toolki
 
 $package_categories = new Category_Registrar();
 $package_registrar = new Ability_Registrar( $package_categories, $contract_normalizer );
+$block_document = new Gutenberg_Block_Document();
 $core_read_package = new Core_Read_Package( $package_categories, $package_registrar );
 $core_read_package->boot();
 $core_write_package = new Core_Write_Package( $package_categories, $package_registrar );
@@ -1186,6 +1180,7 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan'] ), 'build-block-theme-site-plan is registered as a read-only planning ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['required_scopes'] ?? array(), 'block theme site plan remains a read-scope planning ability' );
 	npcink_abilities_toolkit_assert_same( array( 'add_breadcrumbs' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['intent']['enum'] ?? array(), 'block theme site plan MVP only exposes breadcrumbs intent' );
+	npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page', 'archive', 'index' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['target_templates']['items']['enum'] ?? array(), 'block theme site plan accepts common content templates including front-page' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-template-blocks'] ), 'update-template-blocks is registered as a governed write ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.write' ), $package_abilities['npcink-abilities-toolkit/update-template-blocks']['required_scopes'] ?? array(), 'template block updates require site.write scope' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/upsert-template-blocks'] ), 'upsert-template-blocks is registered as a governed template override write ability' );
@@ -1405,50 +1400,61 @@ npcink_abilities_toolkit_assert_same(
 	'update-term preserves migrated required taxonomy/term_id schema'
 );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
-		501 => (object) array(
-			'ID' => 501,
-			'post_type' => 'post',
-			'post_status' => 'draft',
-			'post_title' => 'Original title',
+	501 => (object) array(
+		'ID' => 501,
+		'post_type' => 'post',
+		'post_status' => 'draft',
+		'post_title' => 'Original title',
 		'post_content' => '<p>Original body marker.</p>',
 		'post_excerpt' => '',
-		'post_author' => 7,
+			'post_author' => 7,
 			'post_name' => 'original-title',
 			'post_parent' => 0,
 		),
-		601 => (object) array(
-			'ID' => 601,
-			'post_type' => 'wp_template',
-			'post_status' => 'publish',
-			'post_title' => 'Single',
-			'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->',
-			'post_excerpt' => '',
-			'post_author' => 7,
-			'post_name' => 'single',
-			'post_parent' => 0,
-		),
-		602 => (object) array(
-			'ID' => 602,
-			'post_type' => 'wp_template',
-			'post_status' => 'publish',
-			'post_title' => 'Page',
-			'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->',
-			'post_excerpt' => '',
-			'post_author' => 7,
-			'post_name' => 'page',
-			'post_parent' => 0,
-		),
-		603 => (object) array(
-			'ID' => 603,
-			'post_type' => 'wp_template_part',
-			'post_status' => 'publish',
-			'post_title' => 'Header',
-			'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:site-title /--></div><!-- /wp:group -->',
-			'post_excerpt' => '',
-			'post_author' => 7,
-			'post_name' => 'header',
-			'post_parent' => 0,
-		),
+	601 => (object) array(
+		'ID' => 601,
+		'post_type' => 'wp_template',
+		'post_status' => 'publish',
+		'post_title' => 'Single',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author' => 7,
+		'post_name' => 'single',
+		'post_parent' => 0,
+	),
+	602 => (object) array(
+		'ID' => 602,
+		'post_type' => 'wp_template',
+		'post_status' => 'publish',
+		'post_title' => 'Page',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author' => 7,
+		'post_name' => 'page',
+		'post_parent' => 0,
+	),
+	604 => (object) array(
+		'ID' => 604,
+		'post_type' => 'wp_template',
+		'post_status' => 'publish',
+		'post_title' => 'Front Page',
+		'post_content' => '<!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"><!-- wp:paragraph {"className":"openclaw-breadcrumbs__trail"} --><p class="openclaw-breadcrumbs__trail">Home / Current item</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+		'post_excerpt' => '',
+		'post_author' => 7,
+		'post_name' => 'front-page',
+		'post_parent' => 0,
+	),
+	603 => (object) array(
+		'ID' => 603,
+		'post_type' => 'wp_template_part',
+		'post_status' => 'publish',
+		'post_title' => 'Header',
+		'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:site-title /--></div><!-- /wp:group -->',
+		'post_excerpt' => '',
+		'post_author' => 7,
+		'post_name' => 'header',
+		'post_parent' => 0,
+	),
 	);
 	$GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = true;
 	$GLOBALS['npcink_abilities_toolkit_unit_active_theme'] = array(
@@ -1626,7 +1632,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( false === strpos( $nested_content, '</div><!-- wp:paragraph -->' ), 'update-post-blocks does not append innerBlocks after the parent wrapper' );
 	$block_theme_context = $core_read_package->get_block_theme_context( array() );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_context['is_block_theme'] ?? null, 'get-block-theme-context reports active block theme state' );
-	npcink_abilities_toolkit_assert_same( 2, count( $block_theme_context['templates'] ?? array() ), 'get-block-theme-context lists available template entities' );
+	npcink_abilities_toolkit_assert_same( 3, count( $block_theme_context['templates'] ?? array() ), 'get-block-theme-context lists available template entities including front-page' );
 	$template_blocks = $core_read_package->get_template_blocks( array( 'slug' => 'single' ) );
 	npcink_abilities_toolkit_assert_same( 601, $template_blocks['post_id'] ?? 0, 'get-template-blocks resolves a template by slug' );
 	npcink_abilities_toolkit_assert_true( ( $template_blocks['block_count'] ?? 0 ) > 0, 'get-template-blocks parses template blocks' );
@@ -1665,9 +1671,126 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	$block_theme_actions = is_array( $block_theme_plan['data']['write_actions'] ?? null ) ? $block_theme_plan['data']['write_actions'] : array();
 	npcink_abilities_toolkit_assert_same( 2, count( $block_theme_actions ), 'build-block-theme-site-plan emits one action per found template target' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $block_theme_actions[0]['target_ability_id'] ?? '', 'block theme site plan targets template block writes' );
-	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan inserts a stable Core group first' );
-	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][0]['attrs']['className'] ?? '', 'block theme site plan marks the group as a breadcrumb scaffold' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan keeps the header template part first' );
+	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][1]['blockName'] ?? '', 'block theme site plan keeps main content as the second top-level block' );
+	npcink_abilities_toolkit_assert_same( 'main', $block_theme_actions[0]['input']['blocks'][1]['attrs']['tagName'] ?? '', 'block theme site plan targets the main content container' );
+	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][1]['innerBlocks'][0]['attrs']['className'] ?? '', 'block theme site plan inserts breadcrumbs inside main before the title' );
+	npcink_abilities_toolkit_assert_same( 'core/post-title', $block_theme_actions[0]['input']['blocks'][1]['innerBlocks'][1]['blockName'] ?? '', 'block theme site plan keeps the post title after breadcrumbs' );
+	npcink_abilities_toolkit_assert_same( 'before_post_title_in_main', $block_theme_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan reports semantic breadcrumb placement' );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'block theme site plan preview carries the per-template quality gate' );
+	$front_page_breadcrumb_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'front-page' ),
+			'show_on_home_page' => false,
+		)
+	);
+	$front_page_breadcrumb_actions = is_array( $front_page_breadcrumb_plan['data']['write_actions'] ?? null ) ? $front_page_breadcrumb_plan['data']['write_actions'] : array();
+	npcink_abilities_toolkit_assert_same( true, $front_page_breadcrumb_plan['success'] ?? null, 'build-block-theme-site-plan accepts front-page templates' );
+	npcink_abilities_toolkit_assert_same( 'removed', $front_page_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan removes existing breadcrumbs from front-page when homepage breadcrumbs are disabled' );
+	npcink_abilities_toolkit_assert_same( 'home_page_disabled', $front_page_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan reports disabled homepage breadcrumb placement' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $front_page_breadcrumb_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan removes misplaced front-page breadcrumbs before the header' );
+	npcink_abilities_toolkit_assert_true( false === strpos( wp_json_encode( $front_page_breadcrumb_actions[0]['input']['blocks'] ?? array() ), 'openclaw-breadcrumbs' ), 'block theme site plan does not leave breadcrumbs in front-page blocks when disabled' );
+	$home_template_style_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$home_template_options_fixture     = $GLOBALS['npcink_abilities_toolkit_unit_options'] ?? array();
+	$GLOBALS['npcink_abilities_toolkit_unit_options']['show_on_front'] = 'page';
+	$GLOBALS['npcink_abilities_toolkit_unit_options']['page_on_front'] = 700;
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		607 => (object) array(
+			'ID' => 607,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Page',
+			'post_content' => '<!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"><!-- wp:paragraph {"className":"openclaw-breadcrumbs__trail"} --><p class="openclaw-breadcrumbs__trail">Home / Current item</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'page',
+			'post_parent' => 0,
+		),
+		700 => (object) array(
+			'ID' => 700,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page Fixture',
+			'post_content' => 'Static front page content.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page-fixture',
+			'post_parent' => 0,
+		),
+	);
+	$front_page_fallback_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'front-page' ),
+			'show_on_home_page' => false,
+		)
+	);
+	$front_page_fallback_actions = is_array( $front_page_fallback_plan['data']['write_actions'] ?? null ) ? $front_page_fallback_plan['data']['write_actions'] : array();
+	npcink_abilities_toolkit_assert_same( true, $front_page_fallback_plan['success'] ?? null, 'build-block-theme-site-plan resolves a missing front-page template from the actual static homepage template stack' );
+	npcink_abilities_toolkit_assert_same( 1, count( $front_page_fallback_actions ), 'block theme site plan emits one action for resolved front-page fallback templates' );
+	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/upsert-template-blocks', $front_page_fallback_actions[0]['target_ability_id'] ?? '', 'block theme site plan creates a front-page override when the concrete front-page template is missing' );
+	npcink_abilities_toolkit_assert_same( 'front-page', $front_page_fallback_actions[0]['input']['slug'] ?? '', 'block theme site plan keeps the requested front-page target slug for fallback plans' );
+	npcink_abilities_toolkit_assert_same( 'unit-block-theme//page', $front_page_fallback_actions[0]['input']['source_template_id'] ?? '', 'block theme site plan records the source page template id for front-page fallback plans' );
+	npcink_abilities_toolkit_assert_same( 'front-page', $front_page_fallback_plan['data']['preview'][0]['template_resolution']['requested_slug'] ?? '', 'block theme site plan reports the requested homepage target slug' );
+	npcink_abilities_toolkit_assert_same( 'page', $front_page_fallback_plan['data']['preview'][0]['template_resolution']['source_slug'] ?? '', 'block theme site plan reports the source template slug used for homepage fallback' );
+	npcink_abilities_toolkit_assert_same( 'static_front_page_page_template_fallback', $front_page_fallback_plan['data']['preview'][0]['template_resolution']['strategy'] ?? '', 'block theme site plan reports the static homepage page-template fallback strategy' );
+	npcink_abilities_toolkit_assert_same( true, $front_page_fallback_plan['data']['preview'][0]['template_resolution']['creates_template_override'] ?? null, 'block theme site plan reports that homepage fallback creates a template override' );
+	npcink_abilities_toolkit_assert_same( 'removed', $front_page_fallback_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan removes inherited breadcrumbs from disabled homepage fallback plans' );
+	npcink_abilities_toolkit_assert_true( false === strpos( wp_json_encode( $front_page_fallback_actions[0]['input']['blocks'] ?? array() ), 'openclaw-breadcrumbs' ), 'block theme site plan does not carry breadcrumbs into disabled homepage fallback blocks' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		700 => (object) array(
+			'ID' => 700,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page Fixture',
+			'post_content' => 'Static front page content.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page-fixture',
+			'post_parent' => 0,
+		),
+	);
+	$front_page_unresolved_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'front-page' ),
+			'show_on_home_page' => false,
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $home_template_style_posts_fixture;
+	$GLOBALS['npcink_abilities_toolkit_unit_options']     = $home_template_options_fixture;
+	npcink_abilities_toolkit_assert_same( true, $front_page_unresolved_plan['success'] ?? null, 'build-block-theme-site-plan still returns a plan envelope when homepage template resolution fails' );
+	npcink_abilities_toolkit_assert_same( 0, count( $front_page_unresolved_plan['data']['write_actions'] ?? array() ), 'block theme site plan emits no write actions when no homepage template fallback exists' );
+	npcink_abilities_toolkit_assert_same( 'template_not_found', $front_page_unresolved_plan['data']['warnings'][0]['reason'] ?? '', 'block theme site plan reports template_not_found when homepage template resolution has no source' );
+	npcink_abilities_toolkit_assert_same( 'home_template_unresolved', $front_page_unresolved_plan['data']['warnings'][0]['template_resolution']['strategy'] ?? '', 'block theme site plan exposes unresolved homepage template resolution metadata' );
+	$block_theme_style_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		606 => (object) array(
+			'ID' => 606,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Single',
+			'post_content' => '<!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"><!-- wp:paragraph {"className":"openclaw-breadcrumbs__trail"} --><p class="openclaw-breadcrumbs__trail">Home / Current item</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'single',
+		),
+	);
+	$relocated_breadcrumb_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'single' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $block_theme_style_posts_fixture;
+	$relocated_breadcrumb_actions = is_array( $relocated_breadcrumb_plan['data']['write_actions'] ?? null ) ? $relocated_breadcrumb_plan['data']['write_actions'] : array();
+	npcink_abilities_toolkit_assert_same( true, $relocated_breadcrumb_plan['success'] ?? null, 'build-block-theme-site-plan accepts a template with misplaced breadcrumbs' );
+	npcink_abilities_toolkit_assert_same( 'relocated', $relocated_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan reports misplaced breadcrumbs as relocated' );
+	npcink_abilities_toolkit_assert_same( 'before_post_title_in_main', $relocated_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan relocates misplaced breadcrumbs before the title in main' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $relocated_breadcrumb_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan removes misplaced top-level breadcrumbs before the header' );
+	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $relocated_breadcrumb_actions[0]['input']['blocks'][1]['innerBlocks'][0]['attrs']['className'] ?? '', 'block theme site plan moves existing breadcrumbs inside main before the title' );
+	npcink_abilities_toolkit_assert_same( 'core/post-title', $relocated_breadcrumb_actions[0]['input']['blocks'][1]['innerBlocks'][1]['blockName'] ?? '', 'block theme site plan preserves post title after relocated breadcrumbs' );
 	$template_update_output_schema = $package_abilities['npcink-abilities-toolkit/update-template-blocks']['output_schema'] ?? array();
 	$template_preview = $core_write_package->update_template_blocks(
 		array(
@@ -1678,7 +1801,7 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	npcink_abilities_toolkit_assert_same( true, $template_preview['dry_run'] ?? null, 'update-template-blocks returns a governed dry-run preview' );
 	npcink_abilities_toolkit_assert_same( 'wp_template', $template_preview['post_type'] ?? '', 'update-template-blocks reports the template post type' );
-	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_preview, 'update-template-blocks dry-run' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $block_document, $template_update_output_schema, $template_preview, 'update-template-blocks dry-run' );
 	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 	$template_written = $core_write_package->update_template_blocks(
 		array(
@@ -1690,8 +1813,16 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	);
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
-	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_written, 'update-template-blocks commit' );
-	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' ), 'openclaw-breadcrumbs' ), 'update-template-blocks writes breadcrumb scaffold markup' );
+	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $block_document, $template_update_output_schema, $template_written, 'update-template-blocks commit' );
+	$template_written_content = (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' );
+	$template_written_header_position = strpos( $template_written_content, 'wp:template-part {"slug":"header"}' );
+	$template_written_breadcrumb_position = strpos( $template_written_content, 'openclaw-breadcrumbs' );
+	$template_written_title_position = strpos( $template_written_content, 'wp:post-title' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_breadcrumb_position, 'update-template-blocks writes breadcrumb scaffold markup' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_header_position, 'update-template-blocks writes the header template part marker' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_title_position, 'update-template-blocks writes the post title marker' );
+	npcink_abilities_toolkit_assert_true( $template_written_breadcrumb_position > $template_written_header_position, 'update-template-blocks does not write breadcrumbs before the header template part' );
+	npcink_abilities_toolkit_assert_true( $template_written_breadcrumb_position < $template_written_title_position, 'update-template-blocks writes breadcrumbs before the post title' );
 	$template_part_preview = $core_write_package->update_template_part_blocks(
 		array(
 			'post_id' => 603,
@@ -4470,6 +4601,22 @@ $template_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps supported template breadcrumb prompts to block theme site plans' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $template_intent_route['data']['route']['plan_ability_id'] ?? '', 'route-content-intent selects the block theme site plan ability' );
 npcink_abilities_toolkit_assert_same( 'add_breadcrumbs', $template_intent_route['data']['route']['recommended_plan_input']['intent'] ?? '', 'route-content-intent recommends the only supported block theme intent' );
+npcink_abilities_toolkit_assert_same( array( 'single' ), $template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes article template breadcrumbs to single by natural language' );
+
+$page_template_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '页面也加上面包屑导航，位置不要跑到页眉前面。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $page_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps page breadcrumb prompts to block theme site plans' );
+npcink_abilities_toolkit_assert_same( array( 'page', 'front-page' ), $page_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes page breadcrumb prompts to page and front-page templates' );
+
+$site_template_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '给网站加面包屑导航。',
+	)
+);
+npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page' ), $site_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent expands site breadcrumb prompts to common content templates' );
 
 $template_part_intent_route = $core_read_package->route_content_intent(
 	array(
@@ -4479,6 +4626,36 @@ $template_part_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part edits without a recipe' );
 npcink_abilities_toolkit_assert_same( true, $template_part_intent_route['data']['route']['needs_clarification'] ?? false, 'route-content-intent asks for clarification for unsupported template parts' );
 npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports the missing template part recipe' );
+
+$navigation_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Change the navigation menu and add a Products link.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $navigation_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for navigation menu writes' );
+npcink_abilities_toolkit_assert_same( '', $navigation_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for navigation menu writes' );
+npcink_abilities_toolkit_assert_same( 'navigation_write_not_supported', $navigation_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported navigation writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $navigation_intent_route['data']['write_actions'] ), 'route-content-intent does not create navigation write actions' );
+
+$global_styles_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Change global styles and write a theme.json color patch.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $global_styles_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for global style writes' );
+npcink_abilities_toolkit_assert_same( '', $global_styles_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for global style writes' );
+npcink_abilities_toolkit_assert_same( 'global_styles_write_not_supported', $global_styles_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported global style writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $global_styles_intent_route['data']['write_actions'] ), 'route-content-intent does not create global style write actions' );
+
+$custom_html_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Directly execute a custom HTML template change.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $custom_html_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for custom HTML template writes' );
+npcink_abilities_toolkit_assert_same( '', $custom_html_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for custom HTML template writes' );
+npcink_abilities_toolkit_assert_same( 'custom_html_template_not_supported', $custom_html_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported custom HTML template writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $custom_html_intent_route['data']['write_actions'] ), 'route-content-intent does not create custom HTML template write actions' );
 
 $ambiguous_intent_route = $core_read_package->route_content_intent(
 	array(

@@ -444,17 +444,74 @@ if ( ! function_exists( 'wpautop' ) ) {
 
 if ( ! function_exists( 'parse_blocks' ) ) {
 	function parse_blocks( $content ) {
-		preg_match_all( '/<!-- wp:([a-z0-9_\/-]+)(?:\\s+\\{.*?\\})? -->/i', (string) $content, $matches );
 		$blocks = array();
-		foreach ( $matches[1] ?? array() as $block_name ) {
-			$blocks[] = array(
-				'blockName'   => 0 === strpos( $block_name, 'core/' ) ? $block_name : 'core/' . $block_name,
-				'attrs'       => array(),
-				'innerHTML'   => '',
-				'innerBlocks' => array(),
+		$path   = array();
+		preg_match_all( '/<!--\\s*(\\/)?wp:([a-z0-9_\\/-]+)(?:\\s+(\\{.*?\\}))?\\s*(\\/)?-->/i', (string) $content, $matches, PREG_SET_ORDER );
+		foreach ( $matches as $match ) {
+			$is_closer = '/' === (string) ( $match[1] ?? '' );
+			if ( $is_closer ) {
+				array_pop( $path );
+				continue;
+			}
+
+			$block_name = (string) ( $match[2] ?? '' );
+			$attrs_json = (string) ( $match[3] ?? '' );
+			$attrs      = array();
+			if ( '' !== $attrs_json ) {
+				$decoded = json_decode( $attrs_json, true );
+				$attrs   = is_array( $decoded ) ? $decoded : array();
+			}
+			$block = array(
+				'blockName'    => 0 === strpos( $block_name, 'core/' ) ? $block_name : 'core/' . $block_name,
+				'attrs'        => $attrs,
+				'innerHTML'    => '',
+				'innerBlocks'  => array(),
+				'innerContent' => array(),
 			);
+
+			$parent_blocks =& npcink_abilities_toolkit_unit_parse_blocks_parent_ref( $blocks, $path );
+			$parent_blocks[] = $block;
+			$child_index     = count( $parent_blocks ) - 1;
+			if ( ! empty( $path ) ) {
+				$parent_block =& npcink_abilities_toolkit_unit_parse_blocks_block_ref( $blocks, $path );
+				$parent_block['innerContent'][] = null;
+			}
+
+			$is_self_closing = '/' === (string) ( $match[4] ?? '' );
+			if ( ! $is_self_closing ) {
+				$path[] = $child_index;
+			}
 		}
 		return $blocks;
+	}
+}
+
+if ( ! function_exists( 'npcink_abilities_toolkit_unit_parse_blocks_parent_ref' ) ) {
+	function &npcink_abilities_toolkit_unit_parse_blocks_parent_ref( array &$blocks, array $path ) {
+		$ref =& $blocks;
+		foreach ( $path as $index ) {
+			$index = (int) $index;
+			if ( ! isset( $ref[ $index ]['innerBlocks'] ) || ! is_array( $ref[ $index ]['innerBlocks'] ) ) {
+				$ref[ $index ]['innerBlocks'] = array();
+			}
+			$ref =& $ref[ $index ]['innerBlocks'];
+		}
+		return $ref;
+	}
+}
+
+if ( ! function_exists( 'npcink_abilities_toolkit_unit_parse_blocks_block_ref' ) ) {
+	function &npcink_abilities_toolkit_unit_parse_blocks_block_ref( array &$blocks, array $path ) {
+		$ref =& $blocks;
+		foreach ( $path as $depth => $index ) {
+			$index = (int) $index;
+			if ( count( $path ) - 1 === $depth ) {
+				$ref =& $ref[ $index ];
+				return $ref;
+			}
+			$ref =& $ref[ $index ]['innerBlocks'];
+		}
+		return $ref;
 	}
 }
 
@@ -756,6 +813,7 @@ require_once dirname( __DIR__ ) . '/includes/Registry/Schema_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Annotation_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Security/Permission_Callbacks.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Contract_Normalizer.php';
+require_once dirname( __DIR__ ) . '/includes/Support/Gutenberg_Block_Document.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Category_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Integration/Npcink_Catalog_Bridge.php';

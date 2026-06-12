@@ -123,6 +123,10 @@ trait Content_Intent_Router_Read_Methods {
 			'site_template' => $this->content_intent_match_terms( $prompt, array( 'template', 'site editor', 'block theme', 'single template', 'archive template', '模板', '站点编辑器', '块主题', '主题模板', '文章模板', '归档模板' ) ),
 			'template_part' => $this->content_intent_match_terms( $prompt, array( 'template part', 'header', 'footer', '页眉', '页脚', '模板部件', 'template_part' ) ),
 			'breadcrumbs'   => $this->content_intent_match_terms( $prompt, array( 'breadcrumb', 'breadcrumbs', '面包屑', '面包屑导航' ) ),
+			'navigation'    => $this->content_intent_match_terms( $prompt, array( 'navigation menu', 'nav menu', 'site navigation', 'navigation block', 'wp_navigation', '导航菜单', '站点导航', '导航栏', '主导航', '菜单' ) ),
+			'global_styles' => $this->content_intent_match_terms( $prompt, array( 'global styles', 'site styles', 'style book', '全站样式', '全局样式', '站点样式', '样式书' ) ),
+			'theme_json'    => $this->content_intent_match_terms( $prompt, array( 'theme.json', 'theme json' ) ),
+			'custom_html'   => $this->content_intent_match_terms( $prompt, array( 'custom html', 'raw html', 'html template', 'html patch', '自定义 html', '原始 html', 'html 模板' ) ),
 			'media'         => $this->content_intent_match_terms( $prompt, array( 'image', 'media', 'visual', 'illustration', 'screenshot', '图片', '配图', '视觉', '截图', '生图', '生成图', '媒体' ) ),
 			'modern_style'  => $this->content_intent_match_terms( $prompt, array( 'modern', 'polished', 'landing quality', '现代', '现代化', '高级', '美观', '官网感' ) ),
 			'accent_style'  => $this->content_intent_match_terms( $prompt, array( 'accent', 'editorial', 'color', 'colour', '色彩', '配色', '强调色', 'editorial-accent' ) ),
@@ -162,6 +166,20 @@ trait Content_Intent_Router_Read_Methods {
 		$template_score = $this->content_intent_signal_count( $signals['site_template'] ?? array() );
 		$part_score     = $this->content_intent_signal_count( $signals['template_part'] ?? array() );
 		$breadcrumb     = $this->content_intent_signal_count( $signals['breadcrumbs'] ?? array() ) > 0;
+		$navigation_score = $this->content_intent_signal_count( $signals['navigation'] ?? array() );
+		$global_styles_score = $this->content_intent_signal_count( $signals['global_styles'] ?? array() );
+		$theme_json_score = $this->content_intent_signal_count( $signals['theme_json'] ?? array() );
+		$custom_html_score = $this->content_intent_signal_count( $signals['custom_html'] ?? array() );
+
+		if ( $navigation_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'navigation_write_not_supported', true );
+		}
+		if ( $global_styles_score > 0 || $theme_json_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'global_styles_write_not_supported', true );
+		}
+		if ( $custom_html_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'custom_html_template_not_supported', true );
+		}
 
 		if ( 'page' === $target_hint || 'create_landing_page' === $intent_hint ) {
 			return $this->content_intent_supported_route( 'page_landing', 'hint' );
@@ -181,7 +199,7 @@ trait Content_Intent_Router_Read_Methods {
 			return $this->content_intent_unsupported_route( 'caller_marked_unsupported', false );
 		}
 
-		if ( $part_score > 0 ) {
+		if ( $part_score > 0 && ! $breadcrumb ) {
 			return $this->content_intent_unsupported_route( 'template_part_recipe_not_available', true );
 		}
 		if ( $template_score > 0 || $breadcrumb ) {
@@ -383,17 +401,50 @@ trait Content_Intent_Router_Read_Methods {
 				),
 			);
 		}
-		if ( 'block_theme_site_plan' === (string) ( $route['route'] ?? '' ) ) {
-			return array(
-				'intent'             => 'add_breadcrumbs',
-				'target_templates'   => array( 'single', 'page' ),
-				'separator'          => '/',
-				'show_current_item'  => true,
-				'show_home_item'     => true,
+			if ( 'block_theme_site_plan' === (string) ( $route['route'] ?? '' ) ) {
+				return array(
+					'intent'             => 'add_breadcrumbs',
+					'target_templates'   => $this->content_intent_block_theme_target_templates( $prompt ),
+					'separator'          => '/',
+					'show_current_item'  => true,
+					'show_home_item'     => true,
 				'show_on_home_page'  => false,
 			);
 		}
 		return array();
+	}
+
+	/**
+	 * Infers block theme template targets from ordinary customer language.
+	 *
+	 * @param string $prompt Prompt.
+	 * @return string[]
+	 */
+	private function content_intent_block_theme_target_templates( $prompt ) {
+		$article_terms = $this->content_intent_match_terms( $prompt, array( 'single template', 'post template', 'article template', '文章模板', '文章页', '博客文章', '博文', '文章' ) );
+		$page_terms    = $this->content_intent_match_terms( $prompt, array( 'page template', 'page', '页面模板', '普通页面', '页面' ) );
+		$front_terms   = $this->content_intent_match_terms( $prompt, array( 'front page', 'homepage', 'home page', '首页模板', '首页', '主页' ) );
+		$site_terms    = $this->content_intent_match_terms( $prompt, array( 'site', 'website', 'whole site', 'all templates', '全站', '网站', '整站', '所有模板' ) );
+
+		$article_score = $this->content_intent_signal_count( $article_terms );
+		$page_score    = $this->content_intent_signal_count( $page_terms );
+		$front_score   = $this->content_intent_signal_count( $front_terms );
+		$site_score    = $this->content_intent_signal_count( $site_terms );
+
+		if ( $site_score > 0 || ( $article_score > 0 && ( $page_score > 0 || $front_score > 0 ) ) ) {
+			return array( 'single', 'page', 'front-page' );
+		}
+		if ( $front_score > 0 ) {
+			return array( 'front-page', 'page' );
+		}
+		if ( $page_score > 0 ) {
+			return array( 'page', 'front-page' );
+		}
+		if ( $article_score > 0 ) {
+			return array( 'single' );
+		}
+
+		return array( 'single', 'page', 'front-page' );
 	}
 
 	/**

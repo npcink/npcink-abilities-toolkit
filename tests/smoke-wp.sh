@@ -73,7 +73,7 @@ if ! run_wp plugin is-active "$PLUGIN_SLUG" >/dev/null 2>&1; then
 fi
 NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
 
-mu_plugin_dir="$(run_wp eval 'echo WPMU_PLUGIN_DIR;' 2>/dev/null || true)"
+mu_plugin_dir="$(run_wp eval 'echo WPMU_PLUGIN_DIR;' 2>/dev/null | grep '^/' | tail -n 1 || true)"
 if [[ -z "$mu_plugin_dir" ]]; then
 	echo "Unable to resolve WPMU_PLUGIN_DIR for light profile smoke." >&2
 	exit 1
