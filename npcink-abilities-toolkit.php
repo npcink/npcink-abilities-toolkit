@@ -26,6 +26,7 @@ require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Schema_Normalizer
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Annotation_Normalizer.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Contract_Normalizer.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Security/Permission_Callbacks.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Support/Gutenberg_Block_Document.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Category_Registrar.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Registry/Ability_Registrar.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Integration/Npcink_Catalog_Bridge.php';

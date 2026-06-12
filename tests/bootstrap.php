@@ -813,6 +813,7 @@ require_once dirname( __DIR__ ) . '/includes/Registry/Schema_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Annotation_Normalizer.php';
 require_once dirname( __DIR__ ) . '/includes/Security/Permission_Callbacks.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Contract_Normalizer.php';
+require_once dirname( __DIR__ ) . '/includes/Support/Gutenberg_Block_Document.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Category_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Registry/Ability_Registrar.php';
 require_once dirname( __DIR__ ) . '/includes/Integration/Npcink_Catalog_Bridge.php';
