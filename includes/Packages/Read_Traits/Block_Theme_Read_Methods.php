@@ -32,7 +32,7 @@ trait Block_Theme_Read_Methods {
 		return array(
 			'active_theme'         => $theme,
 			'is_block_theme'       => $this->block_theme_is_active_block_theme(),
-			'templates'            => $this->block_theme_template_rows( 'wp_template', array( 'single', 'page', 'archive', 'index' ) ),
+			'templates'            => $this->block_theme_template_rows( 'wp_template', array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
 			'template_parts'       => $this->block_theme_template_rows( 'wp_template_part', array( 'header', 'footer' ) ),
 			'navigation_available' => post_type_exists( 'wp_navigation' ),
 			'global_styles_note'   => 'Global styles are read-only context in this MVP; use reviewed diffs before adding a patch-global-styles write profile.',
@@ -80,7 +80,7 @@ trait Block_Theme_Read_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_block_theme_required', __( 'The active theme is not reported as a block theme.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$target_templates = $this->block_theme_target_slugs( $input['target_templates'] ?? array( 'single', 'page' ) );
+		$target_templates = $this->block_theme_target_slugs( $input['target_templates'] ?? array( 'single', 'page', 'front-page' ) );
 		$separator        = sanitize_text_field( (string) ( $input['separator'] ?? '/' ) );
 		$show_current     = ! array_key_exists( 'show_current_item', $input ) || ! empty( $input['show_current_item'] );
 		$show_home        = ! array_key_exists( 'show_home_item', $input ) || ! empty( $input['show_home_item'] );
@@ -89,33 +89,53 @@ trait Block_Theme_Read_Methods {
 		$preview          = array();
 		$warnings         = array();
 		$block_editor_reviews = array();
+		$planned_template_slugs = array();
 
 		foreach ( $target_templates as $template_slug ) {
-			$template = $this->block_theme_find_entity( 'wp_template', $template_slug, 0 );
+			$requested_template_slug = sanitize_key( (string) $template_slug );
+			$template_resolution     = $this->block_theme_resolve_template_target( 'wp_template', $requested_template_slug );
+			$template                = is_array( $template_resolution['entity'] ?? null ) ? $template_resolution['entity'] : null;
 			if ( empty( $template ) ) {
 				$warnings[] = array(
-					'target_type' => 'wp_template',
-					'slug'        => $template_slug,
-					'reason'      => 'template_not_found',
+					'target_type'         => 'wp_template',
+					'slug'                => $requested_template_slug,
+					'reason'              => 'template_not_found',
+					'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
 				);
 				continue;
 			}
 
-			$template_id     = absint( $template['post_id'] ?? 0 );
-			$template_slug   = sanitize_key( (string) ( $template['slug'] ?? $template_slug ) );
+			$target_template_slug = sanitize_key( (string) ( $template_resolution['target_slug'] ?? $requested_template_slug ) );
+			if ( in_array( $target_template_slug, $planned_template_slugs, true ) ) {
+				$warnings[] = array(
+					'target_type'         => 'wp_template',
+					'slug'                => $requested_template_slug,
+					'resolved_slug'       => $target_template_slug,
+					'reason'              => 'template_already_planned',
+					'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
+				);
+				continue;
+			}
+			$planned_template_slugs[] = $target_template_slug;
+
+			$template_id     = absint( $template_resolution['target_post_id'] ?? 0 );
+			$template_slug   = $target_template_slug;
 			$template_theme  = sanitize_key( (string) ( $template['theme'] ?? '' ) );
-			$template_title  = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
+			$template_title  = sanitize_text_field( (string) ( $template_resolution['target_title'] ?? $template['title'] ?? $template_slug ) );
 			$template_source = sanitize_key( (string) ( $template['source'] ?? '' ) );
-			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
-			$current_blocks = $this->block_theme_blocks_for_write_plan( $current_blocks );
-			$next_blocks    = $this->block_theme_insert_breadcrumbs_block(
+			$current_blocks       = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
+			$current_blocks       = $this->block_theme_blocks_for_write_plan( $current_blocks );
+			$breadcrumb_placement = array();
+			$next_blocks          = $this->block_theme_insert_breadcrumbs_block(
 				$current_blocks,
 				array(
 					'separator'          => $separator,
 					'showCurrentItem'    => $show_current,
 					'showHomeItem'       => $show_home,
 					'showOnHomePage'     => $show_on_home,
-				)
+					'templateSlug'        => $template_slug,
+				),
+				$breadcrumb_placement
 			);
 			$block_editor_review = $this->pattern_review_summary_for_blocks( $next_blocks, true );
 			$is_existing_custom_template = $template_id > 0;
@@ -163,9 +183,11 @@ trait Block_Theme_Read_Methods {
 				'source'                    => $template_source,
 				'creates_template_override' => ! $is_existing_custom_template,
 				'target_ability_id'         => $target_ability_id,
+				'template_resolution'       => $this->block_theme_public_template_resolution( $template_resolution ),
 				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
 				'inserted_block'            => 'core/group.openclaw-breadcrumbs',
+				'breadcrumb_placement'      => $breadcrumb_placement,
 				'block_editor_quality_gate' => $block_editor_quality_gate,
 			);
 			$block_editor_reviews[] = array(
@@ -175,6 +197,8 @@ trait Block_Theme_Read_Methods {
 				'theme'                     => $template_theme,
 				'target_ability_id'         => $target_ability_id,
 				'creates_template_override' => ! $is_existing_custom_template,
+				'template_resolution'       => $this->block_theme_public_template_resolution( $template_resolution ),
+				'breadcrumb_placement'      => $breadcrumb_placement,
 				'review'                    => $this->block_editor_plan_review_excerpt( $block_editor_review ),
 				'quality_gate'              => $block_editor_quality_gate,
 			);
@@ -432,6 +456,203 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Resolves a requested template target to an existing source template.
+	 *
+	 * @param string $post_type Template post type.
+	 * @param string $requested_slug Requested target slug.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_resolve_template_target( $post_type, $requested_slug ) {
+		$post_type       = sanitize_key( (string) $post_type );
+		$requested_slug  = sanitize_key( (string) $requested_slug );
+		$direct_template = $this->block_theme_find_entity( $post_type, $requested_slug, 0 );
+		if ( ! empty( $direct_template ) ) {
+			return array(
+				'entity'                    => $direct_template,
+				'requested_slug'            => $requested_slug,
+				'target_slug'               => sanitize_key( (string) ( $direct_template['slug'] ?? $requested_slug ) ),
+				'source_slug'               => sanitize_key( (string) ( $direct_template['slug'] ?? $requested_slug ) ),
+				'target_post_id'            => absint( $direct_template['post_id'] ?? 0 ),
+				'target_title'              => sanitize_text_field( (string) ( $direct_template['title'] ?? $requested_slug ) ),
+				'source_template_id'        => sanitize_text_field( (string) ( $direct_template['template_id'] ?? '' ) ),
+				'source_post_id'            => absint( $direct_template['post_id'] ?? 0 ),
+				'strategy'                  => 'direct',
+				'creates_template_override' => false,
+				'candidates'                => array( $requested_slug ),
+			);
+		}
+
+		if ( ! in_array( $requested_slug, array( 'front-page', 'home' ), true ) ) {
+			return array(
+				'entity'         => null,
+				'requested_slug' => $requested_slug,
+				'target_slug'    => $requested_slug,
+				'strategy'       => 'not_found',
+				'candidates'     => array( $requested_slug ),
+			);
+		}
+
+		$candidates = $this->block_theme_home_template_candidates( $requested_slug );
+		foreach ( $candidates as $candidate ) {
+			$candidate_slug = sanitize_key( (string) ( $candidate['slug'] ?? '' ) );
+			if ( '' === $candidate_slug || $requested_slug === $candidate_slug ) {
+				continue;
+			}
+			$template = $this->block_theme_find_entity( $post_type, $candidate_slug, 0 );
+			if ( empty( $template ) ) {
+				continue;
+			}
+			return array(
+				'entity'                    => $template,
+				'requested_slug'            => $requested_slug,
+				'target_slug'               => $requested_slug,
+				'source_slug'               => sanitize_key( (string) ( $template['slug'] ?? $candidate_slug ) ),
+				'target_post_id'            => 0,
+				'target_title'              => $this->block_theme_template_title_for_slug( $requested_slug ),
+				'source_template_id'        => sanitize_text_field( (string) ( $template['template_id'] ?? '' ) ),
+				'source_post_id'            => absint( $template['post_id'] ?? 0 ),
+				'strategy'                  => sanitize_key( (string) ( $candidate['strategy'] ?? 'home_template_fallback' ) ),
+				'creates_template_override' => true,
+				'candidates'                => $this->block_theme_template_candidate_slugs( $candidates ),
+			);
+		}
+
+		return array(
+			'entity'         => null,
+			'requested_slug' => $requested_slug,
+			'target_slug'    => $requested_slug,
+			'strategy'       => 'home_template_unresolved',
+			'candidates'     => $this->block_theme_template_candidate_slugs( $candidates ),
+		);
+	}
+
+	/**
+	 * Returns unique candidate slugs from template candidate metadata.
+	 *
+	 * @param array<int,array<string,string>> $candidates Candidate metadata.
+	 * @return string[]
+	 */
+	private function block_theme_template_candidate_slugs( array $candidates ) {
+		$slugs = array();
+		foreach ( $candidates as $candidate ) {
+			$slug = sanitize_key( (string) ( $candidate['slug'] ?? '' ) );
+			if ( '' !== $slug && ! in_array( $slug, $slugs, true ) ) {
+				$slugs[] = $slug;
+			}
+		}
+		return $slugs;
+	}
+
+	/**
+	 * Returns homepage template fallback candidates for a requested home target.
+	 *
+	 * @param string $requested_slug Requested target slug.
+	 * @return array<int,array<string,string>>
+	 */
+	private function block_theme_home_template_candidates( $requested_slug ) {
+		$requested_slug = sanitize_key( (string) $requested_slug );
+		$candidates     = array(
+			array(
+				'slug'     => $requested_slug,
+				'strategy' => 'direct',
+			),
+		);
+
+		if ( 'front-page' === $requested_slug ) {
+			$show_on_front = function_exists( 'get_option' ) ? (string) get_option( 'show_on_front', 'posts' ) : 'posts';
+			if ( 'page' === $show_on_front ) {
+				$front_page_id = function_exists( 'get_option' ) ? absint( get_option( 'page_on_front', 0 ) ) : 0;
+				$front_page    = $front_page_id > 0 && function_exists( 'get_post' ) ? get_post( $front_page_id ) : null;
+				$front_slug    = is_object( $front_page ) ? sanitize_title( (string) ( $front_page->post_name ?? '' ) ) : '';
+				if ( '' !== $front_slug ) {
+					$candidates[] = array(
+						'slug'     => 'page-' . $front_slug,
+						'strategy' => 'static_front_page_slug_fallback',
+					);
+				}
+				if ( $front_page_id > 0 ) {
+					$candidates[] = array(
+						'slug'     => 'page-' . $front_page_id,
+						'strategy' => 'static_front_page_id_fallback',
+					);
+				}
+				$candidates[] = array(
+					'slug'     => 'page',
+					'strategy' => 'static_front_page_page_template_fallback',
+				);
+				$candidates[] = array(
+					'slug'     => 'singular',
+					'strategy' => 'static_front_page_singular_template_fallback',
+				);
+			} else {
+				$candidates[] = array(
+					'slug'     => 'home',
+					'strategy' => 'posts_front_page_home_template_fallback',
+				);
+			}
+		} elseif ( 'home' === $requested_slug ) {
+			$candidates[] = array(
+				'slug'     => 'index',
+				'strategy' => 'home_index_template_fallback',
+			);
+		}
+
+		$candidates[] = array(
+			'slug'     => 'index',
+			'strategy' => 'index_template_fallback',
+		);
+
+		$deduped = array();
+		$seen    = array();
+		foreach ( $candidates as $candidate ) {
+			$slug = sanitize_key( (string) ( $candidate['slug'] ?? '' ) );
+			if ( '' === $slug || in_array( $slug, $seen, true ) ) {
+				continue;
+			}
+			$seen[]              = $slug;
+			$candidate['slug']   = $slug;
+			$deduped[]           = $candidate;
+		}
+		return $deduped;
+	}
+
+	/**
+	 * Returns a human-friendly template title for a target slug.
+	 *
+	 * @param string $slug Template slug.
+	 * @return string
+	 */
+	private function block_theme_template_title_for_slug( $slug ) {
+		$slug = sanitize_key( (string) $slug );
+		if ( 'front-page' === $slug ) {
+			return __( 'Front Page', 'npcink-abilities-toolkit' );
+		}
+		if ( 'home' === $slug ) {
+			return __( 'Blog Home', 'npcink-abilities-toolkit' );
+		}
+		return ucwords( str_replace( '-', ' ', $slug ) );
+	}
+
+	/**
+	 * Returns public template resolution metadata.
+	 *
+	 * @param array<string,mixed> $resolution Resolution.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_public_template_resolution( array $resolution ) {
+		return array(
+			'requested_slug'            => sanitize_key( (string) ( $resolution['requested_slug'] ?? '' ) ),
+			'target_slug'               => sanitize_key( (string) ( $resolution['target_slug'] ?? '' ) ),
+			'source_slug'               => sanitize_key( (string) ( $resolution['source_slug'] ?? '' ) ),
+			'strategy'                  => sanitize_key( (string) ( $resolution['strategy'] ?? '' ) ),
+			'creates_template_override' => ! empty( $resolution['creates_template_override'] ),
+			'source_template_id'        => sanitize_text_field( (string) ( $resolution['source_template_id'] ?? '' ) ),
+			'source_post_id'            => absint( $resolution['source_post_id'] ?? 0 ),
+			'candidates'                => is_array( $resolution['candidates'] ?? null ) ? array_values( array_map( 'sanitize_key', $resolution['candidates'] ) ) : array(),
+		);
+	}
+
+	/**
 	 * Builds a Site Editor entity row from a custom template post.
 	 *
 	 * @param object $post Post object.
@@ -510,8 +731,8 @@ trait Block_Theme_Read_Methods {
 	 * @return string[]
 	 */
 	private function block_theme_target_slugs( $targets ) {
-		$targets = is_array( $targets ) ? $targets : array( 'single', 'page' );
-		$allowed = array( 'single', 'page', 'archive', 'index' );
+		$targets = is_array( $targets ) ? $targets : array( 'single', 'page', 'front-page' );
+		$allowed = array( 'single', 'page', 'front-page', 'archive', 'index' );
 		$normalized = array();
 		foreach ( $targets as $target ) {
 			$slug = sanitize_key( (string) $target );
@@ -519,67 +740,357 @@ trait Block_Theme_Read_Methods {
 				$normalized[] = $slug;
 			}
 		}
-		return empty( $normalized ) ? array( 'single', 'page' ) : $normalized;
+		return empty( $normalized ) ? array( 'single', 'page', 'front-page' ) : $normalized;
 	}
 
-		/**
-		 * Inserts a Core-block breadcrumb scaffold at the beginning unless present.
+	/**
+	 * Inserts a Core-block breadcrumb scaffold near the post title unless present.
 	 *
 	 * @param mixed               $blocks Existing blocks.
 	 * @param array<string,mixed> $attrs Breadcrumb attributes.
+	 * @param array<string,mixed> $placement Placement report.
 	 * @return array<int,array<string,mixed>>
 	 */
-		private function block_theme_insert_breadcrumbs_block( $blocks, array $attrs ) {
-			$blocks = is_array( $blocks ) ? array_values( $blocks ) : array();
-			foreach ( $blocks as $block ) {
-				if ( is_array( $block ) && false !== strpos( ' ' . (string) ( $block['attrs']['className'] ?? '' ) . ' ', ' openclaw-breadcrumbs ' ) ) {
+	private function block_theme_insert_breadcrumbs_block( $blocks, array $attrs, array &$placement = array() ) {
+		$blocks = is_array( $blocks ) ? array_values( $blocks ) : array();
+		$is_home_template = in_array( sanitize_key( (string) ( $attrs['templateSlug'] ?? '' ) ), array( 'front-page', 'home' ), true );
+		if ( $is_home_template && empty( $attrs['showOnHomePage'] ) ) {
+			$existing_breadcrumb_block = null;
+			$blocks                    = $this->block_theme_extract_breadcrumbs_block( $blocks, $existing_breadcrumb_block );
+			$placement                 = array(
+				'status'          => is_array( $existing_breadcrumb_block ) ? 'removed' : 'skipped',
+				'strategy'        => 'home_page_disabled',
+				'container'       => 'home_template',
+				'inserted_before' => '',
+			);
+			return $blocks;
+		}
+
+		if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $blocks ) ) {
+			$placement = array(
+				'status'          => 'already_valid',
+				'strategy'        => 'before_post_title_in_main',
+				'container'       => 'main',
+				'inserted_before' => 'core/post-title',
+			);
+			return $blocks;
+		}
+
+		$existing_breadcrumb_block = null;
+		$blocks                    = $this->block_theme_extract_breadcrumbs_block( $blocks, $existing_breadcrumb_block );
+		$breadcrumb_block          = is_array( $existing_breadcrumb_block ) ? $existing_breadcrumb_block : $this->block_theme_breadcrumbs_block( $attrs );
+		$placement_status          = is_array( $existing_breadcrumb_block ) ? 'relocated' : 'inserted';
+		$inserted                  = false;
+		$next_blocks               = $this->block_theme_insert_breadcrumbs_before_title_in_main( $blocks, $breadcrumb_block, $inserted );
+		if ( $inserted ) {
+			$placement = array(
+				'status'          => $placement_status,
+				'strategy'        => 'before_post_title_in_main',
+				'container'       => 'main',
+				'inserted_before' => 'core/post-title',
+			);
+			return $next_blocks;
+		}
+
+		$next_blocks = $this->block_theme_insert_breadcrumbs_before_post_title( $blocks, $breadcrumb_block, $inserted );
+		if ( $inserted ) {
+			$placement = array(
+				'status'          => $placement_status,
+				'strategy'        => 'before_post_title',
+				'container'       => 'nearest_post_title_parent',
+				'inserted_before' => 'core/post-title',
+			);
+			return $next_blocks;
+		}
+
+		array_unshift( $blocks, $breadcrumb_block );
+		$placement = array(
+			'status'   => $placement_status,
+			'strategy' => 'template_start_fallback',
+		);
+		return $blocks;
+	}
+
+	/**
+	 * Reports whether breadcrumbs already sit directly before post title in main.
+	 *
+	 * @param mixed $blocks Blocks.
+	 * @return bool
+	 */
+	private function block_theme_breadcrumbs_are_before_post_title_in_main( $blocks ) {
+		$blocks = is_array( $blocks ) ? $blocks : array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_main_container( $block ) ) {
+				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+				foreach ( $inner_blocks as $index => $inner_block ) {
+					if ( ! is_array( $inner_block ) || 'core/post-title' !== (string) ( $inner_block['blockName'] ?? '' ) ) {
+						continue;
+					}
+					return $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
+				}
+			}
+			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array() ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Extracts the first breadcrumbs block and removes duplicate breadcrumb blocks.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>|null       $found First found breadcrumb block.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_extract_breadcrumbs_block( array $blocks, &$found ) {
+		$clean_blocks = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_breadcrumbs_block( $block ) ) {
+				if ( null === $found ) {
+					$found = $block;
+				}
+				continue;
+			}
+			$clean_blocks[] = $this->block_theme_extract_breadcrumbs_from_block( $block, $found );
+		}
+		return $clean_blocks;
+	}
+
+	/**
+	 * Removes breadcrumbs from one block's children while preserving first found.
+	 *
+	 * @param array<string,mixed>      $block Parent block.
+	 * @param array<string,mixed>|null $found First found breadcrumb block.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_extract_breadcrumbs_from_block( array $block, &$found ) {
+		if ( ! is_array( $block['innerBlocks'] ?? null ) ) {
+			return $block;
+		}
+
+		$inner_blocks       = array_values( $block['innerBlocks'] );
+		$clean_inner_blocks = array();
+		$removed_indices    = array();
+		foreach ( $inner_blocks as $inner_index => $inner_block ) {
+			if ( ! is_array( $inner_block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_breadcrumbs_block( $inner_block ) ) {
+				if ( null === $found ) {
+					$found = $inner_block;
+				}
+				$removed_indices[] = (int) $inner_index;
+				continue;
+			}
+			$clean_inner_blocks[] = $this->block_theme_extract_breadcrumbs_from_block( $inner_block, $found );
+		}
+
+		$block['innerBlocks'] = $clean_inner_blocks;
+		if ( ! empty( $removed_indices ) && is_array( $block['innerContent'] ?? null ) ) {
+			$inner_content = array_values( $block['innerContent'] );
+			rsort( $removed_indices );
+			foreach ( $removed_indices as $removed_index ) {
+				$null_offset = $this->block_theme_inner_content_null_offset_for_child_index( $inner_content, $removed_index );
+				if ( array_key_exists( $null_offset, $inner_content ) && null === $inner_content[ $null_offset ] ) {
+					array_splice( $inner_content, $null_offset, 1 );
+				}
+			}
+			$block['innerContent'] = $inner_content;
+		}
+		return $block;
+	}
+
+	/**
+	 * Reports whether one parsed block is the OpenClaw breadcrumbs block.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function block_theme_is_breadcrumbs_block( array $block ) {
+		return false !== strpos( ' ' . (string) ( $block['attrs']['className'] ?? '' ) . ' ', ' openclaw-breadcrumbs ' );
+	}
+
+	/**
+	 * Builds the breadcrumb block tree.
+	 *
+	 * @param array<string,mixed> $attrs Breadcrumb attributes.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_breadcrumbs_block( array $attrs ) {
+		$separator     = sanitize_text_field( (string) ( $attrs['separator'] ?? '/' ) );
+		$show_current  = ! array_key_exists( 'showCurrentItem', $attrs ) || ! empty( $attrs['showCurrentItem'] );
+		$show_home     = ! array_key_exists( 'showHomeItem', $attrs ) || ! empty( $attrs['showHomeItem'] );
+		$home_url      = function_exists( 'home_url' ) ? (string) home_url( '/' ) : '/';
+		$trail_content = array();
+		if ( $show_home ) {
+			$trail_content[] = '<a href="' . $this->esc_url_value( $home_url ) . '">' . esc_html( __( 'Home', 'npcink-abilities-toolkit' ) ) . '</a>';
+		}
+		if ( $show_current ) {
+			if ( ! empty( $trail_content ) ) {
+				$trail_content[] = '<span aria-hidden="true">' . esc_html( $separator ) . '</span>';
+			}
+			$trail_content[] = '<span class="openclaw-breadcrumbs__current" aria-current="page">' . esc_html( __( 'Current item', 'npcink-abilities-toolkit' ) ) . '</span>';
+		}
+		$paragraph_html = '<p class="openclaw-breadcrumbs__trail">' . implode( ' ', $trail_content ) . '</p>';
+
+		return array(
+			'blockName'    => 'core/group',
+			'attrs'        => array(
+				'className' => 'openclaw-breadcrumbs',
+				'layout'    => array(
+					'type'     => 'flex',
+					'flexWrap' => 'wrap',
+				),
+			),
+			'innerHTML'    => '',
+			'innerBlocks'  => array(
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(
+						'className' => 'openclaw-breadcrumbs__trail',
+					),
+					'innerHTML'    => $paragraph_html,
+					'innerBlocks'  => array(),
+					'innerContent' => array( $paragraph_html ),
+				),
+			),
+			'innerContent' => array( "\n", null, "\n" ),
+		);
+	}
+
+	/**
+	 * Inserts breadcrumbs before post title inside the first main container.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $breadcrumb_block Breadcrumb block.
+	 * @param bool                           $inserted Whether insertion happened.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_insert_breadcrumbs_before_title_in_main( array $blocks, array $breadcrumb_block, &$inserted ) {
+		foreach ( $blocks as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_main_container( $block ) ) {
+				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+				foreach ( $inner_blocks as $inner_index => $inner_block ) {
+					if ( is_array( $inner_block ) && 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+						$blocks[ $index ] = $this->block_theme_insert_inner_block_at( $block, $inner_index, $breadcrumb_block );
+						$inserted         = true;
+						return $blocks;
+					}
+				}
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$block['innerBlocks'] = $this->block_theme_insert_breadcrumbs_before_title_in_main( array_values( $block['innerBlocks'] ), $breadcrumb_block, $inserted );
+				$blocks[ $index ]     = $block;
+				if ( $inserted ) {
 					return $blocks;
 				}
 			}
-
-			$separator     = sanitize_text_field( (string) ( $attrs['separator'] ?? '/' ) );
-			$show_current  = ! array_key_exists( 'showCurrentItem', $attrs ) || ! empty( $attrs['showCurrentItem'] );
-			$show_home     = ! array_key_exists( 'showHomeItem', $attrs ) || ! empty( $attrs['showHomeItem'] );
-			$home_url      = function_exists( 'home_url' ) ? (string) home_url( '/' ) : '/';
-			$trail_content = array();
-			if ( $show_home ) {
-				$trail_content[] = '<a href="' . $this->esc_url_value( $home_url ) . '">' . esc_html( __( 'Home', 'npcink-abilities-toolkit' ) ) . '</a>';
-			}
-			if ( $show_current ) {
-				if ( ! empty( $trail_content ) ) {
-					$trail_content[] = '<span aria-hidden="true">' . esc_html( $separator ) . '</span>';
-				}
-				$trail_content[] = '<span class="openclaw-breadcrumbs__current" aria-current="page">' . esc_html( __( 'Current item', 'npcink-abilities-toolkit' ) ) . '</span>';
-			}
-			$paragraph_html = '<p class="openclaw-breadcrumbs__trail">' . implode( ' ', $trail_content ) . '</p>';
-
-			array_unshift(
-				$blocks,
-				array(
-					'blockName'    => 'core/group',
-					'attrs'        => array(
-						'className' => 'openclaw-breadcrumbs',
-						'layout'    => array(
-							'type'     => 'flex',
-							'flexWrap' => 'wrap',
-						),
-					),
-					'innerHTML'    => '',
-					'innerBlocks'  => array(
-						array(
-							'blockName'    => 'core/paragraph',
-							'attrs'        => array(
-								'className' => 'openclaw-breadcrumbs__trail',
-							),
-							'innerHTML'    => $paragraph_html,
-							'innerBlocks'  => array(),
-							'innerContent' => array( $paragraph_html ),
-						),
-					),
-					'innerContent' => array( "\n", null, "\n" ),
-				)
-			);
+		}
 		return $blocks;
+	}
+
+	/**
+	 * Inserts breadcrumbs before the first post title anywhere in the tree.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $breadcrumb_block Breadcrumb block.
+	 * @param bool                           $inserted Whether insertion happened.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_insert_breadcrumbs_before_post_title( array $blocks, array $breadcrumb_block, &$inserted ) {
+		foreach ( $blocks as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'core/post-title' === (string) ( $block['blockName'] ?? '' ) ) {
+				array_splice( $blocks, $index, 0, array( $breadcrumb_block ) );
+				$inserted = true;
+				return $blocks;
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$inner_blocks = array_values( $block['innerBlocks'] );
+				foreach ( $inner_blocks as $inner_index => $inner_block ) {
+					if ( is_array( $inner_block ) && 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+						$blocks[ $index ] = $this->block_theme_insert_inner_block_at( $block, $inner_index, $breadcrumb_block );
+						$inserted         = true;
+						return $blocks;
+					}
+				}
+				$block['innerBlocks'] = $this->block_theme_insert_breadcrumbs_before_post_title( $inner_blocks, $breadcrumb_block, $inserted );
+				$blocks[ $index ]     = $block;
+				if ( $inserted ) {
+					return $blocks;
+				}
+			}
+		}
+		return $blocks;
+	}
+
+	/**
+	 * Reports whether one parsed block is a main content container.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function block_theme_is_main_container( array $block ) {
+		return 'main' === sanitize_key( (string) ( $block['attrs']['tagName'] ?? '' ) );
+	}
+
+	/**
+	 * Inserts one inner block and keeps innerContent null placeholders aligned.
+	 *
+	 * @param array<string,mixed> $block Parent block.
+	 * @param int                 $inner_index Inner block index.
+	 * @param array<string,mixed> $insert_block Block to insert.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_insert_inner_block_at( array $block, $inner_index, array $insert_block ) {
+		$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+		$inner_index  = max( 0, min( (int) $inner_index, count( $inner_blocks ) ) );
+		array_splice( $inner_blocks, $inner_index, 0, array( $insert_block ) );
+		$block['innerBlocks'] = $inner_blocks;
+
+		$inner_content = is_array( $block['innerContent'] ?? null ) ? array_values( $block['innerContent'] ) : array();
+		if ( empty( $inner_content ) ) {
+			$block['innerContent'] = array_fill( 0, count( $inner_blocks ), null );
+			return $block;
+		}
+
+		$null_offset = $this->block_theme_inner_content_null_offset_for_child_index( $inner_content, $inner_index );
+		array_splice( $inner_content, $null_offset, 0, array( null ) );
+		$block['innerContent'] = $inner_content;
+		return $block;
+	}
+
+	/**
+	 * Returns the innerContent offset where a child placeholder should be inserted.
+	 *
+	 * @param array<int,mixed> $inner_content Inner content.
+	 * @param int              $child_index Child block index.
+	 * @return int
+	 */
+	private function block_theme_inner_content_null_offset_for_child_index( array $inner_content, $child_index ) {
+		$seen_children = 0;
+		foreach ( $inner_content as $offset => $content ) {
+			if ( null !== $content ) {
+				continue;
+			}
+			if ( $seen_children >= $child_index ) {
+				return (int) $offset;
+			}
+			++$seen_children;
+		}
+		return count( $inner_content );
 	}
 
 	/**

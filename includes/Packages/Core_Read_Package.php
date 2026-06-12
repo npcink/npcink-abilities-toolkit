@@ -1527,7 +1527,7 @@ final class Core_Read_Package {
 							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs' ), 'default' => 'add_breadcrumbs' ),
 							'target_templates'   => array(
 								'type'  => 'array',
-								'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'archive', 'index' ) ),
+									'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
 							),
 							'separator'          => array( 'type' => 'string', 'default' => '/' ),
 							'show_current_item'  => array( 'type' => 'boolean', 'default' => true ),
