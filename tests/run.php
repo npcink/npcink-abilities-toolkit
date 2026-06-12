@@ -4984,6 +4984,10 @@ npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval_cases[0]['d
 npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval_cases[0]['dual_review']['governance_boundary_reviewer']['decision'] ?? '', 'Gutenberg recipe evaluation governance reviewer passes read-only plans' );
 npcink_abilities_toolkit_assert_same( 'article_block_plan', $gutenberg_recipe_eval_cases[1]['route'] ?? '', 'Gutenberg recipe evaluation routes article cases to article plans' );
 npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $gutenberg_recipe_eval_cases[2]['route'] ?? '', 'Gutenberg recipe evaluation routes template cases to block theme plans' );
+if ( 'no_changes_required' === ( $gutenberg_recipe_eval_cases[2]['plan_summary']['quality_gate_status'] ?? '' ) ) {
+	npcink_abilities_toolkit_assert_true( ( $gutenberg_recipe_eval_cases[2]['plan_summary']['no_change_context']['no_change_count'] ?? 0 ) > 0, 'Gutenberg recipe evaluation explains template no-op cases for AI judges' );
+	npcink_abilities_toolkit_assert_true( in_array( 'breadcrumbs_already_before_post_title', $gutenberg_recipe_eval_cases[2]['plan_summary']['no_change_context']['no_change_reasons'] ?? array(), true ), 'Gutenberg recipe evaluation exports stable template no-op reasons' );
+}
 npcink_abilities_toolkit_assert_same( 'unsupported', $gutenberg_recipe_eval_cases[3]['route'] ?? '', 'Gutenberg recipe evaluation keeps unsupported navigation requests fail-closed' );
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation reports no failure codes for passing suites' );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_default_eval['success'] ?? null, 'default Gutenberg recipe evaluation returns a success envelope' );
