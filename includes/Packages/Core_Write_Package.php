@@ -23,6 +23,8 @@ final class Core_Write_Package {
 	private const MAX_TEXT_INPUT_BYTES = 8192;
 	private const MAX_CONTENT_INPUT_BYTES = 262144;
 	private const MAX_PATCH_OPERATIONS = 20;
+	private const MAX_SETTING_PATCH_DEPTH = 8;
+	private const MAX_SETTING_PATCH_NODES = 500;
 
 	/**
 	 * Category registrar.
@@ -1510,6 +1512,10 @@ final class Core_Write_Package {
 		}
 
 		$before_content = (string) ( $post->post_content ?? '' );
+		$before_size_check = $this->assert_text_size( $before_content, 'content', self::MAX_CONTENT_INPUT_BYTES );
+		if ( is_wp_error( $before_size_check ) ) {
+			return $before_size_check;
+		}
 		$patch_result   = $this->apply_patch_operations( $before_content, is_array( $input['operations'] ?? null ) ? $input['operations'] : array() );
 		if ( is_wp_error( $patch_result ) ) {
 			return $patch_result;
@@ -5861,6 +5867,99 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Checks a setting value before recursive patching or preview encoding.
+	 *
+	 * @param mixed $value Setting value.
+	 * @return true|\WP_Error
+	 */
+	private function assert_setting_value_patchable_size( $value ) {
+		$stats = array(
+			'bytes' => 0,
+			'nodes' => 0,
+		);
+		$result = $this->collect_setting_value_patch_stats( $value, $stats, 0 );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+		if ( absint( $stats['bytes'] ?? 0 ) > self::MAX_CONTENT_INPUT_BYTES ) {
+			return $this->setting_value_too_large_error( 'bytes' );
+		}
+		return true;
+	}
+
+	/**
+	 * Collects bounded complexity stats for a setting value.
+	 *
+	 * @param mixed        $value Setting value.
+	 * @param array<mixed> $stats Stats.
+	 * @param int          $depth Current depth.
+	 * @return true|\WP_Error
+	 */
+	private function collect_setting_value_patch_stats( $value, array &$stats, $depth ) {
+		$depth = absint( $depth );
+		if ( $depth > self::MAX_SETTING_PATCH_DEPTH ) {
+			return $this->setting_value_too_large_error( 'depth' );
+		}
+		$stats['nodes'] = absint( $stats['nodes'] ?? 0 ) + 1;
+		if ( absint( $stats['nodes'] ?? 0 ) > self::MAX_SETTING_PATCH_NODES ) {
+			return $this->setting_value_too_large_error( 'nodes' );
+		}
+		if ( is_string( $value ) || is_numeric( $value ) || is_bool( $value ) ) {
+			$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $value );
+			if ( absint( $stats['bytes'] ?? 0 ) > self::MAX_CONTENT_INPUT_BYTES ) {
+				return $this->setting_value_too_large_error( 'bytes' );
+			}
+			return true;
+		}
+		if ( null === $value ) {
+			return true;
+		}
+		if ( is_array( $value ) ) {
+			foreach ( $value as $key => $child ) {
+				$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $key );
+				$result         = $this->collect_setting_value_patch_stats( $child, $stats, $depth + 1 );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			return true;
+		}
+		if ( is_object( $value ) ) {
+			foreach ( get_object_vars( $value ) as $key => $child ) {
+				$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $key );
+				$result         = $this->collect_setting_value_patch_stats( $child, $stats, $depth + 1 );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			return true;
+		}
+		$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $value );
+		return true;
+	}
+
+	/**
+	 * Returns a consistent too-large setting value error.
+	 *
+	 * @param string $reason Reason.
+	 * @return \WP_Error
+	 */
+	private function setting_value_too_large_error( $reason ) {
+		return new \WP_Error(
+			'npcink_abilities_toolkit_input_too_large',
+			__( 'Input is too large.', 'npcink-abilities-toolkit' ),
+			array(
+				'status'    => 400,
+				'field'     => 'setting_value',
+				'max_bytes' => self::MAX_CONTENT_INPUT_BYTES,
+				'max_depth' => self::MAX_SETTING_PATCH_DEPTH,
+				'max_nodes' => self::MAX_SETTING_PATCH_NODES,
+				'reason'    => sanitize_key( (string) $reason ),
+			)
+		);
+	}
+
+	/**
 	 * Normalizes write content into safe HTML.
 	 *
 	 * @param array<string,mixed> $input Input args.
@@ -6873,6 +6972,10 @@ final class Core_Write_Package {
 	private function apply_patch_operations_to_value( $value, array $operations ) {
 		if ( is_string( $value ) && $this->looks_serialized_setting_string( $value ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_serialized_setting_patch_blocked', __( 'Raw serialized setting strings require manual review.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$value_size_check = $this->assert_setting_value_patchable_size( $value );
+		if ( is_wp_error( $value_size_check ) ) {
+			return $value_size_check;
 		}
 		$operations = array_values( $operations );
 		if ( empty( $operations ) ) {

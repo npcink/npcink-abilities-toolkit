@@ -1618,6 +1618,24 @@ $too_many_patch_operations = $core_write_package->patch_post_content(
 );
 npcink_abilities_toolkit_assert_true( is_wp_error( $too_many_patch_operations ), 'patch-post-content rejects oversized operation lists before diff generation' );
 npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_patch_operations_too_many', $too_many_patch_operations->code ?? '', 'patch-post-content oversized operation list fails with stable code' );
+$original_patch_post_content = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content ?? '';
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content = str_repeat( 'x', 262145 );
+$oversized_existing_post_patch = $core_write_package->patch_post_content(
+	array(
+		'post_id'    => 501,
+		'operations' => array(
+			array(
+				'op'      => 'replace',
+				'find'    => 'x',
+				'replace' => 'y',
+			),
+		),
+		'dry_run'    => true,
+	)
+);
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][501]->post_content = $original_patch_post_content;
+npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_existing_post_patch ), 'patch-post-content rejects oversized existing content before patching' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_existing_post_patch->code ?? '', 'patch-post-content oversized existing content fails with stable code' );
 
 $blocks_preview = $core_write_package->update_post_blocks(
 	array(
@@ -3952,6 +3970,24 @@ $patch_setting_preview = $core_write_package->patch_setting_value(
 );
 npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
 npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+$GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] = str_repeat( 'x', 262145 );
+$oversized_patch_setting = $core_write_package->patch_setting_value(
+	array(
+		'target_type' => 'option',
+		'target_name' => 'oversized_setting_value',
+		'operations'  => array(
+			array(
+				'op'      => 'replace',
+				'find'    => 'x',
+				'replace' => 'y',
+			),
+		),
+		'dry_run'     => true,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] );
+npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_patch_setting ), 'patch-setting-value rejects oversized setting values before recursive patching' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_patch_setting->code ?? '', 'patch-setting-value oversized setting value fails with stable code' );
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
 $patch_setting_commit = $core_write_package->patch_setting_value(
 	array(
