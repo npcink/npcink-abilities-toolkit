@@ -181,7 +181,7 @@ trait Content_Intent_Router_Read_Methods {
 			return $this->content_intent_unsupported_route( 'caller_marked_unsupported', false );
 		}
 
-		if ( $part_score > 0 ) {
+		if ( $part_score > 0 && ! $breadcrumb ) {
 			return $this->content_intent_unsupported_route( 'template_part_recipe_not_available', true );
 		}
 		if ( $template_score > 0 || $breadcrumb ) {
@@ -383,17 +383,50 @@ trait Content_Intent_Router_Read_Methods {
 				),
 			);
 		}
-		if ( 'block_theme_site_plan' === (string) ( $route['route'] ?? '' ) ) {
-			return array(
-				'intent'             => 'add_breadcrumbs',
-				'target_templates'   => array( 'single', 'page' ),
-				'separator'          => '/',
-				'show_current_item'  => true,
-				'show_home_item'     => true,
+			if ( 'block_theme_site_plan' === (string) ( $route['route'] ?? '' ) ) {
+				return array(
+					'intent'             => 'add_breadcrumbs',
+					'target_templates'   => $this->content_intent_block_theme_target_templates( $prompt ),
+					'separator'          => '/',
+					'show_current_item'  => true,
+					'show_home_item'     => true,
 				'show_on_home_page'  => false,
 			);
 		}
 		return array();
+	}
+
+	/**
+	 * Infers block theme template targets from ordinary customer language.
+	 *
+	 * @param string $prompt Prompt.
+	 * @return string[]
+	 */
+	private function content_intent_block_theme_target_templates( $prompt ) {
+		$article_terms = $this->content_intent_match_terms( $prompt, array( 'single template', 'post template', 'article template', '文章模板', '文章页', '博客文章', '博文', '文章' ) );
+		$page_terms    = $this->content_intent_match_terms( $prompt, array( 'page template', 'page', '页面模板', '普通页面', '页面' ) );
+		$front_terms   = $this->content_intent_match_terms( $prompt, array( 'front page', 'homepage', 'home page', '首页模板', '首页', '主页' ) );
+		$site_terms    = $this->content_intent_match_terms( $prompt, array( 'site', 'website', 'whole site', 'all templates', '全站', '网站', '整站', '所有模板' ) );
+
+		$article_score = $this->content_intent_signal_count( $article_terms );
+		$page_score    = $this->content_intent_signal_count( $page_terms );
+		$front_score   = $this->content_intent_signal_count( $front_terms );
+		$site_score    = $this->content_intent_signal_count( $site_terms );
+
+		if ( $site_score > 0 || ( $article_score > 0 && ( $page_score > 0 || $front_score > 0 ) ) ) {
+			return array( 'single', 'page', 'front-page' );
+		}
+		if ( $front_score > 0 ) {
+			return array( 'front-page', 'page' );
+		}
+		if ( $page_score > 0 ) {
+			return array( 'page', 'front-page' );
+		}
+		if ( $article_score > 0 ) {
+			return array( 'single' );
+		}
+
+		return array( 'single', 'page', 'front-page' );
 	}
 
 	/**
