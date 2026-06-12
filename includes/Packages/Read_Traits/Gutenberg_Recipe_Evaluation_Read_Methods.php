@@ -448,7 +448,7 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 	 */
 	private function gutenberg_recipe_eval_plan_summary( array $plan_data, array $block_summary ) {
 		$actions = is_array( $plan_data['write_actions'] ?? null ) ? $plan_data['write_actions'] : array();
-		return array(
+		$summary = array(
 			'artifact_type'          => sanitize_key( (string) ( $plan_data['artifact_type'] ?? '' ) ),
 			'proposal_mode'          => sanitize_key( (string) ( $plan_data['proposal_mode'] ?? '' ) ),
 			'direct_wordpress_write' => ! empty( $plan_data['direct_wordpress_write'] ),
@@ -459,6 +459,61 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 			'block_count'            => absint( $block_summary['total_blocks'] ?? 0 ),
 			'ready_for_proposal'     => $this->gutenberg_recipe_eval_ready_for_proposal( $plan_data ),
 			'quality_gate_status'    => sanitize_key( (string) ( $plan_data['block_editor_quality_gate']['recommended_next_step'] ?? ( $plan_data['quality_review']['review_status'] ?? '' ) ) ),
+		);
+
+		$no_change_context = $this->gutenberg_recipe_eval_no_change_context( $plan_data );
+		if ( ! empty( $no_change_context['no_change_count'] ) ) {
+			$summary['no_change_context'] = $no_change_context;
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * Returns compact no-op evidence for plans where the target already matches.
+	 *
+	 * @param array<string,mixed> $plan_data Plan data.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_recipe_eval_no_change_context( array $plan_data ) {
+		$preview = is_array( $plan_data['preview'] ?? null ) ? $plan_data['preview'] : array();
+		if ( empty( $preview ) ) {
+			return array(
+				'no_change_count'   => 0,
+				'no_change_reasons' => array(),
+				'previews'          => array(),
+			);
+		}
+
+		$reasons  = array();
+		$previews = array();
+		foreach ( $preview as $row ) {
+			if ( ! is_array( $row ) || ! array_key_exists( 'requires_write', $row ) || ! empty( $row['requires_write'] ) ) {
+				continue;
+			}
+			$reason = sanitize_key( (string) ( $row['no_change_reason'] ?? '' ) );
+			if ( '' === $reason ) {
+				continue;
+			}
+
+			$placement  = is_array( $row['breadcrumb_placement'] ?? null ) ? $row['breadcrumb_placement'] : array();
+			$resolution = is_array( $row['template_resolution'] ?? null ) ? $row['template_resolution'] : array();
+			$reasons[]  = $reason;
+			$previews[] = array(
+				'slug'                => sanitize_key( (string) ( $row['slug'] ?? '' ) ),
+				'requires_write'      => false,
+				'no_change_reason'    => $reason,
+				'breadcrumb_status'   => sanitize_key( (string) ( $placement['status'] ?? '' ) ),
+				'breadcrumb_strategy' => sanitize_key( (string) ( $placement['strategy'] ?? '' ) ),
+				'requested_slug'      => sanitize_key( (string) ( $resolution['requested_slug'] ?? '' ) ),
+				'source_slug'         => sanitize_key( (string) ( $resolution['source_slug'] ?? '' ) ),
+			);
+		}
+
+		return array(
+			'no_change_count'   => count( $previews ),
+			'no_change_reasons' => array_values( array_unique( array_filter( $reasons ) ) ),
+			'previews'          => array_slice( $previews, 0, 5 ),
 		);
 	}
 
