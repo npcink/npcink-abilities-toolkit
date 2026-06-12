@@ -1413,10 +1413,10 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_title' => 'Original title',
 		'post_content' => '<p>Original body marker.</p>',
 		'post_excerpt' => '',
-		'post_author' => 7,
-		'post_name' => 'original-title',
-		'post_parent' => 0,
-	),
+			'post_author' => 7,
+			'post_name' => 'original-title',
+			'post_parent' => 0,
+		),
 	601 => (object) array(
 		'ID' => 601,
 		'post_type' => 'wp_template',
@@ -1461,12 +1461,12 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_name' => 'header',
 		'post_parent' => 0,
 	),
-);
-$GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = true;
-$GLOBALS['npcink_abilities_toolkit_unit_active_theme'] = array(
-	'name'       => 'Unit Block Theme',
-	'stylesheet' => 'unit-block-theme',
-);
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = true;
+	$GLOBALS['npcink_abilities_toolkit_unit_active_theme'] = array(
+		'name'       => 'Unit Block Theme',
+		'stylesheet' => 'unit-block-theme',
+	);
 $create_preview = $core_write_package->create_draft(
 	array(
 		'title' => 'Preview title',
@@ -4632,6 +4632,36 @@ $template_part_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part edits without a recipe' );
 npcink_abilities_toolkit_assert_same( true, $template_part_intent_route['data']['route']['needs_clarification'] ?? false, 'route-content-intent asks for clarification for unsupported template parts' );
 npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports the missing template part recipe' );
+
+$navigation_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Change the navigation menu and add a Products link.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $navigation_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for navigation menu writes' );
+npcink_abilities_toolkit_assert_same( '', $navigation_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for navigation menu writes' );
+npcink_abilities_toolkit_assert_same( 'navigation_write_not_supported', $navigation_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported navigation writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $navigation_intent_route['data']['write_actions'] ), 'route-content-intent does not create navigation write actions' );
+
+$global_styles_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Change global styles and write a theme.json color patch.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $global_styles_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for global style writes' );
+npcink_abilities_toolkit_assert_same( '', $global_styles_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for global style writes' );
+npcink_abilities_toolkit_assert_same( 'global_styles_write_not_supported', $global_styles_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported global style writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $global_styles_intent_route['data']['write_actions'] ), 'route-content-intent does not create global style write actions' );
+
+$custom_html_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => 'Directly execute a custom HTML template change.',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $custom_html_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for custom HTML template writes' );
+npcink_abilities_toolkit_assert_same( '', $custom_html_intent_route['data']['route']['plan_ability_id'] ?? 'unexpected', 'route-content-intent does not select a plan ability for custom HTML template writes' );
+npcink_abilities_toolkit_assert_same( 'custom_html_template_not_supported', $custom_html_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports unsupported custom HTML template writes precisely' );
+npcink_abilities_toolkit_assert_true( ! isset( $custom_html_intent_route['data']['write_actions'] ), 'route-content-intent does not create custom HTML template write actions' );
 
 $ambiguous_intent_route = $core_read_package->route_content_intent(
 	array(
