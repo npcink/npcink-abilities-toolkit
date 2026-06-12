@@ -312,6 +312,30 @@ function npcink_abilities_toolkit_smoke_has_ability_name( $items, $name ) {
 }
 
 /**
+ * Returns the Toolkit-owned abilities registered in this WordPress process.
+ *
+ * @return array<string,mixed>
+ */
+function npcink_abilities_toolkit_smoke_local_abilities() {
+	if ( ! class_exists( 'Npcink_Abilities_Toolkit\\Plugin' ) ) {
+		return array();
+	}
+
+	$plugin = Npcink_Abilities_Toolkit\Plugin::instance();
+	if ( ! is_object( $plugin ) || ! method_exists( $plugin, 'abilities' ) ) {
+		return array();
+	}
+
+	$registrar = $plugin->abilities();
+	if ( ! is_object( $registrar ) || ! method_exists( $registrar, 'all' ) ) {
+		return array();
+	}
+
+	$abilities = $registrar->all();
+	return is_array( $abilities ) ? $abilities : array();
+}
+
+/**
  * Fetches all ability catalog pages through REST.
  *
  * @param string $namespace Optional namespace filter.
@@ -426,15 +450,16 @@ if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
 	}
 
 if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
+	$light_profile_local_abilities = npcink_abilities_toolkit_smoke_local_abilities();
 	foreach ( array( 'npcink-abilities-toolkit/site-info', 'npcink-abilities-toolkit/get-post', 'npcink-abilities-toolkit/list-posts', 'npcink-abilities-toolkit/search-posts', 'npcink-abilities-toolkit/search-post-meta' ) as $expected_core_read_id ) {
 		npcink_abilities_toolkit_smoke_assert(
-			! function_exists( 'wp_has_ability' ) || wp_has_ability( $expected_core_read_id ),
+			isset( $light_profile_local_abilities[ $expected_core_read_id ] ),
 			"Light profile keeps core WordPress read ability {$expected_core_read_id}."
 		);
 	}
 	foreach ( array( 'npcink-abilities-toolkit/get-site-operations-dashboard', 'npcink-abilities-toolkit/get-nonproduction-content-inventory', 'npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan', 'npcink-abilities-toolkit/build-content-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-inventory-fix-plan', 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', 'npcink-abilities-toolkit/route-content-intent', 'npcink-abilities-toolkit/build-pattern-page-plan', 'npcink-abilities-toolkit/build-article-block-plan', 'npcink-abilities-toolkit/wp-diagnostics-summary', 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', 'npcink-abilities-toolkit/list-workflow-recipes', 'npcink-abilities-toolkit/create-draft', 'npcink-abilities-toolkit/get-comment-queue-health' ) as $disabled_ability_id ) {
 		npcink_abilities_toolkit_smoke_assert(
-			! function_exists( 'wp_has_ability' ) || ! wp_has_ability( $disabled_ability_id ),
+			! isset( $light_profile_local_abilities[ $disabled_ability_id ] ),
 			"Light profile disables optional ability {$disabled_ability_id}."
 		);
 	}
