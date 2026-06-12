@@ -1597,7 +1597,7 @@ final class Core_Read_Package {
 							'additionalProperties' => true,
 						),
 					),
-					'required'             => array( 'title', 'pattern_id' ),
+					'required'             => array( 'pattern_id' ),
 					'additionalProperties' => false,
 				),
 				'output_schema'    => array(

@@ -1164,7 +1164,7 @@ npcink_abilities_toolkit_assert_same( array( 'prompt' ), $package_abilities['npc
 npcink_abilities_toolkit_assert_same( array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['input_schema']['properties']['target_hint']['enum'] ?? array(), 'content intent router exposes bounded target hints' );
 npcink_abilities_toolkit_assert_same( 1, $package_abilities['npcink-abilities-toolkit/build-article-block-plan']['input_schema']['properties']['target_post_id']['minimum'] ?? null, 'article block plan accepts a bounded target post id for existing draft updates' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['required_scopes'] ?? array(), 'pattern page plan remains a read-scope planning ability' );
-npcink_abilities_toolkit_assert_same( array( 'title', 'pattern_id' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['required'] ?? array(), 'pattern page plan requires title and pattern id' );
+npcink_abilities_toolkit_assert_same( array( 'pattern_id' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['required'] ?? array(), 'pattern page plan only requires the pattern id and can infer title from variables' );
 npcink_abilities_toolkit_assert_same( 1, $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['target_post_id']['minimum'] ?? null, 'pattern page plan accepts a bounded target page id for existing draft updates' );
 npcink_abilities_toolkit_assert_same( array( 'landing_standard' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['responsive_profile']['enum'] ?? array(), 'pattern page plan exposes a bounded responsive profile' );
 npcink_abilities_toolkit_assert_same( array( 'minimal-dark-light', 'editorial-accent' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['properties']['color_story']['enum'] ?? array(), 'pattern page plan exposes bounded color stories' );
@@ -4693,6 +4693,26 @@ $long_hero_copy = is_array( $long_hero_layout['innerBlocks'][0]['innerBlocks'] ?
 $long_hero_heading_html = (string) ( $long_hero_copy[1]['innerHTML'] ?? '' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $long_hero_heading_html, '用 Gutenberg 原生块搭出现代官网</h1>' ), 'build-pattern-page-plan writes the fitted Hero title into Gutenberg blocks' );
 npcink_abilities_toolkit_assert_true( false === strpos( $long_hero_heading_html, '长标题也保持舒展清晰</h1>' ), 'build-pattern-page-plan does not serialize prompt-like long clauses into the Hero H1' );
+$inferred_title_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
+			'hero_title'       => '用 Gutenberg 原生块搭出现代官网介绍页，长标题也保持舒展清晰',
+			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_attachment_id' => 8053,
+			'hero_media_alt'   => 'WordPress AI dashboard preview',
+		),
+	)
+);
+$inferred_title_actions = is_array( $inferred_title_pattern_page_plan['data']['write_actions'] ?? null ) ? $inferred_title_pattern_page_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( true, $inferred_title_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts natural-language page requests without a top-level title' );
+npcink_abilities_toolkit_assert_same( '用 Gutenberg 原生块搭出现代官网', $inferred_title_pattern_page_plan['data']['target_post']['title'] ?? '', 'build-pattern-page-plan infers the draft title from the fitted Hero title' );
+npcink_abilities_toolkit_assert_same( '用 Gutenberg 原生块搭出现代官网', $inferred_title_actions[0]['input']['title'] ?? '', 'build-pattern-page-plan writes the inferred title into the create-draft action' );
+npcink_abilities_toolkit_assert_same( 'revised', $inferred_title_pattern_page_plan['data']['copy_quality']['hero_title_fit'] ?? '', 'build-pattern-page-plan still reports copy fit when title is inferred' );
 $accent_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Accent WordPress AI',
