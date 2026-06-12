@@ -123,6 +123,10 @@ trait Content_Intent_Router_Read_Methods {
 			'site_template' => $this->content_intent_match_terms( $prompt, array( 'template', 'site editor', 'block theme', 'single template', 'archive template', '模板', '站点编辑器', '块主题', '主题模板', '文章模板', '归档模板' ) ),
 			'template_part' => $this->content_intent_match_terms( $prompt, array( 'template part', 'header', 'footer', '页眉', '页脚', '模板部件', 'template_part' ) ),
 			'breadcrumbs'   => $this->content_intent_match_terms( $prompt, array( 'breadcrumb', 'breadcrumbs', '面包屑', '面包屑导航' ) ),
+			'navigation'    => $this->content_intent_match_terms( $prompt, array( 'navigation menu', 'nav menu', 'site navigation', 'navigation block', 'wp_navigation', '导航菜单', '站点导航', '导航栏', '主导航', '菜单' ) ),
+			'global_styles' => $this->content_intent_match_terms( $prompt, array( 'global styles', 'site styles', 'style book', '全站样式', '全局样式', '站点样式', '样式书' ) ),
+			'theme_json'    => $this->content_intent_match_terms( $prompt, array( 'theme.json', 'theme json' ) ),
+			'custom_html'   => $this->content_intent_match_terms( $prompt, array( 'custom html', 'raw html', 'html template', 'html patch', '自定义 html', '原始 html', 'html 模板' ) ),
 			'media'         => $this->content_intent_match_terms( $prompt, array( 'image', 'media', 'visual', 'illustration', 'screenshot', '图片', '配图', '视觉', '截图', '生图', '生成图', '媒体' ) ),
 			'modern_style'  => $this->content_intent_match_terms( $prompt, array( 'modern', 'polished', 'landing quality', '现代', '现代化', '高级', '美观', '官网感' ) ),
 			'accent_style'  => $this->content_intent_match_terms( $prompt, array( 'accent', 'editorial', 'color', 'colour', '色彩', '配色', '强调色', 'editorial-accent' ) ),
@@ -162,6 +166,20 @@ trait Content_Intent_Router_Read_Methods {
 		$template_score = $this->content_intent_signal_count( $signals['site_template'] ?? array() );
 		$part_score     = $this->content_intent_signal_count( $signals['template_part'] ?? array() );
 		$breadcrumb     = $this->content_intent_signal_count( $signals['breadcrumbs'] ?? array() ) > 0;
+		$navigation_score = $this->content_intent_signal_count( $signals['navigation'] ?? array() );
+		$global_styles_score = $this->content_intent_signal_count( $signals['global_styles'] ?? array() );
+		$theme_json_score = $this->content_intent_signal_count( $signals['theme_json'] ?? array() );
+		$custom_html_score = $this->content_intent_signal_count( $signals['custom_html'] ?? array() );
+
+		if ( $navigation_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'navigation_write_not_supported', true );
+		}
+		if ( $global_styles_score > 0 || $theme_json_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'global_styles_write_not_supported', true );
+		}
+		if ( $custom_html_score > 0 ) {
+			return $this->content_intent_unsupported_route( 'custom_html_template_not_supported', true );
+		}
 
 		if ( 'page' === $target_hint || 'create_landing_page' === $intent_hint ) {
 			return $this->content_intent_supported_route( 'page_landing', 'hint' );

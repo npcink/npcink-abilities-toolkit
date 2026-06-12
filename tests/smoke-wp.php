@@ -1021,6 +1021,42 @@ npcink_abilities_toolkit_smoke_assert( 'pattern_page_plan' === (string) ( $conte
 npcink_abilities_toolkit_smoke_assert( false === (bool) ( $content_intent_route_run_data['data']['prompt_is_authorization'] ?? true ), 'Content intent route keeps prompts non-authorizing.' );
 npcink_abilities_toolkit_smoke_assert( false === isset( $content_intent_route_run_data['data']['write_actions'] ), 'Content intent route does not emit write actions.' );
 
+foreach (
+	array(
+		array(
+			'prompt' => 'Change the navigation menu and add a Products link.',
+			'reason' => 'navigation_write_not_supported',
+			'label'  => 'navigation menu writes',
+		),
+		array(
+			'prompt' => 'Change global styles and write a theme.json color patch.',
+			'reason' => 'global_styles_write_not_supported',
+			'label'  => 'global style writes',
+		),
+		array(
+			'prompt' => 'Directly execute a custom HTML template change.',
+			'reason' => 'custom_html_template_not_supported',
+			'label'  => 'custom HTML template writes',
+		),
+	) as $content_intent_unsupported_case
+) {
+	$content_intent_unsupported_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/route-content-intent/run' );
+	$content_intent_unsupported_request->set_query_params(
+		array(
+			'input' => array(
+				'prompt' => $content_intent_unsupported_case['prompt'],
+			),
+		)
+	);
+	$content_intent_unsupported_response = rest_do_request( $content_intent_unsupported_request );
+	npcink_abilities_toolkit_smoke_assert( 200 === (int) $content_intent_unsupported_response->get_status(), 'Authenticated content intent unsupported route ability run returns 200 for ' . $content_intent_unsupported_case['label'] . '.' );
+	$content_intent_unsupported_data = $content_intent_unsupported_response->get_data();
+	npcink_abilities_toolkit_smoke_assert( 'unsupported' === (string) ( $content_intent_unsupported_data['data']['route']['route'] ?? '' ), 'Content intent route fails closed for ' . $content_intent_unsupported_case['label'] . '.' );
+	npcink_abilities_toolkit_smoke_assert( '' === (string) ( $content_intent_unsupported_data['data']['route']['plan_ability_id'] ?? 'unexpected' ), 'Content intent route does not select a plan ability for ' . $content_intent_unsupported_case['label'] . '.' );
+	npcink_abilities_toolkit_smoke_assert( $content_intent_unsupported_case['reason'] === (string) ( $content_intent_unsupported_data['data']['route']['unsupported_reason'] ?? '' ), 'Content intent route reports the precise unsupported reason for ' . $content_intent_unsupported_case['label'] . '.' );
+	npcink_abilities_toolkit_smoke_assert( false === isset( $content_intent_unsupported_data['data']['write_actions'] ), 'Content intent route does not emit write actions for ' . $content_intent_unsupported_case['label'] . '.' );
+}
+
 $article_block_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-block-plan/run' );
 $article_block_plan_run_request->set_query_params(
 	array(
