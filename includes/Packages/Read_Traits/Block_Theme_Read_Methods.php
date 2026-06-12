@@ -61,6 +61,106 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Inspects block theme surfaces and returns stable issue codes for planning.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function inspect_block_theme_surface( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect block theme surfaces.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+		if ( ! $this->block_theme_is_active_block_theme() ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_block_theme_required', __( 'The active theme is not reported as a block theme.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$intent           = sanitize_key( (string) ( $input['intent'] ?? 'add_breadcrumbs' ) );
+		$target_templates = $this->block_theme_target_slugs( $input['target_templates'] ?? array( 'single', 'page', 'front-page' ) );
+		$show_on_home     = ! empty( $input['show_on_home_page'] );
+		$templates        = array();
+		$warnings         = array();
+		$fixable_targets  = array();
+		$issue_counts     = array();
+
+		foreach ( $target_templates as $requested_template_slug ) {
+			$requested_template_slug = sanitize_key( (string) $requested_template_slug );
+			$template_resolution     = $this->block_theme_resolve_template_target( 'wp_template', $requested_template_slug );
+			$template                = is_array( $template_resolution['entity'] ?? null ) ? $template_resolution['entity'] : null;
+			if ( empty( $template ) ) {
+				$warning = array(
+					'target_type'         => 'wp_template',
+					'slug'                => $requested_template_slug,
+					'issue_codes'         => array( 'template_not_found' ),
+					'reason'              => 'template_not_found',
+					'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
+				);
+				$warnings[]   = $warning;
+				$templates[]  = $this->block_theme_inspection_missing_template_row( $warning );
+				$issue_counts['template_not_found'] = (int) ( $issue_counts['template_not_found'] ?? 0 ) + 1;
+				continue;
+			}
+
+			$template_slug = sanitize_key( (string) ( $template_resolution['target_slug'] ?? $requested_template_slug ) );
+			$blocks        = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
+			$blocks        = $this->block_theme_blocks_for_write_plan( $blocks );
+			$row           = $this->block_theme_inspect_breadcrumb_template(
+				$template,
+				$template_resolution,
+				$template_slug,
+				$blocks,
+				$show_on_home
+			);
+			foreach ( $row['issue_codes'] as $issue_code ) {
+				$issue_counts[ $issue_code ] = (int) ( $issue_counts[ $issue_code ] ?? 0 ) + 1;
+			}
+			if ( ! empty( $row['fixable_issue_codes'] ) && ! in_array( $template_slug, $fixable_targets, true ) ) {
+				$fixable_targets[] = $template_slug;
+			}
+			$templates[] = $row;
+		}
+
+		$recommended_plan_input = empty( $fixable_targets ) ? array() : array(
+			'intent'             => 'add_breadcrumbs',
+			'target_templates'   => $fixable_targets,
+			'separator'          => sanitize_text_field( (string) ( $input['separator'] ?? '/' ) ),
+			'show_current_item'  => ! array_key_exists( 'show_current_item', $input ) || ! empty( $input['show_current_item'] ),
+			'show_home_item'     => ! array_key_exists( 'show_home_item', $input ) || ! empty( $input['show_home_item'] ),
+			'show_on_home_page'  => $show_on_home,
+		);
+		$dual_review = $this->block_theme_surface_dual_review( $templates, $warnings, $recommended_plan_input );
+
+		return $this->build_analysis_success_response(
+			array(
+				'artifact_type'             => 'block_theme_surface_inspection',
+				'version'                   => 1,
+				'intent'                    => $intent,
+				'active_theme'              => $this->block_theme_active_theme_summary(),
+				'is_block_theme'            => true,
+				'evaluation_mode'           => 'inspect_only',
+				'direct_wordpress_write'    => false,
+				'commit_execution'          => false,
+				'proposal_created'          => false,
+				'supported_issue_codes'     => $this->block_theme_supported_surface_issue_codes(),
+				'issue_counts'              => $issue_counts,
+				'affected_templates'        => $fixable_targets,
+				'templates'                 => $templates,
+				'warnings'                  => $warnings,
+				'recommended_plan_ability_id' => empty( $recommended_plan_input ) ? '' : 'npcink-abilities-toolkit/build-block-theme-site-plan',
+				'recommended_plan_input'    => $recommended_plan_input,
+				'review_contract'           => $this->block_theme_surface_review_contract(),
+				'dual_review'               => $dual_review,
+				'next_steps'                => $this->block_theme_surface_next_steps( $dual_review ),
+			),
+			array(
+				'source'         => 'block_theme_surface_inspector',
+				'execution_mode' => 'deterministic',
+			),
+			'Block theme surface inspected.'
+		);
+	}
+
+	/**
 	 * Builds a governed block theme site plan.
 	 *
 	 * @param mixed $input Input args.
@@ -137,6 +237,7 @@ trait Block_Theme_Read_Methods {
 				),
 				$breadcrumb_placement
 			);
+			$requires_write      = $this->block_theme_blocks_require_write( $current_blocks, $next_blocks );
 			$block_editor_review = $this->pattern_review_summary_for_blocks( $next_blocks, true );
 			$is_existing_custom_template = $template_id > 0;
 			$target_ability_id           = $is_existing_custom_template ? 'npcink-abilities-toolkit/update-template-blocks' : 'npcink-abilities-toolkit/upsert-template-blocks';
@@ -151,6 +252,27 @@ trait Block_Theme_Read_Methods {
 					'gate_id'      => 'block_editor_quality_gate_' . sanitize_key( $template_slug ),
 				)
 			);
+			if ( ! $requires_write ) {
+				$preview[] = array(
+					'target_type'                    => 'wp_template',
+					'post_id'                        => $template_id,
+					'slug'                           => $template_slug,
+					'theme'                          => $template_theme,
+					'source'                         => $template_source,
+					'creates_template_override'      => false,
+					'would_create_template_override' => ! $is_existing_custom_template,
+					'target_ability_id'              => '',
+					'requires_write'                 => false,
+					'no_change_reason'               => $this->block_theme_no_change_reason( $breadcrumb_placement ),
+					'template_resolution'            => $this->block_theme_public_template_resolution( $template_resolution ),
+					'block_count_before'             => $this->block_theme_count_blocks( $current_blocks ),
+					'block_count_after'              => $this->block_theme_count_blocks( $next_blocks ),
+					'inserted_block'                 => 'core/group.openclaw-breadcrumbs',
+					'breadcrumb_placement'           => $breadcrumb_placement,
+					'block_editor_quality_gate'      => $block_editor_quality_gate,
+				);
+				continue;
+			}
 			$action_input                = array(
 				'mode'               => 'replace',
 				'validate_roundtrip' => true,
@@ -183,6 +305,7 @@ trait Block_Theme_Read_Methods {
 				'source'                    => $template_source,
 				'creates_template_override' => ! $is_existing_custom_template,
 				'target_ability_id'         => $target_ability_id,
+				'requires_write'            => true,
 				'template_resolution'       => $this->block_theme_public_template_resolution( $template_resolution ),
 				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
@@ -225,7 +348,7 @@ trait Block_Theme_Read_Methods {
 			'action_count'        => count( $write_actions ),
 			'blocking_targets'    => array_values( array_filter( $batch_blocking_targets ) ),
 			'ready_for_proposal'  => $batch_ready_for_proposal,
-			'recommended_next_step' => $batch_ready_for_proposal ? 'submit_core_proposal' : 'revise_block_theme_site_plan',
+			'recommended_next_step' => $this->block_theme_batch_next_step( $batch_ready_for_proposal, $write_actions, $preview, $warnings ),
 			'direct_wordpress_write' => false,
 			'commit_execution'    => false,
 		);
@@ -744,6 +867,329 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Returns a missing-template inspection row.
+	 *
+	 * @param array<string,mixed> $warning Warning row.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_inspection_missing_template_row( array $warning ) {
+		return array(
+			'target_type'         => 'wp_template',
+			'slug'                => sanitize_key( (string) ( $warning['slug'] ?? '' ) ),
+			'status'              => 'blocked',
+			'issue_codes'         => array( 'template_not_found' ),
+			'fixable_issue_codes' => array(),
+			'template_resolution' => is_array( $warning['template_resolution'] ?? null ) ? $warning['template_resolution'] : array(),
+			'summary'             => array(
+				'breadcrumb_count' => 0,
+				'post_title_count' => 0,
+				'block_count'      => 0,
+				'top_level_blocks' => array(),
+			),
+			'dual_review'         => $this->block_theme_template_dual_review( array( 'template_not_found' ), array() ),
+		);
+	}
+
+	/**
+	 * Inspects one template for supported breadcrumb surface issues.
+	 *
+	 * @param array<string,mixed> $template Template entity.
+	 * @param array<string,mixed> $template_resolution Resolution metadata.
+	 * @param string              $template_slug Target template slug.
+	 * @param array<int,mixed>    $blocks Parsed blocks.
+	 * @param bool                $show_on_home Whether breadcrumbs are allowed on home templates.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_inspect_breadcrumb_template( array $template, array $template_resolution, $template_slug, array $blocks, $show_on_home ) {
+		$template_slug        = sanitize_key( (string) $template_slug );
+		$breadcrumb_count     = $this->block_theme_count_matching_blocks( $blocks, 'breadcrumbs' );
+		$post_title_count     = $this->block_theme_count_matching_blocks( $blocks, 'post_title' );
+		$issue_codes          = array();
+		$is_home_template     = in_array( $template_slug, array( 'front-page', 'home' ), true );
+		$breadcrumbs_valid    = $this->block_theme_breadcrumbs_are_before_post_title_in_main( $blocks );
+
+		if ( $is_home_template && ! $show_on_home ) {
+			if ( $breadcrumb_count > 0 ) {
+				$issue_codes[] = 'homepage_breadcrumb_should_be_hidden';
+			}
+		} elseif ( 0 === $breadcrumb_count ) {
+			$issue_codes[] = 'breadcrumb_missing';
+		} elseif ( ! $breadcrumbs_valid ) {
+			if ( $this->block_theme_has_top_level_breadcrumb_before_header( $blocks ) ) {
+				$issue_codes[] = 'breadcrumb_above_header';
+			}
+			$issue_codes[] = 'breadcrumb_not_before_title';
+		}
+
+		if ( ! $is_home_template && 0 === $post_title_count ) {
+			$issue_codes[] = 'post_title_not_found';
+		}
+
+		$issue_codes          = array_values( array_unique( array_filter( $issue_codes ) ) );
+		$fixable_issue_codes = array_values( array_intersect( $issue_codes, $this->block_theme_supported_surface_issue_codes() ) );
+		$status              = empty( $issue_codes ) ? 'pass' : ( empty( $fixable_issue_codes ) ? 'blocked' : 'needs_fix' );
+
+		return array(
+			'target_type'         => 'wp_template',
+			'post_id'             => absint( $template_resolution['target_post_id'] ?? 0 ),
+			'slug'                => $template_slug,
+			'theme'               => sanitize_key( (string) ( $template['theme'] ?? '' ) ),
+			'source'              => sanitize_key( (string) ( $template['source'] ?? '' ) ),
+			'status'              => $status,
+			'issue_codes'         => $issue_codes,
+			'fixable_issue_codes' => $fixable_issue_codes,
+			'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
+			'summary'             => array(
+				'breadcrumb_count'                    => $breadcrumb_count,
+				'post_title_count'                    => $post_title_count,
+				'breadcrumb_before_post_title_in_main' => $breadcrumbs_valid,
+				'block_count'                         => $this->block_theme_count_blocks( $blocks ),
+				'top_level_blocks'                    => $this->block_theme_top_level_block_summaries( $blocks ),
+			),
+			'dual_review'         => $this->block_theme_template_dual_review( $issue_codes, $fixable_issue_codes ),
+		);
+	}
+
+	/**
+	 * Returns stable issue codes this inspector can map to the breadcrumb planner.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_supported_surface_issue_codes() {
+		return array(
+			'breadcrumb_missing',
+			'breadcrumb_above_header',
+			'breadcrumb_not_before_title',
+			'homepage_breadcrumb_should_be_hidden',
+		);
+	}
+
+	/**
+	 * Returns deterministic dual-review metadata for one template.
+	 *
+	 * @param string[] $issue_codes Issue codes.
+	 * @param string[] $fixable_issue_codes Fixable issue codes.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_template_dual_review( array $issue_codes, array $fixable_issue_codes ) {
+		$has_issues  = ! empty( $issue_codes );
+		$has_fixable = ! empty( $fixable_issue_codes );
+		return array(
+			'planner_reviewer' => array(
+				'reviewer_id' => 'layout_issue_reviewer',
+				'decision'    => $has_issues ? 'needs_fix' : 'pass',
+				'issue_codes' => array_values( $issue_codes ),
+			),
+			'safety_reviewer'  => array(
+				'reviewer_id'             => 'governance_boundary_reviewer',
+				'decision'                => $has_issues && ! $has_fixable ? 'blocked' : 'pass',
+				'fixable_issue_codes'     => array_values( $fixable_issue_codes ),
+				'direct_wordpress_write'  => false,
+				'proposal_required'       => $has_fixable,
+				'allowed_plan_ability_id' => $has_fixable ? 'npcink-abilities-toolkit/build-block-theme-site-plan' : '',
+			),
+			'consensus'        => array(
+				'decision'              => $has_fixable ? 'build_minimal_plan' : ( $has_issues ? 'needs_human_review' : 'no_changes_required' ),
+				'recommended_next_step' => $has_fixable ? 'build_block_theme_site_plan' : ( $has_issues ? 'manual_review' : 'no_changes_required' ),
+			),
+		);
+	}
+
+	/**
+	 * Returns the suite-level dual review.
+	 *
+	 * @param array<int,mixed> $templates Template rows.
+	 * @param array<int,mixed> $warnings Warning rows.
+	 * @param array<string,mixed> $recommended_plan_input Plan input.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_surface_dual_review( array $templates, array $warnings, array $recommended_plan_input ) {
+		$issue_codes = array();
+		foreach ( $templates as $template ) {
+			foreach ( is_array( $template['issue_codes'] ?? null ) ? $template['issue_codes'] : array() as $issue_code ) {
+				$issue_codes[] = sanitize_key( (string) $issue_code );
+			}
+		}
+		$issue_codes = array_values( array_unique( array_filter( $issue_codes ) ) );
+		$has_plan    = ! empty( $recommended_plan_input );
+		return array(
+			'planner_reviewer' => array(
+				'reviewer_id' => 'surface_issue_reviewer',
+				'decision'    => empty( $issue_codes ) ? 'pass' : 'needs_fix',
+				'issue_codes' => $issue_codes,
+			),
+			'safety_reviewer'  => array(
+				'reviewer_id'             => 'governance_boundary_reviewer',
+				'decision'                => empty( $warnings ) ? 'pass' : 'needs_attention',
+				'direct_wordpress_write'  => false,
+				'proposal_created'        => false,
+				'proposal_required'       => $has_plan,
+				'allowed_plan_ability_id' => $has_plan ? 'npcink-abilities-toolkit/build-block-theme-site-plan' : '',
+			),
+			'consensus'        => array(
+				'decision'              => $has_plan ? 'build_minimal_plan' : ( empty( $issue_codes ) ? 'no_changes_required' : 'needs_human_review' ),
+				'recommended_next_step' => $has_plan ? 'build_block_theme_site_plan' : ( empty( $issue_codes ) ? 'no_changes_required' : 'manual_review' ),
+			),
+		);
+	}
+
+	/**
+	 * Returns the review contract used by the deterministic dual reviewers.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_surface_review_contract() {
+		return array(
+			'reviewer_count' => 2,
+			'pattern_source' => 'article_summary_coverage_check_style',
+			'reviewers'      => array(
+				array(
+					'reviewer_id' => 'surface_issue_reviewer',
+					'checks'      => array( 'breadcrumb_presence', 'breadcrumb_position', 'homepage_visibility', 'template_resolution' ),
+				),
+				array(
+					'reviewer_id' => 'governance_boundary_reviewer',
+					'checks'      => array( 'read_only_inspection', 'no_proposal_creation', 'minimal_plan_only', 'supported_issue_codes_only' ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Returns recommended next steps for a surface inspection.
+	 *
+	 * @param array<string,mixed> $dual_review Dual-review metadata.
+	 * @return string[]
+	 */
+	private function block_theme_surface_next_steps( array $dual_review ) {
+		$next_step = sanitize_key( (string) ( $dual_review['consensus']['recommended_next_step'] ?? '' ) );
+		if ( 'build_block_theme_site_plan' === $next_step ) {
+			return array( 'build_block_theme_site_plan', 'review_generated_write_actions', 'submit_core_proposal_only_if_actions_remain' );
+		}
+		if ( 'no_changes_required' === $next_step ) {
+			return array( 'report_no_changes_required' );
+		}
+		return array( 'manual_review_required' );
+	}
+
+	/**
+	 * Returns compact top-level block summaries.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_top_level_block_summaries( array $blocks ) {
+		$summaries = array();
+		foreach ( array_values( $blocks ) as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$summaries[] = array(
+				'index'     => (int) $index,
+				'blockName' => sanitize_text_field( (string) ( $block['blockName'] ?? '' ) ),
+				'className' => sanitize_text_field( (string) ( $block['attrs']['className'] ?? '' ) ),
+				'tagName'   => sanitize_key( (string) ( $block['attrs']['tagName'] ?? '' ) ),
+				'slug'      => sanitize_key( (string) ( $block['attrs']['slug'] ?? '' ) ),
+			);
+		}
+		return $summaries;
+	}
+
+	/**
+	 * Counts matching blocks.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @param string           $match Match kind.
+	 * @return int
+	 */
+	private function block_theme_count_matching_blocks( array $blocks, $match ) {
+		$count = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( ( 'breadcrumbs' === $match && $this->block_theme_is_breadcrumbs_block( $block ) ) || ( 'post_title' === $match && 'core/post-title' === (string) ( $block['blockName'] ?? '' ) ) ) {
+				++$count;
+			}
+			$count += $this->block_theme_count_matching_blocks( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array(), $match );
+		}
+		return $count;
+	}
+
+	/**
+	 * Returns whether a top-level breadcrumb block appears before the header.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @return bool
+	 */
+	private function block_theme_has_top_level_breadcrumb_before_header( array $blocks ) {
+		$breadcrumb_index = null;
+		$header_index     = null;
+		foreach ( array_values( $blocks ) as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( null === $breadcrumb_index && $this->block_theme_is_breadcrumbs_block( $block ) ) {
+				$breadcrumb_index = (int) $index;
+			}
+			if ( null === $header_index && 'core/template-part' === (string) ( $block['blockName'] ?? '' ) && 'header' === sanitize_key( (string) ( $block['attrs']['slug'] ?? '' ) ) ) {
+				$header_index = (int) $index;
+			}
+		}
+		return null !== $breadcrumb_index && null !== $header_index && $breadcrumb_index < $header_index;
+	}
+
+	/**
+	 * Returns whether a planned block tree differs from the current tree.
+	 *
+	 * @param array<int,array<string,mixed>> $current_blocks Current blocks.
+	 * @param array<int,array<string,mixed>> $next_blocks Planned blocks.
+	 * @return bool
+	 */
+	private function block_theme_blocks_require_write( array $current_blocks, array $next_blocks ) {
+		$current = wp_json_encode( $current_blocks );
+		$next    = wp_json_encode( $next_blocks );
+		return ( is_string( $current ) ? $current : '' ) !== ( is_string( $next ) ? $next : '' );
+	}
+
+	/**
+	 * Returns a public reason when a target needs no write action.
+	 *
+	 * @param array<string,mixed> $placement Breadcrumb placement report.
+	 * @return string
+	 */
+	private function block_theme_no_change_reason( array $placement ) {
+		$status   = sanitize_key( (string) ( $placement['status'] ?? '' ) );
+		$strategy = sanitize_key( (string) ( $placement['strategy'] ?? '' ) );
+		if ( 'already_valid' === $status ) {
+			return 'breadcrumbs_already_before_post_title';
+		}
+		if ( 'skipped' === $status && 'home_page_disabled' === $strategy ) {
+			return 'homepage_breadcrumbs_already_absent';
+		}
+		return 'blocks_already_match_plan';
+	}
+
+	/**
+	 * Returns the batch next step from action, preview, and warning state.
+	 *
+	 * @param bool                 $ready_for_proposal Whether write actions are ready.
+	 * @param array<int,mixed>     $write_actions Write actions.
+	 * @param array<int,mixed>     $preview Preview rows.
+	 * @param array<int,mixed>     $warnings Warning rows.
+	 * @return string
+	 */
+	private function block_theme_batch_next_step( $ready_for_proposal, array $write_actions, array $preview, array $warnings ) {
+		if ( $ready_for_proposal ) {
+			return 'submit_core_proposal';
+		}
+		if ( empty( $write_actions ) && ! empty( $preview ) && empty( $warnings ) ) {
+			return 'no_changes_required';
+		}
+		return 'revise_block_theme_site_plan';
+	}
+
+	/**
 	 * Inserts a Core-block breadcrumb scaffold near the post title unless present.
 	 *
 	 * @param mixed               $blocks Existing blocks.
@@ -817,13 +1263,15 @@ trait Block_Theme_Read_Methods {
 	 * @param mixed $blocks Blocks.
 	 * @return bool
 	 */
-	private function block_theme_breadcrumbs_are_before_post_title_in_main( $blocks ) {
+	private function block_theme_breadcrumbs_are_before_post_title_in_main( $blocks, $inside_main = false ) {
 		$blocks = is_array( $blocks ) ? $blocks : array();
 		foreach ( $blocks as $block ) {
 			if ( ! is_array( $block ) ) {
 				continue;
 			}
-			if ( $this->block_theme_is_main_container( $block ) ) {
+			$block_is_main = $this->block_theme_is_main_container( $block );
+			$in_main_tree  = $inside_main || $block_is_main;
+			if ( $in_main_tree ) {
 				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
 				foreach ( $inner_blocks as $index => $inner_block ) {
 					if ( ! is_array( $inner_block ) || 'core/post-title' !== (string) ( $inner_block['blockName'] ?? '' ) ) {
@@ -832,7 +1280,7 @@ trait Block_Theme_Read_Methods {
 					return $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
 				}
 			}
-			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array() ) ) {
+			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array(), $in_main_tree ) ) {
 				return true;
 			}
 		}

@@ -31,6 +31,7 @@ final class Core_Read_Package {
 	use Content_Inventory_Read_Methods;
 	use Content_Refresh_SEO_Read_Methods;
 	use Diagnostics_Read_Methods;
+	use Gutenberg_Recipe_Evaluation_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Read_Methods;
 	use Page_Pattern_Read_Methods;
@@ -1398,6 +1399,69 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'route_content_intent' ),
 			),
+			'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite' => array(
+				'label'            => __( 'Evaluate Gutenberg Recipe Suite', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Runs read-only natural-language routing and Gutenberg plan quality gates across a batch of recipe prompts.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only recipe evaluation. Route prompts and build plans only; do not create proposals, do not execute writes, and do not treat prompts as authorization.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'prompts'              => array(
+							'type'  => 'array',
+							'items' => array( 'type' => 'string', 'minLength' => 1 ),
+							'maxItems' => 30,
+						),
+						'cases'                => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'                 => 'object',
+								'properties'           => array(
+									'id'                 => array( 'type' => 'string' ),
+									'prompt'             => array( 'type' => 'string', 'minLength' => 1 ),
+									'expected_route'     => array( 'type' => 'string', 'enum' => array( 'pattern_page_plan', 'article_block_plan', 'block_theme_site_plan', 'unsupported' ) ),
+									'expected_supported' => array( 'type' => 'boolean' ),
+									'hints'              => array( 'type' => 'object', 'additionalProperties' => true ),
+									'plan_input'         => array( 'type' => 'object', 'additionalProperties' => true ),
+								),
+								'required'             => array( 'prompt' ),
+								'additionalProperties' => false,
+							),
+							'maxItems' => 30,
+						),
+						'media_fixture'        => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'url'           => array( 'type' => 'string' ),
+								'attachment_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+								'alt'           => array( 'type' => 'string' ),
+							),
+							'additionalProperties' => false,
+						),
+						'minimum_pass_rate'    => array( 'type' => 'number', 'minimum' => 0, 'maximum' => 1, 'default' => 0.8 ),
+						'include_case_details' => array( 'type' => 'boolean', 'default' => true ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'evaluate_gutenberg_recipe_suite' ),
+			),
 			'npcink-abilities-toolkit/build-article-block-plan' => array(
 				'label'            => __( 'Build Article Block Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a governed draft post plan from whitelisted Gutenberg-native editorial article blocks without writing WordPress content.', 'npcink-abilities-toolkit' ),
@@ -1506,8 +1570,47 @@ final class Core_Read_Package {
 					'output_schema'    => array(
 						'type'                 => 'object',
 						'additionalProperties' => true,
+				),
+				'execute_callback' => array( $this, 'get_template_part_blocks' ),
+			),
+				'npcink-abilities-toolkit/inspect-block-theme-surface' => array(
+					'label'            => __( 'Inspect Block Theme Surface', 'npcink-abilities-toolkit' ),
+					'description'      => __( 'Inspects supported block theme template issues and returns stable issue codes before any governed Site Editor plan is built.', 'npcink-abilities-toolkit' ),
+					'category'         => 'npcink-abilities-toolkit-pages',
+					'capability'       => 'edit_theme_options',
+					'required_scope'   => 'site.read',
+					'required_scopes'  => array( 'site.read' ),
+					'contract_version' => 'v1',
+					'source'           => 'official',
+					'annotations'      => array(
+						'instructions' => 'Inspect Site Editor templates only. Return issue codes and deterministic dual-review metadata; do not create proposals, do not emit final writes, and do not execute commits.',
 					),
-					'execute_callback' => array( $this, 'get_template_part_blocks' ),
+					'input_schema'     => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs' ), 'default' => 'add_breadcrumbs' ),
+							'target_templates'   => array(
+								'type'  => 'array',
+								'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
+							),
+							'separator'          => array( 'type' => 'string', 'default' => '/' ),
+							'show_current_item'  => array( 'type' => 'boolean', 'default' => true ),
+							'show_home_item'     => array( 'type' => 'boolean', 'default' => true ),
+							'show_on_home_page'  => array( 'type' => 'boolean', 'default' => false ),
+						),
+						'additionalProperties' => false,
+					),
+					'output_schema'    => array(
+						'type'       => 'object',
+						'properties' => array(
+							'success' => array( 'type' => 'boolean' ),
+							'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+							'message' => array( 'type' => 'string' ),
+						),
+						'required'   => array( 'success', 'data' ),
+					),
+					'execute_callback' => array( $this, 'inspect_block_theme_surface' ),
 				),
 				'npcink-abilities-toolkit/build-block-theme-site-plan' => array(
 					'label'            => __( 'Build Block Theme Site Plan', 'npcink-abilities-toolkit' ),

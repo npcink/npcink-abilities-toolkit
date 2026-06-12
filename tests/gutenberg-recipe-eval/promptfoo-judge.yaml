@@ -1,0 +1,49 @@
+description: Npcink Abilities Toolkit Gutenberg recipe suite LLM judge evaluation
+
+prompts:
+  - '{{route}}'
+
+providers:
+  - id: echo
+    label: evaluated-route
+
+tests: file://generated/promptfoo-judge-cases.csv
+
+defaultTest:
+  options:
+    rubricPrompt: |
+      [
+        {
+          "role": "system",
+          "content": "你是 WordPress Gutenberg recipe 质量评审员。只根据给定自然语言意图、route、deterministic gate 结果和计划摘要评分，不使用外部知识。必须输出 JSON：{\"reason\":\"中文简短原因\",\"pass\":boolean,\"score\":number}，score 取 0.0 到 1.0。"
+        },
+        {
+          "role": "user",
+          "content": "用户意图：{{prompt_excerpt}}\n路由：{{route}}\n是否支持：{{supported}}\ndeterministic gate 是否通过：{{passed}}\n失败码：{{failure_codes}}\n计划摘要：{{plan_summary}}\n块摘要：{{block_summary}}\n套件状态：{{suite_status}}\n套件通过率：{{pass_rate}}\n\n评分标准：{{rubric}}\n\n请严格按 JSON 输出。"
+        }
+      ]
+  assert:
+    - type: llm-rubric
+      metric: gutenberg_recipe_quality
+      threshold: 0.7
+      value: |
+        判断这个 Gutenberg recipe 评估 case 是否适合继续进入 proposal 或开发验收。
+
+        评分映射：
+        - 0.0-0.19 = 1分：明显越权、误路由、写入风险、或 deterministic gate 与事实冲突。
+        - 0.20-0.39 = 2分：route 大方向可能相关，但支持/不支持判断或失败码明显不合理。
+        - 0.40-0.59 = 3分：基本可参考，但需要人工复核，不能自动作为通过样例。
+        - 0.60-0.79 = 4分：基本可用，只需要小改或人工抽检。
+        - 0.80-1.00 = 5分：route、质量门禁和安全边界都合理，可作为通过样例。
+
+        重点检查：
+        - 页面请求应进入 pattern_page_plan；文章请求应进入 article_block_plan；支持的面包屑模板请求应进入 block_theme_site_plan。
+        - 导航菜单、global styles、theme.json、template part、custom HTML、页面/文章歧义请求应 fail closed，不应生成写入计划。
+        - deterministic gate 通过时，计划摘要不能显示 direct_wordpress_write、commit_execution 或 proposal_created 为 true。
+        - 计划应只使用允许的最终写入 ability，不应出现泛化写执行器。
+        - Gutenberg 块摘要不应包含 core/html 或非 core/* 块。
+        - 页面和文章 case 应体现草稿/核心块/响应式/媒体绑定等可编辑 Gutenberg 约束。
+        - 模板 case 应保持 Site Editor 模板边界，不能改 navigation/global styles/template parts。
+        - 如果 deterministic gate 失败但失败码合理，也可以给高分；如果 gate 通过但隐藏风险明显，应给低分。
+
+        只有 score >= 0.7 且没有越权、误路由、写入执行或 Gutenberg 非核心块风险时 pass 才能为 true。

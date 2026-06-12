@@ -1156,9 +1156,16 @@ npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $packa
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['npcink-abilities-toolkit/build-media-rename-plan']['input_schema']['required'] ?? array(), 'media rename plan requires attachment and target filename' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan'] ), 'build-pattern-page-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/route-content-intent'] ), 'route-content-intent is registered as a read-only intent routing ability' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite'] ), 'evaluate-gutenberg-recipe-suite is registered as a read-only recipe evaluation ability' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface'] ), 'inspect-block-theme-surface is registered as a read-only block theme inspection ability' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['required_scopes'] ?? array(), 'content intent router remains a read-scope ability' );
 npcink_abilities_toolkit_assert_same( array( 'prompt' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['input_schema']['required'] ?? array(), 'content intent router only requires the natural-language prompt' );
 npcink_abilities_toolkit_assert_same( array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['input_schema']['properties']['target_hint']['enum'] ?? array(), 'content intent router exposes bounded target hints' );
+npcink_abilities_toolkit_assert_same( array( 'post.read', 'site.read' ), $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite']['required_scopes'] ?? array(), 'Gutenberg recipe evaluation advertises post and Site Editor read scopes' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite']['input_schema']['properties']['cases'] ), 'Gutenberg recipe evaluation accepts explicit test cases' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite']['input_schema']['properties']['media_fixture'] ), 'Gutenberg recipe evaluation accepts a reviewed media fixture' );
+npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface']['required_scopes'] ?? array(), 'block theme surface inspection advertises Site Editor read scope' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface']['input_schema']['properties']['target_templates'] ), 'block theme surface inspection accepts target templates' );
 npcink_abilities_toolkit_assert_same( 1, $package_abilities['npcink-abilities-toolkit/build-article-block-plan']['input_schema']['properties']['target_post_id']['minimum'] ?? null, 'article block plan accepts a bounded target post id for existing draft updates' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['required_scopes'] ?? array(), 'pattern page plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'pattern_id' ), $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['input_schema']['required'] ?? array(), 'pattern page plan only requires the pattern id and can infer title from variables' );
@@ -1289,6 +1296,8 @@ npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['np
 npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page plan is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/route-content-intent']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'content intent router is classified as page governance' );
+	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'Gutenberg recipe evaluation is classified as page governance' );
+	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'block theme surface inspection is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/review-pattern-page']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page review is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'block theme site plan is classified as page governance' );
 npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'comment queue health is classified as a comment queue helper' );
@@ -1322,12 +1331,14 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[16] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[17] ?? '', 'core read definitions keep block theme context near page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[20] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[21] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[22] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[23] ?? '', 'core read definitions keep block surface review near pattern page review' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[24] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[17] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[18] ?? '', 'core read definitions keep block theme context near page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[21] ?? '', 'core read definitions keep block theme inspection before site planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[22] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[23] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[24] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[25] ?? '', 'core read definitions keep block surface review near pattern page review' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[26] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
@@ -1768,6 +1779,83 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'core/post-title', $block_theme_actions[0]['input']['blocks'][1]['innerBlocks'][1]['blockName'] ?? '', 'block theme site plan keeps the post title after breadcrumbs' );
 	npcink_abilities_toolkit_assert_same( 'before_post_title_in_main', $block_theme_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan reports semantic breadcrumb placement' );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'block theme site plan preview carries the per-template quality gate' );
+	$valid_page_template_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		608 => (object) array(
+			'ID' => 608,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Page',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:group --><div class="wp-block-group"><!-- wp:paragraph /--><!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"></div><!-- /wp:group --><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group --></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'page',
+			'post_parent' => 0,
+		),
+	);
+	$valid_page_template_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'page' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $valid_page_template_posts_fixture;
+	npcink_abilities_toolkit_assert_same( true, $valid_page_template_plan['success'] ?? null, 'build-block-theme-site-plan accepts already-valid nested page breadcrumb placement' );
+	npcink_abilities_toolkit_assert_same( 0, count( $valid_page_template_plan['data']['write_actions'] ?? array() ), 'block theme site plan emits no action when page breadcrumbs are already before the title in main' );
+	npcink_abilities_toolkit_assert_same( false, $valid_page_template_plan['data']['preview'][0]['requires_write'] ?? true, 'block theme site plan marks already-valid page templates as no-write previews' );
+	npcink_abilities_toolkit_assert_same( 'already_valid', $valid_page_template_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan reports already-valid page breadcrumb placement' );
+	npcink_abilities_toolkit_assert_same( 'breadcrumbs_already_before_post_title', $valid_page_template_plan['data']['preview'][0]['no_change_reason'] ?? '', 'block theme site plan explains no-write page plans' );
+	npcink_abilities_toolkit_assert_same( 'no_changes_required', $valid_page_template_plan['data']['block_editor_quality_gate']['recommended_next_step'] ?? '', 'block theme site plan batch gate reports no changes when every target is already valid' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		608 => (object) array(
+			'ID' => 608,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Page',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:group --><div class="wp-block-group"><!-- wp:paragraph /--><!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"></div><!-- /wp:group --><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group --></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'page',
+			'post_parent' => 0,
+		),
+	);
+	$valid_page_surface_inspection = $core_read_package->inspect_block_theme_surface(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'page' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		609 => (object) array(
+			'ID' => 609,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Page',
+			'post_content' => '<!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"></div><!-- /wp:group --><!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'page',
+			'post_parent' => 0,
+		),
+	);
+	$misplaced_page_surface_inspection = $core_read_package->inspect_block_theme_surface(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'page' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $valid_page_template_posts_fixture;
+	npcink_abilities_toolkit_assert_same( true, $valid_page_surface_inspection['success'] ?? null, 'inspect-block-theme-surface returns a success envelope for valid templates' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_surface_inspection', $valid_page_surface_inspection['data']['artifact_type'] ?? '', 'block theme surface inspection declares its artifact type' );
+	npcink_abilities_toolkit_assert_same( 2, $valid_page_surface_inspection['data']['review_contract']['reviewer_count'] ?? 0, 'block theme surface inspection exposes a two-reviewer contract' );
+	npcink_abilities_toolkit_assert_same( array(), $valid_page_surface_inspection['data']['templates'][0]['issue_codes'] ?? array( 'unexpected' ), 'block theme surface inspection reports no issues for valid breadcrumb placement' );
+	npcink_abilities_toolkit_assert_same( 'no_changes_required', $valid_page_surface_inspection['data']['dual_review']['consensus']['recommended_next_step'] ?? '', 'block theme surface inspection consensus reports no changes for valid templates' );
+	npcink_abilities_toolkit_assert_same( array(), $valid_page_surface_inspection['data']['recommended_plan_input'] ?? array( 'unexpected' ), 'block theme surface inspection does not recommend a plan for valid templates' );
+	npcink_abilities_toolkit_assert_same( true, $misplaced_page_surface_inspection['success'] ?? null, 'inspect-block-theme-surface returns a success envelope for misplaced templates' );
+	npcink_abilities_toolkit_assert_true( in_array( 'breadcrumb_above_header', $misplaced_page_surface_inspection['data']['templates'][0]['issue_codes'] ?? array(), true ), 'block theme surface inspection detects breadcrumbs above the header' );
+	npcink_abilities_toolkit_assert_true( in_array( 'breadcrumb_not_before_title', $misplaced_page_surface_inspection['data']['templates'][0]['issue_codes'] ?? array(), true ), 'block theme surface inspection detects breadcrumbs not before the post title' );
+	npcink_abilities_toolkit_assert_same( 'build_block_theme_site_plan', $misplaced_page_surface_inspection['data']['dual_review']['consensus']['recommended_next_step'] ?? '', 'block theme surface inspection consensus recommends a minimal plan for fixable issues' );
+	npcink_abilities_toolkit_assert_same( array( 'page' ), $misplaced_page_surface_inspection['data']['recommended_plan_input']['target_templates'] ?? array(), 'block theme surface inspection recommends only affected templates for planning' );
 	$front_page_breadcrumb_plan = $core_read_package->build_block_theme_site_plan(
 		array(
 			'intent' => 'add_breadcrumbs',
@@ -1828,6 +1916,43 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( true, $front_page_fallback_plan['data']['preview'][0]['template_resolution']['creates_template_override'] ?? null, 'block theme site plan reports that homepage fallback creates a template override' );
 	npcink_abilities_toolkit_assert_same( 'removed', $front_page_fallback_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan removes inherited breadcrumbs from disabled homepage fallback plans' );
 	npcink_abilities_toolkit_assert_true( false === strpos( wp_json_encode( $front_page_fallback_actions[0]['input']['blocks'] ?? array() ), 'openclaw-breadcrumbs' ), 'block theme site plan does not carry breadcrumbs into disabled homepage fallback blocks' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		607 => (object) array(
+			'ID' => 607,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Page',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'page',
+			'post_parent' => 0,
+		),
+		700 => (object) array(
+			'ID' => 700,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page Fixture',
+			'post_content' => 'Static front page content.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page-fixture',
+			'post_parent' => 0,
+		),
+	);
+	$front_page_fallback_noop_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'front-page' ),
+			'show_on_home_page' => false,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $front_page_fallback_noop_plan['success'] ?? null, 'build-block-theme-site-plan resolves no-op front-page fallback plans' );
+	npcink_abilities_toolkit_assert_same( 0, count( $front_page_fallback_noop_plan['data']['write_actions'] ?? array() ), 'block theme site plan does not create a front-page override when homepage breadcrumbs are already absent' );
+	npcink_abilities_toolkit_assert_same( false, $front_page_fallback_noop_plan['data']['preview'][0]['requires_write'] ?? true, 'block theme site plan marks absent homepage breadcrumbs as a no-write preview' );
+	npcink_abilities_toolkit_assert_same( 'homepage_breadcrumbs_already_absent', $front_page_fallback_noop_plan['data']['preview'][0]['no_change_reason'] ?? '', 'block theme site plan explains no-write front-page fallback plans' );
+	npcink_abilities_toolkit_assert_same( false, $front_page_fallback_noop_plan['data']['preview'][0]['creates_template_override'] ?? true, 'block theme site plan does not claim to create a front-page override for no-write fallback plans' );
+	npcink_abilities_toolkit_assert_same( 'no_changes_required', $front_page_fallback_noop_plan['data']['block_editor_quality_gate']['recommended_next_step'] ?? '', 'block theme site plan batch gate reports no changes for no-op homepage fallback plans' );
 	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		700 => (object) array(
 			'ID' => 700,
@@ -4772,6 +4897,101 @@ $ambiguous_intent_route = $core_read_package->route_content_intent(
 );
 npcink_abilities_toolkit_assert_same( 'unsupported', $ambiguous_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for ambiguous page/article prompts' );
 npcink_abilities_toolkit_assert_same( 'ambiguous_page_vs_article', $ambiguous_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports page/article ambiguity' );
+
+$recipe_eval_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+$recipe_eval_block_theme_fixture = $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] ?? null;
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+	608 => (object) array(
+		'ID'           => 608,
+		'post_type'    => 'wp_template',
+		'post_status'  => 'publish',
+		'post_title'   => 'Single',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'single',
+		'post_parent'  => 0,
+	),
+);
+$GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = true;
+$gutenberg_recipe_eval = $core_read_package->evaluate_gutenberg_recipe_suite(
+	array(
+		'minimum_pass_rate' => 1,
+		'media_fixture'     => array(
+			'url'           => 'https://magick-ai.local/wp-content/uploads/2026/06/preview.webp',
+			'attachment_id' => 8053,
+			'alt'           => 'WordPress AI governed workflow hero visual',
+		),
+		'cases'             => array(
+			array(
+				'id'             => 'eval_page_landing',
+				'prompt'         => '帮我做一个现代官网介绍页，需要配图，手机端也要好看。',
+				'expected_route' => 'pattern_page_plan',
+			),
+			array(
+				'id'             => 'eval_article',
+				'prompt'         => '写一篇对比评测文章，加一张配图和 FAQ。',
+				'expected_route' => 'article_block_plan',
+			),
+			array(
+				'id'             => 'eval_template',
+				'prompt'         => '给文章模板加面包屑导航。',
+				'expected_route' => 'block_theme_site_plan',
+			),
+			array(
+				'id'                 => 'eval_navigation_fail_closed',
+				'prompt'             => 'Change the navigation menu and add a Products link.',
+				'expected_route'     => 'unsupported',
+				'expected_supported' => false,
+			),
+		),
+	)
+);
+$gutenberg_recipe_default_eval = $core_read_package->evaluate_gutenberg_recipe_suite(
+	array(
+		'minimum_pass_rate'    => 1,
+		'include_case_details' => false,
+		'media_fixture'        => array(
+			'url'           => 'https://magick-ai.local/wp-content/uploads/2026/06/preview.webp',
+			'attachment_id' => 8053,
+			'alt'           => 'WordPress AI governed workflow hero visual',
+		),
+	)
+);
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $recipe_eval_posts_fixture;
+if ( null === $recipe_eval_block_theme_fixture ) {
+	unset( $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] );
+} else {
+	$GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = $recipe_eval_block_theme_fixture;
+}
+npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_eval['success'] ?? null, 'evaluate-gutenberg-recipe-suite returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_recipe_suite_evaluation', $gutenberg_recipe_eval['data']['artifact_type'] ?? '', 'Gutenberg recipe evaluation declares its artifact type' );
+npcink_abilities_toolkit_assert_same( 'route_and_plan_only', $gutenberg_recipe_eval['data']['evaluation_mode'] ?? '', 'Gutenberg recipe evaluation only routes and builds plans' );
+npcink_abilities_toolkit_assert_same( false, $gutenberg_recipe_eval['data']['direct_wordpress_write'] ?? null, 'Gutenberg recipe evaluation does not write WordPress content' );
+npcink_abilities_toolkit_assert_same( false, $gutenberg_recipe_eval['data']['commit_execution'] ?? null, 'Gutenberg recipe evaluation does not execute commits' );
+npcink_abilities_toolkit_assert_same( false, $gutenberg_recipe_eval['data']['proposal_created'] ?? null, 'Gutenberg recipe evaluation does not create proposals' );
+npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval['data']['suite_status'] ?? '', 'Gutenberg recipe evaluation passes when every case clears the gates' );
+npcink_abilities_toolkit_assert_same( 2, $gutenberg_recipe_eval['data']['review_contract']['reviewer_count'] ?? 0, 'Gutenberg recipe evaluation exposes a two-reviewer contract' );
+npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval['data']['dual_review']['consensus']['decision'] ?? '', 'Gutenberg recipe evaluation consensus passes clean suites' );
+npcink_abilities_toolkit_assert_same( 4, $gutenberg_recipe_eval['data']['summary']['total_cases'] ?? 0, 'Gutenberg recipe evaluation counts evaluated cases' );
+npcink_abilities_toolkit_assert_same( 4, $gutenberg_recipe_eval['data']['summary']['passed_cases'] ?? 0, 'Gutenberg recipe evaluation counts passed cases' );
+npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_eval['data']['summary']['pass_rate'] ?? 0, 'Gutenberg recipe evaluation reports pass rate' );
+$gutenberg_recipe_eval_cases = is_array( $gutenberg_recipe_eval['data']['cases'] ?? null ) ? $gutenberg_recipe_eval['data']['cases'] : array();
+npcink_abilities_toolkit_assert_same( 'pattern_page_plan', $gutenberg_recipe_eval_cases[0]['route'] ?? '', 'Gutenberg recipe evaluation routes page cases to Pattern plans' );
+npcink_abilities_toolkit_assert_same( 0, $gutenberg_recipe_eval_cases[0]['block_summary']['core_html_count'] ?? -1, 'Gutenberg recipe evaluation rejects core/html in page plans' );
+npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval_cases[0]['block_summary']['non_core_blocks'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation rejects non-core page blocks' );
+npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval_cases[0]['dual_review']['recipe_fit_reviewer']['decision'] ?? '', 'Gutenberg recipe evaluation case reviewer passes a valid page recipe' );
+npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_eval_cases[0]['dual_review']['governance_boundary_reviewer']['decision'] ?? '', 'Gutenberg recipe evaluation governance reviewer passes read-only plans' );
+npcink_abilities_toolkit_assert_same( 'article_block_plan', $gutenberg_recipe_eval_cases[1]['route'] ?? '', 'Gutenberg recipe evaluation routes article cases to article plans' );
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $gutenberg_recipe_eval_cases[2]['route'] ?? '', 'Gutenberg recipe evaluation routes template cases to block theme plans' );
+npcink_abilities_toolkit_assert_same( 'unsupported', $gutenberg_recipe_eval_cases[3]['route'] ?? '', 'Gutenberg recipe evaluation keeps unsupported navigation requests fail-closed' );
+npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation reports no failure codes for passing suites' );
+npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_default_eval['success'] ?? null, 'default Gutenberg recipe evaluation returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_default_eval['data']['suite_status'] ?? '', 'default Gutenberg recipe evaluation suite passes' );
+npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 20 natural-language cases' );
+npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
+npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_default_eval['data']['summary']['pass_rate'] ?? 0, 'default Gutenberg recipe evaluation reports a full pass rate under fixtures' );
+npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_default_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'default Gutenberg recipe evaluation reports no built-in failure codes' );
 
 $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
