@@ -4627,13 +4627,13 @@ npcink_abilities_toolkit_assert_same( 'core/image', $pattern_hero_visual['innerB
 npcink_abilities_toolkit_assert_same( 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg', $pattern_hero_visual['innerBlocks'][0]['attrs']['url'] ?? '', 'build-pattern-page-plan uses the reviewed hero media URL in the hero image block' );
 npcink_abilities_toolkit_assert_same( 8053, $pattern_hero_visual['innerBlocks'][0]['attrs']['id'] ?? 0, 'build-pattern-page-plan binds the reviewed hero image block to the attachment id' );
 $pattern_hero_copy = is_array( $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $pattern_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
-npcink_abilities_toolkit_assert_same( '64px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
-npcink_abilities_toolkit_assert_same( '1', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
+npcink_abilities_toolkit_assert_same( '56px', $pattern_hero_copy[1]['attrs']['style']['typography']['fontSize'] ?? '', 'build-pattern-page-plan sets native hero title typography' );
+npcink_abilities_toolkit_assert_same( '1.08', $pattern_hero_copy[1]['attrs']['style']['typography']['lineHeight'] ?? '', 'build-pattern-page-plan sets native hero title line height' );
 $pattern_buttons = is_array( $pattern_hero_copy[3]['innerBlocks'] ?? null ) ? $pattern_hero_copy[3]['innerBlocks'] : array();
 npcink_abilities_toolkit_assert_same( '999px', $pattern_buttons[0]['attrs']['style']['border']['radius'] ?? '', 'build-pattern-page-plan sets native button radius' );
 npcink_abilities_toolkit_assert_same( '#111111', $pattern_buttons[0]['attrs']['style']['color']['background'] ?? '', 'build-pattern-page-plan sets native primary button color' );
 $pattern_markup = wp_json_encode( $pattern_blocks );
-npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'font-size:64px;font-weight:500;letter-spacing:0;line-height:1' ), 'build-pattern-page-plan serializes heading typography in Gutenberg save order' );
+npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'font-size:56px;font-weight:500;letter-spacing:0;line-height:1.08' ), 'build-pattern-page-plan serializes heading typography in Gutenberg save order' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'wp-block-button__link has-text-color has-background wp-element-button' ), 'build-pattern-page-plan emits Gutenberg support classes for primary button links' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"blockName":"core\\/columns"' ), 'build-pattern-page-plan uses native columns for feature and workflow sections' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"isStackedOnMobile":true' ), 'build-pattern-page-plan stacks columns on mobile' );
@@ -4665,6 +4665,34 @@ npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-radius:999px;background-color:#ffffff;color:#111111;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan renders a visible primary CTA button on dark bands' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, 'border-color:#ffffff;border-width:1px;border-radius:999px;background-color:#111111;color:#ffffff;padding-top:14px;padding-right:24px;padding-bottom:14px;padding-left:24px' ), 'build-pattern-page-plan renders a matching secondary CTA button on dark bands' );
 npcink_abilities_toolkit_assert_true( is_string( $pattern_markup ) && false !== strpos( $pattern_markup, '"top":{"color":"#111111","width":"1px"}' ), 'build-pattern-page-plan uses native top-line card border attrs' );
+$long_hero_pattern_page_plan = $core_read_package->build_pattern_page_plan(
+	array(
+		'title'              => 'Long Hero Copy Fit',
+		'pattern_id'         => 'openai-style-landing',
+		'style_preset'       => 'minimal-dark-light',
+		'responsive_profile' => 'landing_standard',
+		'visual_density'     => 'balanced',
+		'media_strategy'     => 'existing_media_url',
+		'variables'          => array(
+			'hero_title'       => '用 Gutenberg 原生块搭出现代官网介绍页，长标题也保持舒展清晰',
+			'hero_media_url'   => 'https://magick-ai.local/wp-content/uploads/2026/06/wordpress-ai-dashboard.jpg',
+			'hero_media_attachment_id' => 8053,
+			'hero_media_alt'   => 'WordPress AI dashboard preview',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $long_hero_pattern_page_plan['success'] ?? null, 'build-pattern-page-plan accepts imprecise long natural-language hero titles' );
+npcink_abilities_toolkit_assert_same( 'revised', $long_hero_pattern_page_plan['data']['copy_quality']['hero_title_fit'] ?? '', 'build-pattern-page-plan revises overlong hero titles before rendering blocks' );
+npcink_abilities_toolkit_assert_same( '用 Gutenberg 原生块搭出现代官网', $long_hero_pattern_page_plan['data']['copy_quality']['hero_title'] ?? '', 'build-pattern-page-plan compacts long Chinese hero titles into a display-safe H1' );
+npcink_abilities_toolkit_assert_same( true, $long_hero_pattern_page_plan['data']['copy_quality']['hero_title_changed'] ?? null, 'build-pattern-page-plan reports hero title copy changes' );
+npcink_abilities_toolkit_assert_true( (int) ( $long_hero_pattern_page_plan['data']['copy_quality']['hero_title_display_units'] ?? 99 ) <= 34, 'build-pattern-page-plan keeps revised hero titles within the display budget' );
+$long_hero_actions = is_array( $long_hero_pattern_page_plan['data']['write_actions'] ?? null ) ? $long_hero_pattern_page_plan['data']['write_actions'] : array();
+$long_hero_blocks = is_array( $long_hero_actions[1]['input']['blocks'] ?? null ) ? $long_hero_actions[1]['input']['blocks'] : array();
+$long_hero_layout = is_array( $long_hero_blocks[0]['innerBlocks'][0] ?? null ) ? $long_hero_blocks[0]['innerBlocks'][0] : array();
+$long_hero_copy = is_array( $long_hero_layout['innerBlocks'][0]['innerBlocks'] ?? null ) ? $long_hero_layout['innerBlocks'][0]['innerBlocks'] : array();
+$long_hero_heading_html = (string) ( $long_hero_copy[1]['innerHTML'] ?? '' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $long_hero_heading_html, '用 Gutenberg 原生块搭出现代官网</h1>' ), 'build-pattern-page-plan writes the fitted Hero title into Gutenberg blocks' );
+npcink_abilities_toolkit_assert_true( false === strpos( $long_hero_heading_html, '长标题也保持舒展清晰</h1>' ), 'build-pattern-page-plan does not serialize prompt-like long clauses into the Hero H1' );
 $accent_pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
 		'title'              => 'Accent WordPress AI',

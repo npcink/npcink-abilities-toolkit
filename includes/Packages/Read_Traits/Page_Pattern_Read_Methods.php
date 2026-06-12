@@ -81,6 +81,14 @@ trait Page_Pattern_Read_Methods {
 			$color_story = 'editorial-accent';
 		}
 		$section_variant_hints = $this->pattern_section_variant_hints( $input['section_variant_hints'] ?? ( $variables['section_variant_hints'] ?? array() ) );
+		$hero_copy_fit = $this->pattern_hero_copy_fit(
+			$variables['hero_title'] ?? ( $input['title'] ?? 'WordPress AI' ),
+			$variables['hero_description'] ?? ''
+		);
+		$variables['hero_title'] = $hero_copy_fit['hero_title'];
+		if ( '' !== (string) $hero_copy_fit['hero_description'] ) {
+			$variables['hero_description'] = $hero_copy_fit['hero_description'];
+		}
 		$title     = $this->pattern_text( $input['title'] ?? ( $variables['hero_title'] ?? 'WordPress AI' ), 'WordPress AI' );
 		$blocks    = $this->render_openai_style_landing_blocks(
 			$variables,
@@ -201,6 +209,7 @@ trait Page_Pattern_Read_Methods {
 					'status'    => 'draft',
 					'title'     => $title,
 				),
+				'copy_quality'           => $hero_copy_fit,
 				'quality_feedback'       => $review_feedback,
 				'quality_review'         => $quality_review,
 				'block_editor_quality_gate' => $block_editor_quality_gate,
@@ -1065,7 +1074,7 @@ trait Page_Pattern_Read_Methods {
 							$this->pattern_column_block(
 								array(
 									$this->pattern_paragraph_block( $eyebrow, 'npcink-ai-eyebrow', $this->pattern_accent_eyebrow_attrs( $palette ), 'color:' . $palette['accent'] . ';font-size:13px;font-weight:600;line-height:1.2;text-transform:uppercase' ),
-									$this->pattern_heading_block( $hero_title, 1, 'npcink-ai-title', $this->pattern_hero_title_attrs(), 'font-size:64px;font-weight:500;line-height:1;letter-spacing:0;margin-top:0;margin-bottom:0' ),
+									$this->pattern_heading_block( $hero_title, 1, 'npcink-ai-title', $this->pattern_hero_title_attrs(), 'font-size:56px;font-weight:500;line-height:1.08;letter-spacing:0;margin-top:0;margin-bottom:0' ),
 									$this->pattern_paragraph_block( $hero_description, 'npcink-ai-lede', $this->pattern_lede_attrs(), 'color:#333333;font-size:22px;line-height:1.4' ),
 									$this->pattern_buttons_block(
 										array(
@@ -2022,8 +2031,8 @@ trait Page_Pattern_Read_Methods {
 		return array(
 			'style' => array(
 				'typography' => array(
-					'fontSize'      => '64px',
-					'lineHeight'     => '1',
+					'fontSize'      => '56px',
+					'lineHeight'     => '1.08',
 					'letterSpacing' => '0',
 					'fontWeight'    => '500',
 				),
@@ -2864,6 +2873,161 @@ trait Page_Pattern_Read_Methods {
 	private function pattern_text( $value, $fallback ) {
 		$text = sanitize_text_field( (string) $value );
 		return '' !== $text ? $text : sanitize_text_field( (string) $fallback );
+	}
+
+	/**
+	 * Fits Hero copy so imprecise natural-language prompts do not become huge H1s.
+	 *
+	 * @param mixed $title Raw Hero title.
+	 * @param mixed $description Raw Hero description.
+	 * @return array<string,mixed>
+	 */
+	private function pattern_hero_copy_fit( $title, $description ): array {
+		$original_title       = $this->pattern_text( $title, 'WordPress AI' );
+		$original_description = $this->pattern_text( $description, '' );
+		$max_units            = 34;
+		$fitted_title         = $this->pattern_compact_hero_title( $original_title, $max_units );
+		$title_changed        = $fitted_title !== $original_title;
+		$description_changed  = false;
+		$fitted_description   = $original_description;
+		if ( $title_changed && '' === $fitted_description ) {
+			$fitted_description  = $this->pattern_hero_description_from_long_title( $original_title );
+			$description_changed = true;
+		}
+
+		return array(
+			'hero_title_fit'                  => $title_changed ? 'revised' : 'pass',
+			'hero_title'                      => $fitted_title,
+			'hero_title_original'             => $original_title,
+			'hero_title_changed'              => $title_changed,
+			'hero_title_display_units'        => $this->pattern_copy_display_units( $fitted_title ),
+			'hero_title_original_display_units' => $this->pattern_copy_display_units( $original_title ),
+			'max_hero_title_display_units'    => $max_units,
+			'hero_description'                => $fitted_description,
+			'hero_description_changed'        => $description_changed,
+			'copy_fit_reason'                 => $title_changed ? 'hero_title_was_too_long_for_landing_page_display' : 'hero_title_within_display_budget',
+		);
+	}
+
+	/**
+	 * Compacts a Hero title without relying on OpenClaw prompt precision.
+	 *
+	 * @param string $title Title.
+	 * @param int    $max_units Max display units.
+	 * @return string
+	 */
+	private function pattern_compact_hero_title( string $title, int $max_units ): string {
+		$title = $this->pattern_normalize_copy_spaces( $title );
+		if ( $this->pattern_copy_display_units( $title ) <= $max_units ) {
+			return $title;
+		}
+
+		$parts = preg_split( '/[，,。；;：:、|｜]+/u', $title );
+		$candidate = is_array( $parts ) && '' !== trim( (string) ( $parts[0] ?? '' ) ) ? trim( (string) $parts[0] ) : $title;
+		$candidate = $this->pattern_trim_generic_page_suffix( $candidate );
+		if ( $this->pattern_copy_display_units( $candidate ) <= $max_units ) {
+			return $candidate;
+		}
+
+		return $this->pattern_truncate_copy_to_units( $candidate, $max_units );
+	}
+
+	/**
+	 * Builds a fallback description when a user prompt only supplied an oversized H1.
+	 *
+	 * @param string $original_title Original title.
+	 * @return string
+	 */
+	private function pattern_hero_description_from_long_title( string $original_title ): string {
+		$parts = preg_split( '/[，,。；;：:、|｜]+/u', $original_title );
+		$tail  = is_array( $parts ) && isset( $parts[1] ) ? $this->pattern_normalize_copy_spaces( (string) $parts[1] ) : '';
+		if ( '' !== $tail && false === strpos( $tail, '标题' ) && false === strpos( $tail, '测试' ) && false === strpos( $tail, '验证' ) && $this->pattern_copy_display_units( $tail ) >= 8 && $this->pattern_copy_display_units( $tail ) <= 56 ) {
+			return $tail;
+		}
+		return '通过可审查的 Pattern 页面计划，生成配图、响应式布局和可继续编辑的核心区块。';
+	}
+
+	/**
+	 * Removes generic page-type suffixes when they make Hero H1s wrap poorly.
+	 *
+	 * @param string $title Title.
+	 * @return string
+	 */
+	private function pattern_trim_generic_page_suffix( string $title ): string {
+		$title = $this->pattern_normalize_copy_spaces( $title );
+		foreach ( array( '介绍页', '落地页', '页面草稿', '页面' ) as $suffix ) {
+			$suffix_length = strlen( $suffix );
+			if ( $suffix_length > 0 && substr( $title, -$suffix_length ) === $suffix ) {
+				$trimmed = trim( substr( $title, 0, -$suffix_length ) );
+				if ( $this->pattern_copy_display_units( $trimmed ) >= 12 ) {
+					return $trimmed;
+				}
+			}
+		}
+		return $title;
+	}
+
+	/**
+	 * Normalizes copy spacing.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	private function pattern_normalize_copy_spaces( string $text ): string {
+		$text = preg_replace( '/\s+/u', ' ', trim( $text ) );
+		return is_string( $text ) ? $text : '';
+	}
+
+	/**
+	 * Estimates mixed Chinese/English display width for landing-page H1 copy.
+	 *
+	 * @param string $text Text.
+	 * @return int
+	 */
+	private function pattern_copy_display_units( string $text ): int {
+		$text = $this->pattern_normalize_copy_spaces( $text );
+		if ( '' === $text ) {
+			return 0;
+		}
+		if ( false === preg_match_all( '/./u', $text, $matches ) ) {
+			return strlen( $text );
+		}
+		$units = 0;
+		foreach ( $matches[0] as $char ) {
+			if ( 1 === preg_match( '/[\x{3400}-\x{9FFF}\x{3000}-\x{303F}\x{FF00}-\x{FFEF}]/u', (string) $char ) ) {
+				$units += 2;
+			} elseif ( ' ' === $char ) {
+				$units += 1;
+			} else {
+				$units += 1;
+			}
+		}
+		return $units;
+	}
+
+	/**
+	 * Truncates copy to a display-unit budget without adding decorative ellipses.
+	 *
+	 * @param string $text Text.
+	 * @param int    $max_units Max display units.
+	 * @return string
+	 */
+	private function pattern_truncate_copy_to_units( string $text, int $max_units ): string {
+		$text = $this->pattern_normalize_copy_spaces( $text );
+		if ( false === preg_match_all( '/./u', $text, $matches ) ) {
+			return substr( $text, 0, max( 1, $max_units ) );
+		}
+		$output = '';
+		$units  = 0;
+		foreach ( $matches[0] as $char ) {
+			$char_units = 1 === preg_match( '/[\x{3400}-\x{9FFF}\x{3000}-\x{303F}\x{FF00}-\x{FFEF}]/u', (string) $char ) ? 2 : 1;
+			if ( $units + $char_units > $max_units ) {
+				break;
+			}
+			$output .= $char;
+			$units  += $char_units;
+		}
+		return trim( $output );
 	}
 
 	/**
