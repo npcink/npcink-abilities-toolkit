@@ -106,16 +106,18 @@ trait Block_Theme_Read_Methods {
 			$template_theme  = sanitize_key( (string) ( $template['theme'] ?? '' ) );
 			$template_title  = sanitize_text_field( (string) ( $template['title'] ?? $template_slug ) );
 			$template_source = sanitize_key( (string) ( $template['source'] ?? '' ) );
-			$current_blocks = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
-			$current_blocks = $this->block_theme_blocks_for_write_plan( $current_blocks );
-			$next_blocks    = $this->block_theme_insert_breadcrumbs_block(
+			$current_blocks       = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
+			$current_blocks       = $this->block_theme_blocks_for_write_plan( $current_blocks );
+			$breadcrumb_placement = array();
+			$next_blocks          = $this->block_theme_insert_breadcrumbs_block(
 				$current_blocks,
 				array(
 					'separator'          => $separator,
 					'showCurrentItem'    => $show_current,
 					'showHomeItem'       => $show_home,
 					'showOnHomePage'     => $show_on_home,
-				)
+				),
+				$breadcrumb_placement
 			);
 			$block_editor_review = $this->pattern_review_summary_for_blocks( $next_blocks, true );
 			$is_existing_custom_template = $template_id > 0;
@@ -166,6 +168,7 @@ trait Block_Theme_Read_Methods {
 				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
 				'inserted_block'            => 'core/group.openclaw-breadcrumbs',
+				'breadcrumb_placement'      => $breadcrumb_placement,
 				'block_editor_quality_gate' => $block_editor_quality_gate,
 			);
 			$block_editor_reviews[] = array(
@@ -175,6 +178,7 @@ trait Block_Theme_Read_Methods {
 				'theme'                     => $template_theme,
 				'target_ability_id'         => $target_ability_id,
 				'creates_template_override' => ! $is_existing_custom_template,
+				'breadcrumb_placement'      => $breadcrumb_placement,
 				'review'                    => $this->block_editor_plan_review_excerpt( $block_editor_review ),
 				'quality_gate'              => $block_editor_quality_gate,
 			);
@@ -522,64 +526,341 @@ trait Block_Theme_Read_Methods {
 		return empty( $normalized ) ? array( 'single', 'page' ) : $normalized;
 	}
 
-		/**
-		 * Inserts a Core-block breadcrumb scaffold at the beginning unless present.
+	/**
+	 * Inserts a Core-block breadcrumb scaffold near the post title unless present.
 	 *
 	 * @param mixed               $blocks Existing blocks.
 	 * @param array<string,mixed> $attrs Breadcrumb attributes.
+	 * @param array<string,mixed> $placement Placement report.
 	 * @return array<int,array<string,mixed>>
 	 */
-		private function block_theme_insert_breadcrumbs_block( $blocks, array $attrs ) {
-			$blocks = is_array( $blocks ) ? array_values( $blocks ) : array();
-			foreach ( $blocks as $block ) {
-				if ( is_array( $block ) && false !== strpos( ' ' . (string) ( $block['attrs']['className'] ?? '' ) . ' ', ' openclaw-breadcrumbs ' ) ) {
+	private function block_theme_insert_breadcrumbs_block( $blocks, array $attrs, array &$placement = array() ) {
+		$blocks = is_array( $blocks ) ? array_values( $blocks ) : array();
+		if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $blocks ) ) {
+			$placement = array(
+				'status'          => 'already_valid',
+				'strategy'        => 'before_post_title_in_main',
+				'container'       => 'main',
+				'inserted_before' => 'core/post-title',
+			);
+			return $blocks;
+		}
+
+		$existing_breadcrumb_block = null;
+		$blocks                    = $this->block_theme_extract_breadcrumbs_block( $blocks, $existing_breadcrumb_block );
+		$breadcrumb_block          = is_array( $existing_breadcrumb_block ) ? $existing_breadcrumb_block : $this->block_theme_breadcrumbs_block( $attrs );
+		$placement_status          = is_array( $existing_breadcrumb_block ) ? 'relocated' : 'inserted';
+		$inserted                  = false;
+		$next_blocks               = $this->block_theme_insert_breadcrumbs_before_title_in_main( $blocks, $breadcrumb_block, $inserted );
+		if ( $inserted ) {
+			$placement = array(
+				'status'          => $placement_status,
+				'strategy'        => 'before_post_title_in_main',
+				'container'       => 'main',
+				'inserted_before' => 'core/post-title',
+			);
+			return $next_blocks;
+		}
+
+		$next_blocks = $this->block_theme_insert_breadcrumbs_before_post_title( $blocks, $breadcrumb_block, $inserted );
+		if ( $inserted ) {
+			$placement = array(
+				'status'          => $placement_status,
+				'strategy'        => 'before_post_title',
+				'container'       => 'nearest_post_title_parent',
+				'inserted_before' => 'core/post-title',
+			);
+			return $next_blocks;
+		}
+
+		array_unshift( $blocks, $breadcrumb_block );
+		$placement = array(
+			'status'   => $placement_status,
+			'strategy' => 'template_start_fallback',
+		);
+		return $blocks;
+	}
+
+	/**
+	 * Reports whether breadcrumbs already sit directly before post title in main.
+	 *
+	 * @param mixed $blocks Blocks.
+	 * @return bool
+	 */
+	private function block_theme_breadcrumbs_are_before_post_title_in_main( $blocks ) {
+		$blocks = is_array( $blocks ) ? $blocks : array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_main_container( $block ) ) {
+				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+				foreach ( $inner_blocks as $index => $inner_block ) {
+					if ( ! is_array( $inner_block ) || 'core/post-title' !== (string) ( $inner_block['blockName'] ?? '' ) ) {
+						continue;
+					}
+					return $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
+				}
+			}
+			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array() ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Extracts the first breadcrumbs block and removes duplicate breadcrumb blocks.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>|null       $found First found breadcrumb block.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_extract_breadcrumbs_block( array $blocks, &$found ) {
+		$clean_blocks = array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_breadcrumbs_block( $block ) ) {
+				if ( null === $found ) {
+					$found = $block;
+				}
+				continue;
+			}
+			$clean_blocks[] = $this->block_theme_extract_breadcrumbs_from_block( $block, $found );
+		}
+		return $clean_blocks;
+	}
+
+	/**
+	 * Removes breadcrumbs from one block's children while preserving first found.
+	 *
+	 * @param array<string,mixed>      $block Parent block.
+	 * @param array<string,mixed>|null $found First found breadcrumb block.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_extract_breadcrumbs_from_block( array $block, &$found ) {
+		if ( ! is_array( $block['innerBlocks'] ?? null ) ) {
+			return $block;
+		}
+
+		$inner_blocks       = array_values( $block['innerBlocks'] );
+		$clean_inner_blocks = array();
+		$removed_indices    = array();
+		foreach ( $inner_blocks as $inner_index => $inner_block ) {
+			if ( ! is_array( $inner_block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_breadcrumbs_block( $inner_block ) ) {
+				if ( null === $found ) {
+					$found = $inner_block;
+				}
+				$removed_indices[] = (int) $inner_index;
+				continue;
+			}
+			$clean_inner_blocks[] = $this->block_theme_extract_breadcrumbs_from_block( $inner_block, $found );
+		}
+
+		$block['innerBlocks'] = $clean_inner_blocks;
+		if ( ! empty( $removed_indices ) && is_array( $block['innerContent'] ?? null ) ) {
+			$inner_content = array_values( $block['innerContent'] );
+			rsort( $removed_indices );
+			foreach ( $removed_indices as $removed_index ) {
+				$null_offset = $this->block_theme_inner_content_null_offset_for_child_index( $inner_content, $removed_index );
+				if ( array_key_exists( $null_offset, $inner_content ) && null === $inner_content[ $null_offset ] ) {
+					array_splice( $inner_content, $null_offset, 1 );
+				}
+			}
+			$block['innerContent'] = $inner_content;
+		}
+		return $block;
+	}
+
+	/**
+	 * Reports whether one parsed block is the OpenClaw breadcrumbs block.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function block_theme_is_breadcrumbs_block( array $block ) {
+		return false !== strpos( ' ' . (string) ( $block['attrs']['className'] ?? '' ) . ' ', ' openclaw-breadcrumbs ' );
+	}
+
+	/**
+	 * Builds the breadcrumb block tree.
+	 *
+	 * @param array<string,mixed> $attrs Breadcrumb attributes.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_breadcrumbs_block( array $attrs ) {
+		$separator     = sanitize_text_field( (string) ( $attrs['separator'] ?? '/' ) );
+		$show_current  = ! array_key_exists( 'showCurrentItem', $attrs ) || ! empty( $attrs['showCurrentItem'] );
+		$show_home     = ! array_key_exists( 'showHomeItem', $attrs ) || ! empty( $attrs['showHomeItem'] );
+		$home_url      = function_exists( 'home_url' ) ? (string) home_url( '/' ) : '/';
+		$trail_content = array();
+		if ( $show_home ) {
+			$trail_content[] = '<a href="' . $this->esc_url_value( $home_url ) . '">' . esc_html( __( 'Home', 'npcink-abilities-toolkit' ) ) . '</a>';
+		}
+		if ( $show_current ) {
+			if ( ! empty( $trail_content ) ) {
+				$trail_content[] = '<span aria-hidden="true">' . esc_html( $separator ) . '</span>';
+			}
+			$trail_content[] = '<span class="openclaw-breadcrumbs__current" aria-current="page">' . esc_html( __( 'Current item', 'npcink-abilities-toolkit' ) ) . '</span>';
+		}
+		$paragraph_html = '<p class="openclaw-breadcrumbs__trail">' . implode( ' ', $trail_content ) . '</p>';
+
+		return array(
+			'blockName'    => 'core/group',
+			'attrs'        => array(
+				'className' => 'openclaw-breadcrumbs',
+				'layout'    => array(
+					'type'     => 'flex',
+					'flexWrap' => 'wrap',
+				),
+			),
+			'innerHTML'    => '',
+			'innerBlocks'  => array(
+				array(
+					'blockName'    => 'core/paragraph',
+					'attrs'        => array(
+						'className' => 'openclaw-breadcrumbs__trail',
+					),
+					'innerHTML'    => $paragraph_html,
+					'innerBlocks'  => array(),
+					'innerContent' => array( $paragraph_html ),
+				),
+			),
+			'innerContent' => array( "\n", null, "\n" ),
+		);
+	}
+
+	/**
+	 * Inserts breadcrumbs before post title inside the first main container.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $breadcrumb_block Breadcrumb block.
+	 * @param bool                           $inserted Whether insertion happened.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_insert_breadcrumbs_before_title_in_main( array $blocks, array $breadcrumb_block, &$inserted ) {
+		foreach ( $blocks as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_is_main_container( $block ) ) {
+				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+				foreach ( $inner_blocks as $inner_index => $inner_block ) {
+					if ( is_array( $inner_block ) && 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+						$blocks[ $index ] = $this->block_theme_insert_inner_block_at( $block, $inner_index, $breadcrumb_block );
+						$inserted         = true;
+						return $blocks;
+					}
+				}
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$block['innerBlocks'] = $this->block_theme_insert_breadcrumbs_before_title_in_main( array_values( $block['innerBlocks'] ), $breadcrumb_block, $inserted );
+				$blocks[ $index ]     = $block;
+				if ( $inserted ) {
 					return $blocks;
 				}
 			}
-
-			$separator     = sanitize_text_field( (string) ( $attrs['separator'] ?? '/' ) );
-			$show_current  = ! array_key_exists( 'showCurrentItem', $attrs ) || ! empty( $attrs['showCurrentItem'] );
-			$show_home     = ! array_key_exists( 'showHomeItem', $attrs ) || ! empty( $attrs['showHomeItem'] );
-			$home_url      = function_exists( 'home_url' ) ? (string) home_url( '/' ) : '/';
-			$trail_content = array();
-			if ( $show_home ) {
-				$trail_content[] = '<a href="' . $this->esc_url_value( $home_url ) . '">' . esc_html( __( 'Home', 'npcink-abilities-toolkit' ) ) . '</a>';
-			}
-			if ( $show_current ) {
-				if ( ! empty( $trail_content ) ) {
-					$trail_content[] = '<span aria-hidden="true">' . esc_html( $separator ) . '</span>';
-				}
-				$trail_content[] = '<span class="openclaw-breadcrumbs__current" aria-current="page">' . esc_html( __( 'Current item', 'npcink-abilities-toolkit' ) ) . '</span>';
-			}
-			$paragraph_html = '<p class="openclaw-breadcrumbs__trail">' . implode( ' ', $trail_content ) . '</p>';
-
-			array_unshift(
-				$blocks,
-				array(
-					'blockName'    => 'core/group',
-					'attrs'        => array(
-						'className' => 'openclaw-breadcrumbs',
-						'layout'    => array(
-							'type'     => 'flex',
-							'flexWrap' => 'wrap',
-						),
-					),
-					'innerHTML'    => '',
-					'innerBlocks'  => array(
-						array(
-							'blockName'    => 'core/paragraph',
-							'attrs'        => array(
-								'className' => 'openclaw-breadcrumbs__trail',
-							),
-							'innerHTML'    => $paragraph_html,
-							'innerBlocks'  => array(),
-							'innerContent' => array( $paragraph_html ),
-						),
-					),
-					'innerContent' => array( "\n", null, "\n" ),
-				)
-			);
+		}
 		return $blocks;
+	}
+
+	/**
+	 * Inserts breadcrumbs before the first post title anywhere in the tree.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $breadcrumb_block Breadcrumb block.
+	 * @param bool                           $inserted Whether insertion happened.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_insert_breadcrumbs_before_post_title( array $blocks, array $breadcrumb_block, &$inserted ) {
+		foreach ( $blocks as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'core/post-title' === (string) ( $block['blockName'] ?? '' ) ) {
+				array_splice( $blocks, $index, 0, array( $breadcrumb_block ) );
+				$inserted = true;
+				return $blocks;
+			}
+			if ( is_array( $block['innerBlocks'] ?? null ) ) {
+				$inner_blocks = array_values( $block['innerBlocks'] );
+				foreach ( $inner_blocks as $inner_index => $inner_block ) {
+					if ( is_array( $inner_block ) && 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+						$blocks[ $index ] = $this->block_theme_insert_inner_block_at( $block, $inner_index, $breadcrumb_block );
+						$inserted         = true;
+						return $blocks;
+					}
+				}
+				$block['innerBlocks'] = $this->block_theme_insert_breadcrumbs_before_post_title( $inner_blocks, $breadcrumb_block, $inserted );
+				$blocks[ $index ]     = $block;
+				if ( $inserted ) {
+					return $blocks;
+				}
+			}
+		}
+		return $blocks;
+	}
+
+	/**
+	 * Reports whether one parsed block is a main content container.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function block_theme_is_main_container( array $block ) {
+		return 'main' === sanitize_key( (string) ( $block['attrs']['tagName'] ?? '' ) );
+	}
+
+	/**
+	 * Inserts one inner block and keeps innerContent null placeholders aligned.
+	 *
+	 * @param array<string,mixed> $block Parent block.
+	 * @param int                 $inner_index Inner block index.
+	 * @param array<string,mixed> $insert_block Block to insert.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_insert_inner_block_at( array $block, $inner_index, array $insert_block ) {
+		$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+		$inner_index  = max( 0, min( (int) $inner_index, count( $inner_blocks ) ) );
+		array_splice( $inner_blocks, $inner_index, 0, array( $insert_block ) );
+		$block['innerBlocks'] = $inner_blocks;
+
+		$inner_content = is_array( $block['innerContent'] ?? null ) ? array_values( $block['innerContent'] ) : array();
+		if ( empty( $inner_content ) ) {
+			$block['innerContent'] = array_fill( 0, count( $inner_blocks ), null );
+			return $block;
+		}
+
+		$null_offset = $this->block_theme_inner_content_null_offset_for_child_index( $inner_content, $inner_index );
+		array_splice( $inner_content, $null_offset, 0, array( null ) );
+		$block['innerContent'] = $inner_content;
+		return $block;
+	}
+
+	/**
+	 * Returns the innerContent offset where a child placeholder should be inserted.
+	 *
+	 * @param array<int,mixed> $inner_content Inner content.
+	 * @param int              $child_index Child block index.
+	 * @return int
+	 */
+	private function block_theme_inner_content_null_offset_for_child_index( array $inner_content, $child_index ) {
+		$seen_children = 0;
+		foreach ( $inner_content as $offset => $content ) {
+			if ( null !== $content ) {
+				continue;
+			}
+			if ( $seen_children >= $child_index ) {
+				return (int) $offset;
+			}
+			++$seen_children;
+		}
+		return count( $inner_content );
 	}
 
 	/**

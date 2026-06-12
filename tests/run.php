@@ -1421,7 +1421,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 			'post_type' => 'wp_template',
 			'post_status' => 'publish',
 			'post_title' => 'Single',
-			'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
 			'post_excerpt' => '',
 			'post_author' => 7,
 			'post_name' => 'single',
@@ -1432,7 +1432,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 			'post_type' => 'wp_template',
 			'post_status' => 'publish',
 			'post_title' => 'Page',
-			'post_content' => '<!-- wp:group --><div class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></div><!-- /wp:group -->',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
 			'post_excerpt' => '',
 			'post_author' => 7,
 			'post_name' => 'page',
@@ -1665,9 +1665,40 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	$block_theme_actions = is_array( $block_theme_plan['data']['write_actions'] ?? null ) ? $block_theme_plan['data']['write_actions'] : array();
 	npcink_abilities_toolkit_assert_same( 2, count( $block_theme_actions ), 'build-block-theme-site-plan emits one action per found template target' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $block_theme_actions[0]['target_ability_id'] ?? '', 'block theme site plan targets template block writes' );
-	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan inserts a stable Core group first' );
-	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][0]['attrs']['className'] ?? '', 'block theme site plan marks the group as a breadcrumb scaffold' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $block_theme_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan keeps the header template part first' );
+	npcink_abilities_toolkit_assert_same( 'core/group', $block_theme_actions[0]['input']['blocks'][1]['blockName'] ?? '', 'block theme site plan keeps main content as the second top-level block' );
+	npcink_abilities_toolkit_assert_same( 'main', $block_theme_actions[0]['input']['blocks'][1]['attrs']['tagName'] ?? '', 'block theme site plan targets the main content container' );
+	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $block_theme_actions[0]['input']['blocks'][1]['innerBlocks'][0]['attrs']['className'] ?? '', 'block theme site plan inserts breadcrumbs inside main before the title' );
+	npcink_abilities_toolkit_assert_same( 'core/post-title', $block_theme_actions[0]['input']['blocks'][1]['innerBlocks'][1]['blockName'] ?? '', 'block theme site plan keeps the post title after breadcrumbs' );
+	npcink_abilities_toolkit_assert_same( 'before_post_title_in_main', $block_theme_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan reports semantic breadcrumb placement' );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'block theme site plan preview carries the per-template quality gate' );
+	$block_theme_style_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		606 => (object) array(
+			'ID' => 606,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Single',
+			'post_content' => '<!-- wp:group {"className":"openclaw-breadcrumbs"} --><div class="wp-block-group openclaw-breadcrumbs"><!-- wp:paragraph {"className":"openclaw-breadcrumbs__trail"} --><p class="openclaw-breadcrumbs__trail">Home / Current item</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group -->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'single',
+		),
+	);
+	$relocated_breadcrumb_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'single' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $block_theme_style_posts_fixture;
+	$relocated_breadcrumb_actions = is_array( $relocated_breadcrumb_plan['data']['write_actions'] ?? null ) ? $relocated_breadcrumb_plan['data']['write_actions'] : array();
+	npcink_abilities_toolkit_assert_same( true, $relocated_breadcrumb_plan['success'] ?? null, 'build-block-theme-site-plan accepts a template with misplaced breadcrumbs' );
+	npcink_abilities_toolkit_assert_same( 'relocated', $relocated_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['status'] ?? '', 'block theme site plan reports misplaced breadcrumbs as relocated' );
+	npcink_abilities_toolkit_assert_same( 'before_post_title_in_main', $relocated_breadcrumb_plan['data']['preview'][0]['breadcrumb_placement']['strategy'] ?? '', 'block theme site plan relocates misplaced breadcrumbs before the title in main' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $relocated_breadcrumb_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'block theme site plan removes misplaced top-level breadcrumbs before the header' );
+	npcink_abilities_toolkit_assert_same( 'openclaw-breadcrumbs', $relocated_breadcrumb_actions[0]['input']['blocks'][1]['innerBlocks'][0]['attrs']['className'] ?? '', 'block theme site plan moves existing breadcrumbs inside main before the title' );
+	npcink_abilities_toolkit_assert_same( 'core/post-title', $relocated_breadcrumb_actions[0]['input']['blocks'][1]['innerBlocks'][1]['blockName'] ?? '', 'block theme site plan preserves post title after relocated breadcrumbs' );
 	$template_update_output_schema = $package_abilities['npcink-abilities-toolkit/update-template-blocks']['output_schema'] ?? array();
 	$template_preview = $core_write_package->update_template_blocks(
 		array(
@@ -1691,7 +1722,15 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
 	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $template_update_output_schema, $template_written, 'update-template-blocks commit' );
-	npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' ), 'openclaw-breadcrumbs' ), 'update-template-blocks writes breadcrumb scaffold markup' );
+	$template_written_content = (string) ( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][601]->post_content ?? '' );
+	$template_written_header_position = strpos( $template_written_content, 'wp:template-part {"slug":"header"}' );
+	$template_written_breadcrumb_position = strpos( $template_written_content, 'openclaw-breadcrumbs' );
+	$template_written_title_position = strpos( $template_written_content, 'wp:post-title' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_breadcrumb_position, 'update-template-blocks writes breadcrumb scaffold markup' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_header_position, 'update-template-blocks writes the header template part marker' );
+	npcink_abilities_toolkit_assert_true( false !== $template_written_title_position, 'update-template-blocks writes the post title marker' );
+	npcink_abilities_toolkit_assert_true( $template_written_breadcrumb_position > $template_written_header_position, 'update-template-blocks does not write breadcrumbs before the header template part' );
+	npcink_abilities_toolkit_assert_true( $template_written_breadcrumb_position < $template_written_title_position, 'update-template-blocks writes breadcrumbs before the post title' );
 	$template_part_preview = $core_write_package->update_template_part_blocks(
 		array(
 			'post_id' => 603,
