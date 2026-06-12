@@ -4547,10 +4547,18 @@ npcink_abilities_toolkit_assert_same( 8053, $pattern_media_slots[0]['existing_me
 npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_valid'] ?? null, 'build-pattern-page-plan marks reviewed media URLs valid' );
 npcink_abilities_toolkit_assert_same( true, $pattern_media_slots[0]['media_input_has_attachment_id'] ?? null, 'build-pattern-page-plan marks reviewed media attachment ids present' );
 npcink_abilities_toolkit_assert_same( '3.0', $pattern_page_plan['data']['design_quality']['pattern_version'] ?? '', 'build-pattern-page-plan reports the v3 Pattern quality version' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_native_v1', $pattern_page_plan['data']['design_quality']['design_system'] ?? '', 'build-pattern-page-plan reports the Gutenberg-native design system contract' );
+npcink_abilities_toolkit_assert_same( 'media_first_saas_landing', $pattern_page_plan['data']['design_quality']['recipe_variant'] ?? '', 'build-pattern-page-plan reports a media-first recipe variant when reviewed hero media is supplied' );
+npcink_abilities_toolkit_assert_true( '' !== (string) ( $pattern_page_plan['data']['design_quality']['variant_reason'] ?? '' ), 'build-pattern-page-plan explains why the recipe variant was selected' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_native', $pattern_page_plan['data']['design_quality']['style_strategy'] ?? '', 'build-pattern-page-plan reports Gutenberg-native style strategy' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['uses_native_styles'] ?? null, 'build-pattern-page-plan reports native style usage' );
 npcink_abilities_toolkit_assert_same( 'minimal-dark-light', $pattern_page_plan['data']['design_quality']['color_story'] ?? '', 'build-pattern-page-plan reports the native color story in design quality' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_editorial_accent'] ?? true, 'build-pattern-page-plan does not report editorial accents for the default monochrome story' );
+npcink_abilities_toolkit_assert_true( (int) ( $pattern_page_plan['data']['design_quality']['section_shape_variety'] ?? 0 ) >= 4, 'build-pattern-page-plan reports enough section shape variety for landing pages' );
+npcink_abilities_toolkit_assert_true( (float) ( $pattern_page_plan['data']['design_quality']['media_coverage_score'] ?? 0 ) >= 0.6, 'build-pattern-page-plan reports media coverage for modern landing pages' );
+npcink_abilities_toolkit_assert_true( (float) ( $pattern_page_plan['data']['design_quality']['template_similarity_score'] ?? 1 ) <= 0.75, 'build-pattern-page-plan reports bounded template similarity risk' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['uses_core_html'] ?? true, 'build-pattern-page-plan reports no core/html usage' );
+npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['uses_non_core_blocks'] ?? true, 'build-pattern-page-plan reports no non-core block usage' );
 npcink_abilities_toolkit_assert_same( 8, $pattern_page_plan['data']['design_quality']['section_count'] ?? 0, 'build-pattern-page-plan reports eight v2 sections when media is supplied' );
 npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['design_quality']['has_split_hero'] ?? null, 'build-pattern-page-plan reports split hero' );
 npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['design_quality']['has_dashboard_mock'] ?? null, 'build-pattern-page-plan does not report dashboard mock when reviewed hero media is supplied' );

@@ -3063,13 +3063,29 @@ trait Page_Pattern_Read_Methods {
 		$has_visual_delta = $this->pattern_has_class_name( $blocks, 'npcink-ai-visual-delta' );
 		$color_story      = '' !== (string) $color_story ? sanitize_key( (string) $color_story ) : $this->pattern_detect_color_story( $blocks );
 		$accent_surface_count = $this->pattern_accent_surface_count( $blocks );
+		$section_shape_variety = $this->pattern_review_section_shape_variety( $blocks );
+		$visual_asset_count    = $this->pattern_count_visual_asset_blocks( $blocks );
+		$has_hero_media        = $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' );
+		$has_dashboard_mock    = $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' );
+		$has_media_text        = $this->pattern_has_block_name( $blocks, 'core/media-text' );
+		$has_core_html         = $this->pattern_has_block_name( $blocks, 'core/html' ) || $this->pattern_has_block_name( $blocks, 'core/freeform' );
+		$uses_non_core_blocks  = $this->pattern_uses_non_core_blocks( $blocks );
+		$recipe_variant        = $this->pattern_recipe_variant( $blocks, $research_brief, $has_visual_delta );
 		return array(
 			'pattern_version'       => $has_visual_delta ? '4.0' : '3.0',
+			'design_system'         => 'gutenberg_native_v1',
+			'recipe_variant'        => $recipe_variant,
+			'variant_reason'        => $this->pattern_variant_reason( $recipe_variant, $blocks, $research_brief ),
 			'style_strategy'        => 'gutenberg_native',
 			'uses_native_styles'    => true,
 			'color_story'           => $color_story,
 			'has_editorial_accent'  => 'editorial-accent' === $color_story || $accent_surface_count > 0,
 			'accent_surface_count'  => $accent_surface_count,
+			'section_shape_variety' => $section_shape_variety,
+			'media_coverage_score'  => $this->pattern_media_coverage_score( $visual_asset_count, $has_hero_media, $has_dashboard_mock, $has_media_text ),
+			'template_similarity_score' => $this->pattern_template_similarity_score( $blocks, $section_shape_variety, $visual_asset_count ),
+			'uses_core_html'        => $has_core_html,
+			'uses_non_core_blocks'  => $uses_non_core_blocks,
 			'visual_delta_mode'     => $has_visual_delta ? 'strong_revision' : 'standard',
 			'research_backed'       => ! empty( $research_brief ),
 			'research_source_count' => absint( $research_brief['source_count'] ?? 0 ),
@@ -3077,14 +3093,14 @@ trait Page_Pattern_Read_Methods {
 			'section_count'         => count( $blocks ),
 			'block_count'           => $this->count_pattern_blocks_recursive( $blocks ),
 			'has_split_hero'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-layout' ),
-			'has_dashboard_mock'    => $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ),
-			'has_hero_media'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ),
+			'has_dashboard_mock'    => $has_dashboard_mock,
+			'has_hero_media'        => $has_hero_media,
 			'has_hero_media_attachment_id' => $this->pattern_has_media_attachment_binding( $blocks ),
 			'has_proof_strip'       => $this->pattern_has_class_name( $blocks, 'npcink-ai-proof-strip' ),
 			'has_bento_grid'        => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-bento' ),
 			'has_visual_delta_section' => $has_visual_delta,
 			'has_feature_proof_row' => $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-proof-row' ),
-			'has_media_text'        => $this->pattern_has_block_name( $blocks, 'core/media-text' ),
+			'has_media_text'        => $has_media_text,
 			'has_comparison_section' => $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ),
 			'has_faq'               => $this->pattern_has_block_name( $blocks, 'core/details' ),
 			'has_final_cta'         => $this->pattern_has_class_name( $blocks, 'npcink-ai-final-cta' ),
@@ -3101,6 +3117,146 @@ trait Page_Pattern_Read_Methods {
 	 */
 	private function pattern_detect_color_story( array $blocks ): string {
 		return $this->pattern_accent_surface_count( $blocks ) > 0 ? 'editorial-accent' : 'minimal-dark-light';
+	}
+
+	/**
+	 * Returns a bounded recipe variant label for anti-template routing.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $research_brief Research brief.
+	 * @param bool                           $has_visual_delta Whether the plan is a visual revision.
+	 * @return string
+	 */
+	private function pattern_recipe_variant( array $blocks, array $research_brief, bool $has_visual_delta ): string {
+		if ( $has_visual_delta ) {
+			return 'visual_delta_saas_landing';
+		}
+		if ( ! empty( $research_brief ) ) {
+			return 'research_backed_saas_landing';
+		}
+		if ( $this->pattern_has_class_name( $blocks, 'npcink-ai-hero-media-card' ) ) {
+			return 'media_first_saas_landing';
+		}
+		return 'dashboard_mock_saas_landing';
+	}
+
+	/**
+	 * Returns a short human-readable reason for the selected recipe variant.
+	 *
+	 * @param string                         $variant Variant.
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param array<string,mixed>            $research_brief Research brief.
+	 * @return string
+	 */
+	private function pattern_variant_reason( string $variant, array $blocks, array $research_brief ): string {
+		if ( 'visual_delta_saas_landing' === $variant ) {
+			return 'The plan applies review feedback with a darker visual-delta feature section and proof row so the revision is visibly different from the baseline.';
+		}
+		if ( 'research_backed_saas_landing' === $variant ) {
+			return 'The plan uses a reviewed research brief to shape proof points, comparison angles, FAQ seeds, and media copy without copying reference sites.';
+		}
+		if ( 'media_first_saas_landing' === $variant ) {
+			return 'The plan has reviewed hero media, so it uses a split hero, media-text proof section, Bento features, comparison cards, FAQ, and final CTA.';
+		}
+		if ( $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ) ) {
+			return 'No reviewed hero image was supplied, so the plan uses a Gutenberg-native dashboard mock with proof, Bento, comparison, FAQ, and CTA sections.';
+		}
+		return 'The plan uses a bounded Gutenberg-native landing composition with varied section primitives and no custom CSS.';
+	}
+
+	/**
+	 * Counts visual asset blocks used by the Pattern.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return int
+	 */
+	private function pattern_count_visual_asset_blocks( array $blocks ): int {
+		$count = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( 'core/image' === $block_name || 'core/media-text' === $block_name ) {
+				++$count;
+			}
+			$count += $this->pattern_count_visual_asset_blocks( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() );
+		}
+		return $count;
+	}
+
+	/**
+	 * Returns a normalized media coverage score for landing page quality gates.
+	 *
+	 * @param int  $visual_asset_count Visual asset count.
+	 * @param bool $has_hero_media Whether hero media is present.
+	 * @param bool $has_dashboard_mock Whether a dashboard mock is present.
+	 * @param bool $has_media_text Whether media-text exists.
+	 * @return float
+	 */
+	private function pattern_media_coverage_score( int $visual_asset_count, bool $has_hero_media, bool $has_dashboard_mock, bool $has_media_text ): float {
+		$score = 0.0;
+		if ( $visual_asset_count > 0 ) {
+			$score += 0.35;
+		}
+		if ( $has_hero_media ) {
+			$score += 0.35;
+		}
+		if ( $has_media_text ) {
+			$score += 0.20;
+		}
+		if ( $has_dashboard_mock ) {
+			$score += 0.20;
+		}
+		return min( 1.0, round( $score, 2 ) );
+	}
+
+	/**
+	 * Returns a bounded same-template risk score; lower is more varied.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @param int                            $section_shape_variety Section shape variety.
+	 * @param int                            $visual_asset_count Visual asset count.
+	 * @return float
+	 */
+	private function pattern_template_similarity_score( array $blocks, int $section_shape_variety, int $visual_asset_count ): float {
+		$score = 0.85;
+		$score -= min( 0.30, max( 0, $section_shape_variety - 3 ) * 0.06 );
+		if ( $visual_asset_count > 0 || $this->pattern_has_class_name( $blocks, 'npcink-ai-dashboard-mock' ) ) {
+			$score -= 0.12;
+		}
+		if ( $this->pattern_has_class_name( $blocks, 'npcink-ai-feature-bento' ) ) {
+			$score -= 0.08;
+		}
+		if ( $this->pattern_has_class_name( $blocks, 'npcink-ai-comparison' ) ) {
+			$score -= 0.08;
+		}
+		if ( $this->pattern_has_class_name( $blocks, 'npcink-ai-visual-delta' ) ) {
+			$score -= 0.10;
+		}
+		return max( 0.0, min( 1.0, round( $score, 2 ) ) );
+	}
+
+	/**
+	 * Returns whether the block tree uses non-core blocks.
+	 *
+	 * @param array<int,array<string,mixed>> $blocks Blocks.
+	 * @return bool
+	 */
+	private function pattern_uses_non_core_blocks( array $blocks ): bool {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_name = (string) ( $block['blockName'] ?? '' );
+			if ( '' !== $block_name && 0 !== strpos( $block_name, 'core/' ) ) {
+				return true;
+			}
+			if ( $this->pattern_uses_non_core_blocks( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

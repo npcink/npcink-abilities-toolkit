@@ -94,6 +94,12 @@ The current `openai-style-landing` pattern follows these rules:
   `style.typography`, and `style.border` attributes for visual structure;
 - it emits `design_quality` and `responsive_quality` summaries so hosts can
   verify the pattern strategy before proposal execution.
+- `design_quality` includes OpenClaw-facing design-system signals:
+  `design_system=gutenberg_native_v1`, `recipe_variant`, `variant_reason`,
+  `section_shape_variety`, `media_coverage_score`,
+  `template_similarity_score`, `uses_core_html`, and
+  `uses_non_core_blocks`. These signals let hosts reject visually repetitive or
+  unsafe plans before creating a Core proposal.
 - it exposes bounded `color_story` choices. `minimal-dark-light` remains the
   conservative monochrome story, while `editorial-accent` uses only
   Gutenberg-native color, border, and spacing attributes to add a controlled
