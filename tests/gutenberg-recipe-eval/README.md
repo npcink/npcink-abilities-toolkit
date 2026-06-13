@@ -17,9 +17,11 @@ outputs, then a cross-judge comparison to identify cases that need human review.
 
 ## Flow
 
-1. Save an `evaluate-gutenberg-recipe-suite` response to:
+1. Export the deterministic default suite:
 
-   `tests/gutenberg-recipe-eval/generated/gutenberg-recipe-suite.json`
+   ```bash
+   composer eval:gutenberg-recipe:suite
+   ```
 
 2. Export Promptfoo judge cases:
 
@@ -53,10 +55,10 @@ assertions, or risky reasons are marked for human review.
 ## Eval-Lab Dual Judge
 
 Provider-backed model calls live in `magick-ai-eval-lab`, not this plugin repo.
-After exporting cases, run the eval-lab wrapper:
+The eval-lab wrapper refreshes the deterministic suite, exports judge cases,
+and then hands the CSV to eval-lab:
 
 ```bash
-composer eval:gutenberg-recipe:judge:cases
 composer eval:gutenberg-recipe:judge:eval-lab
 ```
 

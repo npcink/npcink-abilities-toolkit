@@ -468,8 +468,75 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 		if ( ! empty( $no_change_context['no_change_count'] ) ) {
 			$summary['no_change_context'] = $no_change_context;
 		}
+		$composition_contract = $this->gutenberg_recipe_eval_composition_contract_summary( $plan_data );
+		if ( ! empty( $composition_contract ) ) {
+			$summary['composition_contract'] = $composition_contract;
+		}
+		$template_placement_contract = $this->gutenberg_recipe_eval_template_placement_contract_summary( $plan_data );
+		if ( ! empty( $template_placement_contract ) ) {
+			$summary['template_placement_contract'] = $template_placement_contract;
+		}
 
 		return $summary;
+	}
+
+	/**
+	 * Returns compact block composition contract evidence for AI judges.
+	 *
+	 * @param array<string,mixed> $plan_data Plan data.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_recipe_eval_composition_contract_summary( array $plan_data ) {
+		$contract = is_array( $plan_data['composition_contract'] ?? null ) ? $plan_data['composition_contract'] : array();
+		if ( empty( $contract ) ) {
+			return array();
+		}
+
+		return array(
+			'catalog_id'             => sanitize_key( (string) ( $contract['catalog_id'] ?? '' ) ),
+			'surface'                => sanitize_key( (string) ( $contract['surface'] ?? '' ) ),
+			'composition_model'      => sanitize_key( (string) ( $contract['composition_model'] ?? '' ) ),
+			'contract_status'        => sanitize_key( (string) ( $contract['contract_status'] ?? '' ) ),
+			'forbidden_block_names'  => is_array( $contract['forbidden_block_names'] ?? null ) ? array_values( $contract['forbidden_block_names'] ) : array(),
+			'non_core_blocks'        => is_array( $contract['non_core_blocks'] ?? null ) ? array_values( $contract['non_core_blocks'] ) : array(),
+		);
+	}
+
+	/**
+	 * Returns compact template placement contract evidence for AI judges.
+	 *
+	 * @param array<string,mixed> $plan_data Plan data.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_recipe_eval_template_placement_contract_summary( array $plan_data ) {
+		$contract = is_array( $plan_data['template_placement_contract'] ?? null ) ? $plan_data['template_placement_contract'] : array();
+		if ( empty( $contract ) ) {
+			return array();
+		}
+
+		$placements = array();
+		foreach ( is_array( $contract['placements'] ?? null ) ? $contract['placements'] : array() as $placement ) {
+			if ( ! is_array( $placement ) ) {
+				continue;
+			}
+			$placements[] = array(
+				'slug'             => sanitize_key( (string) ( $placement['slug'] ?? '' ) ),
+				'status'           => sanitize_key( (string) ( $placement['status'] ?? '' ) ),
+				'strategy'         => sanitize_key( (string) ( $placement['strategy'] ?? '' ) ),
+				'inserted_before'  => sanitize_text_field( (string) ( $placement['inserted_before'] ?? '' ) ),
+				'strategy_allowed' => ! empty( $placement['strategy_allowed'] ),
+				'anchor_allowed'   => ! empty( $placement['anchor_allowed'] ),
+			);
+		}
+
+		return array(
+			'catalog_id'              => sanitize_key( (string) ( $contract['catalog_id'] ?? '' ) ),
+			'placement_model'         => sanitize_key( (string) ( $contract['placement_model'] ?? '' ) ),
+			'contract_status'         => sanitize_key( (string) ( $contract['contract_status'] ?? '' ) ),
+			'violation_codes'         => is_array( $contract['violation_codes'] ?? null ) ? array_values( $contract['violation_codes'] ) : array(),
+			'preferred_anchor_blocks' => is_array( $contract['preferred_anchor_blocks'] ?? null ) ? array_values( $contract['preferred_anchor_blocks'] ) : array(),
+			'placements'              => array_slice( $placements, 0, 5 ),
+		);
 	}
 
 	/**
@@ -563,6 +630,12 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 		}
 		if ( 'block_theme_site_plan' === $route_name && empty( $actions ) && 'no_changes_required' !== sanitize_key( (string) ( $plan_data['block_editor_quality_gate']['recommended_next_step'] ?? '' ) ) ) {
 			$failures[] = 'template_plan_no_actions_without_noop_status';
+		}
+		if ( 'block_theme_site_plan' === $route_name ) {
+			$template_placement_contract = is_array( $plan_data['template_placement_contract'] ?? null ) ? $plan_data['template_placement_contract'] : array();
+			if ( ! empty( $template_placement_contract ) && 'pass' !== sanitize_key( (string) ( $template_placement_contract['contract_status'] ?? '' ) ) ) {
+				$failures[] = 'template_placement_contract_failed';
+			}
 		}
 		return $failures;
 	}

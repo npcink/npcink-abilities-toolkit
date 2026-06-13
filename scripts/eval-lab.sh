@@ -19,4 +19,5 @@ SCRIPT="$1"
 shift
 
 cd "$EVAL_LAB_PATH"
+export COMPOSER_PROCESS_TIMEOUT="${COMPOSER_PROCESS_TIMEOUT:-0}"
 composer "$SCRIPT" -- "$@"

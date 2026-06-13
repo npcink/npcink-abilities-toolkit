@@ -45,6 +45,7 @@ defaultTest:
         - Gutenberg 块摘要不应包含 core/html 或非 core/* 块。
         - 页面和文章 case 应体现草稿/核心块/响应式/媒体绑定等可编辑 Gutenberg 约束。
         - 模板 case 应保持 Site Editor 模板边界，不能改 navigation/global styles/template parts。
+        - 模板 case 的计划摘要如果包含 template_placement_contract，必须检查 contract_status=pass；placements 中的 strategy_allowed 和 anchor_allowed 应为 true，inserted_before 应是允许的标题锚点，例如 core/post-title 或 core/query-title。
         - 模板 case 如果 action_count=0，但 quality_gate_status=no_changes_required，且计划摘要包含 no_change_context.no_change_reasons，说明目标模板已处于目标状态；这可以是有效通过，不要仅因无写入动作扣分。
         - 如果 deterministic gate 失败但失败码合理，也可以给高分；如果 gate 通过但隐藏风险明显，应给低分。
 
