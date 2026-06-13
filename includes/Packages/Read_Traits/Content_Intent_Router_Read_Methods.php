@@ -54,6 +54,12 @@ trait Content_Intent_Router_Read_Methods {
 		$route['media_strategy'] = $this->content_intent_media_strategy( $signals, $media_hint, (string) $route['route'] );
 		$route['style_strategy'] = $this->content_intent_style_strategy( $signals, $style_hint, (string) $route['route'] );
 		$route['recommended_plan_input'] = $this->content_intent_recommended_plan_input( $route, $prompt );
+		if ( ! empty( $route['supported'] ) ) {
+			$route['block_capability_catalog_ability_id'] = 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog';
+			$route['block_capability_catalog_id']         = 'gutenberg_native_v1';
+			$route['composer_instruction']                = $this->gutenberg_block_composer_instruction( $this->content_intent_catalog_surface( $route ) );
+			$route['recommended_composer_flow']           = $this->gutenberg_block_recommended_composer_flow();
+		}
 
 		return $this->build_analysis_success_response(
 			array(
@@ -66,6 +72,9 @@ trait Content_Intent_Router_Read_Methods {
 				'signals'                => $signals,
 				'supported_routes'       => $this->content_intent_supported_routes(),
 				'guardrails'             => array(
+					'block_capability_catalog_ability_id' => 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog',
+					'block_capability_catalog_id' => 'gutenberg_native_v1',
+					'composition_model'   => 'bounded_block_composition',
 					'direct_wordpress_write' => false,
 					'commit_execution'       => false,
 					'proposal_required'      => true,
@@ -412,6 +421,26 @@ trait Content_Intent_Router_Read_Methods {
 			);
 		}
 		return array();
+	}
+
+	/**
+	 * Maps a route to the block capability catalog surface.
+	 *
+	 * @param array<string,mixed> $route Route.
+	 * @return string
+	 */
+	private function content_intent_catalog_surface( array $route ): string {
+		$target_type = sanitize_key( (string) ( $route['target_type'] ?? '' ) );
+		if ( 'page' === $target_type ) {
+			return 'page';
+		}
+		if ( 'post' === $target_type ) {
+			return 'post';
+		}
+		if ( 'wp_template' === $target_type ) {
+			return 'template';
+		}
+		return 'all';
 	}
 
 	/**

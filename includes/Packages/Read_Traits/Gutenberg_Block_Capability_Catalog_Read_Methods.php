@@ -59,6 +59,8 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 			'composition_model'      => 'bounded_block_composition',
 			'composer_role'          => 'ai_selects_sections_and_core_blocks',
 			'plugin_role'            => 'normalize_validate_serialize_and_handoff_to_proposal',
+			'composer_instruction'    => $this->gutenberg_block_composer_instruction( $surface ),
+			'recommended_composer_flow' => $this->gutenberg_block_recommended_composer_flow(),
 			'direct_wordpress_write' => false,
 			'commit_execution'       => false,
 			'custom_css_allowed'     => false,
@@ -227,6 +229,8 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 			'composition_model'      => 'bounded_block_composition',
 			'plugin_role'            => 'normalize_validate_serialize_and_handoff_to_proposal',
 			'ai_role'                => 'select_allowed_core_blocks_and_section_order',
+			'composer_instruction'    => $this->gutenberg_block_composer_instruction( $surface ),
+			'recommended_composer_flow' => $this->gutenberg_block_recommended_composer_flow(),
 			'core_html_allowed'      => false,
 			'non_core_blocks_allowed' => false,
 			'custom_css_allowed'     => false,
@@ -309,6 +313,85 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 			'columns_without_mobile_stack'      => $columns_unstacked,
 			'media_missing_alt_count'           => $media_missing_alt,
 			'temporary_cloud_preview_url_count' => $temp_urls,
+		);
+	}
+
+	/**
+	 * Returns concise AI composer instructions for a Gutenberg surface.
+	 *
+	 * @param string $surface Surface label.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_block_composer_instruction( string $surface = 'all' ): array {
+		return array(
+			'instruction_id' => 'gutenberg_native_block_composer_v1',
+			'surface'        => sanitize_key( $surface ),
+			'objective'      => 'compose_with_allowed_core_blocks_not_raw_html',
+			'ai_may_choose'  => array(
+				'section_order',
+				'allowed_core_blocks',
+				'copy',
+				'native_block_attrs_within_catalog',
+				'media_slot_usage',
+			),
+			'ai_must_not_choose' => array(
+				'core/html',
+				'core/freeform',
+				'non_core_blocks',
+				'custom_css',
+				'direct_wordpress_write',
+				'publish_status',
+			),
+			'preferred_process' => array(
+				'read_block_capability_catalog',
+				'route_natural_language_intent',
+				'compose_sections_from_primitives',
+				'use_only_allowed_core_blocks_and_attrs',
+				'run_quality_gate',
+				'create_proposal_for_human_review',
+			),
+			'fallback_policy' => 'fail_closed_when_intent_or_block_contract_is_unsupported',
+		);
+	}
+
+	/**
+	 * Returns the recommended ability flow for AI composers.
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function gutenberg_block_recommended_composer_flow(): array {
+		return array(
+			array(
+				'step'       => 'inspect_catalog',
+				'ability_id' => 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog',
+				'write'      => false,
+			),
+			array(
+				'step'       => 'route_intent',
+				'ability_id' => 'npcink-abilities-toolkit/route-content-intent',
+				'write'      => false,
+			),
+			array(
+				'step'       => 'build_plan',
+				'ability_id' => 'route.plan_ability_id',
+				'write'      => false,
+			),
+			array(
+				'step'       => 'submit_proposal',
+				'endpoint'   => '/wp-json/npcink-governance-core/v1/proposals/from-plan',
+				'write'      => false,
+			),
+			array(
+				'step'       => 'execute_after_approval',
+				'endpoint'   => '/wp-json/npcink-governance-core/v1/proposals/{proposal_id}/execute',
+				'write'      => true,
+				'requires_approval' => true,
+			),
+			array(
+				'step'       => 'readback_verify',
+				'ability_id' => 'route.readback_ability_ids',
+				'write'      => false,
+			),
 		);
 	}
 }

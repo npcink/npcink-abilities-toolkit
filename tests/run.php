@@ -1177,6 +1177,9 @@ npcink_abilities_toolkit_assert_same( false, $gutenberg_block_catalog['data']['c
 npcink_abilities_toolkit_assert_same( false, $gutenberg_block_catalog['data']['core_html_allowed'] ?? true, 'Gutenberg block capability catalog forbids core/html' );
 npcink_abilities_toolkit_assert_same( false, $gutenberg_block_catalog['data']['non_core_blocks_allowed'] ?? true, 'Gutenberg block capability catalog forbids non-core blocks' );
 npcink_abilities_toolkit_assert_same( false, $gutenberg_block_catalog['data']['custom_css_allowed'] ?? true, 'Gutenberg block capability catalog forbids custom CSS as a base composition mechanism' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_native_block_composer_v1', $gutenberg_block_catalog['data']['composer_instruction']['instruction_id'] ?? '', 'Gutenberg block capability catalog exposes stable AI composer instructions' );
+npcink_abilities_toolkit_assert_true( in_array( 'core/html', $gutenberg_block_catalog['data']['composer_instruction']['ai_must_not_choose'] ?? array(), true ), 'Gutenberg block composer instructions forbid raw HTML blocks' );
+npcink_abilities_toolkit_assert_same( 'inspect_catalog', $gutenberg_block_catalog['data']['recommended_composer_flow'][0]['step'] ?? '', 'Gutenberg block capability catalog tells composers to inspect the catalog first' );
 npcink_abilities_toolkit_assert_true( in_array( 'core/group', $gutenberg_block_catalog['data']['allowed_block_names'] ?? array(), true ), 'Gutenberg block capability catalog allows core/group composition' );
 npcink_abilities_toolkit_assert_true( in_array( 'core/image', $gutenberg_block_catalog['data']['allowed_block_names'] ?? array(), true ), 'Gutenberg block capability catalog allows core/image composition' );
 npcink_abilities_toolkit_assert_true( in_array( 'core/media-text', $gutenberg_block_catalog['data']['allowed_block_names'] ?? array(), true ), 'Gutenberg block capability catalog allows core/media-text composition' );
@@ -4758,6 +4761,7 @@ npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['respons
 	npcink_abilities_toolkit_assert_same( 'pass', $article_block_plan['data']['composition_contract']['contract_status'] ?? '', 'build-article-block-plan passes the block composition contract' );
 	npcink_abilities_toolkit_assert_same( array(), $article_block_plan['data']['composition_contract']['non_core_blocks'] ?? array( 'unexpected' ), 'build-article-block-plan reports no non-core block contract violations' );
 	npcink_abilities_toolkit_assert_true( in_array( 'core/image', $article_block_plan['data']['composition_contract']['used_block_names'] ?? array(), true ), 'build-article-block-plan contract records core image usage' );
+	npcink_abilities_toolkit_assert_same( 'gutenberg_native_block_composer_v1', $article_block_plan['data']['composition_contract']['composer_instruction']['instruction_id'] ?? '', 'build-article-block-plan exposes AI composer instructions through the contract' );
 	npcink_abilities_toolkit_assert_same( true, $article_block_plan['data']['block_editor_review']['media_quality']['has_hero_media_attachment_id'] ?? null, 'build-article-block-plan review reports hero media attachment ids present' );
 	npcink_abilities_toolkit_assert_same( false, $article_block_plan['data']['block_editor_review']['media_quality']['has_temporary_cloud_preview_url'] ?? true, 'build-article-block-plan review reports no temporary Cloud preview URLs' );
 	npcink_abilities_toolkit_assert_same( 'article_editor_safety', $article_block_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-article-block-plan uses an article editor-safety quality gate' );
@@ -4863,6 +4867,10 @@ npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-pa
 npcink_abilities_toolkit_assert_same( 'existing_or_generated_media', $page_intent_route['data']['route']['media_strategy'] ?? '', 'route-content-intent detects visual media needs from page prompts' );
 npcink_abilities_toolkit_assert_same( 'gutenberg-native-modern', $page_intent_route['data']['route']['style_strategy'] ?? '', 'route-content-intent detects modern style requests' );
 npcink_abilities_toolkit_assert_same( 'page', $page_intent_route['data']['route']['recommended_plan_input']['post_type'] ?? '', 'route-content-intent recommends page plan input for landing pages' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $page_intent_route['data']['route']['block_capability_catalog_ability_id'] ?? '', 'route-content-intent points page composers at the block capability catalog' );
+npcink_abilities_toolkit_assert_same( 'page', $page_intent_route['data']['route']['composer_instruction']['surface'] ?? '', 'route-content-intent scopes page composer instructions to the page surface' );
+npcink_abilities_toolkit_assert_same( 'inspect_catalog', $page_intent_route['data']['route']['recommended_composer_flow'][0]['step'] ?? '', 'route-content-intent recommends catalog inspection before planning' );
+npcink_abilities_toolkit_assert_same( 'bounded_block_composition', $page_intent_route['data']['guardrails']['composition_model'] ?? '', 'route-content-intent guardrails report bounded block composition' );
 npcink_abilities_toolkit_assert_true( ! isset( $page_intent_route['data']['write_actions'] ), 'route-content-intent does not create write actions' );
 
 $article_intent_route = $core_read_package->route_content_intent(
@@ -4874,6 +4882,7 @@ npcink_abilities_toolkit_assert_same( 'article_block_plan', $article_intent_rout
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $article_intent_route['data']['route']['plan_ability_id'] ?? '', 'route-content-intent selects the article block plan ability' );
 npcink_abilities_toolkit_assert_same( 'post', $article_intent_route['data']['route']['recommended_plan_input']['post_type'] ?? '', 'route-content-intent recommends post plan input for article prompts' );
 npcink_abilities_toolkit_assert_same( 'existing_media_url', $article_intent_route['data']['route']['recommended_plan_input']['media_strategy'] ?? '', 'route-content-intent keeps article media in the existing-media URL lane' );
+npcink_abilities_toolkit_assert_same( 'post', $article_intent_route['data']['route']['composer_instruction']['surface'] ?? '', 'route-content-intent scopes article composer instructions to the post surface' );
 
 $template_intent_route = $core_read_package->route_content_intent(
 	array(
@@ -5155,6 +5164,7 @@ npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['quality
 	npcink_abilities_toolkit_assert_same( 'pass', $pattern_page_plan['data']['composition_contract']['contract_status'] ?? '', 'build-pattern-page-plan passes the block composition contract' );
 	npcink_abilities_toolkit_assert_same( array(), $pattern_page_plan['data']['composition_contract']['forbidden_block_names'] ?? array( 'unexpected' ), 'build-pattern-page-plan reports no forbidden block contract violations' );
 	npcink_abilities_toolkit_assert_true( in_array( 'core/media-text', $pattern_page_plan['data']['composition_contract']['used_block_names'] ?? array(), true ), 'build-pattern-page-plan contract records media-text usage' );
+	npcink_abilities_toolkit_assert_same( 'gutenberg_native_block_composer_v1', $pattern_page_plan['data']['composition_contract']['composer_instruction']['instruction_id'] ?? '', 'build-pattern-page-plan exposes AI composer instructions through the contract' );
 	npcink_abilities_toolkit_assert_same( 'landing_design', $pattern_page_plan['data']['block_editor_quality_gate']['profile'] ?? '', 'build-pattern-page-plan uses the full landing design quality gate' );
 	npcink_abilities_toolkit_assert_same( true, $pattern_page_plan['data']['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'build-pattern-page-plan marks high-quality blocks ready through the block-editor quality gate' );
 	npcink_abilities_toolkit_assert_same( false, $pattern_page_plan['data']['block_editor_quality_gate']['commit_execution'] ?? null, 'build-pattern-page-plan quality gate does not execute commits' );
