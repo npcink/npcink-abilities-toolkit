@@ -71,6 +71,9 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 				'review_contract'        => $this->gutenberg_recipe_eval_review_contract(),
 				'dual_review'            => $this->gutenberg_recipe_eval_suite_dual_review( $case_results, $status ),
 				'guardrails'             => array(
+					'block_capability_catalog_ability_id' => 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog',
+					'block_capability_catalog_id' => 'gutenberg_native_v1',
+					'composition_model'   => 'bounded_block_composition',
 					'allowed_plan_ability_ids' => array(
 						'npcink-abilities-toolkit/build-pattern-page-plan',
 						'npcink-abilities-toolkit/build-article-block-plan',

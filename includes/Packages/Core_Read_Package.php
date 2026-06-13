@@ -31,6 +31,7 @@ final class Core_Read_Package {
 	use Content_Inventory_Read_Methods;
 	use Content_Refresh_SEO_Read_Methods;
 	use Diagnostics_Read_Methods;
+	use Gutenberg_Block_Capability_Catalog_Read_Methods;
 	use Gutenberg_Recipe_Evaluation_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Read_Methods;
@@ -1461,6 +1462,41 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'evaluate_gutenberg_recipe_suite' ),
+			),
+			'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog' => array(
+				'label'            => __( 'Get Gutenberg Block Capability Catalog', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns bounded Gutenberg-native block composition rules for AI planners without creating proposals or writing content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only block capability catalog. Use it to compose allowed core Gutenberg blocks; do not create proposals, do not write content, and do not treat prompts as authorization.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'surface' => array(
+							'type'    => 'string',
+							'enum'    => array( 'all', 'page', 'post', 'template' ),
+							'default' => 'all',
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_gutenberg_block_capability_catalog' ),
 			),
 			'npcink-abilities-toolkit/build-article-block-plan' => array(
 				'label'            => __( 'Build Article Block Plan', 'npcink-abilities-toolkit' ),

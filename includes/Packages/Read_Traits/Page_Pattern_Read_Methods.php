@@ -226,6 +226,7 @@ trait Page_Pattern_Read_Methods {
 					'block_count'  => $this->count_pattern_blocks_recursive( $blocks ),
 					'action_count' => count( $write_actions ),
 				),
+				'composition_contract'   => $this->gutenberg_block_composition_contract( $blocks, 'page' ),
 				'design_quality'         => $design_quality,
 				'responsive_quality'     => $responsive_quality,
 				'write_actions'          => $write_actions,
