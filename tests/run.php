@@ -4868,6 +4868,14 @@ $page_template_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $page_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps page breadcrumb prompts to block theme site plans' );
 npcink_abilities_toolkit_assert_same( array( 'page', 'front-page' ), $page_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes page breadcrumb prompts to page and front-page templates' );
 
+$archive_template_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '给归档模板加面包屑导航，并检查不要跑到页眉上方。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $archive_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps archive breadcrumb prompts to block theme site plans' );
+npcink_abilities_toolkit_assert_same( array( 'archive' ), $archive_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes archive breadcrumb prompts to archive templates' );
+
 $site_template_intent_route = $core_read_package->route_content_intent(
 	array(
 		'prompt' => '给网站加面包屑导航。',
@@ -4883,6 +4891,14 @@ $template_part_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part edits without a recipe' );
 npcink_abilities_toolkit_assert_same( true, $template_part_intent_route['data']['route']['needs_clarification'] ?? false, 'route-content-intent asks for clarification for unsupported template parts' );
 npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports the missing template part recipe' );
+
+$template_part_breadcrumb_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '在页眉模板部件里加面包屑导航。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_breadcrumb_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part breadcrumb requests' );
+npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_breadcrumb_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent does not route template part breadcrumb requests into template writes' );
 
 $navigation_intent_route = $core_read_package->route_content_intent(
 	array(

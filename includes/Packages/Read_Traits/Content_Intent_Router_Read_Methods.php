@@ -121,7 +121,7 @@ trait Content_Intent_Router_Read_Methods {
 			'page'          => $this->content_intent_match_terms( $prompt, array( 'page', 'landing', 'landing page', 'homepage', 'home page', 'website', 'site page', '产品页', '介绍页', '落地页', '官网', '首页', '页面' ) ),
 			'article'       => $this->content_intent_match_terms( $prompt, array( 'article', 'post', 'blog', 'longform', 'comparison review', 'guide', 'tutorial', '文章', '博客', '博文', '写一篇', '对比评测', '教程', '指南', '草稿' ) ),
 			'site_template' => $this->content_intent_match_terms( $prompt, array( 'template', 'site editor', 'block theme', 'single template', 'archive template', '模板', '站点编辑器', '块主题', '主题模板', '文章模板', '归档模板' ) ),
-			'template_part' => $this->content_intent_match_terms( $prompt, array( 'template part', 'header', 'footer', '页眉', '页脚', '模板部件', 'template_part' ) ),
+			'template_part' => $this->content_intent_match_terms( $prompt, array( 'template part', 'header template part', 'footer template part', 'header template', 'footer template', '页眉模板部件', '页脚模板部件', '页眉模板', '页脚模板', '模板部件', 'template_part' ) ),
 			'breadcrumbs'   => $this->content_intent_match_terms( $prompt, array( 'breadcrumb', 'breadcrumbs', '面包屑', '面包屑导航' ) ),
 			'navigation'    => $this->content_intent_match_terms( $prompt, array( 'navigation menu', 'nav menu', 'site navigation', 'navigation block', 'wp_navigation', '导航菜单', '站点导航', '导航栏', '主导航', '菜单' ) ),
 			'global_styles' => $this->content_intent_match_terms( $prompt, array( 'global styles', 'site styles', 'style book', '全站样式', '全局样式', '站点样式', '样式书' ) ),
@@ -199,7 +199,7 @@ trait Content_Intent_Router_Read_Methods {
 			return $this->content_intent_unsupported_route( 'caller_marked_unsupported', false );
 		}
 
-		if ( $part_score > 0 && ! $breadcrumb ) {
+		if ( $part_score > 0 ) {
 			return $this->content_intent_unsupported_route( 'template_part_recipe_not_available', true );
 		}
 		if ( $template_score > 0 || $breadcrumb ) {
@@ -424,11 +424,13 @@ trait Content_Intent_Router_Read_Methods {
 		$article_terms = $this->content_intent_match_terms( $prompt, array( 'single template', 'post template', 'article template', '文章模板', '文章页', '博客文章', '博文', '文章' ) );
 		$page_terms    = $this->content_intent_match_terms( $prompt, array( 'page template', 'page', '页面模板', '普通页面', '页面' ) );
 		$front_terms   = $this->content_intent_match_terms( $prompt, array( 'front page', 'homepage', 'home page', '首页模板', '首页', '主页' ) );
+		$archive_terms = $this->content_intent_match_terms( $prompt, array( 'archive template', 'archive page', 'archive', '归档模板', '归档页', '归档' ) );
 		$site_terms    = $this->content_intent_match_terms( $prompt, array( 'site', 'website', 'whole site', 'all templates', '全站', '网站', '整站', '所有模板' ) );
 
 		$article_score = $this->content_intent_signal_count( $article_terms );
 		$page_score    = $this->content_intent_signal_count( $page_terms );
 		$front_score   = $this->content_intent_signal_count( $front_terms );
+		$archive_score = $this->content_intent_signal_count( $archive_terms );
 		$site_score    = $this->content_intent_signal_count( $site_terms );
 
 		if ( $site_score > 0 || ( $article_score > 0 && ( $page_score > 0 || $front_score > 0 ) ) ) {
@@ -436,6 +438,9 @@ trait Content_Intent_Router_Read_Methods {
 		}
 		if ( $front_score > 0 ) {
 			return array( 'front-page', 'page' );
+		}
+		if ( $archive_score > 0 ) {
+			return array( 'archive' );
 		}
 		if ( $page_score > 0 ) {
 			return array( 'page', 'front-page' );
