@@ -80,6 +80,7 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'final_cta',
 				'breadcrumbs',
 			),
+			'template_placement_standards' => $this->gutenberg_block_template_placement_standards(),
 			'responsive_rules'       => array(
 				'columns_must_stack_on_mobile' => true,
 				'max_columns_per_row'          => 4,
@@ -247,6 +248,92 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'media_missing_alt_count'  => $summary['media_missing_alt_count'],
 				'temporary_cloud_preview_url_count' => $summary['temporary_cloud_preview_url_count'],
 			),
+		);
+	}
+
+	/**
+	 * Returns template-level placement standards for Site Editor plans.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_block_template_placement_standards(): array {
+		return array(
+			'breadcrumbs' => array(
+				'surface'                 => 'template',
+				'placement_model'         => 'bounded_template_anchor_placement',
+				'required_container'      => 'main',
+				'preferred_position'      => 'before',
+				'preferred_anchor_blocks' => array( 'core/post-title', 'core/query-title' ),
+				'accepted_strategies'     => array( 'before_post_title_in_main', 'home_page_disabled' ),
+				'fallback_strategy'       => 'manual_review_before_template_start_fallback',
+				'home_template_policy'    => 'hide_by_default_unless_show_on_home_page_true',
+				'forbidden_placements'    => array(
+					'above_header',
+					'inside_template_part',
+					'template_start_fallback',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Returns a compact placement contract for a block theme plan.
+	 *
+	 * @param string              $intent Intent.
+	 * @param array<int,mixed>    $placements Placement rows.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_block_template_placement_contract( string $intent, array $placements ): array {
+		$intent    = sanitize_key( $intent );
+		$standards = $this->gutenberg_block_template_placement_standards();
+		$standard  = is_array( $standards['breadcrumbs'] ?? null ) ? $standards['breadcrumbs'] : array();
+		$accepted  = is_array( $standard['accepted_strategies'] ?? null ) ? $standard['accepted_strategies'] : array();
+		$anchors   = is_array( $standard['preferred_anchor_blocks'] ?? null ) ? $standard['preferred_anchor_blocks'] : array();
+		$violations = array();
+		$rows       = array();
+
+		foreach ( $placements as $placement ) {
+			if ( ! is_array( $placement ) ) {
+				continue;
+			}
+			$strategy = sanitize_key( (string) ( $placement['strategy'] ?? '' ) );
+			$anchor   = sanitize_text_field( (string) ( $placement['inserted_before'] ?? '' ) );
+			$status   = sanitize_key( (string) ( $placement['status'] ?? '' ) );
+			$slug     = sanitize_key( (string) ( $placement['slug'] ?? '' ) );
+			$valid_strategy = in_array( $strategy, $accepted, true );
+			$valid_anchor   = '' === $anchor || in_array( $anchor, $anchors, true );
+			if ( ! $valid_strategy ) {
+				$violations[] = 'placement_strategy_not_allowed';
+			}
+			if ( ! $valid_anchor ) {
+				$violations[] = 'placement_anchor_not_allowed';
+			}
+			$rows[] = array(
+				'slug'             => $slug,
+				'status'           => $status,
+				'strategy'         => $strategy,
+				'inserted_before'  => $anchor,
+				'strategy_allowed' => $valid_strategy,
+				'anchor_allowed'   => $valid_anchor,
+			);
+		}
+
+		$violations = array_values( array_unique( array_filter( $violations ) ) );
+
+		return array(
+			'catalog_id'              => 'gutenberg_native_v1',
+			'catalog_version'         => '1.0',
+			'surface'                 => 'template',
+			'intent'                  => $intent,
+			'placement_model'         => (string) ( $standard['placement_model'] ?? 'bounded_template_anchor_placement' ),
+			'required_container'      => (string) ( $standard['required_container'] ?? 'main' ),
+			'preferred_position'      => (string) ( $standard['preferred_position'] ?? 'before' ),
+			'preferred_anchor_blocks' => $anchors,
+			'accepted_strategies'     => $accepted,
+			'forbidden_placements'    => is_array( $standard['forbidden_placements'] ?? null ) ? $standard['forbidden_placements'] : array(),
+			'contract_status'         => empty( $violations ) ? 'pass' : 'needs_revision',
+			'violation_codes'         => $violations,
+			'placements'              => $rows,
 		);
 	}
 

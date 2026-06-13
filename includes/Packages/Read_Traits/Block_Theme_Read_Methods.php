@@ -190,6 +190,8 @@ trait Block_Theme_Read_Methods {
 		$warnings         = array();
 		$block_editor_reviews = array();
 		$planned_template_slugs = array();
+		$placement_contract_rows = array();
+		$composition_contract_blocks = array();
 
 		foreach ( $target_templates as $template_slug ) {
 			$requested_template_slug = sanitize_key( (string) $template_slug );
@@ -237,6 +239,12 @@ trait Block_Theme_Read_Methods {
 				),
 				$breadcrumb_placement
 			);
+			$placement_contract_rows[] = array_merge( array( 'slug' => $template_slug ), $breadcrumb_placement );
+			foreach ( $next_blocks as $next_block ) {
+				if ( is_array( $next_block ) ) {
+					$composition_contract_blocks[] = $next_block;
+				}
+			}
 			$requires_write      = $this->block_theme_blocks_require_write( $current_blocks, $next_blocks );
 			$block_editor_review = $this->pattern_review_summary_for_blocks( $next_blocks, true );
 			$is_existing_custom_template = $template_id > 0;
@@ -378,6 +386,8 @@ trait Block_Theme_Read_Methods {
 						'npcink-abilities-toolkit/upsert-template-blocks',
 					),
 				),
+				'composition_contract'   => $this->gutenberg_block_composition_contract( $composition_contract_blocks, 'template' ),
+				'template_placement_contract' => $this->gutenberg_block_template_placement_contract( $intent, $placement_contract_rows ),
 				'preview'                => $preview,
 				'warnings'               => $warnings,
 				'block_editor_reviews'   => $block_editor_reviews,
