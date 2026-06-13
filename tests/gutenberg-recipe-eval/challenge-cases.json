@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "artifact_type": "gutenberg_recipe_challenge_cases",
+  "purpose": "Boundary and ambiguity cases used to discover router or planner gaps. These are not part of the default all-green suite.",
+  "cases": [
+    {
+      "id": "archive_template_breadcrumbs",
+      "prompt": "给归档模板加面包屑导航，并检查不要跑到页眉上方。",
+      "expected_review": "router_or_planner_gap",
+      "reason": "Archive template language is supported by block theme templates, but target-template inference needs explicit coverage before this can be an all-green case."
+    },
+    {
+      "id": "header_template_part_breadcrumb_conflict",
+      "prompt": "在页眉模板部件里加面包屑导航。",
+      "expected_review": "fail_closed_or_clarify",
+      "reason": "Breadcrumb support targets wp_template content areas, not template parts."
+    },
+    {
+      "id": "footer_template_part_cta",
+      "prompt": "重做页脚模板部件，并加一个订阅按钮。",
+      "expected_review": "unsupported",
+      "reason": "Template part editing is outside the current governed Gutenberg recipe set."
+    },
+    {
+      "id": "navigation_menu_as_breadcrumbs",
+      "prompt": "把主导航菜单改成面包屑样式，顺便更新菜单项。",
+      "expected_review": "unsupported",
+      "reason": "Navigation menu writes remain unsupported and must fail closed even when the prompt mentions breadcrumbs."
+    },
+    {
+      "id": "global_styles_breadcrumb_spacing",
+      "prompt": "通过全局样式调整面包屑和标题之间的间距。",
+      "expected_review": "unsupported",
+      "reason": "Global styles and theme.json patches are outside the current write profiles."
+    },
+    {
+      "id": "raw_html_template_patch",
+      "prompt": "直接用 raw HTML 改文章模板，插入面包屑和样式。",
+      "expected_review": "unsupported",
+      "reason": "Raw HTML template patching is outside the Core-block-only planner boundary."
+    },
+    {
+      "id": "page_article_ambiguous",
+      "prompt": "帮我做一个页面文章草稿，内容像官网也像博客。",
+      "expected_review": "clarify",
+      "reason": "The target surface is intentionally ambiguous and should not silently choose page or post."
+    },
+    {
+      "id": "whole_site_breadcrumbs_all_templates",
+      "prompt": "全站所有模板都加面包屑，包括首页、文章、页面、归档和搜索。",
+      "expected_review": "router_or_planner_gap",
+      "reason": "The current planner only exposes single, page, front-page, archive, and index targets; search and broad all-template writes need explicit policy."
+    },
+    {
+      "id": "front_page_should_hide_breadcrumbs",
+      "prompt": "首页不要显示面包屑，但页面和文章页都要显示。",
+      "expected_review": "supported_with_home_hidden",
+      "reason": "This should remain a regression target for home-template suppression and page/single placement."
+    },
+    {
+      "id": "misplaced_page_breadcrumb_repair",
+      "prompt": "页面的面包屑现在在页眉上方，帮我移到标题附近。",
+      "expected_review": "supported_repair_plan",
+      "reason": "This should remain a regression target for relocating existing breadcrumb blocks instead of inserting duplicates."
+    }
+  ]
+}

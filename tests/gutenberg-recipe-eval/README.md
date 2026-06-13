@@ -54,6 +54,15 @@ outputs, then a cross-judge comparison to identify cases that need human review.
 Cases with missing judge results, low scores, large score gaps, failed judge
 assertions, or risky reasons are marked for human review.
 
+`manual-review-cases.json` is the hand-adjudication queue. It should contain
+only cases where the triad output marks `human_review` or where repeated
+`rerun_or_fix` results need a product decision.
+
+`challenge-cases.json` contains known hard prompts for router/planner boundary
+work. These cases are intentionally separate from the default all-green suite;
+move one into the default suite only after the deterministic route and plan
+behavior is explicitly supported.
+
 ## Eval-Lab Triad Judge
 
 Provider-backed model calls live in `magick-ai-eval-lab`, not this plugin repo.

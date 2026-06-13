@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "artifact_type": "gutenberg_recipe_manual_review_queue",
+  "purpose": "Cases where at least two AI judges report a problem, or where judge scores diverge enough to require human adjudication.",
+  "source": "eval-lab gutenberg_judge_cross output",
+  "current_status": "empty_after_latest_full_triad_run",
+  "items": []
+}

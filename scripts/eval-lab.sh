@@ -16,6 +16,9 @@ if [ "$#" -lt 1 ]; then
 fi
 
 cd "$EVAL_LAB_PATH"
+COMPOSER_PROCESS_TIMEOUT="${COMPOSER_PROCESS_TIMEOUT:-0}"
+export COMPOSER_PROCESS_TIMEOUT
+
 case "$1" in
 	task=*|--list|--help|-h|help|list|tasks)
 		composer eval:task -- "$@"
