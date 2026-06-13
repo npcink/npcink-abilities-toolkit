@@ -1498,6 +1498,59 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'get_gutenberg_block_capability_catalog' ),
 			),
+			'npcink-abilities-toolkit/inspect-gutenberg-composition-contract' => array(
+				'label'            => __( 'Inspect Gutenberg Composition Contract', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Inspects one post, page, Site Editor template, template part, or proposed block tree against the bounded Gutenberg composition contract without scanning the full site or writing content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only single-surface contract inspection. Do not create proposals, do not write content, do not scan the whole site, and do not execute AI. Use findings to decide whether a governed block or Site Editor plan is needed.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'surface_kind'      => array(
+							'type' => 'string',
+							'enum' => array( 'post_content', 'site_editor_template', 'site_editor_template_part', 'blocks_input' ),
+						),
+						'post_id'           => array( 'type' => 'integer', 'minimum' => 1 ),
+						'post_type'         => array(
+							'type' => 'string',
+							'enum' => array( 'post', 'page', 'wp_template', 'wp_template_part' ),
+						),
+						'slug'              => array( 'type' => 'string' ),
+						'blocks'            => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'                 => 'object',
+								'additionalProperties' => true,
+							),
+						),
+						'placement_check'   => array(
+							'type'    => 'string',
+							'enum'    => array( 'none', 'breadcrumbs' ),
+							'default' => 'breadcrumbs',
+						),
+						'show_on_home_page' => array( 'type' => 'boolean', 'default' => false ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'inspect_gutenberg_composition_contract' ),
+			),
 			'npcink-abilities-toolkit/build-article-block-plan' => array(
 				'label'            => __( 'Build Article Block Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Builds a governed draft post plan from whitelisted Gutenberg-native editorial article blocks without writing WordPress content.', 'npcink-abilities-toolkit' ),

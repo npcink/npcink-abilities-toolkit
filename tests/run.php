@@ -1158,6 +1158,7 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/route-content-intent'] ), 'route-content-intent is registered as a read-only intent routing ability' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite'] ), 'evaluate-gutenberg-recipe-suite is registered as a read-only recipe evaluation ability' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/get-gutenberg-block-capability-catalog'] ), 'get-gutenberg-block-capability-catalog is registered as a read-only composition contract ability' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-gutenberg-composition-contract'] ), 'inspect-gutenberg-composition-contract is registered as a read-only composition contract inspection ability' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface'] ), 'inspect-block-theme-surface is registered as a read-only block theme inspection ability' );
 npcink_abilities_toolkit_assert_same( array( 'post.read' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['required_scopes'] ?? array(), 'content intent router remains a read-scope ability' );
 npcink_abilities_toolkit_assert_same( array( 'prompt' ), $package_abilities['npcink-abilities-toolkit/route-content-intent']['input_schema']['required'] ?? array(), 'content intent router only requires the natural-language prompt' );
@@ -1167,6 +1168,10 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite']['input_schema']['properties']['media_fixture'] ), 'Gutenberg recipe evaluation accepts a reviewed media fixture' );
 npcink_abilities_toolkit_assert_same( array( 'post.read', 'site.read' ), $package_abilities['npcink-abilities-toolkit/get-gutenberg-block-capability-catalog']['required_scopes'] ?? array(), 'Gutenberg block capability catalog advertises post and Site Editor read scopes' );
 npcink_abilities_toolkit_assert_same( array( 'all', 'page', 'post', 'template' ), $package_abilities['npcink-abilities-toolkit/get-gutenberg-block-capability-catalog']['input_schema']['properties']['surface']['enum'] ?? array(), 'Gutenberg block capability catalog exposes bounded surfaces' );
+npcink_abilities_toolkit_assert_same( array( 'post.read', 'site.read' ), $package_abilities['npcink-abilities-toolkit/inspect-gutenberg-composition-contract']['required_scopes'] ?? array(), 'Gutenberg composition contract inspection advertises post and Site Editor read scopes' );
+npcink_abilities_toolkit_assert_same( array( 'post_content', 'site_editor_template', 'site_editor_template_part', 'blocks_input' ), $package_abilities['npcink-abilities-toolkit/inspect-gutenberg-composition-contract']['input_schema']['properties']['surface_kind']['enum'] ?? array(), 'Gutenberg composition contract inspection exposes bounded surface kinds' );
+npcink_abilities_toolkit_assert_same( array( 'none', 'breadcrumbs' ), $package_abilities['npcink-abilities-toolkit/inspect-gutenberg-composition-contract']['input_schema']['properties']['placement_check']['enum'] ?? array(), 'Gutenberg composition contract inspection exposes bounded placement checks' );
+npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/inspect-gutenberg-composition-contract']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'Gutenberg composition contract inspection is classified as page governance' );
 $gutenberg_block_catalog = $core_read_package->get_gutenberg_block_capability_catalog( array( 'surface' => 'all' ) );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_block_catalog['success'] ?? null, 'get-gutenberg-block-capability-catalog returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 'gutenberg_block_capability_catalog', $gutenberg_block_catalog['data']['artifact_type'] ?? '', 'Gutenberg block capability catalog declares its artifact type' );
@@ -1189,6 +1194,121 @@ npcink_abilities_toolkit_assert_true( in_array( 'core/media-text', $gutenberg_bl
 npcink_abilities_toolkit_assert_true( in_array( 'core/html', $gutenberg_block_catalog['data']['forbidden_block_names'] ?? array(), true ), 'Gutenberg block capability catalog explicitly forbids core/html' );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_block_catalog['data']['responsive_rules']['columns_must_stack_on_mobile'] ?? null, 'Gutenberg block capability catalog requires mobile-stacked columns' );
 npcink_abilities_toolkit_assert_same( 'fail_closed', $gutenberg_block_catalog['data']['repair_policy']['non_core_block'] ?? '', 'Gutenberg block capability catalog fails closed on non-core blocks' );
+$valid_template_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
+	array(
+		'surface_kind'    => 'site_editor_template',
+		'post_type'       => 'wp_template',
+		'slug'            => 'single',
+		'placement_check' => 'breadcrumbs',
+		'blocks'          => array(
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'header' ),
+				'innerBlocks' => array(),
+			),
+			array(
+				'blockName'   => 'core/group',
+				'attrs'       => array( 'tagName' => 'main' ),
+				'innerBlocks' => array(
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-breadcrumbs' ),
+						'innerBlocks' => array(
+							array(
+								'blockName'    => 'core/paragraph',
+								'attrs'        => array(),
+								'innerHTML'    => '<p><a href="/">Home</a> / Current item</p>',
+								'innerContent' => array( '<p><a href="/">Home</a> / Current item</p>' ),
+								'innerBlocks'  => array(),
+							),
+						),
+					),
+					array(
+						'blockName'   => 'core/post-title',
+						'attrs'       => array(),
+						'innerBlocks' => array(),
+					),
+					array(
+						'blockName'   => 'core/post-content',
+						'attrs'       => array(),
+						'innerBlocks' => array(),
+					),
+				),
+			),
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'footer' ),
+				'innerBlocks' => array(),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $valid_template_contract_inspection['success'] ?? null, 'inspect-gutenberg-composition-contract returns a success envelope for proposed template blocks' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_composition_contract_inspection', $valid_template_contract_inspection['data']['artifact_type'] ?? '', 'inspect-gutenberg-composition-contract declares its artifact type' );
+npcink_abilities_toolkit_assert_same( 'site_editor_template', $valid_template_contract_inspection['data']['block_editor_surface']['surface_kind'] ?? '', 'composition contract inspection identifies Site Editor template surfaces' );
+npcink_abilities_toolkit_assert_same( 'pass', $valid_template_contract_inspection['data']['contract_status'] ?? '', 'composition contract inspection passes valid template blocks' );
+npcink_abilities_toolkit_assert_same( 'pass', $valid_template_contract_inspection['data']['composition_contract']['contract_status'] ?? '', 'composition contract inspection passes the block composition contract' );
+npcink_abilities_toolkit_assert_same( 'pass', $valid_template_contract_inspection['data']['template_placement_contract']['contract_status'] ?? '', 'composition contract inspection passes valid breadcrumb placement' );
+npcink_abilities_toolkit_assert_same( 'core/post-title', $valid_template_contract_inspection['data']['template_placement_contract']['placements'][0]['inserted_before'] ?? '', 'composition contract inspection records the matched title anchor' );
+npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['direct_wordpress_write'] ?? null, 'composition contract inspection never writes WordPress' );
+npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['commit_execution'] ?? null, 'composition contract inspection never commits execution' );
+npcink_abilities_toolkit_assert_true( in_array( 'no_changes_required', $valid_template_contract_inspection['data']['recommended_next_actions'] ?? array(), true ), 'composition contract inspection reports no change when contracts pass' );
+$homepage_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
+	array(
+		'surface_kind'       => 'site_editor_template',
+		'post_type'          => 'wp_template',
+		'slug'               => 'front-page',
+		'placement_check'    => 'breadcrumbs',
+		'show_on_home_page'  => false,
+		'blocks'             => array(
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'header' ),
+				'innerBlocks' => array(),
+			),
+			array(
+				'blockName'   => 'core/group',
+				'attrs'       => array( 'tagName' => 'main' ),
+				'innerBlocks' => array(
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-breadcrumbs' ),
+						'innerBlocks' => array(),
+					),
+					array(
+						'blockName'   => 'core/post-title',
+						'attrs'       => array(),
+						'innerBlocks' => array(),
+					),
+				),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( 'needs_revision', $homepage_contract_inspection['data']['contract_status'] ?? '', 'composition contract inspection flags homepage breadcrumbs when home display is disabled' );
+npcink_abilities_toolkit_assert_true( in_array( 'template_placement_contract_failed', $homepage_contract_inspection['data']['violation_codes'] ?? array(), true ), 'composition contract inspection reports homepage breadcrumb placement violations' );
+npcink_abilities_toolkit_assert_true( in_array( 'build_block_theme_site_plan', $homepage_contract_inspection['data']['recommended_next_actions'] ?? array(), true ), 'composition contract inspection recommends the Site Editor planner for homepage placement fixes' );
+$invalid_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
+	array(
+		'surface_kind'    => 'post_content',
+		'post_type'       => 'page',
+		'placement_check' => 'none',
+		'blocks'          => array(
+			array(
+				'blockName'    => 'core/html',
+				'attrs'        => array(),
+				'innerHTML'    => '<div style="position:absolute">Unsafe raw section</div>',
+				'innerContent' => array( '<div style="position:absolute">Unsafe raw section</div>' ),
+				'innerBlocks'  => array(),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $invalid_contract_inspection['success'] ?? null, 'inspect-gutenberg-composition-contract returns a success envelope for invalid proposed blocks' );
+npcink_abilities_toolkit_assert_same( 'needs_revision', $invalid_contract_inspection['data']['contract_status'] ?? '', 'composition contract inspection rejects invalid proposed blocks' );
+npcink_abilities_toolkit_assert_true( in_array( 'core/html', $invalid_contract_inspection['data']['composition_contract']['forbidden_block_names'] ?? array(), true ), 'composition contract inspection reports forbidden core/html blocks' );
+npcink_abilities_toolkit_assert_true( in_array( 'composition_contract_failed', $invalid_contract_inspection['data']['violation_codes'] ?? array(), true ), 'composition contract inspection reports a composition violation code' );
+npcink_abilities_toolkit_assert_true( in_array( 'revise_block_composition', $invalid_contract_inspection['data']['recommended_next_actions'] ?? array(), true ), 'composition contract inspection recommends composition revision when blocks violate the catalog' );
 npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface']['required_scopes'] ?? array(), 'block theme surface inspection advertises Site Editor read scope' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-block-theme-surface']['input_schema']['properties']['target_templates'] ), 'block theme surface inspection accepts target templates' );
 npcink_abilities_toolkit_assert_same( 1, $package_abilities['npcink-abilities-toolkit/build-article-block-plan']['input_schema']['properties']['target_post_id']['minimum'] ?? null, 'article block plan accepts a bounded target post id for existing draft updates' );
@@ -1358,13 +1478,14 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[16] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[17] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
 			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $core_read_definition_ids[18] ?? '', 'core read definitions keep the block composition catalog before concrete planners' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[19] ?? '', 'core read definitions keep block theme context near page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[22] ?? '', 'core read definitions keep block theme inspection before site planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[23] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[24] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[25] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[26] ?? '', 'core read definitions keep block surface review near pattern page review' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[27] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-gutenberg-composition-contract', $core_read_definition_ids[19] ?? '', 'core read definitions keep composition contract inspection after the catalog' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[20] ?? '', 'core read definitions keep block theme context near page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[23] ?? '', 'core read definitions keep block theme inspection before site planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[24] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[25] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[26] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[27] ?? '', 'core read definitions keep block surface review near pattern page review' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[28] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );

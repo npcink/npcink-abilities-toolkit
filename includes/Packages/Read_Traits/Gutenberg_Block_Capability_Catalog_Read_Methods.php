@@ -43,6 +43,80 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 	}
 
 	/**
+	 * Inspects one Gutenberg block surface against the composition contract.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function inspect_gutenberg_composition_contract( $input ) {
+		$input            = is_array( $input ) ? $input : array();
+		$surface_result   = $this->gutenberg_block_contract_surface_blocks( $input );
+		if ( is_wp_error( $surface_result ) ) {
+			return $surface_result;
+		}
+
+		$blocks          = is_array( $surface_result['blocks'] ?? null ) ? $surface_result['blocks'] : array();
+		$surface         = is_array( $surface_result['surface'] ?? null ) ? $surface_result['surface'] : array();
+		$surface_label   = sanitize_key( (string) ( $surface_result['contract_surface'] ?? 'all' ) );
+		$placement_check = sanitize_key( (string) ( $input['placement_check'] ?? 'breadcrumbs' ) );
+		$composition     = $this->gutenberg_block_composition_contract( $blocks, $surface_label );
+		$placement       = array();
+
+		if ( 'breadcrumbs' === $placement_check && 'template' === $surface_label ) {
+			$placement = $this->gutenberg_block_current_template_placement_contract(
+				'add_breadcrumbs',
+				sanitize_key( (string) ( $surface['slug'] ?? '' ) ),
+				$blocks,
+				! empty( $input['show_on_home_page'] )
+			);
+		}
+
+		$contract_status = 'pass' === (string) ( $composition['contract_status'] ?? '' ) ? 'pass' : 'needs_revision';
+		$violation_codes = array();
+		if ( 'pass' !== (string) ( $composition['contract_status'] ?? '' ) ) {
+			$violation_codes[] = 'composition_contract_failed';
+		}
+		if ( ! empty( $placement ) && 'pass' !== (string) ( $placement['contract_status'] ?? '' ) ) {
+			$contract_status   = 'needs_revision';
+			$violation_codes[] = 'template_placement_contract_failed';
+			$violation_codes   = array_merge( $violation_codes, is_array( $placement['violation_codes'] ?? null ) ? $placement['violation_codes'] : array() );
+		}
+
+		$violation_codes = array_values( array_unique( array_filter( array_map( 'sanitize_key', $violation_codes ) ) ) );
+
+		$data = array(
+			'artifact_type'          => 'gutenberg_composition_contract_inspection',
+			'version'                => 1,
+			'source'                 => sanitize_key( (string) ( $surface_result['source'] ?? 'blocks_input' ) ),
+			'block_editor_surface'   => $surface,
+			'block_count'            => $this->gutenberg_block_count_blocks( $blocks ),
+			'top_level_count'        => count( $blocks ),
+			'content_length'         => absint( $surface_result['content_length'] ?? 0 ),
+			'contract_status'        => $contract_status,
+			'violation_codes'        => $violation_codes,
+			'composition_contract'    => $composition,
+			'direct_wordpress_write' => false,
+			'commit_execution'       => false,
+			'server_side_contract_only' => true,
+			'editor_validation_note' => 'Server-side contract inspection checks parsed blocks and known template anchors only; Gutenberg editor save() validation still requires opening the editor.',
+			'recommended_next_actions' => $this->gutenberg_block_contract_next_actions( $composition, $placement, $surface ),
+		);
+
+		if ( ! empty( $placement ) ) {
+			$data['template_placement_contract'] = $placement;
+		}
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_gutenberg_composition_contract_inspection',
+				'execution_mode' => 'deterministic_readonly',
+			),
+			'Gutenberg composition contract inspection built.'
+		);
+	}
+
+	/**
 	 * Builds the deterministic block capability catalog.
 	 *
 	 * @param string $surface Surface filter.
@@ -335,6 +409,354 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 			'violation_codes'         => $violations,
 			'placements'              => $rows,
 		);
+	}
+
+	/**
+	 * Resolves blocks for one contract inspection surface.
+	 *
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function gutenberg_block_contract_surface_blocks( array $input ) {
+		$surface_kind   = sanitize_key( (string) ( $input['surface_kind'] ?? '' ) );
+		$post_type      = sanitize_key( (string) ( $input['post_type'] ?? '' ) );
+		$post_id        = absint( $input['post_id'] ?? 0 );
+		$slug           = sanitize_key( (string) ( $input['slug'] ?? '' ) );
+		$blocks         = array();
+		$content        = '';
+		$content_length = 0;
+		$source         = 'blocks_input';
+		$surface        = array(
+			'surface_kind' => '' !== $surface_kind ? $surface_kind : 'blocks_input',
+			'editor'       => 'block_editor',
+			'post_type'    => '' !== $post_type ? $post_type : '',
+			'post_id'      => 0,
+			'slug'         => '',
+			'source'       => '',
+			'target_mode'  => 'inspect_blocks_input',
+		);
+
+		if ( is_array( $input['blocks'] ?? null ) ) {
+			$is_template_blocks = in_array( $surface_kind, array( 'site_editor_template', 'site_editor_template_part' ), true ) || in_array( $post_type, array( 'wp_template', 'wp_template_part' ), true );
+			if ( $is_template_blocks && ! current_user_can( 'edit_theme_options' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect block theme templates.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			if ( ! $is_template_blocks && ! current_user_can( 'edit_posts' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect proposed blocks.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			$blocks = $this->pattern_review_normalize_blocks( $input['blocks'] );
+			if ( $is_template_blocks ) {
+				$surface['surface_kind'] = 'wp_template_part' === $post_type || 'site_editor_template_part' === $surface_kind ? 'site_editor_template_part' : 'site_editor_template';
+				$surface['editor']       = 'site_editor';
+				$surface['post_type']    = '' !== $post_type ? $post_type : ( 'site_editor_template_part' === $surface['surface_kind'] ? 'wp_template_part' : 'wp_template' );
+				$surface['slug']         = $slug;
+			}
+		} else {
+			if ( '' === $post_type && $post_id > 0 ) {
+				$post = get_post( $post_id );
+				if ( ! $post ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				$post_type = sanitize_key( (string) ( $post->post_type ?? '' ) );
+			}
+
+			if ( in_array( $surface_kind, array( 'site_editor_template', 'site_editor_template_part' ), true ) && '' === $post_type ) {
+				$post_type = 'site_editor_template_part' === $surface_kind ? 'wp_template_part' : 'wp_template';
+			}
+
+			if ( in_array( $post_type, array( 'wp_template', 'wp_template_part' ), true ) ) {
+				if ( ! current_user_can( 'edit_theme_options' ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect block theme templates.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				}
+				$entity = $this->block_theme_find_entity( $post_type, $slug, $post_id );
+				if ( empty( $entity ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_block_theme_entity_not_found', __( 'Block theme entity was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				$content        = (string) ( $entity['content'] ?? '' );
+				$content_length = strlen( $content );
+				$parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+				$blocks         = $this->pattern_review_normalize_blocks( is_array( $parsed_blocks ) ? $parsed_blocks : array() );
+				$source         = 'site_editor_entity';
+				$surface        = array(
+					'surface_kind'      => 'wp_template_part' === $post_type ? 'site_editor_template_part' : 'site_editor_template',
+					'editor'            => 'site_editor',
+					'post_type'         => $post_type,
+					'post_id'           => absint( $entity['post_id'] ?? 0 ),
+					'slug'              => sanitize_key( (string) ( $entity['slug'] ?? '' ) ),
+					'template_id'       => sanitize_text_field( (string) ( $entity['template_id'] ?? '' ) ),
+					'theme'             => sanitize_key( (string) ( $entity['theme'] ?? '' ) ),
+					'source'            => sanitize_key( (string) ( $entity['source'] ?? '' ) ),
+					'title'             => sanitize_text_field( (string) ( $entity['title'] ?? '' ) ),
+					'target_mode'       => 'inspect_existing',
+					'read_ability_id'   => 'wp_template_part' === $post_type ? 'npcink-abilities-toolkit/get-template-part-blocks' : 'npcink-abilities-toolkit/get-template-blocks',
+					'write_ability_ids' => 'wp_template_part' === $post_type ? array( 'npcink-abilities-toolkit/update-template-part-blocks' ) : array( 'npcink-abilities-toolkit/update-template-blocks', 'npcink-abilities-toolkit/upsert-template-blocks' ),
+				);
+			} else {
+				if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_block_editor_surface_type_invalid', __( 'Block editor surface type is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+				}
+				$post = get_post( $post_id );
+				if ( ! $post ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+				}
+				if ( ! current_user_can( 'edit_post', $post_id ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to inspect this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+				}
+				$content        = (string) ( $post->post_content ?? '' );
+				$content_length = strlen( $content );
+				$parsed_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( $content ) : array();
+				$blocks         = $this->pattern_review_normalize_blocks( is_array( $parsed_blocks ) ? $parsed_blocks : array() );
+				$source         = 'post_content';
+				$surface        = array(
+					'surface_kind'     => 'post_content',
+					'editor'           => 'block_editor',
+					'post_type'        => $post_type,
+					'post_id'          => $post_id,
+					'slug'             => sanitize_title( (string) ( $post->post_name ?? '' ) ),
+					'status'           => sanitize_key( (string) ( $post->post_status ?? '' ) ),
+					'title'            => sanitize_text_field( (string) ( $post->post_title ?? '' ) ),
+					'target_mode'      => 'inspect_existing',
+					'read_ability_id'  => 'npcink-abilities-toolkit/get-post-blocks',
+					'write_ability_id' => 'npcink-abilities-toolkit/update-post-blocks',
+					'plan_ability_id'  => 'page' === $post_type ? 'npcink-abilities-toolkit/build-pattern-page-plan' : 'npcink-abilities-toolkit/build-article-block-plan',
+				);
+			}
+		}
+
+		if ( empty( $blocks ) && ! empty( $content ) ) {
+			$blocks[] = array(
+				'blockName'    => 'core/freeform',
+				'attrs'        => array(),
+				'innerHTML'    => $content,
+				'innerContent' => array( $content ),
+				'innerBlocks'  => array(),
+			);
+		}
+
+		$contract_surface = 'all';
+		if ( 'post_content' === (string) ( $surface['surface_kind'] ?? '' ) && in_array( (string) ( $surface['post_type'] ?? '' ), array( 'post', 'page' ), true ) ) {
+			$contract_surface = (string) $surface['post_type'];
+		} elseif ( in_array( (string) ( $surface['surface_kind'] ?? '' ), array( 'site_editor_template', 'site_editor_template_part' ), true ) ) {
+			$contract_surface = 'template';
+		}
+
+		return array(
+			'blocks'           => $blocks,
+			'content_length'   => $content_length,
+			'source'           => $source,
+			'surface'          => $surface,
+			'contract_surface' => $contract_surface,
+		);
+	}
+
+	/**
+	 * Builds a placement contract for currently parsed template blocks.
+	 *
+	 * @param string                   $intent Intent.
+	 * @param string                   $slug Template slug.
+	 * @param array<int,array<mixed>>  $blocks Blocks.
+	 * @param bool                     $show_on_home_page Whether breadcrumbs should show on home templates.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_block_current_template_placement_contract( string $intent, string $slug, array $blocks, bool $show_on_home_page ): array {
+		$slug             = sanitize_key( $slug );
+		$breadcrumb_count = $this->gutenberg_block_count_blocks_by_match( $blocks, 'breadcrumbs' );
+		$is_home_template = in_array( $slug, array( 'front-page', 'home' ), true );
+		$anchor           = '';
+		$placement        = array(
+			'slug'            => $slug,
+			'status'          => 'missing',
+			'strategy'        => 'missing_breadcrumb',
+			'container'       => '',
+			'inserted_before' => '',
+		);
+
+		if ( $is_home_template && ! $show_on_home_page && 0 === $breadcrumb_count ) {
+			$placement = array(
+				'slug'            => $slug,
+				'status'          => 'skipped',
+				'strategy'        => 'home_page_disabled',
+				'container'       => 'home_template',
+				'inserted_before' => '',
+			);
+		} elseif ( $is_home_template && ! $show_on_home_page && $breadcrumb_count > 0 ) {
+			$placement = array(
+				'slug'            => $slug,
+				'status'          => 'misplaced',
+				'strategy'        => 'home_page_breadcrumb_present',
+				'container'       => 'home_template',
+				'inserted_before' => '',
+			);
+		} elseif ( $this->gutenberg_block_breadcrumbs_before_title_anchor_in_main( $blocks, $anchor ) ) {
+			$placement = array(
+				'slug'            => $slug,
+				'status'          => 'already_valid',
+				'strategy'        => 'before_post_title_in_main',
+				'container'       => 'main',
+				'inserted_before' => $anchor,
+			);
+		} elseif ( $breadcrumb_count > 0 && $this->gutenberg_block_has_top_level_breadcrumb_before_header( $blocks ) ) {
+			$placement = array(
+				'slug'            => $slug,
+				'status'          => 'misplaced',
+				'strategy'        => 'above_header',
+				'container'       => 'template_root',
+				'inserted_before' => '',
+			);
+		} elseif ( $breadcrumb_count > 0 ) {
+			$placement = array(
+				'slug'            => $slug,
+				'status'          => 'misplaced',
+				'strategy'        => 'breadcrumb_not_before_title',
+				'container'       => 'unknown',
+				'inserted_before' => '',
+			);
+		}
+
+		return $this->gutenberg_block_template_placement_contract( $intent, array( $placement ) );
+	}
+
+	/**
+	 * Returns next action codes from contract status.
+	 *
+	 * @param array<string,mixed> $composition Composition contract.
+	 * @param array<string,mixed> $placement Placement contract.
+	 * @param array<string,mixed> $surface Surface metadata.
+	 * @return array<int,string>
+	 */
+	private function gutenberg_block_contract_next_actions( array $composition, array $placement, array $surface ): array {
+		$next_actions = array();
+		if ( 'pass' !== (string) ( $composition['contract_status'] ?? '' ) ) {
+			$next_actions[] = 'revise_block_composition';
+		}
+		if ( ! empty( $placement ) && 'pass' !== (string) ( $placement['contract_status'] ?? '' ) ) {
+			$next_actions[] = 'build_block_theme_site_plan';
+		}
+		if ( empty( $next_actions ) ) {
+			$next_actions[] = 'no_changes_required';
+		}
+		if ( 'blocks_input' === (string) ( $surface['surface_kind'] ?? '' ) && 'no_changes_required' !== $next_actions[0] ) {
+			$next_actions[] = 'choose_target_block_editor_surface';
+		}
+		return array_values( array_unique( $next_actions ) );
+	}
+
+	/**
+	 * Counts all parsed blocks.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @return int
+	 */
+	private function gutenberg_block_count_blocks( array $blocks ): int {
+		$count = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			++$count;
+			$count += $this->gutenberg_block_count_blocks( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() );
+		}
+		return $count;
+	}
+
+	/**
+	 * Counts blocks matching a supported contract role.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @param string           $match Match name.
+	 * @return int
+	 */
+	private function gutenberg_block_count_blocks_by_match( array $blocks, string $match ): int {
+		$count = 0;
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( 'breadcrumbs' === $match && $this->gutenberg_block_is_breadcrumbs_block( $block ) ) {
+				++$count;
+			}
+			$count += $this->gutenberg_block_count_blocks_by_match( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array(), $match );
+		}
+		return $count;
+	}
+
+	/**
+	 * Reports whether breadcrumbs are immediately before a title anchor in main.
+	 *
+	 * @param mixed  $blocks Blocks.
+	 * @param string $anchor Matched title anchor.
+	 * @param bool   $inside_main Whether current recursion is inside main.
+	 * @return bool
+	 */
+	private function gutenberg_block_breadcrumbs_before_title_anchor_in_main( $blocks, &$anchor = '', bool $inside_main = false ): bool {
+		$blocks = is_array( $blocks ) ? $blocks : array();
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			$block_is_main = $this->block_theme_is_main_container( $block );
+			$in_main_tree  = $inside_main || $block_is_main;
+			if ( $in_main_tree ) {
+				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+				foreach ( $inner_blocks as $index => $inner_block ) {
+					if ( ! is_array( $inner_block ) || ! $this->gutenberg_block_is_title_anchor_block( $inner_block ) ) {
+						continue;
+					}
+					$previous = $inner_blocks[ $index - 1 ] ?? null;
+					if ( $index > 0 && is_array( $previous ) && $this->gutenberg_block_is_breadcrumbs_block( $previous ) ) {
+						$anchor = (string) ( $inner_block['blockName'] ?? '' );
+						return true;
+					}
+				}
+			}
+			if ( $this->gutenberg_block_breadcrumbs_before_title_anchor_in_main( $block['innerBlocks'] ?? array(), $anchor, $in_main_tree ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether a top-level breadcrumb appears before a header template part.
+	 *
+	 * @param array<int,mixed> $blocks Blocks.
+	 * @return bool
+	 */
+	private function gutenberg_block_has_top_level_breadcrumb_before_header( array $blocks ): bool {
+		$breadcrumb_index = null;
+		$header_index     = null;
+		foreach ( array_values( $blocks ) as $index => $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+			if ( null === $breadcrumb_index && $this->gutenberg_block_is_breadcrumbs_block( $block ) ) {
+				$breadcrumb_index = (int) $index;
+			}
+			if ( null === $header_index && 'core/template-part' === (string) ( $block['blockName'] ?? '' ) && 'header' === sanitize_key( (string) ( $block['attrs']['slug'] ?? '' ) ) ) {
+				$header_index = (int) $index;
+			}
+		}
+		return null !== $breadcrumb_index && null !== $header_index && $breadcrumb_index < $header_index;
+	}
+
+	/**
+	 * Reports whether one block is a supported title anchor.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function gutenberg_block_is_title_anchor_block( array $block ): bool {
+		return in_array( (string) ( $block['blockName'] ?? '' ), array( 'core/post-title', 'core/query-title' ), true );
+	}
+
+	/**
+	 * Reports whether one parsed block is the OpenClaw breadcrumbs block.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @return bool
+	 */
+	private function gutenberg_block_is_breadcrumbs_block( array $block ): bool {
+		return false !== strpos( ' ' . (string) ( $block['attrs']['className'] ?? '' ) . ' ', ' openclaw-breadcrumbs ' );
 	}
 
 	/**

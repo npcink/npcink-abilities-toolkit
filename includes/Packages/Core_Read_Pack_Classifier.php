@@ -64,6 +64,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/route-content-intent'                    => 'page_governance',
 			'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite'         => 'page_governance',
 			'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog'  => 'page_governance',
+			'npcink-abilities-toolkit/inspect-gutenberg-composition-contract'  => 'page_governance',
 					'npcink-abilities-toolkit/get-block-theme-context'                 => 'page_governance',
 					'npcink-abilities-toolkit/get-template-blocks'                      => 'page_governance',
 					'npcink-abilities-toolkit/get-template-part-blocks'                 => 'page_governance',
