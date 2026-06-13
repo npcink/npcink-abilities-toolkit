@@ -34,11 +34,12 @@
     "lint:php": "@php tests/lint.php",
     "analyse:phpstan": "phpstan analyse --memory-limit=512M",
     "perf:smoke": "@php tests/performance-smoke.php",
+    "eval:gutenberg-recipe:suite": "@php tests/gutenberg-recipe-eval/export-default-suite.php",
     "eval:gutenberg-recipe:judge:cases": "@php tests/gutenberg-recipe-eval/export-promptfoo-judge-cases.php",
     "eval:gutenberg-recipe:judge": "command -v promptfoo >/dev/null || { echo \"Install promptfoo first: npm install -g promptfoo\"; exit 1; }; GUTENBERG_RECIPE_JUDGE_OUTPUT=\"${GUTENBERG_RECIPE_JUDGE_OUTPUT:-tests/gutenberg-recipe-eval/generated/promptfoo-judge-primary.json}\"; GUTENBERG_RECIPE_JUDGE_GRADER=\"${GUTENBERG_RECIPE_JUDGE_GRADER:-openai:gpt-4.1-mini}\"; rm -f \"$GUTENBERG_RECIPE_JUDGE_OUTPUT\"; promptfoo eval -c tests/gutenberg-recipe-eval/promptfoo-judge.yaml --grader \"$GUTENBERG_RECIPE_JUDGE_GRADER\" --output \"$GUTENBERG_RECIPE_JUDGE_OUTPUT\" --no-table",
     "eval:gutenberg-recipe:judge:eval-lab": [
       "Composer\\Config::disableProcessTimeout",
-      "bash -c 'set -e; php tests/gutenberg-recipe-eval/export-promptfoo-judge-cases.php \"$@\"; TOOLKIT_ROOT=\"$(pwd)\"; sh scripts/eval-lab.sh task=gutenberg_judge_cross \"input=$TOOLKIT_ROOT/tests/gutenberg-recipe-eval/generated/promptfoo-judge-cases.csv\" \"$@\"' --"
+      "bash -c 'set -e; php tests/gutenberg-recipe-eval/export-default-suite.php; php tests/gutenberg-recipe-eval/export-promptfoo-judge-cases.php \"$@\"; TOOLKIT_ROOT=\"$(pwd)\"; sh scripts/eval-lab.sh task=gutenberg_judge_cross \"input=$TOOLKIT_ROOT/tests/gutenberg-recipe-eval/generated/promptfoo-judge-cases.csv\" \"$@\"' --"
     ],
     "eval:gutenberg-recipe:judge:compare": "@php tests/gutenberg-recipe-eval/compare-ai-judge-results.php",
     "smoke:wp": "bash tests/smoke-wp.sh",

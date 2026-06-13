@@ -139,6 +139,16 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 					'expected_route' => 'pattern_page_plan',
 				),
 				array(
+					'id'             => 'page_plugin_feature_overview',
+					'prompt'         => '帮我搭一个 WordPress 插件功能介绍页面，结构清楚，适合客户浏览。',
+					'expected_route' => 'pattern_page_plan',
+				),
+				array(
+					'id'             => 'page_mobile_first_home',
+					'prompt'         => '给产品做一个移动端优先的首页，标题不要挤，内容要能扫读。',
+					'expected_route' => 'pattern_page_plan',
+				),
+				array(
 					'id'             => 'article_with_media',
 					'prompt'         => '写一篇介绍 Gutenberg 模块红利的文章草稿，需要配图和 FAQ。',
 					'expected_route' => 'article_block_plan',
@@ -164,6 +174,16 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 					'expected_route' => 'article_block_plan',
 				),
 				array(
+					'id'             => 'article_page_vs_post_governance',
+					'prompt'         => '写一篇博客文章，解释内容编辑为什么要经过 proposal 审核。',
+					'expected_route' => 'article_block_plan',
+				),
+				array(
+					'id'             => 'article_block_theme_lessons',
+					'prompt'         => '写一篇文章复盘导航路径体验问题，以及 AI 应该如何检查发布前质量。',
+					'expected_route' => 'article_block_plan',
+				),
+				array(
 					'id'             => 'site_breadcrumbs_single_cn',
 					'prompt'         => '给文章模板加面包屑导航。',
 					'expected_route' => 'block_theme_site_plan',
@@ -176,6 +196,26 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 				array(
 					'id'             => 'site_breadcrumbs_blog_template',
 					'prompt'         => '博客文章模板加面包屑导航。',
+					'expected_route' => 'block_theme_site_plan',
+				),
+				array(
+					'id'             => 'site_breadcrumbs_front_page_and_page_cn',
+					'prompt'         => '把首页和页面的面包屑处理好，不要出现在页眉上方，检查下。',
+					'expected_route' => 'block_theme_site_plan',
+				),
+				array(
+					'id'             => 'site_breadcrumbs_page_position_cn',
+					'prompt'         => '页面的面包屑不要在页眉上方，要放在标题附近。',
+					'expected_route' => 'block_theme_site_plan',
+				),
+				array(
+					'id'             => 'site_breadcrumbs_all_content_cn',
+					'prompt'         => '文章页和普通页面都加面包屑，首页不要显示。',
+					'expected_route' => 'block_theme_site_plan',
+				),
+				array(
+					'id'             => 'site_breadcrumbs_page_templates_en',
+					'prompt'         => 'Add breadcrumbs to page templates and keep them near the title, not above the header.',
 					'expected_route' => 'block_theme_site_plan',
 				),
 				array(
@@ -217,6 +257,18 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 				array(
 					'id'                 => 'template_part_footer_fail_closed',
 					'prompt'             => 'Edit the footer template part and add a newsletter signup.',
+					'expected_route'     => 'unsupported',
+					'expected_supported' => false,
+				),
+				array(
+					'id'                 => 'navigation_breadcrumb_conflict_fail_closed',
+					'prompt'             => '把导航菜单改成面包屑样式，并更新主导航。',
+					'expected_route'     => 'unsupported',
+					'expected_supported' => false,
+				),
+				array(
+					'id'                 => 'raw_template_html_fail_closed',
+					'prompt'             => '用 raw HTML 直接改文章模板，把结构和样式一次写进去。',
 					'expected_route'     => 'unsupported',
 					'expected_supported' => false,
 				),

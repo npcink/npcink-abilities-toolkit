@@ -4912,6 +4912,28 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_name'    => 'single',
 		'post_parent'  => 0,
 	),
+	609 => (object) array(
+		'ID'           => 609,
+		'post_type'    => 'wp_template',
+		'post_status'  => 'publish',
+		'post_title'   => 'Page',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'page',
+		'post_parent'  => 0,
+	),
+	610 => (object) array(
+		'ID'           => 610,
+		'post_type'    => 'wp_template',
+		'post_status'  => 'publish',
+		'post_title'   => 'Front Page',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'front-page',
+		'post_parent'  => 0,
+	),
 );
 $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] = true;
 $gutenberg_recipe_eval = $core_read_package->evaluate_gutenberg_recipe_suite(
@@ -4992,12 +5014,14 @@ npcink_abilities_toolkit_assert_same( 'unsupported', $gutenberg_recipe_eval_case
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation reports no failure codes for passing suites' );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_default_eval['success'] ?? null, 'default Gutenberg recipe evaluation returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_default_eval['data']['suite_status'] ?? '', 'default Gutenberg recipe evaluation suite passes' );
-npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 20 natural-language cases' );
-npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
+npcink_abilities_toolkit_assert_same( 30, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 30 natural-language cases' );
+npcink_abilities_toolkit_assert_same( 30, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
 npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_default_eval['data']['summary']['pass_rate'] ?? 0, 'default Gutenberg recipe evaluation reports a full pass rate under fixtures' );
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_default_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'default Gutenberg recipe evaluation reports no built-in failure codes' );
 $gutenberg_recipe_composer = file_get_contents( dirname( __DIR__ ) . '/composer.json' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:suite' ), 'Composer exposes Gutenberg recipe suite export command' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:judge:eval-lab' ), 'Composer exposes Gutenberg recipe eval-lab judge wrapper command' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'export-default-suite.php' ), 'Gutenberg recipe eval-lab wrapper exports the latest default suite before judging' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'task=gutenberg_judge_cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg task registry' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false === strpos( $gutenberg_recipe_composer, 'sk-' ), 'Gutenberg recipe eval-lab wrapper does not contain committed API keys' );
 $gutenberg_recipe_eval_lab_wrapper = file_get_contents( dirname( __DIR__ ) . '/scripts/eval-lab.sh' );
