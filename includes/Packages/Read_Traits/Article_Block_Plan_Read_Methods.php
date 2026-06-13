@@ -66,7 +66,7 @@ trait Article_Block_Plan_Read_Methods {
 			}
 		}
 
-		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
+		$variables = $this->article_block_normalized_variables( $input );
 		$title     = $this->article_block_text( $input['title'] ?? ( $variables['title'] ?? 'Gutenberg Article Draft' ), 'Gutenberg Article Draft' );
 		$blocks    = $this->render_editorial_article_blocks(
 			$article_template,
@@ -205,6 +205,40 @@ trait Article_Block_Plan_Read_Methods {
 			),
 			'Article block plan built.'
 		);
+	}
+
+	/**
+	 * Normalizes article plan variables and accepts common top-level media aliases.
+	 *
+	 * @param array<string,mixed> $input Input args.
+	 * @return array<string,mixed>
+	 */
+	private function article_block_normalized_variables( array $input ): array {
+		$variables = is_array( $input['variables'] ?? null ) ? $input['variables'] : array();
+		$media     = is_array( $input['hero_media'] ?? null ) ? $input['hero_media'] : ( is_array( $input['media'] ?? null ) ? $input['media'] : array() );
+
+		if ( empty( $variables['hero_media_url'] ) ) {
+			$media_url = $input['hero_media_url'] ?? ( $input['media_url'] ?? ( $media['url'] ?? '' ) );
+			if ( '' !== (string) $media_url ) {
+				$variables['hero_media_url'] = (string) $media_url;
+			}
+		}
+
+		if ( empty( $variables['hero_media_attachment_id'] ) && empty( $variables['hero_media_id'] ) ) {
+			$attachment_id = $input['hero_media_attachment_id'] ?? ( $input['media_attachment_id'] ?? ( $input['attachment_id'] ?? ( $input['hero_media_id'] ?? ( $input['media_id'] ?? ( $media['attachment_id'] ?? ( $media['id'] ?? 0 ) ) ) ) ) );
+			if ( $this->article_media_attachment_id( $attachment_id ) > 0 ) {
+				$variables['hero_media_attachment_id'] = $this->article_media_attachment_id( $attachment_id );
+			}
+		}
+
+		if ( empty( $variables['hero_media_alt'] ) ) {
+			$alt = $input['hero_media_alt'] ?? ( $input['media_alt'] ?? ( $input['alt'] ?? ( $media['alt'] ?? '' ) ) );
+			if ( '' !== (string) $alt ) {
+				$variables['hero_media_alt'] = (string) $alt;
+			}
+		}
+
+		return $variables;
 	}
 
 	/**
