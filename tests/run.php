@@ -1334,7 +1334,8 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/get-block-theme-context']['required_scopes'] ?? array(), 'block theme context remains a site read ability' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan'] ), 'build-block-theme-site-plan is registered as a read-only planning ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['required_scopes'] ?? array(), 'block theme site plan remains a read-scope planning ability' );
-	npcink_abilities_toolkit_assert_same( array( 'add_breadcrumbs' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['intent']['enum'] ?? array(), 'block theme site plan MVP only exposes breadcrumbs intent' );
+	npcink_abilities_toolkit_assert_same( array( 'add_breadcrumbs', 'customize_template_layout' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['intent']['enum'] ?? array(), 'block theme site plan exposes breadcrumbs and bounded template layout intents' );
+	npcink_abilities_toolkit_assert_same( array( 'auto', 'article_standard', 'page_standard', 'homepage_landing' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['layout_profile']['enum'] ?? array(), 'block theme site plan exposes bounded layout profiles' );
 	npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page', 'archive', 'index' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['target_templates']['items']['enum'] ?? array(), 'block theme site plan accepts common content templates including front-page' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-template-blocks'] ), 'update-template-blocks is registered as a governed write ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.write' ), $package_abilities['npcink-abilities-toolkit/update-template-blocks']['required_scopes'] ?? array(), 'template block updates require site.write scope' );
@@ -1932,6 +1933,35 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'pass', $block_theme_plan['data']['template_placement_contract']['contract_status'] ?? '', 'build-block-theme-site-plan passes the template placement contract' );
 	npcink_abilities_toolkit_assert_same( 'core/post-title', $block_theme_plan['data']['template_placement_contract']['placements'][0]['inserted_before'] ?? '', 'build-block-theme-site-plan records the approved title anchor in the placement contract' );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'block theme site plan preview carries the per-template quality gate' );
+	$template_layout_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'single' ),
+			'layout_profile'   => 'article_standard',
+		)
+	);
+	$template_layout_actions = is_array( $template_layout_plan['data']['write_actions'] ?? null ) ? $template_layout_plan['data']['write_actions'] : array();
+	$template_layout_blocks_json = wp_json_encode( $template_layout_actions[0]['input']['blocks'] ?? array() );
+	$template_layout_blocks_json = is_string( $template_layout_blocks_json ) ? $template_layout_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['success'] ?? null, 'build-block-theme-site-plan accepts bounded template layout intent' );
+	npcink_abilities_toolkit_assert_same( 'customize_template_layout', $template_layout_plan['data']['intent'] ?? '', 'template layout plan reports its intent' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_template_layout_plan', $template_layout_plan['data']['composition_role'] ?? '', 'template layout plan declares a layout composition role' );
+	npcink_abilities_toolkit_assert_same( 1, count( $template_layout_actions ), 'template layout plan emits one action for the requested template' );
+	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-template-blocks', $template_layout_actions[0]['target_ability_id'] ?? '', 'template layout plan targets template block writes' );
+	npcink_abilities_toolkit_assert_same( 'core/template-part', $template_layout_actions[0]['input']['blocks'][0]['blockName'] ?? '', 'template layout plan keeps the header template part first' );
+	npcink_abilities_toolkit_assert_same( 'main', $template_layout_actions[0]['input']['blocks'][1]['attrs']['tagName'] ?? '', 'template layout plan places the bounded profile inside main' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-title' ), 'template layout plan includes the post title block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-author-name' ), 'template layout plan includes the author block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-date' ), 'template layout plan includes the post date block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-featured-image' ), 'template layout plan includes the featured image block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-content' ), 'template layout plan includes the post content slot' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'latest-posts' ), 'template layout plan includes related/latest posts' );
+	npcink_abilities_toolkit_assert_true( false === strpos( $template_layout_blocks_json, 'core\\/html' ), 'template layout plan does not emit raw HTML blocks' );
+	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['composition_contract']['contract_status'] ?? '', 'template layout plan passes the block composition contract' );
+	npcink_abilities_toolkit_assert_same( 'bounded_template_layout_profile', $template_layout_plan['data']['template_layout_contract']['placement_model'] ?? '', 'template layout plan reports bounded layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
+	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
 	$valid_page_template_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
 	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		608 => (object) array(
@@ -5039,6 +5069,27 @@ $site_template_intent_route = $core_read_package->route_content_intent(
 );
 npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page' ), $site_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent expands site breadcrumb prompts to common content templates' );
 
+$article_template_layout_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '帮我把文章页改成更专业的布局：顶部有面包屑，标题下面显示作者和日期，下面是特色图和正文，底部放相关文章。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $article_template_layout_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps article template layout requests to block theme site plans' );
+npcink_abilities_toolkit_assert_same( 'site_template_layout', $article_template_layout_intent_route['data']['route']['route_key'] ?? '', 'route-content-intent uses the template layout route key for article template layouts' );
+npcink_abilities_toolkit_assert_same( 'customize_template_layout', $article_template_layout_intent_route['data']['route']['recommended_plan_input']['intent'] ?? '', 'route-content-intent recommends the bounded template layout intent for article templates' );
+npcink_abilities_toolkit_assert_same( array( 'single' ), $article_template_layout_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes article template layouts to single' );
+npcink_abilities_toolkit_assert_same( 'article_standard', $article_template_layout_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends the article layout profile' );
+
+$homepage_template_layout_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '帮我自定义首页：顶部放一个大标题和介绍，下面展示最新文章、分类入口和一个行动按钮。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $homepage_template_layout_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps homepage template layout requests to block theme site plans' );
+npcink_abilities_toolkit_assert_same( 'customize_template_layout', $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['intent'] ?? '', 'route-content-intent recommends the bounded template layout intent for homepage layouts' );
+npcink_abilities_toolkit_assert_same( array( 'front-page' ), $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes homepage layouts to front-page' );
+npcink_abilities_toolkit_assert_same( 'homepage_landing', $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends the homepage layout profile' );
+
 $template_part_intent_route = $core_read_package->route_content_intent(
 	array(
 		'prompt' => '帮我重做页眉模板部件。',
@@ -5098,6 +5149,17 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_excerpt' => '',
 		'post_author'  => 7,
 		'post_name'    => 'single',
+		'post_parent'  => 0,
+	),
+	609 => (object) array(
+		'ID'           => 609,
+		'post_type'    => 'wp_template',
+		'post_status'  => 'publish',
+		'post_title'   => 'Front Page',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'front-page',
 		'post_parent'  => 0,
 	),
 );
@@ -5183,8 +5245,8 @@ npcink_abilities_toolkit_assert_same( 'unsupported', $gutenberg_recipe_eval_case
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation reports no failure codes for passing suites' );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_default_eval['success'] ?? null, 'default Gutenberg recipe evaluation returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_default_eval['data']['suite_status'] ?? '', 'default Gutenberg recipe evaluation suite passes' );
-npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 20 natural-language cases' );
-npcink_abilities_toolkit_assert_same( 20, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
+npcink_abilities_toolkit_assert_same( 22, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 22 natural-language cases' );
+npcink_abilities_toolkit_assert_same( 22, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
 npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_default_eval['data']['summary']['pass_rate'] ?? 0, 'default Gutenberg recipe evaluation reports a full pass rate under fixtures' );
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_default_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'default Gutenberg recipe evaluation reports no built-in failure codes' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $gutenberg_recipe_default_eval['data']['guardrails']['block_capability_catalog_ability_id'] ?? '', 'Gutenberg recipe evaluation points agents at the block capability catalog' );

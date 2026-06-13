@@ -280,9 +280,29 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'allowed_attrs'      => array( 'className', 'style', 'aspectRatio', 'height', 'width' ),
 				'surface'            => 'template',
 			),
+			'core/post-author-name' => array(
+				'roles'              => array( 'template_author' ),
+				'allowed_attrs'      => array( 'className', 'style', 'isLink', 'linkTarget' ),
+				'surface'            => 'template',
+			),
+			'core/post-date' => array(
+				'roles'              => array( 'template_date' ),
+				'allowed_attrs'      => array( 'className', 'style', 'format', 'isLink', 'displayType' ),
+				'surface'            => 'template',
+			),
 			'core/post-terms' => array(
 				'roles'              => array( 'template_terms' ),
 				'allowed_attrs'      => array( 'term', 'className', 'style' ),
+				'surface'            => 'template',
+			),
+			'core/latest-posts' => array(
+				'roles'              => array( 'template_related_posts', 'homepage_latest_posts' ),
+				'allowed_attrs'      => array( 'className', 'style', 'postsToShow', 'displayPostDate', 'displayPostContent', 'displayFeaturedImage' ),
+				'surface'            => 'template',
+			),
+			'core/categories' => array(
+				'roles'              => array( 'homepage_category_links' ),
+				'allowed_attrs'      => array( 'className', 'style', 'displayAsDropdown', 'showPostCounts', 'showHierarchy' ),
 				'surface'            => 'template',
 			),
 		);

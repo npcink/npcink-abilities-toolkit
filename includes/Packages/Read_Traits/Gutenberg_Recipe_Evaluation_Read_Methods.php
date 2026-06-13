@@ -182,6 +182,18 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 					'expected_route' => 'block_theme_site_plan',
 				),
 				array(
+					'id'                 => 'site_article_template_layout',
+					'prompt'             => '帮我把文章页改成更专业的布局：顶部有面包屑，标题下面显示作者和日期，下面是特色图和正文，底部放相关文章。',
+					'expected_route'     => 'block_theme_site_plan',
+					'expected_supported' => true,
+				),
+				array(
+					'id'                 => 'site_homepage_template_layout',
+					'prompt'             => '帮我自定义首页：顶部放一个大标题和介绍，下面展示最新文章、分类入口和一个行动按钮。',
+					'expected_route'     => 'block_theme_site_plan',
+					'expected_supported' => true,
+				),
+				array(
 					'id'                 => 'navigation_fail_closed',
 					'prompt'             => '帮我直接改站点导航菜单。',
 					'expected_route'     => 'unsupported',

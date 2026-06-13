@@ -1372,7 +1372,7 @@ final class Core_Read_Package {
 					'properties'           => array(
 						'prompt'      => array( 'type' => 'string', 'minLength' => 1 ),
 						'target_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), 'default' => 'auto' ),
-						'intent_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'edit_template_part', 'unsupported' ), 'default' => 'auto' ),
+						'intent_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'customize_template_layout', 'edit_template_part', 'unsupported' ), 'default' => 'auto' ),
 						'media_hint'  => array( 'type' => 'string', 'enum' => array( 'auto', 'none', 'existing_media_url', 'generated_or_existing' ), 'default' => 'auto' ),
 						'style_hint'  => array( 'type' => 'string', 'enum' => array( 'auto', 'minimal', 'modern', 'editorial_accent' ), 'default' => 'auto' ),
 					),
@@ -1716,15 +1716,27 @@ final class Core_Read_Package {
 					'input_schema'     => array(
 						'type'                 => 'object',
 						'properties'           => array(
-							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs' ), 'default' => 'add_breadcrumbs' ),
+							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs', 'customize_template_layout' ), 'default' => 'add_breadcrumbs' ),
 							'target_templates'   => array(
 								'type'  => 'array',
 									'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
 							),
+							'layout_profile'     => array( 'type' => 'string', 'enum' => array( 'auto', 'article_standard', 'page_standard', 'homepage_landing' ), 'default' => 'auto' ),
+							'include_breadcrumbs' => array( 'type' => 'boolean', 'default' => true ),
+							'show_author_date'   => array( 'type' => 'boolean', 'default' => true ),
+							'show_featured_image' => array( 'type' => 'boolean', 'default' => true ),
+							'include_related_posts' => array( 'type' => 'boolean', 'default' => true ),
+							'include_latest_posts' => array( 'type' => 'boolean', 'default' => true ),
+							'include_category_links' => array( 'type' => 'boolean', 'default' => true ),
+							'include_cta'        => array( 'type' => 'boolean', 'default' => true ),
 							'separator'          => array( 'type' => 'string', 'default' => '/' ),
 							'show_current_item'  => array( 'type' => 'boolean', 'default' => true ),
 							'show_home_item'     => array( 'type' => 'boolean', 'default' => true ),
 							'show_on_home_page'  => array( 'type' => 'boolean', 'default' => false ),
+							'variables'          => array(
+								'type'                 => 'object',
+								'additionalProperties' => true,
+							),
 						),
 						'additionalProperties' => false,
 					),

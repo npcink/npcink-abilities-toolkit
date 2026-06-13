@@ -39,7 +39,7 @@ trait Content_Intent_Router_Read_Methods {
 		if ( ! in_array( $target_hint, array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), true ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_content_intent_target_hint_invalid', __( 'Target hint is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-		if ( ! in_array( $intent_hint, array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'edit_template_part', 'unsupported' ), true ) ) {
+		if ( ! in_array( $intent_hint, array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'customize_template_layout', 'edit_template_part', 'unsupported' ), true ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_content_intent_hint_invalid', __( 'Intent hint is not supported.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( ! in_array( $media_hint, array( 'auto', 'none', 'existing_media_url', 'generated_or_existing' ), true ) ) {
@@ -129,7 +129,70 @@ trait Content_Intent_Router_Read_Methods {
 		return array(
 			'page'          => $this->content_intent_match_terms( $prompt, array( 'page', 'landing', 'landing page', 'homepage', 'home page', 'website', 'site page', '产品页', '介绍页', '落地页', '官网', '首页', '页面' ) ),
 			'article'       => $this->content_intent_match_terms( $prompt, array( 'article', 'post', 'blog', 'longform', 'comparison review', 'guide', 'tutorial', '文章', '博客', '博文', '写一篇', '对比评测', '教程', '指南', '草稿' ) ),
-			'site_template' => $this->content_intent_match_terms( $prompt, array( 'template', 'site editor', 'block theme', 'single template', 'archive template', '模板', '站点编辑器', '块主题', '主题模板', '文章模板', '归档模板' ) ),
+			'site_template' => $this->content_intent_match_terms(
+				$prompt,
+				array(
+					'template',
+					'site editor',
+					'block theme',
+					'single template',
+					'archive template',
+					'template layout',
+					'模板',
+					'模版',
+					'站点编辑器',
+					'块主题',
+					'主题模板',
+					'主题模版',
+					'文章模板',
+					'文章模版',
+					'页面模板',
+					'页面模版',
+					'首页模板',
+					'首页模版',
+					'文章页',
+					'归档模板',
+				)
+			),
+			'template_layout' => $this->content_intent_match_terms(
+				$prompt,
+				array(
+					'template layout',
+					'single layout',
+					'page layout',
+					'front page layout',
+					'homepage layout',
+					'customize homepage',
+					'customize front page',
+					'redesign template',
+					'模板布局',
+					'模版布局',
+					'页面模板布局',
+					'页面模版布局',
+					'文章页布局',
+					'文章模板布局',
+					'文章模版布局',
+					'首页布局',
+					'首页模板布局',
+					'首页模版布局',
+					'自定义首页',
+					'自定义主页',
+					'自定义文章页',
+					'自定义页面模板',
+					'自定义页面模版',
+					'改文章页',
+					'文章页改成',
+					'重做文章页',
+					'标题下面',
+					'作者和日期',
+					'发布日期',
+					'特色图',
+					'相关文章',
+					'最新文章',
+					'分类入口',
+					'行动按钮',
+				)
+			),
 			'template_part' => $this->content_intent_match_terms( $prompt, array( 'template part', 'header', 'footer', '页眉', '页脚', '模板部件', 'template_part' ) ),
 			'breadcrumbs'   => $this->content_intent_match_terms( $prompt, array( 'breadcrumb', 'breadcrumbs', '面包屑', '面包屑导航' ) ),
 			'navigation'    => $this->content_intent_match_terms( $prompt, array( 'navigation menu', 'nav menu', 'site navigation', 'navigation block', 'wp_navigation', '导航菜单', '站点导航', '导航栏', '主导航', '菜单' ) ),
@@ -173,6 +236,7 @@ trait Content_Intent_Router_Read_Methods {
 		$page_score     = $this->content_intent_signal_count( $signals['page'] ?? array() );
 		$article_score  = $this->content_intent_signal_count( $signals['article'] ?? array() );
 		$template_score = $this->content_intent_signal_count( $signals['site_template'] ?? array() );
+		$template_layout_score = $this->content_intent_signal_count( $signals['template_layout'] ?? array() );
 		$part_score     = $this->content_intent_signal_count( $signals['template_part'] ?? array() );
 		$breadcrumb     = $this->content_intent_signal_count( $signals['breadcrumbs'] ?? array() ) > 0;
 		$navigation_score = $this->content_intent_signal_count( $signals['navigation'] ?? array() );
@@ -196,6 +260,10 @@ trait Content_Intent_Router_Read_Methods {
 		if ( 'post' === $target_hint || 'write_article' === $intent_hint ) {
 			return $this->content_intent_supported_route( 'post_article', 'hint' );
 		}
+		if ( $template_layout_score > 0 || 'customize_template_layout' === $intent_hint ) {
+			return $this->content_intent_supported_route( 'site_template_layout', 'prompt_signal' );
+		}
+
 		if ( 'site_template' === $target_hint || 'add_breadcrumbs' === $intent_hint ) {
 			return $breadcrumb || 'add_breadcrumbs' === $intent_hint
 				? $this->content_intent_supported_route( 'site_template_breadcrumbs', 'hint' )
@@ -325,6 +393,17 @@ trait Content_Intent_Router_Read_Methods {
 				'final_write_ability_ids' => array( 'npcink-abilities-toolkit/update-template-blocks', 'npcink-abilities-toolkit/upsert-template-blocks' ),
 				'proposal_required'       => true,
 			),
+			'site_template_layout' => array(
+				'route_key'               => 'site_template_layout',
+				'surface'                 => 'site_template',
+				'target_type'             => 'wp_template',
+				'route'                   => 'block_theme_site_plan',
+				'recipe_id'               => 'block_theme_template_layout_v1',
+				'plan_ability_id'         => 'npcink-abilities-toolkit/build-block-theme-site-plan',
+				'readback_ability_ids'    => array( 'npcink-abilities-toolkit/get-template-blocks', 'npcink-abilities-toolkit/get-template-part-blocks' ),
+				'final_write_ability_ids' => array( 'npcink-abilities-toolkit/update-template-blocks', 'npcink-abilities-toolkit/upsert-template-blocks' ),
+				'proposal_required'       => true,
+			),
 		);
 	}
 
@@ -411,6 +490,27 @@ trait Content_Intent_Router_Read_Methods {
 			);
 		}
 			if ( 'block_theme_site_plan' === (string) ( $route['route'] ?? '' ) ) {
+				if ( 'site_template_layout' === sanitize_key( (string) ( $route['route_key'] ?? '' ) ) ) {
+					return array(
+						'intent'                 => 'customize_template_layout',
+						'target_templates'       => $this->content_intent_block_theme_layout_target_templates( $prompt ),
+						'layout_profile'         => $this->content_intent_block_theme_layout_profile( $prompt ),
+						'include_breadcrumbs'    => true,
+						'show_author_date'       => true,
+						'show_featured_image'    => true,
+						'include_related_posts'  => true,
+						'include_latest_posts'   => true,
+						'include_category_links' => true,
+						'include_cta'            => true,
+						'separator'              => '/',
+						'show_current_item'      => true,
+						'show_home_item'         => true,
+						'show_on_home_page'      => false,
+						'variables'              => array(
+							'user_intent' => $this->content_intent_excerpt( $prompt ),
+						),
+					);
+				}
 				return array(
 					'intent'             => 'add_breadcrumbs',
 					'target_templates'   => $this->content_intent_block_theme_target_templates( $prompt ),
@@ -421,6 +521,48 @@ trait Content_Intent_Router_Read_Methods {
 			);
 		}
 		return array();
+	}
+
+	/**
+	 * Infers layout template targets from ordinary customer language.
+	 *
+	 * @param string $prompt Prompt.
+	 * @return string[]
+	 */
+	private function content_intent_block_theme_layout_target_templates( $prompt ) {
+		$front_terms   = $this->content_intent_match_terms( $prompt, array( 'front page', 'homepage', 'home page', 'customize homepage', 'customize front page', '首页模板', '首页模版', '首页布局', '自定义首页', '自定义主页', '主页', '首页' ) );
+		$article_terms = $this->content_intent_match_terms( $prompt, array( 'single template', 'post template', 'article template', 'single layout', '文章页布局', '文章模板布局', '文章模版布局', '文章页', '文章模板', '文章模版', '自定义文章页', '改文章页' ) );
+		$page_terms    = $this->content_intent_match_terms( $prompt, array( 'page template', 'page layout', '页面模板布局', '页面模版布局', '页面模板', '页面模版', '普通页面', '页面' ) );
+
+		$targets = array();
+		if ( $this->content_intent_signal_count( $front_terms ) > 0 ) {
+			$targets[] = 'front-page';
+		}
+		if ( $this->content_intent_signal_count( $article_terms ) > 0 ) {
+			$targets[] = 'single';
+		}
+		if ( $this->content_intent_signal_count( $page_terms ) > 0 ) {
+			$targets[] = 'page';
+		}
+		return empty( $targets ) ? array( 'single' ) : array_values( array_unique( $targets ) );
+	}
+
+	/**
+	 * Infers a layout profile from ordinary customer language.
+	 *
+	 * @param string $prompt Prompt.
+	 * @return string
+	 */
+	private function content_intent_block_theme_layout_profile( $prompt ) {
+		$front_terms = $this->content_intent_match_terms( $prompt, array( 'front page', 'homepage', 'home page', '首页', '主页', '自定义首页', '自定义主页' ) );
+		if ( $this->content_intent_signal_count( $front_terms ) > 0 ) {
+			return 'homepage_landing';
+		}
+		$page_terms = $this->content_intent_match_terms( $prompt, array( 'page template', 'page layout', '页面模板', '页面模版', '页面布局', '普通页面' ) );
+		if ( $this->content_intent_signal_count( $page_terms ) > 0 ) {
+			return 'page_standard';
+		}
+		return 'article_standard';
 	}
 
 	/**
