@@ -4755,6 +4755,30 @@ npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== 
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, '"isStackedOnMobile":true' ), 'build-article-block-plan stacks comparison columns on mobile' );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, 'wp-block-group has-border-color has-background' ), 'build-article-block-plan emits Gutenberg support classes for styled group blocks' );
 npcink_abilities_toolkit_assert_true( is_string( $article_markup ) && false !== strpos( $article_markup, 'border-color:#e5e5e5;border-width:1px;border-radius:16px;background-color:#f7f7f4;padding-top:24px' ), 'build-article-block-plan serializes styled group wrappers from attrs' );
+$article_block_plan_top_level_media = $core_read_package->build_article_block_plan(
+	array(
+		'title'                    => 'Gutenberg Article Top-Level Media',
+		'article_template'         => 'comparison-review',
+		'responsive_profile'       => 'article_standard',
+		'media_strategy'           => 'existing_media_url',
+		'hero_media_url'           => 'https://magick-ai.local/wp-content/uploads/2026/06/preview.webp',
+		'hero_media_attachment_id' => 8053,
+		'hero_media_alt'           => 'WordPress AI governed workflow hero visual',
+		'variables'                => array(
+			'user_intent' => '写一篇介绍 Gutenberg 模块红利的文章草稿，需要配图和 FAQ。',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_block_plan_top_level_media['success'] ?? null, 'build-article-block-plan accepts top-level reviewed media inputs' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan_top_level_media['data']['editorial_quality']['has_hero_media_attachment_id'] ?? null, 'build-article-block-plan reports top-level media attachment binding' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan_top_level_media['data']['responsive_quality']['has_responsive_media'] ?? null, 'build-article-block-plan reports responsive media for top-level media inputs' );
+npcink_abilities_toolkit_assert_same( true, $article_block_plan_top_level_media['data']['block_editor_review']['media_quality']['has_hero_media_attachment_id'] ?? null, 'build-article-block-plan review reports top-level media attachment ids present' );
+$article_top_level_media_actions = is_array( $article_block_plan_top_level_media['data']['write_actions'] ?? null ) ? $article_block_plan_top_level_media['data']['write_actions'] : array();
+$article_top_level_media_blocks  = is_array( $article_top_level_media_actions[1]['input']['blocks'] ?? null ) ? $article_top_level_media_actions[1]['input']['blocks'] : array();
+$article_top_level_media_markup  = wp_json_encode( $article_top_level_media_blocks );
+npcink_abilities_toolkit_assert_true( is_string( $article_top_level_media_markup ) && false !== strpos( $article_top_level_media_markup, '"blockName":"core\\/image"' ), 'build-article-block-plan uses core image for top-level existing media' );
+npcink_abilities_toolkit_assert_true( is_string( $article_top_level_media_markup ) && false !== strpos( $article_top_level_media_markup, '"id":8053' ), 'build-article-block-plan binds top-level media to the reviewed attachment id' );
+npcink_abilities_toolkit_assert_true( is_string( $article_top_level_media_markup ) && false !== strpos( $article_top_level_media_markup, 'class=\"wp-image-8053\"' ), 'build-article-block-plan serializes top-level media wp-image attachment classes' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][280975] = (object) array(
 	'ID'           => 280975,
 	'post_type'    => 'post',
