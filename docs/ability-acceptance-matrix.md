@@ -61,6 +61,15 @@ Use this policy before creating a new ability:
 
 Current known gaps:
 
+- Block theme Site Editor layout customization now has a bounded
+  `customize_template_layout` MVP in `build-block-theme-site-plan`. It supports
+  fixed `article_standard`, `page_standard`, and `homepage_landing` profiles for
+  common natural-language requests such as custom article page layout, homepage
+  template layout, author/date placement, featured-image placement,
+  related-post sections, latest-post sections, category entrances, and
+  call-to-action sections. It must still fail closed for navigation writes,
+  global style/theme.json patches, raw template HTML, custom CSS, non-core
+  blocks, or arbitrary unprofiled template composition.
 - No active fourth-batch ability gap is open after the taxonomy terms preview,
   existing article optimization, and article media handoff proofs. Keep this
   package in freeze/observe mode until Core or a host workflow reports a

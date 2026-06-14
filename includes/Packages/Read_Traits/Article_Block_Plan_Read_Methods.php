@@ -185,6 +185,7 @@ trait Article_Block_Plan_Read_Methods {
 						'block_count'  => $this->article_block_count_recursive( $blocks ),
 						'action_count' => count( $write_actions ),
 					),
+					'composition_contract'   => $this->gutenberg_block_composition_contract( $blocks, 'post' ),
 					'editorial_quality'      => $editorial_quality,
 					'responsive_quality'     => $responsive_quality,
 					'block_editor_review'    => $this->block_editor_plan_review_excerpt( $block_editor_review ),

@@ -129,7 +129,7 @@ foreach ( $data['cases'] as $case ) {
 			empty( $case['supported'] ) ? 'false' : 'true',
 			empty( $case['passed'] ) ? 'false' : 'true',
 			npcink_gutenberg_recipe_judge_json( $case['failure_codes'] ?? array(), 800 ),
-			npcink_gutenberg_recipe_judge_json( $case['plan_summary'] ?? array(), 1800 ),
+			npcink_gutenberg_recipe_judge_json( $case['plan_summary'] ?? array(), 2600 ),
 			npcink_gutenberg_recipe_judge_json( $case['block_summary'] ?? array(), 1800 ),
 			(string) ( $data['suite_status'] ?? '' ),
 			(string) ( $data['summary']['pass_rate'] ?? '' ),

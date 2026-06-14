@@ -31,6 +31,7 @@ final class Core_Read_Package {
 	use Content_Inventory_Read_Methods;
 	use Content_Refresh_SEO_Read_Methods;
 	use Diagnostics_Read_Methods;
+	use Gutenberg_Block_Capability_Catalog_Read_Methods;
 	use Gutenberg_Recipe_Evaluation_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Read_Methods;
@@ -1371,7 +1372,7 @@ final class Core_Read_Package {
 					'properties'           => array(
 						'prompt'      => array( 'type' => 'string', 'minLength' => 1 ),
 						'target_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), 'default' => 'auto' ),
-						'intent_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'edit_template_part', 'unsupported' ), 'default' => 'auto' ),
+						'intent_hint' => array( 'type' => 'string', 'enum' => array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'customize_template_layout', 'edit_template_part', 'unsupported' ), 'default' => 'auto' ),
 						'media_hint'  => array( 'type' => 'string', 'enum' => array( 'auto', 'none', 'existing_media_url', 'generated_or_existing' ), 'default' => 'auto' ),
 						'style_hint'  => array( 'type' => 'string', 'enum' => array( 'auto', 'minimal', 'modern', 'editorial_accent' ), 'default' => 'auto' ),
 					),
@@ -1461,6 +1462,94 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'evaluate_gutenberg_recipe_suite' ),
+			),
+			'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog' => array(
+				'label'            => __( 'Get Gutenberg Block Capability Catalog', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Returns bounded Gutenberg-native block composition rules for AI planners without creating proposals or writing content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only block capability catalog. Use it to compose allowed core Gutenberg blocks; do not create proposals, do not write content, and do not treat prompts as authorization.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'surface' => array(
+							'type'    => 'string',
+							'enum'    => array( 'all', 'page', 'post', 'template' ),
+							'default' => 'all',
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'get_gutenberg_block_capability_catalog' ),
+			),
+			'npcink-abilities-toolkit/inspect-gutenberg-composition-contract' => array(
+				'label'            => __( 'Inspect Gutenberg Composition Contract', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Inspects one post, page, Site Editor template, template part, or proposed block tree against the bounded Gutenberg composition contract without scanning the full site or writing content.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only single-surface contract inspection. Do not create proposals, do not write content, do not scan the whole site, and do not execute AI. Use findings to decide whether a governed block or Site Editor plan is needed.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'surface_kind'      => array(
+							'type' => 'string',
+							'enum' => array( 'post_content', 'site_editor_template', 'site_editor_template_part', 'blocks_input' ),
+						),
+						'post_id'           => array( 'type' => 'integer', 'minimum' => 1 ),
+						'post_type'         => array(
+							'type' => 'string',
+							'enum' => array( 'post', 'page', 'wp_template', 'wp_template_part' ),
+						),
+						'slug'              => array( 'type' => 'string' ),
+						'blocks'            => array(
+							'type'  => 'array',
+							'items' => array(
+								'type'                 => 'object',
+								'additionalProperties' => true,
+							),
+						),
+						'placement_check'   => array(
+							'type'    => 'string',
+							'enum'    => array( 'none', 'breadcrumbs' ),
+							'default' => 'breadcrumbs',
+						),
+						'show_on_home_page' => array( 'type' => 'boolean', 'default' => false ),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'inspect_gutenberg_composition_contract' ),
 			),
 			'npcink-abilities-toolkit/build-article-block-plan' => array(
 				'label'            => __( 'Build Article Block Plan', 'npcink-abilities-toolkit' ),
@@ -1627,15 +1716,27 @@ final class Core_Read_Package {
 					'input_schema'     => array(
 						'type'                 => 'object',
 						'properties'           => array(
-							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs' ), 'default' => 'add_breadcrumbs' ),
+							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs', 'customize_template_layout' ), 'default' => 'add_breadcrumbs' ),
 							'target_templates'   => array(
 								'type'  => 'array',
 									'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
 							),
+							'layout_profile'     => array( 'type' => 'string', 'enum' => array( 'auto', 'article_standard', 'page_standard', 'homepage_landing' ), 'default' => 'auto' ),
+							'include_breadcrumbs' => array( 'type' => 'boolean', 'default' => true ),
+							'show_author_date'   => array( 'type' => 'boolean', 'default' => true ),
+							'show_featured_image' => array( 'type' => 'boolean', 'default' => true ),
+							'include_related_posts' => array( 'type' => 'boolean', 'default' => true ),
+							'include_latest_posts' => array( 'type' => 'boolean', 'default' => true ),
+							'include_category_links' => array( 'type' => 'boolean', 'default' => true ),
+							'include_cta'        => array( 'type' => 'boolean', 'default' => true ),
 							'separator'          => array( 'type' => 'string', 'default' => '/' ),
 							'show_current_item'  => array( 'type' => 'boolean', 'default' => true ),
 							'show_home_item'     => array( 'type' => 'boolean', 'default' => true ),
 							'show_on_home_page'  => array( 'type' => 'boolean', 'default' => false ),
+							'variables'          => array(
+								'type'                 => 'object',
+								'additionalProperties' => true,
+							),
 						),
 						'additionalProperties' => false,
 					),

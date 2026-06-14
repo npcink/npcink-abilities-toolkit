@@ -71,6 +71,9 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 				'review_contract'        => $this->gutenberg_recipe_eval_review_contract(),
 				'dual_review'            => $this->gutenberg_recipe_eval_suite_dual_review( $case_results, $status ),
 				'guardrails'             => array(
+					'block_capability_catalog_ability_id' => 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog',
+					'block_capability_catalog_id' => 'gutenberg_native_v1',
+					'composition_model'   => 'bounded_block_composition',
 					'allowed_plan_ability_ids' => array(
 						'npcink-abilities-toolkit/build-pattern-page-plan',
 						'npcink-abilities-toolkit/build-article-block-plan',
@@ -177,6 +180,18 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 					'id'             => 'site_breadcrumbs_blog_template',
 					'prompt'         => '博客文章模板加面包屑导航。',
 					'expected_route' => 'block_theme_site_plan',
+				),
+				array(
+					'id'                 => 'site_article_template_layout',
+					'prompt'             => '帮我把文章页改成更专业的布局：顶部有面包屑，标题下面显示作者和日期，下面是特色图和正文，底部放相关文章。',
+					'expected_route'     => 'block_theme_site_plan',
+					'expected_supported' => true,
+				),
+				array(
+					'id'                 => 'site_homepage_template_layout',
+					'prompt'             => '帮我自定义首页：顶部放一个大标题和介绍，下面展示最新文章、分类入口和一个行动按钮。',
+					'expected_route'     => 'block_theme_site_plan',
+					'expected_supported' => true,
 				),
 				array(
 					'id'                 => 'navigation_fail_closed',
@@ -465,8 +480,75 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 		if ( ! empty( $no_change_context['no_change_count'] ) ) {
 			$summary['no_change_context'] = $no_change_context;
 		}
+		$composition_contract = $this->gutenberg_recipe_eval_composition_contract_summary( $plan_data );
+		if ( ! empty( $composition_contract ) ) {
+			$summary['composition_contract'] = $composition_contract;
+		}
+		$template_placement_contract = $this->gutenberg_recipe_eval_template_placement_contract_summary( $plan_data );
+		if ( ! empty( $template_placement_contract ) ) {
+			$summary['template_placement_contract'] = $template_placement_contract;
+		}
 
 		return $summary;
+	}
+
+	/**
+	 * Returns compact block composition contract evidence for AI judges.
+	 *
+	 * @param array<string,mixed> $plan_data Plan data.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_recipe_eval_composition_contract_summary( array $plan_data ) {
+		$contract = is_array( $plan_data['composition_contract'] ?? null ) ? $plan_data['composition_contract'] : array();
+		if ( empty( $contract ) ) {
+			return array();
+		}
+
+		return array(
+			'catalog_id'             => sanitize_key( (string) ( $contract['catalog_id'] ?? '' ) ),
+			'surface'                => sanitize_key( (string) ( $contract['surface'] ?? '' ) ),
+			'composition_model'      => sanitize_key( (string) ( $contract['composition_model'] ?? '' ) ),
+			'contract_status'        => sanitize_key( (string) ( $contract['contract_status'] ?? '' ) ),
+			'forbidden_block_names'  => is_array( $contract['forbidden_block_names'] ?? null ) ? array_values( $contract['forbidden_block_names'] ) : array(),
+			'non_core_blocks'        => is_array( $contract['non_core_blocks'] ?? null ) ? array_values( $contract['non_core_blocks'] ) : array(),
+		);
+	}
+
+	/**
+	 * Returns compact template placement contract evidence for AI judges.
+	 *
+	 * @param array<string,mixed> $plan_data Plan data.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_recipe_eval_template_placement_contract_summary( array $plan_data ) {
+		$contract = is_array( $plan_data['template_placement_contract'] ?? null ) ? $plan_data['template_placement_contract'] : array();
+		if ( empty( $contract ) ) {
+			return array();
+		}
+
+		$placements = array();
+		foreach ( is_array( $contract['placements'] ?? null ) ? $contract['placements'] : array() as $placement ) {
+			if ( ! is_array( $placement ) ) {
+				continue;
+			}
+			$placements[] = array(
+				'slug'             => sanitize_key( (string) ( $placement['slug'] ?? '' ) ),
+				'status'           => sanitize_key( (string) ( $placement['status'] ?? '' ) ),
+				'strategy'         => sanitize_key( (string) ( $placement['strategy'] ?? '' ) ),
+				'inserted_before'  => sanitize_text_field( (string) ( $placement['inserted_before'] ?? '' ) ),
+				'strategy_allowed' => ! empty( $placement['strategy_allowed'] ),
+				'anchor_allowed'   => ! empty( $placement['anchor_allowed'] ),
+			);
+		}
+
+		return array(
+			'catalog_id'              => sanitize_key( (string) ( $contract['catalog_id'] ?? '' ) ),
+			'placement_model'         => sanitize_key( (string) ( $contract['placement_model'] ?? '' ) ),
+			'contract_status'         => sanitize_key( (string) ( $contract['contract_status'] ?? '' ) ),
+			'violation_codes'         => is_array( $contract['violation_codes'] ?? null ) ? array_values( $contract['violation_codes'] ) : array(),
+			'preferred_anchor_blocks' => is_array( $contract['preferred_anchor_blocks'] ?? null ) ? array_values( $contract['preferred_anchor_blocks'] ) : array(),
+			'placements'              => array_slice( $placements, 0, 5 ),
+		);
 	}
 
 	/**
@@ -560,6 +642,12 @@ trait Gutenberg_Recipe_Evaluation_Read_Methods {
 		}
 		if ( 'block_theme_site_plan' === $route_name && empty( $actions ) && 'no_changes_required' !== sanitize_key( (string) ( $plan_data['block_editor_quality_gate']['recommended_next_step'] ?? '' ) ) ) {
 			$failures[] = 'template_plan_no_actions_without_noop_status';
+		}
+		if ( 'block_theme_site_plan' === $route_name ) {
+			$template_placement_contract = is_array( $plan_data['template_placement_contract'] ?? null ) ? $plan_data['template_placement_contract'] : array();
+			if ( ! empty( $template_placement_contract ) && 'pass' !== sanitize_key( (string) ( $template_placement_contract['contract_status'] ?? '' ) ) ) {
+				$failures[] = 'template_placement_contract_failed';
+			}
 		}
 		return $failures;
 	}
