@@ -1409,6 +1409,10 @@ npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities[
 npcink_abilities_toolkit_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
 npcink_abilities_toolkit_assert_same( array( 'aspect_ratio' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['crop']['properties']['type']['enum'] ?? array(), 'media derivative batch plan supports bounded aspect-ratio crop plans' );
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['max_items']['maximum'] ?? null, 'media derivative batch plan bounds candidates to 50 items' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['eligibility_summary'] ), 'media derivative batch plan declares eligibility summary output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['blocked_items'] ), 'media derivative batch plan declares blocked items output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['retry_guidance'] ), 'media derivative batch plan declares retry guidance output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['operator_next_action'] ), 'media derivative batch plan declares operator next action output' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
@@ -3713,10 +3717,17 @@ npcink_abilities_toolkit_assert_same( 'dry_run', $media_derivative_batch_plan['d
 npcink_abilities_toolkit_assert_same( false, $media_derivative_batch_plan['data']['commit_execution'] ?? null, 'media derivative batch plan does not execute commits' );
 npcink_abilities_toolkit_assert_same( true, $media_derivative_batch_plan['data']['requires_approval'] ?? null, 'media derivative batch plan requires approval before adoption' );
 npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan selects one April JPEG candidate for PNG conversion' );
+npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['eligibility_summary']['eligible_count'] ?? 0, 'media derivative batch plan reports eligible count in eligibility summary' );
+npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['eligibility_summary']['blocked_count'] ?? 0, 'media derivative batch plan reports blocked count in eligibility summary' );
+npcink_abilities_toolkit_assert_same( true, $media_derivative_batch_plan['data']['retryable'] ?? null, 'media derivative batch plan is retryable as a rebuildable review set' );
+npcink_abilities_toolkit_assert_true( is_string( $media_derivative_batch_plan['data']['operator_next_action'] ?? null ) && '' !== $media_derivative_batch_plan['data']['operator_next_action'], 'media derivative batch plan provides operator next action guidance' );
 npcink_abilities_toolkit_assert_same( 84, $media_derivative_batch_plan['data']['candidates'][0]['attachment_id'] ?? 0, 'media derivative batch plan candidate comes from the April date range' );
+npcink_abilities_toolkit_assert_same( 'eligible', $media_derivative_batch_plan['data']['candidates'][0]['status'] ?? '', 'media derivative batch plan candidate carries eligible status' );
+npcink_abilities_toolkit_assert_same( 'attachment:84', $media_derivative_batch_plan['data']['candidates'][0]['result_ref'] ?? '', 'media derivative batch plan candidate carries a stable result reference' );
 npcink_abilities_toolkit_assert_same( 'png', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_input']['preferred_format'] ?? '', 'media derivative batch plan prepares PNG single-image request input' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-derivative-cloud-request', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_ability'] ?? '', 'media derivative batch plan points to the existing single-image cloud request ability' );
 npcink_abilities_toolkit_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan skips images already in the target format' );
+npcink_abilities_toolkit_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['blocked_items'][0]['blocked_reason'] ?? '', 'media derivative batch plan exposes skipped media as blocked items' );
 npcink_abilities_toolkit_assert_array_omits_keys( $media_derivative_batch_plan['data'], array( 'write_actions', 'wordpress_write_decision', 'approval_decision', 'commit' ), 'media derivative batch plan output' );
 $media_derivative_batch_plan_bounded = $core_read_package->build_media_derivative_batch_plan(
 	array(
@@ -3758,6 +3769,7 @@ $media_derivative_batch_plan_excluded = $core_read_package->build_media_derivati
 );
 npcink_abilities_toolkit_assert_same( 0, $media_derivative_batch_plan_excluded['data']['summary']['candidate_count'] ?? 1, 'media derivative batch plan honors excluded source formats' );
 npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan explains excluded source formats' );
+npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['blocked_items'][0]['blocked_reason'] ?? '', 'media derivative batch plan exposes excluded source formats as blocked items' );
 $media_derivative_batch_plan_invalid = $core_read_package->build_media_derivative_batch_plan(
 	array(
 		'attachment_ids' => array( 84 ),
