@@ -5062,6 +5062,14 @@ $page_template_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $page_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps page breadcrumb prompts to block theme site plans' );
 npcink_abilities_toolkit_assert_same( array( 'page', 'front-page' ), $page_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes page breadcrumb prompts to page and front-page templates' );
 
+$archive_template_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '给归档模板加面包屑导航，并检查不要跑到页眉上方。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $archive_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps archive breadcrumb prompts to block theme site plans' );
+npcink_abilities_toolkit_assert_same( array( 'archive' ), $archive_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes archive breadcrumb prompts to archive templates' );
+
 $site_template_intent_route = $core_read_package->route_content_intent(
 	array(
 		'prompt' => '给网站加面包屑导航。',
@@ -5098,6 +5106,14 @@ $template_part_intent_route = $core_read_package->route_content_intent(
 npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part edits without a recipe' );
 npcink_abilities_toolkit_assert_same( true, $template_part_intent_route['data']['route']['needs_clarification'] ?? false, 'route-content-intent asks for clarification for unsupported template parts' );
 npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports the missing template part recipe' );
+
+$template_part_breadcrumb_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '在页眉模板部件里加面包屑导航。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'unsupported', $template_part_breadcrumb_intent_route['data']['route']['route'] ?? '', 'route-content-intent fails closed for template part breadcrumb requests' );
+npcink_abilities_toolkit_assert_same( 'template_part_recipe_not_available', $template_part_breadcrumb_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent does not route template part breadcrumb requests into template writes' );
 
 $navigation_intent_route = $core_read_package->route_content_intent(
 	array(
@@ -5153,6 +5169,17 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 	),
 	609 => (object) array(
 		'ID'           => 609,
+		'post_type'    => 'wp_template',
+		'post_status'  => 'publish',
+		'post_title'   => 'Page',
+		'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-title /--><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'page',
+		'post_parent'  => 0,
+	),
+	610 => (object) array(
+		'ID'           => 610,
 		'post_type'    => 'wp_template',
 		'post_status'  => 'publish',
 		'post_title'   => 'Front Page',
@@ -5245,8 +5272,8 @@ npcink_abilities_toolkit_assert_same( 'unsupported', $gutenberg_recipe_eval_case
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'Gutenberg recipe evaluation reports no failure codes for passing suites' );
 npcink_abilities_toolkit_assert_same( true, $gutenberg_recipe_default_eval['success'] ?? null, 'default Gutenberg recipe evaluation returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 'pass', $gutenberg_recipe_default_eval['data']['suite_status'] ?? '', 'default Gutenberg recipe evaluation suite passes' );
-npcink_abilities_toolkit_assert_same( 22, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 22 natural-language cases' );
-npcink_abilities_toolkit_assert_same( 22, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
+npcink_abilities_toolkit_assert_same( 30, $gutenberg_recipe_default_eval['data']['summary']['total_cases'] ?? 0, 'default Gutenberg recipe evaluation covers 30 natural-language cases' );
+npcink_abilities_toolkit_assert_same( 30, $gutenberg_recipe_default_eval['data']['summary']['passed_cases'] ?? 0, 'default Gutenberg recipe evaluation passes every built-in case' );
 npcink_abilities_toolkit_assert_same( 1.0, $gutenberg_recipe_default_eval['data']['summary']['pass_rate'] ?? 0, 'default Gutenberg recipe evaluation reports a full pass rate under fixtures' );
 npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_default_eval['data']['failure_summary']['failure_count_by_code'] ?? array( 'unexpected' ), 'default Gutenberg recipe evaluation reports no built-in failure codes' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $gutenberg_recipe_default_eval['data']['guardrails']['block_capability_catalog_ability_id'] ?? '', 'Gutenberg recipe evaluation points agents at the block capability catalog' );
@@ -5254,13 +5281,20 @@ npcink_abilities_toolkit_assert_same( 'gutenberg_native_v1', $gutenberg_recipe_d
 npcink_abilities_toolkit_assert_same( 'bounded_block_composition', $gutenberg_recipe_default_eval['data']['guardrails']['composition_model'] ?? '', 'Gutenberg recipe evaluation reports bounded block composition' );
 $gutenberg_recipe_composer = file_get_contents( dirname( __DIR__ ) . '/composer.json' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:suite' ), 'Composer exposes Gutenberg recipe suite export command' );
-npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'export-default-suite.php' ), 'Gutenberg recipe eval-lab wrapper refreshes the default suite before exporting judge cases' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:judge:eval-lab' ), 'Composer exposes Gutenberg recipe eval-lab judge wrapper command' );
-npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg:judge:cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg cross-judge command' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'export-default-suite.php' ), 'Gutenberg recipe eval-lab wrapper exports the latest default suite before judging' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'task=gutenberg_judge_cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg task registry' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false === strpos( $gutenberg_recipe_composer, 'sk-' ), 'Gutenberg recipe eval-lab wrapper does not contain committed API keys' );
 $gutenberg_recipe_eval_lab_wrapper = file_get_contents( dirname( __DIR__ ) . '/scripts/eval-lab.sh' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'MAGICK_AI_EVAL_LAB_PATH' ), 'Gutenberg recipe eval-lab wrapper keeps provider calls outside Toolkit' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'COMPOSER_PROCESS_TIMEOUT' ), 'Gutenberg recipe eval-lab wrapper permits long provider-backed triad runs' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false === strpos( $gutenberg_recipe_eval_lab_wrapper, 'API_KEY' ), 'Eval Lab wrapper does not read provider keys in the plugin repo' );
+$gutenberg_recipe_manual_review = json_decode( (string) file_get_contents( dirname( __DIR__ ) . '/tests/gutenberg-recipe-eval/manual-review-cases.json' ), true );
+$gutenberg_recipe_challenge_cases = json_decode( (string) file_get_contents( dirname( __DIR__ ) . '/tests/gutenberg-recipe-eval/challenge-cases.json' ), true );
+npcink_abilities_toolkit_assert_same( 'gutenberg_recipe_manual_review_queue', $gutenberg_recipe_manual_review['artifact_type'] ?? '', 'Gutenberg recipe eval keeps a manual adjudication queue' );
+npcink_abilities_toolkit_assert_same( array(), $gutenberg_recipe_manual_review['items'] ?? array( 'unexpected' ), 'Gutenberg recipe manual adjudication queue starts empty after clean triad runs' );
+npcink_abilities_toolkit_assert_same( 'gutenberg_recipe_challenge_cases', $gutenberg_recipe_challenge_cases['artifact_type'] ?? '', 'Gutenberg recipe eval keeps challenge cases separate from the all-green suite' );
+npcink_abilities_toolkit_assert_true( count( $gutenberg_recipe_challenge_cases['cases'] ?? array() ) >= 10, 'Gutenberg recipe challenge cases cover boundary and ambiguity prompts' );
 
 $pattern_page_plan = $core_read_package->build_pattern_page_plan(
 	array(
