@@ -1233,6 +1233,9 @@ trait Media_Read_Methods {
 
 		$candidates[] = array(
 			'attachment_id'          => $attachment_id,
+			'status'                 => 'eligible',
+			'reason'                 => 'eligible',
+			'result_ref'             => 'attachment:' . (string) $attachment_id,
 			'title'                  => sanitize_text_field( (string) ( $inspection['title'] ?? '' ) ),
 			'mime_type'              => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
 			'source_format'          => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
@@ -1250,6 +1253,14 @@ trait Media_Read_Methods {
 	}
 
 	$total = $this->absint_value( $query_result['total'] ?? count( $attachment_ids ) );
+	$truncated = count( $candidates ) >= $max_items && $total > $scanned_count;
+	$blocked_items = $this->build_media_derivative_batch_blocked_items( $skipped );
+	$operator_next_action = ! empty( $candidates )
+		? 'Review eligible media, generate selected previews, then submit selected Core reviews.'
+		: ( ! empty( $blocked_items ) ? 'Review blocked reasons or adjust filters, then rebuild the plan.' : 'Adjust media scope or filters, then rebuild the plan.' );
+	$retry_guidance = ! empty( $candidates )
+		? 'Change selected media or rebuild the plan after adjusting filters before generating previews again.'
+		: 'Adjust scope, filters, excluded formats, or media dimensions, then rebuild the plan.';
 
 	return $this->build_analysis_success_response(
 		array(
@@ -1281,11 +1292,26 @@ trait Media_Read_Methods {
 				'scanned_count'       => $scanned_count,
 				'candidate_count'     => count( $candidates ),
 				'skipped_count'       => count( $skipped ),
-				'truncated'           => count( $candidates ) >= $max_items && $total > $scanned_count,
+				'truncated'           => $truncated,
+				'cloud_calls_included' => false,
+			),
+			'eligibility_summary'   => array(
+				'total_count'          => $total,
+				'scanned_count'        => $scanned_count,
+				'eligible_count'       => count( $candidates ),
+				'candidate_count'      => count( $candidates ),
+				'blocked_count'        => count( $blocked_items ),
+				'skipped_count'        => count( $skipped ),
+				'selected_count'       => count( $candidates ),
+				'truncated'            => $truncated,
 				'cloud_calls_included' => false,
 			),
 			'candidates'            => $candidates,
 			'skipped'               => $skipped,
+			'blocked_items'         => $blocked_items,
+			'retryable'             => true,
+			'retry_guidance'        => $retry_guidance,
+			'operator_next_action'  => $operator_next_action,
 			'execution_plan'        => array(
 				'steps' => array(
 					'Review candidates and skipped reasons.',
@@ -2735,6 +2761,64 @@ trait Media_Read_Methods {
 			'height'         => $this->absint_value( $inspection['height'] ?? 0 ),
 			'filesize_bytes' => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
 		);
+	}
+
+	/**
+	 * Builds blocked-item rows from skipped derivative batch rows.
+	 *
+	 * @param array<int,array<string,mixed>> $skipped Skipped rows.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_media_derivative_batch_blocked_items( array $skipped ) {
+		$blocked_items = array();
+		foreach ( $skipped as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+			$reason = sanitize_key( (string) ( $item['reason'] ?? 'skipped' ) );
+			$blocked_items[] = array(
+				'attachment_id'        => $this->absint_value( $item['attachment_id'] ?? 0 ),
+				'status'               => 'blocked',
+				'reason'               => $reason,
+				'blocked_reason'       => $reason,
+				'operator_next_action' => $this->media_derivative_batch_blocked_next_action( $reason ),
+				'title'                => sanitize_text_field( (string) ( $item['title'] ?? '' ) ),
+				'mime_type'            => sanitize_text_field( (string) ( $item['mime_type'] ?? '' ) ),
+				'source_format'        => sanitize_key( (string) ( $item['source_format'] ?? '' ) ),
+				'width'                => $this->absint_value( $item['width'] ?? 0 ),
+				'height'               => $this->absint_value( $item['height'] ?? 0 ),
+				'filesize_bytes'       => $this->absint_value( $item['filesize_bytes'] ?? 0 ),
+			);
+		}
+		return $blocked_items;
+	}
+
+	/**
+	 * Returns operator recovery guidance for a blocked derivative batch item.
+	 *
+	 * @param string $reason Block reason.
+	 * @return string
+	 */
+	private function media_derivative_batch_blocked_next_action( $reason ) {
+		switch ( sanitize_key( (string) $reason ) ) {
+			case 'already_target_format':
+			case 'source_format_excluded':
+				return 'Adjust target or excluded formats, then rebuild the plan.';
+			case 'below_min_width':
+			case 'below_min_height':
+			case 'below_min_filesize':
+			case 'above_max_filesize':
+				return 'Adjust size filters or choose a different media scope.';
+			case 'permission_denied':
+				return 'Use an account that can edit this attachment or remove it from scope.';
+			case 'attachment_not_found':
+				return 'Remove the missing attachment from the explicit batch scope.';
+			case 'not_image':
+			case 'unsupported_source_format':
+				return 'Remove unsupported media from scope or choose a supported image attachment.';
+			default:
+				return 'Review this media item before rebuilding the plan.';
+		}
 	}
 
 	/**

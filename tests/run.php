@@ -1409,6 +1409,10 @@ npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities[
 npcink_abilities_toolkit_assert_same( array( 'webp', 'avif', 'jpeg', 'png', 'original' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['target_format']['enum'] ?? array(), 'media derivative batch plan exposes bounded target formats' );
 npcink_abilities_toolkit_assert_same( array( 'aspect_ratio' ), $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['crop']['properties']['type']['enum'] ?? array(), 'media derivative batch plan supports bounded aspect-ratio crop plans' );
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['max_items']['maximum'] ?? null, 'media derivative batch plan bounds candidates to 50 items' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['eligibility_summary'] ), 'media derivative batch plan declares eligibility summary output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['blocked_items'] ), 'media derivative batch plan declares blocked items output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['retry_guidance'] ), 'media derivative batch plan declares retry guidance output' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['output_schema']['properties']['data']['properties']['operator_next_action'] ), 'media derivative batch plan declares operator next action output' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
@@ -1882,6 +1886,10 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	$block_theme_context = $core_read_package->get_block_theme_context( array() );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_context['is_block_theme'] ?? null, 'get-block-theme-context reports active block theme state' );
 	npcink_abilities_toolkit_assert_same( 3, count( $block_theme_context['templates'] ?? array() ), 'get-block-theme-context lists available template entities including front-page' );
+	npcink_abilities_toolkit_assert_same( 'posts', $block_theme_context['reading_settings']['show_on_front'] ?? '', 'get-block-theme-context exposes front page reading mode' );
+	npcink_abilities_toolkit_assert_same( 'front-page', $block_theme_context['template_resolution']['front_page']['target_slug'] ?? '', 'get-block-theme-context exposes homepage template resolution' );
+	npcink_abilities_toolkit_assert_true( ! empty( $block_theme_context['existing_overrides']['front-page']['content_hash'] ?? '' ), 'get-block-theme-context exposes existing template override hashes' );
+	npcink_abilities_toolkit_assert_true( is_array( $block_theme_context['content_inventory']['candidate_cta_pages'] ?? null ), 'get-block-theme-context exposes CTA candidate inventory' );
 	$template_blocks = $core_read_package->get_template_blocks( array( 'slug' => 'single' ) );
 	npcink_abilities_toolkit_assert_same( 601, $template_blocks['post_id'] ?? 0, 'get-template-blocks resolves a template by slug' );
 	npcink_abilities_toolkit_assert_true( ( $template_blocks['block_count'] ?? 0 ) > 0, 'get-template-blocks parses template blocks' );
@@ -1962,6 +1970,125 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
 	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
+	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+			'include_cta'      => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $homepage_unresolved_cta_plan['success'] ?? null, 'homepage layout plan still returns a reviewable envelope when CTA cannot be resolved' );
+	npcink_abilities_toolkit_assert_same( 0, count( $homepage_unresolved_cta_plan['data']['write_actions'] ?? array() ), 'homepage layout plan emits no write action when CTA link is unresolved' );
+	npcink_abilities_toolkit_assert_same( 'cta_link_unresolved', $homepage_unresolved_cta_plan['data']['warnings'][0]['reason'] ?? '', 'homepage layout plan reports unresolved CTA links' );
+	npcink_abilities_toolkit_assert_same( 'cta_link_unresolved', $homepage_unresolved_cta_plan['data']['preview'][0]['no_change_reason'] ?? '', 'homepage layout preview explains unresolved CTA blocking' );
+	npcink_abilities_toolkit_assert_same( false, $homepage_unresolved_cta_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? true, 'homepage layout preview is not proposal-ready without a CTA URL' );
+	npcink_abilities_toolkit_assert_same( 'resolve_cta_link_before_proposal', $homepage_unresolved_cta_plan['data']['preview'][0]['block_editor_quality_gate']['recommended_next_step'] ?? '', 'homepage layout preview asks for CTA resolution before proposal' );
+	$homepage_layout_fixture_posts  = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$homepage_layout_fixture_options = $GLOBALS['npcink_abilities_toolkit_unit_options'] ?? array();
+	$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+		'show_on_front'  => 'posts',
+		'page_for_posts' => 702,
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		701 => (object) array(
+			'ID' => 701,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page',
+			'post_parent' => 0,
+		),
+		702 => (object) array(
+			'ID' => 702,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Blog',
+			'post_content' => 'Blog page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'blog',
+			'post_parent' => 0,
+		),
+		703 => (object) array(
+			'ID' => 703,
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Published Post',
+			'post_content' => 'Published post.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'published-post',
+			'post_parent' => 0,
+		),
+	);
+	$homepage_posts_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+		)
+	);
+	$homepage_posts_actions = is_array( $homepage_posts_plan['data']['write_actions'] ?? null ) ? $homepage_posts_plan['data']['write_actions'] : array();
+	$homepage_posts_blocks_json = wp_json_encode( $homepage_posts_actions[0]['input']['blocks'] ?? array() );
+	$homepage_posts_blocks_json = is_string( $homepage_posts_blocks_json ) ? $homepage_posts_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( 1, count( $homepage_posts_actions ), 'homepage posts-front layout emits one write action when CTA resolves to the posts page' );
+	npcink_abilities_toolkit_assert_same( 'resolved', $homepage_posts_plan['data']['preview'][0]['cta_resolution']['status'] ?? '', 'homepage posts-front layout resolves CTA from site context' );
+	npcink_abilities_toolkit_assert_same( 'posts_page', $homepage_posts_plan['data']['preview'][0]['cta_resolution']['source'] ?? '', 'homepage posts-front layout prefers the configured posts page for CTA' );
+	npcink_abilities_toolkit_assert_same( false, $homepage_posts_plan['data']['preview'][0]['page_content_enabled'] ?? true, 'homepage posts-front layout does not include static page content' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'post_content', $homepage_posts_plan['data']['preview'][0]['layout_sections'] ?? array(), true ), 'homepage posts-front layout sections omit post_content' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_posts_blocks_json, 'blog' ), 'homepage posts-front layout points CTA at the resolved blog page' );
+	npcink_abilities_toolkit_assert_true( false === strpos( $homepage_posts_blocks_json, 'core\\/post-content' ), 'homepage posts-front layout omits core/post-content' );
+	$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+		'show_on_front' => 'page',
+		'page_on_front' => 704,
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		701 => $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][701],
+		704 => (object) array(
+			'ID' => 704,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page Fixture',
+			'post_content' => 'Static front page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page-fixture',
+			'post_parent' => 0,
+		),
+		705 => (object) array(
+			'ID' => 705,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Contact',
+			'post_content' => 'Contact page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'contact',
+			'post_parent' => 0,
+		),
+	);
+	$homepage_static_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+		)
+	);
+	$homepage_static_actions = is_array( $homepage_static_plan['data']['write_actions'] ?? null ) ? $homepage_static_plan['data']['write_actions'] : array();
+	$homepage_static_blocks_json = wp_json_encode( $homepage_static_actions[0]['input']['blocks'] ?? array() );
+	$homepage_static_blocks_json = is_string( $homepage_static_blocks_json ) ? $homepage_static_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( 1, count( $homepage_static_actions ), 'homepage static-front layout emits one write action when CTA resolves to a candidate page' );
+	npcink_abilities_toolkit_assert_same( true, $homepage_static_plan['data']['preview'][0]['page_content_enabled'] ?? false, 'homepage static-front layout includes static page content' );
+	npcink_abilities_toolkit_assert_true( in_array( 'post_content', $homepage_static_plan['data']['preview'][0]['layout_sections'] ?? array(), true ), 'homepage static-front layout sections include post_content' );
+	npcink_abilities_toolkit_assert_same( 'slug_match_contact', $homepage_static_plan['data']['preview'][0]['cta_resolution']['source'] ?? '', 'homepage static-front layout resolves CTA to the contact page' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'core\\/post-content' ), 'homepage static-front layout includes core/post-content' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'contact' ), 'homepage static-front layout points CTA at the contact page' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $homepage_layout_fixture_posts;
+	$GLOBALS['npcink_abilities_toolkit_unit_options']     = $homepage_layout_fixture_options;
 	$valid_page_template_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
 	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		608 => (object) array(
@@ -3590,10 +3717,17 @@ npcink_abilities_toolkit_assert_same( 'dry_run', $media_derivative_batch_plan['d
 npcink_abilities_toolkit_assert_same( false, $media_derivative_batch_plan['data']['commit_execution'] ?? null, 'media derivative batch plan does not execute commits' );
 npcink_abilities_toolkit_assert_same( true, $media_derivative_batch_plan['data']['requires_approval'] ?? null, 'media derivative batch plan requires approval before adoption' );
 npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['summary']['candidate_count'] ?? 0, 'media derivative batch plan selects one April JPEG candidate for PNG conversion' );
+npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['eligibility_summary']['eligible_count'] ?? 0, 'media derivative batch plan reports eligible count in eligibility summary' );
+npcink_abilities_toolkit_assert_same( 1, $media_derivative_batch_plan['data']['eligibility_summary']['blocked_count'] ?? 0, 'media derivative batch plan reports blocked count in eligibility summary' );
+npcink_abilities_toolkit_assert_same( true, $media_derivative_batch_plan['data']['retryable'] ?? null, 'media derivative batch plan is retryable as a rebuildable review set' );
+npcink_abilities_toolkit_assert_true( is_string( $media_derivative_batch_plan['data']['operator_next_action'] ?? null ) && '' !== $media_derivative_batch_plan['data']['operator_next_action'], 'media derivative batch plan provides operator next action guidance' );
 npcink_abilities_toolkit_assert_same( 84, $media_derivative_batch_plan['data']['candidates'][0]['attachment_id'] ?? 0, 'media derivative batch plan candidate comes from the April date range' );
+npcink_abilities_toolkit_assert_same( 'eligible', $media_derivative_batch_plan['data']['candidates'][0]['status'] ?? '', 'media derivative batch plan candidate carries eligible status' );
+npcink_abilities_toolkit_assert_same( 'attachment:84', $media_derivative_batch_plan['data']['candidates'][0]['result_ref'] ?? '', 'media derivative batch plan candidate carries a stable result reference' );
 npcink_abilities_toolkit_assert_same( 'png', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_input']['preferred_format'] ?? '', 'media derivative batch plan prepares PNG single-image request input' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-derivative-cloud-request', $media_derivative_batch_plan['data']['candidates'][0]['cloud_request_ability'] ?? '', 'media derivative batch plan points to the existing single-image cloud request ability' );
 npcink_abilities_toolkit_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan skips images already in the target format' );
+npcink_abilities_toolkit_assert_same( 'already_target_format', $media_derivative_batch_plan['data']['blocked_items'][0]['blocked_reason'] ?? '', 'media derivative batch plan exposes skipped media as blocked items' );
 npcink_abilities_toolkit_assert_array_omits_keys( $media_derivative_batch_plan['data'], array( 'write_actions', 'wordpress_write_decision', 'approval_decision', 'commit' ), 'media derivative batch plan output' );
 $media_derivative_batch_plan_bounded = $core_read_package->build_media_derivative_batch_plan(
 	array(
@@ -3635,6 +3769,7 @@ $media_derivative_batch_plan_excluded = $core_read_package->build_media_derivati
 );
 npcink_abilities_toolkit_assert_same( 0, $media_derivative_batch_plan_excluded['data']['summary']['candidate_count'] ?? 1, 'media derivative batch plan honors excluded source formats' );
 npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['skipped'][0]['reason'] ?? '', 'media derivative batch plan explains excluded source formats' );
+npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_derivative_batch_plan_excluded['data']['blocked_items'][0]['blocked_reason'] ?? '', 'media derivative batch plan exposes excluded source formats as blocked items' );
 $media_derivative_batch_plan_invalid = $core_read_package->build_media_derivative_batch_plan(
 	array(
 		'attachment_ids' => array( 84 ),
@@ -5098,6 +5233,17 @@ npcink_abilities_toolkit_assert_same( 'customize_template_layout', $homepage_tem
 npcink_abilities_toolkit_assert_same( array( 'front-page' ), $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes homepage layouts to front-page' );
 npcink_abilities_toolkit_assert_same( 'homepage_landing', $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends the homepage layout profile' );
 
+$homepage_template_layout_guardrailed_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '把首页改造成一个基础落地页：顶部有清晰的大标题和简短介绍，下面有一个行动按钮，再下面展示最新文章和分类入口。不要改导航，不要改 global styles，不要写 theme.json，不要写主题文件，不要输出 raw template HTML，只通过块主题模板 proposal 来处理。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $homepage_template_layout_guardrailed_intent_route['data']['route']['route'] ?? '', 'route-content-intent keeps homepage layout supported when unsupported surfaces are negated guardrails' );
+npcink_abilities_toolkit_assert_same( 'site_template_layout', $homepage_template_layout_guardrailed_intent_route['data']['route']['route_key'] ?? '', 'route-content-intent keeps guardrailed homepage layout on the template layout route' );
+npcink_abilities_toolkit_assert_same( 'customize_template_layout', $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['intent'] ?? '', 'route-content-intent recommends template layout for guardrailed homepage prompts' );
+npcink_abilities_toolkit_assert_same( array( 'front-page' ), $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes guardrailed homepage layout prompts to front-page' );
+npcink_abilities_toolkit_assert_same( 'homepage_landing', $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends homepage landing for guardrailed homepage prompts' );
+
 $template_part_intent_route = $core_read_package->route_content_intent(
 	array(
 		'prompt' => '帮我重做页眉模板部件。',
@@ -5154,7 +5300,12 @@ npcink_abilities_toolkit_assert_same( 'unsupported', $ambiguous_intent_route['da
 npcink_abilities_toolkit_assert_same( 'ambiguous_page_vs_article', $ambiguous_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports page/article ambiguity' );
 
 $recipe_eval_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+$recipe_eval_options_fixture = $GLOBALS['npcink_abilities_toolkit_unit_options'] ?? array();
 $recipe_eval_block_theme_fixture = $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] ?? null;
+$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+	'show_on_front'  => 'posts',
+	'page_for_posts' => 611,
+);
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 	608 => (object) array(
 		'ID'           => 608,
@@ -5187,6 +5338,17 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_excerpt' => '',
 		'post_author'  => 7,
 		'post_name'    => 'front-page',
+		'post_parent'  => 0,
+	),
+	611 => (object) array(
+		'ID'           => 611,
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'Blog',
+		'post_content' => 'Blog page fixture.',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'blog',
 		'post_parent'  => 0,
 	),
 );
@@ -5236,6 +5398,7 @@ $gutenberg_recipe_default_eval = $core_read_package->evaluate_gutenberg_recipe_s
 	)
 );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $recipe_eval_posts_fixture;
+$GLOBALS['npcink_abilities_toolkit_unit_options']     = $recipe_eval_options_fixture;
 if ( null === $recipe_eval_block_theme_fixture ) {
 	unset( $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] );
 } else {

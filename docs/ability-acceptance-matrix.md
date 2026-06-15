@@ -67,9 +67,15 @@ Current known gaps:
   common natural-language requests such as custom article page layout, homepage
   template layout, author/date placement, featured-image placement,
   related-post sections, latest-post sections, category entrances, and
-  call-to-action sections. It must still fail closed for navigation writes,
-  global style/theme.json patches, raw template HTML, custom CSS, non-core
-  blocks, or arbitrary unprofiled template composition.
+  call-to-action sections. `get-block-theme-context` now exposes a compact site
+  context snapshot with reading settings, homepage template resolution, content
+  inventory, CTA candidates, and existing override hashes so homepage layout
+  plans can avoid placeholder CTA URLs and only include `core/post-content`
+  when the site uses a static front page. If a homepage CTA cannot resolve to a
+  user-supplied URL or a trusted existing page, the layout plan reports
+  `cta_link_unresolved` and emits no write action. It must still fail closed for
+  navigation writes, global style/theme.json patches, raw template HTML, custom
+  CSS, non-core blocks, or arbitrary unprofiled template composition.
 - No active fourth-batch ability gap is open after the taxonomy terms preview,
   existing article optimization, and article media handoff proofs. Keep this
   package in freeze/observe mode until Core or a host workflow reports a

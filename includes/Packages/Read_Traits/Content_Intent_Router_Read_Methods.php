@@ -50,7 +50,7 @@ trait Content_Intent_Router_Read_Methods {
 		}
 
 		$signals = $this->content_intent_signals( $prompt );
-		$route   = $this->content_intent_route_decision( $signals, $target_hint, $intent_hint );
+		$route   = $this->content_intent_route_decision( $signals, $target_hint, $intent_hint, $prompt );
 		$route['media_strategy'] = $this->content_intent_media_strategy( $signals, $media_hint, (string) $route['route'] );
 		$route['style_strategy'] = $this->content_intent_style_strategy( $signals, $style_hint, (string) $route['route'] );
 		$route['recommended_plan_input'] = $this->content_intent_recommended_plan_input( $route, $prompt );
@@ -232,17 +232,17 @@ trait Content_Intent_Router_Read_Methods {
 	 * @param string              $intent_hint Intent hint.
 	 * @return array<string,mixed>
 	 */
-	private function content_intent_route_decision( array $signals, $target_hint, $intent_hint ) {
+	private function content_intent_route_decision( array $signals, $target_hint, $intent_hint, $prompt = '' ) {
 		$page_score     = $this->content_intent_signal_count( $signals['page'] ?? array() );
 		$article_score  = $this->content_intent_signal_count( $signals['article'] ?? array() );
 		$template_score = $this->content_intent_signal_count( $signals['site_template'] ?? array() );
 		$template_layout_score = $this->content_intent_signal_count( $signals['template_layout'] ?? array() );
 		$part_score     = $this->content_intent_signal_count( $signals['template_part'] ?? array() );
 		$breadcrumb     = $this->content_intent_signal_count( $signals['breadcrumbs'] ?? array() ) > 0;
-		$navigation_score = $this->content_intent_signal_count( $signals['navigation'] ?? array() );
-		$global_styles_score = $this->content_intent_signal_count( $signals['global_styles'] ?? array() );
-		$theme_json_score = $this->content_intent_signal_count( $signals['theme_json'] ?? array() );
-		$custom_html_score = $this->content_intent_signal_count( $signals['custom_html'] ?? array() );
+		$navigation_score = $this->content_intent_positive_signal_count( $prompt, $signals['navigation'] ?? array() );
+		$global_styles_score = $this->content_intent_positive_signal_count( $prompt, $signals['global_styles'] ?? array() );
+		$theme_json_score = $this->content_intent_positive_signal_count( $prompt, $signals['theme_json'] ?? array() );
+		$custom_html_score = $this->content_intent_positive_signal_count( $prompt, $signals['custom_html'] ?? array() );
 
 		if ( $navigation_score > 0 ) {
 			return $this->content_intent_unsupported_route( 'navigation_write_not_supported', true );
@@ -305,6 +305,105 @@ trait Content_Intent_Router_Read_Methods {
 	 */
 	private function content_intent_signal_count( $matches ) {
 		return is_array( $matches ) ? count( $matches ) : 0;
+	}
+
+	/**
+	 * Counts matched terms that are not expressed as negative guardrails.
+	 *
+	 * Natural-language clients often include constraints such as "do not write
+	 * theme.json" or "不要改 global styles". Those terms should keep appearing
+	 * in signals for transparency, but they must not turn an otherwise
+	 * supported template layout request into an unsupported write request.
+	 *
+	 * @param string $prompt Prompt.
+	 * @param mixed  $matches Matches.
+	 * @return int
+	 */
+	private function content_intent_positive_signal_count( $prompt, $matches ) {
+		if ( ! is_array( $matches ) ) {
+			return 0;
+		}
+
+		$count = 0;
+		foreach ( $matches as $match ) {
+			if ( $this->content_intent_term_has_positive_occurrence( (string) $prompt, (string) $match ) ) {
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Returns whether a term has at least one occurrence outside a negated context.
+	 *
+	 * @param string $prompt Prompt.
+	 * @param string $term Matched term.
+	 * @return bool
+	 */
+	private function content_intent_term_has_positive_occurrence( $prompt, $term ) {
+		$haystack = strtolower( (string) $prompt );
+		$needle   = strtolower( (string) $term );
+		if ( '' === $needle ) {
+			return false;
+		}
+
+		$offset = 0;
+		while ( false !== ( $position = strpos( $haystack, $needle, $offset ) ) ) {
+			if ( ! $this->content_intent_term_occurrence_is_negated( $haystack, $position ) ) {
+				return true;
+			}
+			$offset = $position + strlen( $needle );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether a term occurrence is preceded by a local negation marker.
+	 *
+	 * @param string $haystack Lowercase prompt.
+	 * @param int    $position Term position.
+	 * @return bool
+	 */
+	private function content_intent_term_occurrence_is_negated( $haystack, $position ) {
+		$start   = max( 0, (int) $position - 96 );
+		$context = substr( $haystack, $start, (int) $position - $start );
+		$context = preg_replace( '/\s+/', ' ', (string) $context );
+
+		foreach (
+			array(
+				'do not',
+				"don't",
+				'must not',
+				'should not',
+				'not ',
+				'never',
+				'without',
+				'avoid',
+				'forbid',
+				'forbidden',
+				'no ',
+				'不要',
+				'别',
+				'不得',
+				'不能',
+				'不许',
+				'不写',
+				'不改',
+				'不修改',
+				'禁止',
+				'避免',
+				'无需',
+				'不用',
+			) as $marker
+		) {
+			if ( false !== strpos( $context, $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

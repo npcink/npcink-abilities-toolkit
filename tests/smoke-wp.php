@@ -1050,6 +1050,22 @@ npcink_abilities_toolkit_smoke_assert( 'pattern_page_plan' === (string) ( $conte
 npcink_abilities_toolkit_smoke_assert( false === (bool) ( $content_intent_route_run_data['data']['prompt_is_authorization'] ?? true ), 'Content intent route keeps prompts non-authorizing.' );
 npcink_abilities_toolkit_smoke_assert( false === isset( $content_intent_route_run_data['data']['write_actions'] ), 'Content intent route does not emit write actions.' );
 
+$content_intent_guardrailed_homepage_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/route-content-intent/run' );
+$content_intent_guardrailed_homepage_request->set_query_params(
+	array(
+		'input' => array(
+			'prompt' => '把首页改造成一个基础落地页：顶部有清晰的大标题和简短介绍，下面有一个行动按钮，再下面展示最新文章和分类入口。不要改导航，不要改 global styles，不要写 theme.json，不要写主题文件，不要输出 raw template HTML，只通过块主题模板 proposal 来处理。',
+		),
+	)
+);
+$content_intent_guardrailed_homepage_response = rest_do_request( $content_intent_guardrailed_homepage_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $content_intent_guardrailed_homepage_response->get_status(), 'Authenticated guardrailed homepage template intent route ability run returns 200.' );
+$content_intent_guardrailed_homepage_data = $content_intent_guardrailed_homepage_response->get_data();
+npcink_abilities_toolkit_smoke_assert( 'block_theme_site_plan' === (string) ( $content_intent_guardrailed_homepage_data['data']['route']['route'] ?? '' ), 'Content intent route keeps guardrailed homepage layout prompts on the block theme site plan route.' );
+npcink_abilities_toolkit_smoke_assert( 'customize_template_layout' === (string) ( $content_intent_guardrailed_homepage_data['data']['route']['recommended_plan_input']['intent'] ?? '' ), 'Content intent route recommends template layout for guardrailed homepage prompts.' );
+npcink_abilities_toolkit_smoke_assert( 'homepage_landing' === (string) ( $content_intent_guardrailed_homepage_data['data']['route']['recommended_plan_input']['layout_profile'] ?? '' ), 'Content intent route recommends homepage landing for guardrailed homepage prompts.' );
+npcink_abilities_toolkit_smoke_assert( false === isset( $content_intent_guardrailed_homepage_data['data']['write_actions'] ), 'Content intent route does not emit write actions for guardrailed homepage prompts.' );
+
 foreach (
 	array(
 		array(
