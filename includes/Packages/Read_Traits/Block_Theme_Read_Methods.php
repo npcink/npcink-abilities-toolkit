@@ -82,7 +82,7 @@ trait Block_Theme_Read_Methods {
 		}
 
 		$intent           = sanitize_key( (string) ( $input['intent'] ?? 'add_breadcrumbs' ) );
-		$target_templates = $this->block_theme_target_slugs( $input['target_templates'] ?? array( 'single', 'page', 'front-page' ) );
+		$target_templates = $this->block_theme_target_slugs( $input['target_templates'] ?? array( 'single', 'page', 'front-page' ), true );
 		$show_on_home     = ! empty( $input['show_on_home_page'] );
 		$templates        = array();
 		$warnings         = array();
@@ -117,6 +117,17 @@ trait Block_Theme_Read_Methods {
 				$blocks,
 				$show_on_home
 			);
+			if ( ! empty( $row['fixable_issue_codes'] ) && ! $this->block_theme_site_plan_accepts_template( $template_slug ) ) {
+				$row['status']              = 'blocked';
+				$row['fixable_issue_codes'] = array();
+				$row['dual_review']         = $this->block_theme_template_dual_review( $row['issue_codes'], array() );
+				$warnings[] = array(
+					'target_type'         => 'wp_template',
+					'slug'                => $template_slug,
+					'reason'              => 'template_plan_target_not_supported',
+					'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
+				);
+			}
 			foreach ( $row['issue_codes'] as $issue_code ) {
 				$issue_counts[ $issue_code ] = (int) ( $issue_counts[ $issue_code ] ?? 0 ) + 1;
 			}
@@ -2027,9 +2038,12 @@ trait Block_Theme_Read_Methods {
 	 * @param mixed $targets Raw targets.
 	 * @return string[]
 	 */
-	private function block_theme_target_slugs( $targets ) {
+	private function block_theme_target_slugs( $targets, bool $allow_archive = false ) {
 		$targets = is_array( $targets ) ? $targets : array( 'single', 'page', 'front-page' );
-		$allowed = array( 'single', 'page', 'front-page', 'home', 'archive', 'index' );
+		$allowed = $this->block_theme_site_plan_target_slugs();
+		if ( $allow_archive ) {
+			$allowed[] = 'archive';
+		}
 		$normalized = array();
 		foreach ( $targets as $target ) {
 			$slug = sanitize_key( (string) $target );
@@ -2038,6 +2052,25 @@ trait Block_Theme_Read_Methods {
 			}
 		}
 		return empty( $normalized ) ? array( 'single', 'page', 'front-page' ) : $normalized;
+	}
+
+	/**
+	 * Returns template slugs accepted by the governed site plan ability.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_site_plan_target_slugs() {
+		return array( 'single', 'page', 'front-page', 'home', 'index' );
+	}
+
+	/**
+	 * Returns whether the governed site planner accepts a template slug.
+	 *
+	 * @param string $template_slug Template slug.
+	 * @return bool
+	 */
+	private function block_theme_site_plan_accepts_template( $template_slug ) {
+		return in_array( sanitize_key( (string) $template_slug ), $this->block_theme_site_plan_target_slugs(), true );
 	}
 
 	/**

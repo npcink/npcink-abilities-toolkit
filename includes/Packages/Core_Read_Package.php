@@ -1719,7 +1719,7 @@ final class Core_Read_Package {
 							'intent'             => array( 'type' => 'string', 'enum' => array( 'add_breadcrumbs', 'customize_template_layout' ), 'default' => 'add_breadcrumbs' ),
 							'target_templates'   => array(
 								'type'  => 'array',
-									'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
+									'items' => array( 'type' => 'string', 'enum' => array( 'single', 'page', 'front-page', 'home', 'index' ) ),
 							),
 							'layout_profile'     => array( 'type' => 'string', 'enum' => array( 'auto', 'article_standard', 'page_standard', 'homepage_landing' ), 'default' => 'auto' ),
 							'include_breadcrumbs' => array( 'type' => 'boolean', 'default' => true ),

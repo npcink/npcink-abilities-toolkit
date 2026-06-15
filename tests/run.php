@@ -1336,7 +1336,7 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 	npcink_abilities_toolkit_assert_same( array( 'site.read' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['required_scopes'] ?? array(), 'block theme site plan remains a read-scope planning ability' );
 	npcink_abilities_toolkit_assert_same( array( 'add_breadcrumbs', 'customize_template_layout' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['intent']['enum'] ?? array(), 'block theme site plan exposes breadcrumbs and bounded template layout intents' );
 	npcink_abilities_toolkit_assert_same( array( 'auto', 'article_standard', 'page_standard', 'homepage_landing' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['layout_profile']['enum'] ?? array(), 'block theme site plan exposes bounded layout profiles' );
-	npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page', 'archive', 'index' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['target_templates']['items']['enum'] ?? array(), 'block theme site plan accepts common content templates including front-page' );
+	npcink_abilities_toolkit_assert_same( array( 'single', 'page', 'front-page', 'home', 'index' ), $package_abilities['npcink-abilities-toolkit/build-block-theme-site-plan']['input_schema']['properties']['target_templates']['items']['enum'] ?? array(), 'block theme site plan accepts Core-compatible content templates including front-page' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-template-blocks'] ), 'update-template-blocks is registered as a governed write ability' );
 	npcink_abilities_toolkit_assert_same( array( 'site.write' ), $package_abilities['npcink-abilities-toolkit/update-template-blocks']['required_scopes'] ?? array(), 'template block updates require site.write scope' );
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/upsert-template-blocks'] ), 'upsert-template-blocks is registered as a governed template override write ability' );
@@ -2166,6 +2166,33 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( in_array( 'breadcrumb_not_before_title', $misplaced_page_surface_inspection['data']['templates'][0]['issue_codes'] ?? array(), true ), 'block theme surface inspection detects breadcrumbs not before the post title' );
 	npcink_abilities_toolkit_assert_same( 'build_block_theme_site_plan', $misplaced_page_surface_inspection['data']['dual_review']['consensus']['recommended_next_step'] ?? '', 'block theme surface inspection consensus recommends a minimal plan for fixable issues' );
 	npcink_abilities_toolkit_assert_same( array( 'page' ), $misplaced_page_surface_inspection['data']['recommended_plan_input']['target_templates'] ?? array(), 'block theme surface inspection recommends only affected templates for planning' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		610 => (object) array(
+			'ID' => 610,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Archive',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:query /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'archive',
+			'post_parent' => 0,
+		),
+	);
+	$archive_surface_inspection = $core_read_package->inspect_block_theme_surface(
+		array(
+			'intent' => 'add_breadcrumbs',
+			'target_templates' => array( 'archive' ),
+		)
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $valid_page_template_posts_fixture;
+	npcink_abilities_toolkit_assert_same( true, $archive_surface_inspection['success'] ?? null, 'inspect-block-theme-surface can inspect archive templates' );
+	npcink_abilities_toolkit_assert_true( in_array( 'breadcrumb_missing', $archive_surface_inspection['data']['templates'][0]['issue_codes'] ?? array(), true ), 'block theme surface inspection reports archive breadcrumb issues' );
+	npcink_abilities_toolkit_assert_same( 'blocked', $archive_surface_inspection['data']['templates'][0]['status'] ?? '', 'block theme surface inspection blocks archive template planning handoff' );
+	npcink_abilities_toolkit_assert_same( array(), $archive_surface_inspection['data']['templates'][0]['fixable_issue_codes'] ?? array( 'unexpected' ), 'block theme surface inspection does not mark archive issues as planner-fixable' );
+	npcink_abilities_toolkit_assert_same( '', $archive_surface_inspection['data']['recommended_plan_ability_id'] ?? 'unexpected', 'block theme surface inspection does not recommend a plan ability for archive targets' );
+	npcink_abilities_toolkit_assert_same( array(), $archive_surface_inspection['data']['recommended_plan_input'] ?? array( 'unexpected' ), 'block theme surface inspection does not recommend archive plan input' );
+	npcink_abilities_toolkit_assert_same( 'template_plan_target_not_supported', $archive_surface_inspection['data']['warnings'][0]['reason'] ?? '', 'block theme surface inspection explains archive planning is unsupported' );
 	$front_page_breadcrumb_plan = $core_read_package->build_block_theme_site_plan(
 		array(
 			'intent' => 'add_breadcrumbs',
@@ -5202,8 +5229,8 @@ $archive_template_intent_route = $core_read_package->route_content_intent(
 		'prompt' => '给归档模板加面包屑导航，并检查不要跑到页眉上方。',
 	)
 );
-npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $archive_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent maps archive breadcrumb prompts to block theme site plans' );
-npcink_abilities_toolkit_assert_same( array( 'archive' ), $archive_template_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes archive breadcrumb prompts to archive templates' );
+npcink_abilities_toolkit_assert_same( 'unsupported', $archive_template_intent_route['data']['route']['route'] ?? '', 'route-content-intent rejects archive template write prompts before Core handoff' );
+npcink_abilities_toolkit_assert_same( 'archive_template_write_not_supported', $archive_template_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent explains archive template write prompts are outside the Core-compatible handoff' );
 
 $site_template_intent_route = $core_read_package->route_content_intent(
 	array(
