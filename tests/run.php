@@ -1882,6 +1882,10 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	$block_theme_context = $core_read_package->get_block_theme_context( array() );
 	npcink_abilities_toolkit_assert_same( true, $block_theme_context['is_block_theme'] ?? null, 'get-block-theme-context reports active block theme state' );
 	npcink_abilities_toolkit_assert_same( 3, count( $block_theme_context['templates'] ?? array() ), 'get-block-theme-context lists available template entities including front-page' );
+	npcink_abilities_toolkit_assert_same( 'posts', $block_theme_context['reading_settings']['show_on_front'] ?? '', 'get-block-theme-context exposes front page reading mode' );
+	npcink_abilities_toolkit_assert_same( 'front-page', $block_theme_context['template_resolution']['front_page']['target_slug'] ?? '', 'get-block-theme-context exposes homepage template resolution' );
+	npcink_abilities_toolkit_assert_true( ! empty( $block_theme_context['existing_overrides']['front-page']['content_hash'] ?? '' ), 'get-block-theme-context exposes existing template override hashes' );
+	npcink_abilities_toolkit_assert_true( is_array( $block_theme_context['content_inventory']['candidate_cta_pages'] ?? null ), 'get-block-theme-context exposes CTA candidate inventory' );
 	$template_blocks = $core_read_package->get_template_blocks( array( 'slug' => 'single' ) );
 	npcink_abilities_toolkit_assert_same( 601, $template_blocks['post_id'] ?? 0, 'get-template-blocks resolves a template by slug' );
 	npcink_abilities_toolkit_assert_true( ( $template_blocks['block_count'] ?? 0 ) > 0, 'get-template-blocks parses template blocks' );
@@ -1962,6 +1966,125 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
 	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
+	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+			'include_cta'      => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $homepage_unresolved_cta_plan['success'] ?? null, 'homepage layout plan still returns a reviewable envelope when CTA cannot be resolved' );
+	npcink_abilities_toolkit_assert_same( 0, count( $homepage_unresolved_cta_plan['data']['write_actions'] ?? array() ), 'homepage layout plan emits no write action when CTA link is unresolved' );
+	npcink_abilities_toolkit_assert_same( 'cta_link_unresolved', $homepage_unresolved_cta_plan['data']['warnings'][0]['reason'] ?? '', 'homepage layout plan reports unresolved CTA links' );
+	npcink_abilities_toolkit_assert_same( 'cta_link_unresolved', $homepage_unresolved_cta_plan['data']['preview'][0]['no_change_reason'] ?? '', 'homepage layout preview explains unresolved CTA blocking' );
+	npcink_abilities_toolkit_assert_same( false, $homepage_unresolved_cta_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? true, 'homepage layout preview is not proposal-ready without a CTA URL' );
+	npcink_abilities_toolkit_assert_same( 'resolve_cta_link_before_proposal', $homepage_unresolved_cta_plan['data']['preview'][0]['block_editor_quality_gate']['recommended_next_step'] ?? '', 'homepage layout preview asks for CTA resolution before proposal' );
+	$homepage_layout_fixture_posts  = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+	$homepage_layout_fixture_options = $GLOBALS['npcink_abilities_toolkit_unit_options'] ?? array();
+	$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+		'show_on_front'  => 'posts',
+		'page_for_posts' => 702,
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		701 => (object) array(
+			'ID' => 701,
+			'post_type' => 'wp_template',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page',
+			'post_content' => '<!-- wp:template-part {"slug":"header"} /--><!-- wp:group {"tagName":"main"} --><main class="wp-block-group"><!-- wp:post-content /--></main><!-- /wp:group --><!-- wp:template-part {"slug":"footer"} /-->',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page',
+			'post_parent' => 0,
+		),
+		702 => (object) array(
+			'ID' => 702,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Blog',
+			'post_content' => 'Blog page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'blog',
+			'post_parent' => 0,
+		),
+		703 => (object) array(
+			'ID' => 703,
+			'post_type' => 'post',
+			'post_status' => 'publish',
+			'post_title' => 'Published Post',
+			'post_content' => 'Published post.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'published-post',
+			'post_parent' => 0,
+		),
+	);
+	$homepage_posts_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+		)
+	);
+	$homepage_posts_actions = is_array( $homepage_posts_plan['data']['write_actions'] ?? null ) ? $homepage_posts_plan['data']['write_actions'] : array();
+	$homepage_posts_blocks_json = wp_json_encode( $homepage_posts_actions[0]['input']['blocks'] ?? array() );
+	$homepage_posts_blocks_json = is_string( $homepage_posts_blocks_json ) ? $homepage_posts_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( 1, count( $homepage_posts_actions ), 'homepage posts-front layout emits one write action when CTA resolves to the posts page' );
+	npcink_abilities_toolkit_assert_same( 'resolved', $homepage_posts_plan['data']['preview'][0]['cta_resolution']['status'] ?? '', 'homepage posts-front layout resolves CTA from site context' );
+	npcink_abilities_toolkit_assert_same( 'posts_page', $homepage_posts_plan['data']['preview'][0]['cta_resolution']['source'] ?? '', 'homepage posts-front layout prefers the configured posts page for CTA' );
+	npcink_abilities_toolkit_assert_same( false, $homepage_posts_plan['data']['preview'][0]['page_content_enabled'] ?? true, 'homepage posts-front layout does not include static page content' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'post_content', $homepage_posts_plan['data']['preview'][0]['layout_sections'] ?? array(), true ), 'homepage posts-front layout sections omit post_content' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_posts_blocks_json, 'blog' ), 'homepage posts-front layout points CTA at the resolved blog page' );
+	npcink_abilities_toolkit_assert_true( false === strpos( $homepage_posts_blocks_json, 'core\\/post-content' ), 'homepage posts-front layout omits core/post-content' );
+	$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+		'show_on_front' => 'page',
+		'page_on_front' => 704,
+	);
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
+		701 => $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][701],
+		704 => (object) array(
+			'ID' => 704,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Front Page Fixture',
+			'post_content' => 'Static front page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'front-page-fixture',
+			'post_parent' => 0,
+		),
+		705 => (object) array(
+			'ID' => 705,
+			'post_type' => 'page',
+			'post_status' => 'publish',
+			'post_title' => 'Contact',
+			'post_content' => 'Contact page.',
+			'post_excerpt' => '',
+			'post_author' => 7,
+			'post_name' => 'contact',
+			'post_parent' => 0,
+		),
+	);
+	$homepage_static_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'front-page' ),
+			'layout_profile'   => 'homepage_landing',
+		)
+	);
+	$homepage_static_actions = is_array( $homepage_static_plan['data']['write_actions'] ?? null ) ? $homepage_static_plan['data']['write_actions'] : array();
+	$homepage_static_blocks_json = wp_json_encode( $homepage_static_actions[0]['input']['blocks'] ?? array() );
+	$homepage_static_blocks_json = is_string( $homepage_static_blocks_json ) ? $homepage_static_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( 1, count( $homepage_static_actions ), 'homepage static-front layout emits one write action when CTA resolves to a candidate page' );
+	npcink_abilities_toolkit_assert_same( true, $homepage_static_plan['data']['preview'][0]['page_content_enabled'] ?? false, 'homepage static-front layout includes static page content' );
+	npcink_abilities_toolkit_assert_true( in_array( 'post_content', $homepage_static_plan['data']['preview'][0]['layout_sections'] ?? array(), true ), 'homepage static-front layout sections include post_content' );
+	npcink_abilities_toolkit_assert_same( 'slug_match_contact', $homepage_static_plan['data']['preview'][0]['cta_resolution']['source'] ?? '', 'homepage static-front layout resolves CTA to the contact page' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'core\\/post-content' ), 'homepage static-front layout includes core/post-content' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'contact' ), 'homepage static-front layout points CTA at the contact page' );
+	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $homepage_layout_fixture_posts;
+	$GLOBALS['npcink_abilities_toolkit_unit_options']     = $homepage_layout_fixture_options;
 	$valid_page_template_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
 	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		608 => (object) array(
@@ -5154,7 +5277,12 @@ npcink_abilities_toolkit_assert_same( 'unsupported', $ambiguous_intent_route['da
 npcink_abilities_toolkit_assert_same( 'ambiguous_page_vs_article', $ambiguous_intent_route['data']['route']['unsupported_reason'] ?? '', 'route-content-intent reports page/article ambiguity' );
 
 $recipe_eval_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];
+$recipe_eval_options_fixture = $GLOBALS['npcink_abilities_toolkit_unit_options'] ?? array();
 $recipe_eval_block_theme_fixture = $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] ?? null;
+$GLOBALS['npcink_abilities_toolkit_unit_options'] = array(
+	'show_on_front'  => 'posts',
+	'page_for_posts' => 611,
+);
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 	608 => (object) array(
 		'ID'           => 608,
@@ -5187,6 +5315,17 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array(
 		'post_excerpt' => '',
 		'post_author'  => 7,
 		'post_name'    => 'front-page',
+		'post_parent'  => 0,
+	),
+	611 => (object) array(
+		'ID'           => 611,
+		'post_type'    => 'page',
+		'post_status'  => 'publish',
+		'post_title'   => 'Blog',
+		'post_content' => 'Blog page fixture.',
+		'post_excerpt' => '',
+		'post_author'  => 7,
+		'post_name'    => 'blog',
 		'post_parent'  => 0,
 	),
 );
@@ -5236,6 +5375,7 @@ $gutenberg_recipe_default_eval = $core_read_package->evaluate_gutenberg_recipe_s
 	)
 );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $recipe_eval_posts_fixture;
+$GLOBALS['npcink_abilities_toolkit_unit_options']     = $recipe_eval_options_fixture;
 if ( null === $recipe_eval_block_theme_fixture ) {
 	unset( $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] );
 } else {

@@ -29,11 +29,17 @@ trait Block_Theme_Read_Methods {
 		}
 
 		$theme = $this->block_theme_active_theme_summary();
+		$site_context = $this->block_theme_site_context_snapshot();
 		return array(
 			'active_theme'         => $theme,
 			'is_block_theme'       => $this->block_theme_is_active_block_theme(),
 			'templates'            => $this->block_theme_template_rows( 'wp_template', array( 'single', 'page', 'front-page', 'archive', 'index' ) ),
 			'template_parts'       => $this->block_theme_template_rows( 'wp_template_part', array( 'header', 'footer' ) ),
+			'site_context_snapshot' => $site_context,
+			'reading_settings'     => $site_context['reading_settings'],
+			'template_resolution'  => $site_context['template_resolution'],
+			'content_inventory'    => $site_context['content_inventory'],
+			'existing_overrides'   => $site_context['existing_overrides'],
 			'navigation_available' => post_type_exists( 'wp_navigation' ),
 			'global_styles_note'   => 'Global styles are read-only context in this MVP; use reviewed diffs before adding a patch-global-styles write profile.',
 			'write_posture'        => 'core_proposal_handoff',
@@ -454,6 +460,7 @@ trait Block_Theme_Read_Methods {
 		$composition_contract_blocks = array();
 		$profile_rows  = array();
 		$planned_template_slugs = array();
+		$site_context  = $this->block_theme_site_context_snapshot();
 
 		foreach ( $target_templates as $template_slug ) {
 			$requested_template_slug = sanitize_key( (string) $template_slug );
@@ -489,8 +496,12 @@ trait Block_Theme_Read_Methods {
 			$current_blocks  = function_exists( 'parse_blocks' ) ? parse_blocks( (string) ( $template['content'] ?? '' ) ) : array();
 			$current_blocks  = $this->block_theme_blocks_for_write_plan( $current_blocks );
 			$layout_profile  = $this->block_theme_layout_profile_for_template( $requested_profile, $target_template_slug );
-			$next_blocks     = $this->block_theme_template_layout_blocks( $target_template_slug, $layout_profile, $template_theme, $options, $variables );
+			$cta_resolution  = 'homepage_landing' === $layout_profile && ! empty( $options['include_cta'] ) ? $this->block_theme_resolve_homepage_cta( $variables, $site_context ) : array();
+			$page_content_enabled = 'homepage_landing' === $layout_profile ? $this->block_theme_homepage_should_include_post_content( $target_template_slug, $site_context ) : true;
+			$template_resolver = $this->block_theme_template_resolver_result( 'customize_template_layout', $requested_template_slug, $template_resolution, $site_context );
+			$next_blocks     = $this->block_theme_template_layout_blocks( $target_template_slug, $layout_profile, $template_theme, $options, $variables, $site_context );
 			$requires_write  = $this->block_theme_blocks_require_write( $current_blocks, $next_blocks );
+			$layout_blocked_reason = '';
 			foreach ( $next_blocks as $next_block ) {
 				if ( is_array( $next_block ) ) {
 					$composition_contract_blocks[] = $next_block;
@@ -511,12 +522,37 @@ trait Block_Theme_Read_Methods {
 					'gate_id'      => 'block_editor_quality_gate_' . sanitize_key( $target_template_slug ),
 				)
 			);
+			if ( 'homepage_landing' === $layout_profile && ! empty( $options['include_cta'] ) && 'unresolved' === sanitize_key( (string) ( $cta_resolution['status'] ?? '' ) ) ) {
+				$block_editor_quality_gate['blocking_finding_codes'] = array_values(
+					array_unique(
+						array_merge(
+							is_array( $block_editor_quality_gate['blocking_finding_codes'] ?? null ) ? $block_editor_quality_gate['blocking_finding_codes'] : array(),
+							array( 'cta_link_unresolved' )
+						)
+					)
+				);
+				$block_editor_quality_gate['ready_for_proposal']      = false;
+				$block_editor_quality_gate['recommended_next_step']   = 'resolve_cta_link_before_proposal';
+				$requires_write                                       = false;
+				$layout_blocked_reason                                = 'cta_link_unresolved';
+				$warnings[] = array(
+					'target_type'         => 'wp_template',
+					'slug'                => $target_template_slug,
+					'reason'              => 'cta_link_unresolved',
+					'template_resolution' => $this->block_theme_public_template_resolution( $template_resolution ),
+				);
+			}
 			$layout_sections = $this->block_theme_template_layout_sections( $layout_profile, $options );
+			if ( 'homepage_landing' === $layout_profile && ! $page_content_enabled ) {
+				$layout_sections = array_values( array_diff( $layout_sections, array( 'post_content' ) ) );
+			}
 			$profile_rows[]  = array(
 				'slug'             => $target_template_slug,
 				'layout_profile'   => $layout_profile,
 				'profile_allowed'  => true,
 				'sections'         => $layout_sections,
+				'template_resolver' => $template_resolver,
+				'cta_resolution'   => $cta_resolution,
 			);
 
 			if ( ! $requires_write ) {
@@ -530,10 +566,13 @@ trait Block_Theme_Read_Methods {
 					'would_create_template_override' => ! $is_existing_custom_template,
 					'target_ability_id'              => '',
 					'requires_write'                 => false,
-					'no_change_reason'               => 'template_layout_already_matches_profile',
+					'no_change_reason'               => '' !== $layout_blocked_reason ? $layout_blocked_reason : 'template_layout_already_matches_profile',
 					'template_resolution'            => $this->block_theme_public_template_resolution( $template_resolution ),
+					'template_resolver'              => $template_resolver,
 					'layout_profile'                 => $layout_profile,
 					'layout_sections'                => $layout_sections,
+					'cta_resolution'                 => $cta_resolution,
+					'page_content_enabled'           => $page_content_enabled,
 					'block_count_before'             => $this->block_theme_count_blocks( $current_blocks ),
 					'block_count_after'              => $this->block_theme_count_blocks( $next_blocks ),
 					'inserted_block'                 => 'bounded_template_layout_profile',
@@ -578,8 +617,11 @@ trait Block_Theme_Read_Methods {
 				'target_ability_id'         => $target_ability_id,
 				'requires_write'            => true,
 				'template_resolution'       => $this->block_theme_public_template_resolution( $template_resolution ),
+				'template_resolver'         => $template_resolver,
 				'layout_profile'            => $layout_profile,
 				'layout_sections'           => $layout_sections,
+				'cta_resolution'            => $cta_resolution,
+				'page_content_enabled'      => $page_content_enabled,
 				'block_count_before'        => $this->block_theme_count_blocks( $current_blocks ),
 				'block_count_after'         => $this->block_theme_count_blocks( $next_blocks ),
 				'inserted_block'            => 'bounded_template_layout_profile',
@@ -593,8 +635,11 @@ trait Block_Theme_Read_Methods {
 				'target_ability_id'         => $target_ability_id,
 				'creates_template_override' => ! $is_existing_custom_template,
 				'template_resolution'       => $this->block_theme_public_template_resolution( $template_resolution ),
+				'template_resolver'         => $template_resolver,
 				'layout_profile'            => $layout_profile,
 				'layout_sections'           => $layout_sections,
+				'cta_resolution'            => $cta_resolution,
+				'page_content_enabled'      => $page_content_enabled,
 				'review'                    => $this->block_editor_plan_review_excerpt( $block_editor_review ),
 				'quality_gate'              => $block_editor_quality_gate,
 			);
@@ -642,6 +687,7 @@ trait Block_Theme_Read_Methods {
 				'proposal_mode'          => 'batch',
 				'batch_id'               => $batch_id,
 				'affected_templates'     => $target_templates,
+				'site_context_snapshot'  => $site_context,
 				'block_editor_surface'   => array(
 					'surface_kind'      => 'site_editor_template',
 					'editor'            => 'site_editor',
@@ -712,9 +758,10 @@ trait Block_Theme_Read_Methods {
 	 * @param string              $template_theme Template theme.
 	 * @param array<string,mixed> $options Layout options.
 	 * @param array<string,mixed> $variables Copy variables.
+	 * @param array<string,mixed> $site_context Site context snapshot.
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function block_theme_template_layout_blocks( $template_slug, $layout_profile, $template_theme, array $options, array $variables ) {
+	private function block_theme_template_layout_blocks( $template_slug, $layout_profile, $template_theme, array $options, array $variables, array $site_context = array() ) {
 		$template_slug   = sanitize_key( (string) $template_slug );
 		$layout_profile  = sanitize_key( (string) $layout_profile );
 		$template_theme   = sanitize_key( (string) $template_theme );
@@ -722,7 +769,7 @@ trait Block_Theme_Read_Methods {
 		$main_inner_blocks = array();
 
 		if ( 'homepage_landing' === $layout_profile ) {
-			$main_inner_blocks = $this->block_theme_homepage_landing_inner_blocks( $options, $variables );
+			$main_inner_blocks = $this->block_theme_homepage_landing_inner_blocks( $template_slug, $options, $variables, $site_context );
 		} elseif ( 'page_standard' === $layout_profile ) {
 			$main_inner_blocks = $this->block_theme_page_standard_inner_blocks( $template_slug, $options );
 		} else {
@@ -903,15 +950,22 @@ trait Block_Theme_Read_Methods {
 	/**
 	 * Builds homepage landing template profile blocks.
 	 *
+	 * @param string              $template_slug Template slug.
 	 * @param array<string,mixed> $options Layout options.
 	 * @param array<string,mixed> $variables Copy variables.
+	 * @param array<string,mixed> $site_context Site context snapshot.
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function block_theme_homepage_landing_inner_blocks( array $options, array $variables ) {
-		$hero_title       = sanitize_text_field( (string) ( $variables['hero_title'] ?? __( '首页', 'npcink-abilities-toolkit' ) ) );
-		$hero_description = sanitize_text_field( (string) ( $variables['hero_description'] ?? __( '欢迎来到本站。', 'npcink-abilities-toolkit' ) ) );
-		$cta_label        = sanitize_text_field( (string) ( $variables['cta_label'] ?? __( '了解更多', 'npcink-abilities-toolkit' ) ) );
-		$cta_url          = $this->esc_url_value( (string) ( $variables['cta_url'] ?? ( function_exists( 'home_url' ) ? home_url( '/' ) : '/' ) ) );
+	private function block_theme_homepage_landing_inner_blocks( $template_slug, array $options, array $variables, array $site_context ) {
+		$theme            = $this->block_theme_active_theme_summary();
+		$site_title       = sanitize_text_field( (string) ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'name' ) : ( $theme['name'] ?? '' ) ) );
+		$site_tagline     = sanitize_text_field( (string) ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'description' ) : '' ) );
+		$hero_title       = sanitize_text_field( (string) ( $variables['hero_title'] ?? ( '' !== $site_title ? $site_title : __( '首页', 'npcink-abilities-toolkit' ) ) ) );
+		$hero_description = sanitize_text_field( (string) ( $variables['hero_description'] ?? ( '' !== $site_tagline ? $site_tagline : __( '欢迎来到本站。', 'npcink-abilities-toolkit' ) ) ) );
+		$cta_resolution   = $this->block_theme_resolve_homepage_cta( $variables, $site_context );
+		$cta_label        = sanitize_text_field( (string) ( $variables['cta_label'] ?? ( $cta_resolution['label'] ?? __( '了解更多', 'npcink-abilities-toolkit' ) ) ) );
+		$cta_url          = $this->esc_url_value( (string) ( $cta_resolution['url'] ?? '' ) );
+		$include_page_content = $this->block_theme_homepage_should_include_post_content( $template_slug, $site_context );
 		$inner_blocks     = array(
 			$this->pattern_group_block(
 				'openclaw-home-hero',
@@ -920,7 +974,7 @@ trait Block_Theme_Read_Methods {
 					array(
 						$this->pattern_heading_block( $hero_title, 1, 'openclaw-home-hero-title' ),
 						$this->pattern_paragraph_block( $hero_description, 'openclaw-home-hero-description' ),
-						! empty( $options['include_cta'] ) ? $this->block_theme_buttons_with_url_block( $cta_label, $cta_url ) : null,
+						! empty( $options['include_cta'] ) && '' !== $cta_url ? $this->block_theme_buttons_with_url_block( $cta_label, $cta_url ) : null,
 					)
 					)
 				),
@@ -939,38 +993,48 @@ trait Block_Theme_Read_Methods {
 		);
 
 		if ( ! empty( $options['include_latest_posts'] ) ) {
+			$latest_posts_blocks = array(
+				$this->pattern_heading_block( __( '最新文章', 'npcink-abilities-toolkit' ), 2, 'openclaw-template-section-title' ),
+				$this->block_theme_dynamic_block(
+					'core/latest-posts',
+					array(
+						'postsToShow'     => 6,
+						'displayPostDate' => true,
+					)
+				),
+			);
+			if ( absint( $site_context['content_inventory']['published_posts_count'] ?? 0 ) <= 0 ) {
+				$latest_posts_blocks[] = $this->pattern_paragraph_block( __( '暂无文章时，此区域会在发布内容后自动显示。', 'npcink-abilities-toolkit' ), 'openclaw-home-empty-fallback' );
+			}
 			$inner_blocks[] = $this->pattern_group_block(
 				'openclaw-home-latest-posts',
-				array(
-					$this->pattern_heading_block( __( '最新文章', 'npcink-abilities-toolkit' ), 2, 'openclaw-template-section-title' ),
-					$this->block_theme_dynamic_block(
-						'core/latest-posts',
-						array(
-							'postsToShow'     => 6,
-							'displayPostDate' => true,
-						)
-					),
-				)
+				$latest_posts_blocks
 			);
 		}
 
 		if ( ! empty( $options['include_category_links'] ) ) {
+			$category_blocks = array(
+				$this->pattern_heading_block( __( '分类入口', 'npcink-abilities-toolkit' ), 2, 'openclaw-template-section-title' ),
+				$this->block_theme_dynamic_block(
+					'core/categories',
+					array(
+						'displayAsDropdown' => false,
+						'showPostCounts'    => true,
+					)
+				),
+			);
+			if ( absint( $site_context['content_inventory']['non_empty_categories_count'] ?? 0 ) <= 0 ) {
+				$category_blocks[] = $this->pattern_paragraph_block( __( '暂无分类时，此区域会在创建分类后自动显示。', 'npcink-abilities-toolkit' ), 'openclaw-home-empty-fallback' );
+			}
 			$inner_blocks[] = $this->pattern_group_block(
 				'openclaw-home-categories',
-				array(
-					$this->pattern_heading_block( __( '分类入口', 'npcink-abilities-toolkit' ), 2, 'openclaw-template-section-title' ),
-					$this->block_theme_dynamic_block(
-						'core/categories',
-						array(
-							'displayAsDropdown' => false,
-							'showPostCounts'    => true,
-						)
-					),
-				)
+				$category_blocks
 			);
 		}
 
-		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+		if ( $include_page_content ) {
+			$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+		}
 		return $inner_blocks;
 	}
 
@@ -984,13 +1048,15 @@ trait Block_Theme_Read_Methods {
 	private function block_theme_template_layout_sections( $layout_profile, array $options ) {
 		$layout_profile = sanitize_key( (string) $layout_profile );
 		if ( 'homepage_landing' === $layout_profile ) {
-			$sections = array( 'header', 'hero', 'post_content', 'footer' );
+			$sections = array( 'header', 'hero' );
 			if ( ! empty( $options['include_latest_posts'] ) ) {
 				$sections[] = 'latest_posts';
 			}
 			if ( ! empty( $options['include_category_links'] ) ) {
 				$sections[] = 'category_links';
 			}
+			$sections[] = 'post_content';
+			$sections[] = 'footer';
 			return $sections;
 		}
 		$sections = array( 'header' );
@@ -1186,6 +1252,413 @@ trait Block_Theme_Read_Methods {
 			return ! empty( $GLOBALS['npcink_abilities_toolkit_unit_is_block_theme'] );
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the factual snapshot used by template override planning.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_site_context_snapshot() {
+		$reading_settings = $this->block_theme_reading_settings_snapshot();
+		$template_resolution = array(
+			'front_page' => $this->block_theme_public_template_resolution( $this->block_theme_resolve_template_target( 'wp_template', 'front-page' ) ),
+			'home'       => $this->block_theme_public_template_resolution( $this->block_theme_resolve_template_target( 'wp_template', 'home' ) ),
+			'index'      => $this->block_theme_public_template_resolution( $this->block_theme_resolve_template_target( 'wp_template', 'index' ) ),
+		);
+
+		return array(
+			'theme'               => array_merge(
+				$this->block_theme_active_theme_summary(),
+				array(
+					'is_block_theme'          => $this->block_theme_is_active_block_theme(),
+					'theme_json_presets'      => $this->block_theme_theme_json_preset_keys(),
+					'registered_block_types'  => $this->block_theme_registered_block_type_names(),
+				)
+			),
+			'reading_settings'    => $reading_settings,
+			'template_resolution' => $template_resolution,
+			'content_inventory'   => $this->block_theme_content_inventory_snapshot( $reading_settings ),
+			'existing_overrides'  => $this->block_theme_existing_override_snapshot( array( 'front-page', 'home', 'index', 'single', 'page', 'archive' ) ),
+		);
+	}
+
+	/**
+	 * Returns front-page reading settings relevant to template resolution.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_reading_settings_snapshot() {
+		$show_on_front = function_exists( 'get_option' ) ? sanitize_key( (string) get_option( 'show_on_front', 'posts' ) ) : 'posts';
+		$page_on_front = function_exists( 'get_option' ) ? absint( get_option( 'page_on_front', 0 ) ) : 0;
+		$page_for_posts = function_exists( 'get_option' ) ? absint( get_option( 'page_for_posts', 0 ) ) : 0;
+		return array(
+			'show_on_front' => 'page' === $show_on_front ? 'page' : 'posts',
+			'page_on_front' => $page_on_front,
+			'page_for_posts' => $page_for_posts,
+		);
+	}
+
+	/**
+	 * Returns compact content inventory for homepage planning.
+	 *
+	 * @param array<string,mixed> $reading_settings Reading settings.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_content_inventory_snapshot( array $reading_settings ) {
+		return array(
+			'published_posts_count'      => $this->block_theme_count_posts_by_type( 'post' ),
+			'published_pages_count'      => $this->block_theme_count_posts_by_type( 'page' ),
+			'non_empty_categories_count' => $this->block_theme_non_empty_categories_count(),
+			'candidate_cta_pages'        => $this->block_theme_candidate_cta_pages( $reading_settings ),
+		);
+	}
+
+	/**
+	 * Counts published posts for a post type.
+	 *
+	 * @param string $post_type Post type.
+	 * @return int
+	 */
+	private function block_theme_count_posts_by_type( $post_type ) {
+		$post_type = sanitize_key( (string) $post_type );
+		$count     = 0;
+		foreach ( $this->block_theme_posts_for_context( array( $post_type ) ) as $post ) {
+			if ( is_object( $post ) && 'publish' === (string) ( $post->post_status ?? '' ) ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Returns non-empty category count when taxonomy APIs are available.
+	 *
+	 * @return int
+	 */
+	private function block_theme_non_empty_categories_count() {
+		if ( function_exists( 'get_terms' ) ) {
+			$terms = get_terms(
+				array(
+					'taxonomy'   => 'category',
+					'hide_empty' => true,
+					'fields'     => 'ids',
+				)
+			);
+			return is_array( $terms ) ? count( $terms ) : 0;
+		}
+		$terms = isset( $GLOBALS['npcink_abilities_toolkit_unit_terms'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_terms'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_terms']
+			: array();
+		$count = 0;
+		foreach ( $terms as $term ) {
+			if ( is_object( $term ) && 'category' === (string) ( $term->taxonomy ?? '' ) && (int) ( $term->count ?? 0 ) > 0 ) {
+				++$count;
+			}
+		}
+		return $count;
+	}
+
+	/**
+	 * Returns candidate pages for CTA resolution.
+	 *
+	 * @param array<string,mixed> $reading_settings Reading settings.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function block_theme_candidate_cta_pages( array $reading_settings ) {
+		$candidates = array();
+		$page_for_posts = absint( $reading_settings['page_for_posts'] ?? 0 );
+		if ( $page_for_posts > 0 ) {
+			$post = function_exists( 'get_post' ) ? get_post( $page_for_posts ) : null;
+			if ( is_object( $post ) && 'page' === (string) ( $post->post_type ?? '' ) && 'publish' === (string) ( $post->post_status ?? '' ) ) {
+				$candidates[] = $this->block_theme_candidate_cta_page_row( $post, 'posts_page', __( '查看最新文章', 'npcink-abilities-toolkit' ) );
+			}
+		}
+
+		$shop_page_id = function_exists( 'get_option' ) ? absint( get_option( 'woocommerce_shop_page_id', 0 ) ) : 0;
+		if ( $shop_page_id > 0 ) {
+			$post = function_exists( 'get_post' ) ? get_post( $shop_page_id ) : null;
+			if ( is_object( $post ) && 'page' === (string) ( $post->post_type ?? '' ) && 'publish' === (string) ( $post->post_status ?? '' ) ) {
+				$candidates[] = $this->block_theme_candidate_cta_page_row( $post, 'woocommerce_shop', __( '查看商店', 'npcink-abilities-toolkit' ) );
+			}
+		}
+
+		$priority_slugs = array( 'contact', 'contacts', 'services', 'service', 'shop', 'blog', 'about', 'about-us' );
+		foreach ( $this->block_theme_posts_for_context( array( 'page' ) ) as $post ) {
+			if ( ! is_object( $post ) || 'publish' !== (string) ( $post->post_status ?? '' ) ) {
+				continue;
+			}
+			$slug = sanitize_key( (string) ( $post->post_name ?? '' ) );
+			if ( in_array( $slug, $priority_slugs, true ) ) {
+				$candidates[] = $this->block_theme_candidate_cta_page_row( $post, 'slug_match_' . $slug );
+			}
+		}
+
+		$deduped = array();
+		$seen    = array();
+		foreach ( $candidates as $candidate ) {
+			$id = absint( $candidate['id'] ?? 0 );
+			if ( $id <= 0 || in_array( $id, $seen, true ) ) {
+				continue;
+			}
+			$seen[]    = $id;
+			$deduped[] = $candidate;
+		}
+		return array_values( $deduped );
+	}
+
+	/**
+	 * Builds one CTA page candidate row.
+	 *
+	 * @param object $post Page post.
+	 * @param string $reason Candidate reason.
+	 * @param string $label Optional CTA label.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_candidate_cta_page_row( $post, $reason, $label = '' ) {
+		$title = sanitize_text_field( (string) ( $post->post_title ?? '' ) );
+		return array(
+			'id'     => absint( $post->ID ?? 0 ),
+			'slug'   => sanitize_key( (string) ( $post->post_name ?? '' ) ),
+			'title'  => $title,
+			'url'    => $this->block_theme_post_url( $post ),
+			'label'  => '' !== $label ? sanitize_text_field( $label ) : sprintf(
+				/* translators: %s: page title. */
+				__( '查看%s', 'npcink-abilities-toolkit' ),
+				$title
+			),
+			'reason' => sanitize_key( (string) $reason ),
+		);
+	}
+
+	/**
+	 * Returns a public URL for a post without requiring permalink APIs in tests.
+	 *
+	 * @param object $post Post object.
+	 * @return string
+	 */
+	private function block_theme_post_url( $post ) {
+		if ( function_exists( 'get_permalink' ) ) {
+			$url = get_permalink( absint( $post->ID ?? 0 ) );
+			if ( is_string( $url ) && '' !== $url ) {
+				return $this->esc_url_value( $url );
+			}
+		}
+		$slug = sanitize_title( (string) ( $post->post_name ?? '' ) );
+		return '' !== $slug ? '/' . $slug . '/' : '/?page_id=' . absint( $post->ID ?? 0 );
+	}
+
+	/**
+	 * Resolves homepage CTA without falling back to placeholders.
+	 *
+	 * @param array<string,mixed> $variables Copy variables.
+	 * @param array<string,mixed> $site_context Site context.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_resolve_homepage_cta( array $variables, array $site_context ) {
+		$explicit_url = $this->esc_url_value( (string) ( $variables['cta_url'] ?? '' ) );
+		if ( '' !== $explicit_url ) {
+			return array(
+				'status' => 'resolved',
+				'source' => 'user_url',
+				'url'    => $explicit_url,
+				'label'  => sanitize_text_field( (string) ( $variables['cta_label'] ?? __( '了解更多', 'npcink-abilities-toolkit' ) ) ),
+			);
+		}
+
+		$candidates = is_array( $site_context['content_inventory']['candidate_cta_pages'] ?? null ) ? $site_context['content_inventory']['candidate_cta_pages'] : array();
+		$candidate  = is_array( $candidates[0] ?? null ) ? $candidates[0] : array();
+		$url        = $this->esc_url_value( (string) ( $candidate['url'] ?? '' ) );
+		if ( '' !== $url ) {
+			return array(
+				'status'       => 'resolved',
+				'source'       => sanitize_key( (string) ( $candidate['reason'] ?? 'candidate_page' ) ),
+				'url'          => $url,
+				'label'        => sanitize_text_field( (string) ( $variables['cta_label'] ?? ( $candidate['label'] ?? __( '了解更多', 'npcink-abilities-toolkit' ) ) ) ),
+				'target_page_id' => absint( $candidate['id'] ?? 0 ),
+			);
+		}
+
+		return array(
+			'status' => 'unresolved',
+			'source' => 'no_candidate_page',
+			'url'    => '',
+			'label'  => sanitize_text_field( (string) ( $variables['cta_label'] ?? __( '了解更多', 'npcink-abilities-toolkit' ) ) ),
+			'requires_user_input' => true,
+			'issue_code' => 'cta_link_unresolved',
+		);
+	}
+
+	/**
+	 * Returns whether homepage profile should include the static page content slot.
+	 *
+	 * @param string $template_slug Template slug.
+	 * @param array<string,mixed> $site_context Site context.
+	 * @return bool
+	 */
+	private function block_theme_homepage_should_include_post_content( $template_slug, array $site_context ) {
+		$template_slug    = sanitize_key( (string) $template_slug );
+		$reading_settings = is_array( $site_context['reading_settings'] ?? null ) ? $site_context['reading_settings'] : array();
+		return 'front-page' === $template_slug
+			&& 'page' === sanitize_key( (string) ( $reading_settings['show_on_front'] ?? 'posts' ) )
+			&& absint( $reading_settings['page_on_front'] ?? 0 ) > 0;
+	}
+
+	/**
+	 * Returns deterministic template resolver metadata for proposal previews.
+	 *
+	 * @param string $intent Intent.
+	 * @param string $requested_slug Requested slug.
+	 * @param array<string,mixed> $resolution Resolution.
+	 * @param array<string,mixed> $site_context Site context.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_template_resolver_result( $intent, $requested_slug, array $resolution, array $site_context ) {
+		unset( $site_context );
+		$requested_slug = sanitize_key( (string) $requested_slug );
+		$target_slug    = sanitize_key( (string) ( $resolution['target_slug'] ?? $requested_slug ) );
+		$creates        = ! empty( $resolution['creates_template_override'] );
+		return array(
+			'intent'          => sanitize_key( (string) $intent ),
+			'target_template' => array(
+				'post_type' => 'wp_template',
+				'slug'      => $target_slug,
+				'operation' => $creates ? 'create_override' : 'update_existing_override',
+				'reason'    => $this->block_theme_template_resolver_reason( $requested_slug, $resolution ),
+			),
+			'fallback_chain'  => is_array( $resolution['candidates'] ?? null ) ? array_values( array_map( 'sanitize_key', $resolution['candidates'] ) ) : array( $requested_slug ),
+			'affected_routes' => $this->block_theme_affected_routes_for_template( $target_slug ),
+			'warnings'        => array(),
+		);
+	}
+
+	/**
+	 * Returns a resolver reason string.
+	 *
+	 * @param string $requested_slug Requested slug.
+	 * @param array<string,mixed> $resolution Resolution.
+	 * @return string
+	 */
+	private function block_theme_template_resolver_reason( $requested_slug, array $resolution ) {
+		$strategy = sanitize_key( (string) ( $resolution['strategy'] ?? '' ) );
+		if ( 'front-page' === sanitize_key( (string) $requested_slug ) ) {
+			return 'User asked to customize the site homepage; front-page has highest precedence for the site front page.';
+		}
+		if ( 'home' === sanitize_key( (string) $requested_slug ) ) {
+			return 'User asked to customize the blog home; home is the WordPress posts index template before index fallback.';
+		}
+		return '' !== $strategy ? 'Template resolver selected strategy=' . $strategy . '.' : 'Template resolver selected the requested template.';
+	}
+
+	/**
+	 * Returns affected frontend routes for a template slug.
+	 *
+	 * @param string $slug Template slug.
+	 * @return string[]
+	 */
+	private function block_theme_affected_routes_for_template( $slug ) {
+		$slug = sanitize_key( (string) $slug );
+		if ( 'front-page' === $slug ) {
+			return array( '/' );
+		}
+		if ( 'home' === $slug ) {
+			return array( '/blog/', '/' );
+		}
+		if ( 'single' === $slug ) {
+			return array( 'single posts' );
+		}
+		if ( 'page' === $slug ) {
+			return array( 'pages' );
+		}
+		return array( $slug );
+	}
+
+	/**
+	 * Returns existing custom template override hashes.
+	 *
+	 * @param string[] $slugs Template slugs.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function block_theme_existing_override_snapshot( array $slugs ) {
+		$rows = array();
+		foreach ( $slugs as $slug ) {
+			$slug   = sanitize_key( (string) $slug );
+			$entity = $this->block_theme_find_entity( 'wp_template', $slug, 0 );
+			$is_custom = is_array( $entity ) && 'custom' === sanitize_key( (string) ( $entity['source'] ?? '' ) ) && absint( $entity['post_id'] ?? 0 ) > 0;
+			$content = $is_custom ? (string) ( $entity['content'] ?? '' ) : '';
+			$rows[ $slug ] = array(
+				'exists'       => $is_custom,
+				'post_id'      => $is_custom ? absint( $entity['post_id'] ?? 0 ) : 0,
+				'source'       => $is_custom ? 'custom' : '',
+				'content_hash' => '' !== $content ? hash( 'sha256', $content ) : '',
+			);
+		}
+		return $rows;
+	}
+
+	/**
+	 * Returns posts for context snapshots.
+	 *
+	 * @param string[] $post_types Post types.
+	 * @return array<int,object>
+	 */
+	private function block_theme_posts_for_context( array $post_types ) {
+		if ( ! function_exists( 'get_posts' ) ) {
+			return array();
+		}
+		$posts = get_posts(
+			array(
+				'post_type'        => $post_types,
+				'post_status'      => array( 'publish' ),
+				'posts_per_page'   => 100,
+				'suppress_filters' => false,
+			)
+		);
+		return is_array( $posts ) ? array_values( array_filter( $posts, 'is_object' ) ) : array();
+	}
+
+	/**
+	 * Returns theme.json preset groups exposed in the current runtime.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_theme_json_preset_keys() {
+		if ( ! function_exists( 'wp_get_global_settings' ) ) {
+			return array();
+		}
+		$settings = wp_get_global_settings();
+		$keys     = array();
+		foreach ( array( 'spacing', 'color', 'typography', 'layout' ) as $key ) {
+			if ( is_array( $settings ) && ! empty( $settings[ $key ] ) ) {
+				$keys[] = $key;
+			}
+		}
+		return $keys;
+	}
+
+	/**
+	 * Returns registered block names or the bounded fallback catalog.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_registered_block_type_names() {
+		if ( class_exists( '\WP_Block_Type_Registry' ) && method_exists( '\WP_Block_Type_Registry', 'get_instance' ) ) {
+			$registry = \WP_Block_Type_Registry::get_instance();
+			if ( is_object( $registry ) && method_exists( $registry, 'get_all_registered' ) ) {
+				return array_values( array_map( 'sanitize_text_field', array_keys( (array) $registry->get_all_registered() ) ) );
+			}
+		}
+		return array(
+			'core/template-part',
+			'core/group',
+			'core/heading',
+			'core/paragraph',
+			'core/buttons',
+			'core/button',
+			'core/latest-posts',
+			'core/categories',
+			'core/post-content',
+		);
 	}
 
 	/**
@@ -1556,7 +2029,7 @@ trait Block_Theme_Read_Methods {
 	 */
 	private function block_theme_target_slugs( $targets ) {
 		$targets = is_array( $targets ) ? $targets : array( 'single', 'page', 'front-page' );
-		$allowed = array( 'single', 'page', 'front-page', 'archive', 'index' );
+		$allowed = array( 'single', 'page', 'front-page', 'home', 'archive', 'index' );
 		$normalized = array();
 		foreach ( $targets as $target ) {
 			$slug = sanitize_key( (string) $target );
