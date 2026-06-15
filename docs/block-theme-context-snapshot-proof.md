@@ -113,3 +113,103 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 
 Record any failure as host-owned, toolkit-owned, or deferred before creating a
 new ability proposal.
+
+## PR 44 Merge Record
+
+PR: [#44 Harden block theme context proof contracts](https://github.com/muze-page/npcink-abilities-toolkit/pull/44)
+Merge commit: `3ac2fbc626a6a3e67fce7bcf337399280d046302`
+Merged: 2026-06-15.
+
+The merged branch kept the project in freeze/observe mode while hardening
+existing contracts. It did not add a new ability id.
+
+The accepted changes were split into four reviewable commits:
+
+- `e3a02d7 Add block theme site context snapshot`;
+- `348a799 Document block theme context proof boundary`;
+- `10821fe Handle guardrailed block theme intent prompts`;
+- `efee46b Expose media derivative batch eligibility details`.
+
+### What Changed
+
+The block theme snapshot work added factual homepage and template context to
+the existing block theme read/planning surface:
+
+- reading settings for posts-front and static-front configurations;
+- template resolution for `front-page`, `home`, and `index`;
+- bounded content inventory and CTA candidate pages;
+- existing template override hashes;
+- homepage CTA resolution and `cta_link_unresolved` fail-closed behavior;
+- homepage static-page content-slot decisions.
+
+The guardrailed intent routing work keeps prompts such as "do not write
+theme.json" or "不要改 global styles" from being misclassified as unsupported
+write requests when those terms are used as negative guardrails. Positive
+requests for navigation, global styles, theme files, or raw template HTML still
+fail closed.
+
+The media derivative batch work made the existing batch-plan output easier for
+hosts to review and retry:
+
+- eligible candidates now carry `status`, `reason`, and `result_ref`;
+- skipped rows are also exposed as `blocked_items`;
+- the output schema declares `eligibility_summary`, `blocked_items`,
+  `retryable`, `retry_guidance`, and `operator_next_action`;
+- the plan remains read-only, dry-run oriented, and host-governed.
+
+### Verification Evidence
+
+Before PR creation and merge, the branch passed:
+
+```bash
+composer test:all
+composer analyse:phpstan
+git diff --check
+```
+
+GitHub Actions passed on the PR for:
+
+- `php (8.0)`;
+- `php (8.3)`.
+
+The Local.app WordPress smoke was rerun against the documented local site:
+
+```bash
+WP_CLI=/tmp/wp-cli.phar \
+WP_CLI_PHP=/opt/homebrew/bin/php \
+WP_CLI_ERROR_REPORTING=8191 \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+composer smoke:wp
+```
+
+Smoke result:
+
+- default profile: `Smoke OK: 323 assertions`;
+- light profile: `Smoke OK: 25 assertions`.
+
+### Cleanup Result
+
+After the PR merged:
+
+- local `master` was fast-forwarded to `origin/master`;
+- the topic branch was removed remotely;
+- no auxiliary worktrees remained;
+- the checkout returned to one clean local worktree on `master`.
+
+### Follow-Up Posture
+
+After PR 44, continue freeze/observe mode. Do not open another ability branch
+from candidate lists alone.
+
+Useful next proof work should happen from a host perspective:
+
+- run a real `workflow/wordpress_article_optimization` consumption proof;
+- run a block theme intent replay against a host path that discovers the
+  abilities through WordPress Abilities API;
+- classify any failures as host-owned, toolkit-owned, or deferred before
+  proposing code.
+
+Only create another toolkit PR when a failed host proof identifies a small,
+reusable, WordPress-only contract gap that existing abilities cannot satisfy by
+composition.
