@@ -5221,6 +5221,17 @@ npcink_abilities_toolkit_assert_same( 'customize_template_layout', $homepage_tem
 npcink_abilities_toolkit_assert_same( array( 'front-page' ), $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes homepage layouts to front-page' );
 npcink_abilities_toolkit_assert_same( 'homepage_landing', $homepage_template_layout_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends the homepage layout profile' );
 
+$homepage_template_layout_guardrailed_intent_route = $core_read_package->route_content_intent(
+	array(
+		'prompt' => '把首页改造成一个基础落地页：顶部有清晰的大标题和简短介绍，下面有一个行动按钮，再下面展示最新文章和分类入口。不要改导航，不要改 global styles，不要写 theme.json，不要写主题文件，不要输出 raw template HTML，只通过块主题模板 proposal 来处理。',
+	)
+);
+npcink_abilities_toolkit_assert_same( 'block_theme_site_plan', $homepage_template_layout_guardrailed_intent_route['data']['route']['route'] ?? '', 'route-content-intent keeps homepage layout supported when unsupported surfaces are negated guardrails' );
+npcink_abilities_toolkit_assert_same( 'site_template_layout', $homepage_template_layout_guardrailed_intent_route['data']['route']['route_key'] ?? '', 'route-content-intent keeps guardrailed homepage layout on the template layout route' );
+npcink_abilities_toolkit_assert_same( 'customize_template_layout', $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['intent'] ?? '', 'route-content-intent recommends template layout for guardrailed homepage prompts' );
+npcink_abilities_toolkit_assert_same( array( 'front-page' ), $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['target_templates'] ?? array(), 'route-content-intent scopes guardrailed homepage layout prompts to front-page' );
+npcink_abilities_toolkit_assert_same( 'homepage_landing', $homepage_template_layout_guardrailed_intent_route['data']['route']['recommended_plan_input']['layout_profile'] ?? '', 'route-content-intent recommends homepage landing for guardrailed homepage prompts' );
+
 $template_part_intent_route = $core_read_package->route_content_intent(
 	array(
 		'prompt' => '帮我重做页眉模板部件。',
