@@ -23,6 +23,10 @@ outputs, then a cross-judge comparison to identify cases that need human review.
    composer eval:gutenberg-recipe:suite
    ```
 
+   ```bash
+   composer eval:gutenberg-recipe:suite
+   ```
+
 2. Export Promptfoo judge cases:
 
    ```bash
@@ -52,7 +56,16 @@ outputs, then a cross-judge comparison to identify cases that need human review.
 Cases with missing judge results, low scores, large score gaps, failed judge
 assertions, or risky reasons are marked for human review.
 
-## Eval-Lab Dual Judge
+`manual-review-cases.json` is the hand-adjudication queue. It should contain
+only cases where the triad output marks `human_review` or where repeated
+`rerun_or_fix` results need a product decision.
+
+`challenge-cases.json` contains known hard prompts for router/planner boundary
+work. These cases are intentionally separate from the default all-green suite;
+move one into the default suite only after the deterministic route and plan
+behavior is explicitly supported.
+
+## Eval-Lab Triad Judge
 
 Provider-backed model calls live in `magick-ai-eval-lab`, not this plugin repo.
 The eval-lab wrapper refreshes the deterministic suite, exports judge cases,
@@ -76,8 +89,9 @@ MAGICK_AI_EVAL_LAB_PATH=/Users/muze/gitee/magick-ai-eval-lab \
 composer eval:gutenberg-recipe:judge:eval-lab
 ```
 
-Eval-lab owns `.env.evaluation.local`, model profiles, provider calls, and
-generated cross-judge outputs. This repo only passes the case CSV path.
+Eval-lab owns `.env.evaluation.local`, model profiles, provider calls, triad
+arbitration, task dispatch, run manifests, and generated cross-judge outputs.
+This repo only passes the case CSV path with `task=gutenberg_judge_cross`.
 
 Default eval-lab output is under
 `magick-ai-eval-lab/gutenberg-recipe/generated/`.

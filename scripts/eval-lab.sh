@@ -11,13 +11,21 @@ if [ ! -d "$EVAL_LAB_PATH" ]; then
 fi
 
 if [ "$#" -lt 1 ]; then
-	echo "Usage: scripts/eval-lab.sh <composer-script> [args...]" >&2
+	echo "Usage: scripts/eval-lab.sh task=<eval-lab-task> [args...]" >&2
 	exit 1
 fi
 
-SCRIPT="$1"
-shift
-
 cd "$EVAL_LAB_PATH"
-export COMPOSER_PROCESS_TIMEOUT="${COMPOSER_PROCESS_TIMEOUT:-0}"
-composer "$SCRIPT" -- "$@"
+COMPOSER_PROCESS_TIMEOUT="${COMPOSER_PROCESS_TIMEOUT:-0}"
+export COMPOSER_PROCESS_TIMEOUT
+
+case "$1" in
+	task=*|--list|--help|-h|help|list|tasks)
+		composer eval:task -- "$@"
+		;;
+	*)
+		SCRIPT="$1"
+		shift
+		composer "$SCRIPT" -- "$@"
+		;;
+esac
