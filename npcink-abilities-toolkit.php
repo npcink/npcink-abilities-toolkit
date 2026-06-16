@@ -60,6 +60,7 @@ require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Destructive_
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Comment_Pack_Classifier.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Comment_Definitions/Core_Comment_Definitions.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Packages/Core_Comment_Package.php';
+require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Rest/Contract_Controller.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Admin/Test_Page.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/Plugin.php';
 require_once NPCINK_ABILITIES_TOOLKIT_DIR . 'includes/functions.php';

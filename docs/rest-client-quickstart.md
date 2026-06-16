@@ -26,6 +26,7 @@ GET /wp-json/wp-abilities/v1/categories
 GET /wp-json/wp-abilities/v1/abilities
 GET /wp-json/wp-abilities/v1/abilities/{namespace}/{name}
 GET|POST /wp-json/wp-abilities/v1/abilities/{namespace}/{name}/run
+GET /wp-json/npcink-abilities-toolkit/v1/contract
 ```
 
 The ability id uses `namespace/name`; the REST path keeps the slash as path
@@ -34,6 +35,12 @@ segments. For example, `npcink-abilities-toolkit/site-info` becomes:
 ```text
 /wp-json/wp-abilities/v1/abilities/npcink-abilities-toolkit/site-info/run
 ```
+
+The Toolkit contract endpoint is for host/runtime discovery and requires a
+REST caller with `manage_options`. It returns metadata such as plugin version,
+contract versions, registered ability count, stable ability/workflow hashes,
+and the host-governed write boundary. It does not replace the WordPress
+Abilities API catalog and does not run abilities.
 
 ## Authentication
 
