@@ -558,14 +558,19 @@ trait Block_Theme_Read_Methods {
 				$layout_sections = array_values( array_diff( $layout_sections, array( 'post_content' ) ) );
 			}
 			$profile_rows[]  = array(
-				'slug'             => $target_template_slug,
-				'layout_profile'   => $layout_profile,
-				'profile_id'       => $this->block_theme_template_layout_profile_version( $layout_profile ),
-				'profile_version'  => $this->block_theme_template_layout_profile_version( $layout_profile ),
-				'profile_allowed'  => true,
-				'sections'         => $layout_sections,
+				'slug'              => $target_template_slug,
+				'layout_profile'    => $layout_profile,
+				'profile_id'        => $this->block_theme_template_layout_profile_version( $layout_profile ),
+				'profile_version'   => $this->block_theme_template_layout_profile_version( $layout_profile ),
+				'compiler_version'  => 'block_theme_profile_compiler@0.2',
+				'operation'         => 'replace_template_layout_with_preserved_template_parts',
+				'profile_allowed'   => true,
+				'modules'           => $layout_sections,
+				'sections'          => $layout_sections,
+				'allowed_blocks'    => $this->block_theme_template_layout_allowed_blocks( $layout_profile ),
+				'forbidden_outputs' => $this->block_theme_template_layout_forbidden_outputs(),
 				'template_resolver' => $template_resolver,
-				'cta_resolution'   => $cta_resolution,
+				'cta_resolution'    => $cta_resolution,
 			);
 
 			if ( ! $requires_write ) {
@@ -1193,6 +1198,60 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Returns allowed core block names for a bounded template layout profile.
+	 *
+	 * @param string $layout_profile Layout profile.
+	 * @return string[]
+	 */
+	private function block_theme_template_layout_allowed_blocks( $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		$blocks         = array(
+			'core/template-part',
+			'core/group',
+			'core/heading',
+			'core/paragraph',
+			'core/buttons',
+			'core/button',
+			'core/post-content',
+		);
+		if ( 'homepage_landing' === $layout_profile ) {
+			$blocks[] = 'core/columns';
+			$blocks[] = 'core/column';
+			$blocks[] = 'core/latest-posts';
+			$blocks[] = 'core/categories';
+			$blocks[] = 'core/separator';
+			$blocks[] = 'core/spacer';
+			return array_values( array_unique( $blocks ) );
+		}
+		$blocks = array_merge(
+			$blocks,
+			array(
+				'core/post-title',
+				'core/post-author-name',
+				'core/post-date',
+				'core/post-featured-image',
+				'core/post-terms',
+			)
+		);
+		if ( 'article_standard' === $layout_profile ) {
+			$blocks[] = 'core/post-navigation-link';
+			$blocks[] = 'core/comments';
+			$blocks[] = 'core/latest-posts';
+			$blocks[] = 'core/separator';
+		}
+		return array_values( array_unique( $blocks ) );
+	}
+
+	/**
+	 * Returns forbidden output markers for bounded template layout profiles.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_template_layout_forbidden_outputs() {
+		return array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'global_styles', 'navigation_write', 'template_part_write' );
+	}
+
+	/**
 	 * Returns a layout profile contract for generated template plans.
 	 *
 	 * @param array<int,array<string,mixed>> $profile_rows Profile rows.
@@ -1209,7 +1268,7 @@ trait Block_Theme_Read_Methods {
 			'accepted_profile_versions' => array( 'article_standard@0.4', 'page_standard@0.1', 'homepage_landing@0.2' ),
 			'compiler_version'        => 'block_theme_profile_compiler@0.2',
 			'forbidden_policy_version' => 'block_theme_safe_core_blocks@0.2',
-			'forbidden_outputs'       => array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'global_styles', 'navigation_write', 'template_part_write' ),
+			'forbidden_outputs'       => $this->block_theme_template_layout_forbidden_outputs(),
 			'contract_status'         => 'pass',
 			'violation_codes'         => array(),
 			'profiles'                => array_values( $profile_rows ),
