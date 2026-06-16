@@ -56,6 +56,11 @@ REST clients should discover the catalog first, inspect each ability's schema,
 risk metadata, and permission requirements, then run only abilities that the
 current WordPress user is allowed to execute.
 
+Host runtimes that need a cheap compatibility check before fetching the full
+catalog can also read `GET /wp-json/npcink-abilities-toolkit/v1/contract` with
+a `manage_options` REST caller for plugin version, contract versions, catalog
+hashes, workflow hash, and the host-governed write boundary.
+
 ## Maintainers
 
 Use this path when changing this package.

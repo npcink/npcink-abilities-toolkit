@@ -45,6 +45,27 @@ The projection filter is metadata-only. It must not be used to move final
 approval, quota, audit, Open API exposure, MCP policy, workflow state, or model
 routing ownership into this package.
 
+## Runtime Contract Endpoint
+
+Hosts may fetch this read-only discovery endpoint with a WordPress REST caller
+that has `manage_options` before loading the full Abilities API catalog:
+
+```text
+GET /wp-json/npcink-abilities-toolkit/v1/contract
+```
+
+The response is metadata-only. It includes the active plugin version, Toolkit
+contract version, ability registry version, workflow recipe version, active
+ability count, stable sha256 hashes for ability ids, ability contracts, and
+workflow recipes, plus explicit host-governed write controls.
+
+The endpoint also reports Adapter-facing compatibility, catalog source,
+schema-control posture, read/write execution surfaces, and forbidden payload
+families. It intentionally omits callbacks, permission callbacks, raw ability
+definitions, secrets, paths, approval records, audit state, queues, workflow
+runtime state, model routing, prompts, billing, and cloud execution truth. Use
+the WordPress Abilities API catalog for per-ability schemas and execution.
+
 ## `npcink_abilities_toolkit_register_category( $category_id, $args )`
 
 Registers an Abilities API category.

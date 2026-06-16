@@ -55,6 +55,23 @@ npcink_abilities_toolkit_get_workflow_definitions();
 npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
 ```
 
+Runtime contract discovery is available through:
+
+```text
+GET /wp-json/npcink-abilities-toolkit/v1/contract
+```
+
+The contract endpoint requires a WordPress REST caller with `manage_options`
+and returns non-secret metadata for host runtimes, including the active plugin
+version, contract versions, registered ability count, stable catalog hashes,
+workflow definition hash, and write-boundary posture. It is a discovery
+endpoint only; clients should still use the WordPress Abilities API catalog for
+ability definitions and execution. It also reports Adapter-facing
+compatibility, catalog/schema ownership, callback-free hash posture, and the
+host-governed write boundary. It never returns callbacks, approval records,
+audit truth, runtime state, prompt material, model routing, provider secrets,
+or cloud execution truth.
+
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
 The independent-project split and Npcink AI integration boundary are documented in [docs/npcink-ai-project-split-contract.md](docs/npcink-ai-project-split-contract.md).
