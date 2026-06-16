@@ -18,6 +18,7 @@ use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Rest\Contract_Controller;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -138,6 +139,9 @@ final class Plugin {
 		}
 
 		$this->booted = true;
+		if ( function_exists( 'add_action' ) ) {
+			add_action( 'rest_api_init', array( new Contract_Controller(), 'register_routes' ) );
+		}
 		$this->categories->boot();
 		$this->abilities->boot();
 		if ( $this->is_package_enabled( 'core_read' ) ) {
