@@ -1961,13 +1961,23 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-title' ), 'template layout plan includes the post title block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-author-name' ), 'template layout plan includes the author block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-date' ), 'template layout plan includes the post date block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-terms' ), 'template layout plan includes taxonomy term blocks' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-featured-image' ), 'template layout plan includes the featured image block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-content' ), 'template layout plan includes the post content slot' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-navigation-link' ), 'template layout plan includes previous/next post navigation' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'core\\/comments' ), 'template layout plan includes the comments block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'latest-posts' ), 'template layout plan includes related/latest posts' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, '#FBFAF3' ), 'template layout plan gives article title and navigation native background styles' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, '#F1F5F9' ), 'template layout plan gives related posts a distinct native background style' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'var(--wp--preset--spacing--50)' ), 'template layout plan serializes preset spacing tokens as valid CSS variables in static markup' );
 	npcink_abilities_toolkit_assert_true( false === strpos( $template_layout_blocks_json, 'core\\/html' ), 'template layout plan does not emit raw HTML blocks' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['composition_contract']['contract_status'] ?? '', 'template layout plan passes the block composition contract' );
 	npcink_abilities_toolkit_assert_same( 'bounded_template_layout_profile', $template_layout_plan['data']['template_layout_contract']['placement_model'] ?? '', 'template layout plan reports bounded layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_profile_compiler@0.2', $template_layout_plan['data']['template_layout_contract']['compiler_version'] ?? '', 'template layout plan reports the bounded profile compiler version' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_safe_core_blocks@0.2', $template_layout_plan['data']['template_layout_contract']['forbidden_policy_version'] ?? '', 'template layout plan reports the safe core block policy version' );
+	npcink_abilities_toolkit_assert_true( in_array( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['accepted_profile_versions'] ?? array(), true ), 'template layout contract accepts article_standard@0.4' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['profile_version'] ?? '', 'template layout profile row records article_standard@0.4' );
 	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
 	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(

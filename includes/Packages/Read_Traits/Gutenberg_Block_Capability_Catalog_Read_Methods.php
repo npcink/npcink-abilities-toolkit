@@ -295,6 +295,16 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'allowed_attrs'      => array( 'term', 'className', 'style' ),
 				'surface'            => 'template',
 			),
+			'core/post-navigation-link' => array(
+				'roles'              => array( 'template_post_navigation' ),
+				'allowed_attrs'      => array( 'type', 'label', 'showTitle', 'linkLabel', 'arrow', 'className', 'style' ),
+				'surface'            => 'template',
+			),
+			'core/comments' => array(
+				'roles'              => array( 'template_comments' ),
+				'allowed_attrs'      => array( 'className', 'style' ),
+				'surface'            => 'template',
+			),
 			'core/latest-posts' => array(
 				'roles'              => array( 'template_related_posts', 'homepage_latest_posts' ),
 				'allowed_attrs'      => array( 'className', 'style', 'postsToShow', 'displayPostDate', 'displayPostContent', 'displayFeaturedImage' ),
