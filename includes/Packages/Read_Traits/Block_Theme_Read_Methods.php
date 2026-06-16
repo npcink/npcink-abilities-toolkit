@@ -521,7 +521,10 @@ trait Block_Theme_Read_Methods {
 
 			$is_existing_custom_template = $template_id > 0;
 			$target_ability_id           = $is_existing_custom_template ? 'npcink-abilities-toolkit/update-template-blocks' : 'npcink-abilities-toolkit/upsert-template-blocks';
-			$block_editor_review         = $this->pattern_review_summary_for_blocks( $next_blocks, true );
+			$block_editor_review         = $this->block_theme_template_layout_review_summary(
+				$this->pattern_review_summary_for_blocks( $next_blocks, true ),
+				$layout_profile
+			);
 			$block_editor_quality_gate   = $this->block_editor_plan_quality_gate(
 				$block_editor_review,
 				array(
@@ -558,12 +561,19 @@ trait Block_Theme_Read_Methods {
 				$layout_sections = array_values( array_diff( $layout_sections, array( 'post_content' ) ) );
 			}
 			$profile_rows[]  = array(
-				'slug'             => $target_template_slug,
-				'layout_profile'   => $layout_profile,
-				'profile_allowed'  => true,
-				'sections'         => $layout_sections,
+				'slug'              => $target_template_slug,
+				'layout_profile'    => $layout_profile,
+				'profile_id'        => $this->block_theme_template_layout_profile_version( $layout_profile ),
+				'profile_version'   => $this->block_theme_template_layout_profile_version( $layout_profile ),
+				'compiler_version'  => 'block_theme_profile_compiler@0.2',
+				'operation'         => 'replace_template_layout_with_preserved_template_parts',
+				'profile_allowed'   => true,
+				'modules'           => $layout_sections,
+				'sections'          => $layout_sections,
+				'allowed_blocks'    => $this->block_theme_template_layout_allowed_blocks( $layout_profile ),
+				'forbidden_outputs' => $this->block_theme_template_layout_forbidden_outputs(),
 				'template_resolver' => $template_resolver,
-				'cta_resolution'   => $cta_resolution,
+				'cta_resolution'    => $cta_resolution,
 			);
 
 			if ( ! $requires_write ) {
@@ -874,6 +884,8 @@ trait Block_Theme_Read_Methods {
 					$this->block_theme_dynamic_block( 'core/post-author-name', array( 'isLink' => true ) ),
 					$this->pattern_paragraph_block( '/', 'openclaw-template-meta-separator' ),
 					$this->block_theme_dynamic_block( 'core/post-date', array( 'isLink' => false ) ),
+					$this->pattern_paragraph_block( '/', 'openclaw-template-meta-separator' ),
+					$this->block_theme_dynamic_block( 'core/post-terms', array( 'term' => 'category' ) ),
 				),
 				array(
 					'layout' => array(
@@ -883,19 +895,86 @@ trait Block_Theme_Read_Methods {
 				)
 			);
 		}
-		$inner_blocks[] = $this->pattern_group_block( 'openclaw-template-title-stack', $title_stack );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-title-stack',
+			$title_stack,
+			array(
+				'align' => 'wide',
+				'style' => array(
+					'color'   => array(
+						'background' => '#FBFAF3',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|50',
+							'right'  => 'var:preset|spacing|50',
+							'bottom' => 'var:preset|spacing|50',
+							'left'   => 'var:preset|spacing|50',
+						),
+					),
+				),
+			)
+		);
 
 		if ( ! empty( $options['show_featured_image'] ) ) {
 			$inner_blocks[] = $this->block_theme_dynamic_block(
 				'core/post-featured-image',
 				array(
 					'aspectRatio' => '16/9',
+					'align'       => 'wide',
 					'className'   => 'openclaw-template-featured-image',
 				)
 			);
 		}
 
-		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-content-stack',
+			array(
+				$this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) ),
+				$this->block_theme_dynamic_block( 'core/post-terms', array( 'term' => 'post_tag' ) ),
+			),
+			array(
+				'style' => array(
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|40',
+							'bottom' => 'var:preset|spacing|40',
+						),
+					),
+				),
+			)
+		);
+
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-post-navigation',
+			array(
+				$this->block_theme_dynamic_block( 'core/post-navigation-link', array( 'type' => 'previous' ) ),
+				$this->block_theme_dynamic_block( 'core/post-navigation-link', array( 'type' => 'next' ) ),
+			),
+			array(
+				'align'  => 'wide',
+				'layout' => array(
+					'type'           => 'flex',
+					'justifyContent' => 'space-between',
+					'flexWrap'       => 'wrap',
+				),
+				'style'  => array(
+					'color'   => array(
+						'background' => '#FBFAF3',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|40',
+							'right'  => 'var:preset|spacing|40',
+							'bottom' => 'var:preset|spacing|40',
+							'left'   => 'var:preset|spacing|40',
+						),
+					),
+				),
+			)
+		);
+
+		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/comments' );
 
 		if ( ! empty( $options['include_related_posts'] ) ) {
 			$inner_blocks[] = $this->pattern_group_block(
@@ -911,8 +990,18 @@ trait Block_Theme_Read_Methods {
 					),
 				),
 				array(
+					'align' => 'wide',
 					'style' => array(
+						'color'   => array(
+							'background' => '#F1F5F9',
+						),
 						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|50',
+								'right'  => 'var:preset|spacing|50',
+								'bottom' => 'var:preset|spacing|50',
+								'left'   => 'var:preset|spacing|50',
+							),
 							'margin' => array(
 								'top' => 'var:preset|spacing|60',
 							),
@@ -1077,16 +1166,141 @@ trait Block_Theme_Read_Methods {
 		$sections[] = 'post_title';
 		if ( ! empty( $options['show_author_date'] ) && 'article_standard' === $layout_profile ) {
 			$sections[] = 'author_date';
+			$sections[] = 'post_categories';
 		}
 		if ( ! empty( $options['show_featured_image'] ) ) {
 			$sections[] = 'featured_image';
 		}
 		$sections[] = 'post_content';
+		if ( 'article_standard' === $layout_profile ) {
+			$sections[] = 'post_tags';
+			$sections[] = 'post_navigation';
+			$sections[] = 'comments';
+		}
 		if ( ! empty( $options['include_related_posts'] ) && 'article_standard' === $layout_profile ) {
 			$sections[] = 'related_posts';
 		}
 		$sections[] = 'footer';
 		return $sections;
+	}
+
+	/**
+	 * Returns the accepted version id for a bounded template layout profile.
+	 *
+	 * @param string $layout_profile Layout profile.
+	 * @return string
+	 */
+	private function block_theme_template_layout_profile_version( $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		$versions       = array(
+			'article_standard' => 'article_standard@0.4',
+			'page_standard'    => 'page_standard@0.1',
+			'homepage_landing' => 'homepage_landing@0.2',
+		);
+		return (string) ( $versions[ $layout_profile ] ?? $layout_profile );
+	}
+
+	/**
+	 * Returns allowed core block names for a bounded template layout profile.
+	 *
+	 * @param string $layout_profile Layout profile.
+	 * @return string[]
+	 */
+	private function block_theme_template_layout_allowed_blocks( $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		$blocks         = array(
+			'core/template-part',
+			'core/group',
+			'core/heading',
+			'core/paragraph',
+			'core/buttons',
+			'core/button',
+			'core/post-content',
+		);
+		if ( 'homepage_landing' === $layout_profile ) {
+			$blocks[] = 'core/columns';
+			$blocks[] = 'core/column';
+			$blocks[] = 'core/latest-posts';
+			$blocks[] = 'core/categories';
+			$blocks[] = 'core/separator';
+			$blocks[] = 'core/spacer';
+			return array_values( array_unique( $blocks ) );
+		}
+		$blocks = array_merge(
+			$blocks,
+			array(
+				'core/post-title',
+				'core/post-author-name',
+				'core/post-date',
+				'core/post-featured-image',
+				'core/post-terms',
+			)
+		);
+		if ( 'article_standard' === $layout_profile ) {
+			$blocks[] = 'core/post-navigation-link';
+			$blocks[] = 'core/comments';
+			$blocks[] = 'core/latest-posts';
+			$blocks[] = 'core/separator';
+		}
+		return array_values( array_unique( $blocks ) );
+	}
+
+	/**
+	 * Returns forbidden output markers for bounded template layout profiles.
+	 *
+	 * @return string[]
+	 */
+	private function block_theme_template_layout_forbidden_outputs() {
+		return array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'global_styles', 'navigation_write', 'template_part_write' );
+	}
+
+	/**
+	 * Adapts the generic block-editor review to the requested template profile.
+	 *
+	 * Landing-page findings such as missing hero media, FAQ, comparison, or bento
+	 * sections are useful for standalone pages but noisy for article templates.
+	 *
+	 * @param array<string,mixed> $review_summary Generic block-editor review summary.
+	 * @param string              $layout_profile Layout profile.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_template_layout_review_summary( array $review_summary, $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		if ( 'article_standard' !== $layout_profile ) {
+			return $review_summary;
+		}
+
+		$ignored_codes = array_flip(
+			array(
+				'hero_media_missing',
+				'bento_grid_missing',
+				'comparison_missing',
+				'faq_missing',
+				'final_cta_missing',
+				'section_variety_low',
+				'layout_similarity_risk',
+			)
+		);
+		$findings        = is_array( $review_summary['findings'] ?? null ) ? $review_summary['findings'] : array();
+		$visual_findings = is_array( $review_summary['visual_quality_findings'] ?? null ) ? $review_summary['visual_quality_findings'] : array();
+
+		$filter_finding = static function ( $finding ) use ( $ignored_codes ): bool {
+			if ( ! is_array( $finding ) ) {
+				return false;
+			}
+			$code = sanitize_key( (string) ( $finding['code'] ?? '' ) );
+			return '' !== $code && ! isset( $ignored_codes[ $code ] );
+		};
+
+		$review_summary['findings'] = array_values( array_filter( $findings, $filter_finding ) );
+		$review_summary['visual_quality_findings'] = array_values( array_filter( $visual_findings, $filter_finding ) );
+		$review_summary['finding_codes'] = $this->pattern_finding_codes( $review_summary['findings'] );
+		$review_summary['next_actions']  = $this->pattern_review_next_actions(
+			sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) ),
+			$review_summary['findings']
+		);
+
+		return $review_summary;
 	}
 
 	/**
@@ -1103,7 +1317,10 @@ trait Block_Theme_Read_Methods {
 			'intent'                  => 'customize_template_layout',
 			'placement_model'         => 'bounded_template_layout_profile',
 			'accepted_profiles'       => array( 'article_standard', 'page_standard', 'homepage_landing' ),
-			'forbidden_outputs'       => array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css' ),
+			'accepted_profile_versions' => array( 'article_standard@0.4', 'page_standard@0.1', 'homepage_landing@0.2' ),
+			'compiler_version'        => 'block_theme_profile_compiler@0.2',
+			'forbidden_policy_version' => 'block_theme_safe_core_blocks@0.2',
+			'forbidden_outputs'       => $this->block_theme_template_layout_forbidden_outputs(),
 			'contract_status'         => 'pass',
 			'violation_codes'         => array(),
 			'profiles'                => array_values( $profile_rows ),
@@ -2324,6 +2541,28 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Returns whether a parsed block contains a descendant with a given block name.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @param string              $block_name Block name.
+	 * @return bool
+	 */
+	private function block_theme_block_contains_block_name( array $block, $block_name ) {
+		if ( $block_name === (string) ( $block['blockName'] ?? '' ) ) {
+			return true;
+		}
+		foreach ( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() as $inner_block ) {
+			if ( ! is_array( $inner_block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_block_contains_block_name( $inner_block, $block_name ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Returns whether a top-level breadcrumb block appears before the header.
 	 *
 	 * @param array<int,mixed> $blocks Blocks.
@@ -2478,15 +2717,21 @@ trait Block_Theme_Read_Methods {
 			}
 			$block_is_main = $this->block_theme_is_main_container( $block );
 			$in_main_tree  = $inside_main || $block_is_main;
-			if ( $in_main_tree ) {
-				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
-				foreach ( $inner_blocks as $index => $inner_block ) {
-					if ( ! is_array( $inner_block ) || 'core/post-title' !== (string) ( $inner_block['blockName'] ?? '' ) ) {
-						continue;
+				if ( $in_main_tree ) {
+					$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+					foreach ( $inner_blocks as $index => $inner_block ) {
+						if ( ! is_array( $inner_block ) ) {
+							continue;
+						}
+						$previous_is_breadcrumbs = $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
+						if ( 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+							return $previous_is_breadcrumbs;
+						}
+						if ( $previous_is_breadcrumbs && $this->block_theme_block_contains_block_name( $inner_block, 'core/post-title' ) ) {
+							return true;
+						}
 					}
-					return $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
 				}
-			}
 			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array(), $in_main_tree ) ) {
 				return true;
 			}

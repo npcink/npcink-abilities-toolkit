@@ -1316,6 +1316,55 @@ npcink_abilities_toolkit_assert_same( 'core/post-title', $valid_template_contrac
 npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['direct_wordpress_write'] ?? null, 'composition contract inspection never writes WordPress' );
 npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['commit_execution'] ?? null, 'composition contract inspection never commits execution' );
 npcink_abilities_toolkit_assert_true( in_array( 'no_changes_required', $valid_template_contract_inspection['data']['recommended_next_actions'] ?? array(), true ), 'composition contract inspection reports no change when contracts pass' );
+$article_title_stack_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
+	array(
+		'surface_kind'    => 'site_editor_template',
+		'post_type'       => 'wp_template',
+		'slug'            => 'single',
+		'placement_check' => 'breadcrumbs',
+		'blocks'          => array(
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'header' ),
+				'innerBlocks' => array(),
+			),
+			array(
+				'blockName'   => 'core/group',
+				'attrs'       => array( 'tagName' => 'main' ),
+				'innerBlocks' => array(
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-breadcrumbs' ),
+						'innerBlocks' => array(),
+					),
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-template-title-stack' ),
+						'innerBlocks' => array(
+							array(
+								'blockName'   => 'core/post-title',
+								'attrs'       => array(),
+								'innerBlocks' => array(),
+							),
+						),
+					),
+					array(
+						'blockName'   => 'core/post-content',
+						'attrs'       => array(),
+						'innerBlocks' => array(),
+					),
+				),
+			),
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'footer' ),
+				'innerBlocks' => array(),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( 'pass', $article_title_stack_contract_inspection['data']['contract_status'] ?? '', 'composition contract inspection passes breadcrumbs before an article title stack' );
+npcink_abilities_toolkit_assert_same( 'pass', $article_title_stack_contract_inspection['data']['template_placement_contract']['contract_status'] ?? '', 'composition contract inspection accepts title-stack breadcrumb placement' );
 $homepage_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
 	array(
 		'surface_kind'       => 'site_editor_template',
@@ -2024,14 +2073,35 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-title' ), 'template layout plan includes the post title block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-author-name' ), 'template layout plan includes the author block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-date' ), 'template layout plan includes the post date block' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-terms' ), 'template layout plan includes taxonomy term blocks' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-featured-image' ), 'template layout plan includes the featured image block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-content' ), 'template layout plan includes the post content slot' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'post-navigation-link' ), 'template layout plan includes previous/next post navigation' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'core\\/comments' ), 'template layout plan includes the comments block' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'latest-posts' ), 'template layout plan includes related/latest posts' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, '#FBFAF3' ), 'template layout plan gives article title and navigation native background styles' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, '#F1F5F9' ), 'template layout plan gives related posts a distinct native background style' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $template_layout_blocks_json, 'var(--wp--preset--spacing--50)' ), 'template layout plan serializes preset spacing tokens as valid CSS variables in static markup' );
 	npcink_abilities_toolkit_assert_true( false === strpos( $template_layout_blocks_json, 'core\\/html' ), 'template layout plan does not emit raw HTML blocks' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['composition_contract']['contract_status'] ?? '', 'template layout plan passes the block composition contract' );
 	npcink_abilities_toolkit_assert_same( 'bounded_template_layout_profile', $template_layout_plan['data']['template_layout_contract']['placement_model'] ?? '', 'template layout plan reports bounded layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_profile_compiler@0.2', $template_layout_plan['data']['template_layout_contract']['compiler_version'] ?? '', 'template layout plan reports the bounded profile compiler version' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_safe_core_blocks@0.2', $template_layout_plan['data']['template_layout_contract']['forbidden_policy_version'] ?? '', 'template layout plan reports the safe core block policy version' );
+	npcink_abilities_toolkit_assert_true( in_array( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['accepted_profile_versions'] ?? array(), true ), 'template layout contract accepts article_standard@0.4' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
+	npcink_abilities_toolkit_assert_same( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['profile_version'] ?? '', 'template layout profile row records article_standard@0.4' );
+	npcink_abilities_toolkit_assert_same( 'replace_template_layout_with_preserved_template_parts', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['operation'] ?? '', 'template layout profile row declares the accepted Core intake operation' );
+	npcink_abilities_toolkit_assert_true( in_array( 'post_navigation', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['modules'] ?? array(), true ), 'template layout profile row declares post navigation as a module' );
+	npcink_abilities_toolkit_assert_true( in_array( 'comments', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['modules'] ?? array(), true ), 'template layout profile row declares comments as a module' );
+	npcink_abilities_toolkit_assert_true( in_array( 'core/post-navigation-link', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['allowed_blocks'] ?? array(), true ), 'template layout profile row allows post navigation blocks' );
+	npcink_abilities_toolkit_assert_true( in_array( 'core/comments', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['allowed_blocks'] ?? array(), true ), 'template layout profile row allows comments blocks' );
+	npcink_abilities_toolkit_assert_true( in_array( 'theme_json', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['forbidden_outputs'] ?? array(), true ), 'template layout profile row preserves forbidden output policy' );
 	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
+	$template_layout_finding_codes = $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['finding_codes'] ?? array();
+	npcink_abilities_toolkit_assert_true( ! in_array( 'hero_media_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only hero media finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'bento_grid_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only bento finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'faq_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only FAQ finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'final_cta_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only final CTA finding' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
 	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(
 		array(

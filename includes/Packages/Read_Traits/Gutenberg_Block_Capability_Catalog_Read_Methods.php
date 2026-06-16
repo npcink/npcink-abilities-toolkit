@@ -295,6 +295,16 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'allowed_attrs'      => array( 'term', 'className', 'style' ),
 				'surface'            => 'template',
 			),
+			'core/post-navigation-link' => array(
+				'roles'              => array( 'template_post_navigation' ),
+				'allowed_attrs'      => array( 'type', 'label', 'showTitle', 'linkLabel', 'arrow', 'className', 'style' ),
+				'surface'            => 'template',
+			),
+			'core/comments' => array(
+				'roles'              => array( 'template_comments' ),
+				'allowed_attrs'      => array( 'className', 'style' ),
+				'surface'            => 'template',
+			),
 			'core/latest-posts' => array(
 				'roles'              => array( 'template_related_posts', 'homepage_latest_posts' ),
 				'allowed_attrs'      => array( 'className', 'style', 'postsToShow', 'displayPostDate', 'displayPostContent', 'displayFeaturedImage' ),
@@ -719,12 +729,16 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 			if ( $in_main_tree ) {
 				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
 				foreach ( $inner_blocks as $index => $inner_block ) {
-					if ( ! is_array( $inner_block ) || ! $this->gutenberg_block_is_title_anchor_block( $inner_block ) ) {
+					if ( ! is_array( $inner_block ) ) {
 						continue;
 					}
 					$previous = $inner_blocks[ $index - 1 ] ?? null;
-					if ( $index > 0 && is_array( $previous ) && $this->gutenberg_block_is_breadcrumbs_block( $previous ) ) {
+					$previous_is_breadcrumbs = $index > 0 && is_array( $previous ) && $this->gutenberg_block_is_breadcrumbs_block( $previous );
+					if ( $this->gutenberg_block_is_title_anchor_block( $inner_block ) ) {
 						$anchor = (string) ( $inner_block['blockName'] ?? '' );
+						return $previous_is_breadcrumbs;
+					}
+					if ( $previous_is_breadcrumbs && $this->gutenberg_block_contains_title_anchor_block( $inner_block, $anchor ) ) {
 						return true;
 					}
 				}
@@ -767,6 +781,29 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 	 */
 	private function gutenberg_block_is_title_anchor_block( array $block ): bool {
 		return in_array( (string) ( $block['blockName'] ?? '' ), array( 'core/post-title', 'core/query-title' ), true );
+	}
+
+	/**
+	 * Reports whether a block tree contains a supported title anchor.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @param string              $anchor Matched title anchor.
+	 * @return bool
+	 */
+	private function gutenberg_block_contains_title_anchor_block( array $block, &$anchor = '' ): bool {
+		if ( $this->gutenberg_block_is_title_anchor_block( $block ) ) {
+			$anchor = (string) ( $block['blockName'] ?? '' );
+			return true;
+		}
+
+		$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array();
+		foreach ( $inner_blocks as $inner_block ) {
+			if ( is_array( $inner_block ) && $this->gutenberg_block_contains_title_anchor_block( $inner_block, $anchor ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
