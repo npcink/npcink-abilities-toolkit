@@ -560,6 +560,8 @@ trait Block_Theme_Read_Methods {
 			$profile_rows[]  = array(
 				'slug'             => $target_template_slug,
 				'layout_profile'   => $layout_profile,
+				'profile_id'       => $this->block_theme_template_layout_profile_version( $layout_profile ),
+				'profile_version'  => $this->block_theme_template_layout_profile_version( $layout_profile ),
 				'profile_allowed'  => true,
 				'sections'         => $layout_sections,
 				'template_resolver' => $template_resolver,
@@ -874,6 +876,8 @@ trait Block_Theme_Read_Methods {
 					$this->block_theme_dynamic_block( 'core/post-author-name', array( 'isLink' => true ) ),
 					$this->pattern_paragraph_block( '/', 'openclaw-template-meta-separator' ),
 					$this->block_theme_dynamic_block( 'core/post-date', array( 'isLink' => false ) ),
+					$this->pattern_paragraph_block( '/', 'openclaw-template-meta-separator' ),
+					$this->block_theme_dynamic_block( 'core/post-terms', array( 'term' => 'category' ) ),
 				),
 				array(
 					'layout' => array(
@@ -883,19 +887,86 @@ trait Block_Theme_Read_Methods {
 				)
 			);
 		}
-		$inner_blocks[] = $this->pattern_group_block( 'openclaw-template-title-stack', $title_stack );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-title-stack',
+			$title_stack,
+			array(
+				'align' => 'wide',
+				'style' => array(
+					'color'   => array(
+						'background' => '#FBFAF3',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|50',
+							'right'  => 'var:preset|spacing|50',
+							'bottom' => 'var:preset|spacing|50',
+							'left'   => 'var:preset|spacing|50',
+						),
+					),
+				),
+			)
+		);
 
 		if ( ! empty( $options['show_featured_image'] ) ) {
 			$inner_blocks[] = $this->block_theme_dynamic_block(
 				'core/post-featured-image',
 				array(
 					'aspectRatio' => '16/9',
+					'align'       => 'wide',
 					'className'   => 'openclaw-template-featured-image',
 				)
 			);
 		}
 
-		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-content-stack',
+			array(
+				$this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) ),
+				$this->block_theme_dynamic_block( 'core/post-terms', array( 'term' => 'post_tag' ) ),
+			),
+			array(
+				'style' => array(
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|40',
+							'bottom' => 'var:preset|spacing|40',
+						),
+					),
+				),
+			)
+		);
+
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-post-navigation',
+			array(
+				$this->block_theme_dynamic_block( 'core/post-navigation-link', array( 'type' => 'previous' ) ),
+				$this->block_theme_dynamic_block( 'core/post-navigation-link', array( 'type' => 'next' ) ),
+			),
+			array(
+				'align'  => 'wide',
+				'layout' => array(
+					'type'           => 'flex',
+					'justifyContent' => 'space-between',
+					'flexWrap'       => 'wrap',
+				),
+				'style'  => array(
+					'color'   => array(
+						'background' => '#FBFAF3',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|40',
+							'right'  => 'var:preset|spacing|40',
+							'bottom' => 'var:preset|spacing|40',
+							'left'   => 'var:preset|spacing|40',
+						),
+					),
+				),
+			)
+		);
+
+		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/comments' );
 
 		if ( ! empty( $options['include_related_posts'] ) ) {
 			$inner_blocks[] = $this->pattern_group_block(
@@ -911,8 +982,18 @@ trait Block_Theme_Read_Methods {
 					),
 				),
 				array(
+					'align' => 'wide',
 					'style' => array(
+						'color'   => array(
+							'background' => '#F1F5F9',
+						),
 						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|50',
+								'right'  => 'var:preset|spacing|50',
+								'bottom' => 'var:preset|spacing|50',
+								'left'   => 'var:preset|spacing|50',
+							),
 							'margin' => array(
 								'top' => 'var:preset|spacing|60',
 							),
@@ -1077,16 +1158,38 @@ trait Block_Theme_Read_Methods {
 		$sections[] = 'post_title';
 		if ( ! empty( $options['show_author_date'] ) && 'article_standard' === $layout_profile ) {
 			$sections[] = 'author_date';
+			$sections[] = 'post_categories';
 		}
 		if ( ! empty( $options['show_featured_image'] ) ) {
 			$sections[] = 'featured_image';
 		}
 		$sections[] = 'post_content';
+		if ( 'article_standard' === $layout_profile ) {
+			$sections[] = 'post_tags';
+			$sections[] = 'post_navigation';
+			$sections[] = 'comments';
+		}
 		if ( ! empty( $options['include_related_posts'] ) && 'article_standard' === $layout_profile ) {
 			$sections[] = 'related_posts';
 		}
 		$sections[] = 'footer';
 		return $sections;
+	}
+
+	/**
+	 * Returns the accepted version id for a bounded template layout profile.
+	 *
+	 * @param string $layout_profile Layout profile.
+	 * @return string
+	 */
+	private function block_theme_template_layout_profile_version( $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		$versions       = array(
+			'article_standard' => 'article_standard@0.4',
+			'page_standard'    => 'page_standard@0.1',
+			'homepage_landing' => 'homepage_landing@0.2',
+		);
+		return (string) ( $versions[ $layout_profile ] ?? $layout_profile );
 	}
 
 	/**
@@ -1103,7 +1206,10 @@ trait Block_Theme_Read_Methods {
 			'intent'                  => 'customize_template_layout',
 			'placement_model'         => 'bounded_template_layout_profile',
 			'accepted_profiles'       => array( 'article_standard', 'page_standard', 'homepage_landing' ),
-			'forbidden_outputs'       => array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css' ),
+			'accepted_profile_versions' => array( 'article_standard@0.4', 'page_standard@0.1', 'homepage_landing@0.2' ),
+			'compiler_version'        => 'block_theme_profile_compiler@0.2',
+			'forbidden_policy_version' => 'block_theme_safe_core_blocks@0.2',
+			'forbidden_outputs'       => array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'global_styles', 'navigation_write', 'template_part_write' ),
 			'contract_status'         => 'pass',
 			'violation_codes'         => array(),
 			'profiles'                => array_values( $profile_rows ),

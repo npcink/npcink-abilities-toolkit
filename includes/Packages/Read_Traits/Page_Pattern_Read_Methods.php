@@ -1312,6 +1312,19 @@ trait Page_Pattern_Read_Methods {
 			'npcink-ai-section-title',
 			'npcink-ai-card-title',
 			'npcink-ai-card-text',
+			'openclaw-template-layout',
+			'openclaw-template-layout-article_standard',
+			'openclaw-template-layout-page_standard',
+			'openclaw-template-layout-homepage_landing',
+			'openclaw-template-title-stack',
+			'openclaw-template-meta',
+			'openclaw-template-meta-label',
+			'openclaw-template-meta-separator',
+			'openclaw-template-featured-image',
+			'openclaw-template-content-stack',
+			'openclaw-template-section-title',
+			'openclaw-template-related',
+			'openclaw-template-post-navigation',
 		);
 	}
 
@@ -4458,56 +4471,70 @@ trait Page_Pattern_Read_Methods {
 		foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
 			$side_border = is_array( $border[ $side ] ?? null ) ? $border[ $side ] : array();
 			if ( ! empty( $side_border['color'] ) ) {
-				$css[] = 'border-' . $side . '-color:' . (string) $side_border['color'];
+				$css[] = 'border-' . $side . '-color:' . $this->pattern_css_value( (string) $side_border['color'] );
 			}
 			if ( ! empty( $side_border['width'] ) ) {
-				$css[] = 'border-' . $side . '-width:' . (string) $side_border['width'];
+				$css[] = 'border-' . $side . '-width:' . $this->pattern_css_value( (string) $side_border['width'] );
 			}
 		}
 		if ( ! empty( $border['color'] ) ) {
-			$css[] = 'border-color:' . (string) $border['color'];
+			$css[] = 'border-color:' . $this->pattern_css_value( (string) $border['color'] );
 		}
 		if ( ! empty( $border['width'] ) ) {
-			$css[] = 'border-width:' . (string) $border['width'];
+			$css[] = 'border-width:' . $this->pattern_css_value( (string) $border['width'] );
 		}
 		if ( ! empty( $border['radius'] ) ) {
-			$css[] = 'border-radius:' . (string) $border['radius'];
+			$css[] = 'border-radius:' . $this->pattern_css_value( (string) $border['radius'] );
 		}
 
 		$color = is_array( $style['color'] ?? null ) ? $style['color'] : array();
 		if ( ! empty( $color['background'] ) ) {
-			$css[] = 'background-color:' . (string) $color['background'];
+			$css[] = 'background-color:' . $this->pattern_css_value( (string) $color['background'] );
 		}
 		if ( ! empty( $color['text'] ) ) {
-			$css[] = 'color:' . (string) $color['text'];
+			$css[] = 'color:' . $this->pattern_css_value( (string) $color['text'] );
 		}
 
 		$typography = is_array( $style['typography'] ?? null ) ? $style['typography'] : array();
 		if ( ! empty( $typography['fontSize'] ) ) {
-			$css[] = 'font-size:' . (string) $typography['fontSize'];
+			$css[] = 'font-size:' . $this->pattern_css_value( (string) $typography['fontSize'] );
 		}
 		if ( ! empty( $typography['fontWeight'] ) ) {
-			$css[] = 'font-weight:' . (string) $typography['fontWeight'];
+			$css[] = 'font-weight:' . $this->pattern_css_value( (string) $typography['fontWeight'] );
 		}
 		if ( isset( $typography['letterSpacing'] ) && '' !== (string) $typography['letterSpacing'] ) {
-			$css[] = 'letter-spacing:' . (string) $typography['letterSpacing'];
+			$css[] = 'letter-spacing:' . $this->pattern_css_value( (string) $typography['letterSpacing'] );
 		}
 		if ( ! empty( $typography['lineHeight'] ) ) {
-			$css[] = 'line-height:' . (string) $typography['lineHeight'];
+			$css[] = 'line-height:' . $this->pattern_css_value( (string) $typography['lineHeight'] );
 		}
 		if ( ! empty( $typography['textTransform'] ) ) {
-			$css[] = 'text-transform:' . (string) $typography['textTransform'];
+			$css[] = 'text-transform:' . $this->pattern_css_value( (string) $typography['textTransform'] );
 		}
 
 		$spacing = is_array( $style['spacing'] ?? null ) ? $style['spacing'] : array();
 		$padding = is_array( $spacing['padding'] ?? null ) ? $spacing['padding'] : array();
 		foreach ( array( 'top', 'right', 'bottom', 'left' ) as $side ) {
 			if ( isset( $padding[ $side ] ) && '' !== (string) $padding[ $side ] ) {
-				$css[] = 'padding-' . $side . ':' . (string) $padding[ $side ];
+				$css[] = 'padding-' . $side . ':' . $this->pattern_css_value( (string) $padding[ $side ] );
 			}
 		}
 
 		return implode( ';', $css );
+	}
+
+	/**
+	 * Converts Gutenberg preset tokens to valid CSS values for static markup.
+	 *
+	 * @param string $value CSS or Gutenberg preset token.
+	 * @return string
+	 */
+	private function pattern_css_value( $value ) {
+		$value = trim( (string) $value );
+		if ( preg_match( '/^var:preset\\|([A-Za-z0-9_-]+)\\|([A-Za-z0-9_-]+)$/', $value, $matches ) ) {
+			return 'var(--wp--preset--' . sanitize_key( $matches[1] ) . '--' . sanitize_key( $matches[2] ) . ')';
+		}
+		return $value;
 	}
 
 	/**
