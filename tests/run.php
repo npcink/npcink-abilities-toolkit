@@ -20,6 +20,7 @@ use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
 use Npcink_Abilities_Toolkit\Registry\Schema_Normalizer;
+use Npcink_Abilities_Toolkit\Rest\Contract_Controller;
 use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 $assertions = 0;
@@ -541,6 +542,52 @@ npcink_abilities_toolkit_assert_true( isset( $plugin_abilities['npcink-abilities
 npcink_abilities_toolkit_assert_true( ! isset( $plugin_abilities['npcink-abilities-toolkit/create-draft'] ), 'package filter disables core write package' );
 npcink_abilities_toolkit_assert_true( ! isset( $plugin_abilities['npcink-abilities-toolkit/delete-post-permanently'] ), 'package filter disables core destructive package' );
 npcink_abilities_toolkit_assert_true( ! isset( $plugin_abilities['npcink-abilities-toolkit/get-comment-queue-health'] ), 'package filter disables core comment package' );
+$rest_actions = isset( $GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] )
+	? $GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init']
+	: array();
+$has_contract_controller_action = false;
+foreach ( $rest_actions as $rest_action ) {
+	if ( is_array( $rest_action ) && isset( $rest_action[0], $rest_action[1] ) && $rest_action[0] instanceof Contract_Controller && 'register_routes' === $rest_action[1] ) {
+		$has_contract_controller_action = true;
+		break;
+	}
+}
+npcink_abilities_toolkit_assert_true( $has_contract_controller_action, 'plugin registers the runtime contract route on rest_api_init' );
+$contract_controller = new Contract_Controller();
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => false );
+npcink_abilities_toolkit_assert_same( false, $contract_controller->can_read_contract(), 'runtime contract route rejects callers without manage_options' );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+npcink_abilities_toolkit_assert_same( true, $contract_controller->can_read_contract(), 'runtime contract route allows callers with manage_options' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] );
+$runtime_contract    = $contract_controller->contract();
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_contract.v1', $runtime_contract['schema_version'] ?? '', 'runtime contract exposes the schema version' );
+npcink_abilities_toolkit_assert_same( '0.1.0-test', $runtime_contract['plugin_version'] ?? '', 'runtime contract exposes the plugin version' );
+npcink_abilities_toolkit_assert_same( count( $plugin_abilities ), $runtime_contract['ability_count'] ?? null, 'runtime contract ability count follows the registered package profile' );
+npcink_abilities_toolkit_assert_same( 0, $runtime_contract['ability_risk_counts']['write'] ?? null, 'runtime contract honors disabled write package in the active profile' );
+npcink_abilities_toolkit_assert_same( 0, $runtime_contract['ability_risk_counts']['destructive'] ?? null, 'runtime contract honors disabled destructive package in the active profile' );
+npcink_abilities_toolkit_assert_same( count( $plugin_abilities ), array_sum( (array) ( $runtime_contract['ability_risk_counts'] ?? array() ) ), 'runtime contract risk counts add up to the ability count' );
+npcink_abilities_toolkit_assert_same( true, $runtime_contract['write_controls']['dry_run_default'] ?? null, 'runtime contract keeps dry-run as the default write posture' );
+npcink_abilities_toolkit_assert_same( false, $runtime_contract['write_controls']['commit_default'] ?? null, 'runtime contract keeps commit disabled by default' );
+npcink_abilities_toolkit_assert_same( true, $runtime_contract['write_controls']['host_governed_writes'] ?? null, 'runtime contract keeps write authority host-governed' );
+npcink_abilities_toolkit_assert_same( 'host_governance_layer', $runtime_contract['boundary']['approval_truth_owner'] ?? '', 'runtime contract leaves approval truth with the host governance layer' );
+foreach ( array( 'ability_ids_hash', 'ability_contracts_hash', 'workflow_recipes_hash' ) as $hash_key ) {
+	npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $runtime_contract[ $hash_key ] ?? '' ), 'sha256:' ), "runtime contract exposes {$hash_key} as a sha256 digest" );
+}
+npcink_abilities_toolkit_assert_array_omits_keys(
+	$runtime_contract,
+	array(
+		'callback',
+		'execute_callback',
+		'permission_callback',
+		'secret',
+		'token',
+	),
+	'runtime contract'
+);
+$runtime_contract_json = wp_json_encode( $runtime_contract );
+foreach ( array( 'execute_callback', 'permission_callback', 'Closure', '/Users/muze' ) as $forbidden_fragment ) {
+	npcink_abilities_toolkit_assert_true( false === strpos( (string) $runtime_contract_json, $forbidden_fragment ), 'runtime contract JSON omits internal fragment ' . $forbidden_fragment );
+}
 remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
 
 npcink_abilities_toolkit_assert_true(

@@ -391,6 +391,47 @@ function npcink_abilities_toolkit_smoke_rest_ability( $ability_id ) {
 }
 
 /**
+ * Fetches the Toolkit runtime contract endpoint.
+ *
+ * @return array<string,mixed>
+ */
+function npcink_abilities_toolkit_smoke_runtime_contract() {
+	$request  = new WP_REST_Request( 'GET', '/npcink-abilities-toolkit/v1/contract' );
+	$response = rest_do_request( $request );
+	npcink_abilities_toolkit_smoke_assert( 200 === (int) $response->get_status(), 'Runtime contract REST endpoint returns 200.' );
+
+	$data = $response->get_data();
+	return is_array( $data ) ? $data : array();
+}
+
+/**
+ * Asserts the runtime contract is metadata-only and boundary-safe.
+ *
+ * @param array<string,mixed> $contract Runtime contract.
+ * @param int                 $expected_ability_count Expected ability count.
+ * @return void
+ */
+function npcink_abilities_toolkit_smoke_assert_runtime_contract( array $contract, $expected_ability_count ) {
+	npcink_abilities_toolkit_smoke_assert( 'npcink_abilities_toolkit_contract.v1' === (string) ( $contract['schema_version'] ?? '' ), 'Runtime contract exposes the expected schema version.' );
+	npcink_abilities_toolkit_smoke_assert( defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) && NPCINK_ABILITIES_TOOLKIT_VERSION === (string) ( $contract['plugin_version'] ?? '' ), 'Runtime contract exposes the active plugin version.' );
+	npcink_abilities_toolkit_smoke_assert( $expected_ability_count === (int) ( $contract['ability_count'] ?? -1 ), 'Runtime contract ability count matches the active package profile.' );
+	npcink_abilities_toolkit_smoke_assert( $expected_ability_count === array_sum( (array) ( $contract['ability_risk_counts'] ?? array() ) ), 'Runtime contract risk counts add up to the ability count.' );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['write_controls']['dry_run_default'] ?? false ), 'Runtime contract keeps dry-run as the write default.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['write_controls']['commit_default'] ?? true ), 'Runtime contract keeps commit disabled by default.' );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['write_controls']['host_governed_writes'] ?? false ), 'Runtime contract keeps writes host-governed.' );
+	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $contract['boundary']['approval_truth_owner'] ?? '' ), 'Runtime contract leaves approval truth with the host governance layer.' );
+
+	foreach ( array( 'ability_ids_hash', 'ability_contracts_hash', 'workflow_recipes_hash' ) as $hash_key ) {
+		npcink_abilities_toolkit_smoke_assert( 0 === strpos( (string) ( $contract[ $hash_key ] ?? '' ), 'sha256:' ), "Runtime contract exposes {$hash_key} as a sha256 digest." );
+	}
+
+	$contract_json = wp_json_encode( $contract );
+	foreach ( array( 'execute_callback', 'permission_callback', 'Closure', ABSPATH ) as $forbidden_fragment ) {
+		npcink_abilities_toolkit_smoke_assert( false === strpos( (string) $contract_json, (string) $forbidden_fragment ), 'Runtime contract JSON omits internal fragment ' . $forbidden_fragment . '.' );
+	}
+}
+
+/**
  * Asserts that one REST ability detail exposes governance fields.
  *
  * @param string $ability_id Ability id.
@@ -430,6 +471,8 @@ wp_set_current_user( $admin_id );
 
 $abilities_data = npcink_abilities_toolkit_smoke_rest_catalog( '', 'Authenticated abilities REST catalog returns 200.' );
 $provider_abilities_data = npcink_abilities_toolkit_smoke_rest_catalog( 'npcink-abilities-toolkit', 'Authenticated provider namespace REST catalog returns 200.' );
+$runtime_contract = npcink_abilities_toolkit_smoke_runtime_contract();
+npcink_abilities_toolkit_smoke_assert_runtime_contract( $runtime_contract, count( npcink_abilities_toolkit_smoke_local_abilities() ) );
 if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
 		npcink_abilities_toolkit_smoke_assert(
 			npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-diagnostics-summary' ),
