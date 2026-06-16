@@ -59,7 +59,9 @@ contract version, ability registry version, workflow recipe version, active
 ability count, stable sha256 hashes for ability ids, ability contracts, and
 workflow recipes, plus explicit host-governed write controls.
 
-The endpoint intentionally omits callbacks, permission callbacks, raw ability
+The endpoint also reports Adapter-facing compatibility, catalog source,
+schema-control posture, read/write execution surfaces, and forbidden payload
+families. It intentionally omits callbacks, permission callbacks, raw ability
 definitions, secrets, paths, approval records, audit state, queues, workflow
 runtime state, model routing, prompts, billing, and cloud execution truth. Use
 the WordPress Abilities API catalog for per-ability schemas and execution.

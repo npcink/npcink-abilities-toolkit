@@ -414,12 +414,27 @@ function npcink_abilities_toolkit_smoke_runtime_contract() {
 function npcink_abilities_toolkit_smoke_assert_runtime_contract( array $contract, $expected_ability_count ) {
 	npcink_abilities_toolkit_smoke_assert( 'npcink_abilities_toolkit_contract.v1' === (string) ( $contract['schema_version'] ?? '' ), 'Runtime contract exposes the expected schema version.' );
 	npcink_abilities_toolkit_smoke_assert( defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) && NPCINK_ABILITIES_TOOLKIT_VERSION === (string) ( $contract['plugin_version'] ?? '' ), 'Runtime contract exposes the active plugin version.' );
+	npcink_abilities_toolkit_smoke_assert( '1' === (string) ( $contract['runtime_contract_endpoint_version'] ?? '' ), 'Runtime contract exposes endpoint version.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink_abilities_toolkit' === (string) ( $contract['compatibility']['contract_family'] ?? '' ), 'Runtime contract exposes Toolkit compatibility family.' );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['compatibility']['metadata_only'] ?? false ), 'Runtime contract stays metadata-only.' );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['compatibility']['wordpress_abilities_api_required'] ?? false ), 'Runtime contract declares WordPress Abilities API requirement.' );
 	npcink_abilities_toolkit_smoke_assert( $expected_ability_count === (int) ( $contract['ability_count'] ?? -1 ), 'Runtime contract ability count matches the active package profile.' );
 	npcink_abilities_toolkit_smoke_assert( $expected_ability_count === array_sum( (array) ( $contract['ability_risk_counts'] ?? array() ) ), 'Runtime contract risk counts add up to the ability count.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit' === (string) ( $contract['catalog']['ability_definitions_owner'] ?? '' ), 'Runtime contract names Toolkit as ability definitions owner.' );
+	npcink_abilities_toolkit_smoke_assert( 'wordpress_abilities_api' === (string) ( $contract['catalog']['ability_catalog_source'] ?? '' ), 'Runtime contract points hosts to WordPress Abilities API catalog.' );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['schema_controls']['callback_free_hashes'] ?? false ), 'Runtime contract exposes callback-free schema hashes.' );
 	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['write_controls']['dry_run_default'] ?? false ), 'Runtime contract keeps dry-run as the write default.' );
 	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['write_controls']['commit_default'] ?? true ), 'Runtime contract keeps commit disabled by default.' );
 	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $contract['write_controls']['host_governed_writes'] ?? false ), 'Runtime contract keeps writes host-governed.' );
+	npcink_abilities_toolkit_smoke_assert( 'wordpress_abilities_api' === (string) ( $contract['execution_controls']['read_execution_surface'] ?? '' ), 'Runtime contract keeps read execution on WordPress Abilities API.' );
+	npcink_abilities_toolkit_smoke_assert( 'host_runtime_after_governance' === (string) ( $contract['execution_controls']['write_execution_surface'] ?? '' ), 'Runtime contract leaves write execution to host runtime after governance.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['execution_controls']['approval_storage'] ?? true ), 'Runtime contract excludes approval storage from Toolkit.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['execution_controls']['audit_truth'] ?? true ), 'Runtime contract excludes audit truth from Toolkit.' );
 	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $contract['boundary']['approval_truth_owner'] ?? '' ), 'Runtime contract leaves approval truth with the host governance layer.' );
+	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $contract['boundary']['audit_truth_owner'] ?? '' ), 'Runtime contract leaves audit truth with the host governance layer.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['forbidden_payloads']['approval_records'] ?? true ), 'Runtime contract forbids approval records.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['forbidden_payloads']['audit_records'] ?? true ), 'Runtime contract forbids audit records.' );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $contract['forbidden_payloads']['runtime_state'] ?? true ), 'Runtime contract forbids runtime state.' );
 
 	foreach ( array( 'ability_ids_hash', 'ability_contracts_hash', 'workflow_recipes_hash' ) as $hash_key ) {
 		npcink_abilities_toolkit_smoke_assert( 0 === strpos( (string) ( $contract[ $hash_key ] ?? '' ), 'sha256:' ), "Runtime contract exposes {$hash_key} as a sha256 digest." );

@@ -66,7 +66,11 @@ and returns non-secret metadata for host runtimes, including the active plugin
 version, contract versions, registered ability count, stable catalog hashes,
 workflow definition hash, and write-boundary posture. It is a discovery
 endpoint only; clients should still use the WordPress Abilities API catalog for
-ability definitions and execution.
+ability definitions and execution. It also reports Adapter-facing
+compatibility, catalog/schema ownership, callback-free hash posture, and the
+host-governed write boundary. It never returns callbacks, approval records,
+audit truth, runtime state, prompt material, model routing, provider secrets,
+or cloud execution truth.
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).

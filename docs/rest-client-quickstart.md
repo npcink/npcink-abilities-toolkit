@@ -39,8 +39,9 @@ segments. For example, `npcink-abilities-toolkit/site-info` becomes:
 The Toolkit contract endpoint is for host/runtime discovery and requires a
 REST caller with `manage_options`. It returns metadata such as plugin version,
 contract versions, registered ability count, stable ability/workflow hashes,
-and the host-governed write boundary. It does not replace the WordPress
-Abilities API catalog and does not run abilities.
+catalog/schema ownership, read/write execution surfaces, forbidden payload
+families, and the host-governed write boundary. It does not replace the
+WordPress Abilities API catalog and does not run abilities.
 
 ## Authentication
 

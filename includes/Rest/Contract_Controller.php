@@ -19,6 +19,7 @@ final class Contract_Controller {
 	const TOOLKIT_CONTRACT_VERSION  = '1';
 	const ABILITY_REGISTRY_VERSION  = '1';
 	const WORKFLOW_RECIPES_VERSION  = '1';
+	const RUNTIME_CONTRACT_ENDPOINT_VERSION = '1';
 
 	/**
 	 * Registers REST routes.
@@ -74,11 +75,37 @@ final class Contract_Controller {
 			'plugin_version'              => defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '',
 			'ability_registry_version'    => self::ABILITY_REGISTRY_VERSION,
 			'workflow_recipes_version'    => self::WORKFLOW_RECIPES_VERSION,
+			'runtime_contract_endpoint_version' => self::RUNTIME_CONTRACT_ENDPOINT_VERSION,
+			'compatibility'               => array(
+				'contract_family'                 => 'npcink_abilities_toolkit',
+				'minimum_adapter_contract_version' => '1',
+				'metadata_only'                   => true,
+				'admin_authenticated'             => true,
+				'wordpress_abilities_api_required' => true,
+				'ability_catalog_available'       => true,
+				'ability_schema_hashes_available' => true,
+				'workflow_recipe_hash_available'  => true,
+			),
 			'ability_count'               => count( $ability_ids ),
 			'ability_risk_counts'         => $risk_counts,
+			'catalog'                     => array(
+				'ability_definitions_owner' => 'npcink-abilities-toolkit',
+				'ability_catalog_source'    => 'wordpress_abilities_api',
+				'ability_catalog_route'     => '/wp-json/wp-abilities/v1/abilities',
+				'ability_detail_route_template' => '/wp-json/wp-abilities/v1/abilities/{namespace}/{name}',
+				'ability_run_route_template' => '/wp-json/wp-abilities/v1/abilities/{namespace}/{name}/run',
+				'ability_id_format'         => 'namespace/name',
+			),
 			'ability_ids_hash'            => $this->sha256( $ability_ids ),
 			'ability_contracts_hash'      => $this->sha256( $ability_projection ),
 			'workflow_recipes_hash'       => $this->sha256( $workflow_recipes ),
+			'schema_controls'             => array(
+				'input_schema_source'       => 'wordpress_abilities_api',
+				'output_schema_source'      => 'wordpress_abilities_api',
+				'normalization_owner'       => 'npcink-abilities-toolkit',
+				'callback_free_hashes'      => true,
+				'stable_contract_hashes'    => true,
+			),
 			'write_controls'              => array(
 				'dry_run_default'       => true,
 				'commit_default'        => false,
@@ -86,12 +113,33 @@ final class Contract_Controller {
 				'host_governed_writes'  => true,
 				'final_commit_owner'    => 'host_runtime_after_governance',
 			),
+			'execution_controls'          => array(
+				'read_execution_surface'       => 'wordpress_abilities_api',
+				'write_execution_surface'      => 'host_runtime_after_governance',
+				'approval_context_required'    => true,
+				'approval_storage'             => false,
+				'audit_truth'                  => false,
+				'final_write_authorization'    => false,
+			),
 			'boundary'                    => array(
 				'ability_definitions_owner' => 'npcink-abilities-toolkit',
 				'approval_truth_owner'      => 'host_governance_layer',
+				'audit_truth_owner'         => 'host_governance_layer',
 				'final_write_authority'     => 'host_governance_layer',
 				'workflow_runtime_owner'    => 'host_or_external_runtime',
 				'cloud_control_plane_owner' => 'not_npcink-abilities-toolkit',
+			),
+			'forbidden_payloads'          => array(
+				'callback_internals'       => false,
+				'permission_callable_refs' => false,
+				'approval_records'         => false,
+				'audit_records'            => false,
+				'app_secret_material'      => false,
+				'provider_secret_material' => false,
+				'runtime_state'            => false,
+				'model_routing'            => false,
+				'prompt_material'          => false,
+				'cloud_execution_truth'    => false,
 			),
 		);
 	}
