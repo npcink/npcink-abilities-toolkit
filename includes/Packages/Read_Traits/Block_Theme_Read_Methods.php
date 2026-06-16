@@ -521,7 +521,10 @@ trait Block_Theme_Read_Methods {
 
 			$is_existing_custom_template = $template_id > 0;
 			$target_ability_id           = $is_existing_custom_template ? 'npcink-abilities-toolkit/update-template-blocks' : 'npcink-abilities-toolkit/upsert-template-blocks';
-			$block_editor_review         = $this->pattern_review_summary_for_blocks( $next_blocks, true );
+			$block_editor_review         = $this->block_theme_template_layout_review_summary(
+				$this->pattern_review_summary_for_blocks( $next_blocks, true ),
+				$layout_profile
+			);
 			$block_editor_quality_gate   = $this->block_editor_plan_quality_gate(
 				$block_editor_review,
 				array(
@@ -1249,6 +1252,55 @@ trait Block_Theme_Read_Methods {
 	 */
 	private function block_theme_template_layout_forbidden_outputs() {
 		return array( 'raw_template_html', 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'global_styles', 'navigation_write', 'template_part_write' );
+	}
+
+	/**
+	 * Adapts the generic block-editor review to the requested template profile.
+	 *
+	 * Landing-page findings such as missing hero media, FAQ, comparison, or bento
+	 * sections are useful for standalone pages but noisy for article templates.
+	 *
+	 * @param array<string,mixed> $review_summary Generic block-editor review summary.
+	 * @param string              $layout_profile Layout profile.
+	 * @return array<string,mixed>
+	 */
+	private function block_theme_template_layout_review_summary( array $review_summary, $layout_profile ) {
+		$layout_profile = sanitize_key( (string) $layout_profile );
+		if ( 'article_standard' !== $layout_profile ) {
+			return $review_summary;
+		}
+
+		$ignored_codes = array_flip(
+			array(
+				'hero_media_missing',
+				'bento_grid_missing',
+				'comparison_missing',
+				'faq_missing',
+				'final_cta_missing',
+				'section_variety_low',
+				'layout_similarity_risk',
+			)
+		);
+		$findings        = is_array( $review_summary['findings'] ?? null ) ? $review_summary['findings'] : array();
+		$visual_findings = is_array( $review_summary['visual_quality_findings'] ?? null ) ? $review_summary['visual_quality_findings'] : array();
+
+		$filter_finding = static function ( $finding ) use ( $ignored_codes ): bool {
+			if ( ! is_array( $finding ) ) {
+				return false;
+			}
+			$code = sanitize_key( (string) ( $finding['code'] ?? '' ) );
+			return '' !== $code && ! isset( $ignored_codes[ $code ] );
+		};
+
+		$review_summary['findings'] = array_values( array_filter( $findings, $filter_finding ) );
+		$review_summary['visual_quality_findings'] = array_values( array_filter( $visual_findings, $filter_finding ) );
+		$review_summary['finding_codes'] = $this->pattern_finding_codes( $review_summary['findings'] );
+		$review_summary['next_actions']  = $this->pattern_review_next_actions(
+			sanitize_key( (string) ( $review_summary['review_status'] ?? '' ) ),
+			$review_summary['findings']
+		);
+
+		return $review_summary;
 	}
 
 	/**
@@ -2489,6 +2541,28 @@ trait Block_Theme_Read_Methods {
 	}
 
 	/**
+	 * Returns whether a parsed block contains a descendant with a given block name.
+	 *
+	 * @param array<string,mixed> $block Parsed block.
+	 * @param string              $block_name Block name.
+	 * @return bool
+	 */
+	private function block_theme_block_contains_block_name( array $block, $block_name ) {
+		if ( $block_name === (string) ( $block['blockName'] ?? '' ) ) {
+			return true;
+		}
+		foreach ( is_array( $block['innerBlocks'] ?? null ) ? $block['innerBlocks'] : array() as $inner_block ) {
+			if ( ! is_array( $inner_block ) ) {
+				continue;
+			}
+			if ( $this->block_theme_block_contains_block_name( $inner_block, $block_name ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Returns whether a top-level breadcrumb block appears before the header.
 	 *
 	 * @param array<int,mixed> $blocks Blocks.
@@ -2643,15 +2717,21 @@ trait Block_Theme_Read_Methods {
 			}
 			$block_is_main = $this->block_theme_is_main_container( $block );
 			$in_main_tree  = $inside_main || $block_is_main;
-			if ( $in_main_tree ) {
-				$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
-				foreach ( $inner_blocks as $index => $inner_block ) {
-					if ( ! is_array( $inner_block ) || 'core/post-title' !== (string) ( $inner_block['blockName'] ?? '' ) ) {
-						continue;
+				if ( $in_main_tree ) {
+					$inner_blocks = is_array( $block['innerBlocks'] ?? null ) ? array_values( $block['innerBlocks'] ) : array();
+					foreach ( $inner_blocks as $index => $inner_block ) {
+						if ( ! is_array( $inner_block ) ) {
+							continue;
+						}
+						$previous_is_breadcrumbs = $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
+						if ( 'core/post-title' === (string) ( $inner_block['blockName'] ?? '' ) ) {
+							return $previous_is_breadcrumbs;
+						}
+						if ( $previous_is_breadcrumbs && $this->block_theme_block_contains_block_name( $inner_block, 'core/post-title' ) ) {
+							return true;
+						}
 					}
-					return $index > 0 && is_array( $inner_blocks[ $index - 1 ] ?? null ) && $this->block_theme_is_breadcrumbs_block( $inner_blocks[ $index - 1 ] );
 				}
-			}
 			if ( $this->block_theme_breadcrumbs_are_before_post_title_in_main( $block['innerBlocks'] ?? array(), $in_main_tree ) ) {
 				return true;
 			}

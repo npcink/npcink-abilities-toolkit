@@ -1253,6 +1253,55 @@ npcink_abilities_toolkit_assert_same( 'core/post-title', $valid_template_contrac
 npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['direct_wordpress_write'] ?? null, 'composition contract inspection never writes WordPress' );
 npcink_abilities_toolkit_assert_same( false, $valid_template_contract_inspection['data']['commit_execution'] ?? null, 'composition contract inspection never commits execution' );
 npcink_abilities_toolkit_assert_true( in_array( 'no_changes_required', $valid_template_contract_inspection['data']['recommended_next_actions'] ?? array(), true ), 'composition contract inspection reports no change when contracts pass' );
+$article_title_stack_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
+	array(
+		'surface_kind'    => 'site_editor_template',
+		'post_type'       => 'wp_template',
+		'slug'            => 'single',
+		'placement_check' => 'breadcrumbs',
+		'blocks'          => array(
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'header' ),
+				'innerBlocks' => array(),
+			),
+			array(
+				'blockName'   => 'core/group',
+				'attrs'       => array( 'tagName' => 'main' ),
+				'innerBlocks' => array(
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-breadcrumbs' ),
+						'innerBlocks' => array(),
+					),
+					array(
+						'blockName'   => 'core/group',
+						'attrs'       => array( 'className' => 'openclaw-template-title-stack' ),
+						'innerBlocks' => array(
+							array(
+								'blockName'   => 'core/post-title',
+								'attrs'       => array(),
+								'innerBlocks' => array(),
+							),
+						),
+					),
+					array(
+						'blockName'   => 'core/post-content',
+						'attrs'       => array(),
+						'innerBlocks' => array(),
+					),
+				),
+			),
+			array(
+				'blockName'   => 'core/template-part',
+				'attrs'       => array( 'slug' => 'footer' ),
+				'innerBlocks' => array(),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( 'pass', $article_title_stack_contract_inspection['data']['contract_status'] ?? '', 'composition contract inspection passes breadcrumbs before an article title stack' );
+npcink_abilities_toolkit_assert_same( 'pass', $article_title_stack_contract_inspection['data']['template_placement_contract']['contract_status'] ?? '', 'composition contract inspection accepts title-stack breadcrumb placement' );
 $homepage_contract_inspection = $core_read_package->inspect_gutenberg_composition_contract(
 	array(
 		'surface_kind'       => 'site_editor_template',
@@ -1985,6 +2034,11 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( in_array( 'core/comments', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['allowed_blocks'] ?? array(), true ), 'template layout profile row allows comments blocks' );
 	npcink_abilities_toolkit_assert_true( in_array( 'theme_json', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['forbidden_outputs'] ?? array(), true ), 'template layout profile row preserves forbidden output policy' );
 	npcink_abilities_toolkit_assert_same( 'article_standard', $template_layout_plan['data']['preview'][0]['layout_profile'] ?? '', 'template layout plan preview records the article profile' );
+	$template_layout_finding_codes = $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['finding_codes'] ?? array();
+	npcink_abilities_toolkit_assert_true( ! in_array( 'hero_media_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only hero media finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'bento_grid_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only bento finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'faq_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only FAQ finding' );
+	npcink_abilities_toolkit_assert_true( ! in_array( 'final_cta_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only final CTA finding' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
 	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(
 		array(
