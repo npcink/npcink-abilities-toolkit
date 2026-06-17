@@ -2101,9 +2101,11 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( false === strpos( $template_layout_blocks_json, 'core\\/html' ), 'template layout plan does not emit raw HTML blocks' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['composition_contract']['contract_status'] ?? '', 'template layout plan passes the block composition contract' );
 	npcink_abilities_toolkit_assert_same( 'bounded_template_layout_profile', $template_layout_plan['data']['template_layout_contract']['placement_model'] ?? '', 'template layout plan reports bounded layout profile contract' );
-	npcink_abilities_toolkit_assert_same( 'block_theme_profile_compiler@0.2', $template_layout_plan['data']['template_layout_contract']['compiler_version'] ?? '', 'template layout plan reports the bounded profile compiler version' );
+	npcink_abilities_toolkit_assert_same( 'block_theme_profile_compiler@0.3', $template_layout_plan['data']['template_layout_contract']['compiler_version'] ?? '', 'template layout plan reports the bounded profile compiler version' );
 	npcink_abilities_toolkit_assert_same( 'block_theme_safe_core_blocks@0.2', $template_layout_plan['data']['template_layout_contract']['forbidden_policy_version'] ?? '', 'template layout plan reports the safe core block policy version' );
 	npcink_abilities_toolkit_assert_true( in_array( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['accepted_profile_versions'] ?? array(), true ), 'template layout contract accepts article_standard@0.4' );
+	npcink_abilities_toolkit_assert_true( in_array( 'page_standard@0.2', $template_layout_plan['data']['template_layout_contract']['accepted_profile_versions'] ?? array(), true ), 'template layout contract accepts page_standard@0.2' );
+	npcink_abilities_toolkit_assert_true( in_array( 'homepage_landing@0.3', $template_layout_plan['data']['template_layout_contract']['accepted_profile_versions'] ?? array(), true ), 'template layout contract accepts homepage_landing@0.3' );
 	npcink_abilities_toolkit_assert_same( 'pass', $template_layout_plan['data']['template_layout_contract']['contract_status'] ?? '', 'template layout plan passes the layout profile contract' );
 	npcink_abilities_toolkit_assert_same( 'article_standard@0.4', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['profile_version'] ?? '', 'template layout profile row records article_standard@0.4' );
 	npcink_abilities_toolkit_assert_same( 'replace_template_layout_with_preserved_template_parts', $template_layout_plan['data']['template_layout_contract']['profiles'][0]['operation'] ?? '', 'template layout profile row declares the accepted Core intake operation' );
@@ -2119,6 +2121,23 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_true( ! in_array( 'faq_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only FAQ finding' );
 	npcink_abilities_toolkit_assert_true( ! in_array( 'final_cta_missing', $template_layout_finding_codes, true ), 'article template quality gate omits landing-only final CTA finding' );
 	npcink_abilities_toolkit_assert_same( true, $template_layout_plan['data']['preview'][0]['block_editor_quality_gate']['ready_for_proposal'] ?? null, 'template layout plan preview carries a passing per-template quality gate' );
+	$page_layout_plan = $core_read_package->build_block_theme_site_plan(
+		array(
+			'intent'           => 'customize_template_layout',
+			'target_templates' => array( 'page' ),
+			'layout_profile'   => 'page_standard',
+		)
+	);
+	$page_layout_actions = is_array( $page_layout_plan['data']['write_actions'] ?? null ) ? $page_layout_plan['data']['write_actions'] : array();
+	$page_layout_blocks_json = wp_json_encode( $page_layout_actions[0]['input']['blocks'] ?? array() );
+	$page_layout_blocks_json = is_string( $page_layout_blocks_json ) ? $page_layout_blocks_json : '';
+	npcink_abilities_toolkit_assert_same( true, $page_layout_plan['success'] ?? null, 'page standard template layout plan returns a success envelope' );
+	npcink_abilities_toolkit_assert_same( 'page_standard@0.2', $page_layout_plan['data']['template_layout_contract']['profiles'][0]['profile_version'] ?? '', 'page standard profile row records page_standard@0.2' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $page_layout_blocks_json, 'openclaw-template-page-title-band' ), 'page standard layout includes a title band class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $page_layout_blocks_json, 'openclaw-template-media-band' ), 'page standard layout includes a media band class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $page_layout_blocks_json, 'openclaw-template-page-content-panel' ), 'page standard layout includes a content panel class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $page_layout_blocks_json, '#F7F8EF' ), 'page standard layout gives the title band a native background style' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $page_layout_blocks_json, '#111827' ), 'page standard layout gives the media band a contrast background style' );
 	$homepage_unresolved_cta_plan = $core_read_package->build_block_theme_site_plan(
 		array(
 			'intent'           => 'customize_template_layout',
@@ -2236,6 +2255,13 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 	npcink_abilities_toolkit_assert_same( 'slug_match_contact', $homepage_static_plan['data']['preview'][0]['cta_resolution']['source'] ?? '', 'homepage static-front layout resolves CTA to the contact page' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'core\\/post-content' ), 'homepage static-front layout includes core/post-content' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'contact' ), 'homepage static-front layout points CTA at the contact page' );
+	npcink_abilities_toolkit_assert_same( 'homepage_landing@0.3', $homepage_static_plan['data']['template_layout_contract']['profiles'][0]['profile_version'] ?? '', 'homepage landing profile row records homepage_landing@0.3' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'openclaw-home-hero' ), 'homepage landing layout preserves hero section class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'openclaw-home-latest-posts' ), 'homepage landing layout preserves latest posts section class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, 'openclaw-home-categories' ), 'homepage landing layout preserves categories section class for visual review' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, '#0F172A' ), 'homepage landing layout gives the hero a contrast background style' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, '#EEF6F1' ), 'homepage landing layout gives category links a distinct native background style' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $homepage_static_blocks_json, '#FFF7ED' ), 'homepage landing layout gives page content a distinct native background style' );
 	$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $homepage_layout_fixture_posts;
 	$GLOBALS['npcink_abilities_toolkit_unit_options']     = $homepage_layout_fixture_options;
 	$valid_page_template_posts_fixture = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'];

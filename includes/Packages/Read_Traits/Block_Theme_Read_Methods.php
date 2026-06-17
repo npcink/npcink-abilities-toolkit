@@ -565,7 +565,7 @@ trait Block_Theme_Read_Methods {
 				'layout_profile'    => $layout_profile,
 				'profile_id'        => $this->block_theme_template_layout_profile_version( $layout_profile ),
 				'profile_version'   => $this->block_theme_template_layout_profile_version( $layout_profile ),
-				'compiler_version'  => 'block_theme_profile_compiler@0.2',
+				'compiler_version'  => 'block_theme_profile_compiler@0.3',
 				'operation'         => 'replace_template_layout_with_preserved_template_parts',
 				'profile_allowed'   => true,
 				'modules'           => $layout_sections,
@@ -1033,17 +1033,90 @@ trait Block_Theme_Read_Methods {
 				)
 			);
 		}
-		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-title', array( 'level' => 1 ) );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-title-stack openclaw-template-page-title-band',
+			array(
+				$this->block_theme_dynamic_block( 'core/post-title', array( 'level' => 1 ) ),
+			),
+			array(
+				'align' => 'wide',
+				'style' => array(
+					'color'   => array(
+						'background' => '#F7F8EF',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|50',
+							'right'  => 'var:preset|spacing|50',
+							'bottom' => 'var:preset|spacing|40',
+							'left'   => 'var:preset|spacing|50',
+						),
+					),
+				),
+			)
+		);
 		if ( ! empty( $options['show_featured_image'] ) ) {
-			$inner_blocks[] = $this->block_theme_dynamic_block(
-				'core/post-featured-image',
+			$inner_blocks[] = $this->pattern_group_block(
+				'openclaw-template-media-band',
 				array(
-					'aspectRatio' => '16/9',
-					'className'   => 'openclaw-template-featured-image',
+					$this->block_theme_dynamic_block(
+						'core/post-featured-image',
+						array(
+							'aspectRatio' => '16/9',
+							'align'       => 'wide',
+							'className'   => 'openclaw-template-featured-image',
+						)
+					),
+				),
+				array(
+					'align' => 'wide',
+					'style' => array(
+						'color'   => array(
+							'background' => '#111827',
+						),
+						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|40',
+								'right'  => 'var:preset|spacing|40',
+								'bottom' => 'var:preset|spacing|40',
+								'left'   => 'var:preset|spacing|40',
+							),
+						),
+					),
 				)
 			);
 		}
-		$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+		$inner_blocks[] = $this->pattern_group_block(
+			'openclaw-template-content-stack openclaw-template-page-content-panel',
+			array(
+				$this->block_theme_dynamic_block(
+					'core/post-content',
+					array(
+						'layout' => array(
+							'type'        => 'constrained',
+							'contentSize' => '100%',
+						),
+					)
+				),
+			),
+			array(
+				'layout' => array(
+					'type'        => 'constrained',
+					'contentSize' => '100%',
+				),
+				'style' => array(
+					'color'   => array(
+						'background' => '#FFFFFF',
+					),
+					'spacing' => array(
+						'padding' => array(
+							'top'    => 'var:preset|spacing|50',
+							'bottom' => 'var:preset|spacing|50',
+						),
+					),
+				),
+			)
+		);
 		return $inner_blocks;
 	}
 
@@ -1081,10 +1154,16 @@ trait Block_Theme_Read_Methods {
 				array(
 					'align' => 'wide',
 					'style' => array(
+						'color'   => array(
+							'background' => '#0F172A',
+							'text'       => '#FFFFFF',
+						),
 						'spacing' => array(
 							'padding' => array(
 								'top'    => 'var:preset|spacing|60',
+								'right'  => 'var:preset|spacing|50',
 								'bottom' => 'var:preset|spacing|60',
+								'left'   => 'var:preset|spacing|50',
 							),
 						),
 					),
@@ -1108,7 +1187,23 @@ trait Block_Theme_Read_Methods {
 			}
 			$inner_blocks[] = $this->pattern_group_block(
 				'openclaw-home-latest-posts',
-				$latest_posts_blocks
+				$latest_posts_blocks,
+				array(
+					'align' => 'wide',
+					'style' => array(
+						'color'   => array(
+							'background' => '#FFFFFF',
+						),
+						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|50',
+								'right'  => 'var:preset|spacing|50',
+								'bottom' => 'var:preset|spacing|50',
+								'left'   => 'var:preset|spacing|50',
+							),
+						),
+					),
+				)
 			);
 		}
 
@@ -1128,12 +1223,49 @@ trait Block_Theme_Read_Methods {
 			}
 			$inner_blocks[] = $this->pattern_group_block(
 				'openclaw-home-categories',
-				$category_blocks
+				$category_blocks,
+				array(
+					'align' => 'wide',
+					'style' => array(
+						'color'   => array(
+							'background' => '#EEF6F1',
+						),
+						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|50',
+								'right'  => 'var:preset|spacing|50',
+								'bottom' => 'var:preset|spacing|50',
+								'left'   => 'var:preset|spacing|50',
+							),
+						),
+					),
+				)
 			);
 		}
 
 		if ( $include_page_content ) {
-			$inner_blocks[] = $this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) );
+			$inner_blocks[] = $this->pattern_group_block(
+				'openclaw-home-content',
+				array(
+					$this->block_theme_dynamic_block( 'core/post-content', array( 'layout' => array( 'type' => 'constrained' ) ) ),
+				),
+				array(
+					'align' => 'wide',
+					'style' => array(
+						'color'   => array(
+							'background' => '#FFF7ED',
+						),
+						'spacing' => array(
+							'padding' => array(
+								'top'    => 'var:preset|spacing|50',
+								'right'  => 'var:preset|spacing|50',
+								'bottom' => 'var:preset|spacing|50',
+								'left'   => 'var:preset|spacing|50',
+							),
+						),
+					),
+				)
+			);
 		}
 		return $inner_blocks;
 	}
@@ -1194,8 +1326,8 @@ trait Block_Theme_Read_Methods {
 		$layout_profile = sanitize_key( (string) $layout_profile );
 		$versions       = array(
 			'article_standard' => 'article_standard@0.4',
-			'page_standard'    => 'page_standard@0.1',
-			'homepage_landing' => 'homepage_landing@0.2',
+			'page_standard'    => 'page_standard@0.2',
+			'homepage_landing' => 'homepage_landing@0.3',
 		);
 		return (string) ( $versions[ $layout_profile ] ?? $layout_profile );
 	}
@@ -1317,8 +1449,8 @@ trait Block_Theme_Read_Methods {
 			'intent'                  => 'customize_template_layout',
 			'placement_model'         => 'bounded_template_layout_profile',
 			'accepted_profiles'       => array( 'article_standard', 'page_standard', 'homepage_landing' ),
-			'accepted_profile_versions' => array( 'article_standard@0.4', 'page_standard@0.1', 'homepage_landing@0.2' ),
-			'compiler_version'        => 'block_theme_profile_compiler@0.2',
+			'accepted_profile_versions' => array( 'article_standard@0.4', 'page_standard@0.2', 'homepage_landing@0.3' ),
+			'compiler_version'        => 'block_theme_profile_compiler@0.3',
 			'forbidden_policy_version' => 'block_theme_safe_core_blocks@0.2',
 			'forbidden_outputs'       => $this->block_theme_template_layout_forbidden_outputs(),
 			'contract_status'         => 'pass',
