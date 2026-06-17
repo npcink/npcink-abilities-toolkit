@@ -24,36 +24,48 @@ Keep `npcink-abilities-toolkit` in freeze/observe mode.
 
 | Proof target | Current state | Missing before closed-loop proof | Owner of next action |
 | --- | --- | --- | --- |
-| `workflow/wordpress_article_optimization` | Partially proved. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull request #2 carries signed-client preflight binding work, and a prior targeted replay reached a Core proposal without commit execution. | Adapter pull request #2 must pass required checks and merge, or be intentionally replaced; then rerun the host proof from current main branches and record the result. | Adapter first, then host proof. |
+| `workflow/wordpress_article_optimization` | Partially proved. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull request #2 merged signed-client preflight binding work, Adapter pull request #3 merged dependency contract semantic checks, and a prior targeted replay reached a Core proposal without commit execution. | Rerun the host proof from current main branches and record the result. | Host proof. |
 | `workflow/wordpress_article_media_handoff` | Partially proved. Toolkit exposes the declarative workflow/replay direction. Toolbox has adjacent article/media batch and media conversion review-set evidence that keeps Core proposal review and no-execute boundaries visible. | Run a focused host proof for this workflow from current main branches, covering discovery, plan/proposal handoff, disallowed direct writes, and readback of proposal status. | Host/Toolbox/Adapter proof. |
 | Block theme / Gutenberg intent routing | Contract-hardened, not fully host-proved. Toolkit and Core now cover block theme context, bounded layout profiles, proposal preservation, and no mutation during from-plan intake. Recent Gutenberg composer repair-loop work expanded the proof surface, so the freeze posture must be watched closely. | Run a host-side intent-routing proof that discovers abilities through WordPress Abilities API and stops at proposal/write targets. Do not add another Toolkit ability unless that proof identifies a reusable WordPress contract gap. | Host proof; Toolkit only if failed proof is Toolkit-owned. |
 
 ## Adapter Pull Request Disposition
 
-The Adapter branch `codex/approve-and-execute` is not obsolete. It is open as
-Adapter pull request #2, "Bind Adapter preflight handoffs to signed clients":
+Adapter pull request #2, "Bind Adapter preflight handoffs to signed clients",
+merged on 2026-06-17:
 
 - https://github.com/muze-page/npcink-ai-client-adapter/pull/2
 
-The remote pull request contains two commits on top of Adapter `master`:
+The pull request merged two commits:
 
 - `045dc74 Tighten adapter execution handoff validation`
 - `9032d76 Bind Core preflight to signed local clients`
 
-Local validation on 2026-06-17:
+Adapter pull request #3, "Validate dependency contract semantics", also merged
+on 2026-06-17:
+
+- https://github.com/muze-page/npcink-ai-client-adapter/pull/3
+
+That pull request merged:
+
+- `f6099b6 Validate dependency contract semantics`
+
+Local validation before merge:
 
 ```bash
 composer test:all
 git diff --check master..codex/approve-and-execute
 ```
 
-Both local checks passed. GitHub currently reports the pull request as clean,
-but no status checks are reported on the branch yet.
+The dependency contract semantics follow-up was also locally validated with:
 
-Disposition: let the Adapter pull request pass its required checks and merge
-before treating `workflow/wordpress_article_optimization` as closed-loop proven
-from current main branches. Do not merge Toolkit follow-up ability work to
-compensate for this Adapter pull request being unmerged.
+```bash
+composer test:all
+git diff --check
+```
+
+Disposition: the Adapter branch is resolved. Do not treat
+`workflow/wordpress_article_optimization` as closed-loop proven until the host
+proof is rerun from current main branches and the result is recorded.
 
 ## Failure Classification
 
