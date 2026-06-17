@@ -97,6 +97,8 @@ The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-rea
 The next-stage operating standard for freeze/observe mode, workflow proof,
 performance gates, and security boundaries is tracked in
 [docs/next-stage-operating-standard.md](docs/next-stage-operating-standard.md).
+The 2026-06-17 freeze/observe proof phase closeout is recorded in
+[docs/freeze-observe-phase-closeout-2026-06-17.md](docs/freeze-observe-phase-closeout-2026-06-17.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
 Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Traditional Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.
