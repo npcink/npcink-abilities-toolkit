@@ -34,6 +34,7 @@
     "lint:php": "@php tests/lint.php",
     "analyse:phpstan": "phpstan analyse --memory-limit=512M",
     "perf:smoke": "@php tests/performance-smoke.php",
+    "pilot:gutenberg-composer": "@php tests/gutenberg-composer-pilot/run-pilot.php",
     "eval:lab": "sh scripts/eval-lab.sh eval:task",
     "eval:gutenberg-recipe:suite": "@php tests/gutenberg-recipe-eval/export-default-suite.php",
     "eval:gutenberg-recipe:judge:cases": "@php tests/gutenberg-recipe-eval/export-promptfoo-judge-cases.php",
@@ -62,6 +63,7 @@
       "@check:catalog",
       "@check:wporg",
       "@perf:smoke",
+      "@pilot:gutenberg-composer",
       "@test",
       "@lint:php"
     ]
