@@ -49,6 +49,42 @@ The remaining block-theme/Gutenberg proof target still has value, but its
 complexity risk is higher than the current marginal benefit. It should not be
 used as a reason to reopen broad ability work.
 
+## Deferred Candidate Abilities
+
+The following names are deferred investigation labels, not backlog items:
+
+- `read-block-template-context`
+- `validate-gutenberg-block-tree`
+- `preview-template-part-change`
+- `read-template-part-usage`
+- `resolve-template-target-candidates`
+
+Do not add any of them from the name alone. Current Toolkit coverage already
+includes block and Site Editor context, Gutenberg capability catalogs,
+composition inspection, bounded block-theme planning, post block readback, and
+host-governed template/post block write abilities. A new ability is justified
+only if a later host proof shows that those existing contracts cannot be
+composed into the needed proof path.
+
+If this area is revisited, evaluate candidates in this order:
+
+1. `validate-gutenberg-block-tree`, only if
+   `inspect-gutenberg-composition-contract` cannot express the failing
+   validation result.
+2. `read-template-part-usage`, only if a host proof needs stable
+   WordPress-local usage context and existing Site Editor context is
+   insufficient.
+3. `resolve-template-target-candidates`, only if the failure is not host
+   routing or prompt selection and requires a reusable WordPress-local target
+   resolution contract.
+4. `read-block-template-context`, only if `get-block-theme-context` and
+   `inspect-block-theme-surface` cannot provide the required template context.
+5. `preview-template-part-change`, only after a separate proof shows a safe
+   proposal-only preview contract is needed. This is the highest-risk candidate
+   because it can drift into template-part planning or write ownership.
+
+Until a proof fails, these candidates remain deferred.
+
 ## Reopen Triggers
 
 Reopen Toolkit work only when a real host, Core, Adapter, Toolbox, or MCP proof
