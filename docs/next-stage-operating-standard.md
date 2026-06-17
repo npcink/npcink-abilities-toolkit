@@ -50,6 +50,8 @@ workflow proof targets are:
 - `workflow/wordpress_article_optimization`
 - `workflow/wordpress_article_media_handoff`
 
+The current proof ledger is tracked in `docs/host-proof-status.md`.
+
 Promotion means adding declarative workflow definitions, replay fixture coverage,
 and smoke guidance. It does not mean adding runtime execution, scheduling,
 queues, prompt selection, model selection, approval state, audit state, or final
