@@ -24,7 +24,7 @@ Keep `npcink-abilities-toolkit` in freeze/observe mode.
 
 | Proof target | Current state | Missing before closed-loop proof | Owner of next action |
 | --- | --- | --- | --- |
-| `workflow/wordpress_article_optimization` | Partially proved. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull request #2 merged signed-client preflight binding work, Adapter pull request #3 merged dependency contract semantic checks, and a prior targeted replay reached a Core proposal without commit execution. | Rerun the host proof from current main branches and record the result. | Host proof. |
+| `workflow/wordpress_article_optimization` | Closed-loop host proof passed on 2026-06-17. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull requests #2 and #3 resolved signed-client preflight binding and dependency contract semantic checks. Adapter pull request #5 added and passed a real WordPress smoke that runs the Toolkit apply plan through Adapter `run-read-ability`, submits it through Adapter `/proposals/from-plan`, reads the Core proposal back through Adapter, and verifies the source recipe, no-direct-write posture, and unchanged post excerpt. | Keep observing; no Toolkit ability gap is open from this proof. | None. |
 | `workflow/wordpress_article_media_handoff` | Partially proved. Toolkit exposes the declarative workflow/replay direction. Toolbox has adjacent article/media batch and media conversion review-set evidence that keeps Core proposal review and no-execute boundaries visible. | Run a focused host proof for this workflow from current main branches, covering discovery, plan/proposal handoff, disallowed direct writes, and readback of proposal status. | Host/Toolbox/Adapter proof. |
 | Block theme / Gutenberg intent routing | Contract-hardened, not fully host-proved. Toolkit and Core now cover block theme context, bounded layout profiles, proposal preservation, and no mutation during from-plan intake. Recent Gutenberg composer repair-loop work expanded the proof surface, so the freeze posture must be watched closely. | Run a host-side intent-routing proof that discovers abilities through WordPress Abilities API and stops at proposal/write targets. Do not add another Toolkit ability unless that proof identifies a reusable WordPress contract gap. | Host proof; Toolkit only if failed proof is Toolkit-owned. |
 
@@ -49,6 +49,15 @@ That pull request merged:
 
 - `f6099b6 Validate dependency contract semantics`
 
+Adapter pull request #5, "Add article optimization host proof smoke", merged on
+2026-06-17:
+
+- https://github.com/muze-page/npcink-ai-client-adapter/pull/5
+
+That pull request merged:
+
+- `1f2cb9c Add article optimization host proof smoke`
+
 Local validation before merge:
 
 ```bash
@@ -63,9 +72,20 @@ composer test:all
 git diff --check
 ```
 
-Disposition: the Adapter branch is resolved. Do not treat
-`workflow/wordpress_article_optimization` as closed-loop proven until the host
-proof is rerun from current main branches and the result is recorded.
+The article optimization host proof was locally validated with:
+
+```bash
+composer test:all
+WP_CLI=/tmp/wp-cli.phar \
+WP_CLI_PHP="$HOME/Library/Application Support/Local/lightning-services/php-8.5.3+1/bin/darwin-arm64/bin/php" \
+WP_CLI_MYSQL_SOCKET="$HOME/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+composer smoke:wp
+git diff --check
+```
+
+Disposition: the Adapter branch is resolved and
+`workflow/wordpress_article_optimization` is closed-loop proven from current
+main branches. No Toolkit follow-up ability is justified by this proof.
 
 ## Failure Classification
 
