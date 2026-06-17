@@ -154,6 +154,14 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'final_cta',
 				'breadcrumbs',
 			),
+			'composer_profile_catalog_id' => 'gutenberg_composer_profiles_v1',
+			'composer_profiles'      => $this->gutenberg_composer_profiles( $surface ),
+			'composer_profile_selection_policy' => array(
+				'default'        => 'auto',
+				'profile_source' => 'route_intent_plus_surface',
+				'profile_role'   => 'choose_section_mix_density_and_safe_plan_defaults',
+				'profile_limit'  => 'profiles_do_not_authorize_writes_or_forbidden_blocks',
+			),
 			'template_placement_standards' => $this->gutenberg_block_template_placement_standards(),
 			'responsive_rules'       => array(
 				'columns_must_stack_on_mobile' => true,
@@ -175,6 +183,195 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 				'mobile_columns'   => 'set_isStackedOnMobile_true_or_recompose',
 			),
 		);
+	}
+
+	/**
+	 * Returns bounded composer profiles that guide section mix, density, and safe plan defaults.
+	 *
+	 * @param string $surface Surface filter.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function gutenberg_composer_profiles( string $surface = 'all' ): array {
+		$profiles = array(
+			'saas_landing' => array(
+				'profile_id'       => 'saas_landing',
+				'profile_version'  => '1.0',
+				'surface'          => 'page',
+				'best_for'         => array( 'SaaS/product landing pages that need a clear first viewport, proof, comparison, FAQ, and CTA.' ),
+				'section_primitives' => array( 'hero', 'media_proof', 'feature_grid', 'comparison', 'faq', 'final_cta' ),
+				'allowed_blocks'    => array( 'core/group', 'core/columns', 'core/column', 'core/heading', 'core/paragraph', 'core/buttons', 'core/button', 'core/image', 'core/media-text', 'core/details', 'core/separator', 'core/spacer' ),
+				'quality_targets'   => array(
+					'section_variance' => 'high',
+					'content_density'  => 'medium',
+					'media_depth'      => 'hero_or_mock_plus_supporting_proof',
+					'hero_title_max_chars' => 82,
+				),
+				'plan_defaults'     => array(
+					'plan_ability_id' => 'npcink-abilities-toolkit/build-pattern-page-plan',
+					'pattern_id'      => 'openai-style-landing',
+					'color_story'     => 'editorial-accent',
+					'section_variant_hints' => array( 'comparison' => 'left-title-two-cards' ),
+				),
+				'repair_focus'      => array( 'hero_title_too_long', 'hero_media_missing', 'media_alt_missing', 'section_variety_low', 'color_story_monochrome' ),
+				'forbidden_outputs' => array( 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'publish_status', 'direct_wordpress_write' ),
+			),
+			'editorial_article' => array(
+				'profile_id'       => 'editorial_article',
+				'profile_version'  => '1.0',
+				'surface'          => 'post',
+				'best_for'         => array( 'Longform editorial article drafts with intro, takeaways, structured sections, optional media, and FAQ.' ),
+				'section_primitives' => array( 'article_intro', 'article_takeaways', 'media_proof', 'comparison', 'faq' ),
+				'allowed_blocks'    => array( 'core/group', 'core/columns', 'core/column', 'core/heading', 'core/paragraph', 'core/image', 'core/details', 'core/list', 'core/separator' ),
+				'quality_targets'   => array(
+					'section_variance' => 'medium',
+					'content_density'  => 'medium_high',
+					'media_depth'      => 'optional_hero_media',
+					'columns_mobile_stack' => true,
+				),
+				'plan_defaults'     => array(
+					'plan_ability_id'  => 'npcink-abilities-toolkit/build-article-block-plan',
+					'article_template' => 'editorial-longform',
+				),
+				'repair_focus'      => array( 'missing_reviewed_media', 'media_alt_missing', 'article_mobile_stack_missing', 'editor_invalid_block_risk' ),
+				'forbidden_outputs' => array( 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'publish_status', 'direct_wordpress_write' ),
+			),
+			'comparison_review' => array(
+				'profile_id'       => 'comparison_review',
+				'profile_version'  => '1.0',
+				'surface'          => 'post',
+				'best_for'         => array( 'Proposal-first comparison articles, product reviews, and trade-off explainers.' ),
+				'section_primitives' => array( 'article_intro', 'article_takeaways', 'comparison', 'faq' ),
+				'allowed_blocks'    => array( 'core/group', 'core/columns', 'core/column', 'core/heading', 'core/paragraph', 'core/image', 'core/details', 'core/list' ),
+				'quality_targets'   => array(
+					'section_variance' => 'medium',
+					'content_density'  => 'high',
+					'media_depth'      => 'optional_hero_media',
+					'comparison_columns' => 2,
+				),
+				'plan_defaults'     => array(
+					'plan_ability_id'  => 'npcink-abilities-toolkit/build-article-block-plan',
+					'article_template' => 'comparison-review',
+				),
+				'repair_focus'      => array( 'missing_reviewed_media', 'media_alt_missing', 'article_mobile_stack_missing', 'editor_invalid_block_risk' ),
+				'forbidden_outputs' => array( 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'publish_status', 'direct_wordpress_write' ),
+			),
+			'product_docs' => array(
+				'profile_id'       => 'product_docs',
+				'profile_version'  => '1.0',
+				'surface'          => 'post',
+				'best_for'         => array( 'How-to guides, product documentation drafts, and operational explainers.' ),
+				'section_primitives' => array( 'article_intro', 'article_takeaways', 'faq' ),
+				'allowed_blocks'    => array( 'core/group', 'core/heading', 'core/paragraph', 'core/image', 'core/details', 'core/list', 'core/separator' ),
+				'quality_targets'   => array(
+					'section_variance' => 'low_medium',
+					'content_density'  => 'high',
+					'media_depth'      => 'optional_inline_media',
+					'steps_or_takeaways_required' => true,
+				),
+				'plan_defaults'     => array(
+					'plan_ability_id'  => 'npcink-abilities-toolkit/build-article-block-plan',
+					'article_template' => 'how-to-guide',
+				),
+				'repair_focus'      => array( 'missing_reviewed_media', 'media_alt_missing', 'editor_invalid_block_risk' ),
+				'forbidden_outputs' => array( 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'publish_status', 'direct_wordpress_write' ),
+			),
+			'block_theme_template' => array(
+				'profile_id'       => 'block_theme_template',
+				'profile_version'  => '1.0',
+				'surface'          => 'template',
+				'best_for'         => array( 'Site Editor template plans that preserve template parts and insert bounded layout or breadcrumb blocks near approved anchors.' ),
+				'section_primitives' => array( 'breadcrumbs', 'hero', 'media_proof', 'final_cta' ),
+				'allowed_blocks'    => array( 'core/group', 'core/heading', 'core/paragraph', 'core/buttons', 'core/button', 'core/post-title', 'core/query-title', 'core/post-content', 'core/template-part', 'core/post-featured-image', 'core/post-author-name', 'core/post-date', 'core/post-terms', 'core/post-navigation-link', 'core/comments', 'core/latest-posts', 'core/categories' ),
+				'quality_targets'   => array(
+					'section_variance' => 'profile_dependent',
+					'content_density'  => 'template_dependent',
+					'media_depth'      => 'theme_context_dependent',
+					'preserve_template_parts' => true,
+				),
+				'plan_defaults'     => array(
+					'plan_ability_id' => 'npcink-abilities-toolkit/build-block-theme-site-plan',
+					'layout_profile'  => 'auto',
+				),
+				'repair_focus'      => array( 'template_placement_contract_failed', 'editor_invalid_block_risk', 'responsive_risk_detected' ),
+				'forbidden_outputs' => array( 'core/html', 'core/freeform', 'non_core_blocks', 'custom_css', 'theme_json', 'navigation_write', 'direct_wordpress_write' ),
+			),
+		);
+
+		$surface = sanitize_key( $surface );
+		if ( 'all' === $surface || '' === $surface ) {
+			return $profiles;
+		}
+
+		return array_filter(
+			$profiles,
+			static function ( $profile ) use ( $surface ) {
+				return is_array( $profile ) && $surface === (string) ( $profile['surface'] ?? '' );
+			}
+		);
+	}
+
+	/**
+	 * Returns one composer profile.
+	 *
+	 * @param string $profile_id Profile id.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_composer_profile( string $profile_id ): array {
+		$profiles   = $this->gutenberg_composer_profiles( 'all' );
+		$profile_id = sanitize_key( $profile_id );
+		return is_array( $profiles[ $profile_id ] ?? null ) ? $profiles[ $profile_id ] : array();
+	}
+
+	/**
+	 * Returns a compact profile excerpt for router and composer outputs.
+	 *
+	 * @param string $profile_id Profile id.
+	 * @return array<string,mixed>
+	 */
+	private function gutenberg_composer_profile_excerpt( string $profile_id ): array {
+		$profile = $this->gutenberg_composer_profile( $profile_id );
+		if ( empty( $profile ) ) {
+			return array();
+		}
+
+		return array(
+			'profile_id'         => (string) ( $profile['profile_id'] ?? '' ),
+			'profile_version'    => (string) ( $profile['profile_version'] ?? '' ),
+			'surface'            => (string) ( $profile['surface'] ?? '' ),
+			'section_primitives' => is_array( $profile['section_primitives'] ?? null ) ? array_values( $profile['section_primitives'] ) : array(),
+			'quality_targets'    => is_array( $profile['quality_targets'] ?? null ) ? $profile['quality_targets'] : array(),
+			'plan_defaults'      => is_array( $profile['plan_defaults'] ?? null ) ? $profile['plan_defaults'] : array(),
+			'repair_focus'       => is_array( $profile['repair_focus'] ?? null ) ? array_values( $profile['repair_focus'] ) : array(),
+		);
+	}
+
+	/**
+	 * Chooses a composer profile for a routed request.
+	 *
+	 * @param array<string,mixed> $route Route.
+	 * @param string              $prompt Prompt.
+	 * @return string
+	 */
+	private function gutenberg_composer_profile_id_for_route( array $route, string $prompt = '' ): string {
+		$route_name = sanitize_key( (string) ( $route['route'] ?? '' ) );
+		$route_key  = sanitize_key( (string) ( $route['route_key'] ?? '' ) );
+		$prompt_lc  = strtolower( $prompt );
+		if ( 'pattern_page_plan' === $route_name ) {
+			return 'saas_landing';
+		}
+		if ( 'article_block_plan' === $route_name ) {
+			if ( false !== strpos( $prompt_lc, 'how-to' ) || false !== strpos( $prompt_lc, 'guide' ) || false !== strpos( $prompt_lc, 'tutorial' ) || false !== strpos( $prompt_lc, '教程' ) || false !== strpos( $prompt_lc, '指南' ) || false !== strpos( $prompt_lc, '文档' ) ) {
+				return 'product_docs';
+			}
+			if ( false !== strpos( $prompt_lc, 'comparison' ) || false !== strpos( $prompt_lc, 'review' ) || false !== strpos( $prompt_lc, '对比' ) || false !== strpos( $prompt_lc, '评测' ) ) {
+				return 'comparison_review';
+			}
+			return 'editorial_article';
+		}
+		if ( 'block_theme_site_plan' === $route_name || 'site_template_layout' === $route_key ) {
+			return 'block_theme_template';
+		}
+		return '';
 	}
 
 	/**

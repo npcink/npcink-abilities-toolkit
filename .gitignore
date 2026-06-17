@@ -4,6 +4,7 @@
 /build/
 /dist/
 /coverage/
+/tests/gutenberg-composer-pilot/generated/
 /tests/gutenberg-recipe-eval/generated/
 /.phpunit.cache/
 /.idea/
