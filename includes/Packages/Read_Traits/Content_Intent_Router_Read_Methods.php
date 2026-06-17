@@ -55,10 +55,13 @@ trait Content_Intent_Router_Read_Methods {
 		$route['style_strategy'] = $this->content_intent_style_strategy( $signals, $style_hint, (string) $route['route'] );
 		$route['recommended_plan_input'] = $this->content_intent_recommended_plan_input( $route, $prompt );
 		if ( ! empty( $route['supported'] ) ) {
+			$composer_profile_id = $this->gutenberg_composer_profile_id_for_route( $route, $prompt );
 			$route['block_capability_catalog_ability_id'] = 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog';
 			$route['block_capability_catalog_id']         = 'gutenberg_native_v1';
 			$route['composer_instruction']                = $this->gutenberg_block_composer_instruction( $this->content_intent_catalog_surface( $route ) );
 			$route['recommended_composer_flow']           = $this->gutenberg_block_recommended_composer_flow();
+			$route['recommended_composer_profile_id']     = $composer_profile_id;
+			$route['recommended_composer_profile']        = $this->gutenberg_composer_profile_excerpt( $composer_profile_id );
 		}
 
 		return $this->build_analysis_success_response(

@@ -32,6 +32,7 @@ final class Core_Read_Package {
 	use Content_Refresh_SEO_Read_Methods;
 	use Diagnostics_Read_Methods;
 	use Gutenberg_Block_Capability_Catalog_Read_Methods;
+	use Gutenberg_Composer_Repair_Read_Methods;
 	use Gutenberg_Recipe_Evaluation_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Read_Methods;
@@ -1497,6 +1498,57 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'get_gutenberg_block_capability_catalog' ),
+			),
+			'npcink-abilities-toolkit/compose-gutenberg-block-plan' => array(
+				'label'            => __( 'Compose Gutenberg Block Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Routes a natural-language Gutenberg request, builds a read-only plan, reviews it, and applies one bounded repair pass before Core proposal handoff.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-pages',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read', 'site.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Read-only Gutenberg composer loop. Route, build, quality-review, and repair once; do not create Core proposals, do not execute writes, and only expose a proposal candidate when the final gate passes.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'prompt'        => array( 'type' => 'string', 'minLength' => 1 ),
+						'target_hint'   => array( 'type' => 'string', 'enum' => array( 'auto', 'page', 'post', 'site_template', 'template_part', 'unsupported' ), 'default' => 'auto' ),
+						'intent_hint'   => array( 'type' => 'string', 'enum' => array( 'auto', 'create_landing_page', 'write_article', 'add_breadcrumbs', 'customize_template_layout', 'edit_template_part', 'unsupported' ), 'default' => 'auto' ),
+						'media_hint'    => array( 'type' => 'string', 'enum' => array( 'auto', 'none', 'existing_media_url', 'generated_or_existing' ), 'default' => 'auto' ),
+						'style_hint'    => array( 'type' => 'string', 'enum' => array( 'auto', 'minimal', 'modern', 'editorial_accent' ), 'default' => 'auto' ),
+						'composer_profile_id' => array( 'type' => 'string', 'enum' => array( 'auto', 'saas_landing', 'editorial_article', 'comparison_review', 'product_docs', 'block_theme_template' ), 'default' => 'auto' ),
+						'plan_input'    => array(
+							'type'                 => 'object',
+							'additionalProperties' => true,
+						),
+						'media_fixture' => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'url'           => array( 'type' => 'string' ),
+								'attachment_id' => array( 'type' => 'integer', 'minimum' => 1 ),
+								'alt'           => array( 'type' => 'string' ),
+							),
+							'additionalProperties' => false,
+						),
+						'repair_once'   => array( 'type' => 'boolean', 'default' => true ),
+					),
+					'required'             => array( 'prompt' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'compose_gutenberg_block_plan' ),
 			),
 			'npcink-abilities-toolkit/inspect-gutenberg-composition-contract' => array(
 				'label'            => __( 'Inspect Gutenberg Composition Contract', 'npcink-abilities-toolkit' ),

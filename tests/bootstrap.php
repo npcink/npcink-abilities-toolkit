@@ -830,6 +830,7 @@ require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Invent
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Diagnostics_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php';
+require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Gutenberg_Recipe_Evaluation_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Internal_Link_Read_Methods.php';
 require_once dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Read_Methods.php';
