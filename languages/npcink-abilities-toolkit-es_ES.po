@@ -3397,3 +3397,22 @@ msgid ""
 msgstr ""
 "Clave de idempotencia opcional proporcionada por el host para auditoría y "
 "correlación de reproducción."
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "Anadir capacidades de proveedor"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "Los plugins proveedores deben usar los helpers publicos y evitar incluir archivos internos de Toolkit."
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "Copiar valores de cliente"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "Endpoint de contrato"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "Copiar endpoint de contrato"

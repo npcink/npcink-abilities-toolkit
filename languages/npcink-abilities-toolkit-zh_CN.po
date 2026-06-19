@@ -3023,3 +3023,22 @@ msgstr "为 true 时，尝试执行最终提交。仍然需要 host 审批上下
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr "可选的 host 提供幂等键，用于审计和重放关联。"
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "添加提供方能力"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "提供方插件应调用公共辅助函数，并避免包含 Toolkit 内部文件。"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "复制客户端值"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "契约端点"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "复制契约端点"

@@ -3024,3 +3024,22 @@ msgstr "為 true 時，嘗試執行最終提交。仍然需要 host 核准脈絡
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr "可選的 host 提供冪等鍵，用於稽核與重放關聯。"
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "新增提供者能力"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "提供者外掛應呼叫公開輔助函式，並避免包含 Toolkit 內部檔案。"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "複製用戶端值"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "契約端點"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "複製契約端點"

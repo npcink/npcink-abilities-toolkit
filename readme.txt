@@ -36,6 +36,8 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability can download a medi
 
 * WordPress 7.0 or later. This release intentionally targets the WordPress Abilities API baseline available in WordPress 7.0+.
 * PHP 8.0 or later.
+* The WordPress Abilities API REST routes must be available before third-party
+  provider plugins or external clients can discover and run abilities.
 
 == Public API ==
 
@@ -47,6 +49,44 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability can download a medi
 * `npcink_abilities_toolkit_get_registered()`
 * `npcink_abilities_toolkit_get_workflow_definitions()`
 * `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`
+
+== Third-Party Integration Quickstart ==
+
+Provider plugins should wait until `plugins_loaded`, check that the public
+helper exists, and then register their abilities through the helper functions:
+
+`if ( function_exists( 'npcink_abilities_toolkit_register_readonly' ) ) { npcink_abilities_toolkit_register_readonly( 'acme/site-summary', $definition ); }`
+
+Do not include files from this plugin's `includes/` directory or instantiate
+classes in the `Npcink_Abilities_Toolkit` namespace. Those are implementation
+details.
+
+Use `npcink_abilities_toolkit_register_readonly()` for read-only context and
+diagnostic abilities. Use `npcink_abilities_toolkit_register_write_proposal()`
+only when the callback returns a proposal, preview, diff, or handoff payload.
+Third-party provider callbacks should not perform final host-governed commits.
+Approval, audit, quota, and final write authorization belong to the consuming
+host runtime.
+
+REST clients should first discover the catalog through:
+
+* `/wp-json/wp-abilities/v1/categories`
+* `/wp-json/wp-abilities/v1/abilities`
+* `/wp-json/wp-abilities/v1/abilities/{namespace}/{name}/run`
+* `/wp-json/npcink-abilities-toolkit/v1/contract`
+
+The contract endpoint is a compatibility and boundary discovery endpoint for
+authenticated host runtimes. It does not replace the WordPress Abilities API
+catalog and does not run abilities.
+
+Full provider examples and REST client notes are maintained in the public
+repository:
+
+`https://github.com/muze-page/npcink-abilities-toolkit`
+
+If the `wp-abilities/v1` REST routes are missing, enable the WordPress
+Abilities API baseline or compatibility plugin before connecting third-party
+providers or clients.
 
 == Admin Page ==
 

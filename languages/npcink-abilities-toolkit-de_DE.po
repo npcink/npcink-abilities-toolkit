@@ -3378,3 +3378,22 @@ msgid ""
 msgstr ""
 "Optionaler, vom Host bereitgestellter Idempotenzschlüssel für Audit- und "
 "Wiedergabekorrelation."
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "Anbieter-Faehigkeiten hinzufuegen"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "Anbieter-Plugins sollten die oeffentlichen Helfer nutzen und interne Toolkit-Dateien vermeiden."
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "Client-Werte kopieren"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "Vertrags-Endpunkt"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "Vertrags-Endpunkt kopieren"

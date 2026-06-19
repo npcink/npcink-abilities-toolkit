@@ -151,10 +151,15 @@ foreach (
 		'Callback issues',
 		'Next actions',
 		'Connect a host',
+		'Add provider abilities',
+		'Provider plugins should call the public helpers',
+		'Copy Client Values',
 		'Final write approval stays with the host runtime',
 		'Registered Ability Catalog',
 		'Connection values',
 		'Copy Abilities Endpoint',
+		'Copy Contract Endpoint',
+		'npcink-abilities-toolkit-contract-endpoint',
 		'Read-only ability checks',
 		'bounded admin input',
 		'omits plugin rows, current-user details, updates, and cron details',
@@ -178,6 +183,9 @@ foreach (
 		'ability-package status and REST-check surface',
 		'registered ability count',
 		'per-ability signals',
+		'contract endpoint should be visible as a copyable host/runtime',
+		'Provider Onboarding',
+		'provider plugins should call public helper functions',
 		'Core proposal approval',
 		'OpenClaw handoff',
 		'Cloud API key',
@@ -188,6 +196,63 @@ foreach (
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_surface_standard, $required ), 'admin surface standard documents ability page boundary: ' . $required );
+}
+
+$plugin_readme = file_get_contents( __DIR__ . '/../readme.txt' );
+foreach (
+	array(
+		'Third-Party Integration Quickstart',
+		'npcink_abilities_toolkit_register_readonly',
+		'npcink_abilities_toolkit_register_write_proposal',
+		'Third-party provider callbacks should not perform final host-governed commits',
+		'/wp-json/npcink-abilities-toolkit/v1/contract',
+		'does not replace the WordPress Abilities API',
+		'does not run abilities',
+		'https://github.com/muze-page/npcink-abilities-toolkit',
+		'If the `wp-abilities/v1` REST routes are missing',
+		'Abilities API baseline or compatibility plugin',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false !== strpos( $plugin_readme, $required ), 'packaged readme keeps third-party integration guidance: ' . $required );
+}
+
+$host_proof_status = file_get_contents( __DIR__ . '/../docs/host-proof-status.md' );
+foreach (
+	array(
+		'Next-Stage Execution Queue',
+		'Keep Toolkit in freeze/observe mode and do not add first-party abilities',
+		'Block theme / Gutenberg intent-routing proof',
+		'must discover existing abilities',
+		'examples and long-form docs outside the release zip',
+		'does not block basic third-party provider',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $host_proof_status ) && false !== strpos( $host_proof_status, $required ), 'host proof status keeps next-stage execution queue: ' . $required );
+}
+
+$next_stage_standard = file_get_contents( __DIR__ . '/../docs/next-stage-operating-standard.md' );
+foreach (
+	array(
+		'Current stage update',
+		'Keep observing; no Toolkit ability gap is',
+		'Block theme / Gutenberg intent routing',
+		'Do not ship the repository `docs/`, `examples/`, or scripts',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $next_stage_standard ) && false !== strpos( $next_stage_standard, $required ), 'next-stage standard keeps freeze/observe direction: ' . $required );
+}
+
+$translation_template = file_get_contents( __DIR__ . '/../languages/npcink-abilities-toolkit.pot' );
+foreach (
+	array(
+		'Add provider abilities',
+		'Provider plugins should call the public helpers and avoid including internal Toolkit files.',
+		'Copy Client Values',
+		'Contract Endpoint',
+		'Copy Contract Endpoint',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $translation_template ) && false !== strpos( $translation_template, $required ), 'translation template includes third-party admin onboarding string: ' . $required );
 }
 
 $main_plugin_header = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );

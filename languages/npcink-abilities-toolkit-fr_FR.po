@@ -3406,3 +3406,22 @@ msgid ""
 msgstr ""
 "Clé d'idempotence facultative fournie par l'hôte pour la corrélation d'audit "
 "et de relecture."
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "Ajouter des capacites fournisseur"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "Les extensions fournisseur doivent appeler les fonctions publiques et eviter les fichiers internes de Toolkit."
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "Copier les valeurs client"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "Point de terminaison du contrat"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "Copier le point de terminaison du contrat"

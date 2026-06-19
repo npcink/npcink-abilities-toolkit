@@ -3016,3 +3016,23 @@ msgstr ""
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr ""
