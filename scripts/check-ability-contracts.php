@@ -61,6 +61,137 @@ function npcink_abilities_toolkit_contract_audit_schema( $ability_id, array $abi
 }
 
 /**
+ * Returns the intentional input schema extension points.
+ *
+ * @return array<string,bool>
+ */
+function npcink_abilities_toolkit_contract_audit_additional_properties_allowlist() {
+	$paths = array(
+		'npcink-abilities-toolkit/adopt-cloud-media-derivative input_schema.properties.derivative_artifact',
+		'npcink-abilities-toolkit/build-article-block-plan input_schema.properties.variables',
+		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.generated_excerpt',
+		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.optimization_plan',
+		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.post',
+		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.report',
+		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.seo_meta',
+		'npcink-abilities-toolkit/build-article-optimization-report input_schema.properties.geo',
+		'npcink-abilities-toolkit/build-article-optimization-report input_schema.properties.internal_links',
+		'npcink-abilities-toolkit/build-article-optimization-report input_schema.properties.media',
+		'npcink-abilities-toolkit/build-article-optimization-report input_schema.properties.post',
+		'npcink-abilities-toolkit/build-article-optimization-report input_schema.properties.seo',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.generated_excerpt',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.generated_seo',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.geo_analysis',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.post',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.seo_analysis',
+		'npcink-abilities-toolkit/build-article-single-optimization-suggest input_schema.properties.taxonomy_context',
+		'npcink-abilities-toolkit/build-article-style-profile input_schema.properties.baseline_profile',
+		'npcink-abilities-toolkit/build-article-style-profile input_schema.properties.reference_profile',
+		'npcink-abilities-toolkit/build-block-theme-site-plan input_schema.properties.variables',
+		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.generated_inline_media.items',
+		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.inline_plan.items',
+		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.uploaded_inline_media.items',
+		'npcink-abilities-toolkit/build-media-adoption-preflight-summary input_schema.properties.derivative_artifact',
+		'npcink-abilities-toolkit/build-media-optimization-plan input_schema.properties.derivative_artifact',
+		'npcink-abilities-toolkit/build-media-optimization-plan input_schema.properties.media_details_input',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.article',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.featured_upload',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.generated_featured_upload',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.generated_inline_uploads.items',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.inline_uploads.items',
+		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.resolved_image_source',
+		'npcink-abilities-toolkit/build-pattern-page-plan input_schema.properties.research_brief',
+		'npcink-abilities-toolkit/build-pattern-page-plan input_schema.properties.review_feedback',
+		'npcink-abilities-toolkit/build-pattern-page-plan input_schema.properties.variables',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.ai_slop_detection',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.article',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.draft',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.duplicate_guard',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.generated_seo',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.geo_analysis',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.input',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.metadata_plan_resolution',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.quality_scoring',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.review',
+		'npcink-abilities-toolkit/compose-article-draft-result input_schema.properties.seo_analysis',
+		'npcink-abilities-toolkit/compose-article-optimization-apply-result input_schema.properties.apply_excerpt',
+		'npcink-abilities-toolkit/compose-article-optimization-apply-result input_schema.properties.apply_plan',
+		'npcink-abilities-toolkit/compose-article-optimization-apply-result input_schema.properties.report',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.article',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.draft',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.duplicate_guard',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.geo_analysis',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.input',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.media',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.metadata_plan_resolution',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.publication_decision',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.review',
+		'npcink-abilities-toolkit/compose-article-production-result input_schema.properties.seo_analysis',
+		'npcink-abilities-toolkit/compose-comment-mention-reply-result input_schema.properties.suggest_result',
+		'npcink-abilities-toolkit/compose-comment-moderation-batch-result input_schema.properties.batch_result',
+		'npcink-abilities-toolkit/compose-comment-moderation-result input_schema.properties.action_result_approve',
+		'npcink-abilities-toolkit/compose-comment-moderation-result input_schema.properties.action_result_reply',
+		'npcink-abilities-toolkit/compose-comment-moderation-result input_schema.properties.action_result_spam',
+		'npcink-abilities-toolkit/compose-comment-moderation-result input_schema.properties.action_result_trash',
+		'npcink-abilities-toolkit/compose-comment-moderation-result input_schema.properties.suggest_result',
+		'npcink-abilities-toolkit/compose-gutenberg-block-plan input_schema.properties.plan_input',
+		'npcink-abilities-toolkit/create-draft input_schema.properties.meta',
+		'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite input_schema.properties.cases.items.properties.hints',
+		'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite input_schema.properties.cases.items.properties.plan_input',
+		'npcink-abilities-toolkit/inspect-gutenberg-composition-contract input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/optimize-media-metadata input_schema.properties.media_assets.items',
+		'npcink-abilities-toolkit/position-inline-image-blocks input_schema.properties.existing_blocks.items',
+		'npcink-abilities-toolkit/position-inline-image-blocks input_schema.properties.inline_blocks.items',
+		'npcink-abilities-toolkit/position-inline-image-blocks input_schema.properties.inline_plan.items',
+		'npcink-abilities-toolkit/resolve-article-publication-decision input_schema.properties.duplicate_guard',
+		'npcink-abilities-toolkit/resolve-article-publication-decision input_schema.properties.review',
+		'npcink-abilities-toolkit/resolve-post-metadata-plan input_schema.properties.post_metadata_plan',
+		'npcink-abilities-toolkit/resolve-post-metadata-plan input_schema.properties.taxonomy_plan',
+		'npcink-abilities-toolkit/review-article-output-light input_schema.properties.article',
+		'npcink-abilities-toolkit/review-article-output-light input_schema.properties.media',
+		'npcink-abilities-toolkit/review-article-output-light input_schema.properties.style_profile',
+		'npcink-abilities-toolkit/review-block-editor-surface input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/review-pattern-page input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/update-post-blocks input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/update-template-blocks input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/update-template-part-blocks input_schema.properties.blocks.items',
+		'npcink-abilities-toolkit/upsert-template-blocks input_schema.properties.blocks.items',
+	);
+
+	return array_fill_keys( $paths, true );
+}
+
+/**
+ * Audits intentional additionalProperties usage in input schemas.
+ *
+ * @param string              $ability_id Ability id.
+ * @param array<string,mixed> $schema Schema node.
+ * @param string              $path Schema path.
+ * @param array<string,bool>  $allowlist Allowed paths.
+ * @return void
+ */
+function npcink_abilities_toolkit_contract_audit_additional_properties( $ability_id, array $schema, $path, array $allowlist ) {
+	if ( array_key_exists( 'additionalProperties', $schema ) && false !== $schema['additionalProperties'] ) {
+		$key = $ability_id . ' ' . $path;
+		if ( ! isset( $allowlist[ $key ] ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$key} must be added to the additionalProperties allowlist or tightened" );
+		}
+	}
+
+	if ( isset( $schema['properties'] ) && is_array( $schema['properties'] ) ) {
+		foreach ( $schema['properties'] as $property => $property_schema ) {
+			if ( is_array( $property_schema ) ) {
+				npcink_abilities_toolkit_contract_audit_additional_properties( $ability_id, $property_schema, $path . '.properties.' . (string) $property, $allowlist );
+			}
+		}
+	}
+
+	if ( isset( $schema['items'] ) && is_array( $schema['items'] ) ) {
+		npcink_abilities_toolkit_contract_audit_additional_properties( $ability_id, $schema['items'], $path . '.items', $allowlist );
+	}
+}
+
+/**
  * Checks one normalized ability definition.
  *
  * @param string              $ability_id Ability id.
@@ -92,6 +223,14 @@ function npcink_abilities_toolkit_contract_audit_ability( $ability_id, array $ab
 
 	npcink_abilities_toolkit_contract_audit_schema( $ability_id, $ability, 'input_schema' );
 	npcink_abilities_toolkit_contract_audit_schema( $ability_id, $ability, 'output_schema' );
+	if ( isset( $ability['input_schema'] ) && is_array( $ability['input_schema'] ) ) {
+		npcink_abilities_toolkit_contract_audit_additional_properties(
+			$ability_id,
+			$ability['input_schema'],
+			'input_schema',
+			npcink_abilities_toolkit_contract_audit_additional_properties_allowlist()
+		);
+	}
 
 	$risk_level = (string) ( $ability['risk_level'] ?? '' );
 	if ( ! in_array( $risk_level, array( 'read', 'write', 'destructive' ), true ) ) {

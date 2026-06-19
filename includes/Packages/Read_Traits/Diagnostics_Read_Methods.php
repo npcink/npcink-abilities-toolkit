@@ -921,13 +921,24 @@ private function read_redacted_log_tail_entries( $path, $tail_lines, $since_minu
 }
 
 /**
- * Reads bounded log contents through WordPress filesystem APIs.
+ * Reads bounded log contents, preferring a seeked tail read when the file is local.
  *
  * @param string $path Log path.
  * @param int    $max_bytes Maximum bytes to retain from the end.
  * @return string
  */
 private function read_diagnostics_log_contents( $path, $max_bytes ) {
+	$path      = (string) $path;
+	$max_bytes = max( 1, absint( $max_bytes ) );
+	if ( '' === $path || ! is_readable( $path ) ) {
+		return '';
+	}
+
+	$direct_contents = $this->read_diagnostics_log_contents_direct( $path, $max_bytes );
+	if ( is_string( $direct_contents ) ) {
+		return $direct_contents;
+	}
+
 	if ( ! function_exists( 'WP_Filesystem' ) ) {
 		return '';
 	}
@@ -940,13 +951,54 @@ private function read_diagnostics_log_contents( $path, $max_bytes ) {
 		return '';
 	}
 
-	$contents = $wp_filesystem->get_contents( (string) $path );
+	$contents = $wp_filesystem->get_contents( $path );
 	if ( ! is_string( $contents ) ) {
 		return '';
 	}
 
-	$max_bytes = max( 1, absint( $max_bytes ) );
 	return strlen( $contents ) > $max_bytes ? substr( $contents, -1 * $max_bytes ) : $contents;
+}
+
+/**
+ * Reads the tail of a local diagnostics log without loading the full file.
+ *
+ * @param string $path Log path.
+ * @param int    $max_bytes Maximum bytes to retain from the end.
+ * @return string|null
+ */
+private function read_diagnostics_log_contents_direct( $path, $max_bytes ) {
+	$size = @filesize( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	if ( false === $size ) {
+		return null;
+	}
+
+	$handle = @fopen( $path, 'rb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+	if ( ! is_resource( $handle ) ) {
+		return null;
+	}
+
+	if ( $size > $max_bytes && 0 !== fseek( $handle, -1 * $max_bytes, SEEK_END ) ) {
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		return null;
+	}
+
+	$contents = '';
+	$remaining = min( max( 0, (int) $size ), $max_bytes );
+	while ( $remaining > 0 && ! feof( $handle ) ) {
+		$chunk = fread( $handle, min( 8192, $remaining ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
+		if ( false === $chunk ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+			return null;
+		}
+		if ( '' === $chunk ) {
+			break;
+		}
+		$contents  .= $chunk;
+		$remaining -= strlen( $chunk );
+	}
+
+	fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+	return $contents;
 }
 
 	/**

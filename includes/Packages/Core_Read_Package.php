@@ -3728,29 +3728,34 @@ final class Core_Read_Package {
 	 */
 	public function wp_ops_diagnostics_detail( $input = array() ) {
 		$input = is_array( $input ) ? $input : array();
-		$include_plugins = ! array_key_exists( 'include_plugins', $input ) || ! empty( $input['include_plugins'] );
-		$include_active_plugins = ! array_key_exists( 'include_active_plugins', $input ) || ! empty( $input['include_active_plugins'] );
-		$include_inactive_plugins = ! empty( $input['include_inactive_plugins'] );
-		$include_plugin_updates = ! array_key_exists( 'include_plugin_updates', $input ) || ! empty( $input['include_plugin_updates'] );
-		$include_must_use_plugins = ! array_key_exists( 'include_must_use_plugins', $input ) || ! empty( $input['include_must_use_plugins'] );
-		$include_dropins = ! array_key_exists( 'include_dropins', $input ) || ! empty( $input['include_dropins'] );
-		$include_current_user = ! empty( $input['include_current_user'] );
-		$include_php = ! array_key_exists( 'include_php', $input ) || ! empty( $input['include_php'] );
-		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
-		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
-		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
-		$include_server = ! array_key_exists( 'include_server', $input ) || ! empty( $input['include_server'] );
-		$include_database = ! empty( $input['include_database'] );
-		$include_cron_events = ! array_key_exists( 'include_cron_events', $input ) || ! empty( $input['include_cron_events'] );
-		$include_error_log = ! array_key_exists( 'include_error_log', $input ) || ! empty( $input['include_error_log'] );
-		$include_log_contents = ! empty( $input['include_log_contents'] );
-		$include_content_types = ! array_key_exists( 'include_content_types', $input ) || ! empty( $input['include_content_types'] );
-		$include_roles = ! array_key_exists( 'include_roles', $input ) || ! empty( $input['include_roles'] );
-		$include_widgets = ! array_key_exists( 'include_widgets', $input ) || ! empty( $input['include_widgets'] );
-		$include_block_theme = ! array_key_exists( 'include_block_theme', $input ) || ! empty( $input['include_block_theme'] );
-		$include_search = ! array_key_exists( 'include_search', $input ) || ! empty( $input['include_search'] );
-		$include_integrations = ! array_key_exists( 'include_integrations', $input ) || ! empty( $input['include_integrations'] );
-		$include_summaries = ! array_key_exists( 'include_summaries', $input ) || ! empty( $input['include_summaries'] );
+		$profile = sanitize_key( (string) ( $input['profile'] ?? 'summary' ) );
+		if ( ! in_array( $profile, array( 'summary', 'detail', 'forensics' ), true ) ) {
+			$profile = 'summary';
+		}
+		$defaults = $this->wp_ops_diagnostics_detail_profile_defaults( $profile );
+		$include_plugins = $this->read_bool_input( $input, 'include_plugins', $defaults['include_plugins'] );
+		$include_active_plugins = $this->read_bool_input( $input, 'include_active_plugins', $defaults['include_active_plugins'] );
+		$include_inactive_plugins = $this->read_bool_input( $input, 'include_inactive_plugins', $defaults['include_inactive_plugins'] );
+		$include_plugin_updates = $this->read_bool_input( $input, 'include_plugin_updates', $defaults['include_plugin_updates'] );
+		$include_must_use_plugins = $this->read_bool_input( $input, 'include_must_use_plugins', $defaults['include_must_use_plugins'] );
+		$include_dropins = $this->read_bool_input( $input, 'include_dropins', $defaults['include_dropins'] );
+		$include_current_user = $this->read_bool_input( $input, 'include_current_user', $defaults['include_current_user'] );
+		$include_php = $this->read_bool_input( $input, 'include_php', $defaults['include_php'] );
+		$include_object_cache = $this->read_bool_input( $input, 'include_object_cache', $defaults['include_object_cache'] );
+		$include_rewrite = $this->read_bool_input( $input, 'include_rewrite', $defaults['include_rewrite'] );
+		$include_https = $this->read_bool_input( $input, 'include_https', $defaults['include_https'] );
+		$include_server = $this->read_bool_input( $input, 'include_server', $defaults['include_server'] );
+		$include_database = $this->read_bool_input( $input, 'include_database', $defaults['include_database'] );
+		$include_cron_events = $this->read_bool_input( $input, 'include_cron_events', $defaults['include_cron_events'] );
+		$include_error_log = $this->read_bool_input( $input, 'include_error_log', $defaults['include_error_log'] );
+		$include_log_contents = $this->read_bool_input( $input, 'include_log_contents', $defaults['include_log_contents'] );
+		$include_content_types = $this->read_bool_input( $input, 'include_content_types', $defaults['include_content_types'] );
+		$include_roles = $this->read_bool_input( $input, 'include_roles', $defaults['include_roles'] );
+		$include_widgets = $this->read_bool_input( $input, 'include_widgets', $defaults['include_widgets'] );
+		$include_block_theme = $this->read_bool_input( $input, 'include_block_theme', $defaults['include_block_theme'] );
+		$include_search = $this->read_bool_input( $input, 'include_search', $defaults['include_search'] );
+		$include_integrations = $this->read_bool_input( $input, 'include_integrations', $defaults['include_integrations'] );
+		$include_summaries = $this->read_bool_input( $input, 'include_summaries', $defaults['include_summaries'] );
 		$max_cron_events = isset( $input['max_cron_events'] ) ? absint( $input['max_cron_events'] ) : 20;
 		$max_cron_events = max( 1, min( 50, $max_cron_events ) );
 		$max_plugins_per_group = isset( $input['max_plugins_per_group'] ) ? absint( $input['max_plugins_per_group'] ) : 100;
@@ -3781,6 +3786,7 @@ final class Core_Read_Package {
 
 		return array(
 			'detail_version' => 'v1',
+			'profile'        => $profile,
 			'generated_at'   => gmdate( 'Y-m-d\TH:i:s\Z' ),
 			'redacted'       => true,
 			'plugins'        => $plugins,
@@ -3813,6 +3819,89 @@ final class Core_Read_Package {
 				'api_keys',
 			),
 		);
+	}
+
+	/**
+	 * Returns default include flags for one operations diagnostics profile.
+	 *
+	 * @param string $profile Profile id.
+	 * @return array<string,bool>
+	 */
+	private function wp_ops_diagnostics_detail_profile_defaults( $profile ) {
+		$summary = array(
+			'include_plugins'        => false,
+			'include_active_plugins' => false,
+			'include_inactive_plugins' => false,
+			'include_plugin_updates' => false,
+			'include_must_use_plugins' => false,
+			'include_dropins'        => false,
+			'include_current_user'   => false,
+			'include_php'            => true,
+			'include_object_cache'   => true,
+			'include_rewrite'        => true,
+			'include_https'          => true,
+			'include_server'         => true,
+			'include_database'       => false,
+			'include_cron_events'    => false,
+			'include_error_log'      => false,
+			'include_log_contents'   => false,
+			'include_content_types'  => false,
+			'include_roles'          => false,
+			'include_widgets'        => false,
+			'include_block_theme'    => false,
+			'include_search'         => false,
+			'include_integrations'   => false,
+			'include_summaries'      => true,
+		);
+
+		if ( 'summary' === $profile ) {
+			return $summary;
+		}
+
+		$detail = array_merge(
+			$summary,
+			array(
+				'include_plugins'        => true,
+				'include_active_plugins' => true,
+				'include_plugin_updates' => true,
+				'include_must_use_plugins' => true,
+				'include_dropins'        => true,
+				'include_cron_events'    => true,
+				'include_error_log'      => true,
+				'include_content_types'  => true,
+				'include_roles'          => true,
+				'include_widgets'        => true,
+				'include_block_theme'    => true,
+				'include_search'         => true,
+				'include_integrations'   => true,
+			)
+		);
+
+		if ( 'detail' === $profile ) {
+			return $detail;
+		}
+
+		return array_merge(
+			$detail,
+			array(
+				'include_inactive_plugins' => true,
+				'include_current_user'   => true,
+				'include_database'       => true,
+				'include_log_contents'   => true,
+			)
+		);
+	}
+
+	/**
+	 * Reads one boolean input with an explicit default.
+	 *
+	 * @param array<string,mixed> $input Input args.
+	 * @param string              $key Input key.
+	 * @param bool                $default Default value.
+	 * @return bool
+	 */
+	private function read_bool_input( array $input, $key, $default ) {
+		return array_key_exists( $key, $input ) ? ! empty( $input[ $key ] ) : (bool) $default;
 	}
 
 	/**

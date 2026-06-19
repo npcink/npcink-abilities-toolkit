@@ -21,6 +21,8 @@ $categories = new Category_Registrar();
 $abilities = new Ability_Registrar( $categories, $contract_normalizer );
 $core_read_package = new Core_Read_Package( $categories, $abilities );
 $core_comment_package = new Core_Comment_Package( $categories, $abilities );
+$read_log_tail = new ReflectionMethod( $core_read_package, 'read_diagnostics_log_contents' );
+$read_log_tail->setAccessible( true );
 
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array();
 $GLOBALS['npcink_abilities_toolkit_unit_comments'] = array();
@@ -64,7 +66,36 @@ for ( $i = 1; $i <= 12; ++$i ) {
 	);
 }
 
+$large_log_path = sys_get_temp_dir() . '/npcink-abilities-toolkit-perf-large-log-' . getmypid() . '.log';
+file_put_contents(
+	$large_log_path,
+	str_repeat( "[2026-06-19 00:00:00] PHP Warning: bounded diagnostics log tail smoke.\n", 4096 )
+);
+
 $targets = array(
+	'catalog_fingerprint_cached' => array(
+		'budget_ms' => 75,
+		'callback'  => static function () use ( $abilities ) {
+			$first = $abilities->catalog_fingerprint();
+			for ( $i = 0; $i < 50; ++$i ) {
+				if ( $first !== $abilities->catalog_fingerprint() ) {
+					return array( 'success' => false );
+				}
+			}
+			return array( 'success' => '' !== $first );
+		},
+	),
+	'diagnostics_large_log_tail' => array(
+		'budget_ms' => 75,
+		'callback'  => static function () use ( $core_read_package, $read_log_tail, $large_log_path ) {
+			$contents = $read_log_tail->invoke( $core_read_package, $large_log_path, 262144 );
+			return array(
+				'success' => is_string( $contents )
+					&& strlen( $contents ) <= 262144
+					&& false !== strpos( $contents, 'bounded diagnostics log tail smoke' ),
+			);
+		},
+	),
 	'content_inventory' => array(
 		'budget_ms' => 500,
 		'callback'  => static function () use ( $core_read_package ) {
@@ -160,6 +191,10 @@ foreach ( $targets as $name => $target ) {
 echo "Performance smoke\n";
 foreach ( $rows as $row ) {
 	echo $row . "\n";
+}
+
+if ( is_readable( $large_log_path ) ) {
+	wp_delete_file( $large_log_path );
 }
 
 if ( $failures > 0 ) {

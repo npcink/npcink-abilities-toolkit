@@ -692,15 +692,25 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	$ops_diagnostics_run_response = rest_do_request( $ops_diagnostics_run_request );
 	npcink_abilities_toolkit_smoke_assert( 200 === (int) $ops_diagnostics_run_response->get_status(), 'Authenticated ops diagnostics detail ability run returns 200.' );
 	$ops_diagnostics_run_data = $ops_diagnostics_run_response->get_data();
+	npcink_abilities_toolkit_smoke_assert( 'summary' === (string) ( $ops_diagnostics_run_data['profile'] ?? '' ), 'Ops diagnostics defaults to the summary profile.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['current_user']['included'] ) && false === $ops_diagnostics_run_data['current_user']['included'], 'Ops diagnostics omits current user details by default.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['database']['included'] ) && false === $ops_diagnostics_run_data['database']['included'], 'Ops diagnostics omits database table status by default.' );
-	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['plugins']['groups_included']['inactive'] ) && false === $ops_diagnostics_run_data['plugins']['groups_included']['inactive'], 'Ops diagnostics omits inactive plugin rows by default.' );
-	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['plugins']['max_plugins_per_group'] ) && 5 === (int) $ops_diagnostics_run_data['plugins']['max_plugins_per_group'], 'Ops diagnostics honors plugin group row bounds.' );
-	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['summary']['fatal_count'] ), 'Ops diagnostics returns error log severity summary without log contents.' );
-	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['source_summary'] ) && is_array( $ops_diagnostics_run_data['error_log']['source_summary'] ), 'Ops diagnostics returns error log source summary.' );
-	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['top_messages'] ) && is_array( $ops_diagnostics_run_data['error_log']['top_messages'] ), 'Ops diagnostics returns error log top message summary.' );
-	if ( ! empty( $ops_diagnostics_run_data['error_log']['source_summary'] ) ) {
-		$ops_diagnostics_first_source = reset( $ops_diagnostics_run_data['error_log']['source_summary'] );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['plugins']['included'] ) && false === $ops_diagnostics_run_data['plugins']['included'], 'Ops diagnostics summary profile omits plugin rows by default.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_run_data['error_log']['included'] ) && false === $ops_diagnostics_run_data['error_log']['included'], 'Ops diagnostics summary profile omits error log inspection by default.' );
+
+	$ops_diagnostics_detail_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/wp-ops-diagnostics-detail/run' );
+	$ops_diagnostics_detail_request->set_query_params( array( 'input' => array( 'profile' => 'detail', 'max_cron_events' => 5, 'max_plugins_per_group' => 5 ) ) );
+	$ops_diagnostics_detail_response = rest_do_request( $ops_diagnostics_detail_request );
+	npcink_abilities_toolkit_smoke_assert( 200 === (int) $ops_diagnostics_detail_response->get_status(), 'Authenticated ops diagnostics detail profile run returns 200.' );
+	$ops_diagnostics_detail_data = $ops_diagnostics_detail_response->get_data();
+	npcink_abilities_toolkit_smoke_assert( 'detail' === (string) ( $ops_diagnostics_detail_data['profile'] ?? '' ), 'Ops diagnostics returns the requested detail profile.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_detail_data['plugins']['groups_included']['inactive'] ) && false === $ops_diagnostics_detail_data['plugins']['groups_included']['inactive'], 'Ops diagnostics detail profile omits inactive plugin rows by default.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_detail_data['plugins']['max_plugins_per_group'] ) && 5 === (int) $ops_diagnostics_detail_data['plugins']['max_plugins_per_group'], 'Ops diagnostics detail profile honors plugin group row bounds.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_detail_data['error_log']['summary']['fatal_count'] ), 'Ops diagnostics detail profile returns error log severity summary without log contents.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_detail_data['error_log']['source_summary'] ) && is_array( $ops_diagnostics_detail_data['error_log']['source_summary'] ), 'Ops diagnostics detail profile returns error log source summary.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $ops_diagnostics_detail_data['error_log']['top_messages'] ) && is_array( $ops_diagnostics_detail_data['error_log']['top_messages'] ), 'Ops diagnostics detail profile returns error log top message summary.' );
+	if ( ! empty( $ops_diagnostics_detail_data['error_log']['source_summary'] ) ) {
+		$ops_diagnostics_first_source = reset( $ops_diagnostics_detail_data['error_log']['source_summary'] );
 		npcink_abilities_toolkit_smoke_assert( is_array( $ops_diagnostics_first_source ) && array_key_exists( 'message_fingerprint', $ops_diagnostics_first_source ), 'Ops diagnostics source summary includes message fingerprints when entries exist.' );
 	}
 
