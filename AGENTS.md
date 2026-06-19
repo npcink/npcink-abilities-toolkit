@@ -40,6 +40,19 @@ host-governed where the existing contracts require it.
 - Do not enable or require extra human reviewers by default; this is mainly a
   solo-maintainer repository.
 - Required CI and required conversation resolution are the main merge gates.
+- Before staging, inspect `git status --short` and `git diff --stat`. Do not
+  use `git add -A` in a mixed worktree.
+- When a file contains unrelated hunks, stage only the intended hunk with
+  `git add -p` or `git apply --cached`.
+- Before committing, verify `git diff --cached --stat` and
+  `git diff --cached --name-only`; after committing, verify
+  `git show --name-status --stat HEAD`.
+- If unexpected files entered a commit, use `git reset --mixed HEAD~1` and
+  recommit the correct scope. This preserves the working tree while fixing the
+  commit boundary.
+- A local branch that is ahead of its upstream is not published. At closeout,
+  either push/open or update the PR, or explicitly record why the commits remain
+  local-only.
 
 ## Post-Merge Cleanup
 
