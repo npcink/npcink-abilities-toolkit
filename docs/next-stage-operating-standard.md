@@ -40,6 +40,29 @@ Before adding an ability:
 6. Limit any justified batch to three to five abilities.
 7. Add contract, replay, smoke, and boundary coverage before release.
 
+## Current Freeze/Observe Work Queue
+
+During the current freeze/observe period, do these in order:
+
+1. Do not add new first-party abilities.
+2. Strengthen `composer check:boundary` before expanding runtime-facing
+   surfaces.
+3. Record real host proofs in `docs/host-proof-status.md` instead of turning
+   candidate names into backlog items.
+4. Treat workflow recipes as consumer validation targets: hosts should discover
+   abilities, compose the handoff, enter proposal/dry-run governance, and stop
+   before direct WordPress mutation.
+5. Keep documentation entry points aligned. Prefer updating this standard,
+   `docs/npcink-ai-project-split-contract.md`,
+   `docs/security-and-governance-gates.md`,
+   `docs/workflow-definition-contract.md`,
+   `docs/admin-surface-standard.md`, and `docs/host-proof-status.md` over
+   adding new positioning documents.
+6. Fix only contract bugs unless a failed proof identifies a Toolkit-owned gap.
+   Allowed fixes are schema, risk, permission, dry-run/commit defaults,
+   diagnostics redaction, bounded performance, replay fixture, or documented
+   host-proof gaps.
+
 ## Implementation Order
 
 ### 1. Promote Workflow Proof Before Ability Expansion

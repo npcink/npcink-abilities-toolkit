@@ -65,23 +65,27 @@ hashes, workflow hash, and the host-governed write boundary.
 
 Use this path when changing this package.
 
-1. Run the lightweight local gates listed in [Security And Governance Gates](security-and-governance-gates.md).
-2. Use [Testing Strategy](testing-strategy.md) to decide when to add contract,
+1. Read [Next Stage Operating Standard](next-stage-operating-standard.md) for
+   the current freeze/observe rules before opening ability work.
+2. Check [Host Proof Status](host-proof-status.md) before treating a candidate
+   as a Toolkit-owned gap.
+3. Run the lightweight local gates listed in [Security And Governance Gates](security-and-governance-gates.md).
+4. Use [Testing Strategy](testing-strategy.md) to decide when to add contract,
    smoke, performance, or E2E coverage.
-3. Use [Pattern Page Reference Spike](pattern-page-reference-spike.md) before
+5. Use [Pattern Page Reference Spike](pattern-page-reference-spike.md) before
    changing `build-pattern-page-plan`, page patterns, or Gutenberg-native page
    composition.
-4. Use [Block Theme Context Snapshot Proof](block-theme-context-snapshot-proof.md)
+6. Use [Block Theme Context Snapshot Proof](block-theme-context-snapshot-proof.md)
    before changing block theme route context, homepage template planning, or
    template proposal fail-closed behavior.
-5. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
+7. Run the real-site smoke from [Local WP-CLI Smoke Test](local-wpcli-smoke.md)
    when a WordPress site is available.
-6. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
+8. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
    official Abilities API, MCP, or AI plugin compatibility assumptions.
-7. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+9. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
    for the public repository handoff, CI baseline, and post-publication gate
    status.
-8. Record release evidence in the relevant release verification document.
+10. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
