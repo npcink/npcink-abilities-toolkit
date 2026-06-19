@@ -41,6 +41,27 @@ final class Ability_Registrar {
 	private $abilities = array();
 
 	/**
+	 * Cached catalog fingerprint for the current request.
+	 *
+	 * @var string
+	 */
+	private $catalog_fingerprint_cache = '';
+
+	/**
+	 * Whether the cached catalog fingerprint needs to be recomputed.
+	 *
+	 * @var bool
+	 */
+	private $catalog_fingerprint_dirty = true;
+
+	/**
+	 * Whether this request already checked the catalog snapshot.
+	 *
+	 * @var bool
+	 */
+	private $catalog_snapshot_checked = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Category_Registrar  $categories Category registrar.
@@ -124,6 +145,10 @@ final class Ability_Registrar {
 	 * @return string
 	 */
 	public function catalog_fingerprint() {
+		if ( ! $this->catalog_fingerprint_dirty && '' !== $this->catalog_fingerprint_cache ) {
+			return $this->catalog_fingerprint_cache;
+		}
+
 		$snapshot = array();
 		$abilities = $this->abilities;
 		ksort( $abilities, SORT_STRING );
@@ -132,7 +157,10 @@ final class Ability_Registrar {
 			$snapshot[ $ability_id ] = $this->stable_catalog_definition( $ability_id, $definition );
 		}
 
-		return hash( 'sha256', $this->stable_json_encode( $snapshot ) );
+		$this->catalog_fingerprint_cache = hash( 'sha256', $this->stable_json_encode( $snapshot ) );
+		$this->catalog_fingerprint_dirty = false;
+
+		return $this->catalog_fingerprint_cache;
 	}
 
 	/**
@@ -156,6 +184,11 @@ final class Ability_Registrar {
 	 * @return bool
 	 */
 	public function emit_catalog_snapshot_if_changed() {
+		if ( $this->catalog_snapshot_checked ) {
+			return false;
+		}
+
+		$this->catalog_snapshot_checked = true;
 		return $this->emit_catalog_changed_if_needed( 'catalog_changed', false );
 	}
 
@@ -174,6 +207,7 @@ final class Ability_Registrar {
 		}
 
 		$this->emit_catalog_changed_if_needed( 'bootstrap', false );
+		$this->catalog_snapshot_checked = true;
 	}
 
 	/**
@@ -193,6 +227,8 @@ final class Ability_Registrar {
 		}
 
 		$this->abilities[ $ability_id ] = $normalized;
+		$this->catalog_fingerprint_dirty = true;
+		$this->catalog_snapshot_checked  = false;
 
 		if (
 			function_exists( 'wp_register_ability' )

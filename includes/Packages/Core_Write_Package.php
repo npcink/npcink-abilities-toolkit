@@ -3891,7 +3891,7 @@ final class Core_Write_Package {
 		$max_bytes        = max( MB_IN_BYTES, min( 256 * MB_IN_BYTES, $max_bytes ) );
 		$head_content_type = '';
 
-		if ( ! function_exists( 'wp_safe_remote_get' ) || ! function_exists( 'wp_upload_bits' ) || ! function_exists( 'wp_insert_attachment' ) ) {
+		if ( ! function_exists( 'wp_safe_remote_get' ) || ! function_exists( 'wp_insert_attachment' ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
@@ -3918,34 +3918,11 @@ final class Core_Write_Package {
 			}
 		}
 
-		$get_response = wp_safe_remote_get(
-			$url,
-			array(
-				'timeout'             => $download_timeout,
-				'redirection'         => 3,
-				'reject_unsafe_urls'  => true,
-				'limit_response_size' => $max_bytes + 1,
-			)
-		);
-		if ( is_wp_error( $get_response ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', $get_response->get_error_message(), array( 'status' => 400 ) );
-		}
-		$get_status = (int) wp_remote_retrieve_response_code( $get_response );
-		if ( $get_status >= 400 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$file_contents = (string) wp_remote_retrieve_body( $get_response );
-		$file_size     = strlen( $file_contents );
-		if ( $file_size <= 0 || $file_size > $max_bytes ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
 		$path     = wp_parse_url( $url, PHP_URL_PATH );
 		$path     = is_string( $path ) ? $path : '';
 		$filename = $this->sanitize_media_file_name( (string) $file_name );
 		if ( '' === $filename ) {
-			$filename = sanitize_file_name( basename( $path ) );
+			$filename = $this->sanitize_media_file_name( basename( $path ) );
 		}
 		if ( '' === $filename ) {
 			$filename = 'remote-media-' . gmdate( 'YmdHis' );
@@ -3964,10 +3941,29 @@ final class Core_Write_Package {
 			}
 		}
 
-		$upload = wp_upload_bits( $filename, null, $file_contents );
-		if ( ! empty( $upload['error'] ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', sanitize_text_field( (string) $upload['error'] ), array( 'status' => 400 ) );
+		$get_args = array(
+			'timeout'             => $download_timeout,
+			'redirection'         => 3,
+			'reject_unsafe_urls'  => true,
+			'limit_response_size' => $max_bytes + 1,
+		);
+		$upload   = array();
+		$download = $this->download_remote_media_to_temp_file( $url, $get_args, $max_bytes );
+		if ( is_wp_error( $download ) ) {
+			return $download;
 		}
+		if ( is_array( $download ) ) {
+			$upload = $this->upload_temp_media_file_to_uploads( (string) ( $download['tmp_file'] ?? '' ), $filename );
+			if ( is_wp_error( $upload ) ) {
+				return $upload;
+			}
+		} else {
+			$upload = $this->upload_remote_media_body_from_memory( $url, $get_args, $max_bytes, $filename );
+			if ( is_wp_error( $upload ) ) {
+				return $upload;
+			}
+		}
+
 		$file_path = (string) ( $upload['file'] ?? '' );
 		$file_url  = esc_url_raw( (string) ( $upload['url'] ?? '' ) );
 		if ( '' === $file_path || ! is_readable( $file_path ) ) {
@@ -4011,6 +4007,147 @@ final class Core_Write_Package {
 		$this->generate_attachment_metadata_for_file( absint( $attachment_id ), $file_path );
 
 		return absint( $attachment_id );
+	}
+
+	/**
+	 * Streams one remote media response to a temporary file when WordPress supports it.
+	 *
+	 * @param string              $url Remote URL.
+	 * @param array<string,mixed> $args HTTP request args.
+	 * @param int                 $max_bytes Maximum allowed bytes.
+	 * @return array<string,mixed>|\WP_Error|null
+	 */
+	private function download_remote_media_to_temp_file( $url, array $args, $max_bytes ) {
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			return null;
+		}
+
+		$tmp_file = wp_tempnam( $url );
+		if ( ! is_string( $tmp_file ) || '' === $tmp_file ) {
+			return null;
+		}
+
+		$args['stream']   = true;
+		$args['filename'] = $tmp_file;
+		$response         = wp_safe_remote_get( $url, $args );
+		if ( is_wp_error( $response ) ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', $response->get_error_message(), array( 'status' => 400 ) );
+		}
+
+		$status = (int) wp_remote_retrieve_response_code( $response );
+		if ( $status >= 400 ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$file_size = is_readable( $tmp_file ) ? absint( filesize( $tmp_file ) ) : 0;
+		if ( $file_size <= 0 || $file_size > $max_bytes ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		return array(
+			'tmp_file'       => $tmp_file,
+			'filesize_bytes' => $file_size,
+		);
+	}
+
+	/**
+	 * Copies a streamed temporary file into the WordPress uploads directory.
+	 *
+	 * @param string $tmp_file Temporary file path.
+	 * @param string $filename Requested file name.
+	 * @return array<string,string>|\WP_Error
+	 */
+	private function upload_temp_media_file_to_uploads( $tmp_file, $filename ) {
+		if ( '' === $tmp_file || ! is_readable( $tmp_file ) || ! function_exists( 'wp_upload_dir' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Downloaded media file is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$upload_dir = wp_upload_dir();
+		$base_dir   = is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ?? '' ) : '';
+		$base_url   = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+		$path_dir   = is_array( $upload_dir ) ? (string) ( $upload_dir['path'] ?? '' ) : '';
+		$path_url   = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['url'] ?? '' ) ) : '';
+		if ( '' === $base_dir || '' === $base_url ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Uploads directory is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( '' === $path_dir ) {
+			$path_dir = $base_dir;
+		}
+		if ( '' === $path_url ) {
+			$path_url = $base_url;
+		}
+		if ( ! $this->ensure_media_directory( $path_dir ) ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Uploads directory could not be created.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$filename    = $this->unique_media_basename( $path_dir, $filename );
+		$target_path = $this->trailingslashit_value( $path_dir ) . $filename;
+		if ( ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_path_blocked', __( 'Target media path is outside uploads.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if (
+			! $this->copy_media_file(
+				$tmp_file,
+				$target_path,
+				array(
+					'operation' => 'upload_media_from_url',
+					'step'      => 'copy_temp_to_uploads',
+				)
+			)
+		) {
+			wp_delete_file( $tmp_file );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Downloaded media file could not be moved into uploads.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		wp_delete_file( $tmp_file );
+
+		return array(
+			'file' => $target_path,
+			'url'  => $this->trailingslashit_value( $path_url ) . $filename,
+		);
+	}
+
+	/**
+	 * Fallback for runtimes that cannot stream HTTP responses into temporary files.
+	 *
+	 * @param string              $url Remote URL.
+	 * @param array<string,mixed> $args HTTP request args.
+	 * @param int                 $max_bytes Maximum allowed bytes.
+	 * @param string              $filename Upload filename.
+	 * @return array<string,string>|\WP_Error
+	 */
+	private function upload_remote_media_body_from_memory( $url, array $args, $max_bytes, $filename ) {
+		if ( ! function_exists( 'wp_upload_bits' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		$get_response = wp_safe_remote_get( $url, $args );
+		if ( is_wp_error( $get_response ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', $get_response->get_error_message(), array( 'status' => 400 ) );
+		}
+		$get_status = (int) wp_remote_retrieve_response_code( $get_response );
+		if ( $get_status >= 400 ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$file_contents = (string) wp_remote_retrieve_body( $get_response );
+		$file_size     = strlen( $file_contents );
+		if ( $file_size <= 0 || $file_size > $max_bytes ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$upload = wp_upload_bits( $filename, null, $file_contents );
+		if ( ! empty( $upload['error'] ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', sanitize_text_field( (string) $upload['error'] ), array( 'status' => 400 ) );
+		}
+
+		return $upload;
 	}
 
 	/**
@@ -5439,7 +5576,61 @@ final class Core_Write_Package {
 		if ( '' === $basedir ) {
 			return '';
 		}
-		return $this->trailingslashit_value( $basedir ) . $relative_file;
+		$path = $this->trailingslashit_value( $basedir ) . $relative_file;
+		return $this->is_media_uploads_path_allowed( $path ) ? $path : '';
+	}
+
+	/**
+	 * Returns the uploads base directory for media file operations.
+	 *
+	 * @return string
+	 */
+	private function media_uploads_base_dir() {
+		if ( ! function_exists( 'wp_upload_dir' ) ) {
+			return '';
+		}
+		$upload_dir = wp_upload_dir();
+		return is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ?? '' ) : '';
+	}
+
+	/**
+	 * Normalizes filesystem paths for conservative containment checks.
+	 *
+	 * @param string $path Absolute path.
+	 * @return string
+	 */
+	private function normalize_filesystem_path( $path ) {
+		$path = str_replace( '\\', '/', (string) $path );
+		$path = preg_replace( '#/+#', '/', $path );
+		return rtrim( (string) $path, '/' );
+	}
+
+	/**
+	 * Checks whether a target path remains within the WordPress uploads basedir.
+	 *
+	 * @param string $path Absolute path.
+	 * @return bool
+	 */
+	private function is_media_uploads_path_allowed( $path ) {
+		$base_dir = $this->normalize_filesystem_path( $this->media_uploads_base_dir() );
+		$path     = $this->normalize_filesystem_path( $path );
+		if ( '' === $base_dir || '' === $path ) {
+			return false;
+		}
+		if ( $path !== $base_dir && 0 !== strpos( $path, $base_dir . '/' ) ) {
+			return false;
+		}
+
+		$base_real = realpath( $base_dir );
+		$path_dir  = is_dir( $path ) ? $path : dirname( $path );
+		$dir_real  = realpath( $path_dir );
+		if ( false === $base_real || false === $dir_real ) {
+			return true;
+		}
+
+		$base_real = $this->normalize_filesystem_path( $base_real );
+		$dir_real  = $this->normalize_filesystem_path( $dir_real );
+		return $dir_real === $base_real || 0 === strpos( $dir_real, $base_real . '/' );
 	}
 
 	/**
@@ -5529,6 +5720,9 @@ final class Core_Write_Package {
 	private function write_media_file( $target_path, $contents, array $context = array() ) {
 		$target_path = (string) $target_path;
 		$contents    = (string) $contents;
+		if ( ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			return false;
+		}
 		$blocked     = apply_filters( 'npcink_abilities_toolkit_media_file_write_blocked', false, $target_path, strlen( $contents ), $context );
 		if ( true === $blocked ) {
 			return false;
@@ -5547,6 +5741,9 @@ final class Core_Write_Package {
 	private function copy_media_file( $source_path, $target_path, array $context = array() ) {
 		$source_path = (string) $source_path;
 		$target_path = (string) $target_path;
+		if ( ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			return false;
+		}
 		$blocked     = apply_filters( 'npcink_abilities_toolkit_media_file_copy_blocked', false, $source_path, $target_path, $context );
 		if ( true === $blocked ) {
 			return false;
@@ -5565,6 +5762,9 @@ final class Core_Write_Package {
 	private function move_media_file( $source_path, $target_path, array $context = array() ) {
 		$source_path = (string) $source_path;
 		$target_path = (string) $target_path;
+		if ( ! $this->is_media_uploads_path_allowed( $source_path ) || ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			return false;
+		}
 		if ( '' === $source_path || '' === $target_path || ! is_readable( $source_path ) || file_exists( $target_path ) ) {
 			return false;
 		}

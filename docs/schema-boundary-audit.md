@@ -12,6 +12,9 @@ destructive abilities.
 - `dry_run` defaults to `true`; `commit` defaults to `false`.
 - `idempotency_key` is bounded to 190 characters.
 - First-party write/destructive input schemas use `additionalProperties=false`.
+- Intentional input schema extension points are recorded in
+  `scripts/check-ability-contracts.php`; new `additionalProperties` usage must
+  either be tightened or added to that allowlist with a reviewed reason.
 - Write/destructive abilities expose both `requires_confirm=true` and
   `requires_approval=true`.
 - `set-post-seo-meta` no longer treats omitted SEO fields as empty-string
@@ -32,6 +35,9 @@ before broad public automation:
 - Bulk and remote-media abilities already carry operation limits, but hosts
   should still enforce rate limits and proposal review before exposing them to
   unattended agents.
+- Remote media sideloading streams to a temporary file when WordPress provides
+  temp-file support, then moves the file into uploads before MIME validation and
+  attachment creation.
 
 ## Verification
 

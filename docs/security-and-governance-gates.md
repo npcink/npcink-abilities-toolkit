@@ -18,7 +18,8 @@ MCP governance, audit storage, quota enforcement, or product administration.
 - dry-run defaults for write and destructive abilities;
 - host approval context requirements before commit;
 - bounded input schemas;
-- redaction in diagnostics and operational summaries.
+- redaction in diagnostics and operational summaries;
+- uploads path containment for package-owned media file writes and moves.
 
 ## Not Owned Here
 
@@ -84,6 +85,8 @@ The contract audit must fail when:
   `idempotency_key`;
 - write-like input schemas accept undeclared fields without a documented
   exception;
+- input schema `additionalProperties` extension points are added without the
+  contract audit allowlist;
 - REST, MCP, Npcink, or annotation risk metadata drift apart;
 - MCP-public read abilities drift outside the ADR 0004 entrypoint allowlist;
 - required `agent_usage` guidance is missing from priority or high-risk
@@ -109,6 +112,12 @@ summaries. They must not expose:
 - cron argument values;
 - external HTTP probe results unless a future ability contract explicitly
   accepts that scope.
+
+`npcink-abilities-toolkit/wp-ops-diagnostics-detail` defaults to
+`profile=summary`. Heavier plugin rows, cron events, log inspection, database
+state, roles, widgets, block-theme, search, integration, and current-user
+sections require `profile=detail`, `profile=forensics`, or explicit include
+flags. Log contents remain redacted and tail-bounded.
 
 ## Workflow Recipe Security
 

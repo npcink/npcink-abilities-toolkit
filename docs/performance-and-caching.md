@@ -72,6 +72,8 @@ alone while changing read chains or cache behavior.
 
 The smoke measures representative bounded chains:
 
+- cached catalog fingerprint reuse;
+- bounded diagnostics log tail reads against a large local log;
 - content inventory health;
 - cached SEO/GEO gap report;
 - article publish preflight context;
@@ -80,6 +82,12 @@ The smoke measures representative bounded chains:
 
 Budgets are intentionally conservative and local. They catch accidental
 explosions in scan cost or aggregator composition, not production latency.
+
+Catalog observability keeps a request-local fingerprint cache and only rechecks
+the shutdown snapshot when the request registered a changed catalog. Diagnostics
+log reads use a seeked tail read before falling back to WordPress filesystem
+contents so support helpers do not load full large logs just to return a bounded
+tail.
 
 For a real WordPress site, also run:
 
