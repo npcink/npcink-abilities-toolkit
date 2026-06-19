@@ -20,6 +20,38 @@ Keep `npcink-abilities-toolkit` in freeze/observe mode.
   proposal/dry-run schema gap that existing abilities cannot satisfy by
   composition.
 
+## Ledger Entry Rule
+
+Record only real host proofs here. Each new proof entry should identify:
+
+- the host or consumer that ran the proof;
+- the workflow recipe or ability chain under test;
+- the exact abilities discovered through the WordPress Abilities API;
+- whether the flow stopped at proposal, dry-run, or host-governed handoff;
+- whether any WordPress mutation happened before approval;
+- the validation commands or pull request evidence;
+- the owner of any remaining gap.
+
+Do not add candidate ability names, product ideas, prompt fixes, or runtime
+tasks to this ledger. Those belong in the consuming host unless the proof fails
+because an existing WordPress-local read/proposal/dry-run contract cannot
+represent the needed reviewable artifact.
+
+## Workflow Consumer Validation Target
+
+Use existing workflow recipes as validation targets, not as a Toolkit runtime.
+A valid host proof should:
+
+1. Discover the recipe and abilities through the WordPress Abilities API or the
+   Toolkit workflow discovery helpers.
+2. Compose only the read or proposal handoff needed by the host.
+3. Preserve the recipe reference and real ability ids in the host/Core proposal
+   path when a proposal is created.
+4. Verify that Toolkit did not directly mutate WordPress before approval and
+   execution.
+5. Reopen Toolkit work only when the failure is a small reusable contract gap
+   in this package.
+
 ## Proof Ledger
 
 | Proof target | Current state | Missing before closed-loop proof | Owner of next action |
