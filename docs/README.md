@@ -85,7 +85,10 @@ Use this path when changing this package.
 9. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
    for the public repository handoff, CI baseline, and post-publication gate
    status.
-10. Record release evidence in the relevant release verification document.
+10. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
+    for the PR #57 merged hardening scope, validation evidence, and no-release
+    decision.
+11. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

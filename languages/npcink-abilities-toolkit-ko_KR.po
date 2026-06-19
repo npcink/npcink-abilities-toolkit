@@ -3036,3 +3036,22 @@ msgstr "true인 경우 최종 커밋을 시도합니다. 호스트 승인 컨텍
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr "감사 및 재생 상관 관계를 위한 호스트 제공 멱등성 키(선택 사항)입니다."
+#: includes/Admin/Test_Page.php
+msgid "Add provider abilities"
+msgstr "제공자 기능 추가"
+
+#: includes/Admin/Test_Page.php
+msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
+msgstr "제공자 플러그인은 공개 헬퍼를 호출하고 내부 Toolkit 파일 포함을 피해야 합니다."
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Client Values"
+msgstr "클라이언트 값 복사"
+
+#: includes/Admin/Test_Page.php
+msgid "Contract Endpoint"
+msgstr "계약 엔드포인트"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy Contract Endpoint"
+msgstr "계약 엔드포인트 복사"

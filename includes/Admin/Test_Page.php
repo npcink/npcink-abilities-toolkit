@@ -142,6 +142,7 @@ final class Test_Page {
 
 		$abilities_url  = rest_url( 'wp-abilities/v1/abilities' );
 		$categories_url = rest_url( 'wp-abilities/v1/categories' );
+		$contract_url   = rest_url( 'npcink-abilities-toolkit/v1/contract' );
 		$status         = $this->get_environment_status();
 		$registered     = $this->abilities->all();
 		$active_tab     = $this->get_active_tab();
@@ -157,7 +158,7 @@ final class Test_Page {
 				if ( 'catalog' === $active_tab ) {
 					$this->render_ability_catalog( $registered );
 				} elseif ( 'smoke' === $active_tab ) {
-					$this->render_smoke_tests( $abilities_url, $categories_url, $registered );
+					$this->render_smoke_tests( $abilities_url, $categories_url, $contract_url, $registered );
 				} else {
 					$this->render_status_summary( $status, $registered );
 				}
@@ -317,6 +318,11 @@ final class Test_Page {
 					<h3><?php echo esc_html__( 'Connect a host', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'Use the endpoint values for Npcink Core, OpenClaw Adapter, or another Abilities API client.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'smoke' ) ); ?>"><?php echo esc_html__( 'View Endpoints', 'npcink-abilities-toolkit' ); ?></a>
+				</div>
+				<div class="npcink-abilities-toolkit-next__item">
+					<h3><?php echo esc_html__( 'Add provider abilities', 'npcink-abilities-toolkit' ); ?></h3>
+					<p><?php echo esc_html__( 'Provider plugins should call the public helpers and avoid including internal Toolkit files.', 'npcink-abilities-toolkit' ); ?></p>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'smoke' ) ); ?>"><?php echo esc_html__( 'Copy Client Values', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 			</div>
 			<p class="description">
@@ -798,10 +804,11 @@ final class Test_Page {
 	 *
 	 * @param string $abilities_url Abilities endpoint URL.
 	 * @param string $categories_url Categories endpoint URL.
+	 * @param string $contract_url Contract endpoint URL.
 	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
 	 */
-	private function render_smoke_tests( $abilities_url, $categories_url, array $registered ) {
+	private function render_smoke_tests( $abilities_url, $categories_url, $contract_url, array $registered ) {
 		$site_info_available = isset( $registered['npcink-abilities-toolkit/site-info'] );
 		$diagnostics_available = isset( $registered['npcink-abilities-toolkit/wp-diagnostics-summary'] );
 		?>
@@ -828,6 +835,15 @@ final class Test_Page {
 					<td>
 						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-categories-endpoint">
 							<?php echo esc_html__( 'Copy Categories Endpoint', 'npcink-abilities-toolkit' ); ?>
+						</button>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><?php echo esc_html__( 'Contract Endpoint', 'npcink-abilities-toolkit' ); ?></th>
+					<td><code id="npcink-abilities-toolkit-contract-endpoint"><?php echo esc_html( $contract_url ); ?></code></td>
+					<td>
+						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-contract-endpoint">
+							<?php echo esc_html__( 'Copy Contract Endpoint', 'npcink-abilities-toolkit' ); ?>
 						</button>
 					</td>
 				</tr>

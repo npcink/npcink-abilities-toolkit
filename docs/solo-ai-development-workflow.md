@@ -67,6 +67,54 @@ For documentation-only changes, `git diff --check` plus the relevant project
 gate is usually enough. Use `composer test:all` when the document updates
 operating rules that tests or release checks rely on.
 
+## Commit Scope Gate
+
+Before staging, inspect:
+
+```bash
+git status --short --branch
+git diff --stat
+```
+
+If unrelated local edits already exist, report them separately and leave them
+unstaged. Do not use `git add -A` in a mixed worktree. If one file contains both
+current-task and unrelated hunks, stage only the intended hunk with `git add -p`
+or `git apply --cached`.
+
+Before committing, verify:
+
+```bash
+git diff --cached --stat
+git diff --cached --name-only
+```
+
+After committing, verify:
+
+```bash
+git show --name-status --stat HEAD
+```
+
+If unexpected files or hunks entered the commit, immediately run
+`git reset --mixed HEAD~1` and recommit the correct scope. This keeps the
+working tree changes intact while repairing the commit boundary.
+
+## Publication Status Gate
+
+Local commits are not published work. Before calling a stage closed, run:
+
+```bash
+git status --short --branch
+```
+
+If the branch is ahead of its upstream, choose one of these outcomes:
+
+- push the branch and open or update the PR;
+- intentionally keep the commits local and record why;
+- split or move the commits to a dedicated branch before publishing.
+
+Do not describe a milestone as fully closed while omitting the branch
+ahead/behind state or hiding remaining modified/untracked files.
+
 ## Pull Requests And GitHub Actions
 
 Push the branch and open a pull request:

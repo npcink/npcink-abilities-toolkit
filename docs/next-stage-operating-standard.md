@@ -1,7 +1,7 @@
 # Next Stage Operating Standard
 
 Status: active
-Date: 2026-06-07
+Date: 2026-06-19
 
 This standard captures the next-stage operating rules for
 `npcink-abilities-toolkit` after the 0.5 contract-readiness line. It turns the
@@ -63,6 +63,20 @@ During the current freeze/observe period, do these in order:
    diagnostics redaction, bounded performance, replay fixture, or documented
    host-proof gaps.
 
+Current stage update:
+
+- The article optimization and article media handoff proofs are closed-loop
+  proven from current main branches. Keep observing; no Toolkit ability gap is
+  open from those proofs.
+- The next active proof target is Block theme / Gutenberg intent routing. Run
+  it as a narrow host-side proof that discovers existing abilities through the
+  WordPress Abilities API, maps the intent to proposal/write targets, and stops
+  before write execution.
+- Keep third-party integration improvements on packaged discovery surfaces:
+  `readme.txt`, the admin discovery page, and REST/contract endpoint values.
+  Do not ship the repository `docs/`, `examples/`, or scripts in the release
+  zip just to make provider onboarding easier.
+
 ## Implementation Order
 
 ### 1. Promote Workflow Proof Before Ability Expansion
@@ -72,6 +86,7 @@ workflow proof targets are:
 
 - `workflow/wordpress_article_optimization`
 - `workflow/wordpress_article_media_handoff`
+- Block theme / Gutenberg intent routing, as a narrow proof only
 
 The current proof ledger is tracked in `docs/host-proof-status.md`.
 

@@ -1,7 +1,7 @@
 # Host Proof Status
 
 Status: active tracking note.
-Date: 2026-06-17.
+Date: 2026-06-19.
 
 This note records the current host-proof ledger for the freeze/observe period.
 It is intentionally a status document, not an ability backlog. A new Toolkit
@@ -52,13 +52,36 @@ A valid host proof should:
 5. Reopen Toolkit work only when the failure is a small reusable contract gap
    in this package.
 
+## Next-Stage Execution Queue
+
+Run the next stage in this order:
+
+1. Keep Toolkit in freeze/observe mode and do not add first-party abilities.
+2. Run the Block theme / Gutenberg intent-routing proof from a host or Adapter
+   path. The proof must discover existing abilities through the WordPress
+   Abilities API, preserve real ability ids in any proposal handoff, and stop at
+   proposal, dry-run, or host-governed write target selection.
+3. If the proof passes, record the host, commands, ability chain, and no-direct
+   WordPress mutation evidence in this ledger.
+4. If the proof fails, classify the gap before opening Toolkit work. Routing,
+   prompt selection, model/runtime behavior, signed handoff, approval storage,
+   audit truth, and product review UX belong outside Toolkit by default.
+5. Improve packaged third-party onboarding only through release-visible
+   discovery surfaces such as `readme.txt` and the admin page. Keep repository
+   examples and long-form docs outside the release zip.
+
 ## Proof Ledger
 
 | Proof target | Current state | Missing before closed-loop proof | Owner of next action |
 | --- | --- | --- | --- |
 | `workflow/wordpress_article_optimization` | Closed-loop host proof passed on 2026-06-17. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull requests #2 and #3 resolved signed-client preflight binding and dependency contract semantic checks. Adapter pull request #5 added and passed a real WordPress smoke that runs the Toolkit apply plan through Adapter `run-read-ability`, submits it through Adapter `/proposals/from-plan`, reads the Core proposal back through Adapter, and verifies the source recipe, no-direct-write posture, and unchanged post excerpt. | Keep observing; no Toolkit ability gap is open from this proof. | None. |
 | `workflow/wordpress_article_media_handoff` | Closed-loop host proof passed on 2026-06-17. Toolkit exposes the declarative workflow/replay direction. Toolbox has adjacent article/media batch and media conversion review-set evidence that keeps Core proposal review and no-execute boundaries visible. Adapter pull request #6 added and passed a real WordPress smoke that discovers the workflow through Adapter, runs `build-media-seo-assets`, creates a governed Core `update-media-details` proposal from reviewed metadata, reads the proposal back through Adapter, and verifies the recipe ref, no-direct-write posture, and unchanged attachment metadata before approval/execution. | Keep observing; no Toolkit ability gap is open from this proof. | None. |
-| Block theme / Gutenberg intent routing | Contract-hardened, not fully host-proved. Toolkit and Core now cover block theme context, bounded layout profiles, proposal preservation, and no mutation during from-plan intake. Recent Gutenberg composer repair-loop work expanded the proof surface, so the freeze posture must be watched closely. | Run a host-side intent-routing proof that discovers abilities through WordPress Abilities API and stops at proposal/write targets. Do not add another Toolkit ability unless that proof identifies a reusable WordPress contract gap. | Host proof; Toolkit only if failed proof is Toolkit-owned. |
+| Block theme / Gutenberg intent routing | Next active narrow proof. Toolkit and Core now cover block theme context, bounded layout profiles, proposal preservation, and no mutation during from-plan intake. Recent Gutenberg composer repair-loop work expanded the proof surface, so the freeze posture must be watched closely. | Run a host-side intent-routing proof that discovers abilities through WordPress Abilities API, records the existing ability chain, preserves recipe or source-task context in the proposal handoff, and stops at proposal/write targets. Do not add another Toolkit ability unless that proof identifies a reusable WordPress contract gap. | Host proof; Toolkit only if failed proof is Toolkit-owned. |
+
+The Block theme / Gutenberg proof does not block basic third-party provider
+onboarding. Provider plugins that register read-only abilities or
+write-proposal abilities through the public helpers can proceed while that
+host-side proof remains open.
 
 ## Adapter Pull Request Disposition
 
