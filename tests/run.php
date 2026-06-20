@@ -1060,6 +1060,7 @@ $migrated_read_ability_ids = array(
 		'npcink-abilities-toolkit/build-media-optimization-plan',
 		'npcink-abilities-toolkit/build-media-rename-plan',
 		'npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions',
+		'npcink-abilities-toolkit/suggest-post-taxonomy-terms',
 		'npcink-abilities-toolkit/propose-post-taxonomy-terms',
 		'npcink-abilities-toolkit/get-page-structure-health',
 		'npcink-abilities-toolkit/route-content-intent',
@@ -1618,6 +1619,9 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
+npcink_abilities_toolkit_assert_same( array( 'both', 'category', 'post_tag' ), $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['taxonomy']['enum'] ?? array(), 'post taxonomy suggestions support both category and tag candidates' );
+npcink_abilities_toolkit_assert_same( 20, $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['related_term_evidence']['maxItems'] ?? null, 'post taxonomy suggestions bound related term evidence' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['commit'] ), 'post taxonomy suggestions do not expose a commit control' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 npcink_abilities_toolkit_assert_same( 20, $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-page-structure-health']['input_schema']['properties']['max_pages']['maximum'] ?? null, 'page structure health scan is bounded to 100 pages' );
@@ -1645,6 +1649,7 @@ npcink_abilities_toolkit_assert_same( 'core_wordpress_read', $package_abilities[
 npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['npcink-abilities-toolkit/build-content-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'content inventory fix plan is classified as content operations' );
 npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media inventory fix plan is classified as media governance' );
+npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy suggestions are classified as taxonomy governance' );
 npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page plan is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/route-content-intent']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'content intent router is classified as page governance' );
@@ -1682,18 +1687,18 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[16] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[17] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $core_read_definition_ids[18] ?? '', 'core read definitions keep the block composition catalog before concrete planners' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/compose-gutenberg-block-plan', $core_read_definition_ids[19] ?? '', 'core read definitions keep the composer repair loop after the block catalog' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-gutenberg-composition-contract', $core_read_definition_ids[20] ?? '', 'core read definitions keep composition contract inspection after the composer loop' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[21] ?? '', 'core read definitions keep block theme context near page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[24] ?? '', 'core read definitions keep block theme inspection before site planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[25] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[26] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[27] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[28] ?? '', 'core read definitions keep block surface review near pattern page review' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[29] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[17] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[18] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $core_read_definition_ids[19] ?? '', 'core read definitions keep the block composition catalog before concrete planners' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/compose-gutenberg-block-plan', $core_read_definition_ids[20] ?? '', 'core read definitions keep the composer repair loop after the block catalog' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-gutenberg-composition-contract', $core_read_definition_ids[21] ?? '', 'core read definitions keep composition contract inspection after the composer loop' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[22] ?? '', 'core read definitions keep block theme context near page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[25] ?? '', 'core read definitions keep block theme inspection before site planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[26] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[27] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[28] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[29] ?? '', 'core read definitions keep block surface review near pattern page review' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[30] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
@@ -5077,6 +5082,33 @@ $taxonomy_consolidation = $core_read_package->get_taxonomy_consolidation_suggest
 npcink_abilities_toolkit_assert_same( true, $taxonomy_consolidation['success'] ?? null, 'get-taxonomy-consolidation-suggestions returns a success envelope' );
 npcink_abilities_toolkit_assert_true( (int) ( $taxonomy_consolidation['data']['summary']['suggestion_count'] ?? 0 ) >= 1, 'get-taxonomy-consolidation-suggestions returns suggestions' );
 npcink_abilities_toolkit_assert_same( 'duplicate_or_near_duplicate', $taxonomy_consolidation['data']['suggestions'][1]['type'] ?? '', 'get-taxonomy-consolidation-suggestions detects duplicate term groups' );
+$post_taxonomy_suggestions = $core_read_package->suggest_post_taxonomy_terms(
+	array(
+		'taxonomy'              => 'both',
+		'title'                 => 'AI Workflow planning guide',
+		'excerpt'               => 'A workflow operations guide for editorial teams.',
+		'query'                 => 'AI workflow operations',
+		'related_term_evidence' => array(
+			array(
+				'term_id'         => 401,
+				'taxonomy'        => 'post_tag',
+				'name'            => 'AI Workflow',
+				'source_count'    => 1,
+				'source_post_ids' => array( 77 ),
+				'source_titles'   => array( 'Related AI workflow case study' ),
+				'source_refs'     => array( 'site_knowledge:77' ),
+				'max_similarity'  => 0.91,
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $post_taxonomy_suggestions['success'] ?? null, 'suggest-post-taxonomy-terms returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'article_taxonomy_suggestions.v1', $post_taxonomy_suggestions['data']['artifact_type'] ?? '', 'suggest-post-taxonomy-terms returns article taxonomy suggestions' );
+npcink_abilities_toolkit_assert_same( 'suggestion_only', $post_taxonomy_suggestions['data']['write_posture'] ?? '', 'suggest-post-taxonomy-terms stays suggestion-only' );
+npcink_abilities_toolkit_assert_same( 'core_proposal_required', $post_taxonomy_suggestions['data']['final_write_path'] ?? '', 'suggest-post-taxonomy-terms requires Core proposal for writes' );
+npcink_abilities_toolkit_assert_same( 'AI Workflow', $post_taxonomy_suggestions['data']['tag_candidates'][0]['name'] ?? '', 'suggest-post-taxonomy-terms ranks matching existing tags' );
+npcink_abilities_toolkit_assert_true( in_array( 'related_site_knowledge_term', $post_taxonomy_suggestions['data']['tag_candidates'][0]['match_signals'] ?? array(), true ), 'suggest-post-taxonomy-terms keeps related evidence as ranking signal' );
+npcink_abilities_toolkit_assert_same( true, $post_taxonomy_suggestions['data']['selection_policy']['new_terms_deferred'] ?? null, 'suggest-post-taxonomy-terms defers new term creation' );
 $GLOBALS['npcink_abilities_toolkit_unit_post_terms'][77]['post_tag'] = array(
 	(object) array(
 		'term_id' => 401,

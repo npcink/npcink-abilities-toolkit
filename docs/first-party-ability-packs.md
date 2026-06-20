@@ -55,6 +55,7 @@ Representative abilities:
 - `npcink-abilities-toolkit/build-media-inventory-fix-plan`
 - `npcink-abilities-toolkit/get-taxonomy-inventory-health`
 - `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`
+- `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/list-terms`
 - `npcink-abilities-toolkit/list-taxonomy-terms`

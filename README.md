@@ -207,6 +207,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/list-categories`
 - `npcink-abilities-toolkit/list-tags`
 - `npcink-abilities-toolkit/get-term`
+- `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-excerpt`
 - `npcink-abilities-toolkit/list-users`

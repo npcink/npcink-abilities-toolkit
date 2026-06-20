@@ -158,6 +158,12 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Preparing bounded dry-run input for a host-governed set-post-terms proposal.' ),
 				'stopping_points' => array( 'Stop at the returned proposal; final taxonomy writes require Core approval and host execution.' ),
 			),
+			'npcink-abilities-toolkit/suggest-post-taxonomy-terms' => array(
+				'when_to_use'     => array( 'Rank existing category and tag candidates from current article context.' ),
+				'not_for'         => array( 'Do not use this to create missing terms, assign terms, classify with an external model, or mutate posts.' ),
+				'best_for'        => array( 'Toolbox, OpenClaw, or third-party support clients that need suggestion-only taxonomy candidates before a reviewed Core proposal.' ),
+				'stopping_points' => array( 'Stop at candidate suggestions; accepted taxonomy writes must go through propose-post-taxonomy-terms or a host-governed set-post-terms proposal.' ),
+			),
 		);
 	}
 }
