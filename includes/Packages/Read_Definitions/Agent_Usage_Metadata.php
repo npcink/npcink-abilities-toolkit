@@ -128,6 +128,12 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Preparing one Core batch proposal for the user intent "optimize this media item" with metadata and derivative adoption actions.' ),
 				'stopping_points' => array( 'Stop at proposal-ready write_actions; Core/host owns proposal creation, approval, commit-preflight, audit, and final execution.' ),
 			),
+			'npcink-abilities-toolkit/build-image-candidate-adoption-plan' => array(
+				'when_to_use'     => array( 'Turn one reviewed image_candidate.v1 or reviewed remote image URL into a dry-run media import, metadata, and optional featured-image adoption plan.' ),
+				'not_for'         => array( 'Do not use this to search for images, generate images, approve proposals, import files immediately, optimize derivatives, patch content references, or mutate WordPress.' ),
+				'best_for'        => array( 'Toolbox, OpenClaw, and third-party plugin surfaces that already selected one image candidate and need a reusable Core-ready media adoption plan.' ),
+				'stopping_points' => array( 'Stop at proposal-ready write_actions; final upload, metadata update, featured-image setting, proposal approval, and execution remain host/Core-governed.' ),
+			),
 			'npcink-abilities-toolkit/build-media-adoption-preflight-summary' => array(
 				'when_to_use'     => array( 'Summarize whether one reviewed derivative artifact is ready to hand into a governed Core media adoption proposal.' ),
 				'not_for'         => array( 'Do not use this to generate derivatives, create proposals, approve proposals, replace files, scan all settings, or execute WordPress writes.' ),
