@@ -49,6 +49,7 @@ Representative abilities:
 - `npcink-abilities-toolkit/list-media-backups`
 - `npcink-abilities-toolkit/build-media-derivative-cloud-request`
 - `npcink-abilities-toolkit/build-media-optimization-plan`
+- `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
 - `npcink-abilities-toolkit/build-media-rename-plan`
 - `npcink-abilities-toolkit/get-media-cleanup-opportunities`
 - `npcink-abilities-toolkit/build-media-inventory-fix-plan`
@@ -118,6 +119,14 @@ Representative write abilities:
 - `npcink-abilities-toolkit/schedule-post`
 - `npcink-abilities-toolkit/publish-post`
 - `npcink-abilities-toolkit/restore-post`
+
+`npcink-abilities-toolkit/build-image-candidate-adoption-plan` is the reusable
+Core handoff planner for one reviewed `image_candidate.v1`. It preserves source,
+attribution, download tracking, filename suggestion, and asset-persistence
+evidence while emitting dry-run actions for `upload-media-from-url`,
+`update-media-details`, and optional `set-post-featured-image`. It does not
+search image sources, generate images, import files, approve proposals, or
+execute writes.
 
 Media filename policy: `npcink-abilities-toolkit/upload-media-from-url` and
 `npcink-abilities-toolkit/adopt-cloud-media-derivative` may accept an approved `file_name` for
@@ -285,6 +294,7 @@ Representative abilities:
 - `npcink-abilities-toolkit/read-post-optimization-context`
 - `npcink-abilities-toolkit/build-article-single-optimization-suggest`
 - `npcink-abilities-toolkit/build-article-optimization-apply-plan`
+- `npcink-abilities-toolkit/build-content-metadata-apply-plan`
 - `npcink-abilities-toolkit/compose-article-optimization-apply-result`
 - `npcink-abilities-toolkit/extract-reference-post-style`
 - `npcink-abilities-toolkit/extract-style-baseline`

@@ -1014,6 +1014,7 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/read-post-optimization-context',
 	'npcink-abilities-toolkit/build-article-single-optimization-suggest',
 	'npcink-abilities-toolkit/build-article-optimization-apply-plan',
+	'npcink-abilities-toolkit/build-content-metadata-apply-plan',
 	'npcink-abilities-toolkit/compose-article-optimization-apply-result',
 	'npcink-abilities-toolkit/extract-reference-post-style',
 	'npcink-abilities-toolkit/extract-style-baseline',
@@ -1574,6 +1575,12 @@ npcink_abilities_toolkit_assert_same( array( 'url' ), $package_abilities['npcink
 npcink_abilities_toolkit_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media adoption enhancement plan exposes bounded local derivative formats' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['commit'] ), 'media adoption enhancement plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['dry_run'] ), 'media adoption enhancement plan does not expose write dry_run control' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan'] ), 'build-image-candidate-adoption-plan is registered as a read-only planning ability' );
+npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['required_scopes'] ?? array(), 'image candidate adoption plan reads media and post references' );
+npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['required'] ?? array(), 'image candidate adoption plan accepts image_candidate or direct URL input' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['properties']['set_featured_image'] ), 'image candidate adoption plan exposes optional featured image planning' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['properties']['commit'] ), 'image candidate adoption plan does not expose a commit control' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['properties']['dry_run'] ), 'image candidate adoption plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan'] ), 'build-media-settings-reference-repair-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan']['input_schema']['required'] ?? array(), 'build-media-settings-reference-repair-plan requires attachment id' );
 npcink_abilities_toolkit_assert_same( array( 'svg', 'gif', 'ico', 'pdf' ), $package_abilities['npcink-abilities-toolkit/build-media-settings-reference-repair-plan']['input_schema']['properties']['excluded_formats']['default'] ?? array(), 'media settings reference repair defaults excluded formats' );
@@ -4645,6 +4652,45 @@ npcink_abilities_toolkit_assert_same( '$outputs.optimize-media-asset.derivative_
 npcink_abilities_toolkit_assert_same( 2, $media_adoption_actions[2]['input']['operations'][0]['limit'] ?? 0, 'media adoption enhancement patch limits replacements to reviewed matches' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', $media_adoption_enhancement_plan['data']['handoff']['plan_ability_id'] ?? '', 'media adoption enhancement plan identifies itself for Core from-plan intake' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][82] );
+
+$image_candidate_adoption_plan = $core_read_package->build_image_candidate_adoption_plan(
+	array(
+		'post_id'            => 82,
+		'set_featured_image' => true,
+		'image_candidate'    => array(
+			'contract_version'      => 'image_candidate.v1',
+			'download_url'          => 'https://cdn.example.test/images/reviewed-featured.png',
+			'thumbnail_url'         => 'https://cdn.example.test/images/reviewed-featured-thumb.png',
+			'source_url'            => 'https://source.example.test/reviewed-featured',
+			'source_type'           => 'stock',
+			'provider'              => 'unsplash',
+			'provider_origin'       => 'toolbox',
+			'title'                 => 'Reviewed featured image',
+			'description'           => 'Reviewed source image for the article.',
+			'alt_description'       => 'Dashboard operator reviewing Core proposal.',
+			'attribution'           => 'Photo by Example',
+			'photographer'          => 'Example Photographer',
+			'download_location'     => 'https://api.unsplash.example.test/download-location',
+			'suggested_filename'    => 'reviewed-featured-image.png',
+			'license_review_status' => 'reviewed',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $image_candidate_adoption_plan['success'] ?? null, 'build-image-candidate-adoption-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'image_candidate_adoption_plan', $image_candidate_adoption_plan['data']['artifact_type'] ?? '', 'image candidate adoption plan declares artifact type' );
+npcink_abilities_toolkit_assert_same( false, $image_candidate_adoption_plan['data']['direct_wordpress_write'] ?? null, 'image candidate adoption plan does not directly write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $image_candidate_adoption_plan['data']['commit_execution'] ?? null, 'image candidate adoption plan keeps commit execution disabled' );
+npcink_abilities_toolkit_assert_same( true, $image_candidate_adoption_plan['meta']['readonly'] ?? null, 'image candidate adoption plan remains read-only' );
+$image_candidate_actions = (array) ( $image_candidate_adoption_plan['data']['write_actions'] ?? array() );
+npcink_abilities_toolkit_assert_same( 3, count( $image_candidate_actions ), 'image candidate adoption plan emits upload, metadata, and featured-image actions when requested' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/upload-media-from-url', $image_candidate_actions[0]['target_ability_id'] ?? '', 'image candidate adoption plan starts with media upload' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $image_candidate_actions[1]['target_ability_id'] ?? '', 'image candidate adoption plan updates media details after upload' );
+npcink_abilities_toolkit_assert_same( '$outputs.upload_image_candidate.attachment_id', $image_candidate_actions[1]['input']['attachment_id'] ?? '', 'image candidate metadata action uses the upload output reference' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/set-post-featured-image', $image_candidate_actions[2]['target_ability_id'] ?? '', 'image candidate adoption plan can include featured image assignment' );
+npcink_abilities_toolkit_assert_same( 'image_candidate.v1', $image_candidate_adoption_plan['data']['selected_image_candidate']['contract_version'] ?? '', 'image candidate adoption plan preserves image_candidate.v1 evidence' );
+npcink_abilities_toolkit_assert_same( 'https://api.unsplash.example.test/download-location', $image_candidate_adoption_plan['data']['selected_image_candidate']['download_location'] ?? '', 'image candidate adoption plan preserves source download tracking metadata' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-image-candidate-adoption-plan', $image_candidate_adoption_plan['data']['handoff']['plan_ability_id'] ?? '', 'image candidate adoption plan identifies the Toolkit Core handoff ability' );
+
 $GLOBALS['npcink_abilities_toolkit_unit_options']['theme_builder_media_setting'] = array(
 	'hero' => array(
 		'image' => 'https://example.test/wp-content/uploads/2026/06/workflow-diagram-image.jpg',
@@ -5246,6 +5292,46 @@ npcink_abilities_toolkit_assert_same( 77, $apply_plan_write_actions[0]['input'][
 npcink_abilities_toolkit_assert_same( 'Generated excerpt.', $apply_plan_write_actions[0]['input']['excerpt'] ?? '', 'build-article-optimization-apply-plan includes the reviewed excerpt' );
 npcink_abilities_toolkit_assert_same( true, $apply_plan_write_actions[0]['input']['dry_run'] ?? null, 'build-article-optimization-apply-plan write action is dry-run' );
 npcink_abilities_toolkit_assert_same( false, $apply_plan_write_actions[0]['input']['commit'] ?? null, 'build-article-optimization-apply-plan write action does not request commit' );
+$content_metadata_apply_plan = $core_read_package->build_content_metadata_apply_plan(
+	array(
+		'post_id'                => 77,
+		'excerpt'                => 'Reviewed excerpt for Core proposal.',
+		'category_ids'           => array( 3, 5, 5 ),
+		'tag_ids'                => array( 8, 13 ),
+		'category_mode'          => 'replace',
+		'tag_mode'               => 'append',
+		'evidence_refs'          => array( 'content-metadata-delta:excerpt', 'content-metadata-delta:taxonomy' ),
+		'content_metadata_delta' => array(
+			'source' => 'unit-test',
+		),
+		'new_term_candidates'    => array(
+			array(
+				'taxonomy' => 'post_tag',
+				'name'     => 'Deferred vocabulary gap',
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $content_metadata_apply_plan['success'] ?? null, 'build-content-metadata-apply-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'content_metadata_apply_plan', $content_metadata_apply_plan['data']['artifact_type'] ?? '', 'build-content-metadata-apply-plan declares a Core-ready artifact type' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit', $content_metadata_apply_plan['data']['source_recipe_provider'] ?? '', 'build-content-metadata-apply-plan is owned by Toolkit' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-content-metadata-apply-plan', $content_metadata_apply_plan['data']['handoff']['plan_ability_id'] ?? '', 'build-content-metadata-apply-plan identifies the Toolkit plan ability for Core from-plan intake' );
+npcink_abilities_toolkit_assert_same( true, $content_metadata_apply_plan['data']['requires_approval'] ?? null, 'build-content-metadata-apply-plan requires host approval' );
+npcink_abilities_toolkit_assert_same( true, $content_metadata_apply_plan['data']['dry_run'] ?? null, 'build-content-metadata-apply-plan is dry-run only' );
+npcink_abilities_toolkit_assert_same( false, $content_metadata_apply_plan['data']['commit_execution'] ?? null, 'build-content-metadata-apply-plan does not execute commits' );
+npcink_abilities_toolkit_assert_same( 'core_proposal_required', $content_metadata_apply_plan['data']['authorization']['classification'] ?? '', 'build-content-metadata-apply-plan carries proposal-required classification evidence' );
+npcink_abilities_toolkit_assert_same( array( 3, 5 ), $content_metadata_apply_plan['data']['accepted_choices']['category_ids'] ?? array(), 'build-content-metadata-apply-plan normalizes selected category ids' );
+npcink_abilities_toolkit_assert_same( 'manual_review_only_no_create_term_action', $content_metadata_apply_plan['data']['accepted_choices']['new_term_policy'] ?? '', 'build-content-metadata-apply-plan preserves new terms as review-only notes' );
+$content_metadata_write_actions = is_array( $content_metadata_apply_plan['data']['write_actions'] ?? null ) ? $content_metadata_apply_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( 3, count( $content_metadata_write_actions ), 'build-content-metadata-apply-plan emits excerpt, category, and tag proposal actions' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-post', $content_metadata_write_actions[0]['target_ability_id'] ?? '', 'build-content-metadata-apply-plan targets update-post for excerpt changes' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/set-post-terms', $content_metadata_write_actions[1]['target_ability_id'] ?? '', 'build-content-metadata-apply-plan targets set-post-terms for category changes' );
+npcink_abilities_toolkit_assert_same( false, $content_metadata_write_actions[1]['input']['create_missing'] ?? null, 'build-content-metadata-apply-plan never creates missing category terms' );
+npcink_abilities_toolkit_assert_same( true, $content_metadata_write_actions[1]['input']['dry_run'] ?? null, 'build-content-metadata-apply-plan category action is dry-run' );
+npcink_abilities_toolkit_assert_same( false, $content_metadata_write_actions[1]['input']['commit'] ?? null, 'build-content-metadata-apply-plan category action does not request commit' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/set-post-terms', $content_metadata_write_actions[2]['target_ability_id'] ?? '', 'build-content-metadata-apply-plan targets set-post-terms for tag changes' );
+npcink_abilities_toolkit_assert_same( false, $content_metadata_write_actions[2]['input']['create_missing'] ?? null, 'build-content-metadata-apply-plan never creates missing tag terms' );
+npcink_abilities_toolkit_assert_same( 1, count( $content_metadata_apply_plan['data']['manual_review'] ?? array() ), 'build-content-metadata-apply-plan records new-term candidates as manual review only' );
 $article_block_plan = $core_read_package->build_article_block_plan(
 	array(
 		'title'              => 'Gutenberg Article Draft',
