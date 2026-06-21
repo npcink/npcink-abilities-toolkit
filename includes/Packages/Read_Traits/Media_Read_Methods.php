@@ -3071,6 +3071,98 @@ trait Media_Read_Methods {
 	}
 
 	/**
+	 * Builds a review-only artifact for already retrieved image candidates.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_image_candidate_review_artifact( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review image candidates.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$raw_candidates = is_array( $input['image_candidates'] ?? null ) ? $input['image_candidates'] : array();
+		$candidate_limit = max( 1, min( 12, $this->absint_value( $input['candidate_limit'] ?? 8 ) ) );
+		$target_field = sanitize_key( (string) ( $input['target_field'] ?? 'featured_image' ) );
+		if ( ! in_array( $target_field, array( 'featured_image', 'paragraph_image', 'inline_image', 'setting_image' ), true ) ) {
+			$target_field = 'featured_image';
+		}
+
+		$items = array();
+		foreach ( array_slice( $raw_candidates, 0, $candidate_limit ) as $candidate ) {
+			if ( ! is_array( $candidate ) ) {
+				continue;
+			}
+			$normalized = $this->normalize_image_candidate_adoption_contract( $candidate );
+			$image_url = $this->image_candidate_first_non_empty_url(
+				array(
+					$normalized['download_url'] ?? '',
+					$normalized['regular_url'] ?? '',
+					$normalized['small_url'] ?? '',
+					$normalized['url'] ?? '',
+				)
+			);
+			$title = sanitize_text_field( (string) ( $normalized['title'] ?? $normalized['alt_description'] ?? $normalized['description'] ?? $normalized['prompt'] ?? '' ) );
+			if ( '' === $title && '' === $image_url ) {
+				continue;
+			}
+			$items[] = $normalized;
+		}
+
+		$recommendation_candidates = $this->build_image_candidate_recommendation_projections( $items, $target_field );
+
+		$data = array(
+			'artifact_type'              => 'image_candidate_review.v1',
+			'candidate_type'             => 'image_candidates',
+			'candidate_contract'         => 'image_candidate.v1',
+			'projection_contract'        => 'recommendation_candidate.v1',
+			'write_posture'              => 'suggestion_only',
+			'final_write_path'           => 'core_proposal_required',
+			'direct_wordpress_write'     => false,
+			'source_ability_id'          => 'npcink-abilities-toolkit/build-image-candidate-review-artifact',
+			'adoption_plan_ability_id'   => 'npcink-abilities-toolkit/build-image-candidate-adoption-plan',
+			'items'                      => array_values( $items ),
+			'recommendation_candidates'  => $recommendation_candidates,
+			'review_policy'              => array(
+				'image_retrieval_owner'      => 'host_or_provider_surface',
+				'provider_runtime_included'  => false,
+				'download_or_import_included' => false,
+				'automatic_media_import'     => false,
+				'license_review_required'    => true,
+				'attribution_preserved'      => true,
+			),
+			'handoff'                    => array(
+				'plan_ability_id'        => 'npcink-abilities-toolkit/build-image-candidate-adoption-plan',
+				'final_write_path'       => 'core_proposal_required',
+				'direct_wordpress_write' => false,
+				'blocked_actions'        => array(
+					'no_provider_search_in_toolkit',
+					'no_ai_image_generation_in_toolkit',
+					'no_media_import_in_review_artifact',
+					'no_featured_image_write_in_review_artifact',
+				),
+			),
+			'summary'                    => array(
+				'candidate_count'                => count( $items ),
+				'recommendation_candidate_count' => count( $recommendation_candidates ),
+				'target_field'                   => $target_field,
+			),
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_image_candidate_review_artifact',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+				'readonly'       => true,
+			),
+			'Image candidate review artifact built.'
+		);
+	}
+
+	/**
 	 * Builds one proposal-ready plan for adopting a reviewed image candidate.
 	 *
 	 * @param mixed $input Input args.
@@ -3458,6 +3550,85 @@ trait Media_Read_Methods {
 		);
 
 		return $candidate;
+	}
+
+	/**
+	 * Builds lightweight recommendation projections for image candidate review.
+	 *
+	 * @param array<int,array<string,mixed>> $items Normalized image candidates.
+	 * @param string                         $target_field Target field.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function build_image_candidate_recommendation_projections( array $items, string $target_field ): array {
+		$candidates = array();
+		foreach ( array_slice( $items, 0, 12 ) as $index => $item ) {
+			$title = sanitize_text_field( (string) ( $item['title'] ?? $item['alt_description'] ?? $item['description'] ?? $item['prompt'] ?? '' ) );
+			$url = $this->image_candidate_first_non_empty_url(
+				array(
+					$item['download_url'] ?? '',
+					$item['regular_url'] ?? '',
+					$item['small_url'] ?? '',
+					$item['url'] ?? '',
+				)
+			);
+			if ( '' === $title && '' === $url ) {
+				continue;
+			}
+
+			$warnings = array();
+			foreach ( array( 'warnings', 'risk_flags', 'quality_tags' ) as $key ) {
+				$warnings = array_merge( $warnings, $this->image_candidate_sanitize_string_list( $item[ $key ] ?? array() ) );
+			}
+			$license_status = sanitize_key( (string) ( $item['license_review_status'] ?? '' ) );
+			if ( '' !== $license_status && 'not_required' !== $license_status && 'reviewed' !== $license_status ) {
+				$warnings[] = __( 'Image license or source needs human confirmation.', 'npcink-abilities-toolkit' );
+			}
+
+			$match_score = is_numeric( $item['match_score'] ?? null ) ? (float) $item['match_score'] : 0.0;
+			$quality_score = $match_score > 0
+				? ( $match_score <= 1 ? 55 + (int) round( max( 0, min( 1, $match_score ) ) * 35 ) : max( 0, min( 90, (int) round( $match_score ) ) ) )
+				: 65;
+			if ( ! empty( $warnings ) ) {
+				$quality_score = min( $quality_score, 65 );
+			}
+			if ( '' === $url ) {
+				$quality_score = min( $quality_score, 45 );
+				$warnings[] = __( 'A usable image URL is missing.', 'npcink-abilities-toolkit' );
+			}
+			if ( empty( $warnings ) ) {
+				$warnings[] = __( 'Keep the full image_candidate.v1 evidence for license, attribution, and adoption-plan review.', 'npcink-abilities-toolkit' );
+			}
+
+			$source_ref = sanitize_text_field( (string) ( $item['id'] ?? '' ) );
+			if ( '' === $source_ref ) {
+				$source_ref = '' !== $url ? $url : 'image_candidate_' . ( $index + 1 );
+			}
+
+			$candidates[] = array(
+				'id'                   => 'image_candidate_' . ( $index + 1 ),
+				'kind'                 => 'image',
+				'label'                => '' !== $title ? $title : __( 'Image candidate', 'npcink-abilities-toolkit' ),
+				'value'                => '' !== $url ? $url : $title,
+				'reason'               => sanitize_text_field( (string) ( $item['match_reason'] ?? $item['reason'] ?? '' ) ),
+				'confidence'           => $match_score > 0 && $match_score <= 1 ? $match_score : null,
+				'target_field'         => $target_field,
+				'action_policy'        => 'core_proposal_required',
+				'quality_status'       => $quality_score >= 50 ? 'review' : 'weak',
+				'quality_score'        => $quality_score,
+				'quality_issues'       => array_values( array_unique( $warnings ) ),
+				'evidence_refs'        => array_values(
+					array_filter(
+						array(
+							'' !== (string) ( $item['provider'] ?? '' ) ? 'image_provider:' . sanitize_key( (string) $item['provider'] ) : '',
+							'' !== (string) ( $item['source_type'] ?? '' ) ? 'image_source_type:' . sanitize_key( (string) $item['source_type'] ) : '',
+						)
+					)
+				),
+				'source_candidate_ref' => $source_ref,
+			);
+		}
+
+		return $candidates;
 	}
 
 	/**

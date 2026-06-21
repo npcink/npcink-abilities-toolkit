@@ -140,8 +140,13 @@ final class Core_Comment_Definitions {
 					'type'                 => 'object',
 					'properties'           => array_merge(
 						array(
-							'comment_id'   => array( 'type' => 'integer', 'minimum' => 1 ),
-							'trigger_type' => array(
+							'comment_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
+							'post_id'        => array( 'type' => 'integer', 'minimum' => 1 ),
+							'comment_text'   => array( 'type' => 'string', 'maxLength' => 1200 ),
+							'comment_author' => array( 'type' => 'string', 'maxLength' => 120 ),
+							'comment_status' => array( 'type' => 'string', 'maxLength' => 32 ),
+							'always_suggest' => array( 'type' => 'boolean', 'default' => false ),
+							'trigger_type'   => array(
 								'type'    => 'string',
 								'enum'    => array( 'mention', 'followup', 'support_request' ),
 								'default' => 'mention',
@@ -149,7 +154,7 @@ final class Core_Comment_Definitions {
 						),
 						$comment_style_properties
 					),
-					'required'             => array( 'comment_id' ),
+					'required'             => array(),
 					'additionalProperties' => false,
 				),
 				'output_schema'    => $success_schema,

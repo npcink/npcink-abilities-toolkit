@@ -55,6 +55,7 @@ Representative abilities:
 - `npcink-abilities-toolkit/build-media-inventory-fix-plan`
 - `npcink-abilities-toolkit/get-taxonomy-inventory-health`
 - `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`
+- `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/list-terms`
 - `npcink-abilities-toolkit/list-taxonomy-terms`
@@ -119,6 +120,12 @@ Representative write abilities:
 - `npcink-abilities-toolkit/schedule-post`
 - `npcink-abilities-toolkit/publish-post`
 - `npcink-abilities-toolkit/restore-post`
+
+`npcink-abilities-toolkit/build-image-candidate-review-artifact` is the reusable
+review artifact builder for already retrieved `image_candidate.v1` rows. It
+returns `image_candidate_review.v1` plus lightweight recommendation projections
+without searching image providers, generating images, importing media, or
+writing featured images.
 
 `npcink-abilities-toolkit/build-image-candidate-adoption-plan` is the reusable
 Core handoff planner for one reviewed `image_candidate.v1`. It preserves source,
@@ -287,6 +294,12 @@ Representative abilities:
 - `npcink-abilities-toolkit/build-inline-image-blocks`
 - `npcink-abilities-toolkit/build-media-seo-assets`
 - `npcink-abilities-toolkit/geo-analyze`
+
+`resolve-internal-link-targets` owns reusable internal-link candidate assembly:
+it can combine bounded local published-post search with host-supplied related
+content evidence and returns `internal_link_candidates.v1` for review surfaces.
+It does not own provider search, vector indexing, link insertion, or
+post-content patching.
 - `npcink-abilities-toolkit/optimize-media-metadata`
 - `npcink-abilities-toolkit/position-inline-image-blocks`
 - `npcink-abilities-toolkit/build-article-optimization-report`
