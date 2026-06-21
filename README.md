@@ -233,6 +233,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/inspect-media-asset`
 - `npcink-abilities-toolkit/build-media-derivative-cloud-request`
 - `npcink-abilities-toolkit/build-media-optimization-plan`
+- `npcink-abilities-toolkit/build-image-candidate-review-artifact`
 - `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
 - `npcink-abilities-toolkit/build-media-rename-plan`
 - `npcink-abilities-toolkit/position-inline-image-blocks`

@@ -2916,6 +2916,41 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_image_candidate_adoption_plan' ),
 			),
+			'npcink-abilities-toolkit/build-image-candidate-review-artifact' => array(
+				'label'            => __( 'Build Image Candidate Review Artifact', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Normalizes already retrieved image_candidate.v1 rows into a review-only artifact and lightweight recommendation projections without searching, generating, importing, or writing media.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'image_candidates' => array(
+							'type'     => array( 'array', 'null' ),
+							'maxItems' => 12,
+							'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						),
+						'target_field'     => array( 'type' => 'string', 'enum' => array( 'featured_image', 'paragraph_image', 'inline_image', 'setting_image' ), 'default' => 'featured_image' ),
+						'candidate_limit'  => array( 'type' => array( 'integer', 'null' ), 'minimum' => 1, 'maximum' => 12, 'default' => 8 ),
+					),
+					'required'             => array(),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_image_candidate_review_artifact' ),
+			),
 			'npcink-abilities-toolkit/build-media-settings-reference-repair-plan' => array(
 				'label'            => __( 'Build Media Settings Reference Repair Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Scans selected WordPress options and theme mods for hard-coded URLs to a previously replaced media file and builds governed exact replacement actions without mutating settings.', 'npcink-abilities-toolkit' ),

@@ -121,6 +121,12 @@ Representative write abilities:
 - `npcink-abilities-toolkit/publish-post`
 - `npcink-abilities-toolkit/restore-post`
 
+`npcink-abilities-toolkit/build-image-candidate-review-artifact` is the reusable
+review artifact builder for already retrieved `image_candidate.v1` rows. It
+returns `image_candidate_review.v1` plus lightweight recommendation projections
+without searching image providers, generating images, importing media, or
+writing featured images.
+
 `npcink-abilities-toolkit/build-image-candidate-adoption-plan` is the reusable
 Core handoff planner for one reviewed `image_candidate.v1`. It preserves source,
 attribution, download tracking, filename suggestion, and asset-persistence

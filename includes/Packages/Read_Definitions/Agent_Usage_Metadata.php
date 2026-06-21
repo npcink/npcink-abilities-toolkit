@@ -134,6 +134,12 @@ final class Agent_Usage_Metadata {
 				'best_for'        => array( 'Toolbox, OpenClaw, and third-party plugin surfaces that already selected one image candidate and need a reusable Core-ready media adoption plan.' ),
 				'stopping_points' => array( 'Stop at proposal-ready write_actions; final upload, metadata update, featured-image setting, proposal approval, and execution remain host/Core-governed.' ),
 			),
+			'npcink-abilities-toolkit/build-image-candidate-review-artifact' => array(
+				'when_to_use'     => array( 'Normalize already retrieved image_candidate.v1 rows into a review-only image_candidate_review.v1 artifact and recommendation projections.' ),
+				'not_for'         => array( 'Do not use this to search image providers, generate images, download files, import media, set featured images, create proposals, or mutate WordPress.' ),
+				'best_for'        => array( 'Toolbox, OpenClaw, and third-party plugin surfaces that already have provider candidates and need a shared review contract before adoption planning.' ),
+				'stopping_points' => array( 'Stop at review-only candidates; use build-image-candidate-adoption-plan only after an operator selects one candidate.' ),
+			),
 			'npcink-abilities-toolkit/build-media-adoption-preflight-summary' => array(
 				'when_to_use'     => array( 'Summarize whether one reviewed derivative artifact is ready to hand into a governed Core media adoption proposal.' ),
 				'not_for'         => array( 'Do not use this to generate derivatives, create proposals, approve proposals, replace files, scan all settings, or execute WordPress writes.' ),
