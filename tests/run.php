@@ -1056,10 +1056,12 @@ $migrated_read_ability_ids = array(
 		'npcink-abilities-toolkit/build-media-inventory-fix-plan',
 		'npcink-abilities-toolkit/build-media-reference-repair-plan',
 		'npcink-abilities-toolkit/build-media-adoption-enhancement-plan',
+		'npcink-abilities-toolkit/build-image-candidate-review-artifact',
 		'npcink-abilities-toolkit/build-media-settings-reference-repair-plan',
 		'npcink-abilities-toolkit/build-media-optimization-plan',
 		'npcink-abilities-toolkit/build-media-rename-plan',
 		'npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions',
+		'npcink-abilities-toolkit/suggest-post-taxonomy-terms',
 		'npcink-abilities-toolkit/propose-post-taxonomy-terms',
 		'npcink-abilities-toolkit/get-page-structure-health',
 		'npcink-abilities-toolkit/route-content-intent',
@@ -1259,6 +1261,9 @@ foreach ( array( 'npcink-abilities-toolkit/get-nonproduction-content-inventory',
 }
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
 npcink_abilities_toolkit_assert_same( 10, $package_abilities['npcink-abilities-toolkit/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
+npcink_abilities_toolkit_assert_same( 8, $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['input_schema']['properties']['candidate_limit']['maximum'] ?? null, 'internal link target resolver bounds editor candidate count' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['input_schema']['properties']['related_content_evidence'] ), 'internal link target resolver accepts supplied related-content evidence' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['output_schema']['properties']['data']['properties']['internal_link_candidates'] ), 'internal link target resolver declares reusable editor candidate artifact output' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site operations dashboard is bounded to 100 posts per page' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/get-post-publish-risk-report']['input_schema']['required'] ?? array(), 'post publish risk report requires post_id' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/get-article-publish-preflight-context']['input_schema']['required'] ?? array(), 'article publish preflight context requires post_id' );
@@ -1575,6 +1580,11 @@ npcink_abilities_toolkit_assert_same( array( 'url' ), $package_abilities['npcink
 npcink_abilities_toolkit_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'media adoption enhancement plan exposes bounded local derivative formats' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['commit'] ), 'media adoption enhancement plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-enhancement-plan']['input_schema']['properties']['dry_run'] ), 'media adoption enhancement plan does not expose write dry_run control' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact'] ), 'build-image-candidate-review-artifact is registered as a read-only review ability' );
+npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['required_scopes'] ?? array(), 'image candidate review artifact only reads media candidate evidence' );
+npcink_abilities_toolkit_assert_same( 12, $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['image_candidates']['maxItems'] ?? null, 'image candidate review artifact bounds candidate evidence input' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['commit'] ), 'image candidate review artifact does not expose a commit control' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['provider'] ), 'image candidate review artifact does not expose provider runtime selection' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan'] ), 'build-image-candidate-adoption-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['required_scopes'] ?? array(), 'image candidate adoption plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['required'] ?? array(), 'image candidate adoption plan accepts image_candidate or direct URL input' );
@@ -1618,6 +1628,9 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['commit'] ), 'media derivative batch plan does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-batch-plan']['input_schema']['properties']['dry_run'] ), 'media derivative batch plan does not expose write dry_run control' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions']['input_schema']['properties']['per_page']['maximum'] ?? null, 'taxonomy consolidation suggestions scan is bounded to 100 terms per page' );
+npcink_abilities_toolkit_assert_same( array( 'both', 'category', 'post_tag' ), $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['taxonomy']['enum'] ?? array(), 'post taxonomy suggestions support both category and tag candidates' );
+npcink_abilities_toolkit_assert_same( 20, $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['related_term_evidence']['maxItems'] ?? null, 'post taxonomy suggestions bound related term evidence' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['input_schema']['properties']['commit'] ), 'post taxonomy suggestions do not expose a commit control' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['input_schema']['required'] ?? array(), 'post taxonomy proposal requires post_id' );
 npcink_abilities_toolkit_assert_same( 20, $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['input_schema']['properties']['candidate_terms']['maxItems'] ?? null, 'post taxonomy proposal bounds candidate term names' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-page-structure-health']['input_schema']['properties']['max_pages']['maximum'] ?? null, 'page structure health scan is bounded to 100 pages' );
@@ -1633,6 +1646,8 @@ npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['np
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment queue health scan is bounded to 100 comments per page' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-action-priority-queue']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment action priority queue scan is bounded to 100 comments per page' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-compliance-handoff']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment compliance handoff scan is bounded to 100 comments per page' );
+npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-comment-mention-reply-suggest']['input_schema']['required'] ?? array(), 'comment mention reply suggestions accept either comment_id or supplied comment text' );
+npcink_abilities_toolkit_assert_same( 1200, $package_abilities['npcink-abilities-toolkit/build-comment-mention-reply-suggest']['input_schema']['properties']['comment_text']['maxLength'] ?? null, 'comment mention reply suggestions bound supplied comment text' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-comments', $package_abilities['npcink-abilities-toolkit/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-comments', $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['project_to_npcink_catalog'], 'standalone diagnostics ability does not project into Npcink AI by default' );
@@ -1645,6 +1660,7 @@ npcink_abilities_toolkit_assert_same( 'core_wordpress_read', $package_abilities[
 npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'site operations dashboard is classified outside core WordPress reads' );
 npcink_abilities_toolkit_assert_same( 'content_operations', $package_abilities['npcink-abilities-toolkit/build-content-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'content inventory fix plan is classified as content operations' );
 npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-inventory-fix-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media inventory fix plan is classified as media governance' );
+npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/suggest-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy suggestions are classified as taxonomy governance' );
 npcink_abilities_toolkit_assert_same( 'taxonomy_governance', $package_abilities['npcink-abilities-toolkit/propose-post-taxonomy-terms']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'post taxonomy proposal is classified as taxonomy governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/build-pattern-page-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'pattern page plan is classified as page governance' );
 	npcink_abilities_toolkit_assert_same( 'page_governance', $package_abilities['npcink-abilities-toolkit/route-content-intent']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'content intent router is classified as page governance' );
@@ -1682,18 +1698,18 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-post-types', $core_read_definition_ids[5] ?? '', 'core read definitions keep post types after workflow definitions' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/list-media', $core_read_definition_ids[7] ?? '', 'core read definitions keep media governance order after provider split' );
 		npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/resolve-media-attachment-by-url', $core_read_definition_ids[8] ?? '', 'core read definitions keep media URL resolver near media inventory' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[16] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[17] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $core_read_definition_ids[18] ?? '', 'core read definitions keep the block composition catalog before concrete planners' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/compose-gutenberg-block-plan', $core_read_definition_ids[19] ?? '', 'core read definitions keep the composer repair loop after the block catalog' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-gutenberg-composition-contract', $core_read_definition_ids[20] ?? '', 'core read definitions keep composition contract inspection after the composer loop' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[21] ?? '', 'core read definitions keep block theme context near page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[24] ?? '', 'core read definitions keep block theme inspection before site planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[25] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[26] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[27] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[28] ?? '', 'core read definitions keep block surface review near pattern page review' );
-			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[29] ?? '', 'core read definitions keep article block planning near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/route-content-intent', $core_read_definition_ids[17] ?? '', 'core read definitions keep content intent routing before Gutenberg planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite', $core_read_definition_ids[18] ?? '', 'core read definitions keep recipe evaluation next to intent routing' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-block-capability-catalog', $core_read_definition_ids[19] ?? '', 'core read definitions keep the block composition catalog before concrete planners' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/compose-gutenberg-block-plan', $core_read_definition_ids[20] ?? '', 'core read definitions keep the composer repair loop after the block catalog' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-gutenberg-composition-contract', $core_read_definition_ids[21] ?? '', 'core read definitions keep composition contract inspection after the composer loop' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-block-theme-context', $core_read_definition_ids[22] ?? '', 'core read definitions keep block theme context near page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/inspect-block-theme-surface', $core_read_definition_ids[25] ?? '', 'core read definitions keep block theme inspection before site planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-block-theme-site-plan', $core_read_definition_ids[26] ?? '', 'core read definitions keep block theme site planning before pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-pattern-page-plan', $core_read_definition_ids[27] ?? '', 'core read definitions keep pattern page planning near block theme planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-pattern-page', $core_read_definition_ids[28] ?? '', 'core read definitions keep pattern page review near pattern page planning' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/review-block-editor-surface', $core_read_definition_ids[29] ?? '', 'core read definitions keep block surface review near pattern page review' );
+			npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-block-plan', $core_read_definition_ids[30] ?? '', 'core read definitions keep article block planning near pattern page planning' );
 		npcink_abilities_toolkit_assert_true( false !== array_search( 'npcink-abilities-toolkit/list-media-backups', $core_read_definition_ids, true ), 'core read definitions include media backup history discovery' );
 		$url_resolver_index = array_search( 'npcink-abilities-toolkit/resolve-url-to-post', $core_read_definition_ids, true );
 		$revision_list_index = array_search( 'npcink-abilities-toolkit/list-post-revisions', $core_read_definition_ids, true );
@@ -2761,6 +2777,21 @@ $mention_suggest = $core_comment_package->build_comment_mention_reply_suggest(
 );
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['success'] ?? null, 'build-comment-mention-reply-suggest returns a success envelope' );
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['data']['trigger']['trigger_detected'] ?? null, 'build-comment-mention-reply-suggest detects mention trigger' );
+npcink_abilities_toolkit_assert_true( ! empty( $mention_suggest['data']['reply_options'] ), 'build-comment-mention-reply-suggest returns review-only reply options' );
+$text_reply_suggest = $core_comment_package->build_comment_mention_reply_suggest(
+	array(
+		'post_id'        => 77,
+		'post_title'    => 'Comment Reply Context',
+		'comment_text'  => 'Could you share more detail about how this workflow handles review?',
+		'comment_author' => 'Reader',
+		'trigger_type'  => 'support_request',
+		'always_suggest' => true,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $text_reply_suggest['success'] ?? null, 'build-comment-mention-reply-suggest accepts operator-supplied comment text' );
+npcink_abilities_toolkit_assert_same( 'operator_supplied_comment_text', $text_reply_suggest['data']['comment']['source'] ?? '', 'operator-supplied comment reply suggestions preserve source boundary' );
+npcink_abilities_toolkit_assert_same( false, $text_reply_suggest['data']['direct_wordpress_write'] ?? true, 'operator-supplied comment reply suggestions remain no-write' );
+npcink_abilities_toolkit_assert_same( 'preview_reply', $text_reply_suggest['data']['mention_summary']['next_action'] ?? '', 'operator-supplied comment reply suggestions summarize preview reply as the next action' );
 $trigger_queue = $core_comment_package->read_comment_trigger_queue(
 	array(
 		'post_id' => 77,
@@ -3457,6 +3488,39 @@ $internal_link_report = $core_read_package->get_internal_link_opportunity_report
 npcink_abilities_toolkit_assert_same( true, $internal_link_report['success'] ?? null, 'get-internal-link-opportunity-report returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 77, $internal_link_report['data']['source_post']['post_id'] ?? null, 'get-internal-link-opportunity-report keeps source post id' );
 npcink_abilities_toolkit_assert_true( (int) ( $internal_link_report['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'get-internal-link-opportunity-report finds local candidate posts in isolated tests' );
+$internal_link_candidates = $core_read_package->resolve_internal_link_targets(
+	array(
+		'current_post_id'           => 77,
+		'post_type'                 => 'post',
+		'title'                     => 'Workflow optimization guide',
+		'content_text'              => 'Workflow optimization article body that needs related internal reading.',
+		'query'                     => 'workflow',
+		'candidate_limit'           => 4,
+		'max_targets'               => 3,
+		'related_content_evidence'  => array(
+			array(
+				'post_id'      => 77,
+				'title'        => 'Current post must be excluded',
+				'url'          => 'https://example.test/current',
+				'evidence_ref' => 'site_knowledge:current',
+			),
+			array(
+				'post_id'      => 280976,
+				'title'        => 'Supplied related workflow target',
+				'url'          => 'https://example.test/supplied-workflow',
+				'score'        => 0.82,
+				'evidence_ref' => 'site_knowledge:supplied_workflow',
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $internal_link_candidates['success'] ?? null, 'resolve-internal-link-targets returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'internal_link_candidates.v1', $internal_link_candidates['data']['internal_link_candidates']['artifact_type'] ?? '', 'resolve-internal-link-targets returns reusable internal-link candidate artifact' );
+npcink_abilities_toolkit_assert_same( 'operator_review_only_no_insert', $internal_link_candidates['data']['internal_link_candidates']['final_write_path'] ?? '', 'resolve-internal-link-targets keeps manual insertion boundary' );
+npcink_abilities_toolkit_assert_same( false, $internal_link_candidates['data']['internal_link_candidates']['direct_wordpress_write'] ?? null, 'resolve-internal-link-targets does not perform WordPress writes' );
+npcink_abilities_toolkit_assert_true( (int) ( $internal_link_candidates['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'resolve-internal-link-targets builds bounded candidate rows' );
+npcink_abilities_toolkit_assert_true( in_array( 'supplied_related_content_evidence', array_column( $internal_link_candidates['data']['internal_link_candidates']['items'] ?? array(), 'source' ), true ), 'resolve-internal-link-targets can include host-supplied related content evidence without owning that provider' );
+npcink_abilities_toolkit_assert_true( ! in_array( 77, array_column( $internal_link_candidates['data']['internal_link_candidates']['items'] ?? array(), 'target_post_id' ), true ), 'resolve-internal-link-targets excludes the current post from candidates' );
 $GLOBALS['npcink_abilities_toolkit_unit_comments'][21] = (object) array(
 	'comment_ID'       => 21,
 	'comment_post_ID'  => 77,
@@ -4653,6 +4717,51 @@ npcink_abilities_toolkit_assert_same( 2, $media_adoption_actions[2]['input']['op
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-adoption-enhancement-plan', $media_adoption_enhancement_plan['data']['handoff']['plan_ability_id'] ?? '', 'media adoption enhancement plan identifies itself for Core from-plan intake' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][82] );
 
+$image_candidate_review_artifact = $core_read_package->build_image_candidate_review_artifact(
+	array(
+		'target_field'     => 'featured_image',
+		'candidate_limit'  => 4,
+		'image_candidates' => array(
+			array(
+				'id'                    => 'reviewed-featured',
+				'contract_version'      => 'image_candidate.v1',
+				'download_url'          => 'https://cdn.example.test/images/reviewed-featured.png',
+				'thumbnail_url'         => 'https://cdn.example.test/images/reviewed-featured-thumb.png',
+				'source_url'            => 'https://source.example.test/reviewed-featured',
+				'source_type'           => 'stock',
+				'provider'              => 'unsplash',
+				'provider_origin'       => 'toolbox',
+				'title'                 => 'Reviewed featured image',
+				'description'           => 'Reviewed source image for the article.',
+				'alt_description'       => 'Dashboard operator reviewing Core proposal.',
+				'attribution'           => 'Photo by Example',
+				'photographer'          => 'Example Photographer',
+				'download_location'     => 'https://api.unsplash.example.test/download-location',
+				'suggested_filename'    => 'reviewed-featured-image.png',
+				'license_review_status' => 'reviewed',
+				'match_score'           => 0.84,
+			),
+			array(
+				'id'                    => 'weak-no-url',
+				'title'                 => 'Weak image candidate',
+				'provider'              => 'external',
+				'license_review_status' => 'required',
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $image_candidate_review_artifact['success'] ?? null, 'build-image-candidate-review-artifact returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'image_candidate_review.v1', $image_candidate_review_artifact['data']['artifact_type'] ?? '', 'image candidate review artifact declares artifact type' );
+npcink_abilities_toolkit_assert_same( 'image_candidate.v1', $image_candidate_review_artifact['data']['candidate_contract'] ?? '', 'image candidate review artifact preserves authoritative candidate contract' );
+npcink_abilities_toolkit_assert_same( 'recommendation_candidate.v1', $image_candidate_review_artifact['data']['projection_contract'] ?? '', 'image candidate review artifact exposes recommendation projection contract' );
+npcink_abilities_toolkit_assert_same( false, $image_candidate_review_artifact['data']['direct_wordpress_write'] ?? null, 'image candidate review artifact does not directly write WordPress' );
+npcink_abilities_toolkit_assert_true( ! isset( $image_candidate_review_artifact['data']['write_actions'] ), 'image candidate review artifact does not create adoption write actions' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-image-candidate-adoption-plan', $image_candidate_review_artifact['data']['handoff']['plan_ability_id'] ?? '', 'image candidate review artifact points selected candidates to the adoption planner' );
+npcink_abilities_toolkit_assert_same( 'image_candidate.v1', $image_candidate_review_artifact['data']['items'][0]['contract_version'] ?? '', 'image candidate review artifact normalizes candidates to image_candidate.v1' );
+npcink_abilities_toolkit_assert_same( 'https://api.unsplash.example.test/download-location', $image_candidate_review_artifact['data']['items'][0]['download_location'] ?? '', 'image candidate review artifact preserves source download tracking metadata' );
+npcink_abilities_toolkit_assert_same( 'review', $image_candidate_review_artifact['data']['recommendation_candidates'][0]['quality_status'] ?? '', 'image candidate review artifact projects strong candidates for review' );
+npcink_abilities_toolkit_assert_same( 'weak', $image_candidate_review_artifact['data']['recommendation_candidates'][1]['quality_status'] ?? '', 'image candidate review artifact downgrades candidates missing usable URLs' );
+
 $image_candidate_adoption_plan = $core_read_package->build_image_candidate_adoption_plan(
 	array(
 		'post_id'            => 82,
@@ -5077,6 +5186,33 @@ $taxonomy_consolidation = $core_read_package->get_taxonomy_consolidation_suggest
 npcink_abilities_toolkit_assert_same( true, $taxonomy_consolidation['success'] ?? null, 'get-taxonomy-consolidation-suggestions returns a success envelope' );
 npcink_abilities_toolkit_assert_true( (int) ( $taxonomy_consolidation['data']['summary']['suggestion_count'] ?? 0 ) >= 1, 'get-taxonomy-consolidation-suggestions returns suggestions' );
 npcink_abilities_toolkit_assert_same( 'duplicate_or_near_duplicate', $taxonomy_consolidation['data']['suggestions'][1]['type'] ?? '', 'get-taxonomy-consolidation-suggestions detects duplicate term groups' );
+$post_taxonomy_suggestions = $core_read_package->suggest_post_taxonomy_terms(
+	array(
+		'taxonomy'              => 'both',
+		'title'                 => 'AI Workflow planning guide',
+		'excerpt'               => 'A workflow operations guide for editorial teams.',
+		'query'                 => 'AI workflow operations',
+		'related_term_evidence' => array(
+			array(
+				'term_id'         => 401,
+				'taxonomy'        => 'post_tag',
+				'name'            => 'AI Workflow',
+				'source_count'    => 1,
+				'source_post_ids' => array( 77 ),
+				'source_titles'   => array( 'Related AI workflow case study' ),
+				'source_refs'     => array( 'site_knowledge:77' ),
+				'max_similarity'  => 0.91,
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $post_taxonomy_suggestions['success'] ?? null, 'suggest-post-taxonomy-terms returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'article_taxonomy_suggestions.v1', $post_taxonomy_suggestions['data']['artifact_type'] ?? '', 'suggest-post-taxonomy-terms returns article taxonomy suggestions' );
+npcink_abilities_toolkit_assert_same( 'suggestion_only', $post_taxonomy_suggestions['data']['write_posture'] ?? '', 'suggest-post-taxonomy-terms stays suggestion-only' );
+npcink_abilities_toolkit_assert_same( 'core_proposal_required', $post_taxonomy_suggestions['data']['final_write_path'] ?? '', 'suggest-post-taxonomy-terms requires Core proposal for writes' );
+npcink_abilities_toolkit_assert_same( 'AI Workflow', $post_taxonomy_suggestions['data']['tag_candidates'][0]['name'] ?? '', 'suggest-post-taxonomy-terms ranks matching existing tags' );
+npcink_abilities_toolkit_assert_true( in_array( 'related_site_knowledge_term', $post_taxonomy_suggestions['data']['tag_candidates'][0]['match_signals'] ?? array(), true ), 'suggest-post-taxonomy-terms keeps related evidence as ranking signal' );
+npcink_abilities_toolkit_assert_same( true, $post_taxonomy_suggestions['data']['selection_policy']['new_terms_deferred'] ?? null, 'suggest-post-taxonomy-terms defers new term creation' );
 $GLOBALS['npcink_abilities_toolkit_unit_post_terms'][77]['post_tag'] = array(
 	(object) array(
 		'term_id' => 401,

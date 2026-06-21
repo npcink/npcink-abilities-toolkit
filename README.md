@@ -92,7 +92,7 @@ documented in [docs/security-and-governance-gates.md](docs/security-and-governan
 Official WordPress AI stack compatibility guidance is documented in
 [docs/official-wordpress-ai-stack-compatibility.md](docs/official-wordpress-ai-stack-compatibility.md).
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
-The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md), with the 0.5.1 maintenance patch recorded in [docs/release-0.5.1-verification.md](docs/release-0.5.1-verification.md).
+The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md), with maintenance patches recorded in [docs/release-0.5.1-verification.md](docs/release-0.5.1-verification.md) and [docs/release-0.5.2-verification.md](docs/release-0.5.2-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
 The next-stage operating standard for freeze/observe mode, workflow proof,
 performance gates, and security boundaries is tracked in
@@ -207,6 +207,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/list-categories`
 - `npcink-abilities-toolkit/list-tags`
 - `npcink-abilities-toolkit/get-term`
+- `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-excerpt`
 - `npcink-abilities-toolkit/list-users`
@@ -232,6 +233,7 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/inspect-media-asset`
 - `npcink-abilities-toolkit/build-media-derivative-cloud-request`
 - `npcink-abilities-toolkit/build-media-optimization-plan`
+- `npcink-abilities-toolkit/build-image-candidate-review-artifact`
 - `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
 - `npcink-abilities-toolkit/build-media-rename-plan`
 - `npcink-abilities-toolkit/position-inline-image-blocks`
@@ -252,6 +254,12 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/compose-article-production-result`
 - `npcink-abilities-toolkit/compose-article-draft-result`
 - `npcink-abilities-toolkit/resolve-article-publication-decision`
+
+`resolve-internal-link-targets` returns both generic internal-link target rows
+and an `internal_link_candidates.v1` artifact for editor or third-party review
+surfaces. Hosts may pass already gathered related-content evidence for ranking
+context, but provider search, vector stores, and Site Knowledge runtimes remain
+host-owned.
 - `npcink-abilities-toolkit/build-article-style-profile`
 - `npcink-abilities-toolkit/get-post-stats`
 - `npcink-abilities-toolkit/list-revisions`

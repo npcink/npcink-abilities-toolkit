@@ -188,6 +188,169 @@ trait Taxonomy_Read_Methods {
 	}
 
 	/**
+	 * Suggests existing post taxonomy terms from supplied editorial context.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function suggest_post_taxonomy_terms( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read taxonomy suggestions.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$taxonomy_mode = sanitize_key( (string) ( $input['taxonomy'] ?? 'both' ) );
+		if ( ! in_array( $taxonomy_mode, array( 'both', 'category', 'post_tag' ), true ) ) {
+			$taxonomy_mode = 'both';
+		}
+		$taxonomies = 'both' === $taxonomy_mode ? array( 'category', 'post_tag' ) : array( $taxonomy_mode );
+		foreach ( $taxonomies as $taxonomy ) {
+			if ( function_exists( 'taxonomy_exists' ) && ! taxonomy_exists( $taxonomy ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_taxonomy_invalid', __( 'Taxonomy does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+		}
+
+		$context = $this->normalize_taxonomy_suggestion_context( $input );
+		$query   = $this->sanitize_metadata_text( (string) ( $input['query'] ?? '' ) );
+		$related_term_evidence = $this->normalize_taxonomy_suggestion_related_evidence( $input['related_term_evidence'] ?? array() );
+		$category_limit  = max( 1, min( 10, $this->absint_value( $input['category_limit'] ?? 5 ) ) );
+		$tag_limit       = max( 1, min( 20, $this->absint_value( $input['tag_limit'] ?? 8 ) ) );
+		$candidate_limit = max( 1, min( 30, $this->absint_value( $input['candidate_limit'] ?? 10 ) ) );
+		$candidates = array();
+
+		foreach ( $taxonomies as $taxonomy ) {
+			$query_result = $this->query_taxonomy_inventory_terms( $taxonomy, false, 60, 1 );
+			$terms = is_array( $query_result['terms'] ?? null ) ? $query_result['terms'] : array();
+			foreach ( $terms as $term ) {
+				if ( ! is_object( $term ) ) {
+					continue;
+				}
+				$term_id = $this->absint_value( $term->term_id ?? 0 );
+				if ( $term_id <= 0 ) {
+					continue;
+				}
+
+				$term_key         = sanitize_key( $taxonomy ) . ':' . $term_id;
+				$term_text        = (string) ( $term->name ?? '' ) . ' ' . (string) ( $term->slug ?? '' ) . ' ' . (string) ( $term->description ?? '' );
+				$related_evidence = is_array( $related_term_evidence[ $term_key ] ?? null ) ? $related_term_evidence[ $term_key ] : array();
+				$draft_score      = $this->taxonomy_suggestion_contextual_match_score( $term_text, $context, $query );
+				$matched_tokens   = $this->taxonomy_suggestion_evidence_tokens( $this->taxonomy_suggestion_contextual_match_tokens( $term_text, $context, $query ) );
+				if ( $draft_score > 0 && array() === $matched_tokens ) {
+					$draft_score = 0;
+				}
+
+				$match_profile  = $this->taxonomy_suggestion_match_profile( $term, $context, $query, $draft_score, $matched_tokens );
+				$draft_score    = (int) $match_profile['score'];
+				$matched_tokens = is_array( $match_profile['matched_tokens'] ?? null ) ? $match_profile['matched_tokens'] : $matched_tokens;
+				$related_score  = $this->taxonomy_suggestion_related_term_score( $related_evidence );
+				$score          = $draft_score + $related_score;
+				if ( $score <= 0 ) {
+					continue;
+				}
+
+				$match_signals = array( 'existing_taxonomy_vocabulary' );
+				if ( $draft_score > 0 ) {
+					$match_signals[] = 'draft_query_overlap';
+					$match_signals[] = 'current_draft_match';
+				}
+				if ( $related_score > 0 ) {
+					$match_signals[] = 'related_site_knowledge_term';
+				}
+				$match_signals = array_merge( $match_signals, is_array( $match_profile['signals'] ?? null ) ? $match_profile['signals'] : array() );
+
+				$candidates[] = array(
+					'term_id'                      => $term_id,
+					'taxonomy'                     => sanitize_key( $taxonomy ),
+					'name'                         => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+					'slug'                         => sanitize_title( (string) ( $term->slug ?? '' ) ),
+					'score'                        => $score,
+					'status'                       => 'existing_term',
+					'controlled_vocabulary_status' => 'existing_wordpress_term',
+					'normalization_key'            => sanitize_title( (string) ( $term->name ?? '' ) ),
+					'matched_tokens'               => $matched_tokens,
+					'match_signals'                => array_values( array_unique( $match_signals ) ),
+					'related_context'              => $this->taxonomy_suggestion_related_term_context_summary( $related_evidence ),
+					'evidence_refs'                => is_array( $related_evidence['source_refs'] ?? null ) ? array_values( array_unique( array_map( 'sanitize_text_field', $related_evidence['source_refs'] ) ) ) : array(),
+					'reason'                       => $this->taxonomy_suggestion_candidate_reason( $matched_tokens, $related_evidence ),
+				);
+			}
+		}
+
+		usort(
+			$candidates,
+			static function ( array $left, array $right ): int {
+				return (int) $right['score'] <=> (int) $left['score'];
+			}
+		);
+
+		$category_candidates = array_values(
+			array_filter(
+				$candidates,
+				static function ( array $item ): bool {
+					return 'category' === (string) ( $item['taxonomy'] ?? '' );
+				}
+			)
+		);
+		$tag_candidates = array_values(
+			array_filter(
+				$candidates,
+				static function ( array $item ): bool {
+					return 'post_tag' === (string) ( $item['taxonomy'] ?? '' );
+				}
+			)
+		);
+		$taxonomy_terms = array(
+			'candidate_type'         => 'taxonomy_tag_candidates',
+			'write_posture'          => 'suggestion_only',
+			'direct_wordpress_write' => false,
+			'ranking_context'        => array(
+				'draft_query_overlap'          => '' !== trim( implode( ' ', $context ) ) || '' !== trim( $query ),
+				'related_content_terms'        => array() !== $related_term_evidence,
+				'related_term_evidence_count' => count( $related_term_evidence ),
+				'related_term_policy'         => 'ranking_evidence_only_no_term_creation_or_assignment',
+			),
+			'items'                  => array_slice( $candidates, 0, $candidate_limit ),
+		);
+		$data = array(
+			'artifact_type'              => 'article_taxonomy_suggestions.v1',
+			'composition_role'           => 'taxonomy_candidates_only',
+			'candidate_type'             => 'taxonomy_suggestions',
+			'candidate_contract'         => 'recommendation_candidate.v1',
+			'write_posture'              => 'suggestion_only',
+			'final_write_path'           => 'core_proposal_required',
+			'direct_wordpress_write'     => false,
+			'category_candidates'        => array_slice( $category_candidates, 0, $category_limit ),
+			'tag_candidates'             => array_slice( $tag_candidates, 0, $tag_limit ),
+			'proposed_new_terms'         => $this->taxonomy_suggestion_empty_new_terms_review(),
+			'taxonomy_terms'             => $taxonomy_terms,
+			'recommendation_candidates'  => array_merge(
+				$this->taxonomy_suggestion_recommendation_candidates( 'category_suggestions', $category_candidates, array() ),
+				$this->taxonomy_suggestion_recommendation_candidates( 'tag_suggestions', array(), $tag_candidates )
+			),
+			'quality_gate'               => array(
+				'name'           => 'runtime_taxonomy_candidate_rerank',
+				'policy'         => 'existing_terms_first_current_draft_match_then_related_history',
+				'candidate_sort' => 'score_desc_then_existing_term_order',
+			),
+			'selection_policy'           => array(
+				'prefer_existing_terms'     => true,
+				'new_terms_deferred'        => true,
+				'no_toolbox_term_creation'  => true,
+				'accepted_write_path'       => 'core_proposal_required',
+			),
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_taxonomy_suggestion_ranker',
+				'execution_mode' => 'deterministic',
+			),
+			'Taxonomy suggestions built.'
+		);
+	}
+
+	/**
 	 * Builds a post taxonomy assignment proposal from existing terms.
 	 *
 	 * @param mixed $input Input args.
@@ -312,6 +475,485 @@ trait Taxonomy_Read_Methods {
 			),
 			'Post taxonomy term proposal built.'
 		);
+	}
+
+	/**
+	 * Normalizes editorial context for taxonomy suggestion ranking.
+	 *
+	 * @param array<string,mixed> $input Raw input.
+	 * @return array<string,string>
+	 */
+	private function normalize_taxonomy_suggestion_context( array $input ): array {
+		$context = array();
+		foreach ( array( 'title', 'excerpt', 'content_text', 'selected_text', 'selected_block_text', 'user_instruction' ) as $field ) {
+			$context[ $field ] = $this->sanitize_metadata_text( (string) ( $input[ $field ] ?? '' ) );
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Normalizes related term evidence into taxonomy:term_id keyed rows.
+	 *
+	 * @param mixed $evidence Raw evidence.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function normalize_taxonomy_suggestion_related_evidence( $evidence ): array {
+		$rows       = is_array( $evidence ) ? $evidence : array();
+		$normalized = array();
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$term_id  = $this->absint_value( $row['term_id'] ?? 0 );
+			$taxonomy = sanitize_key( (string) ( $row['taxonomy'] ?? '' ) );
+			if ( $term_id <= 0 || ! in_array( $taxonomy, array( 'category', 'post_tag' ), true ) ) {
+				continue;
+			}
+
+			$key                = $taxonomy . ':' . $term_id;
+			$normalized[ $key ] = array(
+				'term_id'         => $term_id,
+				'taxonomy'        => $taxonomy,
+				'name'            => sanitize_text_field( (string) ( $row['name'] ?? '' ) ),
+				'source_count'    => $this->absint_value( $row['source_count'] ?? 0 ),
+				'source_post_ids' => $this->normalize_limited_positive_ids( $row['source_post_ids'] ?? array(), 20 ),
+				'source_titles'   => $this->normalize_limited_text_list( $row['source_titles'] ?? array(), 10 ),
+				'source_refs'     => $this->normalize_limited_text_list( $row['source_refs'] ?? array(), 20 ),
+				'max_similarity'  => is_numeric( $row['max_similarity'] ?? null ) ? (float) $row['max_similarity'] : 0.0,
+			);
+			if ( 0 === (int) $normalized[ $key ]['source_count'] ) {
+				$normalized[ $key ]['source_count'] = count( $normalized[ $key ]['source_post_ids'] );
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Calculates weighted context overlap for a taxonomy candidate.
+	 *
+	 * @param string               $candidate_text Term text.
+	 * @param array<string,string> $context Editorial context.
+	 * @param string               $query Query text.
+	 * @return int
+	 */
+	private function taxonomy_suggestion_contextual_match_score( string $candidate_text, array $context, string $query ): int {
+		$weighted_score  = 0;
+		$weighted_fields = array(
+			'title'               => 4,
+			'excerpt'             => 3,
+			'selected_text'       => 3,
+			'selected_block_text' => 3,
+			'content_text'        => 1,
+			'user_instruction'    => 2,
+		);
+
+		foreach ( $weighted_fields as $field => $weight ) {
+			$value = trim( (string) ( $context[ $field ] ?? '' ) );
+			if ( '' === $value ) {
+				continue;
+			}
+			$weighted_score += count( $this->taxonomy_suggestion_match_tokens( $candidate_text, $value ) ) * $weight;
+		}
+
+		if ( $weighted_score <= 0 && '' !== trim( $query ) ) {
+			$weighted_score = count( $this->taxonomy_suggestion_match_tokens( $candidate_text, $query ) );
+		}
+
+		return max( 0, min( 30, $weighted_score ) );
+	}
+
+	/**
+	 * Returns matched context tokens for a taxonomy candidate.
+	 *
+	 * @param string               $candidate_text Term text.
+	 * @param array<string,string> $context Editorial context.
+	 * @param string               $query Query text.
+	 * @return array<int,string>
+	 */
+	private function taxonomy_suggestion_contextual_match_tokens( string $candidate_text, array $context, string $query ): array {
+		$tokens = array();
+		foreach ( array( 'title', 'excerpt', 'selected_text', 'selected_block_text', 'content_text', 'user_instruction' ) as $field ) {
+			$value = trim( (string) ( $context[ $field ] ?? '' ) );
+			if ( '' === $value ) {
+				continue;
+			}
+			$tokens = array_merge( $tokens, $this->taxonomy_suggestion_match_tokens( $candidate_text, $value ) );
+		}
+		if ( array() === $tokens && '' !== trim( $query ) ) {
+			$tokens = $this->taxonomy_suggestion_match_tokens( $candidate_text, $query );
+		}
+
+		return array_values( array_unique( array_filter( $tokens ) ) );
+	}
+
+	/**
+	 * Refines candidate score with taxonomy name, slug, and specificity signals.
+	 *
+	 * @param object               $term Term object.
+	 * @param array<string,string> $context Editorial context.
+	 * @param string               $query Query text.
+	 * @param int                  $draft_score Draft score.
+	 * @param array<int,string>    $matched_tokens Matched tokens.
+	 * @return array<string,mixed>
+	 */
+	private function taxonomy_suggestion_match_profile( object $term, array $context, string $query, int $draft_score, array $matched_tokens ): array {
+		$name               = sanitize_text_field( (string) ( $term->name ?? '' ) );
+		$slug               = sanitize_title( (string) ( $term->slug ?? '' ) );
+		$description        = sanitize_text_field( (string) ( $term->description ?? '' ) );
+		$name_tokens        = $this->taxonomy_suggestion_tokens( $name );
+		$slug_tokens        = $this->taxonomy_suggestion_tokens( str_replace( '-', ' ', $slug ) );
+		$description_tokens = $this->taxonomy_suggestion_tokens( $description );
+		$name_slug_tokens   = array_values( array_unique( array_merge( $name_tokens, $slug_tokens ) ) );
+		$signals            = array();
+		$score              = max( 0, $draft_score );
+
+		if ( array() !== $name_tokens && '' !== trim( (string) ( $context['title'] ?? '' ) ) && $this->taxonomy_suggestion_text_contains_phrase( (string) $context['title'], $name ) ) {
+			$score    += 6;
+			$signals[] = 'title_term_name_match';
+		}
+		foreach ( array( 'excerpt', 'selected_text', 'selected_block_text' ) as $field ) {
+			$value = trim( (string) ( $context[ $field ] ?? '' ) );
+			if ( array() !== $name_tokens && '' !== $value && $this->taxonomy_suggestion_text_contains_phrase( $value, $name ) ) {
+				$score    += 4;
+				$signals[] = $field . '_term_name_match';
+				break;
+			}
+		}
+		if ( array() !== $name_tokens && '' !== trim( (string) ( $context['content_text'] ?? '' ) ) && $this->taxonomy_suggestion_text_contains_phrase( (string) $context['content_text'], $name ) ) {
+			$score    += 2;
+			$signals[] = 'body_term_name_match';
+		}
+
+		$context_tokens = $this->taxonomy_suggestion_tokens(
+			implode(
+				' ',
+				array(
+					(string) ( $context['title'] ?? '' ),
+					(string) ( $context['excerpt'] ?? '' ),
+					(string) ( $context['selected_text'] ?? '' ),
+					(string) ( $context['selected_block_text'] ?? '' ),
+					'' !== trim( $query ) ? $query : '',
+				)
+			)
+		);
+		$slug_overlap          = array_intersect( $slug_tokens, $context_tokens );
+		$required_slug_overlap = count( $slug_tokens ) > 1 ? 2 : 1;
+		if ( count( $slug_overlap ) >= $required_slug_overlap ) {
+			$score    += 2;
+			$signals[] = 'slug_alias_match';
+		}
+
+		if ( $score > 0 && array() !== $matched_tokens && array() === array_intersect( $matched_tokens, $name_slug_tokens ) && array() !== array_intersect( $matched_tokens, $description_tokens ) ) {
+			$score    = min( $score, 2 );
+			$signals[] = 'description_only_match';
+		}
+		$has_exact_name_signal = (bool) array_filter(
+			$signals,
+			static function ( string $signal ): bool {
+				return false !== strpos( $signal, '_term_name_match' );
+			}
+		);
+		if ( $score > 0 && 1 === count( $matched_tokens ) && ! $has_exact_name_signal && ! in_array( 'slug_alias_match', $signals, true ) ) {
+			$score    = min( $score, 2 );
+			$signals[] = 'low_specificity_match';
+		}
+
+		return array(
+			'score'          => max( 0, min( 40, $score ) ),
+			'matched_tokens' => array_values( array_unique( $matched_tokens ) ),
+			'signals'        => array_values( array_unique( $signals ) ),
+		);
+	}
+
+	/**
+	 * Builds recommendation candidate rows for ranked taxonomy terms.
+	 *
+	 * @param string                         $candidate_type Candidate type.
+	 * @param array<int,array<string,mixed>> $categories Category candidates.
+	 * @param array<int,array<string,mixed>> $tags Tag candidates.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function taxonomy_suggestion_recommendation_candidates( string $candidate_type, array $categories, array $tags ): array {
+		$items  = 'category_suggestions' === $candidate_type ? array_slice( $categories, 0, 5 ) : array_slice( $tags, 0, 8 );
+		$result = array();
+		foreach ( $items as $item ) {
+			$taxonomy = sanitize_key( (string) ( $item['taxonomy'] ?? '' ) );
+			$term_id  = $this->absint_value( $item['term_id'] ?? 0 );
+			$name     = sanitize_text_field( (string) ( $item['name'] ?? '' ) );
+			if ( '' === $name || $term_id <= 0 ) {
+				continue;
+			}
+			$quality  = $this->taxonomy_suggestion_candidate_quality( $item );
+			$result[] = array(
+				'candidate_contract' => 'recommendation_candidate.v1',
+				'id'                 => ( 'category' === $taxonomy ? 'category_' : 'tag_' ) . $term_id,
+				'kind'               => 'category' === $taxonomy ? 'category' : 'tag',
+				'label'              => 'category' === $taxonomy ? 'Existing category' : 'Existing tag',
+				'value'              => $name,
+				'reason'             => sanitize_text_field( (string) ( $item['reason'] ?? '' ) ),
+				'confidence'         => $quality['confidence'],
+				'target_field'       => 'category' === $taxonomy ? 'category' : 'post_tag',
+				'action_policy'      => 'core_proposal_required',
+				'quality_status'     => $quality['status'],
+				'quality_score'      => $quality['score'],
+				'quality_issues'     => $quality['issues'],
+				'evidence_refs'      => is_array( $item['evidence_refs'] ?? null ) ? $item['evidence_refs'] : array(),
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Scores taxonomy candidate quality for review surfaces.
+	 *
+	 * @param array<string,mixed> $item Candidate row.
+	 * @return array<string,mixed>
+	 */
+	private function taxonomy_suggestion_candidate_quality( array $item ): array {
+		$score           = is_numeric( $item['score'] ?? null ) ? (float) $item['score'] : 0.0;
+		$match_signals   = is_array( $item['match_signals'] ?? null ) ? $item['match_signals'] : array();
+		$related_context = is_array( $item['related_context'] ?? null ) ? $item['related_context'] : array();
+		$quality_score   = max( 0, min( 100, 45 + (int) round( $score * 10 ) ) );
+		$quality_issues  = array();
+		if ( in_array( 'current_draft_match', $match_signals, true ) ) {
+			$quality_issues[] = 'Matches the current draft title, excerpt, or body.';
+		}
+		if ( in_array( 'title_term_name_match', $match_signals, true ) ) {
+			$quality_issues[] = 'The term name appears in the title.';
+		}
+		if ( in_array( 'slug_alias_match', $match_signals, true ) ) {
+			$quality_issues[] = 'The term slug or alias matches the editing context.';
+		}
+		if ( in_array( 'related_site_knowledge_term', $match_signals, true ) ) {
+			$quality_issues[] = 'Related site content has used this taxonomy term.';
+		}
+		if ( in_array( 'description_only_match', $match_signals, true ) ) {
+			$quality_score   -= 20;
+			$quality_issues[] = 'Only the term description matched; review before applying.';
+		}
+		if ( in_array( 'low_specificity_match', $match_signals, true ) ) {
+			$quality_score   -= 15;
+			$quality_issues[] = 'Only one weak token matched; review specificity.';
+		}
+		if ( empty( $quality_issues ) ) {
+			$quality_issues[] = 'Existing WordPress term candidate for manual review.';
+		}
+		if ( 0 === $this->absint_value( $related_context['source_count'] ?? 0 ) && ! in_array( 'current_draft_match', $match_signals, true ) ) {
+			$quality_score   -= 15;
+			$quality_issues[] = 'Missing strong draft or related-content evidence.';
+		}
+		$status = 'good';
+		if ( $quality_score < 70 ) {
+			$status = 'review';
+		}
+		if ( $quality_score < 55 ) {
+			$status = 'weak';
+		}
+
+		return array(
+			'score'      => max( 0, min( 100, $quality_score ) ),
+			'status'     => $status,
+			'confidence' => max( 0.0, min( 1.0, $score / 5 ) ),
+			'issues'     => array_values( array_unique( $quality_issues ) ),
+		);
+	}
+
+	/**
+	 * Returns the no-new-terms policy block.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function taxonomy_suggestion_empty_new_terms_review(): array {
+		return array(
+			'candidate_type'         => 'new_taxonomy_terms',
+			'write_posture'          => 'suggestion_only',
+			'direct_wordpress_write' => false,
+			'items'                  => array(),
+			'review_policy'          => 'new_terms_deferred_existing_terms_first',
+			'creation_policy'        => 'core_proposal_required',
+		);
+	}
+
+	/**
+	 * Returns related-evidence score.
+	 *
+	 * @param array<string,mixed> $related_evidence Related evidence.
+	 * @return int
+	 */
+	private function taxonomy_suggestion_related_term_score( array $related_evidence ): int {
+		if ( array() === $related_evidence ) {
+			return 0;
+		}
+		$source_count   = $this->absint_value( $related_evidence['source_count'] ?? 0 );
+		$max_similarity = is_numeric( $related_evidence['max_similarity'] ?? null ) ? (float) $related_evidence['max_similarity'] : 0.0;
+
+		return max( 1, min( 5, $source_count + (int) ceil( max( 0.0, $max_similarity ) * 2 ) ) );
+	}
+
+	/**
+	 * Builds a human-readable reason for a taxonomy suggestion.
+	 *
+	 * @param array<int,string>   $matched_tokens Matched tokens.
+	 * @param array<string,mixed> $related_evidence Related evidence.
+	 * @return string
+	 */
+	private function taxonomy_suggestion_candidate_reason( array $matched_tokens, array $related_evidence ): string {
+		$has_related = array() !== $related_evidence;
+		if ( $has_related && array() !== $matched_tokens ) {
+			return sprintf( 'Existing term matched the draft and appears on related Site Knowledge posts. Matched tokens: %s.', implode( ', ', array_slice( $matched_tokens, 0, 6 ) ) );
+		}
+		if ( $has_related ) {
+			return 'Existing term appears on related Site Knowledge posts and should be reviewed as a proven site taxonomy pattern.';
+		}
+		if ( array() === $matched_tokens ) {
+			return 'Existing term has local taxonomy evidence but no concise matched token could be displayed. Review it against the current draft before applying.';
+		}
+
+		return sprintf( 'Existing term matched against the current title, excerpt, or draft body. Matched tokens: %s.', implode( ', ', array_slice( $matched_tokens, 0, 6 ) ) );
+	}
+
+	/**
+	 * Summarizes related term evidence.
+	 *
+	 * @param array<string,mixed> $related_evidence Related evidence.
+	 * @return array<string,mixed>
+	 */
+	private function taxonomy_suggestion_related_term_context_summary( array $related_evidence ): array {
+		if ( array() === $related_evidence ) {
+			return array();
+		}
+
+		return array(
+			'source_count'    => $this->absint_value( $related_evidence['source_count'] ?? 0 ),
+			'source_post_ids' => $this->normalize_limited_positive_ids( $related_evidence['source_post_ids'] ?? array(), 20 ),
+			'source_titles'   => $this->normalize_limited_text_list( $related_evidence['source_titles'] ?? array(), 5 ),
+			'max_similarity'  => is_numeric( $related_evidence['max_similarity'] ?? null ) ? (float) $related_evidence['max_similarity'] : null,
+			'policy'          => 'related_content_ranking_evidence_only',
+		);
+	}
+
+	/**
+	 * Returns non-generic evidence tokens.
+	 *
+	 * @param array<int,string> $tokens Tokens.
+	 * @return array<int,string>
+	 */
+	private function taxonomy_suggestion_evidence_tokens( array $tokens ): array {
+		return array_values(
+			array_filter(
+				array_unique( array_map( 'strtolower', array_map( 'sanitize_text_field', $tokens ) ) ),
+				function ( string $token ): bool {
+					return ! $this->taxonomy_suggestion_is_generic_match_token( $token );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Returns overlap tokens between term text and query text.
+	 *
+	 * @param string $term_text Term text.
+	 * @param string $query Query.
+	 * @return array<int,string>
+	 */
+	private function taxonomy_suggestion_match_tokens( string $term_text, string $query ): array {
+		$term_tokens  = $this->taxonomy_suggestion_tokens( $term_text );
+		$query_tokens = $this->taxonomy_suggestion_tokens( $query );
+		if ( array() === $term_tokens || array() === $query_tokens ) {
+			return array();
+		}
+
+		return array_values( array_intersect( $term_tokens, $query_tokens ) );
+	}
+
+	/**
+	 * Tokenizes plain text for taxonomy suggestion ranking.
+	 *
+	 * @param string $text Text.
+	 * @return array<int,string>
+	 */
+	private function taxonomy_suggestion_tokens( string $text ): array {
+		$tokens = preg_split( '/[^\p{L}\p{N}]+/u', strtolower( $text ) );
+		if ( ! is_array( $tokens ) ) {
+			return array();
+		}
+		$stopwords = array(
+			'a'    => true,
+			'an'   => true,
+			'and'  => true,
+			'are'  => true,
+			'as'   => true,
+			'at'   => true,
+			'be'   => true,
+			'by'   => true,
+			'for'  => true,
+			'from' => true,
+			'has'  => true,
+			'have' => true,
+			'in'   => true,
+			'into' => true,
+			'is'   => true,
+			'it'   => true,
+			'of'   => true,
+			'on'   => true,
+			'or'   => true,
+			'that' => true,
+			'the'  => true,
+			'this' => true,
+			'to'   => true,
+			'with' => true,
+		);
+
+		return array_values(
+			array_unique(
+				array_filter(
+					$tokens,
+					static function ( string $token ) use ( $stopwords ): bool {
+						return strlen( $token ) >= 2 && empty( $stopwords[ $token ] );
+					}
+				)
+			)
+		);
+	}
+
+	/**
+	 * Checks whether a phrase appears in text.
+	 *
+	 * @param string $haystack Text to inspect.
+	 * @param string $needle Phrase.
+	 * @return bool
+	 */
+	private function taxonomy_suggestion_text_contains_phrase( string $haystack, string $needle ): bool {
+		$needle = trim( $needle );
+		if ( '' === $needle ) {
+			return false;
+		}
+
+		return false !== strpos( strtolower( $haystack ), strtolower( $needle ) );
+	}
+
+	/**
+	 * Checks generic taxonomy matching tokens.
+	 *
+	 * @param string $token Token.
+	 * @return bool
+	 */
+	private function taxonomy_suggestion_is_generic_match_token( string $token ): bool {
+		$generic_tokens = array(
+			'post'    => true,
+			'posts'   => true,
+			'page'    => true,
+			'pages'   => true,
+			'format'  => true,
+			'formats' => true,
+			'type'    => true,
+			'types'   => true,
+		);
+
+		return ! empty( $generic_tokens[ strtolower( trim( $token ) ) ] );
 	}
 
 	/**
