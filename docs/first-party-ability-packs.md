@@ -288,6 +288,12 @@ Representative abilities:
 - `npcink-abilities-toolkit/build-inline-image-blocks`
 - `npcink-abilities-toolkit/build-media-seo-assets`
 - `npcink-abilities-toolkit/geo-analyze`
+
+`resolve-internal-link-targets` owns reusable internal-link candidate assembly:
+it can combine bounded local published-post search with host-supplied related
+content evidence and returns `internal_link_candidates.v1` for review surfaces.
+It does not own provider search, vector indexing, link insertion, or
+post-content patching.
 - `npcink-abilities-toolkit/optimize-media-metadata`
 - `npcink-abilities-toolkit/position-inline-image-blocks`
 - `npcink-abilities-toolkit/build-article-optimization-report`

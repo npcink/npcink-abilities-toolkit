@@ -1260,6 +1260,9 @@ foreach ( array( 'npcink-abilities-toolkit/get-nonproduction-content-inventory',
 }
 npcink_abilities_toolkit_assert_same( 50, $package_abilities['npcink-abilities-toolkit/get-bulk-publishing-checklist']['input_schema']['properties']['post_ids']['maxItems'] ?? null, 'bulk publishing checklist is bounded to 50 posts' );
 npcink_abilities_toolkit_assert_same( 10, $package_abilities['npcink-abilities-toolkit/get-internal-link-opportunity-report']['input_schema']['properties']['max_targets']['maximum'] ?? null, 'internal link opportunity report bounds target count' );
+npcink_abilities_toolkit_assert_same( 8, $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['input_schema']['properties']['candidate_limit']['maximum'] ?? null, 'internal link target resolver bounds editor candidate count' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['input_schema']['properties']['related_content_evidence'] ), 'internal link target resolver accepts supplied related-content evidence' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/resolve-internal-link-targets']['output_schema']['properties']['data']['properties']['internal_link_candidates'] ), 'internal link target resolver declares reusable editor candidate artifact output' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['input_schema']['properties']['per_page']['maximum'] ?? null, 'site operations dashboard is bounded to 100 posts per page' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/get-post-publish-risk-report']['input_schema']['required'] ?? array(), 'post publish risk report requires post_id' );
 npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['npcink-abilities-toolkit/get-article-publish-preflight-context']['input_schema']['required'] ?? array(), 'article publish preflight context requires post_id' );
@@ -3479,6 +3482,39 @@ $internal_link_report = $core_read_package->get_internal_link_opportunity_report
 npcink_abilities_toolkit_assert_same( true, $internal_link_report['success'] ?? null, 'get-internal-link-opportunity-report returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 77, $internal_link_report['data']['source_post']['post_id'] ?? null, 'get-internal-link-opportunity-report keeps source post id' );
 npcink_abilities_toolkit_assert_true( (int) ( $internal_link_report['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'get-internal-link-opportunity-report finds local candidate posts in isolated tests' );
+$internal_link_candidates = $core_read_package->resolve_internal_link_targets(
+	array(
+		'current_post_id'           => 77,
+		'post_type'                 => 'post',
+		'title'                     => 'Workflow optimization guide',
+		'content_text'              => 'Workflow optimization article body that needs related internal reading.',
+		'query'                     => 'workflow',
+		'candidate_limit'           => 4,
+		'max_targets'               => 3,
+		'related_content_evidence'  => array(
+			array(
+				'post_id'      => 77,
+				'title'        => 'Current post must be excluded',
+				'url'          => 'https://example.test/current',
+				'evidence_ref' => 'site_knowledge:current',
+			),
+			array(
+				'post_id'      => 280976,
+				'title'        => 'Supplied related workflow target',
+				'url'          => 'https://example.test/supplied-workflow',
+				'score'        => 0.82,
+				'evidence_ref' => 'site_knowledge:supplied_workflow',
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $internal_link_candidates['success'] ?? null, 'resolve-internal-link-targets returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'internal_link_candidates.v1', $internal_link_candidates['data']['internal_link_candidates']['artifact_type'] ?? '', 'resolve-internal-link-targets returns reusable internal-link candidate artifact' );
+npcink_abilities_toolkit_assert_same( 'operator_review_only_no_insert', $internal_link_candidates['data']['internal_link_candidates']['final_write_path'] ?? '', 'resolve-internal-link-targets keeps manual insertion boundary' );
+npcink_abilities_toolkit_assert_same( false, $internal_link_candidates['data']['internal_link_candidates']['direct_wordpress_write'] ?? null, 'resolve-internal-link-targets does not perform WordPress writes' );
+npcink_abilities_toolkit_assert_true( (int) ( $internal_link_candidates['data']['summary']['candidate_count'] ?? 0 ) >= 1, 'resolve-internal-link-targets builds bounded candidate rows' );
+npcink_abilities_toolkit_assert_true( in_array( 'supplied_related_content_evidence', array_column( $internal_link_candidates['data']['internal_link_candidates']['items'] ?? array(), 'source' ), true ), 'resolve-internal-link-targets can include host-supplied related content evidence without owning that provider' );
+npcink_abilities_toolkit_assert_true( ! in_array( 77, array_column( $internal_link_candidates['data']['internal_link_candidates']['items'] ?? array(), 'target_post_id' ), true ), 'resolve-internal-link-targets excludes the current post from candidates' );
 $GLOBALS['npcink_abilities_toolkit_unit_comments'][21] = (object) array(
 	'comment_ID'       => 21,
 	'comment_post_ID'  => 77,

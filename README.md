@@ -253,6 +253,12 @@ The migrated core read and deterministic comment packages provide these read-onl
 - `npcink-abilities-toolkit/compose-article-production-result`
 - `npcink-abilities-toolkit/compose-article-draft-result`
 - `npcink-abilities-toolkit/resolve-article-publication-decision`
+
+`resolve-internal-link-targets` returns both generic internal-link target rows
+and an `internal_link_candidates.v1` artifact for editor or third-party review
+surfaces. Hosts may pass already gathered related-content evidence for ranking
+context, but provider search, vector stores, and Site Knowledge runtimes remain
+host-owned.
 - `npcink-abilities-toolkit/build-article-style-profile`
 - `npcink-abilities-toolkit/get-post-stats`
 - `npcink-abilities-toolkit/list-revisions`
