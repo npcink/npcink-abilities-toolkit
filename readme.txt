@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.5.1
+Stable tag: 0.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,12 @@ For isolated bounded-chain performance validation, run:
 `composer perf:smoke`
 
 == Changelog ==
+
+= 0.5.2 =
+
+* Added read-only review artifacts for image candidates, internal link candidates, taxonomy suggestions, and comment reply suggestions.
+* Kept candidate review helpers suggestion-only and host-governed; they do not create proposals, approve work, execute writes, or contact external providers.
+* Expanded acceptance contracts and first-party pack documentation for the new handoff artifacts.
 
 = 0.5.1 =
 
