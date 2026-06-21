@@ -16,7 +16,7 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:97 includes/Admin/Test_Page.php:108
 msgid "Npcink Abilities Toolkit"
-msgstr "Npcink 能力工具包"
+msgstr "Npcink Abilities Toolkit"
 
 #: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
 msgid "Abilities"
