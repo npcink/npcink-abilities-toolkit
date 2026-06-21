@@ -66,8 +66,9 @@
 .npcink-abilities-toolkit-next__grid {
 	display: grid;
 	gap: 12px;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	margin: 12px 0;
+	max-width: 760px;
 }
 
 .npcink-abilities-toolkit-next__item {
@@ -107,6 +108,11 @@
 	width: 210px;
 }
 
+.npcink-abilities-toolkit-section {
+	margin: 20px 0 24px;
+	max-width: 1100px;
+}
+
 .npcink-abilities-toolkit-filter {
 	align-items: end;
 	background: #fff;
@@ -140,6 +146,25 @@
 .npcink-abilities-toolkit-catalog-meta {
 	color: #646970;
 	margin: 12px 0;
+}
+
+.npcink-abilities-toolkit-ability-cell {
+	min-width: 280px;
+}
+
+.npcink-abilities-toolkit-ability-cell code,
+.npcink-abilities-toolkit-ability-cell strong,
+.npcink-abilities-toolkit-ability-cell span {
+	display: block;
+}
+
+.npcink-abilities-toolkit-ability-cell strong {
+	margin-top: 6px;
+}
+
+.npcink-abilities-toolkit-ability-cell span {
+	color: #646970;
+	margin-top: 4px;
 }
 
 .npcink-abilities-toolkit-disclosure {

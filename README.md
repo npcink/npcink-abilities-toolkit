@@ -165,19 +165,20 @@ cross-repo Core integration changes.
 ## Admin Page
 
 After activating the plugin with a Npcink AI host plugin, open
-**Npcink AI -> Abilities** in wp-admin. When this standalone package is
-installed without a Npcink AI host menu, open **Tools -> Abilities API
-Packages** instead.
+**Npcink AI -> Ability Diagnostics** in wp-admin. When this standalone package
+is installed without a Npcink AI host menu, open **Tools -> Abilities Toolkit
+Diagnostics** instead.
 
-The default page shows package readiness and the registered ability catalog:
+The default page shows package health and focused next actions:
 
 - WordPress Abilities API support
 - registered ability count and callback readiness
-- ability category, risk, callback, and schema signals
-- copyable REST endpoint values for host/client setup
+- direct links to the catalog, endpoint values, read-only checks, and ID export
 
-REST checks can:
+The Catalog and Connections tabs can:
 
+- filter the catalog by ID, label, description, category, risk, and page size
+- show ability label, description, category, risk, schema, and callback signals
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce
 - fetch `/wp-json/wp-abilities/v1/categories`
 - run `npcink-abilities-toolkit/site-info` and a bounded `npcink-abilities-toolkit/wp-diagnostics-summary` as read-only checks

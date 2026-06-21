@@ -18,13 +18,14 @@ msgstr ""
 msgid "Npcink Abilities Toolkit"
 msgstr "Npcink Abilities Toolkit"
 
+#. Description of the plugin
+#: npcink-abilities-toolkit.php
+msgid "Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities."
+msgstr "独立的 WordPress Abilities API 包工具包，用于安全公开可由 agent 调用的能力。"
+
 #: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
 msgid "Abilities"
 msgstr "原子能力"
-
-#: includes/Admin/Test_Page.php:109
-msgid "Abilities API Packages"
-msgstr "能力 API 包"
 
 #: includes/Admin/Test_Page.php:140
 msgid "You do not have permission to access this page."
@@ -55,10 +56,6 @@ msgstr "概览"
 #: includes/Admin/Test_Page.php:194
 msgid "Catalog"
 msgstr "目录"
-
-#: includes/Admin/Test_Page.php:195
-msgid "REST checks"
-msgstr "REST 检查"
 
 #: includes/Admin/Test_Page.php:208
 msgid "Abilities page sections"
@@ -154,10 +151,6 @@ msgstr "验证 REST 访问"
 msgid ""
 "Fetch discovery endpoints with the current wp-admin session and REST nonce."
 msgstr "使用当前 wp-admin 会话和 REST nonce 获取发现端点。"
-
-#: includes/Admin/Test_Page.php:314
-msgid "Open REST Checks"
-msgstr "打开 REST 检查"
 
 #: includes/Admin/Test_Page.php:317
 msgid "Connect a host"
@@ -3024,21 +3017,129 @@ msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr "可选的 host 提供幂等键，用于审计和重放关联。"
 #: includes/Admin/Test_Page.php
-msgid "Add provider abilities"
-msgstr "添加提供方能力"
-
-#: includes/Admin/Test_Page.php
-msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
-msgstr "提供方插件应调用公共辅助函数，并避免包含 Toolkit 内部文件。"
-
-#: includes/Admin/Test_Page.php
-msgid "Copy Client Values"
-msgstr "复制客户端值"
-
-#: includes/Admin/Test_Page.php
 msgid "Contract Endpoint"
 msgstr "契约端点"
 
 #: includes/Admin/Test_Page.php
 msgid "Copy Contract Endpoint"
 msgstr "复制契约端点"
+
+#: includes/Plugin.php:185
+msgid "Diagnostics"
+msgstr "诊断"
+
+#: includes/Admin/Test_Page.php
+msgid "Abilities Toolkit Diagnostics"
+msgstr "能力工具包诊断"
+
+#: includes/Admin/Test_Page.php
+msgid "Ability Diagnostics"
+msgstr "能力诊断"
+
+#: includes/Admin/Test_Page.php
+msgid "Review package health, registered abilities, REST endpoints, and host handoff values."
+msgstr "检查包健康状态、已注册能力、REST 端点和 host 交接值。"
+
+#: includes/Admin/Test_Page.php
+msgid "Connections"
+msgstr "连接"
+
+#: includes/Admin/Test_Page.php
+msgid "Health summary"
+msgstr "健康摘要"
+
+#: includes/Admin/Test_Page.php
+msgid "No missing callbacks detected."
+msgstr "未发现缺失回调。"
+
+#: includes/Admin/Test_Page.php
+msgid "Review labels, IDs, risk levels, schemas, and callback readiness before connecting a host."
+msgstr "在连接 host 前检查标签、ID、风险级别、schema 和回调就绪状态。"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy host endpoints"
+msgstr "复制 host 端点"
+
+#: includes/Admin/Test_Page.php
+msgid "Use stable REST endpoint values when configuring a host client."
+msgstr "配置 host 客户端时使用稳定的 REST 端点值。"
+
+#: includes/Admin/Test_Page.php
+msgid "Run read-only checks"
+msgstr "运行只读检查"
+
+#: includes/Admin/Test_Page.php
+msgid "Verify bounded site info and diagnostics with the current wp-admin session."
+msgstr "使用当前 wp-admin 会话验证有边界的站点信息和诊断。"
+
+#: includes/Admin/Test_Page.php
+msgid "Open Checks"
+msgstr "打开检查"
+
+#: includes/Admin/Test_Page.php
+msgid "Export ability IDs"
+msgstr "导出能力 ID"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy the registered ability ID list for host audits and catalog comparisons."
+msgstr "复制已注册能力 ID 列表，用于 host 审计和目录对比。"
+
+#: includes/Admin/Test_Page.php
+msgid "Open Export"
+msgstr "打开导出"
+
+#: includes/Admin/Test_Page.php
+msgid "Home URL and Site URL differ; verify local site routing before testing endpoint values."
+msgstr "Home URL 和 Site URL 不一致；测试端点值前请核对本地站点路由。"
+
+#: includes/Admin/Test_Page.php
+msgid "ID, label, description, or category"
+msgstr "ID、标签、描述或分类"
+
+#: includes/Admin/Test_Page.php
+msgid "Ability"
+msgstr "能力"
+
+#: includes/Admin/Test_Page.php
+msgid "Schemas"
+msgstr "Schema"
+
+#: includes/Admin/Test_Page.php
+msgid "Callback"
+msgstr "回调"
+
+#: includes/Admin/Test_Page.php
+msgid "Input"
+msgstr "输入"
+
+#: includes/Admin/Test_Page.php
+msgid "Output"
+msgstr "输出"
+
+#: includes/Admin/Test_Page.php
+msgid "yes"
+msgstr "是"
+
+#: includes/Admin/Test_Page.php
+msgid "no"
+msgstr "否"
+
+#: includes/Admin/Test_Page.php
+msgid "Copy host connection values, run bounded read-only checks, and inspect REST discovery responses."
+msgstr "复制 host 连接值、运行有边界的只读检查，并查看 REST 发现响应。"
+
+#: includes/Admin/Test_Page.php
+msgid "Host connection values"
+msgstr "Host 连接值"
+
+#: includes/Admin/Test_Page.php
+msgid "These checks use bounded admin input. They do not write content, call models, or contact external services."
+msgstr "这些检查使用有边界的管理员输入。它们不会写入内容、调用模型或联系外部服务。"
+
+#: includes/Admin/Test_Page.php
+msgid "Discovery fetches"
+msgstr "发现请求"
+
+#: includes/Admin/Test_Page.php
+msgid "These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication."
+msgstr "这些按钮使用当前 wp-admin 会话和 X-WP-Nonce 请求头。外部客户端应使用 WordPress REST 认证。"
