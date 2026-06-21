@@ -1637,6 +1637,8 @@ npcink_abilities_toolkit_assert_same( array( 'post_id' ), $package_abilities['np
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment queue health scan is bounded to 100 comments per page' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-action-priority-queue']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment action priority queue scan is bounded to 100 comments per page' );
 npcink_abilities_toolkit_assert_same( 100, $package_abilities['npcink-abilities-toolkit/get-comment-compliance-handoff']['input_schema']['properties']['per_page']['maximum'] ?? null, 'comment compliance handoff scan is bounded to 100 comments per page' );
+npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-comment-mention-reply-suggest']['input_schema']['required'] ?? array(), 'comment mention reply suggestions accept either comment_id or supplied comment text' );
+npcink_abilities_toolkit_assert_same( 1200, $package_abilities['npcink-abilities-toolkit/build-comment-mention-reply-suggest']['input_schema']['properties']['comment_text']['maxLength'] ?? null, 'comment mention reply suggestions bound supplied comment text' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-comments', $package_abilities['npcink-abilities-toolkit/build-comment-moderation-suggest']['category'], 'comment helper abilities use the standalone comments category' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-comments', $package_abilities['npcink-abilities-toolkit/get-comment-queue-health']['category'], 'comment queue health uses the standalone comments category' );
 	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['project_to_npcink_catalog'], 'standalone diagnostics ability does not project into Npcink AI by default' );
@@ -2766,6 +2768,21 @@ $mention_suggest = $core_comment_package->build_comment_mention_reply_suggest(
 );
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['success'] ?? null, 'build-comment-mention-reply-suggest returns a success envelope' );
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['data']['trigger']['trigger_detected'] ?? null, 'build-comment-mention-reply-suggest detects mention trigger' );
+npcink_abilities_toolkit_assert_true( ! empty( $mention_suggest['data']['reply_options'] ), 'build-comment-mention-reply-suggest returns review-only reply options' );
+$text_reply_suggest = $core_comment_package->build_comment_mention_reply_suggest(
+	array(
+		'post_id'        => 77,
+		'post_title'    => 'Comment Reply Context',
+		'comment_text'  => 'Could you share more detail about how this workflow handles review?',
+		'comment_author' => 'Reader',
+		'trigger_type'  => 'support_request',
+		'always_suggest' => true,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $text_reply_suggest['success'] ?? null, 'build-comment-mention-reply-suggest accepts operator-supplied comment text' );
+npcink_abilities_toolkit_assert_same( 'operator_supplied_comment_text', $text_reply_suggest['data']['comment']['source'] ?? '', 'operator-supplied comment reply suggestions preserve source boundary' );
+npcink_abilities_toolkit_assert_same( false, $text_reply_suggest['data']['direct_wordpress_write'] ?? true, 'operator-supplied comment reply suggestions remain no-write' );
+npcink_abilities_toolkit_assert_same( 'preview_reply', $text_reply_suggest['data']['mention_summary']['next_action'] ?? '', 'operator-supplied comment reply suggestions summarize preview reply as the next action' );
 $trigger_queue = $core_comment_package->read_comment_trigger_queue(
 	array(
 		'post_id' => 77,

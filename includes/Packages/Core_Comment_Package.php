@@ -619,25 +619,43 @@ final class Core_Comment_Package {
 	public function build_comment_mention_reply_suggest( $input ) {
 		$input      = is_array( $input ) ? $input : array();
 		$comment_id = $this->absint_value( $input['comment_id'] ?? 0 );
-		$comment    = $this->get_comment_object( $comment_id );
-		if ( $comment_id <= 0 || ! is_object( $comment ) ) {
+		$comment    = $comment_id > 0 ? $this->get_comment_object( $comment_id ) : null;
+		if ( $comment_id > 0 && ! is_object( $comment ) ) {
 			return $this->error( 'npcink_ai_comment_missing', 'Comment not found.', 404 );
 		}
 
-		$content      = $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) );
+		$content = is_object( $comment )
+			? $this->normalize_plain_text( (string) ( $comment->comment_content ?? '' ) )
+			: $this->normalize_plain_text( (string) ( $input['comment_text'] ?? '' ) );
+		if ( '' === $content ) {
+			return $this->error( 'npcink_ai_comment_context_missing', 'comment_id or comment_text is required.', 400 );
+		}
+
 		$trigger_type = $this->normalize_trigger_type( $input['trigger_type'] ?? 'mention' );
 		$trigger      = $this->detect_comment_mention_trigger( $content, $trigger_type );
-		$reply        = ! empty( $trigger['trigger_detected'] )
+		$always_suggest = ! empty( $input['always_suggest'] );
+		$reply        = ! empty( $trigger['trigger_detected'] ) || $always_suggest
 			? $this->build_reply_suggestion( $content, array( $trigger_type ), $input )
 			: '';
+		$reply_options = '' !== $reply ? $this->build_comment_reply_options( $content, $reply, $input ) : array();
 
 		$payload = array(
 			'comment_id'       => $comment_id,
-			'post_id'          => $this->absint_value( $comment->comment_post_ID ?? 0 ),
+			'post_id'          => is_object( $comment ) ? $this->absint_value( $comment->comment_post_ID ?? 0 ) : $this->absint_value( $input['post_id'] ?? 0 ),
+			'comment'          => array(
+				'id'      => $comment_id,
+				'author'  => is_object( $comment ) ? sanitize_text_field( (string) ( $comment->comment_author ?? '' ) ) : $this->sanitize_text_value( (string) ( $input['comment_author'] ?? '' ) ),
+				'status'  => is_object( $comment ) ? sanitize_key( (string) ( $comment->comment_approved ?? '' ) ) : sanitize_key( (string) ( $input['comment_status'] ?? '' ) ),
+				'excerpt' => $this->trim_words( $content, 26 ),
+				'source'  => is_object( $comment ) ? 'wordpress_comment' : 'operator_supplied_comment_text',
+			),
 			'trigger_type'     => $trigger_type,
 			'trigger'          => $trigger,
 			'reply_suggestion' => $reply,
-			'next_action'      => ! empty( $trigger['trigger_detected'] ) ? 'preview_reply' : 'manual_review',
+			'reply_options'    => $reply_options,
+			'write_posture'    => 'suggestion_only',
+			'direct_wordpress_write' => false,
+			'next_action'      => '' !== $reply ? 'preview_reply' : 'manual_review',
 		);
 		$payload['mention_summary'] = $this->build_comment_mention_summary( $payload );
 
@@ -848,6 +866,53 @@ final class Core_Comment_Package {
 	}
 
 	/**
+	 * Builds review-only reply options.
+	 *
+	 * @param string $content Comment content.
+	 * @param string $primary_reply Primary reply.
+	 * @param array  $input Input args.
+	 * @return array<int,array<string,string>>
+	 */
+	private function build_comment_reply_options( $content, $primary_reply, array $input ) {
+		$excerpt = $this->trim_words( $content, 26 );
+		$post_title = $this->sanitize_text_value( (string) ( $input['post_title'] ?? '' ) );
+		if ( '' === $post_title && ! empty( $input['title'] ) ) {
+			$post_title = $this->sanitize_text_value( (string) $input['title'] );
+		}
+		$topic = '' !== $post_title ? $post_title : 'this article';
+
+		return array(
+			array(
+				'id'            => 'acknowledge_and_answer',
+				'label'         => 'Acknowledge and answer',
+				'reply_text'    => '' !== $primary_reply ? $primary_reply : 'Thanks for raising this. We will review it against the article before taking action.',
+				'reason'        => 'Useful when the comment asks for clarification or a concrete next step.',
+				'status'        => 'review_required',
+				'action_policy' => 'operator_review_only_no_comment_publish',
+				'target_field'  => 'comment_reply',
+			),
+			array(
+				'id'            => 'ask_for_detail',
+				'label'         => 'Ask for detail',
+				'reply_text'    => 'Thanks for the note. Could you share one concrete example or the context where you saw this issue? That will make the follow-up more accurate.',
+				'reason'        => 'Useful when the comment is broad, ambiguous, or missing enough context for a confident answer.',
+				'status'        => 'review_required',
+				'action_policy' => 'operator_review_only_no_comment_publish',
+				'target_field'  => 'comment_reply',
+			),
+			array(
+				'id'            => 'review_against_article',
+				'label'         => 'Review against article',
+				'reply_text'    => sprintf( 'Thanks for flagging this. I will review "%1$s" against "%2$s" first so the reply does not overstate anything unsupported.', $excerpt, $topic ),
+				'reason'        => 'Useful when the comment asks for a claim, recommendation, or commitment that needs source review.',
+				'status'        => 'review_required',
+				'action_policy' => 'operator_review_only_no_comment_publish',
+				'target_field'  => 'comment_reply',
+			),
+		);
+	}
+
+	/**
 	 * Detects comment trigger type.
 	 *
 	 * @param string $content Comment content.
@@ -903,10 +968,12 @@ final class Core_Comment_Package {
 	 */
 	private function build_comment_mention_summary( array $result ) {
 		$trigger = is_array( $result['trigger'] ?? null ) ? $result['trigger'] : array();
+		$has_reply = '' !== trim( (string) ( $result['reply_suggestion'] ?? '' ) )
+			|| ( is_array( $result['reply_options'] ?? null ) && ! empty( $result['reply_options'] ) );
 		return array(
 			'trigger_detected' => ! empty( $trigger['trigger_detected'] ),
 			'trigger_type'     => sanitize_key( (string) ( $trigger['trigger_type'] ?? $result['trigger_type'] ?? '' ) ),
-			'next_action'      => ! empty( $trigger['trigger_detected'] ) ? 'preview_reply' : 'manual_review',
+			'next_action'      => ! empty( $trigger['trigger_detected'] ) || $has_reply ? 'preview_reply' : 'manual_review',
 		);
 	}
 
