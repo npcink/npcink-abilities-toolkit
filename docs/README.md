@@ -47,8 +47,9 @@ Use this path when a client needs to discover or run abilities through the
 WordPress REST API.
 
 1. Start with [REST Client Quickstart](rest-client-quickstart.md).
-2. Use the admin page endpoint values from `Tools -> Abilities API Packages` or
-   `Npcink AI -> Abilities`.
+2. Use the admin page endpoint values from
+   `Tools -> Abilities Toolkit Diagnostics` or
+   `Npcink AI -> Ability Diagnostics`.
 3. Use [Troubleshooting](troubleshooting.md) for common 401, 403, missing route,
    missing ability, and dry-run issues.
 

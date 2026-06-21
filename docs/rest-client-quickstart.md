@@ -15,8 +15,8 @@ abilities from a WordPress site where `npcink-abilities-toolkit` is active.
 
 After activation, open the admin discovery page:
 
-- With a Npcink AI host menu: `Npcink AI -> Abilities`
-- Standalone fallback: `Tools -> Abilities API Packages`
+- With a Npcink AI host menu: `Npcink AI -> Ability Diagnostics`
+- Standalone fallback: `Tools -> Abilities Toolkit Diagnostics`
 
 The page exposes copyable endpoint values for the current site. The standard
 REST routes are:

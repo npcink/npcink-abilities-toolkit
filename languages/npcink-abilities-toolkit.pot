@@ -21,12 +21,13 @@ msgstr ""
 msgid "Npcink Abilities Toolkit"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
-msgid "Abilities"
+#. Description of the plugin
+#: npcink-abilities-toolkit.php
+msgid "Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:109
-msgid "Abilities API Packages"
+#: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
+msgid "Abilities"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:140
@@ -57,10 +58,6 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:194
 msgid "Catalog"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:195
-msgid "REST checks"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:208
@@ -156,10 +153,6 @@ msgstr ""
 #: includes/Admin/Test_Page.php:313
 msgid ""
 "Fetch discovery endpoints with the current wp-admin session and REST nonce."
-msgstr ""
-
-#: includes/Admin/Test_Page.php:314
-msgid "Open REST Checks"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:317
@@ -3018,21 +3011,129 @@ msgid ""
 msgstr ""
 
 #: includes/Admin/Test_Page.php
-msgid "Add provider abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php
-msgid "Provider plugins should call the public helpers and avoid including internal Toolkit files."
-msgstr ""
-
-#: includes/Admin/Test_Page.php
-msgid "Copy Client Values"
-msgstr ""
-
-#: includes/Admin/Test_Page.php
 msgid "Contract Endpoint"
 msgstr ""
 
 #: includes/Admin/Test_Page.php
 msgid "Copy Contract Endpoint"
+msgstr ""
+
+#: includes/Plugin.php:185
+msgid "Diagnostics"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Abilities Toolkit Diagnostics"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Ability Diagnostics"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Review package health, registered abilities, REST endpoints, and host handoff values."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Connections"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Health summary"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "No missing callbacks detected."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Review labels, IDs, risk levels, schemas, and callback readiness before connecting a host."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Copy host endpoints"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Use stable REST endpoint values when configuring a host client."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Run read-only checks"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Verify bounded site info and diagnostics with the current wp-admin session."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Open Checks"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Export ability IDs"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Copy the registered ability ID list for host audits and catalog comparisons."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Open Export"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Home URL and Site URL differ; verify local site routing before testing endpoint values."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "ID, label, description, or category"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Ability"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Schemas"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Callback"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Input"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Output"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "yes"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "no"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Copy host connection values, run bounded read-only checks, and inspect REST discovery responses."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Host connection values"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "These checks use bounded admin input. They do not write content, call models, or contact external services."
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "Discovery fetches"
+msgstr ""
+
+#: includes/Admin/Test_Page.php
+msgid "These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication."
 msgstr ""

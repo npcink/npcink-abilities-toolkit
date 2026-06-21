@@ -1,7 +1,7 @@
 # Abilities Admin Surface Standard
 
-Status: active for `Npcink AI -> Abilities` and the standalone
-`Tools -> Abilities API Packages` fallback.
+Status: active for `Npcink AI -> Ability Diagnostics` and the standalone
+`Tools -> Abilities Toolkit Diagnostics` fallback.
 
 ## Purpose
 
@@ -15,35 +15,30 @@ The default page should show:
 
 - compact environment status for WordPress Abilities API support;
 - registered ability count and callback readiness;
-- an ability catalog table grouped or scannable by `ability_id`;
+- stable, shareable admin URLs for tabs and read-only filters;
+- an ability catalog table grouped or scannable by `ability_id`, label,
+  description, and category;
 - per-ability signals for category, risk, callback availability, and schema
   availability.
 
-## Endpoint Details
+## Connection Values
 
-Low-frequency details should be behind explicit advanced entries:
+Connection and low-frequency details should be split into explicit sections:
 
-- REST endpoint URLs should be visible on the REST checks screen with copy actions;
+- REST endpoint URLs should be visible on the Connections screen with copy actions;
 - the Toolkit contract endpoint should be visible as a copyable host/runtime
   discovery value;
-- browser REST fetch buttons;
-- authenticated REST discovery checks;
+- browser REST fetch buttons should be grouped as discovery fetches;
+- authenticated REST discovery checks should be distinct from endpoint copy values;
 - at most two official read-only ability checks may be visible: site info and bounded redacted diagnostics summary;
 - copyable registered ability ID export;
 - compatibility projection notes for Npcink AI consumers.
 
-## Provider Onboarding
+## Ability Diagnostics
 
-The page may include brief release-visible guidance for provider plugins:
-
-- provider plugins should call public helper functions;
-- provider plugins should not include files under `includes/` or instantiate
-  internal `Npcink_Abilities_Toolkit` classes;
-- write-like third-party callbacks should return proposals, previews, diffs, or
-  handoff payloads instead of committing.
-
-Keep this guidance short and connection-oriented. Long-form examples belong in
-the public repository docs, not in the packaged admin page.
+The page should avoid looking like a general settings page. Plugin-list action
+links, page headings, and menu labels should use diagnostics language rather
+than Settings language unless a future page actually stores configuration.
 
 Do not add demo/showcase execution buttons, model-call buttons, write buttons,
 or workflow-run buttons to this package surface. Real workflow execution belongs

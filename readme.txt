@@ -90,9 +90,9 @@ providers or clients.
 
 == Admin Page ==
 
-After activation with a Npcink AI host plugin, open Npcink AI -> Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Abilities API Packages instead.
+After activation with a Npcink AI host plugin, open Npcink AI -> Ability Diagnostics in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Abilities Toolkit Diagnostics instead.
 
-The page verifies Abilities API availability, shows the registered ability catalog, provides copyable REST endpoint values for host/client setup, and can run two official read-only checks: site info and bounded redacted diagnostics summary. It is a connection and discovery surface; it does not run showcase workflows, model calls, write abilities, or demo abilities.
+The page verifies Abilities API availability, shows package health, filters the registered ability catalog with labels and descriptions, provides copyable REST endpoint values for host/client setup, and can run two official read-only checks: site info and bounded redacted diagnostics summary. It is a connection and discovery surface; it does not run showcase workflows, model calls, write abilities, or demo abilities.
 
 == Built-In Abilities ==
 
