@@ -20,7 +20,7 @@ msgstr "Npcink Abilities Toolkit"
 
 #: includes/Admin/Test_Page.php:98 includes/Admin/Test_Page.php:150
 msgid "Abilities"
-msgstr "能力"
+msgstr "原子能力"
 
 #: includes/Admin/Test_Page.php:109
 msgid "Abilities API Packages"
