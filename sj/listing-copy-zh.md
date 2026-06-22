@@ -12,17 +12,19 @@
 
 - 2026-06-22 检查时，`Stable Readme (latest release)` 的 Chinese (China)
   显示 `Translated (0)`、`Untranslated (101)`。
-- 未登录状态下，每条字符串显示 `You have to log in to add a translation.`。
-- 需要使用 WordPress.org 账号登录后逐条提交，或由有权限的 translation editor
-  通过 GlotPress 导入/审核。
+- 2026-06-22 已使用 WordPress.org 账号通过 GlotPress PO 导入提交 101 条中文
+  translation suggestions。页面返回 `101 translations were added`。
+- 提交后状态为 `Waiting (101)`、`Untranslated (0)`、`Warnings (0)`。
+- 当前账号没有显示 approve/bulk approve 控件，所以这些翻译还需要 Chinese
+  (China) locale editor 或有权限的 project translation editor 审核。审核通过
+  后，WordPress.org 中文插件目录页才会显示中文。
 
-建议提交流程：
+后续审核流程：
 
-1. 登录 WordPress.org。
-2. 打开上面的 Stable Readme 中文项目地址。
-3. 优先提交短描述、FAQ、截图说明和 Admin Page 段落，这些直接影响插件目录页首屏理解。
-4. 再提交其余 Description、Requirements、Public API、Changelog 等条目。
-5. 提交后等待中文 locale editor 审核；审核通过后 WordPress.org 中文目录页才会显示中文。
+1. 打开上面的 Stable Readme 中文项目地址。
+2. 切换到 `Waiting (101)`。
+3. 由有权限的 reviewer 审核并 approve。
+4. 审核通过后等待 WordPress.org 插件目录缓存刷新。
 
 ## 标题
 
