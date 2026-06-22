@@ -196,19 +196,15 @@
 }
 
 .npcink-abilities-toolkit-ability-table__ability {
-	width: 24%;
+	width: 26%;
 }
 
 .npcink-abilities-toolkit-ability-table__description {
-	width: 42%;
+	width: 52%;
 }
 
 .npcink-abilities-toolkit-ability-table__risk {
-	width: 16%;
-}
-
-.npcink-abilities-toolkit-ability-table__technical {
-	width: 18%;
+	width: 22%;
 }
 
 .npcink-abilities-toolkit-ability-cell {
@@ -218,39 +214,29 @@
 .npcink-abilities-toolkit-ability-cell strong,
 .npcink-abilities-toolkit-ability-cell span,
 .npcink-abilities-toolkit-ability-table td:nth-child(3) strong,
-.npcink-abilities-toolkit-ability-table td:nth-child(3) span,
-.npcink-abilities-toolkit-technical-cell code,
-.npcink-abilities-toolkit-technical-cell span {
+.npcink-abilities-toolkit-ability-table td:nth-child(3) span {
 	display: block;
 }
 
 .npcink-abilities-toolkit-ability-cell strong,
-.npcink-abilities-toolkit-ability-table td:nth-child(3) strong,
-.npcink-abilities-toolkit-technical-cell code {
+.npcink-abilities-toolkit-ability-table td:nth-child(3) strong {
 	margin-bottom: 4px;
 }
 
 .npcink-abilities-toolkit-ability-cell span,
-.npcink-abilities-toolkit-technical-cell span {
+.npcink-abilities-toolkit-technical-catalog-table span {
 	color: #646970;
 	margin-top: 4px;
 }
 
-.npcink-abilities-toolkit-technical-cell {
-	min-width: 0;
+.npcink-abilities-toolkit-technical-catalog-table {
+	table-layout: fixed;
 }
 
-.npcink-abilities-toolkit-technical-cell summary {
-	cursor: pointer;
-	font-weight: 600;
-}
-
-.npcink-abilities-toolkit-technical-cell details[open] summary {
-	margin-bottom: 6px;
-}
-
-.npcink-abilities-toolkit-technical-cell code {
-	white-space: normal;
+.npcink-abilities-toolkit-technical-catalog-table th,
+.npcink-abilities-toolkit-technical-catalog-table td {
+	overflow-wrap: anywhere;
+	vertical-align: top;
 }
 
 .npcink-abilities-toolkit-disclosure {

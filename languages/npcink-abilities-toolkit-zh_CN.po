@@ -261,11 +261,11 @@ msgstr "可用 AI 能力"
 
 #: includes/Admin/Test_Page.php:438
 msgid ""
-"Review what AI clients can use on this WordPress site. Technical IDs and "
-"schema signals are shown as details for support and developers."
+"Review what AI clients can use on this WordPress site. Developer-only ability "
+"IDs and schema signals are kept in Developer Access."
 msgstr ""
-"查看 AI 客户端可在此 WordPress 站点使用的能力。技术 ID 和 schema 信号作为支持"
-"与开发者细节显示。"
+"查看 AI 客户端可在此 WordPress 站点使用的能力。仅开发者需要的能力 ID 和 "
+"schema 信号保留在“开发者接入”中。"
 
 #. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
 #: includes/Admin/Test_Page.php:460
@@ -343,22 +343,6 @@ msgstr "上一页"
 msgid "Next"
 msgstr "下一页"
 
-#: includes/Admin/Test_Page.php:748
-msgid "Read-only abilities"
-msgstr "只读能力"
-
-#: includes/Admin/Test_Page.php:749
-msgid "Approval-required content abilities"
-msgstr "需要审批的内容能力"
-
-#: includes/Admin/Test_Page.php:750
-msgid "High-risk abilities"
-msgstr "高风险能力"
-
-#: includes/Admin/Test_Page.php:751
-msgid "Other abilities"
-msgstr "其他能力"
-
 #: includes/Admin/Test_Page.php:765
 msgid "Read-only"
 msgstr "只读"
@@ -382,10 +366,6 @@ msgstr "能力"
 #: includes/Admin/Test_Page.php:786
 msgid "What it allows"
 msgstr "允许的操作"
-
-#: includes/Admin/Test_Page.php:789
-msgid "Technical details"
-msgstr "技术细节"
 
 #: includes/Admin/Test_Page.php:810
 msgid "No description provided."
@@ -721,6 +701,18 @@ msgstr "供 host 和目录审计复制使用的 ID 列表。"
 msgid "Copy IDs"
 msgstr "复制 ID"
 
+#: includes/Admin/Test_Page.php:1069
+msgid "Ability technical catalog"
+msgstr "能力技术目录"
+
+#: includes/Admin/Test_Page.php:1070
+msgid "Technical IDs, categories, schema availability, and callback status for host integrations."
+msgstr "用于 host 集成的技术 ID、分类、schema 可用性和回调状态。"
+
+#: includes/Admin/Test_Page.php:1077
+msgid "Ability ID"
+msgstr "能力 ID"
+
 #: includes/Admin/Test_Page.php:1079
 msgid "You do not have permission to run this check."
 msgstr "你没有权限运行此检查。"
@@ -831,7 +823,7 @@ msgstr "WordPress 评论能力"
 
 #: includes/Packages/Core_Comment_Package.php:57
 msgid "Read-only comment moderation and reply helper abilities."
-msgstr "只读评论审核和回复助手功能。"
+msgstr "只读评论审核和回复辅助能力。"
 
 #: includes/Packages/Core_Destructive_Package.php:55
 #: includes/Packages/Core_Write_Package.php:71
@@ -1094,7 +1086,7 @@ msgstr "您无权删除此文章。"
 
 #: includes/Packages/Core_Read_Package.php:80
 msgid "WordPress Read Abilities"
-msgstr "WordPress 阅读能力"
+msgstr "WordPress 读取能力"
 
 #: includes/Packages/Core_Read_Package.php:81
 msgid "Read-only WordPress site, content, and structure abilities."
@@ -1102,7 +1094,7 @@ msgstr "只读 WordPress 站点、内容和结构能力。"
 
 #: includes/Packages/Core_Read_Package.php:87
 msgid "WordPress Page Abilities"
-msgstr "WordPress 页面功能"
+msgstr "WordPress 页面能力"
 
 #: includes/Packages/Core_Read_Package.php:88
 msgid "Read-only WordPress page discovery and inspection abilities."
@@ -1114,7 +1106,7 @@ msgstr "WordPress 诊断"
 
 #: includes/Packages/Core_Read_Package.php:95
 msgid "Redacted WordPress environment diagnostics for Abilities API clients."
-msgstr "编辑了 Abilities API 客户端的 WordPress 环境诊断。"
+msgstr "面向 Abilities API 客户端的脱敏 WordPress 环境诊断。"
 
 #: includes/Packages/Core_Read_Package.php:101
 msgid "Workflow Recipe Definitions"

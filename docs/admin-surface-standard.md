@@ -28,13 +28,13 @@ The default page should show:
 ## Available Abilities
 
 The default ability review should use plain labels and task descriptions first.
-Technical details stay visible, but they should not dominate the row.
+Developer-only technical details should not appear in this customer-facing list.
 
-- group abilities by risk posture: read-only, approval-required content,
-  high-risk, and other;
-- show label, description, risk, and availability before technical values;
-- keep ability ids, categories, schema signals, and callback readiness in a
-  technical details column;
+- show matching abilities in one flat table by default;
+- use search, risk, category, and page-size filters to narrow the table;
+- show label, description, risk, and availability;
+- keep ability ids searchable, but do not render schema or callback signals in
+  the main list;
 - support filtering by ability name, description, category, risk, technical ID,
   and page size.
 
@@ -62,6 +62,8 @@ Connection and low-frequency details belong in the Developer Access tab:
   discovery value;
 - browser REST fetch buttons should be grouped as discovery fetches;
 - copyable registered ability ID export;
+- ability technical catalog with ID, category, risk, schema availability, and
+  callback status;
 - compatibility projection notes for Npcink AI consumers.
 
 ## Site AI Abilities

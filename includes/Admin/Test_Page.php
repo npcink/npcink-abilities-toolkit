@@ -8,6 +8,7 @@
 namespace Npcink_Abilities_Toolkit\Admin;
 
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,6 +30,13 @@ final class Test_Page {
 	private $abilities;
 
 	/**
+	 * Category registrar.
+	 *
+	 * @var Category_Registrar
+	 */
+	private $categories;
+
+	/**
 	 * Admin hook suffixes that should load this page's assets.
 	 *
 	 * @var array<int,string>
@@ -38,10 +46,12 @@ final class Test_Page {
 	/**
 	 * Constructor.
 	 *
-	 * @param Ability_Registrar $abilities Ability registrar.
+	 * @param Ability_Registrar  $abilities Ability registrar.
+	 * @param Category_Registrar $categories Category registrar.
 	 */
-	public function __construct( Ability_Registrar $abilities ) {
-		$this->abilities = $abilities;
+	public function __construct( Ability_Registrar $abilities, Category_Registrar $categories ) {
+		$this->abilities  = $abilities;
+		$this->categories = $categories;
 	}
 
 	/**
@@ -431,11 +441,10 @@ final class Test_Page {
 		$current_page  = min( (int) $filters['paged'], $total_pages );
 		$offset        = ( $current_page - 1 ) * $per_page;
 		$paged_results = array_slice( $filtered, $offset, $per_page, true );
-		$groups        = $this->group_abilities_by_risk( $paged_results );
 		?>
 		<h2><?php echo esc_html__( 'Available AI Abilities', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
-			<?php echo esc_html__( 'Review what AI clients can use on this WordPress site. Technical IDs and schema signals are shown as details for support and developers.', 'npcink-abilities-toolkit' ); ?>
+			<?php echo esc_html__( 'Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access.', 'npcink-abilities-toolkit' ); ?>
 		</p>
 
 		<?php if ( empty( $registered ) ) : ?>
@@ -469,40 +478,11 @@ final class Test_Page {
 			?>
 		</p>
 
-		<?php foreach ( $groups as $group_key => $abilities ) : ?>
-			<?php
-			if ( empty( $abilities ) ) {
-				continue;
-			}
-
-			$missing_callbacks = 0;
-			foreach ( $abilities as $definition ) {
-				if ( ! is_callable( $definition['execute_callback'] ?? null ) ) {
-					++$missing_callbacks;
-				}
-			}
-			?>
-			<details class="npcink-abilities-toolkit-disclosure">
-				<summary>
-					<strong><?php echo esc_html( $this->get_risk_group_label( $group_key ) ); ?></strong>
-					<span class="npcink-abilities-toolkit-disclosure__meta">
-						<?php
-						echo esc_html(
-							sprintf(
-								/* translators: 1: ability count, 2: missing callback count. */
-								__( '%1$d abilities, %2$d callback issues', 'npcink-abilities-toolkit' ),
-								count( $abilities ),
-								$missing_callbacks
-							)
-						);
-						?>
-					</span>
-				</summary>
-				<div class="npcink-abilities-toolkit-disclosure__body">
-					<?php $this->render_ability_table( $abilities ); ?>
-				</div>
-			</details>
-		<?php endforeach; ?>
+		<?php
+		if ( ! empty( $paged_results ) ) {
+			$this->render_ability_table( $paged_results );
+		}
+		?>
 
 		<?php $this->render_catalog_pagination( $current_page, $total_pages, $filters ); ?>
 		<?php
@@ -514,10 +494,10 @@ final class Test_Page {
 	 * @return array<string,mixed>
 	 */
 	private function get_catalog_filters() {
-		$allowed_per_page = array( 25, 50, 100 );
+		$allowed_per_page = array( 5, 10, 25, 50, 100 );
 		$allowed_risks    = array( '', 'read', 'write', 'destructive', 'other' );
-		$per_page         = absint( $this->get_admin_query_arg( 'npcink_abilities_toolkit_per_page', '25' ) );
-		$per_page         = in_array( $per_page, $allowed_per_page, true ) ? $per_page : 25;
+		$per_page         = absint( $this->get_admin_query_arg( 'npcink_abilities_toolkit_per_page', '10' ) );
+		$per_page         = in_array( $per_page, $allowed_per_page, true ) ? $per_page : 10;
 		$risk             = sanitize_key( $this->get_admin_query_arg( 'npcink_abilities_toolkit_risk' ) );
 
 		return array(
@@ -565,9 +545,9 @@ final class Test_Page {
 				<?php echo esc_html__( 'Category', 'npcink-abilities-toolkit' ); ?>
 				<select name="npcink_abilities_toolkit_category">
 					<option value=""><?php echo esc_html__( 'All categories', 'npcink-abilities-toolkit' ); ?></option>
-					<?php foreach ( $categories as $category ) : ?>
-						<option value="<?php echo esc_attr( $category ); ?>" <?php selected( $filters['category'], $category ); ?>>
-							<?php echo esc_html( $category ); ?>
+					<?php foreach ( $categories as $category_id => $category_label ) : ?>
+						<option value="<?php echo esc_attr( $category_id ); ?>" <?php selected( $filters['category'], $category_id ); ?>>
+							<?php echo esc_html( $category_label ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
@@ -576,7 +556,7 @@ final class Test_Page {
 			<label>
 				<?php echo esc_html__( 'Per page', 'npcink-abilities-toolkit' ); ?>
 				<select name="npcink_abilities_toolkit_per_page">
-					<?php foreach ( array( 25, 50, 100 ) as $per_page ) : ?>
+					<?php foreach ( array( 5, 10, 25, 50, 100 ) as $per_page ) : ?>
 						<option value="<?php echo esc_attr( (string) $per_page ); ?>" <?php selected( $filters['per_page'], $per_page ); ?>>
 							<?php echo esc_html( (string) $per_page ); ?>
 						</option>
@@ -596,7 +576,7 @@ final class Test_Page {
 	 * Returns sorted categories for catalog filters.
 	 *
 	 * @param array<string,array<string,mixed>> $registered Registered abilities.
-	 * @return array<int,string>
+	 * @return array<string,string>
 	 */
 	private function get_catalog_categories( array $registered ) {
 		$categories = array();
@@ -605,12 +585,11 @@ final class Test_Page {
 			$definition = is_array( $definition ) ? $definition : array();
 			$category   = (string) ( $definition['category'] ?? '' );
 			if ( '' !== $category ) {
-				$categories[ $category ] = true;
+				$categories[ $category ] = $this->get_category_display_label( $category );
 			}
 		}
 
-		$categories = array_keys( $categories );
-		sort( $categories );
+		asort( $categories );
 
 		return $categories;
 	}
@@ -648,6 +627,7 @@ final class Test_Page {
 						array(
 							(string) $ability_id,
 							$definition_category,
+							$this->get_category_display_label( $definition_category ),
 							(string) ( $definition['label'] ?? '' ),
 							(string) ( $definition['description'] ?? '' ),
 						)
@@ -713,45 +693,16 @@ final class Test_Page {
 	}
 
 	/**
-	 * Groups abilities by risk level.
+	 * Returns a user-facing ability category label.
 	 *
-	 * @param array<string,array<string,mixed>> $registered Registered abilities.
-	 * @return array<string,array<string,array<string,mixed>>>
-	 */
-	private function group_abilities_by_risk( array $registered ) {
-		$groups = array(
-			'read'        => array(),
-			'write'       => array(),
-			'destructive' => array(),
-			'other'       => array(),
-		);
-
-		foreach ( $registered as $ability_id => $definition ) {
-			$definition = is_array( $definition ) ? $definition : array();
-			$risk       = (string) ( $definition['risk_level'] ?? 'other' );
-			$group      = isset( $groups[ $risk ] ) ? $risk : 'other';
-
-			$groups[ $group ][ $ability_id ] = $definition;
-		}
-
-		return $groups;
-	}
-
-	/**
-	 * Returns a risk group label.
-	 *
-	 * @param string $group_key Group key.
+	 * @param string $category_id Category id.
 	 * @return string
 	 */
-	private function get_risk_group_label( $group_key ) {
-		$labels = array(
-			'read'        => __( 'Read-only abilities', 'npcink-abilities-toolkit' ),
-			'write'       => __( 'Approval-required content abilities', 'npcink-abilities-toolkit' ),
-			'destructive' => __( 'High-risk abilities', 'npcink-abilities-toolkit' ),
-			'other'       => __( 'Other abilities', 'npcink-abilities-toolkit' ),
-		);
+	private function get_category_display_label( $category_id ) {
+		$categories = $this->categories->all();
+		$label      = (string) ( $categories[ $category_id ]['label'] ?? '' );
 
-		return $labels[ $group_key ] ?? $labels['other'];
+		return '' !== $label ? $label : $category_id;
 	}
 
 	/**
@@ -784,22 +735,18 @@ final class Test_Page {
 				<col class="npcink-abilities-toolkit-ability-table__ability" />
 				<col class="npcink-abilities-toolkit-ability-table__description" />
 				<col class="npcink-abilities-toolkit-ability-table__risk" />
-				<col class="npcink-abilities-toolkit-ability-table__technical" />
 			</colgroup>
 			<thead>
 				<tr>
 					<th scope="col"><?php echo esc_html__( 'Ability', 'npcink-abilities-toolkit' ); ?></th>
 					<th scope="col"><?php echo esc_html__( 'What it allows', 'npcink-abilities-toolkit' ); ?></th>
 					<th scope="col"><?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Technical details', 'npcink-abilities-toolkit' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ( $abilities as $ability_id => $definition ) : ?>
 					<?php
 					$has_callback = is_callable( $definition['execute_callback'] ?? null );
-					$has_input    = is_array( $definition['input_schema'] ?? null );
-					$has_output   = is_array( $definition['output_schema'] ?? null );
 					$label        = (string) ( $definition['label'] ?? '' );
 					$description  = (string) ( $definition['description'] ?? '' );
 					?>
@@ -819,19 +766,6 @@ final class Test_Page {
 							<span class="<?php echo esc_attr( $has_callback ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
 								<?php echo esc_html( $has_callback ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'needs attention', 'npcink-abilities-toolkit' ) ); ?>
 							</span>
-						</td>
-						<td class="npcink-abilities-toolkit-technical-cell">
-							<details>
-								<summary><?php echo esc_html__( 'Technical details', 'npcink-abilities-toolkit' ); ?></summary>
-								<code><?php echo esc_html( (string) $ability_id ); ?></code>
-								<span><?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Category', 'npcink-abilities-toolkit' ), (string) ( $definition['category'] ?? '-' ) ) ); ?></span>
-								<span class="<?php echo esc_attr( $has_input ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
-									<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Input', 'npcink-abilities-toolkit' ), $has_input ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
-								</span>
-								<span class="<?php echo esc_attr( $has_output ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
-									<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Output', 'npcink-abilities-toolkit' ), $has_output ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
-								</span>
-							</details>
 						</td>
 					</tr>
 				<?php endforeach; ?>
@@ -912,20 +846,20 @@ final class Test_Page {
 					<tbody id="npcink-abilities-toolkit-check-summary-body"></tbody>
 				</table>
 			</div>
-			<details class="npcink-abilities-toolkit-disclosure npcink-abilities-toolkit-raw-response">
-				<summary>
-					<strong><?php echo esc_html__( 'Raw response for support', 'npcink-abilities-toolkit' ); ?></strong>
-					<span class="npcink-abilities-toolkit-disclosure__meta">
-						<?php echo esc_html__( 'Full JSON is kept here for support and developer troubleshooting.', 'npcink-abilities-toolkit' ); ?>
+				<details class="npcink-abilities-toolkit-disclosure npcink-abilities-toolkit-raw-response">
+					<summary>
+						<strong><?php echo esc_html__( 'Raw response for support', 'npcink-abilities-toolkit' ); ?></strong>
+						<span class="npcink-abilities-toolkit-disclosure__meta">
+							<?php echo esc_html__( 'Full JSON is kept here for support and developer troubleshooting.', 'npcink-abilities-toolkit' ); ?>
 					</span>
 				</summary>
-				<div class="npcink-abilities-toolkit-disclosure__body">
-					<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
-				</div>
-			</details>
-		</section>
-		<?php
-	}
+					<div class="npcink-abilities-toolkit-disclosure__body">
+						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
+					</div>
+				</details>
+			</section>
+			<?php
+		}
 
 	/**
 	 * Returns translated labels for JavaScript-rendered check summaries.
@@ -1049,7 +983,7 @@ final class Test_Page {
 	}
 
 	/**
-	 * Renders endpoint details and copyable ID lists.
+	 * Renders endpoint details and developer catalog exports.
 	 *
 	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
@@ -1065,17 +999,63 @@ final class Test_Page {
 					<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Copyable ID list for host and catalog audits.', 'npcink-abilities-toolkit' ); ?></span>
 				</summary>
 				<div class="npcink-abilities-toolkit-disclosure__body">
-					<p class="npcink-abilities-toolkit-actions">
-						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-raw-ids">
-							<?php echo esc_html__( 'Copy IDs', 'npcink-abilities-toolkit' ); ?>
-						</button>
-					</p>
-					<textarea id="npcink-abilities-toolkit-raw-ids" class="npcink-abilities-toolkit-raw" readonly rows="8"><?php echo esc_textarea( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></textarea>
-				</div>
-			</details>
-		</section>
-		<?php
-	}
+						<p class="npcink-abilities-toolkit-actions">
+							<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-raw-ids">
+								<?php echo esc_html__( 'Copy IDs', 'npcink-abilities-toolkit' ); ?>
+							</button>
+						</p>
+						<textarea id="npcink-abilities-toolkit-raw-ids" class="npcink-abilities-toolkit-raw" readonly rows="8"><?php echo esc_textarea( wp_json_encode( array_keys( $registered ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ); ?></textarea>
+					</div>
+				</details>
+
+				<details class="npcink-abilities-toolkit-disclosure">
+					<summary>
+						<strong><?php echo esc_html__( 'Ability technical catalog', 'npcink-abilities-toolkit' ); ?></strong>
+						<span class="npcink-abilities-toolkit-disclosure__meta"><?php echo esc_html__( 'Technical IDs, categories, schema availability, and callback status for host integrations.', 'npcink-abilities-toolkit' ); ?></span>
+					</summary>
+					<div class="npcink-abilities-toolkit-disclosure__body">
+						<table class="widefat striped npcink-abilities-toolkit-technical-catalog-table">
+							<thead>
+								<tr>
+									<th scope="col"><?php echo esc_html__( 'Ability', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Ability ID', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Category', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Input', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Output', 'npcink-abilities-toolkit' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Status', 'npcink-abilities-toolkit' ); ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $registered as $ability_id => $definition ) : ?>
+									<?php
+									$definition   = is_array( $definition ) ? $definition : array();
+									$has_callback = is_callable( $definition['execute_callback'] ?? null );
+									$has_input    = is_array( $definition['input_schema'] ?? null );
+									$has_output   = is_array( $definition['output_schema'] ?? null );
+									$label        = (string) ( $definition['label'] ?? '' );
+									?>
+									<tr>
+										<th scope="row"><?php echo esc_html( '' !== $label ? $label : (string) $ability_id ); ?></th>
+										<td><code><?php echo esc_html( (string) $ability_id ); ?></code></td>
+										<td><code><?php echo esc_html( (string) ( $definition['category'] ?? '-' ) ); ?></code></td>
+										<td><?php echo esc_html( $this->get_risk_display_label( (string) ( $definition['risk_level'] ?? 'other' ) ) ); ?></td>
+										<td><?php echo esc_html( $has_input ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ); ?></td>
+										<td><?php echo esc_html( $has_output ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ); ?></td>
+										<td>
+											<span class="<?php echo esc_attr( $has_callback ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
+												<?php echo esc_html( $has_callback ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'needs attention', 'npcink-abilities-toolkit' ) ); ?>
+											</span>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</details>
+			</section>
+			<?php
+		}
 
 	/**
 	 * Runs one allowlisted read-only ability check from the admin page.
