@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Npcink Abilities Toolkit 0.5.0\n"
 "Report-Msgid-Bugs-To: support@npc.ink\n"
 "POT-Creation-Date: 2026-06-22T01:54:33+00:00\n"
-"PO-Revision-Date: 2026-06-06 14:40+0800\n"
+"PO-Revision-Date: 2026-06-22 00:00+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh_CN\n"
@@ -30,7 +30,7 @@ msgstr ""
 #. Author of the plugin
 #: npcink-abilities-toolkit.php
 msgid "Npcink"
-msgstr ""
+msgstr "Npcink"
 
 #: includes/Admin/Test_Page.php:97 includes/Admin/Test_Page.php:108
 #: includes/Admin/Test_Page.php:109 includes/Admin/Test_Page.php:151
@@ -1330,16 +1330,14 @@ msgid ""
 msgstr "根据只读文章优化报告构建一个保守的应用计划，而不应用写入。"
 
 #: includes/Packages/Core_Read_Package.php:1002
-#, fuzzy
 msgid "Build Content Metadata Apply Plan"
-msgstr "制定内容库存修复计划"
+msgstr "构建内容元数据应用计划"
 
 #: includes/Packages/Core_Read_Package.php:1003
-#, fuzzy
 msgid ""
 "Builds a Core-ready apply plan from reviewed excerpt, category, and tag "
 "choices without applying writes."
-msgstr "根据只读文章优化报告构建一个保守的应用计划，而不应用写入。"
+msgstr "根据已审核的摘要、分类和标签选择构建 Core 可接收的应用计划，而不执行写入。"
 
 #: includes/Packages/Core_Read_Package.php:1070
 msgid "Compose Article Optimization Apply Result"
@@ -1444,153 +1442,145 @@ msgid ""
 msgstr "将基线、参考和明确的写作风格提示合并到一个轻量级的文章风格配置文件中。"
 
 #: includes/Packages/Core_Read_Package.php:1459
-#, fuzzy
 msgid "Route Content Intent"
-msgstr "获取内容库存健康状况"
+msgstr "路由内容意图"
 
 #: includes/Packages/Core_Read_Package.php:1460
 msgid ""
 "Normalizes a natural-language content request to one supported Gutenberg "
 "recipe route without writing WordPress content."
-msgstr ""
+msgstr "将自然语言内容请求规范化为一个受支持的 Gutenberg 配方路由，而不写入 WordPress 内容。"
 
 #: includes/Packages/Core_Read_Package.php:1504
 msgid "Evaluate Gutenberg Recipe Suite"
-msgstr ""
+msgstr "评估 Gutenberg 配方套件"
 
 #: includes/Packages/Core_Read_Package.php:1505
 msgid ""
 "Runs read-only natural-language routing and Gutenberg plan quality gates "
 "across a batch of recipe prompts."
-msgstr ""
+msgstr "对一批配方提示运行只读自然语言路由和 Gutenberg 计划质量门禁。"
 
 #: includes/Packages/Core_Read_Package.php:1567
 msgid "Get Gutenberg Block Capability Catalog"
-msgstr ""
+msgstr "获取 Gutenberg 区块能力目录"
 
 #: includes/Packages/Core_Read_Package.php:1568
 msgid ""
 "Returns bounded Gutenberg-native block composition rules for AI planners "
 "without creating proposals or writing content."
-msgstr ""
+msgstr "向 AI 规划器返回有边界的 Gutenberg 原生区块组合规则，而不创建提案或写入内容。"
 
 #: includes/Packages/Core_Read_Package.php:1602
 msgid "Compose Gutenberg Block Plan"
-msgstr ""
+msgstr "组合 Gutenberg 区块计划"
 
 #: includes/Packages/Core_Read_Package.php:1603
 msgid ""
 "Routes a natural-language Gutenberg request, builds a read-only plan, "
 "reviews it, and applies one bounded repair pass before Core proposal handoff."
-msgstr ""
+msgstr "路由自然语言 Gutenberg 请求，构建只读计划，审核该计划，并在移交 Core 提案前执行一次有边界的修复。"
 
 #: includes/Packages/Core_Read_Package.php:1653
 msgid "Inspect Gutenberg Composition Contract"
-msgstr ""
+msgstr "检查 Gutenberg 组合合约"
 
 #: includes/Packages/Core_Read_Package.php:1654
 msgid ""
 "Inspects one post, page, Site Editor template, template part, or proposed "
 "block tree against the bounded Gutenberg composition contract without "
 "scanning the full site or writing content."
-msgstr ""
+msgstr "根据有边界的 Gutenberg 组合合约检查一篇文章、一个页面、站点编辑器模板、模板部件或拟议区块树，而不扫描整站或写入内容。"
 
 #: includes/Packages/Core_Read_Package.php:1706
-#, fuzzy
 msgid "Build Article Block Plan"
-msgstr "建立文章风格档案"
+msgstr "构建文章区块计划"
 
 #: includes/Packages/Core_Read_Package.php:1707
 msgid ""
 "Builds a governed draft post plan from whitelisted Gutenberg-native "
 "editorial article blocks without writing WordPress content."
-msgstr ""
+msgstr "基于白名单内的 Gutenberg 原生编辑文章区块构建受治理的文章草稿计划，而不写入 WordPress 内容。"
 
 #: includes/Packages/Core_Read_Package.php:1748
-#, fuzzy
 msgid "Get Block Theme Context"
-msgstr "获取文章上下文"
+msgstr "获取区块主题上下文"
 
 #: includes/Packages/Core_Read_Package.php:1749
 msgid ""
 "Returns compact active block theme Site Editor context for governed OpenClaw "
 "planning."
-msgstr ""
+msgstr "为受治理的 OpenClaw 规划返回紧凑的当前区块主题站点编辑器上下文。"
 
 #: includes/Packages/Core_Read_Package.php:1771
-#, fuzzy
 msgid "Get Template Blocks"
-msgstr "获取文章块"
+msgstr "获取模板区块"
 
 #: includes/Packages/Core_Read_Package.php:1772
 msgid ""
 "Returns parsed blocks from one wp_template entity for review and "
 "verification."
-msgstr ""
+msgstr "返回一个 wp_template 实体中解析后的区块，用于审核和验证。"
 
 #: includes/Packages/Core_Read_Package.php:1794
-#, fuzzy
 msgid "Get Template Part Blocks"
-msgstr "更新文章块"
+msgstr "获取模板部件区块"
 
 #: includes/Packages/Core_Read_Package.php:1795
 msgid ""
 "Returns parsed blocks from one wp_template_part entity for review and "
 "verification."
-msgstr ""
+msgstr "返回一个 wp_template_part 实体中解析后的区块，用于审核和验证。"
 
 #: includes/Packages/Core_Read_Package.php:1817
 msgid "Inspect Block Theme Surface"
-msgstr ""
+msgstr "检查区块主题表面"
 
 #: includes/Packages/Core_Read_Package.php:1818
 msgid ""
 "Inspects supported block theme template issues and returns stable issue "
 "codes before any governed Site Editor plan is built."
-msgstr ""
+msgstr "在构建任何受治理的站点编辑器计划前，检查受支持的区块主题模板问题并返回稳定的问题代码。"
 
 #: includes/Packages/Core_Read_Package.php:1856
-#, fuzzy
 msgid "Build Block Theme Site Plan"
-msgstr "构建媒体重命名计划"
+msgstr "构建区块主题站点计划"
 
 #: includes/Packages/Core_Read_Package.php:1857
 msgid ""
 "Builds a governed block theme site configuration plan without writing "
 "WordPress Site Editor entities."
-msgstr ""
+msgstr "构建受治理的区块主题站点配置计划，而不写入 WordPress 站点编辑器实体。"
 
 #: includes/Packages/Core_Read_Package.php:1907
-#, fuzzy
 msgid "Build Pattern Page Plan"
-msgstr "构建媒体重命名计划"
+msgstr "构建页面样板计划"
 
 #: includes/Packages/Core_Read_Package.php:1908
-#, fuzzy
 msgid ""
 "Builds a governed page draft plan from a whitelisted Gutenberg page pattern "
 "without writing WordPress content."
-msgstr "将上传的内嵌图像行转换为可追加的 Gutenberg 图像块，而不写入文章内容。"
+msgstr "基于白名单内的 Gutenberg 页面样板构建受治理的页面草稿计划，而不写入 WordPress 内容。"
 
 #: includes/Packages/Core_Read_Package.php:1971
 msgid "Review Pattern Page"
-msgstr ""
+msgstr "审核页面样板"
 
 #: includes/Packages/Core_Read_Package.php:1972
 msgid ""
 "Reviews a Gutenberg pattern page or proposed block tree for layout, media, "
 "responsive, and editor-risk signals without writing WordPress content."
-msgstr ""
+msgstr "审核 Gutenberg 页面样板或拟议区块树的布局、媒体、响应式和编辑器风险信号，而不写入 WordPress 内容。"
 
 #: includes/Packages/Core_Read_Package.php:2010
 msgid "Review Block Editor Surface"
-msgstr ""
+msgstr "审核区块编辑器表面"
 
 #: includes/Packages/Core_Read_Package.php:2011
 msgid ""
 "Reviews a post, page, Site Editor template, template part, or proposed block "
 "tree for block-editor quality signals without writing WordPress content."
-msgstr ""
+msgstr "审核文章、页面、站点编辑器模板、模板部件或拟议区块树的区块编辑器质量信号，而不写入 WordPress 内容。"
 
 #: includes/Packages/Core_Read_Package.php:2058
 msgid "List Pages"
@@ -1828,9 +1818,8 @@ msgstr ""
 "容操作，而无需更改文章。"
 
 #: includes/Packages/Core_Read_Package.php:2823
-#, fuzzy
 msgid "Build Media Adoption Enhancement Plan"
-msgstr "构建媒体重命名计划"
+msgstr "构建媒体采用增强计划"
 
 #: includes/Packages/Core_Read_Package.php:2824
 msgid ""
@@ -1838,11 +1827,13 @@ msgid ""
 "generates an optimized derivative, and optionally patches one post from an "
 "old media URL to the optimized derivative."
 msgstr ""
+"构建只读批处理计划：导入已审核的远程图片，"
+"生成优化衍生文件，"
+"并可选地将一篇文章中的旧媒体 URL 修补为优化衍生文件 URL。"
 
 #: includes/Packages/Core_Read_Package.php:2871
-#, fuzzy
 msgid "Build Image Candidate Adoption Plan"
-msgstr "制定媒体优化计划"
+msgstr "构建图片候选采用计划"
 
 #: includes/Packages/Core_Read_Package.php:2872
 msgid ""
@@ -1850,10 +1841,13 @@ msgid ""
 "applying reviewed media metadata, and optionally setting it as a post "
 "featured image."
 msgstr ""
+"构建只读批处理计划：导入一个已审核的图片候选，"
+"应用已审核的媒体元数据，"
+"并可选地将其设为文章特色图片。"
 
 #: includes/Packages/Core_Read_Package.php:2920
 msgid "Build Image Candidate Review Artifact"
-msgstr ""
+msgstr "构建图片候选审核工件"
 
 #: includes/Packages/Core_Read_Package.php:2921
 msgid ""
@@ -1861,6 +1855,8 @@ msgid ""
 "artifact and lightweight recommendation projections without searching, "
 "generating, importing, or writing media."
 msgstr ""
+"将已获取的 image_candidate.v1 行规范化为仅供审核的工件和轻量推荐投影，"
+"不搜索、不生成、不导入，也不写入媒体。"
 
 #: includes/Packages/Core_Read_Package.php:2955
 msgid "Build Media Settings Reference Repair Plan"
@@ -1886,15 +1882,16 @@ msgid ""
 msgstr "扫描分类项并针对空的、重复的、相似的和未使用的术语建议只读合并候选。"
 
 #: includes/Packages/Core_Read_Package.php:3030
-#, fuzzy
 msgid "Suggest Post Taxonomy Terms"
-msgstr "提出后分类项"
+msgstr "建议文章分类项"
 
 #: includes/Packages/Core_Read_Package.php:3031
 msgid ""
 "Ranks existing category and tag candidates against a supplied post context "
 "without creating terms or mutating posts."
 msgstr ""
+"根据提供的文章上下文对现有分类和标签候选进行排序，"
+"不创建分类项，也不更改文章。"
 
 #: includes/Packages/Core_Read_Package.php:3108
 msgid "Propose Post Taxonomy Terms"
@@ -2007,9 +2004,8 @@ msgstr ""
 "用操作相结合，以获得一次 Core 批准。"
 
 #: includes/Packages/Core_Read_Package.php:3507
-#, fuzzy
 msgid "Build Media Adoption Preflight Summary"
-msgstr "制定媒体优化计划"
+msgstr "构建媒体采用预检摘要"
 
 #: includes/Packages/Core_Read_Package.php:3508
 msgid ""
@@ -2018,6 +2014,9 @@ msgid ""
 "comparison, bounded content-reference impact, and next-step guidance without "
 "mutating WordPress."
 msgstr ""
+"为采用一个已审核的媒体衍生工件构建只读预检摘要，"
+"包括当前资产证据、衍生文件对比、"
+"有边界的内容引用影响和下一步指引，而不更改 WordPress。"
 
 #: includes/Packages/Core_Read_Package.php:3557
 msgid "Build Media Rename Plan"
@@ -2186,40 +2185,40 @@ msgid ""
 msgstr "在 host 批准后将 Gutenberg 块写入文章内容，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:361
-#, fuzzy
 msgid "Update Template Blocks"
-msgstr "更新文章块"
+msgstr "更新模板区块"
 
 #: includes/Packages/Core_Write_Package.php:362
-#, fuzzy
 msgid ""
 "Writes reviewed Gutenberg blocks into a wp_template entity after host "
 "approval, or returns a dry-run preview by default."
-msgstr "在 host 批准后将 Gutenberg 块写入文章内容，或默认返回 dry-run 预览。"
+msgstr ""
+"在 host 批准后将已审核的 Gutenberg 区块写入 wp_template 实体，"
+"或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:405
-#, fuzzy
 msgid "Upsert Template Blocks"
-msgstr "更新文章块"
+msgstr "创建或更新模板区块"
 
 #: includes/Packages/Core_Write_Package.php:406
-#, fuzzy
 msgid ""
 "Creates or updates a reviewed wp_template override after host approval, or "
 "returns a dry-run preview by default."
-msgstr "在 host 批准后更新文章模板，或默认返回 dry-run 预览。"
+msgstr ""
+"在 host 批准后创建或更新已审核的 wp_template 覆盖项，"
+"或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:456
-#, fuzzy
 msgid "Update Template Part Blocks"
-msgstr "更新文章块"
+msgstr "更新模板部件区块"
 
 #: includes/Packages/Core_Write_Package.php:457
-#, fuzzy
 msgid ""
 "Writes reviewed Gutenberg blocks into a wp_template_part entity after host "
 "approval, or returns a dry-run preview by default."
-msgstr "在 host 批准后将 Gutenberg 块写入文章内容，或默认返回 dry-run 预览。"
+msgstr ""
+"在 host 批准后将已审核的 Gutenberg 区块写入 wp_template_part 实体，"
+"或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:500
 msgid "Set Post Slug"
@@ -2498,23 +2497,21 @@ msgstr "块往返验证失败；写入被阻止。"
 #: includes/Packages/Core_Write_Package.php:1785
 #: includes/Packages/Core_Write_Package.php:1943
 msgid "Site Editor block writes currently support mode=replace only."
-msgstr ""
+msgstr "站点编辑器区块写入目前仅支持 mode=replace。"
 
 #: includes/Packages/Core_Write_Package.php:1788
 #: includes/Packages/Core_Write_Package.php:1946
-#, fuzzy
 msgid "You do not have permission to edit block theme templates."
-msgstr "您没有编辑此文章的权限。"
+msgstr "您无权编辑区块主题模板。"
 
 #: includes/Packages/Core_Write_Package.php:1791
-#, fuzzy
 msgid "Template slug is required."
-msgstr "需要模板。"
+msgstr "模板 slug 为必填项。"
 
 #: includes/Packages/Core_Write_Package.php:1805
 #: includes/Packages/Core_Write_Package.php:1954
 msgid "Site Editor entity post type is invalid for this ability."
-msgstr ""
+msgstr "此能力的站点编辑器实体文章类型无效。"
 
 #: includes/Packages/Core_Write_Package.php:2051
 msgid "Slug is required."
@@ -2699,28 +2696,24 @@ msgid "Remote media type is not allowed."
 msgstr "不允许远程媒体类型。"
 
 #: includes/Packages/Core_Write_Package.php:4065
-#, fuzzy
 msgid "Downloaded media file is unavailable."
-msgstr "上传的媒体文件不可用。"
+msgstr "下载的媒体文件不可用。"
 
 #: includes/Packages/Core_Write_Package.php:4075
-#, fuzzy
 msgid "Uploads directory is unavailable."
-msgstr "上传的媒体文件不可用。"
+msgstr "上传目录不可用。"
 
 #: includes/Packages/Core_Write_Package.php:4085
-#, fuzzy
 msgid "Uploads directory could not be created."
-msgstr "无法创建本地派生目录。"
+msgstr "无法创建上传目录。"
 
 #: includes/Packages/Core_Write_Package.php:4092
-#, fuzzy
 msgid "Target media path is outside uploads."
-msgstr "目标媒体文件路径无效。"
+msgstr "目标媒体路径位于上传目录之外。"
 
 #: includes/Packages/Core_Write_Package.php:4105
 msgid "Downloaded media file could not be moved into uploads."
-msgstr ""
+msgstr "无法将下载的媒体文件移动到上传目录。"
 
 #: includes/Packages/Core_Write_Package.php:4279
 msgid "Only image attachments can be optimized."
@@ -2924,7 +2917,7 @@ msgstr "替换文件路径无效。"
 #: includes/Packages/Core_Write_Package.php:6060
 #: includes/Packages/Core_Write_Package.php:6150
 msgid "Input is too large."
-msgstr ""
+msgstr "输入过大。"
 
 #: includes/Packages/Core_Write_Package.php:6452
 #: includes/Packages/Core_Write_Package.php:7182
@@ -2933,9 +2926,8 @@ msgstr "需要进行操作。"
 
 #: includes/Packages/Core_Write_Package.php:6455
 #: includes/Packages/Core_Write_Package.php:7185
-#, fuzzy
 msgid "Too many patch operations were provided."
-msgstr "未提供更新字段。"
+msgstr "提供的补丁操作过多。"
 
 #: includes/Packages/Core_Write_Package.php:6464
 msgid "Patch operation is invalid."
@@ -2952,16 +2944,16 @@ msgstr "您无权更新引用此媒体项目的文章。"
 
 #: includes/Packages/Core_Write_Package.php:6685
 msgid "The post-content media reference repair targets changed after review."
-msgstr ""
+msgstr "审核后，文章内容媒体引用修复目标发生了变化。"
 
 #: includes/Packages/Core_Write_Package.php:6697
 msgid "The post-content media reference repair count changed after review."
-msgstr ""
+msgstr "审核后，文章内容媒体引用修复数量发生了变化。"
 
 #: includes/Packages/Core_Write_Package.php:6708
 msgid ""
 "The post-content media reference replacement count changed after review."
-msgstr ""
+msgstr "审核后，文章内容媒体引用替换数量发生了变化。"
 
 #: includes/Packages/Core_Write_Package.php:6733
 msgid "A post that references this media item was not found during repair."
@@ -3186,66 +3178,62 @@ msgstr ""
 "索、集成、SEO、安全性和性能详细信息。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to plan article drafts."
-msgstr "您无权替换媒体文件。"
+msgstr "您无权规划文章草稿。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:38
 msgid "Article block plans currently support post_type=post only."
-msgstr ""
+msgstr "文章区块计划目前仅支持 post_type=post。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:41
 msgid "Article block plans currently support status=draft only."
-msgstr ""
+msgstr "文章区块计划目前仅支持 status=draft。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:44
-#, fuzzy
 msgid "Article template is not supported."
-msgstr "文章类型不支持创建。"
+msgstr "不支持此文章模板。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:47
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:53
 msgid "Responsive profile is not supported."
-msgstr ""
+msgstr "不支持此响应式配置。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:50
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:59
-#, fuzzy
 msgid "Media strategy is not supported."
-msgstr "不允许使用媒体 URL。"
+msgstr "不支持此媒体策略。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:56
-#, fuzzy
 msgid "Target post was not found."
-msgstr "未找到目标分类项。"
+msgstr "未找到目标文章。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:59
-#, fuzzy
 msgid "You do not have permission to update the target post."
-msgstr "您无权删除此文章。"
+msgstr "您无权更新目标文章。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:62
 msgid "Target post must be a post."
-msgstr ""
+msgstr "目标内容必须是一篇文章。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:65
 msgid "Target post must be a draft."
-msgstr ""
+msgstr "目标文章必须是草稿。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:108
 msgid ""
 "Replace the existing draft post body with reviewed Gutenberg-native "
 "editorial blocks."
 msgstr ""
+"使用已审核的Gutenberg原生编辑区块替换现有草稿文章正文。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:129
 msgid "Create a draft post before applying reviewed Gutenberg article blocks."
-msgstr ""
+msgstr "应用已审核的 Gutenberg 文章区块前，先创建一篇草稿文章。"
 
 #: includes/Packages/Read_Traits/Article_Block_Plan_Read_Methods.php:142
 msgid ""
 "Replace the draft post body with reviewed Gutenberg-native editorial blocks."
-msgstr ""
+msgstr "使用已审核的 Gutenberg 原生编辑区块替换草稿文章正文。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:184
 #: includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php:28
@@ -3265,49 +3253,55 @@ msgstr "您无权阅读这篇文章。"
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:592
 msgid ""
 "Apply the reviewed article optimization excerpt through host governance."
-msgstr ""
+msgstr "通过 host 治理应用已审核的文章优化摘要。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:668
 msgid "A post_id is required to build a content metadata apply plan."
-msgstr ""
+msgstr "构建内容元数据应用计划需要 post_id。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:677
-#, fuzzy
 msgid "The requested post was not found."
-msgstr "未找到目标分类项。"
+msgstr "未找到请求的文章。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:700
 msgid ""
 "At least one reviewed excerpt, category id, or tag id is required to build a "
 "content metadata apply plan."
 msgstr ""
+"构建内容元数据应用计划至少需要一个已审核的摘要、"
+"分类 ID 或标签 ID。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:757
 msgid "Apply the reviewed excerpt through Core-governed update-post."
-msgstr ""
+msgstr "通过 Core 治理的 update-post 应用已审核的摘要。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:781
 msgid ""
 "Assign reviewed existing categories through Core-governed set-post-terms; "
 "this planner does not create or assign terms directly."
 msgstr ""
+"通过 Core 治理的 set-post-terms 分配已审核的现有分类；"
+"此规划器不会直接创建或分配分类项。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:805
 msgid ""
 "Assign reviewed existing tags through Core-governed set-post-terms; this "
 "planner does not create or assign terms directly."
 msgstr ""
+"通过 Core 治理的 set-post-terms 分配已审核的现有标签；"
+"此规划器不会直接创建或分配分类项。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:815
 msgid ""
 "Proposed new terms are preserved as vocabulary-gap review notes only. This "
 "plan never creates missing taxonomy terms."
 msgstr ""
+"拟议的新分类项仅作为词汇缺口审核备注保留。"
+"此计划绝不会创建缺失的分类项。"
 
 #: includes/Packages/Read_Traits/Article_Optimization_Read_Methods.php:934
-#, fuzzy
 msgid "One or more selected taxonomy terms were not found."
-msgstr "未找到源分类项。"
+msgstr "未找到一个或多个选定的分类项。"
 
 #: includes/Packages/Read_Traits/Article_Production_Read_Methods.php:49
 msgid ""
@@ -3326,171 +3320,169 @@ msgid ""
 msgstr "检测到重复的生产候选者；在安排或发布之前进行审查。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:28
-#, fuzzy
 msgid "You do not have permission to read block theme context."
-msgstr "您无权阅读文章刷新上下文。"
+msgstr "您无权读取区块主题上下文。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:78
-#, fuzzy
 msgid "You do not have permission to inspect block theme surfaces."
-msgstr "您无权检查媒体资产。"
+msgstr "您无权检查区块主题表面。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:81
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:200
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:446
-#, fuzzy
 msgid "The active theme is not reported as a block theme."
-msgstr "介质替换不支持派生工件格式。"
+msgstr "当前主题未报告为区块主题。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:189
-#, fuzzy
 msgid "You do not have permission to plan block theme changes."
-msgstr "你没有权限访问此页面。"
+msgstr "您无权规划区块主题更改。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:197
 msgid ""
 "Block theme site plans currently support intent=add_breadcrumbs or "
 "intent=customize_template_layout only."
 msgstr ""
+"区块主题站点计划目前仅支持intent=add_breadcrumbs或"
+"intent=customize_template_layout。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:325
 msgid ""
 "Update one existing Site Editor template with reviewed breadcrumb blocks "
 "after Core approval."
 msgstr ""
+"在 Core 批准后，"
+"使用已审核的面包屑区块更新一个现有站点编辑器模板。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:326
 msgid ""
 "Create a reviewed Site Editor template override from the active theme file "
 "template after Core approval."
 msgstr ""
+"在 Core 批准后，"
+"基于当前主题文件模板创建已审核的站点编辑器模板覆盖项。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:627
 msgid ""
 "Update one existing Site Editor template with a reviewed bounded layout "
 "profile after Core approval."
 msgstr ""
+"在 Core 批准后，"
+"使用已审核的有边界布局配置更新一个现有站点编辑器模板。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:628
 msgid ""
 "Create a reviewed Site Editor template override from a bounded layout "
 "profile after Core approval."
 msgstr ""
+"在 Core 批准后，"
+"基于有边界布局配置创建已审核的站点编辑器模板覆盖项。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:883
 msgid "作者："
-msgstr ""
+msgstr "作者："
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:983
 msgid "相关文章"
-msgstr ""
+msgstr "相关文章"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1136
 msgid "首页"
-msgstr ""
+msgstr "首页"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1137
 msgid "欢迎来到本站。"
-msgstr ""
+msgstr "欢迎来到本站。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1139
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1825
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1837
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1846
 msgid "了解更多"
-msgstr ""
+msgstr "了解更多"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1176
 msgid "最新文章"
-msgstr ""
+msgstr "最新文章"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1186
 msgid "暂无文章时，此区域会在发布内容后自动显示。"
-msgstr ""
+msgstr "暂无文章时，此区域会在发布内容后自动显示。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1212
 msgid "分类入口"
-msgstr ""
+msgstr "分类入口"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1222
 msgid "暂无分类时，此区域会在创建分类后自动显示。"
-msgstr ""
+msgstr "暂无分类时，此区域会在创建分类后自动显示。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1545
-#, fuzzy
 msgid "You do not have permission to read block theme templates."
-msgstr "您没有权限阅读此页面。"
+msgstr "您无权读取区块主题模板。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1552
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:700
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:391
-#, fuzzy
 msgid "Block theme entity was not found."
-msgstr "未找到评论。"
+msgstr "未找到区块主题实体。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1555
-#, fuzzy
 msgid "Block theme entity type is invalid."
-msgstr "文章类型无效。"
+msgstr "区块主题实体类型无效。"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1734
 msgid "查看最新文章"
-msgstr ""
+msgstr "查看最新文章"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1742
 msgid "查看商店"
-msgstr ""
+msgstr "查看商店"
 
 #. translators: %s: page title.
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:1787
 #, php-format
 msgid "查看%s"
-msgstr ""
+msgstr "查看%s"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:2285
-#, fuzzy
 msgid "Front Page"
-msgstr "获取页面"
+msgstr "首页"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:2288
 msgid "Blog Home"
-msgstr ""
+msgstr "博客首页"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:2965
 msgid "Home"
-msgstr ""
+msgstr "首页"
 
 #: includes/Packages/Read_Traits/Block_Theme_Read_Methods.php:2971
 msgid "Current item"
-msgstr ""
+msgstr "当前项"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to route content intents."
-msgstr "您无权读取内容清单。"
+msgstr "您无权路由内容意图。"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:32
-#, fuzzy
 msgid "A customer prompt is required."
-msgstr "至少需要一个文章 ID。"
+msgstr "客户提示为必填项。"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:40
-#, fuzzy
 msgid "Target hint is not supported."
-msgstr "未找到目标分类项。"
+msgstr "不支持此目标提示。"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:43
 msgid "Intent hint is not supported."
-msgstr ""
+msgstr "不支持此意图提示。"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:46
-#, fuzzy
 msgid "Media hint is not supported."
-msgstr "不允许使用媒体 URL。"
+msgstr "不支持此媒体提示。"
 
 #: includes/Packages/Read_Traits/Content_Intent_Router_Read_Methods.php:49
 msgid "Style hint is not supported."
-msgstr ""
+msgstr "不支持此样式提示。"
 
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:27
 msgid "You do not have permission to read content inventory."
@@ -3613,55 +3605,46 @@ msgid ""
 msgstr "现有内容与“%s”相关，可以通过上下文阅读来支持源文章。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to inspect Gutenberg block capabilities."
-msgstr "您无权检查媒体资产。"
+msgstr "您无权检查 Gutenberg 区块能力。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:32
 msgid "Block capability catalog surface is not supported."
-msgstr ""
+msgstr "不支持此区块能力目录表面。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:669
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:696
-#, fuzzy
 msgid "You do not have permission to inspect block theme templates."
-msgstr "您无权检查媒体资产。"
+msgstr "您无权检查区块主题模板。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:672
-#, fuzzy
 msgid "You do not have permission to inspect proposed blocks."
-msgstr "您无权检查媒体资产。"
+msgstr "您无权检查拟议区块。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:723
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:416
-#, fuzzy
 msgid "Block editor surface type is not supported."
-msgstr "不允许远程媒体类型。"
+msgstr "不支持此区块编辑器表面类型。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php:730
-#, fuzzy
 msgid "You do not have permission to inspect this post."
-msgstr "您没有编辑此文章的权限。"
+msgstr "您无权检查这篇文章。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to compose Gutenberg block plans."
-msgstr "您无权审核评论。"
+msgstr "您无权组合 Gutenberg 区块计划。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php:32
-#, fuzzy
 msgid "A natural-language content prompt is required."
-msgstr "至少需要一个文章 ID。"
+msgstr "自然语言内容提示为必填项。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Recipe_Evaluation_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to evaluate Gutenberg recipes."
-msgstr "您无权删除此文章。"
+msgstr "您无权评估 Gutenberg 配方。"
 
 #: includes/Packages/Read_Traits/Gutenberg_Recipe_Evaluation_Read_Methods.php:440
-#, fuzzy
 msgid "The routed recipe is not supported by the evaluator."
-msgstr "媒体替换不支持派生工件 MIME 类型。"
+msgstr "评估器不支持路由得到的配方。"
 
 #. translators: %s: Related search term.
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:65
@@ -3674,7 +3657,7 @@ msgstr "与“%s”相关的现有网站内容可以作为补充阅读。"
 msgid ""
 "Supplied related-content evidence can be reviewed as a manual internal-link "
 "target."
-msgstr ""
+msgstr "提供的相关内容证据可作为手动内部链接目标进行审核。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:108
 msgid ""
@@ -3683,15 +3666,14 @@ msgid ""
 msgstr "在解释核心概念的第一段之后插入一个内部链接。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:113
-#, fuzzy
 msgid "Related internal target"
-msgstr "解析内部链接目标"
+msgstr "相关内部目标"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:117
 msgid ""
 "Review near the paragraph where this topic is mentioned; the ability does "
 "not insert the link."
-msgstr ""
+msgstr "请在提到此主题的段落附近审核；该能力不会插入链接。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:131
 msgid ""
@@ -3705,7 +3687,7 @@ msgstr "内部链接目标已解决。"
 
 #: includes/Packages/Read_Traits/Internal_Link_Read_Methods.php:230
 msgid "Related article"
-msgstr ""
+msgstr "相关文章"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:135
 msgid "You do not have permission to resolve media attachments."
@@ -3776,14 +3758,12 @@ msgid ""
 msgstr "您无权为此媒体项目准备优化计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1512
-#, fuzzy
 msgid "You do not have permission to inspect media adoption readiness."
-msgstr "您无权检查媒体资产。"
+msgstr "您无权检查媒体采用准备情况。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:1525
-#, fuzzy
 msgid "You do not have permission to inspect this media item."
-msgstr "您无权检查此媒体资产。"
+msgstr "您无权检查此媒体项目。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2111
 msgid "You do not have permission to prepare media rename plans."
@@ -3809,28 +3789,27 @@ msgid "Media optimization plans require derivative_artifact evidence."
 msgstr "媒体优化计划需要 derivative_artifact 证据。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2438
-#, fuzzy
 msgid "Media optimization file_name must be a file basename, not a path."
-msgstr "目标文件名必须是文件基名，而不是路径。"
+msgstr "媒体优化 file_name 必须是文件基名，而不是路径。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2442
-#, fuzzy
 msgid "Media optimization file_name is invalid after sanitization."
-msgstr "清理后目标文件名无效。"
+msgstr "清理后的媒体优化 file_name 无效。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2463
-#, fuzzy
 msgid "Only aspect-ratio crop plans are supported for Cloud media derivatives."
-msgstr "云媒体衍生品仅支持图片和文字水印。"
+msgstr "云媒体衍生文件仅支持宽高比裁剪计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2472
 msgid ""
 "Media derivative crop aspect_ratio must use a W:H ratio such as 16:9 or 1:1."
 msgstr ""
+"媒体衍生裁剪 aspect_ratio 必须使用 W:H 比例，例如 16:9 或 1:"
+"1。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2479
 msgid "Media derivative crop aspect_ratio values must be between 1 and 100."
-msgstr ""
+msgstr "媒体衍生裁剪 aspect_ratio 的数值必须在 1 到 100 之间。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2511
 msgid ""
@@ -3855,111 +3834,113 @@ msgid ""
 msgstr "采用媒体文件后替换文章内容中的硬编码媒体 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3082
-#, fuzzy
 msgid "You do not have permission to review image candidates."
-msgstr "您无权重命名媒体文件。"
+msgstr "您无权审核图片候选。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3174
-#, fuzzy
 msgid "You do not have permission to build image candidate adoption plans."
-msgstr "您无权制定媒体库存修复计划。"
+msgstr "您无权构建图片候选采用计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3214
 msgid ""
 "A selected image URL or image_candidate object is required before building "
 "an adoption plan."
 msgstr ""
+"构建采用计划前，"
+"需要选定的图片 URL 或 image_candidate 对象。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3231
 msgid ""
 "The selected image candidate must include a download_url, regular_url, "
 "small_url, or url."
 msgstr ""
+"选定的图片候选必须包含 download_url、regular_url、"
+"small_url 或 url。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3238
-#, fuzzy
 msgid "The selected image candidate URL is not allowed."
-msgstr "不允许远程媒体类型。"
+msgstr "不允许使用选定的图片候选 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3245
-#, fuzzy
 msgid ""
 "You do not have permission to attach image candidate media to this post."
-msgstr "您无权将媒体附加到此文章。"
+msgstr "您无权将图片候选媒体附加到这篇文章。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3249
 msgid "Selected image candidate"
-msgstr ""
+msgstr "选定的图片候选"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3271
 msgid ""
 "The selected generated image URL may expire before delayed approval. Approve "
 "promptly or regenerate before import."
 msgstr ""
+"选定的生成图片 URL 可能会在延迟批准前过期。"
+"请及时批准，或在导入前重新生成。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3315
 msgid ""
 "Import the reviewed image candidate into the media library after Core "
 "approval."
-msgstr ""
+msgstr "在 Core 批准后，将已审核的图片候选导入媒体库。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3343
 msgid "Apply reviewed image candidate metadata after media import."
-msgstr ""
+msgstr "媒体导入后应用已审核的图片候选元数据。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3364
 msgid ""
 "Set the imported image candidate as the post featured image after Core "
 "approval."
-msgstr ""
+msgstr "在 Core 批准后，将导入的图片候选设置为文章特色图片。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3584
 msgid "Image license or source needs human confirmation."
-msgstr ""
+msgstr "图片许可证或来源需要人工确认。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3596
 msgid "A usable image URL is missing."
-msgstr ""
+msgstr "缺少可用的图片 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3599
 msgid ""
 "Keep the full image_candidate.v1 evidence for license, attribution, and "
 "adoption-plan review."
 msgstr ""
+"保留完整的 image_candidate.v1 证据，用于许可证、"
+"署名和采用计划审核。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3610
 msgid "Image candidate"
-msgstr ""
+msgstr "图片候选"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3795
-#, fuzzy
 msgid "You do not have permission to build media adoption enhancement plans."
-msgstr "您无权制定媒体库存修复计划。"
+msgstr "您无权构建媒体采用增强计划。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3808
-#, fuzzy
 msgid "You do not have permission to repair media references for this post."
-msgstr "您无权建立介质参考修复计划。"
+msgstr "您无权修复这篇文章的媒体引用。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3877
 msgid ""
 "Import the reviewed remote media asset into the local WordPress media "
 "library."
-msgstr ""
+msgstr "将已审核的远程媒体资产导入本地 WordPress 媒体库。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3895
-#, fuzzy
 msgid ""
 "Generate an optimized derivative while preserving the imported original "
 "media file."
-msgstr "在 host 批准后为一个图像附件生成优化的衍生文件，并保留原始文件。"
+msgstr "生成优化衍生文件，同时保留导入的原始媒体文件。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:3929
-#, fuzzy
 msgid ""
 "Replace reviewed hard-coded post media URLs with the optimized derivative "
 "URL after approval."
-msgstr "采用媒体文件后替换文章内容中的硬编码媒体 URL。"
+msgstr ""
+"批准后，"
+"将已审核的文章硬编码媒体 URL 替换为优化衍生文件 URL。"
 
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:4012
 msgid ""
@@ -4010,98 +3991,89 @@ msgid "The uploads URL path is not a valid media file path."
 msgstr "上传 URL 路径不是有效的媒体文件路径。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:27
-#, fuzzy
 msgid "You do not have permission to plan page drafts."
-msgstr "您没有阅读页面的权限。"
+msgstr "您无权规划页面草稿。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:41
 msgid "Pattern page plans currently support post_type=page only."
-msgstr ""
+msgstr "页面样板计划目前仅支持 post_type=page。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:44
-#, fuzzy
 msgid "Pattern id is not supported."
-msgstr "文章类型不支持创建。"
+msgstr "不支持此样板 ID。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:47
-#, fuzzy
 msgid "Style preset is not supported."
-msgstr "文章类型不支持创建。"
+msgstr "不支持此样式预设。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:50
-#, fuzzy
 msgid "Color story is not supported."
-msgstr "文章类型不支持创建。"
+msgstr "不支持此色彩叙事。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:56
 msgid "Visual density is not supported."
-msgstr ""
+msgstr "不支持此视觉密度。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:65
-#, fuzzy
 msgid "Target page was not found."
-msgstr "未找到目标分类项。"
+msgstr "未找到目标页面。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:68
-#, fuzzy
 msgid "You do not have permission to update the target page."
-msgstr "你没有权限访问此页面。"
+msgstr "您无权更新目标页面。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:71
 msgid "Target post must be a page."
-msgstr ""
+msgstr "目标内容必须是一个页面。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:74
 msgid "Target page must be a draft."
-msgstr ""
+msgstr "目标页面必须是草稿。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:135
 msgid ""
 "Replace the existing draft page body with whitelist-class Gutenberg pattern "
 "blocks."
 msgstr ""
+"使用白名单class的Gutenberg样板区块替换现有草稿页面正文。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:158
 msgid "Create a draft page before applying reviewed Gutenberg pattern blocks."
-msgstr ""
+msgstr "应用已审核的 Gutenberg 样板区块前，先创建一个草稿页面。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:171
 msgid ""
 "Replace the draft page body with whitelist-class Gutenberg pattern blocks."
-msgstr ""
+msgstr "使用白名单 class 的 Gutenberg 样板区块替换草稿页面正文。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:260
-#, fuzzy
 msgid "You do not have permission to review page patterns."
-msgstr "您没有阅读页面的权限。"
+msgstr "您无权审核页面样板。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:275
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:423
-#, fuzzy
 msgid "You do not have permission to review this post."
-msgstr "您没有阅读这篇文章的权限。"
+msgstr "您无权审核这篇文章。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:300
 msgid "Provide either post_id or blocks to review a pattern page."
-msgstr ""
+msgstr "请提供 post_id 或 blocks 以审核页面样板。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:368
-#, fuzzy
 msgid "You do not have permission to review proposed blocks."
-msgstr "您无权读取媒体备份。"
+msgstr "您无权审核拟议区块。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:387
-#, fuzzy
 msgid "You do not have permission to review block theme templates."
-msgstr "您无权替换媒体文件。"
+msgstr "您无权审核区块主题模板。"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:1161
 msgid "研究驱动的页面取舍"
-msgstr ""
+msgstr "研究驱动的页面取舍"
 
 #: includes/Packages/Read_Traits/Page_Pattern_Read_Methods.php:1161
 msgid "为什么坚持 proposal-first"
-msgstr ""
+msgstr "为什么坚持 proposal-first"
 
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:27
 #: includes/Packages/Read_Traits/Page_Read_Methods.php:118
@@ -4281,9 +4253,8 @@ msgid "Terms normalize to the same consolidation key."
 msgstr "术语标准化为相同的合并键。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:199
-#, fuzzy
 msgid "You do not have permission to read taxonomy suggestions."
-msgstr "您无权阅读分类合并建议。"
+msgstr "您无权读取分类建议。"
 
 #: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:363
 msgid "A valid post_id is required."

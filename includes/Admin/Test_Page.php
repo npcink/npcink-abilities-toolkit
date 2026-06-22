@@ -779,13 +779,18 @@ final class Test_Page {
 	 */
 	private function render_ability_table( array $abilities ) {
 		?>
-		<table class="widefat striped">
+		<table class="widefat striped npcink-abilities-toolkit-ability-table">
+			<colgroup>
+				<col class="npcink-abilities-toolkit-ability-table__ability" />
+				<col class="npcink-abilities-toolkit-ability-table__description" />
+				<col class="npcink-abilities-toolkit-ability-table__risk" />
+				<col class="npcink-abilities-toolkit-ability-table__technical" />
+			</colgroup>
 			<thead>
 				<tr>
 					<th scope="col"><?php echo esc_html__( 'Ability', 'npcink-abilities-toolkit' ); ?></th>
 					<th scope="col"><?php echo esc_html__( 'What it allows', 'npcink-abilities-toolkit' ); ?></th>
 					<th scope="col"><?php echo esc_html__( 'Risk', 'npcink-abilities-toolkit' ); ?></th>
-					<th scope="col"><?php echo esc_html__( 'Status', 'npcink-abilities-toolkit' ); ?></th>
 					<th scope="col"><?php echo esc_html__( 'Technical details', 'npcink-abilities-toolkit' ); ?></th>
 				</tr>
 			</thead>
@@ -809,21 +814,24 @@ final class Test_Page {
 						<td>
 							<?php echo esc_html( '' !== $description ? $description : __( 'No description provided.', 'npcink-abilities-toolkit' ) ); ?>
 						</td>
-						<td><?php echo esc_html( $this->get_risk_display_label( (string) ( $definition['risk_level'] ?? 'other' ) ) ); ?></td>
 						<td>
+							<strong><?php echo esc_html( $this->get_risk_display_label( (string) ( $definition['risk_level'] ?? 'other' ) ) ); ?></strong>
 							<span class="<?php echo esc_attr( $has_callback ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
 								<?php echo esc_html( $has_callback ? __( 'available', 'npcink-abilities-toolkit' ) : __( 'needs attention', 'npcink-abilities-toolkit' ) ); ?>
 							</span>
 						</td>
 						<td class="npcink-abilities-toolkit-technical-cell">
-							<code><?php echo esc_html( (string) $ability_id ); ?></code>
-							<span><?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Category', 'npcink-abilities-toolkit' ), (string) ( $definition['category'] ?? '-' ) ) ); ?></span>
-							<span class="<?php echo esc_attr( $has_input ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
-								<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Input', 'npcink-abilities-toolkit' ), $has_input ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
-							</span>
-							<span class="<?php echo esc_attr( $has_output ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
-								<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Output', 'npcink-abilities-toolkit' ), $has_output ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
-							</span>
+							<details>
+								<summary><?php echo esc_html__( 'Technical details', 'npcink-abilities-toolkit' ); ?></summary>
+								<code><?php echo esc_html( (string) $ability_id ); ?></code>
+								<span><?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Category', 'npcink-abilities-toolkit' ), (string) ( $definition['category'] ?? '-' ) ) ); ?></span>
+								<span class="<?php echo esc_attr( $has_input ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
+									<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Input', 'npcink-abilities-toolkit' ), $has_input ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
+								</span>
+								<span class="<?php echo esc_attr( $has_output ? 'npcink-abilities-toolkit-ready' : 'npcink-abilities-toolkit-missing' ); ?>">
+									<?php echo esc_html( sprintf( '%1$s: %2$s', __( 'Output', 'npcink-abilities-toolkit' ), $has_output ? __( 'yes', 'npcink-abilities-toolkit' ) : __( 'no', 'npcink-abilities-toolkit' ) ) ); ?>
+								</span>
+							</details>
 						</td>
 					</tr>
 				<?php endforeach; ?>
