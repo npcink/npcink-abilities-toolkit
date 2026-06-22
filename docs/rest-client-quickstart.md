@@ -13,13 +13,13 @@ abilities from a WordPress site where `npcink-abilities-toolkit` is active.
 
 ## Find The Endpoints
 
-After activation, open the admin discovery page:
+After activation, open the admin page and switch to the Developer Access tab:
 
-- With a Npcink AI host menu: `Npcink AI -> Ability Diagnostics`
-- Standalone fallback: `Tools -> Abilities Toolkit Diagnostics`
+- With a Npcink AI host menu: `Npcink AI -> AI Abilities -> Developer Access`
+- Standalone fallback: `Tools -> Site AI Abilities -> Developer Access`
 
-The page exposes copyable endpoint values for the current site. The standard
-REST routes are:
+The Developer Access tab exposes copyable endpoint values for the current site.
+The standard REST routes are:
 
 ```text
 GET /wp-json/wp-abilities/v1/categories
