@@ -125,7 +125,7 @@ final class Plugin {
 		$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
 		$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
 		$this->core_comment_package = new Core_Comment_Package( $this->categories, $this->abilities );
-		$this->test_page      = new Test_Page( $this->abilities );
+		$this->test_page      = new Test_Page( $this->abilities, $this->categories );
 	}
 
 	/**

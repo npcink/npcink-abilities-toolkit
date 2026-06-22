@@ -252,7 +252,7 @@ msgid "Available AI Abilities"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:438
-msgid "Review what AI clients can use on this WordPress site. Technical IDs and schema signals are shown as details for support and developers."
+msgid "Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access."
 msgstr ""
 
 #. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
@@ -333,22 +333,6 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:748
-msgid "Read-only abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:749
-msgid "Approval-required content abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:750
-msgid "High-risk abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:751
-msgid "Other abilities"
-msgstr ""
-
 #: includes/Admin/Test_Page.php:765
 msgid "Read-only"
 msgstr ""
@@ -372,10 +356,6 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:786
 msgid "What it allows"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:789
-msgid "Technical details"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:810
@@ -691,6 +671,18 @@ msgstr ""
 
 #: includes/Admin/Test_Page.php:1062
 msgid "Copy IDs"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:1069
+msgid "Ability technical catalog"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:1070
+msgid "Technical IDs, categories, schema availability, and callback status for host integrations."
+msgstr ""
+
+#: includes/Admin/Test_Page.php:1077
+msgid "Ability ID"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:1079
