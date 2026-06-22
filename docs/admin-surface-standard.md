@@ -1,44 +1,75 @@
 # Abilities Admin Surface Standard
 
-Status: active for `Npcink AI -> Ability Diagnostics` and the standalone
-`Tools -> Abilities Toolkit Diagnostics` fallback.
+Status: active for `Npcink AI -> AI Abilities` and the standalone
+`Tools -> Site AI Abilities` fallback.
 
 ## Purpose
 
-The Abilities admin page is an ability-package status and REST-check surface.
-It exists to confirm that WordPress Abilities API registration, schemas,
-callbacks, categories, and authenticated REST discovery are available.
+The Abilities admin page is a site-operator ability status, review, check, and
+connection surface. It exists to explain which WordPress abilities the site
+exposes to AI clients, whether write-like abilities require host approval, and
+whether safe read-only checks can run.
+
+Developer-oriented REST values remain available, but they should not be the
+default first impression.
 
 ## Default View
 
 The default page should show:
 
 - compact environment status for WordPress Abilities API support;
-- registered ability count and callback readiness;
+- available ability count;
+- write-safeguard posture for write/destructive abilities;
+- host detection status;
 - stable, shareable admin URLs for tabs and read-only filters;
-- an ability catalog table grouped or scannable by `ability_id`, label,
-  description, and category;
-- per-ability signals for category, risk, callback availability, and schema
-  availability.
+- next actions for viewing abilities, running safe checks, using a host
+  product, and opening developer access.
 
-## Connection Values
+## Available Abilities
 
-Connection and low-frequency details should be split into explicit sections:
+The default ability review should use plain labels and task descriptions first.
+Technical details stay visible, but they should not dominate the row.
 
-- REST endpoint URLs should be visible on the Connections screen with copy actions;
+- group abilities by risk posture: read-only, approval-required content,
+  high-risk, and other;
+- show label, description, risk, and availability before technical values;
+- keep ability ids, categories, schema signals, and callback readiness in a
+  technical details column;
+- support filtering by ability name, description, category, risk, technical ID,
+  and page size.
+
+## Checks
+
+Safe checks should be separated from developer REST fetches:
+
+- at most two official read-only ability checks may be visible: site info and
+  bounded redacted diagnostics summary;
+- check copy must say that the checks do not write content, call models, or
+  contact external services;
+- the Checks tab should explain what each check proves and what it does not
+  prove before the operator runs it;
+- check results should default to a plain summary table that answers what
+  worked and what needs attention;
+- raw JSON response details may be kept behind an explicit support disclosure
+  after a check runs.
+
+## Developer Access
+
+Connection and low-frequency details belong in the Developer Access tab:
+
+- REST endpoint URLs should be visible with copy actions;
 - the Toolkit contract endpoint should be visible as a copyable host/runtime
   discovery value;
 - browser REST fetch buttons should be grouped as discovery fetches;
-- authenticated REST discovery checks should be distinct from endpoint copy values;
-- at most two official read-only ability checks may be visible: site info and bounded redacted diagnostics summary;
 - copyable registered ability ID export;
 - compatibility projection notes for Npcink AI consumers.
 
-## Ability Diagnostics
+## Site AI Abilities
 
 The page should avoid looking like a general settings page. Plugin-list action
-links, page headings, and menu labels should use diagnostics language rather
-than Settings language unless a future page actually stores configuration.
+links, page headings, and menu labels should use abilities language rather than
+Settings or Diagnostics language. Diagnostics remain a bounded check, not the
+page identity.
 
 Do not add demo/showcase execution buttons, model-call buttons, write buttons,
 or workflow-run buttons to this package surface. Real workflow execution belongs
@@ -68,6 +99,7 @@ Abilities admin must not add:
 
 ## Verification
 
-Static contracts should assert that the page remains a package/status surface,
+Static contracts should assert that the page remains a user-facing ability
+status/check/developer-access surface,
 keeps the standalone Tools fallback, and does not become a Npcink AI runtime or
 governance console.

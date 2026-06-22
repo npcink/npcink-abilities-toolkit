@@ -128,72 +128,106 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Npcink AI parent slug' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const PARENT_MENU_SLUG    = 'npcink-ai';" ), 'admin test page targets the shared Npcink AI parent menu.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes a diagnostics shortcut when the admin page is enabled.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'Diagnostics', 'npcink-abilities-toolkit' )" ), 'plugin screen diagnostics shortcut uses the plugin text domain.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen diagnostics shortcut targets the registered menu page or standalone Tools fallback.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes an abilities shortcut when the admin page is enabled.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'View Abilities', 'npcink-abilities-toolkit' )" ), 'plugin screen abilities shortcut uses the plugin text domain.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen abilities shortcut targets the registered menu page or standalone Tools fallback.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook_suffixes' ), 'admin test page stores real WordPress hook suffixes for asset loading.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Open Catalog' ) && false !== strpos( $admin_test_page, 'View Endpoints' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'Open Export' ), 'admin overview links post-install users to distinct diagnostic tasks.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'View Abilities' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'View Connection Info' ) && false !== strpos( $admin_test_page, 'Open Developer Access' ), 'admin overview links post-install users to distinct ability tasks.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Abilities Toolkit Diagnostics', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'Ability Diagnostics', 'npcink-abilities-toolkit' )," ), 'admin test page registers diagnostics page and submenu titles when attached' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Abilities', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'npcink_abilities_toolkit_nonce' ), 'admin diagnostic tab and filter URLs stay stable without one-time GET nonces.' );
 $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
 foreach (
 	array(
-		'Review package health',
-		'Health summary',
-		'Package',
-		'Callback issues',
-		'No missing callbacks detected',
+		'Review the WordPress abilities this site exposes to AI clients',
+		'Site ability status',
+		'Write safeguards',
+		'host approval',
+		'has_host_menu',
 		'Next actions',
-		'Copy host endpoints',
-		'Run read-only checks',
-		'Export ability IDs',
+		'View site abilities',
+		'Run safe checks',
+		'Use a host product',
+		'Developer access',
 		'Open Checks',
-		'Open Export',
-		'Final write approval stays with the host runtime',
-		'Registered Ability Catalog',
-		'ID, label, description, or category',
-		'Host connection values',
+		'Open Developer Access',
+		'This plugin exposes WordPress abilities',
+		'Available AI Abilities',
+		'Ability name, description, category, or technical ID',
+		'What it allows',
+		'Technical details',
+		'Requires host approval',
+		'Site Checks',
+		'What it proves',
+		'What it does not prove',
+		'The site can safely return basic WordPress information',
+		'It does not call an AI model',
+		'The site can return a support-friendly environment summary',
+		'It does not expose secrets',
+		'Use Available Abilities to review what the site exposes',
+		'Run Redacted Diagnostics',
+		'Check results',
+		'plain summary table',
+		'No check has run yet',
+		'npcink-abilities-toolkit-check-summary',
+		'npcink-abilities-toolkit-check-summary-body',
+		'Raw response for support',
+		'Full JSON is kept here for support and developer troubleshooting',
+		'get_check_summary_labels',
+		'data-check-summary-labels',
+		'Developer Access',
+		'Connection values',
+		'Raw discovery fetches',
 		'Copy Abilities Endpoint',
 		'Copy Contract Endpoint',
 		'npcink-abilities-toolkit-contract-endpoint',
-		'Read-only ability checks',
-		'bounded admin input',
-		'They do not write content, call models, or contact external services',
+		'Most site users do not need this tab',
 		'npcink_abilities_toolkit_readonly_check',
 		'data-npcink-abilities-toolkit-readonly-check',
 		'Run Site Info',
-		'Run Diagnostics Summary',
-		'Discovery fetches',
 		'Catalog export',
 		'Ability ID export',
 		'Home URL and Site URL differ',
-		'Schemas',
-		'Callback',
 		'render_status_summary',
 		'render_ability_catalog',
+		'render_site_checks',
+		'render_developer_access',
 	) as $required
 ) {
-	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the focused ability status surface: ' . $required );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the user-facing ability surface: ' . $required );
+}
+
+foreach (
+	array(
+		'setCheckSummary',
+		'summarizeReadonlyPayload',
+		'npcink-abilities-toolkit-check-summary-body',
+		'data-check-summary-labels',
+		'REST ' . "' + payload.status",
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, $required ), 'admin check JavaScript keeps the plain summary result renderer: ' . $required );
 }
 
 $admin_surface_standard = file_get_contents( __DIR__ . '/../docs/admin-surface-standard.md' );
 foreach (
 	array(
-		'ability-package status and REST-check surface',
-		'Ability Diagnostics',
-		'registered ability count',
-		'per-ability signals',
+		'site-operator ability status',
+		'Site AI Abilities',
+		'available ability count',
+		'write-safeguard posture',
+		'Available Abilities',
+		'Developer Access',
 		'contract endpoint should be visible as a copyable host/runtime',
-		'Connection Values',
 		'stable, shareable admin URLs',
 		'Core proposal approval',
 		'OpenClaw handoff',
@@ -220,6 +254,15 @@ foreach (
 		'https://github.com/muze-page/npcink-abilities-toolkit',
 		'If the `wp-abilities/v1` REST routes are missing',
 		'Abilities API baseline or compatibility plugin',
+		'Frequently Asked Questions',
+		'Does this plugin run AI models?',
+		'Will this plugin change my posts, media, terms, comments, or settings by itself?',
+		'What do the Safe Checks prove?',
+		'Screenshots',
+		'Site ability status overview',
+		'Available Abilities catalog with filters',
+		'Safe Checks tab explaining what each check proves',
+		'Developer Access tab with copyable REST endpoint values',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false !== strpos( $plugin_readme, $required ), 'packaged readme keeps third-party integration guidance: ' . $required );
@@ -255,12 +298,14 @@ $translation_template = file_get_contents( __DIR__ . '/../languages/npcink-abili
 foreach (
 	array(
 		'Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.',
-		'Diagnostics',
-		'Abilities Toolkit Diagnostics',
-		'Ability Diagnostics',
-		'Host connection values',
-		'Discovery fetches',
-		'No missing callbacks detected',
+		'View Abilities',
+		'Site AI Abilities',
+		'AI Abilities',
+		'Available AI Abilities',
+		'Developer Access',
+		'Run Redacted Diagnostics',
+		'Connection values',
+		'Raw discovery fetches',
 		'Contract Endpoint',
 		'Copy Contract Endpoint',
 	) as $required

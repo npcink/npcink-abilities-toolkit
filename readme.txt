@@ -8,17 +8,19 @@ Stable tag: 0.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Standalone WordPress Abilities API package toolkit for registering agent-callable abilities.
+Expose and inspect WordPress Abilities API capabilities for AI hosts and clients, without running models or writing content.
 
 == Description ==
 
-Npcink Abilities Toolkit provides a standalone toolkit for plugin authors who want to expose safe, agent-callable abilities through the WordPress Abilities API.
+Npcink Abilities Toolkit helps a WordPress site expose, review, and safely inspect Abilities API capabilities for AI hosts and clients.
 
-The plugin owns ability registration helpers, category helpers, schema normalization, annotation normalization, and optional canonical projection for Npcink AI when Npcink AI is installed.
+The admin page is built for site operators first. It shows whether the site's ability package is working, which abilities are available, which abilities are read-only, and which write-like abilities require host approval.
+
+For developers and host runtimes, the plugin also provides ability registration helpers, category helpers, schema normalization, annotation normalization, REST discovery values, and optional canonical projection for Npcink AI when Npcink AI is installed.
 
 It can be used by any WordPress plugin or client that consumes the WordPress Abilities API. Npcink AI is one optional consumer, not the owner of this plugin.
 
-It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, or final write approval/governance.
+It does not run AI models, execute workflows, route prompts, contact model providers, manage billing or quotas, own MCP governance, or approve final WordPress writes.
 
 Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry.
 
@@ -90,9 +92,46 @@ providers or clients.
 
 == Admin Page ==
 
-After activation with a Npcink AI host plugin, open Npcink AI -> Ability Diagnostics in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Abilities Toolkit Diagnostics instead.
+After activation with a Npcink AI host plugin, open Npcink AI -> AI Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Site AI Abilities instead.
 
-The page verifies Abilities API availability, shows package health, filters the registered ability catalog with labels and descriptions, provides copyable REST endpoint values for host/client setup, and can run two official read-only checks: site info and bounded redacted diagnostics summary. It is a connection and discovery surface; it does not run showcase workflows, model calls, write abilities, or demo abilities.
+The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities.
+
+== Frequently Asked Questions ==
+
+= Does this plugin run AI models? =
+
+No. Npcink Abilities Toolkit exposes WordPress abilities and support information through the WordPress Abilities API. Model routing, prompt selection, hosted runtime execution, and workflow execution belong to a separate host product or client.
+
+= Will this plugin change my posts, media, terms, comments, or settings by itself? =
+
+No. The admin page checks are read-only. Some built-in abilities describe write-like or destructive operations, but final commits require a host runtime with its own approval, authorization, and audit layer.
+
+= Do I need Npcink AI to use this plugin? =
+
+No. Npcink AI is an optional consumer. The plugin can also be used by other plugins or clients that consume the WordPress Abilities API.
+
+= What do the Safe Checks prove? =
+
+Site Info proves that an authorized ability client can read basic WordPress site information. Redacted Diagnostics proves that the site can return a support-friendly environment summary with sensitive fields omitted. These checks do not call models, generate content, contact external services, or fix configuration automatically.
+
+= Does Redacted Diagnostics expose secrets? =
+
+No. The diagnostics summary intentionally omits Npcink AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes.
+
+= What should I do if abilities are not visible to a host product or AI client? =
+
+Open Tools -> Site AI Abilities, or Npcink AI -> AI Abilities when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses.
+
+= What if the wp-abilities/v1 REST routes are missing? =
+
+The WordPress Abilities API routes must be available before clients can discover and run abilities. Enable the WordPress Abilities API baseline or compatibility plugin for the target site.
+
+== Screenshots ==
+
+1. Site ability status overview with available ability count, write safeguards, host detection, and next actions.
+2. Available Abilities catalog with filters, risk grouping, availability, and technical details for support.
+3. Safe Checks tab explaining what each check proves before showing summary results and raw response support details.
+4. Developer Access tab with copyable REST endpoint values, raw discovery fetches, and ability ID export.
 
 == Built-In Abilities ==
 

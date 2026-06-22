@@ -24,6 +24,10 @@ directory are:
 - `exports/wordpress-org/banner-772x250.png`
 - `exports/wordpress-org/icon-256x256.png`
 - `exports/wordpress-org/icon-128x128.png`
+- `exports/wordpress-org/screenshot-1.png`
+- `exports/wordpress-org/screenshot-2.png`
+- `exports/wordpress-org/screenshot-3.png`
+- `exports/wordpress-org/screenshot-4.png`
 
 Do not copy this whole `sj` folder into the plugin zip.
 

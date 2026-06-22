@@ -171,7 +171,7 @@ final class Plugin {
 	}
 
 	/**
-	 * Adds a diagnostics shortcut on the WordPress plugins screen.
+	 * Adds an abilities shortcut on the WordPress plugins screen.
 	 *
 	 * @param array<int|string,string> $links Existing plugin action links.
 	 * @return array<int|string,string>
@@ -181,8 +181,8 @@ final class Plugin {
 			$links,
 			sprintf(
 				'<a href="%1$s">%2$s</a>',
-				esc_url( $this->plugin_diagnostics_url() ),
-				esc_html__( 'Diagnostics', 'npcink-abilities-toolkit' )
+				esc_url( $this->plugin_abilities_url() ),
+				esc_html__( 'View Abilities', 'npcink-abilities-toolkit' )
 			)
 		);
 
@@ -190,11 +190,11 @@ final class Plugin {
 	}
 
 	/**
-	 * Returns the best admin URL for the diagnostics page.
+	 * Returns the best admin URL for the abilities page.
 	 *
 	 * @return string
 	 */
-	private function plugin_diagnostics_url(): string {
+	private function plugin_abilities_url(): string {
 		if ( function_exists( 'menu_page_url' ) ) {
 			$url = menu_page_url( 'npcink-abilities-toolkit', false );
 			if ( is_string( $url ) && '' !== $url ) {

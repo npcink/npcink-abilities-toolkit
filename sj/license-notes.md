@@ -22,8 +22,14 @@ Final WordPress.org exports:
 - `exports/wordpress-org/banner-772x250.png`
 - `exports/wordpress-org/icon-256x256.png`
 - `exports/wordpress-org/icon-128x128.png`
+- `exports/wordpress-org/screenshot-1.png`
+- `exports/wordpress-org/screenshot-2.png`
+- `exports/wordpress-org/screenshot-3.png`
+- `exports/wordpress-org/screenshot-4.png`
 
 ## Creation Method
+
+### Icon and Banner
 
 The artwork was generated from text prompts prepared by the project maintainer.
 
@@ -35,6 +41,19 @@ The artwork was generated from text prompts prepared by the project maintainer.
 - Reference images used: none recorded.
 - Third-party logos used: none.
 - Trademarked marks used: none.
+
+### Screenshots
+
+The screenshots were generated from the plugin's current admin page output in a
+local WordPress development site.
+
+- Tool used: Playwright screenshot capture.
+- Capture date: 2026-06-22.
+- Source UI: Npcink Abilities Toolkit admin page rendered from local plugin
+  PHP output and plugin admin CSS.
+- Third-party proprietary interfaces shown: none.
+- External service dashboards shown: none.
+- User/customer data shown: none.
 
 ## License Decision
 
