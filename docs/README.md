@@ -89,7 +89,10 @@ Use this path when changing this package.
 10. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-11. Record release evidence in the relevant release verification document.
+11. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+    for the admin-surface release, SVN publication, icon refresh, and Chinese
+    Stable Readme translation status.
+12. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
