@@ -61,6 +61,31 @@ The Cloud addon or host transport layer owns upload, signing, and dispatch. The
 Cloud worker owns derivative generation. The local WordPress host owns final
 approval, recording, replacement, rollback, and metadata writes.
 
+## Remote Object Storage Preflight
+
+Media inspection and derivative request planning expose a `storage` evidence
+block so hosts can distinguish ordinary local uploads from attachments whose
+public URL or file availability is controlled by an object-storage plugin such
+as OSS/CDN offload.
+
+The default Toolkit implementation is conservative:
+
+- local readable uploads can continue through the existing local derivative
+  and governed replacement path;
+- attachments whose URL no longer matches the uploads base URL, or whose local
+  file is unavailable, are marked as `remote_object_storage`;
+- remote storage writes default to `blocked` with
+  `remote_storage_requires_adapter` or
+  `remote_storage_write_requires_adapter`;
+- no OSS credentials, bucket names, signed headers, or provider SDK calls are
+  stored or emitted by Toolkit.
+
+Hosts may implement `npcink_abilities_toolkit_media_storage_inspection` to
+declare a bounded storage adapter, read mode, write mode, restore mode, and
+cache-purge requirement. Final file mutation still requires Core approval and
+the existing write abilities; this preflight only prevents local-only media
+operations from pretending that remote storage is safely writable.
+
 ## Current Backup Storage Policy
 
 Media operation backups are stored under `wp-content/uploads/npcink-abilities-toolkit-backups/`
