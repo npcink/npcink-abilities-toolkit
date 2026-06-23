@@ -67,7 +67,7 @@ behavior is explicitly supported.
 
 ## Eval-Lab Triad Judge
 
-Provider-backed model calls live in `magick-ai-eval-lab`, not this plugin repo.
+Provider-backed model calls live in `npcink-eval-lab`, not this plugin repo.
 The eval-lab wrapper refreshes the deterministic suite, exports judge cases,
 and then hands the CSV to eval-lab:
 
@@ -81,11 +81,11 @@ Use eval-lab's dry run when you only want to verify the handoff path:
 composer eval:gutenberg-recipe:judge:eval-lab -- dry_run=true limit=3
 ```
 
-Set `MAGICK_AI_EVAL_LAB_PATH` if the eval-lab checkout is not the default
+Set `NPCINK_EVAL_LAB_PATH` if the eval-lab checkout is not the default
 sibling path:
 
 ```bash
-MAGICK_AI_EVAL_LAB_PATH=/Users/muze/gitee/magick-ai-eval-lab \
+NPCINK_EVAL_LAB_PATH=/Users/muze/gitee/npcink-eval-lab \
 composer eval:gutenberg-recipe:judge:eval-lab
 ```
 
@@ -94,4 +94,4 @@ arbitration, task dispatch, run manifests, and generated cross-judge outputs.
 This repo only passes the case CSV path with `task=gutenberg_judge_cross`.
 
 Default eval-lab output is under
-`magick-ai-eval-lab/gutenberg-recipe/generated/`.
+`npcink-eval-lab/gutenberg-recipe/generated/`.
