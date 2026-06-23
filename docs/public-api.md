@@ -66,6 +66,32 @@ definitions, secrets, paths, approval records, audit state, queues, workflow
 runtime state, model routing, prompts, billing, and cloud execution truth. Use
 the WordPress Abilities API catalog for per-ability schemas and execution.
 
+## `npcink_abilities_toolkit_media_storage_inspection` Filter
+
+Hosts may use this filter to declare bounded readiness for media attachments
+whose public URL or file availability is controlled by object storage or CDN
+offload.
+
+The filter receives the current storage evidence, attachment id,
+uploads-relative file, public URL, and attached file value:
+
+```php
+add_filter(
+	'npcink_abilities_toolkit_media_storage_inspection',
+	static function ( array $storage, int $attachment_id, string $relative_file, string $url, string $attached_file ) {
+		return $storage;
+	},
+	10,
+	5
+);
+```
+
+Supported storage values are documented in
+[OSS Storage Compatibility Shim](oss-storage-compatibility-shim.md). The filter
+is an evidence and preflight surface only. It does not make object-storage
+configuration, credentials, provider SDK calls, cache purge, approval, audit,
+or final write authorization part of this package's public API.
+
 ## `npcink_abilities_toolkit_register_category( $category_id, $args )`
 
 Registers an Abilities API category.

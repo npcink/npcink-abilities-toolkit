@@ -85,6 +85,8 @@ declare a bounded storage adapter, read mode, write mode, restore mode, and
 cache-purge requirement. Final file mutation still requires Core approval and
 the existing write abilities; this preflight only prevents local-only media
 operations from pretending that remote storage is safely writable.
+The host-side shim contract is documented in
+[OSS Storage Compatibility Shim](oss-storage-compatibility-shim.md).
 
 ## Current Backup Storage Policy
 
