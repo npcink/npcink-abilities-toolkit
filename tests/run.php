@@ -25,6 +25,8 @@ use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 $assertions = 0;
 $core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
+$ability_namespace_migration_map = (string) file_get_contents( dirname( __DIR__ ) . '/docs/ability-namespace-migration-map.md' );
+$ability_namespace_migration_script = (string) file_get_contents( dirname( __DIR__ ) . '/scripts/dump-ability-namespace-map.php' );
 
 function npcink_abilities_toolkit_assert_true( $condition, $message ) {
 	global $assertions;
@@ -79,6 +81,12 @@ function npcink_abilities_toolkit_assert_array_omits_keys( $value, array $forbid
 		npcink_abilities_toolkit_assert_array_omits_keys( $child, $forbidden_keys, $child_path );
 	}
 }
+
+npcink_abilities_toolkit_assert_true( false !== strpos( $ability_namespace_migration_map, 'https://magick-ai.local/' ), 'Ability namespace migration map names magick-ai.local as the primary local acceptance site.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $ability_namespace_migration_map, 'temporary isolation fixtures' ), 'Ability namespace migration map keeps npcink.local as a temporary isolation fixture.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $ability_namespace_migration_map, '`magick-ai/create-draft` | `npcink-abilities-toolkit/create-draft`' ), 'Ability namespace migration map includes create-draft as a governed write alias candidate.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $ability_namespace_migration_map, 'Cloud runtime/detail' ), 'Ability namespace migration map keeps Cloud out of ability truth ownership.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $ability_namespace_migration_script, 'direct_same_slug_alias' ), 'Ability namespace migration dump script emits explicit same-slug alias actions.' );
 
 function npcink_abilities_toolkit_observability_events_of_kind( array $events, $event_kind ) {
 	return array_values(
