@@ -6126,7 +6126,7 @@ npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) &&
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'task=gutenberg_judge_cross' ), 'Gutenberg recipe eval-lab wrapper calls the Eval Lab Gutenberg task registry' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false === strpos( $gutenberg_recipe_composer, 'sk-' ), 'Gutenberg recipe eval-lab wrapper does not contain committed API keys' );
 $gutenberg_recipe_eval_lab_wrapper = file_get_contents( dirname( __DIR__ ) . '/scripts/eval-lab.sh' );
-npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'MAGICK_AI_EVAL_LAB_PATH' ), 'Gutenberg recipe eval-lab wrapper keeps provider calls outside Toolkit' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'NPCINK_EVAL_LAB_PATH' ), 'Gutenberg recipe eval-lab wrapper keeps provider calls outside Toolkit' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false !== strpos( $gutenberg_recipe_eval_lab_wrapper, 'COMPOSER_PROCESS_TIMEOUT' ), 'Gutenberg recipe eval-lab wrapper permits long provider-backed triad runs' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_eval_lab_wrapper ) && false === strpos( $gutenberg_recipe_eval_lab_wrapper, 'API_KEY' ), 'Eval Lab wrapper does not read provider keys in the plugin repo' );
 $gutenberg_recipe_manual_review = json_decode( (string) file_get_contents( dirname( __DIR__ ) . '/tests/gutenberg-recipe-eval/manual-review-cases.json' ), true );
