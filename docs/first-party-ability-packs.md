@@ -156,6 +156,14 @@ rolling an attachment back to its original file. Media replacement, Cloud
 derivative adoption, and backup restore commits return a compact
 `verification` summary with the current file, MIME type, post-reference repair
 results, backup availability, and rollback availability.
+`npcink-abilities-toolkit/inspect-media-asset` and
+`npcink-abilities-toolkit/build-media-derivative-cloud-request` expose
+`storage` preflight evidence. When an attachment appears to be OSS/CDN/object
+storage backed, or when the local uploads file is unavailable, media file
+replacement abilities fail closed unless a host storage adapter supplies
+reviewed storage readiness. The storage evidence is a capability and drift
+guard only; Toolkit does not store object-storage credentials, own provider
+configuration, or purge CDN caches.
 `npcink-abilities-toolkit/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 

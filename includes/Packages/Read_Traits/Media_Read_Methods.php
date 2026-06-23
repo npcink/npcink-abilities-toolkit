@@ -1028,6 +1028,7 @@ trait Media_Read_Methods {
 			)
 		);
 		$format_plan = is_array( $inspection['format_plan'] ?? null ) ? $inspection['format_plan'] : array();
+		$storage = is_array( $inspection['storage'] ?? null ) ? $inspection['storage'] : array();
 		$target_format = 'original' === $preferred_format
 			? sanitize_key( (string) ( $inspection['source_format'] ?? 'original' ) )
 			: $preferred_format;
@@ -1060,6 +1061,7 @@ trait Media_Read_Methods {
 				'height'            => $this->absint_value( $inspection['height'] ?? 0 ),
 				'filesize_bytes'    => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
 				'metadata_available' => ! empty( $inspection['metadata_available'] ),
+				'storage'           => $storage,
 			),
 			'requested_derivative' => array(
 				'format'           => $target_format,
@@ -1085,6 +1087,9 @@ trait Media_Read_Methods {
 				'attachment_id'            => $attachment_id,
 				'readonly'                 => true,
 				'proposal_only'            => true,
+				'storage'                  => $storage,
+				'blocked'                  => '' !== (string) ( $storage['blocked_reason'] ?? '' ),
+				'blocked_reason'           => sanitize_key( (string) ( $storage['blocked_reason'] ?? '' ) ),
 				'cloud_job_payload'        => $cloud_job_payload,
 				'cloud_execution'          => array(
 					'owner'                  => 'npcink_ai_cloud',
@@ -1093,6 +1098,7 @@ trait Media_Read_Methods {
 					'authorization_included'  => false,
 					'signed_headers_included' => false,
 					'source_upload_required'  => true,
+					'source_read_mode'        => sanitize_key( (string) ( $storage['source_read_mode'] ?? 'blocked' ) ),
 					'callback_included'       => false,
 					'artifact_ttl_required'   => true,
 				),
@@ -1244,6 +1250,7 @@ trait Media_Read_Methods {
 			'width'                  => $this->absint_value( $inspection['width'] ?? 0 ),
 			'height'                 => $this->absint_value( $inspection['height'] ?? 0 ),
 			'filesize_bytes'         => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+			'storage'                => is_array( $inspection['storage'] ?? null ) ? $this->sanitize_media_storage_inspection( $inspection['storage'] ) : array(),
 			'warnings'               => is_array( $inspection['warnings'] ?? null ) ? array_values( array_map( 'sanitize_key', $inspection['warnings'] ) ) : array(),
 			'cloud_request_ability'  => 'npcink-abilities-toolkit/build-media-derivative-cloud-request',
 			'cloud_request_input'    => $cloud_request_input,
@@ -1386,6 +1393,9 @@ trait Media_Read_Methods {
 		$expected_current_relative_file = $this->normalize_media_relative_file( (string) ( $input['expected_current_relative_file'] ?? $current_relative_file ) );
 		$expected_current_mime_type = sanitize_text_field( (string) ( $input['expected_current_mime_type'] ?? $current_mime_type ) );
 		$expected_derivative_mime_type = sanitize_text_field( (string) ( $input['expected_derivative_mime_type'] ?? ( $artifact['mime_type'] ?? '' ) ) );
+		$storage_preflight = is_array( $input['storage_preflight'] ?? null ) ? $this->sanitize_media_storage_inspection( $input['storage_preflight'] ) : array();
+		$expected_storage_provider = sanitize_key( (string) ( $input['expected_storage_provider'] ?? ( $storage_preflight['provider'] ?? '' ) ) );
+		$expected_storage_adapter = sanitize_key( (string) ( $input['expected_storage_adapter'] ?? ( $storage_preflight['adapter'] ?? '' ) ) );
 
 		$metadata_action = $this->build_plan_action(
 			'update_media_details_' . $attachment_id,
@@ -1410,6 +1420,15 @@ trait Media_Read_Methods {
 			}
 			if ( '' !== $expected_derivative_mime_type ) {
 				$derivative_input['expected_derivative_mime_type'] = $expected_derivative_mime_type;
+			}
+			if ( '' !== $expected_storage_provider ) {
+				$derivative_input['expected_storage_provider'] = $expected_storage_provider;
+			}
+			if ( '' !== $expected_storage_adapter ) {
+				$derivative_input['expected_storage_adapter'] = $expected_storage_adapter;
+			}
+			if ( array() !== $storage_preflight ) {
+				$derivative_input['storage_preflight'] = $storage_preflight;
 			}
 
 		$metadata_preview = array(
@@ -2713,7 +2732,12 @@ trait Media_Read_Methods {
 		$width = $this->absint_value( $inspection['width'] ?? 0 );
 		$height = $this->absint_value( $inspection['height'] ?? 0 );
 		$filesize_bytes = $this->absint_value( $inspection['filesize_bytes'] ?? 0 );
+		$storage = is_array( $inspection['storage'] ?? null ) ? $inspection['storage'] : array();
+		$storage_blocked_reason = sanitize_key( (string) ( $storage['blocked_reason'] ?? '' ) );
 
+		if ( '' !== $storage_blocked_reason ) {
+			return $storage_blocked_reason;
+		}
 		if ( 0 !== strpos( $mime_type, 'image/' ) ) {
 			return 'not_image';
 		}
@@ -2760,6 +2784,7 @@ trait Media_Read_Methods {
 			'width'          => $this->absint_value( $inspection['width'] ?? 0 ),
 			'height'         => $this->absint_value( $inspection['height'] ?? 0 ),
 			'filesize_bytes' => $this->absint_value( $inspection['filesize_bytes'] ?? 0 ),
+			'storage'        => is_array( $inspection['storage'] ?? null ) ? $this->sanitize_media_storage_inspection( $inspection['storage'] ) : array(),
 		);
 	}
 
@@ -2788,6 +2813,7 @@ trait Media_Read_Methods {
 				'width'                => $this->absint_value( $item['width'] ?? 0 ),
 				'height'               => $this->absint_value( $item['height'] ?? 0 ),
 				'filesize_bytes'       => $this->absint_value( $item['filesize_bytes'] ?? 0 ),
+				'storage'              => is_array( $item['storage'] ?? null ) ? $this->sanitize_media_storage_inspection( $item['storage'] ) : array(),
 			);
 		}
 		return $blocked_items;
@@ -2813,6 +2839,10 @@ trait Media_Read_Methods {
 				return 'Use an account that can edit this attachment or remove it from scope.';
 			case 'attachment_not_found':
 				return 'Remove the missing attachment from the explicit batch scope.';
+			case 'remote_storage_requires_adapter':
+				return 'Install or enable a host storage adapter that can read and write this remote media asset, then rebuild the plan.';
+			case 'remote_storage_write_requires_adapter':
+				return 'Confirm the host storage adapter can write the remote media asset and purge cache, then rebuild the plan.';
 			case 'not_image':
 			case 'unsupported_source_format':
 				return 'Remove unsupported media from scope or choose a supported image attachment.';
@@ -5648,6 +5678,10 @@ trait Media_Read_Methods {
 		if ( $is_image && 0 === $filesize_bytes ) {
 			$warnings[] = 'missing_filesize';
 		}
+		$storage = $this->build_media_storage_inspection( $attachment_id, $current_relative_file, $attached_file, $media_file_path, $url );
+		if ( '' !== (string) ( $storage['blocked_reason'] ?? '' ) ) {
+			$warnings[] = sanitize_key( (string) $storage['blocked_reason'] );
+		}
 		$needs_attention = $should_convert || $should_resize || $should_compress;
 		$recommended_format = $should_convert ? $preferred_format : ( '' !== $source_format ? $source_format : 'original' );
 
@@ -5664,6 +5698,7 @@ trait Media_Read_Methods {
 				'filesize_bytes'    => $filesize_bytes,
 				'content_hashes'    => $this->resolve_media_content_hashes( $media_file_path ),
 				'metadata_available' => ! empty( $metadata ),
+				'storage'           => $storage,
 			'format_plan'       => array(
 				'needs_attention'            => $needs_attention,
 				'should_convert'             => $should_convert,
@@ -5750,6 +5785,122 @@ trait Media_Read_Methods {
 			}
 			$candidate = rtrim( $basedir, "/\\" ) . '/' . $relative_file;
 			return is_readable( $candidate ) ? $candidate : '';
+		}
+
+		/**
+		 * Builds conservative storage-readiness evidence without exposing paths or secrets.
+		 *
+		 * @param int    $attachment_id Attachment id.
+		 * @param string $relative_file Uploads-relative file.
+		 * @param string $attached_file Raw attached file value.
+		 * @param string $media_file_path Resolved readable local path, if any.
+		 * @param string $url Public attachment URL.
+		 * @return array<string,mixed>
+		 */
+		private function build_media_storage_inspection( $attachment_id, $relative_file, $attached_file, $media_file_path, $url ) {
+			$relative_file       = $this->normalize_media_relative_file( $relative_file );
+			$url                 = $this->esc_url_value( (string) $url );
+			$local_file_readable = '' !== (string) $media_file_path && is_readable( (string) $media_file_path );
+			$remote_url          = $this->media_url_looks_remote_storage( $url );
+			$provider            = $remote_url ? 'remote_object_storage' : 'local_uploads';
+			$source_read_mode    = $local_file_readable ? 'local_file' : 'blocked';
+			$write_mode          = 'local_uploads';
+			$restore_mode        = 'local_backup';
+			$blocked_reason      = '';
+
+			if ( 'remote_object_storage' === $provider ) {
+				$write_mode   = 'blocked';
+				$restore_mode = 'blocked';
+				$blocked_reason = $local_file_readable ? 'remote_storage_write_requires_adapter' : 'remote_storage_requires_adapter';
+			}
+
+			$storage = array(
+				'provider'              => $provider,
+				'adapter'               => 'none',
+				'attachment_id'         => $this->absint_value( $attachment_id ),
+				'current_relative_file' => $relative_file,
+				'canonical_url'         => $url,
+				'local_file_readable'   => $local_file_readable,
+				'source_read_mode'      => $source_read_mode,
+				'write_mode'            => $write_mode,
+				'restore_mode'          => $restore_mode,
+				'cache_purge_required'  => 'remote_object_storage' === $provider,
+				'blocked_reason'        => $blocked_reason,
+			);
+
+			if ( function_exists( 'apply_filters' ) ) {
+				$filtered = apply_filters( 'npcink_abilities_toolkit_media_storage_inspection', $storage, $this->absint_value( $attachment_id ), $relative_file, $url, (string) $attached_file );
+				if ( is_array( $filtered ) ) {
+					$storage = array_merge( $storage, $filtered );
+				}
+			}
+
+			return $this->sanitize_media_storage_inspection( $storage );
+		}
+
+		/**
+		 * Returns whether a public URL no longer points at the current uploads base URL.
+		 *
+		 * @param string $url Public attachment URL.
+		 * @return bool
+		 */
+		private function media_url_looks_remote_storage( $url ) {
+			$url = (string) $url;
+			if ( '' === $url || ! function_exists( 'wp_upload_dir' ) ) {
+				return false;
+			}
+			$upload_dir = wp_upload_dir();
+			$baseurl    = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+			if ( '' === $baseurl ) {
+				return false;
+			}
+
+			$url_host  = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+			$base_host = strtolower( (string) wp_parse_url( $baseurl, PHP_URL_HOST ) );
+			if ( '' !== $url_host && '' !== $base_host && $url_host !== $base_host ) {
+				return true;
+			}
+
+			return 0 !== strpos( rtrim( $url, '/' ) . '/', rtrim( $baseurl, '/' ) . '/' );
+		}
+
+		/**
+		 * Sanitizes media storage evidence after host filters run.
+		 *
+		 * @param array<string,mixed> $storage Storage evidence.
+		 * @return array<string,mixed>
+		 */
+		private function sanitize_media_storage_inspection( array $storage ) {
+			$provider = sanitize_key( (string) ( $storage['provider'] ?? 'unknown' ) );
+			if ( ! in_array( $provider, array( 'local_uploads', 'remote_object_storage', 'unknown' ), true ) ) {
+				$provider = 'unknown';
+			}
+			$source_read_mode = sanitize_key( (string) ( $storage['source_read_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $source_read_mode, array( 'local_file', 'signed_url', 'public_url', 'blocked' ), true ) ) {
+				$source_read_mode = 'blocked';
+			}
+			$write_mode = sanitize_key( (string) ( $storage['write_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $write_mode, array( 'local_uploads', 'local_upload_then_offload', 'provider_api', 'blocked' ), true ) ) {
+				$write_mode = 'blocked';
+			}
+			$restore_mode = sanitize_key( (string) ( $storage['restore_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $restore_mode, array( 'local_backup', 'provider_backup', 'blocked' ), true ) ) {
+				$restore_mode = 'blocked';
+			}
+
+			return array(
+				'provider'              => $provider,
+				'adapter'               => sanitize_key( (string) ( $storage['adapter'] ?? 'none' ) ),
+				'attachment_id'         => $this->absint_value( $storage['attachment_id'] ?? 0 ),
+				'current_relative_file' => $this->normalize_media_relative_file( (string) ( $storage['current_relative_file'] ?? '' ) ),
+				'canonical_url'         => $this->esc_url_value( (string) ( $storage['canonical_url'] ?? '' ) ),
+				'local_file_readable'   => ! empty( $storage['local_file_readable'] ),
+				'source_read_mode'      => $source_read_mode,
+				'write_mode'            => $write_mode,
+				'restore_mode'          => $restore_mode,
+				'cache_purge_required'  => ! empty( $storage['cache_purge_required'] ),
+				'blocked_reason'        => sanitize_key( (string) ( $storage['blocked_reason'] ?? '' ) ),
+			);
 		}
 
 		/**

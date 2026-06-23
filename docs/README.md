@@ -12,8 +12,10 @@ Use this path when another WordPress plugin wants to provide abilities through
 1. Start with [Provider Plugin Guide](third-party-plugin-guide.md).
 2. Copy from the working demo provider in
    [examples/demo-plugin/npcink-abilities-toolkit-demo.php](../examples/demo-plugin/npcink-abilities-toolkit-demo.php).
-3. Check the stable public helper surface in [Public API](public-api.md).
-4. Verify provider compatibility with:
+3. If your plugin or host adapts object-storage-backed media, read
+   [OSS Storage Compatibility Shim](oss-storage-compatibility-shim.md).
+4. Check the stable public helper surface in [Public API](public-api.md).
+5. Verify provider compatibility with:
 
 ```bash
 composer check:provider-demo

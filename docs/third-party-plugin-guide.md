@@ -166,6 +166,23 @@ Third-party providers should not perform final host-governed commits through
 this helper. Host-governed write/destructive commit registration is not public
 third-party API in 0.1.
 
+## Adapt Object-Storage-Backed Media
+
+Media offload plugins are site-owned infrastructure. Npcink Abilities Toolkit
+does not control their bucket settings, SDK clients, credentials, signed URLs,
+upload behavior, rollback behavior, or CDN cache purge.
+
+When a site wants media file abilities to work with OSS/S3/COS/Qiniu/CDN
+offload, implement the
+`npcink_abilities_toolkit_media_storage_inspection` filter as a small shim. The
+shim should declare only bounded readiness metadata such as read mode, write
+mode, restore mode, adapter id, and cache-purge requirement. It should not pass
+credentials, bucket names, signed headers, callback URLs, SDK clients, or raw
+provider responses through Toolkit.
+
+Start with [OSS Storage Compatibility Shim](oss-storage-compatibility-shim.md)
+and [examples/oss-storage-shim.php](../examples/oss-storage-shim.php).
+
 ## Local Smoke Test
 
 When this plugin is installed in a WordPress site with WP-CLI available:
