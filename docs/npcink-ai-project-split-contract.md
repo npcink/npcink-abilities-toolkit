@@ -137,7 +137,7 @@ WordPress write authority.
 
 Workflow recipes in this project may define:
 
-- documentation-only recipe ids such as `workflow/wordpress_article_draft`;
+- documentation-only recipe ids such as `npcink-abilities-toolkit/recipes/article-draft`;
 - ability sequences and handoff expectations;
 - dry-run, approval, risk, and failure-handling guidance;
 - smoke-test targets for proving ability chains through WordPress Abilities API.

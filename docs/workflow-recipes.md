@@ -53,7 +53,7 @@ Not allowed here:
 - final WordPress write approval;
 - a second ability, workflow, skill, MCP, or projection registry.
 
-Recipe ids such as `workflow/wordpress_article_publish_preflight` are
+Recipe ids such as `npcink-abilities-toolkit/recipes/article-publish-preflight` are
 documentation identifiers only. They are not WordPress ability ids and are not a
 registry that hosts must synchronize.
 
@@ -92,7 +92,7 @@ owns persisted workflow state and any approval or commit record.
 
 ## Recipe: Site Operations Scan
 
-Recipe id: `workflow/wordpress_site_operations_scan`
+Recipe id: `npcink-abilities-toolkit/recipes/site-operations-scan`
 
 Goal: identify site content, media, taxonomy, and page-structure attention
 areas without writes.
@@ -120,7 +120,7 @@ Governance:
 
 ## Recipe: Article Draft Handoff
 
-Recipe id: `workflow/wordpress_article_draft`
+Recipe id: `npcink-abilities-toolkit/recipes/article-draft`
 
 Goal: compose draft content, metadata context, and SEO/GEO review signals
 without creating or publishing a final article unless a host later approves a
@@ -149,7 +149,7 @@ Governance:
 
 ## Recipe: Article Publish Preflight
 
-Recipe id: `workflow/wordpress_article_publish_preflight`
+Recipe id: `npcink-abilities-toolkit/recipes/article-publish-preflight`
 
 Goal: decide whether an existing draft is ready for host-approved scheduling or
 publication.
@@ -178,7 +178,7 @@ Governance:
 
 ## Recipe: Article Production Mainline
 
-Recipe id: `workflow/wordpress_article_production`
+Recipe id: `npcink-abilities-toolkit/recipes/article-production`
 
 Goal: carry an article candidate through duplicate checks, lightweight review,
 media handoff, and publication decision without bypassing host approval.
@@ -208,7 +208,7 @@ Governance:
 
 ## Recipe: Existing Article Optimization
 
-Recipe id: `workflow/wordpress_article_optimization`
+Recipe id: `npcink-abilities-toolkit/recipes/article-optimization`
 
 Goal: read an existing post, build an optimization suggestion, and prepare a
 reviewable apply plan.
@@ -238,7 +238,7 @@ Governance:
 
 ## Recipe: Article Media Handoff
 
-Recipe id: `workflow/wordpress_article_media_handoff`
+Recipe id: `npcink-abilities-toolkit/recipes/article-media-handoff`
 
 Goal: prepare article media assets, inline image blocks, and placement guidance
 before a host imports media or applies metadata writes.
@@ -270,7 +270,7 @@ Governance:
 
 ## Recipe: Old Article Refresh Discovery
 
-Recipe id: `workflow/wordpress_old_article_refresh_discovery`
+Recipe id: `npcink-abilities-toolkit/recipes/old-article-refresh-discovery`
 
 Goal: identify articles that deserve refresh work and provide enough context for
 an agent or host product to choose candidates.
@@ -289,7 +289,7 @@ Handoff:
 
 - pass candidate posts, gap signals, style baseline, and link opportunities to
   the host;
-- continue into `workflow/wordpress_article_optimization` for selected posts.
+- continue into `npcink-abilities-toolkit/recipes/article-optimization` for selected posts.
 
 Governance:
 
@@ -298,7 +298,7 @@ Governance:
 
 ## Recipe: Comment Compliance Handoff
 
-Recipe id: `workflow/wordpress_comment_compliance_handoff`
+Recipe id: `npcink-abilities-toolkit/recipes/comment-compliance-handoff`
 
 Goal: triage comments, prepare moderation or reply suggestions, and keep final
 comment actions under host approval.
@@ -329,7 +329,7 @@ Governance:
 
 ## Recipe: Diagnostics Triage
 
-Recipe id: `workflow/wordpress_diagnostics_triage`
+Recipe id: `npcink-abilities-toolkit/recipes/diagnostics-triage`
 
 Goal: gather redacted WordPress-only diagnostics for support or agent triage.
 

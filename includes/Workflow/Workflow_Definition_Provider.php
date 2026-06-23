@@ -54,7 +54,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/review-article-output-light',
 					'npcink-abilities-toolkit/compose-article-draft-result',
 				),
-				'recipe_id'                      => 'workflow/wordpress_article_draft',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/article-draft',
 				'recipe_aliases'                 => array( 'article_draft_v1' ),
 				'required_scope'                 => 'cap.text.extract',
 				'required_inputs'                => array(),
@@ -97,7 +97,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/build-article-workflow-context',
 					'npcink-abilities-toolkit/get-publishing-calendar-context',
 				),
-				'recipe_id'                      => 'workflow/wordpress_article_publish_preflight',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/article-publish-preflight',
 				'required_scope'                 => 'post.read',
 				'required_inputs'                => array( 'post_id' ),
 				'expected_sections'              => array(
@@ -137,7 +137,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/build-article-optimization-apply-plan',
 					'npcink-abilities-toolkit/compose-article-optimization-apply-result',
 				),
-				'recipe_id'                      => 'workflow/wordpress_article_optimization',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/article-optimization',
 				'required_scope'                 => 'post.read',
 				'required_inputs'                => array( 'post_id' ),
 				'expected_sections'              => array(
@@ -177,7 +177,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/build-media-seo-assets',
 					'npcink-abilities-toolkit/position-inline-image-blocks',
 				),
-				'recipe_id'                      => 'workflow/wordpress_article_media_handoff',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/article-media-handoff',
 				'required_scope'                 => 'media.read',
 				'required_inputs'                => array(),
 				'expected_sections'              => array(
@@ -218,7 +218,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/get-internal-link-graph-health',
 					'npcink-abilities-toolkit/get-internal-link-opportunity-report',
 				),
-				'recipe_id'                      => 'workflow/wordpress_old_article_refresh_discovery',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/old-article-refresh-discovery',
 				'required_scope'                 => 'post.read',
 				'required_inputs'                => array(),
 				'expected_sections'              => array(
@@ -258,7 +258,7 @@ final class Workflow_Definition_Provider {
 					'npcink-abilities-toolkit/build-comment-mention-reply-suggest',
 					'npcink-abilities-toolkit/compose-comment-moderation-result',
 				),
-				'recipe_id'                      => 'workflow/wordpress_comment_compliance_handoff',
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff',
 				'required_scope'                 => 'comments.manage',
 				'required_inputs'                => array(),
 				'expected_sections'              => array(

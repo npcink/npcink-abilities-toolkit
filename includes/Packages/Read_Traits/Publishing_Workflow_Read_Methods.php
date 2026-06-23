@@ -521,7 +521,7 @@ trait Publishing_Workflow_Read_Methods {
 
 		return $this->build_analysis_success_response(
 			array(
-				'recipe'               => 'workflow/wordpress_article_publish_preflight',
+				'recipe'               => 'npcink-abilities-toolkit/recipes/article-publish-preflight',
 				'post_context'         => is_array( $post_context ) ? ( $post_context['data'] ?? array() ) : array(),
 				'publishing_checklist' => $checklist_data,
 				'publish_risk'         => $risk_data,

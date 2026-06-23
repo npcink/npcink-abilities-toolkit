@@ -81,7 +81,7 @@ Useful value:
 - combine publish checklist, risk, SEO/GEO readiness, and calendar context;
 - stop before scheduling or publishing.
 
-Rewrite as the existing `workflow/wordpress_article_publish_preflight` recipe:
+Rewrite as the existing `npcink-abilities-toolkit/recipes/article-publish-preflight` recipe:
 
 1. Prefer `npcink-abilities-toolkit/get-article-publish-preflight-context`.
 2. Expand to `npcink-abilities-toolkit/get-content-publishing-checklist`,
@@ -108,7 +108,7 @@ Useful value:
 - separate suggestion, apply plan, dry-run preview, and approved commit;
 - support partial application rather than all-or-nothing rewrites.
 
-Rewrite as the existing `workflow/wordpress_article_optimization` recipe:
+Rewrite as the existing `npcink-abilities-toolkit/recipes/article-optimization` recipe:
 
 1. `npcink-abilities-toolkit/read-post-optimization-context`
 2. `npcink-abilities-toolkit/seo-report-context`
@@ -124,9 +124,9 @@ Host policy decides which suggestions are allowed to commit.
 
 Old Core surfaces:
 
-- `workflow/wordpress_article_draft`
-- `workflow/wordpress_article_media`
-- `workflow/wordpress_article_production`
+- `npcink-abilities-toolkit/recipes/article-draft`
+- `npcink-abilities-toolkit/recipes/article-media`
+- `npcink-abilities-toolkit/recipes/article-production`
 - skill manifests: `wordpress_article_draft`, `wordpress_article_media`,
   `wordpress_article_production`
 
@@ -140,8 +140,8 @@ Useful value:
 
 Rewrite as Content Assistant product flows backed by documentation recipes:
 
-- article draft: use `workflow/wordpress_article_draft`;
-- article production: use `workflow/wordpress_article_production`;
+- article draft: use `npcink-abilities-toolkit/recipes/article-draft`;
+- article production: use `npcink-abilities-toolkit/recipes/article-production`;
 - article media: keep as a future recipe that composes
   `npcink-abilities-toolkit/build-media-seo-assets`,
   `npcink-abilities-toolkit/build-inline-image-blocks`,
@@ -200,7 +200,7 @@ Useful value:
 - compose reply text separately from final `reply-comment` commit;
 - preserve a human-review path for ambiguous comments.
 
-Rewrite as the existing `workflow/wordpress_comment_compliance_handoff` recipe:
+Rewrite as the existing `npcink-abilities-toolkit/recipes/comment-compliance-handoff` recipe:
 
 1. Prefer `npcink-abilities-toolkit/get-comment-compliance-handoff`.
 2. Expand to `npcink-abilities-toolkit/get-comment-queue-health`,

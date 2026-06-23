@@ -365,7 +365,7 @@ the recipe is unknown.
 Parameters:
 
 - `$recipe_id` (`string`): Recipe id such as
-  `workflow/wordpress_article_publish_preflight`, or a case id such as
+  `npcink-abilities-toolkit/recipes/article-publish-preflight`, or a case id such as
   `article_publish_preflight`.
 
 Hosts that need REST-based discovery can also call the read-only Abilities API

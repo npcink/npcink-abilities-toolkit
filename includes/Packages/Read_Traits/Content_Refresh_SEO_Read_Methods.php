@@ -282,7 +282,7 @@ trait Content_Refresh_SEO_Read_Methods {
 
 		return $this->build_analysis_success_response(
 			array(
-				'recipe'                    => 'workflow/wordpress_old_article_refresh_discovery',
+				'recipe'                    => 'npcink-abilities-toolkit/recipes/old-article-refresh-discovery',
 				'refresh_opportunities'     => $refresh_data,
 				'seo_geo_gap_report'        => $gap_data,
 				'style_baseline'            => is_array( $style ) ? ( $style['data'] ?? array() ) : array(),

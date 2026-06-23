@@ -84,8 +84,8 @@ Current stage update:
 Use host workflow proofs as the main discovery mechanism. The immediate
 workflow proof targets are:
 
-- `workflow/wordpress_article_optimization`
-- `workflow/wordpress_article_media_handoff`
+- `npcink-abilities-toolkit/recipes/article-optimization`
+- `npcink-abilities-toolkit/recipes/article-media-handoff`
 - Block theme / Gutenberg intent routing, as a narrow proof only
 
 The current proof ledger is tracked in `docs/host-proof-status.md`.
