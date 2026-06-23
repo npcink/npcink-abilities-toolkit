@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.2 - 2026-06-22
+
+- Reworked the wp-admin surface around ordinary site operators: renamed the
+  entry point to Site AI Abilities, added overview, available abilities, checks,
+  and developer access tabs, and kept developer details available without making
+  them the default experience.
+- Added user-facing safe check summaries with purpose tables and collapsed raw
+  JSON so site owners can understand what the checks prove without reading API
+  payloads first.
+- Refreshed the Chinese admin translation catalog for the updated settings page,
+  check result summaries, plugin action links, and WordPress.org listing copy.
+- Prepared WordPress.org listing content, FAQ, screenshots, banner/icon notes,
+  and release assets for the operator-focused positioning.
+- Added read-only review artifacts for image candidates, internal link
+  candidates, taxonomy suggestions, and comment reply suggestions while keeping
+  final writes host-governed.
+- Published WordPress.org SVN revision 3581125 after `composer release:verify`
+  completed with Plugin Check reporting no errors.
+
 ## 0.5.1 - 2026-06-07
 
 - Added Composer dependency advisory audit to the default `composer test:all`

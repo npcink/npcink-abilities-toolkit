@@ -876,6 +876,9 @@ final class Core_Write_Package {
 						'expected_current_relative_file' => array( 'type' => 'string' ),
 						'expected_current_mime_type'    => array( 'type' => 'string' ),
 						'expected_derivative_mime_type' => array( 'type' => 'string' ),
+						'expected_storage_provider'     => array( 'type' => 'string' ),
+						'expected_storage_adapter'      => array( 'type' => 'string' ),
+						'storage_preflight'             => $this->media_storage_preflight_schema(),
 						'backup_suffix'                 => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'npcink-abilities-toolkit-backup' ),
 					),
 					array( 'attachment_id' )
@@ -916,6 +919,9 @@ final class Core_Write_Package {
 						'backup_id'                      => array( 'type' => 'string', 'minLength' => 1 ),
 						'expected_current_relative_file' => array( 'type' => 'string' ),
 						'expected_current_mime_type'     => array( 'type' => 'string' ),
+						'expected_storage_provider'      => array( 'type' => 'string' ),
+						'expected_storage_adapter'       => array( 'type' => 'string' ),
+						'storage_preflight'              => $this->media_storage_preflight_schema(),
 						'target_conflict_mode'           => array( 'type' => 'string', 'enum' => array( 'fail', 'overwrite' ), 'default' => 'fail' ),
 					),
 					array( 'attachment_id', 'backup_id' )
@@ -959,6 +965,9 @@ final class Core_Write_Package {
 							'expected_current_mime_type'     => array( 'type' => 'string' ),
 							'expected_current_md5'           => array( 'type' => 'string', 'minLength' => 32, 'maxLength' => 36 ),
 							'expected_current_sha256'        => array( 'type' => 'string', 'minLength' => 64, 'maxLength' => 71 ),
+							'expected_storage_provider'      => array( 'type' => 'string' ),
+							'expected_storage_adapter'       => array( 'type' => 'string' ),
+							'storage_preflight'              => $this->media_storage_preflight_schema(),
 							'conflict_mode'                  => array( 'type' => 'string', 'enum' => array( 'fail', 'unique' ), 'default' => 'fail' ),
 							'backup_suffix'                  => array( 'type' => 'string', 'maxLength' => 48, 'default' => 'npcink-abilities-toolkit-rename-backup' ),
 						),
@@ -997,6 +1006,9 @@ final class Core_Write_Package {
 							'expected_current_relative_file' => array( 'type' => 'string' ),
 							'expected_current_mime_type'     => array( 'type' => 'string' ),
 							'expected_derivative_mime_type'  => array( 'type' => 'string' ),
+							'expected_storage_provider'      => array( 'type' => 'string' ),
+							'expected_storage_adapter'       => array( 'type' => 'string' ),
+							'storage_preflight'              => $this->media_storage_preflight_schema(),
 							'file_name'                      => array( 'type' => 'string', 'maxLength' => 120 ),
 							'expected_content_reference_post_ids' => array( 'type' => 'array', 'items' => array( 'type' => 'integer', 'minimum' => 1 ), 'maxItems' => 50 ),
 							'expected_content_reference_post_count' => array( 'type' => 'integer', 'minimum' => 0, 'maximum' => 50 ),
@@ -3567,6 +3579,29 @@ final class Core_Write_Package {
 	}
 
 	/**
+	 * Builds the bounded media storage preflight schema.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function media_storage_preflight_schema() {
+		return $this->schema(
+			array(
+				'provider'              => array( 'type' => 'string' ),
+				'adapter'               => array( 'type' => 'string' ),
+				'attachment_id'         => array( 'type' => 'integer' ),
+				'current_relative_file' => array( 'type' => 'string' ),
+				'canonical_url'         => array( 'type' => 'string' ),
+				'local_file_readable'   => array( 'type' => 'boolean' ),
+				'source_read_mode'      => array( 'type' => 'string' ),
+				'write_mode'            => array( 'type' => 'string' ),
+				'restore_mode'          => array( 'type' => 'string' ),
+				'cache_purge_required'  => array( 'type' => 'boolean' ),
+				'blocked_reason'        => array( 'type' => 'string' ),
+			)
+		);
+	}
+
+	/**
 	 * Sanitizes a bounded mixed payload for public preview output.
 	 *
 	 * @param mixed $payload Raw payload.
@@ -4600,6 +4635,11 @@ final class Core_Write_Package {
 	 */
 	private function materialize_cloud_media_derivative_artifact( $attachment_id, array $plan ) {
 		$artifact = is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array();
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$storage_ready = $this->validate_media_storage_commit_ready( $current );
+		if ( is_wp_error( $storage_ready ) ) {
+			return $storage_ready;
+		}
 		$download = apply_filters(
 			'npcink_abilities_toolkit_cloud_media_derivative_artifact_download',
 			null,
@@ -4921,6 +4961,10 @@ final class Core_Write_Package {
 			$attachment_id = absint( $attachment_id );
 			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
 			$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
+			$storage_ready = $this->validate_media_storage_commit_ready( $current );
+			if ( is_wp_error( $storage_ready ) ) {
+				return $storage_ready;
+			}
 			$current_path = (string) ( $current['file_path'] ?? '' );
 			$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
 			$expectation_error = $this->validate_media_content_reference_repair_expectations(
@@ -5006,6 +5050,10 @@ final class Core_Write_Package {
 		private function execute_media_file_rename( $attachment_id, array $plan ) {
 			$attachment_id = absint( $attachment_id );
 			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+			$storage_ready = $this->validate_media_storage_commit_ready( $current );
+			if ( is_wp_error( $storage_ready ) ) {
+				return $storage_ready;
+			}
 			$current_path = (string) ( $current['file_path'] ?? '' );
 			$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
 			$target_path = (string) ( $plan['_target_path'] ?? '' );
@@ -5093,6 +5141,10 @@ final class Core_Write_Package {
 		private function execute_media_backup_restore( $attachment_id, array $plan ) {
 			$attachment_id = absint( $attachment_id );
 			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+			$storage_ready = $this->validate_media_storage_commit_ready( $current );
+			if ( is_wp_error( $storage_ready ) ) {
+				return $storage_ready;
+			}
 			$current_path = (string) ( $current['file_path'] ?? '' );
 			$backup_path = (string) ( $plan['_backup_path'] ?? '' );
 			$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
@@ -5211,10 +5263,15 @@ final class Core_Write_Package {
 		if ( '' === $relative_file && '' === $file_path ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'Current attachment file metadata is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
+		$public_url = function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+		if ( '' === $public_url && '' !== $relative_file ) {
+			$public_url = $this->media_url_for_relative_file( $relative_file );
+		}
+		$storage = $this->build_media_storage_state( $attachment_id, $relative_file, $file_path, $public_url );
 
 		return array(
 			'relative_file'   => $relative_file,
-			'url'             => '' !== $relative_file ? $this->media_url_for_relative_file( $relative_file ) : ( function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '' ),
+			'url'             => $public_url,
 			'file_basename'   => $this->sanitize_media_file_name( basename( '' !== $relative_file ? $relative_file : $file_path ) ),
 			'file_path'       => $file_path,
 			'mime_type'       => $mime_type,
@@ -5222,6 +5279,7 @@ final class Core_Write_Package {
 			'height'          => absint( $metadata['height'] ?? 0 ),
 			'filesize_bytes'  => ( '' !== $file_path && is_readable( $file_path ) ) ? absint( filesize( $file_path ) ) : absint( $metadata['filesize'] ?? 0 ),
 			'metadata'        => $metadata,
+			'storage'         => $storage,
 		);
 	}
 
@@ -5241,6 +5299,47 @@ final class Core_Write_Package {
 		if ( '' !== $expected_mime && $expected_mime !== (string) ( $current['mime_type'] ?? '' ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_current_mime_mismatch', __( 'The current media MIME type did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
+		$storage_error = $this->validate_media_expected_storage_state( $current, $input );
+		if ( is_wp_error( $storage_error ) ) {
+			return $storage_error;
+		}
+
+			return true;
+		}
+
+		/**
+		 * Validates optional storage drift guards.
+		 *
+		 * @param array<string,mixed> $current Current state.
+		 * @param array<string,mixed> $input Input args.
+		 * @return true|\WP_Error
+		 */
+		private function validate_media_expected_storage_state( array $current, array $input ) {
+			$storage = is_array( $current['storage'] ?? null ) ? $current['storage'] : array();
+			$expected_provider = sanitize_key( (string) ( $input['expected_storage_provider'] ?? '' ) );
+			if ( '' !== $expected_provider && $expected_provider !== sanitize_key( (string) ( $storage['provider'] ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_storage_provider_mismatch', __( 'The current media storage provider did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			$expected_adapter = sanitize_key( (string) ( $input['expected_storage_adapter'] ?? '' ) );
+			if ( '' !== $expected_adapter && $expected_adapter !== sanitize_key( (string) ( $storage['adapter'] ?? '' ) ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_storage_adapter_mismatch', __( 'The current media storage adapter did not match the expected value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+
+			return true;
+		}
+
+		/**
+		 * Blocks file commits when storage is remote or unavailable without an adapter.
+		 *
+		 * @param array<string,mixed> $current Current state.
+		 * @return true|\WP_Error
+		 */
+		private function validate_media_storage_commit_ready( array $current ) {
+			$storage = is_array( $current['storage'] ?? null ) ? $current['storage'] : array();
+			$blocked_reason = sanitize_key( (string) ( $storage['blocked_reason'] ?? '' ) );
+			if ( '' !== $blocked_reason ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_storage_blocked', __( 'Current media storage requires a host storage adapter before this file operation can commit.', 'npcink-abilities-toolkit' ), array( 'status' => 409, 'blocked_reason' => $blocked_reason, 'storage' => $this->sanitize_media_storage_state( $storage ) ) );
+			}
 
 			return true;
 		}
@@ -5326,6 +5425,115 @@ final class Core_Write_Package {
 		}
 
 		/**
+		 * Builds conservative storage evidence for media write planning.
+		 *
+		 * @param int    $attachment_id Attachment id.
+		 * @param string $relative_file Uploads-relative file.
+		 * @param string $file_path Internal local path, if any.
+		 * @param string $url Public attachment URL.
+		 * @return array<string,mixed>
+		 */
+		private function build_media_storage_state( $attachment_id, $relative_file, $file_path, $url ) {
+			$relative_file       = $this->normalize_media_relative_file( $relative_file );
+			$url                 = esc_url_raw( (string) $url );
+			$local_file_readable = '' !== (string) $file_path && is_readable( (string) $file_path );
+			$remote_url          = $this->media_url_looks_remote_storage( $url );
+			$provider            = $remote_url ? 'remote_object_storage' : 'local_uploads';
+			$blocked_reason      = '';
+			if ( 'remote_object_storage' === $provider ) {
+				$blocked_reason = $local_file_readable ? 'remote_storage_write_requires_adapter' : 'remote_storage_requires_adapter';
+			}
+
+			$storage = array(
+				'provider'              => $provider,
+				'adapter'               => 'none',
+				'attachment_id'         => absint( $attachment_id ),
+				'current_relative_file' => $relative_file,
+				'canonical_url'         => $url,
+				'local_file_readable'   => $local_file_readable,
+				'source_read_mode'      => $local_file_readable ? 'local_file' : 'blocked',
+				'write_mode'            => 'remote_object_storage' === $provider ? 'blocked' : 'local_uploads',
+				'restore_mode'          => 'remote_object_storage' === $provider ? 'blocked' : 'local_backup',
+				'cache_purge_required'  => 'remote_object_storage' === $provider,
+				'blocked_reason'        => $blocked_reason,
+			);
+
+			if ( function_exists( 'apply_filters' ) ) {
+				$filtered = apply_filters( 'npcink_abilities_toolkit_media_storage_inspection', $storage, absint( $attachment_id ), $relative_file, $url, (string) $file_path );
+				if ( is_array( $filtered ) ) {
+					$storage = array_merge( $storage, $filtered );
+				}
+			}
+
+			return $this->sanitize_media_storage_state( $storage );
+		}
+
+		/**
+		 * Returns whether a public URL no longer points at the current uploads base URL.
+		 *
+		 * @param string $url Public attachment URL.
+		 * @return bool
+		 */
+		private function media_url_looks_remote_storage( $url ) {
+			$url = (string) $url;
+			if ( '' === $url || ! function_exists( 'wp_upload_dir' ) ) {
+				return false;
+			}
+			$upload_dir = wp_upload_dir();
+			$baseurl    = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+			if ( '' === $baseurl ) {
+				return false;
+			}
+
+			$url_host  = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+			$base_host = strtolower( (string) wp_parse_url( $baseurl, PHP_URL_HOST ) );
+			if ( '' !== $url_host && '' !== $base_host && $url_host !== $base_host ) {
+				return true;
+			}
+
+			return 0 !== strpos( rtrim( $url, '/' ) . '/', rtrim( $baseurl, '/' ) . '/' );
+		}
+
+		/**
+		 * Sanitizes media storage evidence after host filters run.
+		 *
+		 * @param array<string,mixed> $storage Storage evidence.
+		 * @return array<string,mixed>
+		 */
+		private function sanitize_media_storage_state( array $storage ) {
+			$provider = sanitize_key( (string) ( $storage['provider'] ?? 'unknown' ) );
+			if ( ! in_array( $provider, array( 'local_uploads', 'remote_object_storage', 'unknown' ), true ) ) {
+				$provider = 'unknown';
+			}
+			$source_read_mode = sanitize_key( (string) ( $storage['source_read_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $source_read_mode, array( 'local_file', 'signed_url', 'public_url', 'blocked' ), true ) ) {
+				$source_read_mode = 'blocked';
+			}
+			$write_mode = sanitize_key( (string) ( $storage['write_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $write_mode, array( 'local_uploads', 'local_upload_then_offload', 'provider_api', 'blocked' ), true ) ) {
+				$write_mode = 'blocked';
+			}
+			$restore_mode = sanitize_key( (string) ( $storage['restore_mode'] ?? 'blocked' ) );
+			if ( ! in_array( $restore_mode, array( 'local_backup', 'provider_backup', 'blocked' ), true ) ) {
+				$restore_mode = 'blocked';
+			}
+
+			return array(
+				'provider'              => $provider,
+				'adapter'               => sanitize_key( (string) ( $storage['adapter'] ?? 'none' ) ),
+				'attachment_id'         => absint( $storage['attachment_id'] ?? 0 ),
+				'current_relative_file' => $this->normalize_media_relative_file( (string) ( $storage['current_relative_file'] ?? '' ) ),
+				'canonical_url'         => esc_url_raw( (string) ( $storage['canonical_url'] ?? '' ) ),
+				'local_file_readable'   => ! empty( $storage['local_file_readable'] ),
+				'source_read_mode'      => $source_read_mode,
+				'write_mode'            => $write_mode,
+				'restore_mode'          => $restore_mode,
+				'cache_purge_required'  => ! empty( $storage['cache_purge_required'] ),
+				'blocked_reason'        => sanitize_key( (string) ( $storage['blocked_reason'] ?? '' ) ),
+			);
+		}
+
+		/**
 		 * Builds safe public state from an internal media file state.
 		 *
 		 * @param array<string,mixed> $state Internal state.
@@ -5340,6 +5548,7 @@ final class Core_Write_Package {
 			'width'          => absint( $state['width'] ?? 0 ),
 			'height'         => absint( $state['height'] ?? 0 ),
 			'filesize_bytes' => absint( $state['filesize_bytes'] ?? 0 ),
+			'storage'        => is_array( $state['storage'] ?? null ) ? $this->sanitize_media_storage_state( $state['storage'] ) : array(),
 		);
 	}
 

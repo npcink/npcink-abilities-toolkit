@@ -165,27 +165,37 @@ cross-repo Core integration changes.
 ## Admin Page
 
 After activating the plugin with a Npcink AI host plugin, open
-**Npcink AI -> Ability Diagnostics** in wp-admin. When this standalone package
-is installed without a Npcink AI host menu, open **Tools -> Abilities Toolkit
-Diagnostics** instead.
+**Npcink AI -> AI Abilities** in wp-admin. When this standalone package
+is installed without a Npcink AI host menu, open **Tools -> Site AI
+Abilities** instead.
 
-The default page shows package health and focused next actions:
+The default page is intended for site operators. It shows site ability status
+and focused next actions:
 
 - WordPress Abilities API support
-- registered ability count and callback readiness
-- direct links to the catalog, endpoint values, read-only checks, and ID export
+- available ability count
+- whether write-like abilities require host approval
+- whether a Npcink AI host menu is detected
+- direct links to available abilities, safe checks, and developer connection information
 
-The Catalog and Connections tabs can:
+The Available Abilities and Checks tabs can:
 
-- filter the catalog by ID, label, description, category, risk, and page size
-- show ability label, description, category, risk, schema, and callback signals
+- filter abilities by name, description, category, risk, technical ID, and page size
+- show user-facing ability labels, descriptions, risk posture, availability, and technical details
+- run `npcink-abilities-toolkit/site-info` and a bounded `npcink-abilities-toolkit/wp-diagnostics-summary` as read-only checks
+- explain what each check proves and what it does not prove before it runs
+- show check results as a plain summary table, with raw JSON kept behind a support disclosure
+
+The Developer Access tab can:
+
+- copy endpoint values for external clients and host products
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce
 - fetch `/wp-json/wp-abilities/v1/categories`
-- run `npcink-abilities-toolkit/site-info` and a bounded `npcink-abilities-toolkit/wp-diagnostics-summary` as read-only checks
-- copy endpoint values and ability IDs for host/catalog audits
+- copy ability IDs for host/catalog audits
 
-This page is a connection and discovery surface. It does not run showcase
-workflows, model calls, write abilities, or demo abilities.
+This page is an ability status, review, check, and connection surface. It does
+not run showcase workflows, model calls, write abilities, approval flows, or
+demo abilities.
 
 ## Built-In WordPress Read and Comment Packages
 

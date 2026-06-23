@@ -128,72 +128,127 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
+$docs_readme = (string) file_get_contents( __DIR__ . '/../docs/README.md' );
+$third_party_plugin_guide = (string) file_get_contents( __DIR__ . '/../docs/third-party-plugin-guide.md' );
+$public_api_doc = (string) file_get_contents( __DIR__ . '/../docs/public-api.md' );
+$media_boundary_doc = (string) file_get_contents( __DIR__ . '/../docs/media-format-attention-boundary.md' );
+$oss_storage_shim_doc = (string) file_get_contents( __DIR__ . '/../docs/oss-storage-compatibility-shim.md' );
+$oss_storage_shim_example = (string) file_get_contents( __DIR__ . '/../examples/oss-storage-shim.php' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $docs_readme, 'OSS Storage Compatibility Shim' ), 'documentation guide links the OSS storage shim contract' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $third_party_plugin_guide, 'npcink_abilities_toolkit_media_storage_inspection' ), 'third-party guide documents the media storage inspection shim' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $public_api_doc, 'npcink_abilities_toolkit_media_storage_inspection' ), 'public API documents the media storage inspection filter' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $media_boundary_doc, 'oss-storage-compatibility-shim.md' ), 'media boundary links the OSS storage shim contract' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $oss_storage_shim_doc, 'Toolkit does not own' ), 'OSS storage shim contract preserves Toolkit ownership boundaries' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $oss_storage_shim_doc, 'remote_storage_write_requires_adapter' ), 'OSS storage shim contract keeps fail-closed blocked reasons' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $oss_storage_shim_doc, 'Extra fields' ) && false !== strpos( $oss_storage_shim_doc, 'not preserved' ), 'OSS storage shim contract documents bounded preserved fields' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $oss_storage_shim_example, 'npcink_abilities_toolkit_media_storage_inspection' ), 'OSS storage shim example uses the public storage inspection filter' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $oss_storage_shim_example, "'provider_api'" ), 'OSS storage shim example declares provider API readiness only through metadata' );
+npcink_abilities_toolkit_assert_true( false === strpos( strtolower( $oss_storage_shim_doc . $oss_storage_shim_example ), 'access_key' ), 'OSS storage shim docs and example do not mention provider access keys' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Npcink AI parent slug' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const PARENT_MENU_SLUG    = 'npcink-ai';" ), 'admin test page targets the shared Npcink AI parent menu.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes a diagnostics shortcut when the admin page is enabled.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'Diagnostics', 'npcink-abilities-toolkit' )" ), 'plugin screen diagnostics shortcut uses the plugin text domain.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen diagnostics shortcut targets the registered menu page or standalone Tools fallback.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes an abilities shortcut when the admin page is enabled.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'View Abilities', 'npcink-abilities-toolkit' )" ), 'plugin screen abilities shortcut uses the plugin text domain.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen abilities shortcut targets the registered menu page or standalone Tools fallback.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook_suffixes' ), 'admin test page stores real WordPress hook suffixes for asset loading.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Open Catalog' ) && false !== strpos( $admin_test_page, 'View Endpoints' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'Open Export' ), 'admin overview links post-install users to distinct diagnostic tasks.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'View Abilities' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'View Connection Info' ) && false !== strpos( $admin_test_page, 'Open Developer Access' ), 'admin overview links post-install users to distinct ability tasks.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Abilities Toolkit Diagnostics', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'Ability Diagnostics', 'npcink-abilities-toolkit' )," ), 'admin test page registers diagnostics page and submenu titles when attached' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Abilities', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'npcink_abilities_toolkit_nonce' ), 'admin diagnostic tab and filter URLs stay stable without one-time GET nonces.' );
 $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
 foreach (
 	array(
-		'Review package health',
-		'Health summary',
-		'Package',
-		'Callback issues',
-		'No missing callbacks detected',
+		'Review the WordPress abilities this site exposes to AI clients',
+		'Site ability status',
+		'Write safeguards',
+		'host approval',
+		'has_host_menu',
 		'Next actions',
-		'Copy host endpoints',
-		'Run read-only checks',
-		'Export ability IDs',
+		'View site abilities',
+		'Run safe checks',
+		'Use a host product',
+		'Developer access',
 		'Open Checks',
-		'Open Export',
-		'Final write approval stays with the host runtime',
-		'Registered Ability Catalog',
-		'ID, label, description, or category',
-		'Host connection values',
+		'Open Developer Access',
+			'This plugin exposes WordPress abilities',
+			'Available AI Abilities',
+			'Ability name, description, category, or technical ID',
+			'What it allows',
+			'Developer-only ability IDs and schema signals are kept in Developer Access',
+			'Requires host approval',
+			'$allowed_per_page = array( 5, 10, 25, 50, 100 )',
+			"'npcink_abilities_toolkit_per_page', '10'",
+		'Site Checks',
+		'What it proves',
+		'What it does not prove',
+		'The site can safely return basic WordPress information',
+		'It does not call an AI model',
+		'The site can return a support-friendly environment summary',
+		'It does not expose secrets',
+		'Use Available Abilities to review what the site exposes',
+		'Run Redacted Diagnostics',
+		'Check results',
+		'plain summary table',
+		'No check has run yet',
+		'npcink-abilities-toolkit-check-summary',
+		'npcink-abilities-toolkit-check-summary-body',
+		'Raw response for support',
+		'Full JSON is kept here for support and developer troubleshooting',
+		'get_check_summary_labels',
+		'data-check-summary-labels',
+		'Developer Access',
+		'Connection values',
+		'Raw discovery fetches',
 		'Copy Abilities Endpoint',
 		'Copy Contract Endpoint',
 		'npcink-abilities-toolkit-contract-endpoint',
-		'Read-only ability checks',
-		'bounded admin input',
-		'They do not write content, call models, or contact external services',
+		'Most site users do not need this tab',
 		'npcink_abilities_toolkit_readonly_check',
 		'data-npcink-abilities-toolkit-readonly-check',
-		'Run Site Info',
-		'Run Diagnostics Summary',
-		'Discovery fetches',
-		'Catalog export',
-		'Ability ID export',
-		'Home URL and Site URL differ',
-		'Schemas',
-		'Callback',
-		'render_status_summary',
+			'Run Site Info',
+			'Catalog export',
+			'Ability ID export',
+			'Ability technical catalog',
+			'Technical IDs, categories, schema availability, and callback status',
+			'Ability ID',
+			'Home URL and Site URL differ',
+			'render_status_summary',
 		'render_ability_catalog',
+		'render_site_checks',
+		'render_developer_access',
 	) as $required
 ) {
-	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the focused ability status surface: ' . $required );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the user-facing ability surface: ' . $required );
+}
+
+foreach (
+	array(
+		'setCheckSummary',
+		'summarizeReadonlyPayload',
+		'npcink-abilities-toolkit-check-summary-body',
+		'data-check-summary-labels',
+		'REST ' . "' + payload.status",
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, $required ), 'admin check JavaScript keeps the plain summary result renderer: ' . $required );
 }
 
 $admin_surface_standard = file_get_contents( __DIR__ . '/../docs/admin-surface-standard.md' );
 foreach (
 	array(
-		'ability-package status and REST-check surface',
-		'Ability Diagnostics',
-		'registered ability count',
-		'per-ability signals',
+		'site-operator ability status',
+		'Site AI Abilities',
+		'available ability count',
+		'write-safeguard posture',
+		'Available Abilities',
+		'Developer Access',
 		'contract endpoint should be visible as a copyable host/runtime',
-		'Connection Values',
 		'stable, shareable admin URLs',
 		'Core proposal approval',
 		'OpenClaw handoff',
@@ -220,6 +275,15 @@ foreach (
 		'https://github.com/muze-page/npcink-abilities-toolkit',
 		'If the `wp-abilities/v1` REST routes are missing',
 		'Abilities API baseline or compatibility plugin',
+		'Frequently Asked Questions',
+		'Does this plugin run AI models?',
+		'Will this plugin change my posts, media, terms, comments, or settings by itself?',
+		'What do the Safe Checks prove?',
+		'Screenshots',
+		'Site ability status overview',
+		'Available Abilities catalog with filters',
+		'Safe Checks tab explaining what each check proves',
+		'Developer Access tab with copyable REST endpoint values',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false !== strpos( $plugin_readme, $required ), 'packaged readme keeps third-party integration guidance: ' . $required );
@@ -255,12 +319,14 @@ $translation_template = file_get_contents( __DIR__ . '/../languages/npcink-abili
 foreach (
 	array(
 		'Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.',
-		'Diagnostics',
-		'Abilities Toolkit Diagnostics',
-		'Ability Diagnostics',
-		'Host connection values',
-		'Discovery fetches',
-		'No missing callbacks detected',
+		'View Abilities',
+		'Site AI Abilities',
+		'AI Abilities',
+		'Available AI Abilities',
+		'Developer Access',
+		'Run Redacted Diagnostics',
+		'Connection values',
+		'Raw discovery fetches',
 		'Contract Endpoint',
 		'Copy Contract Endpoint',
 	) as $required
@@ -1562,14 +1628,19 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_same( array( 'webp', 'jpeg', 'png' ), $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['input_schema']['properties']['preferred_format']['enum'] ?? array(), 'optimize-media-asset exposes bounded derivative formats' );
 npcink_abilities_toolkit_assert_same( 82, $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['input_schema']['properties']['quality']['default'] ?? null, 'optimize-media-asset defaults to quality 82' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/optimize-media-asset']['output_schema']['properties']['derivative_url'] ), 'optimize-media-asset exposes a top-level derivative_url for batch output references' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/inspect-media-asset']['output_schema']['properties']['data']['properties']['storage'] ), 'inspect-media-asset exposes media storage preflight evidence' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-derivative-cloud-request']['output_schema']['properties']['data']['properties']['storage'] ), 'media derivative cloud request exposes storage preflight evidence' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['properties']['storage_preflight'] ), 'media optimization plans accept reviewed storage preflight evidence' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['input_schema']['properties']['mode'] ), 'replace-media-file does not expose media restore modes' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-backup', $package_abilities['npcink-abilities-toolkit/replace-media-file']['input_schema']['properties']['backup_suffix']['default'] ?? '', 'replace-media-file defaults to explicit Npcink backup suffix' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['input_schema']['properties']['expected_storage_provider'] ), 'replace-media-file accepts storage provider drift guards' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['output_schema']['properties']['content_reference_repairs'] ), 'replace-media-file exposes post content reference repair preview evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/replace-media-file']['output_schema']['properties']['verification'] ), 'replace-media-file exposes execution verification summary' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/list-media-backups'] ), 'list-media-backups is registered as a read-only media history ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id' ), $package_abilities['npcink-abilities-toolkit/list-media-backups']['input_schema']['required'] ?? array(), 'list-media-backups requires attachment id' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup'] ), 'restore-media-backup is registered as a governed write ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'backup_id' ), $package_abilities['npcink-abilities-toolkit/restore-media-backup']['input_schema']['required'] ?? array(), 'restore-media-backup requires attachment and backup id' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['input_schema']['properties']['expected_storage_adapter'] ), 'restore-media-backup accepts storage adapter drift guards' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['output_schema']['properties']['content_reference_repairs'] ), 'restore-media-backup exposes post content reference repair evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['output_schema']['properties']['verification'] ), 'restore-media-backup exposes execution verification summary' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/rename-media-file'] ), 'rename-media-file is registered as a local write ability' );
@@ -1581,6 +1652,7 @@ npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-cloud-backup', $
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['file_name'] ), 'adopt-cloud-media-derivative accepts an approved custom derivative file name' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['expected_content_reference_post_ids'] ), 'adopt-cloud-media-derivative accepts reviewed content reference post id expectations' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['expected_content_reference_replacement_count'] ), 'adopt-cloud-media-derivative accepts reviewed content reference replacement count expectations' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['storage_preflight'] ), 'adopt-cloud-media-derivative accepts reviewed storage preflight evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['proposed_filename'] ) && isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['filename_policy'] ), 'adopt-cloud-media-derivative exposes filename proposal evidence in its output schema' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['content_reference_repairs'] ), 'adopt-cloud-media-derivative exposes post content reference repair preview evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['output_schema']['properties']['verification'] ), 'adopt-cloud-media-derivative exposes execution verification summary' );
@@ -3696,6 +3768,19 @@ npcink_abilities_toolkit_assert_same( '2026/06/workflow-diagram-image.jpg', $med
 npcink_abilities_toolkit_assert_same( true, $media_inspection['data']['content_hashes']['available'] ?? null, 'inspect-media-asset returns available content hashes when the file is readable' );
 npcink_abilities_toolkit_assert_same( md5( 'original-jpeg-bytes' ), $media_inspection['data']['content_hashes']['md5'] ?? '', 'inspect-media-asset returns current file MD5' );
 npcink_abilities_toolkit_assert_same( hash( 'sha256', 'original-jpeg-bytes' ), $media_inspection['data']['content_hashes']['sha256'] ?? '', 'inspect-media-asset returns current file SHA-256' );
+npcink_abilities_toolkit_assert_same( 'local_uploads', $media_inspection['data']['storage']['provider'] ?? '', 'inspect-media-asset reports local uploads storage by default' );
+npcink_abilities_toolkit_assert_same( 'local_file', $media_inspection['data']['storage']['source_read_mode'] ?? '', 'inspect-media-asset reports local file source read mode when readable' );
+npcink_abilities_toolkit_assert_same( '', $media_inspection['data']['storage']['blocked_reason'] ?? '', 'inspect-media-asset leaves local readable media unblocked' );
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$remote_storage_inspection = $core_read_package->inspect_media_asset(
+	array(
+		'attachment_id' => 79,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+npcink_abilities_toolkit_assert_same( true, $remote_storage_inspection['success'] ?? null, 'inspect-media-asset returns success for remote-storage-looking media' );
+npcink_abilities_toolkit_assert_same( 'remote_object_storage', $remote_storage_inspection['data']['storage']['provider'] ?? '', 'inspect-media-asset detects attachment URLs outside the uploads base as remote object storage' );
+npcink_abilities_toolkit_assert_same( 'remote_storage_write_requires_adapter', $remote_storage_inspection['data']['storage']['blocked_reason'] ?? '', 'inspect-media-asset blocks remote storage writes until a host adapter is present' );
 $media_cloud_request = $core_read_package->build_media_derivative_cloud_request(
 	array(
 		'attachment_id'              => 79,
@@ -3713,6 +3798,9 @@ $media_cloud_request = $core_read_package->build_media_derivative_cloud_request(
 npcink_abilities_toolkit_assert_same( true, $media_cloud_request['success'] ?? null, 'build-media-derivative-cloud-request returns a success envelope' );
 npcink_abilities_toolkit_assert_same( true, $media_cloud_request['data']['readonly'] ?? null, 'media derivative cloud request is read-only' );
 npcink_abilities_toolkit_assert_same( 'media_derivative_cloud_request.v1', $media_cloud_request['data']['request_contract_version'] ?? '', 'media derivative cloud request exposes a versioned contract' );
+npcink_abilities_toolkit_assert_same( 'local_uploads', $media_cloud_request['data']['storage']['provider'] ?? '', 'media derivative cloud request carries storage preflight evidence' );
+npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['blocked'] ?? null, 'media derivative cloud request is not blocked for local readable media' );
+npcink_abilities_toolkit_assert_same( 'local_file', $media_cloud_request['data']['cloud_execution']['source_read_mode'] ?? '', 'media derivative cloud request carries source read mode for host transport' );
 npcink_abilities_toolkit_assert_same( 'generate_optimized_media_derivative', $media_cloud_request['data']['cloud_job_payload']['job_type'] ?? '', 'media derivative cloud request targets derivative generation' );
 npcink_abilities_toolkit_assert_same( 'webp', $media_cloud_request['data']['cloud_job_payload']['target_format'] ?? '', 'media derivative cloud request exposes Cloud target format' );
 npcink_abilities_toolkit_assert_same( 1920, $media_cloud_request['data']['cloud_job_payload']['max_width'] ?? 0, 'media derivative cloud request exposes Cloud max width' );
@@ -3728,6 +3816,72 @@ npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['cloud
 npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['cloud_execution']['signed_headers_included'] ?? null, 'media derivative cloud request does not include signed headers' );
 npcink_abilities_toolkit_assert_same( 'local_wordpress_host', $media_cloud_request['data']['local_adoption']['final_write_owner'] ?? '', 'media derivative cloud request leaves final writes local' );
 npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['local_adoption']['wordpress_write_included'] ?? null, 'media derivative cloud request does not write WordPress' );
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$remote_storage_cloud_request = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id' => 79,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+npcink_abilities_toolkit_assert_same( true, $remote_storage_cloud_request['success'] ?? null, 'media derivative cloud request returns success for remote-storage-looking media' );
+npcink_abilities_toolkit_assert_same( true, $remote_storage_cloud_request['data']['blocked'] ?? null, 'media derivative cloud request blocks remote storage without a host adapter' );
+npcink_abilities_toolkit_assert_same( 'remote_storage_write_requires_adapter', $remote_storage_cloud_request['data']['blocked_reason'] ?? '', 'media derivative cloud request explains missing remote storage adapter' );
+add_filter(
+	'npcink_abilities_toolkit_media_storage_inspection',
+	static function ( $storage, $attachment_id ) {
+		if ( 79 !== (int) $attachment_id ) {
+			return $storage;
+		}
+		$storage['provider']             = 'remote_object_storage';
+		$storage['adapter']              = 'aliyun_oss_mock';
+		$storage['source_read_mode']     = 'signed_url';
+		$storage['write_mode']           = 'provider_api';
+		$storage['restore_mode']         = 'provider_backup';
+		$storage['cache_purge_required'] = true;
+		$storage['blocked_reason']       = '';
+		return $storage;
+	},
+	10,
+	2
+);
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$mock_oss_cloud_request = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id' => 79,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+remove_all_filters( 'npcink_abilities_toolkit_media_storage_inspection' );
+npcink_abilities_toolkit_assert_same( true, $mock_oss_cloud_request['success'] ?? null, 'media derivative cloud request accepts mock OSS storage adapter readiness' );
+npcink_abilities_toolkit_assert_same( false, $mock_oss_cloud_request['data']['blocked'] ?? null, 'mock OSS storage adapter clears remote storage block for review planning' );
+npcink_abilities_toolkit_assert_same( 'aliyun_oss_mock', $mock_oss_cloud_request['data']['storage']['adapter'] ?? '', 'mock OSS storage adapter identity is preserved in storage evidence' );
+$mock_oss_optimization_plan = $core_read_package->build_media_optimization_plan(
+	array(
+		'attachment_id'       => 79,
+		'media_details_input' => array(
+			'title'       => 'Mock OSS optimized workflow diagram',
+			'alt'         => 'Mock OSS optimized workflow diagram alt text.',
+			'caption'     => 'Mock OSS optimized workflow diagram caption.',
+			'description' => 'Mock OSS optimized workflow diagram description.',
+			'source_type' => 'owned',
+		),
+		'derivative_artifact' => array(
+			'artifact_id'    => 'art_mock_oss_media',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => 12345,
+			'checksum'       => 'sha256:' . hash( 'sha256', 'mock-oss-webp' ),
+		),
+		'storage_preflight'  => $mock_oss_cloud_request['data']['storage'],
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $mock_oss_optimization_plan['success'] ?? null, 'media optimization plan accepts mock OSS storage preflight evidence' );
+npcink_abilities_toolkit_assert_same( 'remote_object_storage', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['expected_storage_provider'] ?? '', 'media optimization plan carries expected storage provider into derivative adoption action' );
+npcink_abilities_toolkit_assert_same( 'aliyun_oss_mock', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['expected_storage_adapter'] ?? '', 'media optimization plan carries expected storage adapter into derivative adoption action' );
+npcink_abilities_toolkit_assert_same( 'provider_api', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['storage_preflight']['write_mode'] ?? '', 'media optimization plan preserves reviewed provider write mode evidence' );
 $media_cloud_request_with_watermark = $core_read_package->build_media_derivative_cloud_request(
 	array(
 		'attachment_id'              => 79,

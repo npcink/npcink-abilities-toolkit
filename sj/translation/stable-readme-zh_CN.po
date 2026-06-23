@@ -1,0 +1,490 @@
+# Translation of Plugins - Npcink Abilities Toolkit - Stable Readme (latest release) in Chinese (China)
+# This file is distributed under the same license as the Plugins - Npcink Abilities Toolkit - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: +0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/4.0.3\n"
+"Language: zh_CN\n"
+"Project-Id-Version: Plugins - Npcink Abilities Toolkit - Stable Readme (latest release)\n"
+
+#. Short description.
+#, gp-priority: high
+msgid "Expose and inspect WordPress Abilities API capabilities for AI hosts and clients, without running models or writing content."
+msgstr "为 AI host 和客户端暴露并检查 WordPress Abilities API 能力，不运行模型，也不写入内容。"
+
+#. Plugin name.
+#, gp-priority: high
+msgid "Npcink Abilities Toolkit"
+msgstr "Npcink Abilities Toolkit"
+
+#. Found in faq paragraph.
+msgid "The WordPress Abilities API routes must be available before clients can discover and run abilities. Enable the WordPress Abilities API baseline or compatibility plugin for the target site."
+msgstr "在客户端可以发现和运行 abilities 之前，WordPress Abilities API routes 必须可用。请为目标站点启用 WordPress Abilities API 基线或兼容插件。"
+
+#. Found in faq paragraph.
+msgid "Open Tools -&gt; Site AI Abilities, or Npcink AI -&gt; AI Abilities when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses."
+msgstr ""
+"打开 Tools -&gt; Site AI Abilities；如果存在 Npcink AI host 菜单，则打开 Npcink AI -&gt; AI Abilities。使用 Checks tab 确认安全的只读响应，然后使用 Available Abilities 查看站点暴露了哪些能力。开发者和 host 产品可以在 Developer Access 中获取 REST endpoint 值和 raw discovery responses。"
+
+#. Found in faq paragraph.
+msgid "No. The diagnostics summary intentionally omits Npcink AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes."
+msgstr ""
+"不会。Diagnostics summary 会有意省略 Npcink AI 设置、MCP 设置、API keys、数据库名、table prefix、filesystem paths、error logs 和 external HTTP probes。"
+
+#. Found in faq paragraph.
+msgid "Site Info proves that an authorized ability client can read basic WordPress site information. Redacted Diagnostics proves that the site can return a support-friendly environment summary with sensitive fields omitted. These checks do not call models, generate content, contact external services, or fix configuration automatically."
+msgstr ""
+"Site Info 证明已授权的 ability client 可以读取基础 WordPress 站点信息。Redacted Diagnostics 证明站点可以返回适合支持排查的环境摘要，并省略敏感字段。这些检查不会调用模型、生成内容、联系外部服务，也不会自动修复配置。"
+
+#. Found in faq paragraph.
+msgid "No. Npcink AI is an optional consumer. The plugin can also be used by other plugins or clients that consume the WordPress Abilities API."
+msgstr "不需要。Npcink AI 是可选消费者。这个插件也可以被其他消费 WordPress Abilities API 的插件或客户端使用。"
+
+#. Found in faq paragraph.
+msgid "No. The admin page checks are read-only. Some built-in abilities describe write-like or destructive operations, but final commits require a host runtime with its own approval, authorization, and audit layer."
+msgstr "不会。后台页面检查都是只读的。部分内置 abilities 会描述类似写入或破坏性的操作，但最终 commit 需要 host runtime 自己提供审批、授权和 audit 层。"
+
+#. Found in faq paragraph.
+msgid "No. Npcink Abilities Toolkit exposes WordPress abilities and support information through the WordPress Abilities API. Model routing, prompt selection, hosted runtime execution, and workflow execution belong to a separate host product or client."
+msgstr ""
+"不会。Npcink Abilities Toolkit 通过 WordPress Abilities API 暴露 WordPress abilities 和支持信息。模型路由、prompt 选择、托管 runtime 执行和 workflow 执行属于独立的 host 产品或客户端。"
+
+#. Found in faq header.
+msgid "What if the wp-abilities/v1 REST routes are missing?"
+msgstr "如果缺少 wp-abilities/v1 REST routes 怎么办？"
+
+#. Found in faq header.
+msgid "What should I do if abilities are not visible to a host product or AI client?"
+msgstr "如果 host 产品或 AI client 看不到 abilities，我应该怎么做？"
+
+#. Found in faq header.
+msgid "Does Redacted Diagnostics expose secrets?"
+msgstr "Redacted Diagnostics 会暴露 secrets 吗？"
+
+#. Found in faq header.
+msgid "What do the Safe Checks prove?"
+msgstr "Safe Checks 能证明什么？"
+
+#. Found in faq header.
+msgid "Do I need Npcink AI to use this plugin?"
+msgstr "使用这个插件需要 Npcink AI 吗？"
+
+#. Found in faq header.
+msgid "Will this plugin change my posts, media, terms, comments, or settings by itself?"
+msgstr "这个插件会自行修改我的 posts、media、terms、comments 或 settings 吗？"
+
+#. Found in faq header.
+msgid "Does this plugin run AI models?"
+msgstr "这个插件会运行 AI 模型吗？"
+
+#. Found in description paragraph.
+msgid "For the default local source gate, run:"
+msgstr "默认本地源码 gate："
+
+#. Found in description paragraph.
+msgid "The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities."
+msgstr ""
+"这个页面首先面向站点管理员：它显示站点 ability 状态，用清晰标签和风险姿态分组可用 abilities，并可以运行两个官方只读检查：site info 和有边界的 redacted diagnostics summary。Checks tab 会在运行之前说明每个检查证明什么、不能证明什么。检查结果会以普通 summary table 展示，raw JSON 保留在 support disclosure 中。Developer Access 为 host/client 设置保留可复制的 REST endpoint 值、raw discovery fetch 和 ability ID export。它不会运行展示 workflow、模型调用、write abilities、审批流程或 demo abilities。"
+
+#. Found in description paragraph.
+msgid ""
+"If the <code>wp-abilities/v1</code> REST routes are missing, enable the WordPress\n"
+"Abilities API baseline or compatibility plugin before connecting third-party\n"
+"providers or clients."
+msgstr "如果缺少 <code>wp-abilities/v1</code> REST routes，请在连接第三方 provider 或客户端之前，启用 WordPress Abilities API 基线或兼容插件。"
+
+#. Found in description paragraph.
+msgid ""
+"Full provider examples and REST client notes are maintained in the public\n"
+"repository:"
+msgstr "完整的 provider 示例和 REST client 说明维护在公开仓库中："
+
+#. Found in description paragraph.
+msgid ""
+"The contract endpoint is a compatibility and boundary discovery endpoint for\n"
+"authenticated host runtimes. It does not replace the WordPress Abilities API\n"
+"catalog and does not run abilities."
+msgstr "Contract endpoint 是面向已认证 host runtime 的兼容性和边界 discovery endpoint。它不会替代 WordPress Abilities API catalog，也不会运行 abilities。"
+
+#. Found in description paragraph.
+msgid "REST clients should first discover the catalog through:"
+msgstr "REST 客户端应该先通过以下地址发现 catalog："
+
+#. Found in description paragraph.
+msgid ""
+"Use <code>npcink_abilities_toolkit_register_readonly()</code> for read-only context and\n"
+"diagnostic abilities. Use <code>npcink_abilities_toolkit_register_write_proposal()</code>\n"
+"only when the callback returns a proposal, preview, diff, or handoff payload.\n"
+"Third-party provider callbacks should not perform final host-governed commits.\n"
+"Approval, audit, quota, and final write authorization belong to the consuming\n"
+"host runtime."
+msgstr ""
+"只读上下文和诊断 abilities 应该使用 <code>npcink_abilities_toolkit_register_readonly()</code>。只有当 callback 返回 proposal、preview、diff 或 handoff payload 时，才使用 <code>npcink_abilities_toolkit_register_write_proposal()</code>。第三方 provider callback 不应该执行最终的 host-governed commit。审批、audit、额度和最终写入授权属于消费方 host runtime。"
+
+#. Found in description paragraph.
+msgid ""
+"Do not include files from this plugin's <code>includes/</code> directory or instantiate\n"
+"classes in the <code>Npcink_Abilities_Toolkit</code> namespace. Those are implementation\n"
+"details."
+msgstr "不要 include 本插件 <code>includes/</code> 目录下的文件，也不要实例化 <code>Npcink_Abilities_Toolkit</code> namespace 里的类。那些都是实现细节。"
+
+#. Found in description paragraph.
+msgid ""
+"Provider plugins should wait until <code>plugins_loaded</code>, check that the public\n"
+"helper exists, and then register their abilities through the helper functions:"
+msgstr "Provider 插件应该等待 <code>plugins_loaded</code>，检查 public helper 是否存在，然后通过 helper 函数注册自己的 abilities："
+
+#. Found in description paragraph.
+msgid "It does not run AI models, execute workflows, route prompts, contact model providers, manage billing or quotas, own MCP governance, or approve final WordPress writes."
+msgstr "它不会运行 AI 模型、执行 workflow、路由 prompt、联系模型提供商、管理计费或额度、拥有 MCP 治理，也不会审批最终的 WordPress 写入。"
+
+#. Found in description paragraph.
+msgid "For developers and host runtimes, the plugin also provides ability registration helpers, category helpers, schema normalization, annotation normalization, REST discovery values, and optional canonical projection for Npcink AI when Npcink AI is installed."
+msgstr ""
+"对于开发者和 host runtime，插件也提供能力注册 helper、分类 helper、schema 规范化、annotation 规范化、REST discovery 值，以及在安装 Npcink AI 时可选的 Npcink AI canonical projection。"
+
+#. Found in description paragraph.
+msgid "The admin page is built for site operators first. It shows whether the site's ability package is working, which abilities are available, which abilities are read-only, and which write-like abilities require host approval."
+msgstr "后台页面首先面向站点管理员。它会显示站点的能力包是否正常工作、当前有哪些 abilities 可用、哪些 abilities 是只读的，以及哪些类似写入的 abilities 需要 host 审批。"
+
+#. Found in description paragraph.
+msgid "Npcink Abilities Toolkit helps a WordPress site expose, review, and safely inspect Abilities API capabilities for AI hosts and clients."
+msgstr "Npcink Abilities Toolkit 帮助 WordPress 站点为 AI host 和客户端暴露、审查并安全检查 Abilities API 能力。"
+
+#. Found in description list item.
+msgid "<code>/wp-json/npcink-abilities-toolkit/v1/contract</code>"
+msgstr "<code>/wp-json/npcink-abilities-toolkit/v1/contract</code>"
+
+#. Found in description list item.
+msgid "<code>/wp-json/wp-abilities/v1/abilities/{namespace}/{name}/run</code>"
+msgstr "<code>/wp-json/wp-abilities/v1/abilities/{namespace}/{name}/run</code>"
+
+#. Found in description list item.
+msgid "<code>/wp-json/wp-abilities/v1/abilities</code>"
+msgstr "<code>/wp-json/wp-abilities/v1/abilities</code>"
+
+#. Found in description list item.
+msgid "<code>/wp-json/wp-abilities/v1/categories</code>"
+msgstr "<code>/wp-json/wp-abilities/v1/categories</code>"
+
+#. Found in description list item.
+msgid ""
+"The WordPress Abilities API REST routes must be available before third-party\n"
+"provider plugins or external clients can discover and run abilities."
+msgstr "在第三方 provider 插件或外部客户端发现并运行 abilities 之前，WordPress Abilities API REST routes 必须可用。"
+
+#. Found in description header.
+msgid "Third-Party Integration Quickstart"
+msgstr "第三方集成快速开始"
+
+#. Screenshot description.
+msgid "Developer Access tab with copyable REST endpoint values, raw discovery fetches, and ability ID export."
+msgstr "Developer Access tab，包含可复制的 REST endpoint 值、raw discovery fetch 和 ability ID export。"
+
+#. Screenshot description.
+msgid "Safe Checks tab explaining what each check proves before showing summary results and raw response support details."
+msgstr "Safe Checks tab，在显示 summary results 和 raw response support details 之前，说明每个检查证明什么。"
+
+#. Screenshot description.
+msgid "Available Abilities catalog with filters, risk grouping, availability, and technical details for support."
+msgstr "Available Abilities catalog，包含筛选、风险分组、可用性和用于支持排查的技术细节。"
+
+#. Screenshot description.
+msgid "Site ability status overview with available ability count, write safeguards, host detection, and next actions."
+msgstr "站点 ability 状态概览，包含可用 ability 数量、写入保护、host 检测和下一步操作。"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_get_workflow_definitions()</code>"
+msgstr "<code>npcink_abilities_toolkit_get_workflow_definitions()</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_get_registered()</code>"
+msgstr "<code>npcink_abilities_toolkit_get_registered()</code>"
+
+#. Found in description header.
+msgid "Developer Verification"
+msgstr "开发者验证"
+
+#. Found in description header.
+msgid "Admin Page"
+msgstr "后台页面"
+
+#. Found in description paragraph.
+msgid "For isolated bounded-chain performance validation, run:"
+msgstr "如需隔离验证有边界链路性能："
+
+#. Found in description paragraph.
+msgid "When the plugin is installed in a local WordPress site, run:"
+msgstr "当插件安装在本地 WordPress 站点中时："
+
+#. Found in description paragraph.
+msgid "Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through <code>npcink-ai-core</code>."
+msgstr ""
+"Core governance handoff 文档包含 catalog snapshot、permission matrix 和 schema boundary audit，供通过 <code>npcink-ai-core</code> 消费本插件的 host 使用。"
+
+#. Found in description paragraph.
+msgid "It also includes <code>npcink-abilities-toolkit/list-workflow-recipes</code> and <code>npcink-abilities-toolkit/get-workflow-recipe</code>, read-only host composition recipe metadata discovery abilities. These expose metadata only and do not execute workflow runtime behavior."
+msgstr ""
+"它也包含 <code>npcink-abilities-toolkit/list-workflow-recipes</code> 和 <code>npcink-abilities-toolkit/get-workflow-recipe</code>，这是只读的 host composition recipe metadata discovery abilities。它们只暴露 metadata，不执行 workflow runtime behavior。"
+
+#. Found in description paragraph.
+msgid "It also includes <code>npcink-abilities-toolkit/search-posts</code> and <code>npcink-abilities-toolkit/search-post-meta</code>, bounded local WordPress search helpers for keyword and explicit post-meta discovery. These are read-only helpers and do not call external search indexes or mutate content."
+msgstr ""
+"它也包含 <code>npcink-abilities-toolkit/search-posts</code> 和 <code>npcink-abilities-toolkit/search-post-meta</code>，用于 keyword 和明确 post-meta discovery 的有边界本地 WordPress search helpers。这些都是只读 helper，不会调用外部 search index，也不会修改内容。"
+
+#. Found in description paragraph.
+msgid "It also includes <code>npcink-abilities-toolkit/wp-diagnostics-summary</code>, a redacted WordPress-only diagnostics summary for Abilities API clients. This summary intentionally omits Npcink AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes."
+msgstr ""
+"它也包含 <code>npcink-abilities-toolkit/wp-diagnostics-summary</code>，这是面向 Abilities API client 的、只包含 WordPress 信息的 redacted diagnostics summary。该摘要会有意省略 Npcink AI 设置、MCP 设置、API keys、数据库名、table prefix、filesystem paths、error logs 和 external HTTP probes。"
+
+#. Found in description paragraph.
+msgid "The plugin includes migrated low-risk WordPress read abilities, deterministic comment helpers, and host-governed WordPress write/destructive abilities using canonical <code>npcink-abilities-toolkit/*</code> ids."
+msgstr ""
+"插件包含迁移后的低风险 WordPress read abilities、确定性的 comment helpers，以及使用规范 <code>npcink-abilities-toolkit/*</code> ids 的 host-governed WordPress write/destructive abilities。"
+
+#. Found in description paragraph.
+msgid "After activation with a Npcink AI host plugin, open Npcink AI -&gt; AI Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -&gt; Site AI Abilities instead."
+msgstr ""
+"与 Npcink AI host 插件一起启用后，在 wp-admin 中打开 Npcink AI -&gt; AI Abilities。单独安装本包且没有 Npcink AI host 菜单时，打开 Tools -&gt; Site AI Abilities。"
+
+#. Found in description paragraph.
+msgid "The <code>npcink-abilities-toolkit/upload-media-from-url</code> ability can download a media file from a URL provided by an authenticated caller when an approved host runtime commits that ability. In that case WordPress sends an HTTP request to the caller-provided URL in order to fetch the media file for the local media library. The remote endpoint is chosen by the caller, not by this plugin."
+msgstr ""
+"<code>npcink-abilities-toolkit/upload-media-from-url</code> ability 可以在已审批的 host runtime commit 该 ability 时，从已认证调用方提供的 URL 下载媒体文件。在这种情况下，WordPress 会向调用方提供的 URL 发送 HTTP 请求，以便把媒体文件获取到本地媒体库。远程端点由调用方选择，不由本插件选择。"
+
+#. Found in description paragraph.
+msgid "Some abilities can prepare request payloads for a separate host or cloud add-on, but this plugin does not send those payloads to an external service by itself."
+msgstr "部分 abilities 可以为独立的 host 或 cloud add-on 准备请求 payload，但这个插件本身不会把这些 payload 发送到外部服务。"
+
+#. Found in description paragraph.
+msgid "This plugin does not automatically contact Npcink AI, model providers, analytics services, tracking services, or cloud services."
+msgstr "这个插件不会自动联系 Npcink AI、模型提供商、分析服务、追踪服务或云服务。"
+
+#. Found in description paragraph.
+msgid "Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership."
+msgstr ""
+"Host composition recipe metadata 通过只读 helper 和 Abilities API discovery abilities 提供给需要 catalog discovery、但不需要执行所有权的 host。"
+
+#. Found in description paragraph.
+msgid "Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry."
+msgstr "只读的 host composition recipe metadata 可以记录 host 如何组合 abilities，但这些记录不会运行队列、调度任务、执行 workflow，也不会创建第二套 registry。"
+
+#. Found in description paragraph.
+msgid "It can be used by any WordPress plugin or client that consumes the WordPress Abilities API. Npcink AI is one optional consumer, not the owner of this plugin."
+msgstr "任何消费 WordPress Abilities API 的 WordPress 插件或客户端都可以使用它。Npcink AI 是一个可选消费者，并不是这个插件的所有者。"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_get_workflow_definition( $recipe_id )</code>"
+msgstr "<code>npcink_abilities_toolkit_get_workflow_definition( $recipe_id )</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level )</code>"
+msgstr "<code>npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level )</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_normalize_schema( $schema, $default_type )</code>"
+msgstr "<code>npcink_abilities_toolkit_normalize_schema( $schema, $default_type )</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition )</code>"
+msgstr "<code>npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition )</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_register_readonly( $ability_id, $definition )</code>"
+msgstr "<code>npcink_abilities_toolkit_register_readonly( $ability_id, $definition )</code>"
+
+#. Found in description list item.
+msgid "<code>npcink_abilities_toolkit_register_category( $category_id, $args )</code>"
+msgstr "<code>npcink_abilities_toolkit_register_category( $category_id, $args )</code>"
+
+#. Found in description list item.
+msgid "PHP 8.0 or later."
+msgstr "PHP 8.0 或更高版本。"
+
+#. Found in description list item.
+msgid "WordPress 7.0 or later. This release intentionally targets the WordPress Abilities API baseline available in WordPress 7.0+."
+msgstr "WordPress 7.0 或更高版本。本版本有意面向 WordPress 7.0+ 提供的 WordPress Abilities API 基线。"
+
+#. Found in description header.
+msgid "Built-In Abilities"
+msgstr "内置能力"
+
+#. Found in description header.
+msgid "Public API"
+msgstr "Public API"
+
+#. Found in description header.
+msgid "Requirements"
+msgstr "环境要求"
+
+#. Found in description header.
+msgid "External Services and Remote Requests"
+msgstr "外部服务和远程请求"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Documented the foundation-layer testing strategy and default local source gate."
+msgstr "记录 foundation-layer testing strategy 和默认本地 source gate。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Upgraded GitHub Actions checkout to the Node 24-compatible <code>actions/checkout@v5</code>."
+msgstr "将 GitHub Actions checkout 升级到兼容 Node 24 的 <code>actions/checkout@v5</code>。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Published the canonical public GitHub repository and documented the post-publication gate baseline."
+msgstr "发布规范的公开 GitHub 仓库，并记录 post-publication gate baseline。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Aligned CI and PHPStan with the package PHP 8.0 runtime floor."
+msgstr "让 CI 和 PHPStan 对齐 package 的 PHP 8.0 runtime floor。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added Composer dependency advisory audit to the default local and CI source gate."
+msgstr "为默认本地和 CI source gate 添加 Composer dependency advisory audit。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Expanded acceptance contracts and first-party pack documentation for the new handoff artifacts."
+msgstr "为新的 handoff artifacts 扩展 acceptance contracts 和 first-party pack documentation。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Kept candidate review helpers suggestion-only and host-governed; they do not create proposals, approve work, execute writes, or contact external providers."
+msgstr ""
+"保持 candidate review helpers 为 suggestion-only 和 host-governed；它们不会创建 proposals、approve work、execute writes 或 contact external providers。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added read-only review artifacts for image candidates, internal link candidates, taxonomy suggestions, and comment reply suggestions."
+msgstr "添加 image candidates、internal link candidates、taxonomy suggestions 和 comment reply suggestions 的只读 review artifacts。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Initial standalone release."
+msgstr "初始 standalone release。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Verified Npcink AI catalog compatibility against a WordPress site."
+msgstr "基于 WordPress 站点验证 Npcink AI catalog compatibility。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Established <code>npcink-abilities-toolkit/*</code> as the canonical id namespace for abilities owned by this plugin."
+msgstr "将 <code>npcink-abilities-toolkit/*</code> 确立为本插件拥有 abilities 的规范 id namespace。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Expanded REST verification coverage for governance metadata and schemas."
+msgstr "扩展 governance metadata 和 schemas 的 REST verification coverage。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Hardened media replacement and Cloud derivative adoption previews so approved replacements can repair exact post-content media URLs, including old intermediate-size URLs."
+msgstr ""
+"强化 media replacement 和 Cloud derivative adoption previews，使已审批 replacement 可以修复精确 post-content media URLs，包括旧 intermediate-size URLs。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added taxonomy assignment proposal support and strengthened Core consumer handoff checks for harvested workflow surfaces."
+msgstr "添加 taxonomy assignment proposal support，并加强 harvested workflow surfaces 的 Core consumer handoff checks。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public <code>test</code> terminology in released ability ids and schema fields."
+msgstr "重命名非生产 cleanup abilities 和 media cleanup inputs，避免 released ability ids 和 schema fields 中出现公开 <code>test</code> 术语。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Removed development demo ability controls from the admin page and kept showcase, model-call, write, and workflow execution outside this package surface."
+msgstr "从后台页面移除 development demo ability controls，并把 showcase、model-call、write 和 workflow execution 留在本包 surface 之外。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages."
+msgstr ""
+"添加 bundled translation templates 和八个 starter locale packs，覆盖后台 connection/discovery surface、API ability labels/descriptions 和常见 runtime error messages。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks."
+msgstr "改进后台页面，让它成为更清晰的 connection 和 discovery surface，包含 package status、catalog navigation、可复制 REST endpoints 和两个有边界的只读 checks。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added migrated WordPress read abilities, deterministic comment helpers, host-governed write/destructive abilities, and standalone redacted WordPress diagnostics."
+msgstr ""
+"添加迁移后的 WordPress read abilities、deterministic comment helpers、host-governed write/destructive abilities，以及 standalone redacted WordPress diagnostics。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Verified WordPress REST coverage and Npcink AI consumer split-boundary checks."
+msgstr "验证 WordPress REST coverage 和 Npcink AI consumer split-boundary checks。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Strengthened lightweight tests for schema controls, Npcink catalog projection, provider defaults, and invalid ability ids."
+msgstr "加强 schema controls、Npcink catalog projection、provider defaults 和 invalid ability ids 的 lightweight tests。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added first-party ability pack grouping and 0.2 candidate verification evidence."
+msgstr "添加 first-party ability pack grouping 和 0.2 candidate verification evidence。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Documented host-governed write/destructive semantics and the Npcink AI integration boundary."
+msgstr "记录 host-governed write/destructive semantics 和 Npcink AI integration boundary。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Stabilized the public helper contract and ability metadata rules."
+msgstr "稳定 public helper contract 和 ability metadata rules。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added explicit read/comment sub-pack maps as the split point for future source-file extraction."
+msgstr "添加 explicit read/comment sub-pack maps，作为未来 source-file extraction 的 split point。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Made Npcink AI catalog projection thin by default and added a projection-row filter for host-owned policy expansion."
+msgstr "默认让 Npcink AI catalog projection 保持 thin，并添加 projection-row filter 供 host-owned policy expansion 使用。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Kept public third-party helpers read-only/write-proposal oriented and documented that final commit authorization belongs to the host runtime."
+msgstr "保持 public third-party helpers 为 read-only/write-proposal oriented，并记录 final commit authorization 属于 host runtime。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added package and sub-pack filters so hosts can keep a full catalog by default or opt into a light <code>core_wordpress_read</code> profile."
+msgstr "添加 package 和 sub-pack filters，让 host 可以默认保留完整 catalog，或选择轻量 <code>core_wordpress_read</code> profile。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added a consumer example for preparing Core proposal payloads from discovered ability contracts."
+msgstr "添加从已发现 ability contracts 准备 Core proposal payloads 的 consumer example。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Hardened write-like contracts with <code>requires_approval</code>, explicit dry-run and commit defaults, and bounded idempotency keys."
+msgstr "使用 <code>requires_approval</code>、明确 dry-run 和 commit defaults、以及有边界 idempotency keys 强化 write-like contracts。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added Core governance handoff documentation, a catalog snapshot fixture, a permission matrix, and a schema boundary audit."
+msgstr "添加 Core governance handoff documentation、catalog snapshot fixture、permission matrix 和 schema boundary audit。"
+
+#. Found in changelog list item.
+#, gp-priority: low
+msgid "Added read-only host composition recipe metadata discovery abilities and public PHP helpers."
+msgstr "添加只读 host composition recipe metadata discovery abilities 和 public PHP helpers。"

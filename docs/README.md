@@ -12,8 +12,10 @@ Use this path when another WordPress plugin wants to provide abilities through
 1. Start with [Provider Plugin Guide](third-party-plugin-guide.md).
 2. Copy from the working demo provider in
    [examples/demo-plugin/npcink-abilities-toolkit-demo.php](../examples/demo-plugin/npcink-abilities-toolkit-demo.php).
-3. Check the stable public helper surface in [Public API](public-api.md).
-4. Verify provider compatibility with:
+3. If your plugin or host adapts object-storage-backed media, read
+   [OSS Storage Compatibility Shim](oss-storage-compatibility-shim.md).
+4. Check the stable public helper surface in [Public API](public-api.md).
+5. Verify provider compatibility with:
 
 ```bash
 composer check:provider-demo
@@ -48,8 +50,8 @@ WordPress REST API.
 
 1. Start with [REST Client Quickstart](rest-client-quickstart.md).
 2. Use the admin page endpoint values from
-   `Tools -> Abilities Toolkit Diagnostics` or
-   `Npcink AI -> Ability Diagnostics`.
+   `Tools -> Site AI Abilities -> Developer Access` or
+   `Npcink AI -> AI Abilities -> Developer Access`.
 3. Use [Troubleshooting](troubleshooting.md) for common 401, 403, missing route,
    missing ability, and dry-run issues.
 
@@ -89,7 +91,10 @@ Use this path when changing this package.
 10. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-11. Record release evidence in the relevant release verification document.
+11. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+    for the admin-surface release, SVN publication, icon refresh, and Chinese
+    Stable Readme translation status.
+12. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
