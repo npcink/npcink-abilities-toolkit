@@ -3800,6 +3800,72 @@ npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['cloud
 npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['cloud_execution']['signed_headers_included'] ?? null, 'media derivative cloud request does not include signed headers' );
 npcink_abilities_toolkit_assert_same( 'local_wordpress_host', $media_cloud_request['data']['local_adoption']['final_write_owner'] ?? '', 'media derivative cloud request leaves final writes local' );
 npcink_abilities_toolkit_assert_same( false, $media_cloud_request['data']['local_adoption']['wordpress_write_included'] ?? null, 'media derivative cloud request does not write WordPress' );
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$remote_storage_cloud_request = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id' => 79,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+npcink_abilities_toolkit_assert_same( true, $remote_storage_cloud_request['success'] ?? null, 'media derivative cloud request returns success for remote-storage-looking media' );
+npcink_abilities_toolkit_assert_same( true, $remote_storage_cloud_request['data']['blocked'] ?? null, 'media derivative cloud request blocks remote storage without a host adapter' );
+npcink_abilities_toolkit_assert_same( 'remote_storage_write_requires_adapter', $remote_storage_cloud_request['data']['blocked_reason'] ?? '', 'media derivative cloud request explains missing remote storage adapter' );
+add_filter(
+	'npcink_abilities_toolkit_media_storage_inspection',
+	static function ( $storage, $attachment_id ) {
+		if ( 79 !== (int) $attachment_id ) {
+			return $storage;
+		}
+		$storage['provider']             = 'remote_object_storage';
+		$storage['adapter']              = 'aliyun_oss_mock';
+		$storage['source_read_mode']     = 'signed_url';
+		$storage['write_mode']           = 'provider_api';
+		$storage['restore_mode']         = 'provider_backup';
+		$storage['cache_purge_required'] = true;
+		$storage['blocked_reason']       = '';
+		return $storage;
+	},
+	10,
+	2
+);
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$mock_oss_cloud_request = $core_read_package->build_media_derivative_cloud_request(
+	array(
+		'attachment_id' => 79,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+remove_all_filters( 'npcink_abilities_toolkit_media_storage_inspection' );
+npcink_abilities_toolkit_assert_same( true, $mock_oss_cloud_request['success'] ?? null, 'media derivative cloud request accepts mock OSS storage adapter readiness' );
+npcink_abilities_toolkit_assert_same( false, $mock_oss_cloud_request['data']['blocked'] ?? null, 'mock OSS storage adapter clears remote storage block for review planning' );
+npcink_abilities_toolkit_assert_same( 'aliyun_oss_mock', $mock_oss_cloud_request['data']['storage']['adapter'] ?? '', 'mock OSS storage adapter identity is preserved in storage evidence' );
+$mock_oss_optimization_plan = $core_read_package->build_media_optimization_plan(
+	array(
+		'attachment_id'       => 79,
+		'media_details_input' => array(
+			'title'       => 'Mock OSS optimized workflow diagram',
+			'alt'         => 'Mock OSS optimized workflow diagram alt text.',
+			'caption'     => 'Mock OSS optimized workflow diagram caption.',
+			'description' => 'Mock OSS optimized workflow diagram description.',
+			'source_type' => 'owned',
+		),
+		'derivative_artifact' => array(
+			'artifact_id'    => 'art_mock_oss_media',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => 12345,
+			'checksum'       => 'sha256:' . hash( 'sha256', 'mock-oss-webp' ),
+		),
+		'storage_preflight'  => $mock_oss_cloud_request['data']['storage'],
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $mock_oss_optimization_plan['success'] ?? null, 'media optimization plan accepts mock OSS storage preflight evidence' );
+npcink_abilities_toolkit_assert_same( 'remote_object_storage', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['expected_storage_provider'] ?? '', 'media optimization plan carries expected storage provider into derivative adoption action' );
+npcink_abilities_toolkit_assert_same( 'aliyun_oss_mock', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['expected_storage_adapter'] ?? '', 'media optimization plan carries expected storage adapter into derivative adoption action' );
+npcink_abilities_toolkit_assert_same( 'provider_api', $mock_oss_optimization_plan['data']['write_actions'][1]['input']['storage_preflight']['write_mode'] ?? '', 'media optimization plan preserves reviewed provider write mode evidence' );
 $media_cloud_request_with_watermark = $core_read_package->build_media_derivative_cloud_request(
 	array(
 		'attachment_id'              => 79,
