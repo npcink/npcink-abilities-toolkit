@@ -39,7 +39,7 @@ Each case should define:
 - `definition_kind`: `workflow_recipe`.
 - `contract_version`: contract version for the case, currently `v1`.
 - `recipe_id`: documentation-level recipe id, such as
-  `workflow/wordpress_article_publish_preflight`.
+  `npcink-abilities-toolkit/recipes/article-publish-preflight`.
 - `title`: human-readable recipe label.
 - `natural_tasks`: example user tasks a host can use for routing tests.
 - `preferred_ability_id`: preferred bundled read-only entrypoint.

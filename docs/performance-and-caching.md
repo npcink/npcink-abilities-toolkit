@@ -113,6 +113,6 @@ Before broadening the ability surface or promoting another workflow recipe:
 6. Record real-site `composer smoke:wp` evidence in the relevant release
    verification note when a Local WordPress site is available.
 
-The next promoted workflow definitions, `workflow/wordpress_article_optimization`
-and `workflow/wordpress_article_media_handoff`, intentionally reuse existing
+The next promoted workflow definitions, `npcink-abilities-toolkit/recipes/article-optimization`
+and `npcink-abilities-toolkit/recipes/article-media-handoff`, intentionally reuse existing
 read/proposal abilities instead of introducing new scan or cache behavior.

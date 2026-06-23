@@ -494,7 +494,7 @@ trait Article_Production_Read_Methods {
 		$handoff = array(
 			'stopping_point'    => sanitize_key( (string) ( $publication_decision['effective_publish_mode'] ?? 'review' ) ),
 			'next_action'       => $next_action,
-			'recommended_entry' => 'workflow/wordpress_article_production',
+			'recommended_entry' => 'npcink-abilities-toolkit/recipes/article-production',
 			'hints'             => array_values(
 				array_filter(
 					array(
@@ -761,16 +761,16 @@ trait Article_Production_Read_Methods {
 		}
 
 		$next_action = 'editorial_review';
-		$recommended_entry = 'workflow/wordpress_article_draft';
+		$recommended_entry = 'npcink-abilities-toolkit/recipes/article-draft';
 		$publish_mode = sanitize_key( (string) ( $source_input['publish_mode'] ?? '' ) );
 		$image_mode = sanitize_key( (string) ( $source_input['image_mode'] ?? 'none' ) );
 		if ( ! empty( $duplicate_guard['skip_recommended'] ) ) {
 			$next_action = 'review_existing_candidate';
 		} elseif ( in_array( $publish_mode, array( 'publish', 'review', 'schedule' ), true ) || 'none' !== $image_mode ) {
 			$next_action = 'handoff_to_wordpress_article_production';
-			$recommended_entry = 'workflow/wordpress_article_production';
+			$recommended_entry = 'npcink-abilities-toolkit/recipes/article-production';
 		}
-		if ( $preview_only && 'workflow/wordpress_article_draft' === $recommended_entry ) {
+		if ( $preview_only && 'npcink-abilities-toolkit/recipes/article-draft' === $recommended_entry ) {
 			$next_action = 'review_preview';
 		}
 
@@ -784,7 +784,7 @@ trait Article_Production_Read_Methods {
 						$preview_only
 							? 'draft workflow 当前在 preview 路径里返回 draft content、metadata resolution 和 shared SEO/GEO review，但不创建真实 draft。'
 							: 'draft workflow 负责 draft content、metadata resolution 和 shared SEO/GEO review。',
-						'需要特色图、inline 图片、schedule 或 publish handoff 时，再进入 workflow/wordpress_article_production。',
+						'需要特色图、inline 图片、schedule 或 publish handoff 时，再进入 npcink-abilities-toolkit/recipes/article-production。',
 						! empty( $review['needs_human_review'] ) ? '当前轻量 review 已提示需要人工继续润色。' : '',
 					)
 				)

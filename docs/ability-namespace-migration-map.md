@@ -51,9 +51,9 @@ with `npcink-abilities-toolkit/<slug>` only when that exact Toolkit ability
 exists in the current catalog. Non-matching retired ids need an explicit
 contract owner decision; do not invent Cloud-side stand-ins.
 
-Recipe refs such as `workflow/wordpress_article_draft` are not WordPress ability
-ids. Keep them as recipe references until a separate recipe-id contract reset is
-approved and tested across Toolkit, Core, Adapter, and Toolbox.
+Recipe refs such as `npcink-abilities-toolkit/recipes/article-draft` are not
+WordPress ability ids. They are canonical Toolkit-owned recipe contract ids and
+must not be treated as executable abilities or Cloud-owned workflow records.
 
 ## Audit Gate
 
@@ -70,7 +70,7 @@ ability ids. It intentionally does not create alias maps.
 
 | Repository | Required gate |
 | --- | --- |
-| `npcink-abilities-toolkit` | Unit tests pass; `composer check:legacy-ability-ids` passes; catalog snapshots expose only canonical Toolkit ids. |
+| `npcink-abilities-toolkit` | Unit tests pass; `composer check:legacy-ability-ids` and `composer check:legacy-recipe-ids` pass; catalog snapshots expose only canonical Toolkit ids. |
 | `npcink-governance-core` | Proposal create/detail/preflight tests use canonical ids and continue to preserve recipe refs where applicable. |
 | `npcink-ai-client-adapter` | Execution profile and health contract tests use canonical Toolkit ids. |
 | `npcink-toolbox` | Product handoff smoke submits canonical ids for new proposal payloads. |
@@ -82,7 +82,7 @@ ability ids. It intentionally does not create alias maps.
   development phase.
 - Do not let Cloud own aliases, canonicalization, workflow entry mapping, or
   migration state.
-- Do not convert recipe refs such as `workflow/wordpress_article_draft` in this
-  ability-id reset.
+- Do not treat recipe refs such as `npcink-abilities-toolkit/recipes/article-draft`
+  as WordPress ability ids.
 - Do not change WooCommerce addon `magick-ai/wc-*` ids here. Commerce add-on
   namespace migration needs its own owner decision.

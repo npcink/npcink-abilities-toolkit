@@ -618,7 +618,7 @@ trait Article_Optimization_Read_Methods {
 				'composition_role'       => 'core_article_optimization_apply_plan',
 				'version'                => 1,
 				'source_recipe_id'       => 'article_optimization_v1',
-				'source_recipe_ref'      => 'workflow/wordpress_article_optimization',
+				'source_recipe_ref'      => 'npcink-abilities-toolkit/recipes/article-optimization',
 				'source_recipe_provider' => 'npcink-abilities-toolkit',
 				'recipe_execution'       => 'host_orchestration',
 				'write_posture'          => 'core_proposal_handoff',
@@ -639,7 +639,7 @@ trait Article_Optimization_Read_Methods {
 				'handoff'                => array(
 					'plan_ability_id'        => 'npcink-abilities-toolkit/build-article-optimization-apply-plan',
 					'recipe_id'              => 'article_optimization_v1',
-					'recipe_ref'             => 'workflow/wordpress_article_optimization',
+					'recipe_ref'             => 'npcink-abilities-toolkit/recipes/article-optimization',
 					'core_route'             => '/wp-json/npcink-governance-core/v1/proposals/from-plan',
 					'final_write_path'       => 'core_proposal_required',
 					'direct_wordpress_write' => false,

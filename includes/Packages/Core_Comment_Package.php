@@ -586,7 +586,7 @@ final class Core_Comment_Package {
 
 		return $this->success(
 			array(
-				'recipe'               => 'workflow/wordpress_comment_compliance_handoff',
+				'recipe'               => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff',
 				'queue_health'         => $health_data,
 				'priority_queue'       => $priority_data,
 				'selected_suggestion'  => $selected_suggestion,

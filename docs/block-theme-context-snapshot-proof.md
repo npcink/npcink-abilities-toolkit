@@ -204,7 +204,7 @@ from candidate lists alone.
 
 Useful next proof work should happen from a host perspective:
 
-- run a real `workflow/wordpress_article_optimization` consumption proof;
+- run a real `npcink-abilities-toolkit/recipes/article-optimization` consumption proof;
 - run a block theme intent replay against a host path that discovers the
   abilities through WordPress Abilities API;
 - classify any failures as host-owned, toolkit-owned, or deferred before

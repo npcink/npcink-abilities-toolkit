@@ -364,7 +364,7 @@ $article_workflow_doc = file_get_contents( __DIR__ . '/../docs/article-workflow-
 foreach (
 	array(
 		'article_draft_v1',
-		'workflow/wordpress_article_draft',
+		'npcink-abilities-toolkit/recipes/article-draft',
 		'article_assistant_workbench',
 		'npcink-abilities-toolkit/create-draft',
 		'does not provide a cloud writer',
@@ -2923,7 +2923,7 @@ $comment_handoff = $core_comment_package->get_comment_compliance_handoff(
 	)
 );
 npcink_abilities_toolkit_assert_same( true, $comment_handoff['success'] ?? null, 'get-comment-compliance-handoff returns a success envelope' );
-npcink_abilities_toolkit_assert_same( 'workflow/wordpress_comment_compliance_handoff', $comment_handoff['data']['recipe'] ?? '', 'get-comment-compliance-handoff declares its recipe id' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/comment-compliance-handoff', $comment_handoff['data']['recipe'] ?? '', 'get-comment-compliance-handoff declares its recipe id' );
 npcink_abilities_toolkit_assert_true( in_array( 'selected_moderation_suggestion', $comment_handoff['data']['sections'] ?? array(), true ), 'get-comment-compliance-handoff includes selected moderation suggestion' );
 $batch_suggest = $core_comment_package->build_comment_moderation_batch_suggest(
 	array(
@@ -3659,7 +3659,7 @@ $article_publish_preflight = $core_read_package->get_article_publish_preflight_c
 	)
 );
 npcink_abilities_toolkit_assert_same( true, $article_publish_preflight['success'] ?? null, 'get-article-publish-preflight-context returns a success envelope' );
-npcink_abilities_toolkit_assert_same( 'workflow/wordpress_article_publish_preflight', $article_publish_preflight['data']['recipe'] ?? '', 'get-article-publish-preflight-context declares its recipe id' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/article-publish-preflight', $article_publish_preflight['data']['recipe'] ?? '', 'get-article-publish-preflight-context declares its recipe id' );
 npcink_abilities_toolkit_assert_true( in_array( 'publish_risk', $article_publish_preflight['data']['sections'] ?? array(), true ), 'get-article-publish-preflight-context includes publish risk' );
 $refresh_opportunities = $core_read_package->get_content_refresh_opportunities(
 	array(
@@ -3695,7 +3695,7 @@ $old_article_refresh = $core_read_package->get_old_article_refresh_context(
 	)
 );
 npcink_abilities_toolkit_assert_same( true, $old_article_refresh['success'] ?? null, 'get-old-article-refresh-context returns a success envelope' );
-npcink_abilities_toolkit_assert_same( 'workflow/wordpress_old_article_refresh_discovery', $old_article_refresh['data']['recipe'] ?? '', 'get-old-article-refresh-context declares its recipe id' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/old-article-refresh-discovery', $old_article_refresh['data']['recipe'] ?? '', 'get-old-article-refresh-context declares its recipe id' );
 npcink_abilities_toolkit_assert_true( in_array( 'seo_geo_gap_report', $old_article_refresh['data']['sections'] ?? array(), true ), 'get-old-article-refresh-context includes SEO/GEO gaps' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][79] = (object) array(
 	'ID'             => 79,
@@ -5591,7 +5591,7 @@ npcink_abilities_toolkit_assert_same( true, $apply_plan['success'] ?? null, 'bui
 npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['actions']['excerpt']['apply_generate'] ?? null, 'build-article-optimization-apply-plan marks generated excerpt as safe apply when explicitly requested' );
 npcink_abilities_toolkit_assert_same( array( 'update_excerpt' ), $apply_plan['data']['summary']['safe_apply_supported'] ?? array(), 'build-article-optimization-apply-plan exposes safe apply action summary' );
 npcink_abilities_toolkit_assert_same( 'article_optimization_apply_plan', $apply_plan['data']['artifact_type'] ?? '', 'build-article-optimization-apply-plan declares a Core-ready artifact type' );
-npcink_abilities_toolkit_assert_same( 'workflow/wordpress_article_optimization', $apply_plan['data']['source_recipe_ref'] ?? '', 'build-article-optimization-apply-plan carries the article optimization recipe ref' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/article-optimization', $apply_plan['data']['source_recipe_ref'] ?? '', 'build-article-optimization-apply-plan carries the article optimization recipe ref' );
 npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['requires_approval'] ?? null, 'build-article-optimization-apply-plan requires host approval' );
 npcink_abilities_toolkit_assert_same( true, $apply_plan['data']['dry_run'] ?? null, 'build-article-optimization-apply-plan is dry-run only' );
 npcink_abilities_toolkit_assert_same( false, $apply_plan['data']['commit_execution'] ?? null, 'build-article-optimization-apply-plan does not execute commits' );
@@ -6943,7 +6943,7 @@ npcink_abilities_toolkit_assert_same( true, $draft_result['success'] ?? null, 'c
 npcink_abilities_toolkit_assert_same( true, $draft_data['draft']['preview_only'] ?? null, 'compose-article-draft-result preserves preview-only mode' );
 npcink_abilities_toolkit_assert_same( false, $draft_data['draft']['real_draft_created'] ?? null, 'compose-article-draft-result does not claim a real draft in preview mode' );
 npcink_abilities_toolkit_assert_same( 'review_preview', $draft_data['handoff']['next_action'] ?? '', 'compose-article-draft-result keeps preview handoff local to draft workflow' );
-npcink_abilities_toolkit_assert_same( 'workflow/wordpress_article_draft', $draft_data['handoff']['recommended_entry'] ?? '', 'compose-article-draft-result keeps draft recommended entry for preview-only output' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/article-draft', $draft_data['handoff']['recommended_entry'] ?? '', 'compose-article-draft-result keeps draft recommended entry for preview-only output' );
 npcink_abilities_toolkit_assert_same( '内部复盘记录', $draft_data['source_references'][0] ?? '', 'compose-article-draft-result extracts source references from human signals' );
 $publication_decision = $core_read_package->resolve_article_publication_decision(
 	array(
@@ -7059,7 +7059,7 @@ npcink_abilities_toolkit_assert_true( is_array( $workflow_replay ), 'agent workf
 $workflow_manifest = \Npcink_Abilities_Toolkit\Workflow\Workflow_Definition_Provider::manifest();
 npcink_abilities_toolkit_assert_same( $workflow_manifest, $workflow_replay, 'agent workflow replay fixture matches production workflow definition provider' );
 npcink_abilities_toolkit_assert_same( $workflow_manifest, npcink_abilities_toolkit_get_workflow_definitions(), 'public workflow definitions helper matches provider manifest' );
-npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['article_publish_preflight'], npcink_abilities_toolkit_get_workflow_definition( 'workflow/wordpress_article_publish_preflight' ), 'public workflow definition helper resolves recipe id' );
+npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['article_publish_preflight'], npcink_abilities_toolkit_get_workflow_definition( 'npcink-abilities-toolkit/recipes/article-publish-preflight' ), 'public workflow definition helper resolves recipe id' );
 npcink_abilities_toolkit_assert_same( 'v1', $workflow_replay['schema_version'] ?? '', 'agent workflow replay fixture schema is v1' );
 npcink_abilities_toolkit_assert_true( is_array( $workflow_replay['cases'] ?? null ), 'agent workflow replay fixture exposes cases' );
 $forbidden_workflow_definition_fields = \Npcink_Abilities_Toolkit\Workflow\Workflow_Definition_Provider::forbidden_field_keys();
@@ -7067,7 +7067,7 @@ npcink_abilities_toolkit_assert_array_omits_keys( $workflow_replay, $forbidden_w
 $expected_workflow_replay_cases = array(
 	'article_draft'                  => array(
 		'ability_id'         => 'npcink-abilities-toolkit/compose-article-draft-result',
-		'recipe_id'          => 'workflow/wordpress_article_draft',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/article-draft',
 		'recipe_aliases'     => array( 'article_draft_v1' ),
 		'required_scope'     => 'cap.text.extract',
 		'required_inputs'    => array(),
@@ -7085,7 +7085,7 @@ $expected_workflow_replay_cases = array(
 	),
 	'article_publish_preflight'      => array(
 		'ability_id'         => 'npcink-abilities-toolkit/get-article-publish-preflight-context',
-		'recipe_id'          => 'workflow/wordpress_article_publish_preflight',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/article-publish-preflight',
 		'required_scope'     => 'post.read',
 		'required_inputs'    => array( 'post_id' ),
 		'expected_sections'  => array( 'post_context', 'publishing_checklist', 'publish_risk', 'workflow_context', 'publishing_calendar' ),
@@ -7101,7 +7101,7 @@ $expected_workflow_replay_cases = array(
 	),
 	'article_optimization'           => array(
 		'ability_id'         => 'npcink-abilities-toolkit/read-post-optimization-context',
-		'recipe_id'          => 'workflow/wordpress_article_optimization',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/article-optimization',
 		'required_scope'     => 'post.read',
 		'required_inputs'    => array( 'post_id' ),
 		'expected_sections'  => array( 'post_context', 'seo_report', 'optimization_suggestion', 'apply_plan', 'handoff' ),
@@ -7117,7 +7117,7 @@ $expected_workflow_replay_cases = array(
 	),
 	'article_media_handoff'          => array(
 		'ability_id'         => 'npcink-abilities-toolkit/build-media-seo-assets',
-		'recipe_id'          => 'workflow/wordpress_article_media_handoff',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/article-media-handoff',
 		'required_scope'     => 'media.read',
 		'required_inputs'    => array(),
 		'expected_sections'  => array( 'post_context', 'media_assets', 'inline_blocks', 'positioned_blocks', 'handoff' ),
@@ -7132,7 +7132,7 @@ $expected_workflow_replay_cases = array(
 	),
 	'old_article_refresh_discovery' => array(
 		'ability_id'         => 'npcink-abilities-toolkit/get-old-article-refresh-context',
-		'recipe_id'          => 'workflow/wordpress_old_article_refresh_discovery',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/old-article-refresh-discovery',
 		'required_scope'     => 'post.read',
 		'required_inputs'    => array(),
 		'expected_sections'  => array( 'refresh_opportunities', 'seo_geo_gap_report', 'site_style_baseline', 'internal_link_graph_health' ),
@@ -7148,7 +7148,7 @@ $expected_workflow_replay_cases = array(
 	),
 	'comment_compliance_handoff'    => array(
 		'ability_id'         => 'npcink-abilities-toolkit/get-comment-compliance-handoff',
-		'recipe_id'          => 'workflow/wordpress_comment_compliance_handoff',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff',
 		'required_scope'     => 'comments.manage',
 		'required_inputs'    => array(),
 		'expected_sections'  => array( 'queue_health', 'priority_queue', 'selected_moderation_suggestion' ),
@@ -7211,7 +7211,7 @@ $workflow_list = call_user_func( $package_abilities['npcink-abilities-toolkit/li
 npcink_abilities_toolkit_assert_same( $workflow_manifest, $workflow_list, 'workflow recipe discovery ability returns provider manifest' );
 $workflow_draft_alias = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'article_draft_v1' ) );
 npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['article_draft'], $workflow_draft_alias, 'workflow recipe detail ability resolves article_draft_v1 alias' );
-$workflow_get = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/wordpress_comment_compliance_handoff' ) );
+$workflow_get = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff' ) );
 npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['comment_compliance_handoff'], $workflow_get, 'workflow recipe detail ability resolves recipe id' );
 $workflow_missing = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
 npcink_abilities_toolkit_assert_true( is_wp_error( $workflow_missing ), 'workflow recipe detail ability fails closed for missing recipe' );

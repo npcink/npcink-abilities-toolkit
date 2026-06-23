@@ -21,7 +21,7 @@ console, or final write authorization.
 
 Recipe id: `article_draft_v1`
 
-Recipe ref: `workflow/wordpress_article_draft`
+Recipe ref: `npcink-abilities-toolkit/recipes/article-draft`
 
 Recommended host artifact: `article_assistant_workbench`
 

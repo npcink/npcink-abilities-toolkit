@@ -39,7 +39,7 @@ For each candidate:
 
 ### Existing Article Optimization
 
-Recommended entry: `workflow/wordpress_article_optimization`.
+Recommended entry: `npcink-abilities-toolkit/recipes/article-optimization`.
 
 Ability chain:
 
@@ -60,7 +60,7 @@ Host-owned pieces:
 
 ### Article Media Handoff
 
-Recommended future entry: `workflow/wordpress_article_media_handoff`.
+Recommended future entry: `npcink-abilities-toolkit/recipes/article-media-handoff`.
 
 Ability chain:
 
@@ -82,7 +82,7 @@ Host-owned pieces:
 
 ### Media Alt And SEO Enrichment
 
-Recommended future entry: `workflow/wordpress_media_seo_handoff`.
+Recommended future entry: `npcink-abilities-toolkit/recipes/media-seo-handoff`.
 
 Ability chain:
 
@@ -102,7 +102,7 @@ Host-owned pieces:
 
 ### Content Tag Completion
 
-Recommended future entry: `workflow/wordpress_content_tag_proposal`.
+Recommended future entry: `npcink-abilities-toolkit/recipes/content-tag-proposal`.
 
 Ability chain:
 
@@ -121,7 +121,7 @@ Host-owned pieces:
 
 ### Cleanup Old Drafts
 
-Recommended future entry: `workflow/wordpress_draft_cleanup_discovery`.
+Recommended future entry: `npcink-abilities-toolkit/recipes/draft-cleanup-discovery`.
 
 Ability chain:
 

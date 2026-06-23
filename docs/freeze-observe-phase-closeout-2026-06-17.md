@@ -19,8 +19,8 @@ host usage.
 
 ## Completed
 
-- `workflow/wordpress_article_optimization` has a closed-loop host proof.
-- `workflow/wordpress_article_media_handoff` has a closed-loop host proof.
+- `npcink-abilities-toolkit/recipes/article-optimization` has a closed-loop host proof.
+- `npcink-abilities-toolkit/recipes/article-media-handoff` has a closed-loop host proof.
 - Adapter handoff issues found during proof work were fixed in Adapter, not by
   moving runtime or governance into Toolkit.
 - Toolkit's host proof ledger records both proofs and their validation commands

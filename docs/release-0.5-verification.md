@@ -34,8 +34,8 @@ workflow gap, and verify the registered first-party ability surface directly.
 - `docs/next-stage-operating-standard.md` records the freeze/observe operating
   standard: workflow proof before ability expansion, declarative recipes,
   performance gates, security contract discipline, and current release evidence.
-- `workflow/wordpress_article_optimization` and
-  `workflow/wordpress_article_media_handoff` were promoted to declarative
+- `npcink-abilities-toolkit/recipes/article-optimization` and
+  `npcink-abilities-toolkit/recipes/article-media-handoff` were promoted to declarative
   workflow definitions and replay-fixture cases without adding new abilities or
   runtime ownership.
 - `docs/security-and-governance-gates.md` records the security boundary for

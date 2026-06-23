@@ -727,7 +727,7 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	$workflow_recipe_run_request->set_query_params(
 		array(
 			'input' => array(
-				'recipe_id' => 'workflow/wordpress_comment_compliance_handoff',
+				'recipe_id' => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff',
 			),
 		)
 	);
