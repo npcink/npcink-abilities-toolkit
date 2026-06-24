@@ -36,6 +36,10 @@ Then confirm:
 - whether the work should start from `origin/master`;
 - whether unrelated local edits already exist;
 - which files and docs are in scope.
+- the change envelope: target repositories, focused module, intended change,
+  explicit non-goals, public contracts touched, expected files, files or areas
+  that must not change, required gates, cross-repo matrix requirement, and
+  rollback plan.
 
 AI agents should read `AGENTS.md` first. If a tool does not automatically read
 repository instructions, use this short prompt:
@@ -97,6 +101,31 @@ git show --name-status --stat HEAD
 If unexpected files or hunks entered the commit, immediately run
 `git reset --mixed HEAD~1` and recommit the correct scope. This keeps the
 working tree changes intact while repairing the commit boundary.
+
+Do not run `git reset --hard`, `git checkout -- .`, or equivalent destructive
+cleanup unless the user explicitly asks for that exact operation.
+
+## Cross-Repo Quality Matrix
+
+For Toolkit-only work, keep using this repository's local gates. For multi-repo
+work or milestone closeout, run the central matrix from `npcink-toolbox`:
+
+```bash
+cd /Users/muze/gitee/npcink-toolbox
+composer quality:matrix
+composer quality:matrix:run
+```
+
+`composer quality:matrix` is the status-only check. `composer quality:matrix:run`
+runs the configured gates across the related repositories. For release closeout
+that must prove no repository has hidden local edits, run:
+
+```bash
+php scripts/cross-repo-quality-matrix.php --run-gates --fail-on-dirty
+```
+
+Do not copy the cross-repo matrix script into Toolkit. The central script remains
+owned by `npcink-toolbox` so gate definitions stay in one place.
 
 ## Publication Status Gate
 
