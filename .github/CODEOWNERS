@@ -1,0 +1,11 @@
+# Keep ability contract changes reviewable through the repository owner.
+* @muze-page
+
+# Ability definitions, contract checks, and release surface.
+/includes/ @muze-page
+/tests/ @muze-page
+/scripts/ @muze-page
+/docs/ @muze-page
+/readme.txt @muze-page
+/CHANGELOG.md @muze-page
+/.github/ @muze-page
