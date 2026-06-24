@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers low-risk WordPress read abilities migrated from the Npcink AI plugin.
  */
 final class Core_Read_Package {
+	use Article_Audio_Read_Methods;
 	use Article_Block_Plan_Read_Methods;
 	use Article_Optimization_Read_Methods;
 	use Article_Production_Read_Methods;
@@ -1065,6 +1066,85 @@ final class Core_Read_Package {
 					'required'   => array( 'success', 'data' ),
 				),
 				'execute_callback' => array( $this, 'build_content_metadata_apply_plan' ),
+			),
+			'npcink-abilities-toolkit/build-article-audio-adoption-plan' => array(
+				'label'            => __( 'Build Article Audio Adoption Plan', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds one Core-ready plan for attaching a reviewed generated narration or audio summary to a post without writing metadata directly.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-data',
+				'capability'       => 'edit_posts',
+				'required_scope'   => 'post.read',
+				'required_scopes'  => array( 'post.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'annotations'      => array(
+					'instructions' => 'Planner only. Accept one reviewed audio candidate and emit a dry-run Core proposal action for adopt-article-audio. Never import media, update post content, publish, or commit writes.',
+				),
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'post_id'             => array( 'type' => 'integer', 'minimum' => 1 ),
+						'audio_candidate'     => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'url'                 => array( 'type' => 'string', 'format' => 'uri' ),
+								'title'               => array( 'type' => 'string' ),
+								'name'                => array( 'type' => 'string' ),
+								'candidate_type'      => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+								'kind'                => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+								'duration_seconds'    => array( 'type' => 'number', 'minimum' => 0 ),
+								'mime_type'           => array( 'type' => 'string' ),
+								'source_content_hash' => array( 'type' => 'string' ),
+								'source_word_count'   => array( 'type' => 'integer', 'minimum' => 0 ),
+								'source_generated_at' => array( 'type' => 'string' ),
+								'generated_at'        => array( 'type' => 'string' ),
+								'provider'            => array( 'type' => 'string' ),
+								'model'               => array( 'type' => 'string' ),
+								'trace_id'            => array( 'type' => 'string' ),
+								'trace'               => array( 'type' => 'string' ),
+							),
+							'additionalProperties' => false,
+						),
+						'candidate'           => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'url'                 => array( 'type' => 'string', 'format' => 'uri' ),
+								'title'               => array( 'type' => 'string' ),
+								'name'                => array( 'type' => 'string' ),
+								'candidate_type'      => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+								'kind'                => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+								'duration_seconds'    => array( 'type' => 'number', 'minimum' => 0 ),
+								'mime_type'           => array( 'type' => 'string' ),
+								'source_content_hash' => array( 'type' => 'string' ),
+								'source_word_count'   => array( 'type' => 'integer', 'minimum' => 0 ),
+								'source_generated_at' => array( 'type' => 'string' ),
+								'generated_at'        => array( 'type' => 'string' ),
+								'provider'            => array( 'type' => 'string' ),
+								'model'               => array( 'type' => 'string' ),
+								'trace_id'            => array( 'type' => 'string' ),
+								'trace'               => array( 'type' => 'string' ),
+							),
+							'additionalProperties' => false,
+						),
+						'audio_url'           => array( 'type' => 'string', 'format' => 'uri' ),
+						'candidate_type'      => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+						'source_content_hash' => array( 'type' => 'string' ),
+						'source_word_count'   => array( 'type' => 'integer', 'minimum' => 0 ),
+						'source_generated_at' => array( 'type' => 'string' ),
+					),
+					'required'             => array( 'post_id' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_article_audio_adoption_plan' ),
 			),
 			'npcink-abilities-toolkit/compose-article-optimization-apply-result' => array(
 				'label'            => __( 'Compose Article Optimization Apply Result', 'npcink-abilities-toolkit' ),

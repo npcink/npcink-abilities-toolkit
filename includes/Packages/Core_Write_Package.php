@@ -212,6 +212,45 @@ final class Core_Write_Package {
 				),
 				'execute_callback' => array( $this, 'set_post_seo_meta' ),
 			),
+			'npcink-abilities-toolkit/adopt-article-audio' => array(
+				'label'           => __( 'Adopt Article Audio', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Writes reviewed generated narration or audio summary metadata to one post after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
+				'category'        => 'npcink-abilities-toolkit-write',
+				'capability'      => 'edit_posts',
+				'required_scopes' => array( 'post.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->write_meta(),
+				'input_schema'    => $this->schema(
+					array(
+						'post_id'             => $post_id,
+						'audio_url'           => array( 'type' => 'string', 'format' => 'uri', 'minLength' => 1 ),
+						'audio_title'         => $title_text,
+						'audio_kind'          => array( 'type' => 'string', 'enum' => array( 'article_narration', 'article_audio_summary' ) ),
+						'duration_seconds'    => array( 'type' => 'number', 'minimum' => 0 ),
+						'mime_type'           => array( 'type' => 'string', 'maxLength' => 120 ),
+						'source_content_hash' => array( 'type' => 'string', 'maxLength' => 128 ),
+						'source_word_count'   => array( 'type' => 'integer', 'minimum' => 0 ),
+						'source_generated_at' => array( 'type' => 'string', 'maxLength' => 64 ),
+						'provider'            => array( 'type' => 'string', 'maxLength' => 80 ),
+						'model'               => array( 'type' => 'string', 'maxLength' => 160 ),
+						'trace_id'            => array( 'type' => 'string', 'maxLength' => 160 ),
+					),
+					array( 'post_id', 'audio_url' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'post_id'           => array( 'type' => 'integer' ),
+						'updated'           => array( 'type' => 'boolean' ),
+						'audio_meta_keys'   => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
+						'changes'           => array( 'type' => 'object', 'additionalProperties' => true ),
+						'freshness_evidence' => array( 'type' => 'object', 'additionalProperties' => true ),
+						'edit_link'         => array( 'type' => 'string' ),
+						'dry_run'           => array( 'type' => 'boolean' ),
+					),
+					array( 'post_id', 'updated', 'audio_meta_keys', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'adopt_article_audio' ),
+			),
 			'npcink-abilities-toolkit/patch-post-content' => array(
 				'label'           => __( 'Patch Post Content', 'npcink-abilities-toolkit' ),
 				'description'     => __( 'Applies text patch operations to saved post content after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
@@ -1507,6 +1546,94 @@ final class Core_Write_Package {
 			'edit_link' => $this->edit_link( $post_id ),
 			'dry_run'   => false,
 		);
+	}
+
+	/**
+	 * Writes generated article audio metadata on one post.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function adopt_article_audio( $input ) {
+		$input   = is_array( $input ) ? $input : array();
+		$post_id = absint( $input['post_id'] ?? 0 );
+		$post    = $this->get_editable_post( $post_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		$audio_url = esc_url_raw( (string) ( $input['audio_url'] ?? '' ) );
+		if ( '' === $audio_url ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_article_audio_url_required', __( 'Article audio URL is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$audio_kind = sanitize_key( (string) ( $input['audio_kind'] ?? 'article_narration' ) );
+		if ( ! in_array( $audio_kind, array( 'article_narration', 'article_audio_summary' ), true ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_article_audio_kind_invalid', __( 'Article audio kind is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$duration_seconds = isset( $input['duration_seconds'] ) && is_numeric( $input['duration_seconds'] ) ? max( 0, (float) $input['duration_seconds'] ) : 0.0;
+		$meta_updates     = array(
+			'_npcink_toolbox_article_audio_url'                 => $audio_url,
+			'_npcink_toolbox_article_audio_title'               => sanitize_text_field( (string) ( $input['audio_title'] ?? ( 'article_audio_summary' === $audio_kind ? __( 'Audio summary', 'npcink-abilities-toolkit' ) : __( 'Article narration', 'npcink-abilities-toolkit' ) ) ) ),
+			'_npcink_toolbox_article_audio_kind'                => $audio_kind,
+			'_npcink_toolbox_article_audio_duration_seconds'    => (string) $duration_seconds,
+			'_npcink_toolbox_article_audio_mime_type'           => sanitize_text_field( (string) ( $input['mime_type'] ?? 'audio/mpeg' ) ),
+			'_npcink_toolbox_article_audio_source_content_hash' => sanitize_text_field( (string) ( $input['source_content_hash'] ?? '' ) ),
+			'_npcink_toolbox_article_audio_source_word_count'   => (string) absint( $input['source_word_count'] ?? 0 ),
+			'_npcink_toolbox_article_audio_source_generated_at' => sanitize_text_field( (string) ( $input['source_generated_at'] ?? gmdate( 'c' ) ) ),
+		);
+
+		$optional_updates = array(
+			'_npcink_toolbox_article_audio_provider' => sanitize_key( (string) ( $input['provider'] ?? '' ) ),
+			'_npcink_toolbox_article_audio_model'    => sanitize_text_field( (string) ( $input['model'] ?? '' ) ),
+			'_npcink_toolbox_article_audio_trace_id' => sanitize_text_field( (string) ( $input['trace_id'] ?? '' ) ),
+		);
+		foreach ( $optional_updates as $key => $value ) {
+			if ( '' !== $value ) {
+				$meta_updates[ $key ] = $value;
+			}
+		}
+
+		$payload = array(
+			'post_id'           => $post_id,
+			'updated'           => false,
+			'audio_meta_keys'   => array_keys( $meta_updates ),
+			'changes'           => $meta_updates,
+			'freshness_evidence' => array(
+				'source_content_hash' => $meta_updates['_npcink_toolbox_article_audio_source_content_hash'],
+				'source_word_count'   => absint( $meta_updates['_npcink_toolbox_article_audio_source_word_count'] ),
+				'source_generated_at' => $meta_updates['_npcink_toolbox_article_audio_source_generated_at'],
+			),
+			'preview'           => array(
+				'action'                => 'adopt_article_audio',
+				'changed_meta_key_count' => count( $meta_updates ),
+				'no_content_write'      => true,
+				'no_publish'            => true,
+				'no_media_import'       => true,
+			),
+			'edit_link'         => $this->edit_link( $post_id ),
+		);
+		if ( $this->should_dry_run( $input ) ) {
+			return $this->dry_run_payload( $payload );
+		}
+
+		$allowed = $this->assert_commit_allowed( 'npcink-abilities-toolkit/adopt-article-audio', $input );
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
+		}
+		if ( ! function_exists( 'update_post_meta' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_post_meta_unavailable', __( 'Post meta writer is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		foreach ( $meta_updates as $key => $value ) {
+			update_post_meta( $post_id, $key, $value );
+		}
+
+		$payload['updated'] = true;
+		$payload['dry_run'] = false;
+		unset( $payload['preview'] );
+		return $payload;
 	}
 
 	/**
