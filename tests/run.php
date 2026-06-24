@@ -1102,6 +1102,7 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/build-article-single-optimization-suggest',
 	'npcink-abilities-toolkit/build-article-optimization-apply-plan',
 	'npcink-abilities-toolkit/build-content-metadata-apply-plan',
+	'npcink-abilities-toolkit/build-article-audio-adoption-plan',
 	'npcink-abilities-toolkit/compose-article-optimization-apply-result',
 	'npcink-abilities-toolkit/extract-reference-post-style',
 	'npcink-abilities-toolkit/extract-style-baseline',
@@ -1198,6 +1199,7 @@ $migrated_write_ability_ids = array(
 	'npcink-abilities-toolkit/restore-post',
 	'npcink-abilities-toolkit/approve-comment',
 	'npcink-abilities-toolkit/reply-comment',
+	'npcink-abilities-toolkit/adopt-article-audio',
 );
 $migrated_destructive_ability_ids = array(
 	'npcink-abilities-toolkit/delete-term',
@@ -2043,6 +2045,52 @@ unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 npcink_abilities_toolkit_assert_same( false, $seo_title_only_written['dry_run'] ?? null, 'set-post-seo-meta title-only commit returns committed payload' );
 npcink_abilities_toolkit_assert_same( 'Only title changed', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_yoast_wpseo_title'] ?? '', 'set-post-seo-meta title-only commit writes title' );
 npcink_abilities_toolkit_assert_same( 'Committed SEO description', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_yoast_wpseo_metadesc'] ?? '', 'set-post-seo-meta title-only commit preserves description' );
+$article_audio_preview = $core_write_package->adopt_article_audio(
+	array(
+		'post_id'             => 501,
+		'audio_url'           => 'https://cloud.example.test/audio/article-narration.mp3',
+		'audio_title'         => 'Reviewed narration',
+		'audio_kind'          => 'article_narration',
+		'duration_seconds'    => 185.25,
+		'mime_type'           => 'audio/mpeg',
+		'source_content_hash' => 'sha256:article-source',
+		'source_word_count'   => 1234,
+		'source_generated_at' => '2026-06-24T09:30:00Z',
+		'provider'            => 'minimax',
+		'model'               => 'speech-2.8-turbo',
+		'trace_id'            => 'trace_audio_456',
+		'dry_run'             => true,
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_audio_preview['dry_run'] ?? null, 'adopt-article-audio returns a governed dry-run preview' );
+npcink_abilities_toolkit_assert_same( false, $article_audio_preview['updated'] ?? null, 'adopt-article-audio dry-run does not update metadata' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_preview['preview']['no_content_write'] ?? null, 'adopt-article-audio preview records that content is untouched' );
+npcink_abilities_toolkit_assert_same( true, in_array( '_npcink_toolbox_article_audio_url', $article_audio_preview['audio_meta_keys'] ?? array(), true ), 'adopt-article-audio previews the bounded article audio URL meta key' );
+$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+$article_audio_written = $core_write_package->adopt_article_audio(
+	array(
+		'post_id'             => 501,
+		'audio_url'           => 'https://cloud.example.test/audio/article-narration.mp3',
+		'audio_title'         => 'Reviewed narration',
+		'audio_kind'          => 'article_narration',
+		'duration_seconds'    => 185.25,
+		'mime_type'           => 'audio/mpeg',
+		'source_content_hash' => 'sha256:article-source',
+		'source_word_count'   => 1234,
+		'source_generated_at' => '2026-06-24T09:30:00Z',
+		'provider'            => 'minimax',
+		'model'               => 'speech-2.8-turbo',
+		'trace_id'            => 'trace_audio_456',
+		'commit'              => true,
+	)
+);
+unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+npcink_abilities_toolkit_assert_same( false, $article_audio_written['dry_run'] ?? null, 'adopt-article-audio commit returns a committed payload after approval' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_written['updated'] ?? null, 'adopt-article-audio commit reports metadata update' );
+npcink_abilities_toolkit_assert_same( 'https://cloud.example.test/audio/article-narration.mp3', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_url'] ?? '', 'adopt-article-audio writes the article audio URL meta' );
+npcink_abilities_toolkit_assert_same( 'article_narration', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_kind'] ?? '', 'adopt-article-audio writes the article audio kind meta' );
+npcink_abilities_toolkit_assert_same( 'sha256:article-source', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_source_content_hash'] ?? '', 'adopt-article-audio writes freshness source hash meta' );
+npcink_abilities_toolkit_assert_same( 'minimax', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_provider'] ?? '', 'adopt-article-audio writes provider evidence meta' );
 $GLOBALS['npcink_abilities_toolkit_unit_comments'][11] = (object) array(
 	'comment_ID'       => 11,
 	'comment_post_ID'  => 77,
@@ -5643,6 +5691,40 @@ npcink_abilities_toolkit_assert_same( false, $content_metadata_write_actions[1][
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/set-post-terms', $content_metadata_write_actions[2]['target_ability_id'] ?? '', 'build-content-metadata-apply-plan targets set-post-terms for tag changes' );
 npcink_abilities_toolkit_assert_same( false, $content_metadata_write_actions[2]['input']['create_missing'] ?? null, 'build-content-metadata-apply-plan never creates missing tag terms' );
 npcink_abilities_toolkit_assert_same( 1, count( $content_metadata_apply_plan['data']['manual_review'] ?? array() ), 'build-content-metadata-apply-plan records new-term candidates as manual review only' );
+$article_audio_adoption_plan = $core_read_package->build_article_audio_adoption_plan(
+	array(
+		'post_id'              => 501,
+		'candidate_type'       => 'article_audio_summary',
+		'audio_url'            => 'https://cloud.example.test/audio/article-summary.mp3',
+		'source_content_hash'  => 'sha256:article-source',
+		'source_word_count'    => 1234,
+		'source_generated_at'  => '2026-06-24T09:30:00Z',
+		'audio_candidate'      => array(
+			'title'            => 'Reviewed audio summary',
+			'duration_seconds' => 42.5,
+			'mime_type'        => 'audio/mpeg',
+			'provider'         => 'minimax',
+			'model'            => 'speech-2.8-turbo',
+			'trace_id'         => 'trace_audio_123',
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_audio_adoption_plan['success'] ?? null, 'build-article-audio-adoption-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'article_audio_adoption_plan.v1', $article_audio_adoption_plan['data']['artifact_type'] ?? '', 'article audio adoption plan declares the versioned artifact type' );
+npcink_abilities_toolkit_assert_same( false, $article_audio_adoption_plan['data']['direct_wordpress_write'] ?? null, 'article audio adoption plan does not directly write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $article_audio_adoption_plan['data']['commit_execution'] ?? null, 'article audio adoption plan keeps commit execution disabled' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_adoption_plan['meta']['readonly'] ?? null, 'article audio adoption plan remains read-only' );
+$article_audio_write_actions = is_array( $article_audio_adoption_plan['data']['write_actions'] ?? null ) ? $article_audio_adoption_plan['data']['write_actions'] : array();
+npcink_abilities_toolkit_assert_same( 1, count( $article_audio_write_actions ), 'article audio adoption plan emits one post-meta write action' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/adopt-article-audio', $article_audio_write_actions[0]['target_ability_id'] ?? '', 'article audio adoption plan targets the governed audio adoption ability' );
+npcink_abilities_toolkit_assert_same( 'low', $article_audio_write_actions[0]['risk'] ?? '', 'article audio adoption action is low risk' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_write_actions[0]['requires_approval'] ?? null, 'article audio adoption action still requires governance approval' );
+npcink_abilities_toolkit_assert_same( 501, $article_audio_write_actions[0]['input']['post_id'] ?? 0, 'article audio adoption action includes the target post id' );
+npcink_abilities_toolkit_assert_same( 'https://cloud.example.test/audio/article-summary.mp3', $article_audio_write_actions[0]['input']['audio_url'] ?? '', 'article audio adoption action includes the reviewed audio url' );
+npcink_abilities_toolkit_assert_same( 'article_audio_summary', $article_audio_write_actions[0]['input']['audio_kind'] ?? '', 'article audio adoption action preserves the candidate type' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_write_actions[0]['input']['dry_run'] ?? null, 'article audio adoption action is dry-run' );
+npcink_abilities_toolkit_assert_same( false, $article_audio_write_actions[0]['input']['commit'] ?? null, 'article audio adoption action does not request commit' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-audio-adoption-plan', $article_audio_adoption_plan['data']['handoff']['plan_ability_id'] ?? '', 'article audio adoption plan identifies the Toolkit Core handoff ability' );
 $article_block_plan = $core_read_package->build_article_block_plan(
 	array(
 		'title'              => 'Gutenberg Article Draft',

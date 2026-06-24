@@ -93,6 +93,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/build-article-single-optimization-suggest' => 'article_workflow_context',
 			'npcink-abilities-toolkit/build-article-optimization-apply-plan'   => 'article_workflow_context',
 			'npcink-abilities-toolkit/build-content-metadata-apply-plan'       => 'article_workflow_context',
+			'npcink-abilities-toolkit/build-article-audio-adoption-plan'       => 'article_workflow_context',
 			'npcink-abilities-toolkit/compose-article-optimization-apply-result' => 'article_workflow_context',
 			'npcink-abilities-toolkit/extract-reference-post-style'            => 'article_workflow_context',
 			'npcink-abilities-toolkit/extract-style-baseline'                  => 'article_workflow_context',
