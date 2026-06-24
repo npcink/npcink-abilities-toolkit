@@ -17,6 +17,10 @@ Before changing files:
 3. Do not include unrelated local edits in your commit or pull request.
 4. Read `CONTRIBUTING.md` and the relevant docs before changing ability
    contracts, governance boundaries, or release tooling.
+5. For AI-assisted work, write a compact change envelope before editing: target
+   repositories, focused module, intended change, explicit non-goals, public
+   contracts touched, expected files, files or areas that must not change,
+   required gates, cross-repo matrix requirement, and rollback plan.
 
 ## Project Boundaries
 
@@ -42,6 +46,8 @@ host-governed where the existing contracts require it.
 - Required CI and required conversation resolution are the main merge gates.
 - Before staging, inspect `git status --short` and `git diff --stat`. Do not
   use `git add -A` in a mixed worktree.
+- Do not run `git reset --hard`, `git checkout -- .`, or equivalent destructive
+  cleanup unless the user explicitly asks for that exact operation.
 - When a file contains unrelated hunks, stage only the intended hunk with
   `git add -p` or `git apply --cached`.
 - Before committing, verify `git diff --cached --stat` and
@@ -53,6 +59,10 @@ host-governed where the existing contracts require it.
 - A local branch that is ahead of its upstream is not published. At closeout,
   either push/open or update the PR, or explicitly record why the commits remain
   local-only.
+- For multi-repo closeout, run the central quality matrix from
+  `/Users/muze/gitee/npcink-toolbox`: `composer quality:matrix` for status and
+  `composer quality:matrix:run` for the gate-running matrix. Do not copy that
+  cross-repo script into this repository.
 
 ## Post-Merge Cleanup
 
