@@ -2091,6 +2091,47 @@ npcink_abilities_toolkit_assert_same( 'https://cloud.example.test/audio/article-
 npcink_abilities_toolkit_assert_same( 'article_narration', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_kind'] ?? '', 'adopt-article-audio writes the article audio kind meta' );
 npcink_abilities_toolkit_assert_same( 'sha256:article-source', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_source_content_hash'] ?? '', 'adopt-article-audio writes freshness source hash meta' );
 npcink_abilities_toolkit_assert_same( 'minimax', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_provider'] ?? '', 'adopt-article-audio writes provider evidence meta' );
+$article_audio_upload_dir = sys_get_temp_dir() . '/npcink-abilities-toolkit-audio-import-' . getmypid();
+$GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] = $article_audio_upload_dir;
+$GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] = 'https://origin.example.test/wp-content/uploads';
+$GLOBALS['npcink_abilities_toolkit_unit_http_responses'] = array(
+	'https://cloud.example.test/audio/signed-runtime-url' => array(
+		'status'       => 200,
+		'content_type' => 'audio/mpeg',
+		'body'         => str_repeat( 'a', 128 ),
+	),
+);
+$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+$article_audio_imported = $core_write_package->adopt_article_audio(
+	array(
+		'post_id'             => 501,
+		'audio_url'           => 'https://cloud.example.test/audio/signed-runtime-url',
+		'audio_title'         => 'Imported narration',
+		'audio_kind'          => 'article_narration',
+		'duration_seconds'    => 45,
+		'mime_type'           => 'audio/mpeg',
+		'source_content_hash' => 'sha256:article-source-import',
+		'source_word_count'   => 456,
+		'source_generated_at' => '2026-06-24T10:00:00Z',
+		'provider'            => 'minimax',
+		'model'               => 'speech-2.8-turbo',
+		'trace_id'            => 'trace_audio_import',
+		'import_media'        => true,
+		'media_file_name'     => 'reviewed-narration',
+		'commit'              => true,
+	)
+);
+unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_http_responses'] );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_upload_baseurl'] );
+npcink_abilities_toolkit_assert_true( ! is_wp_error( $article_audio_imported ), 'adopt-article-audio imports media after approval' . ( is_wp_error( $article_audio_imported ) ? ': ' . $article_audio_imported->get_error_code() : '' ) );
+npcink_abilities_toolkit_assert_same( 'wordpress_media_library', $article_audio_imported['storage_mode'] ?? '', 'adopt-article-audio import reports WordPress media library storage' );
+npcink_abilities_toolkit_assert_true( (int) ( $article_audio_imported['attachment_id'] ?? 0 ) > 0, 'adopt-article-audio import creates an attachment' );
+npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $article_audio_imported['local_audio_url'] ?? '' ), 'reviewed-narration.mp3' ), 'adopt-article-audio import resolves a local audio URL with an audio extension' );
+npcink_abilities_toolkit_assert_same( (string) ( $article_audio_imported['attachment_id'] ?? 0 ), (string) ( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_attachment_id'] ?? '' ), 'adopt-article-audio import writes the local attachment id meta' );
+npcink_abilities_toolkit_assert_same( $article_audio_imported['local_audio_url'] ?? '', $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][501]['_npcink_toolbox_article_audio_url'] ?? '', 'adopt-article-audio import switches playback URL to the local media URL' );
+npcink_abilities_toolkit_assert_true( is_readable( $article_audio_upload_dir . '/reviewed-narration.mp3' ), 'adopt-article-audio import writes the audio file into uploads' );
 $GLOBALS['npcink_abilities_toolkit_unit_comments'][11] = (object) array(
 	'comment_ID'       => 11,
 	'comment_post_ID'  => 77,
@@ -5699,6 +5740,8 @@ $article_audio_adoption_plan = $core_read_package->build_article_audio_adoption_
 		'source_content_hash'  => 'sha256:article-source',
 		'source_word_count'    => 1234,
 		'source_generated_at'  => '2026-06-24T09:30:00Z',
+		'import_media'         => true,
+		'media_file_name'      => 'reviewed-audio-summary',
 		'audio_candidate'      => array(
 			'title'            => 'Reviewed audio summary',
 			'duration_seconds' => 42.5,
@@ -5722,6 +5765,8 @@ npcink_abilities_toolkit_assert_same( true, $article_audio_write_actions[0]['req
 npcink_abilities_toolkit_assert_same( 501, $article_audio_write_actions[0]['input']['post_id'] ?? 0, 'article audio adoption action includes the target post id' );
 npcink_abilities_toolkit_assert_same( 'https://cloud.example.test/audio/article-summary.mp3', $article_audio_write_actions[0]['input']['audio_url'] ?? '', 'article audio adoption action includes the reviewed audio url' );
 npcink_abilities_toolkit_assert_same( 'article_audio_summary', $article_audio_write_actions[0]['input']['audio_kind'] ?? '', 'article audio adoption action preserves the candidate type' );
+npcink_abilities_toolkit_assert_same( true, $article_audio_write_actions[0]['input']['import_media'] ?? null, 'article audio adoption action carries the local media import decision' );
+npcink_abilities_toolkit_assert_same( 'reviewed-audio-summary', $article_audio_write_actions[0]['input']['media_file_name'] ?? '', 'article audio adoption action carries the reviewed audio file name' );
 npcink_abilities_toolkit_assert_same( true, $article_audio_write_actions[0]['input']['dry_run'] ?? null, 'article audio adoption action is dry-run' );
 npcink_abilities_toolkit_assert_same( false, $article_audio_write_actions[0]['input']['commit'] ?? null, 'article audio adoption action does not request commit' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-article-audio-adoption-plan', $article_audio_adoption_plan['data']['handoff']['plan_ability_id'] ?? '', 'article audio adoption plan identifies the Toolkit Core handoff ability' );

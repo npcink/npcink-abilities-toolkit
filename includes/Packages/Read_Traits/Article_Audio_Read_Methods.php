@@ -52,6 +52,8 @@ trait Article_Audio_Read_Methods {
 		$provider         = sanitize_key( (string) ( $candidate['provider'] ?? ( $input['provider'] ?? '' ) ) );
 		$model            = sanitize_text_field( (string) ( $candidate['model'] ?? ( $input['model'] ?? '' ) ) );
 		$trace_id         = sanitize_text_field( (string) ( $candidate['trace_id'] ?? ( $candidate['trace'] ?? ( $input['trace_id'] ?? '' ) ) ) );
+		$import_media     = ! empty( $input['import_media'] ) || ! empty( $candidate['import_media'] );
+		$media_file_name  = sanitize_text_field( (string) ( $input['media_file_name'] ?? ( $candidate['media_file_name'] ?? '' ) ) );
 
 		$ability_input = array(
 			'post_id'                                    => $post_id,
@@ -66,6 +68,8 @@ trait Article_Audio_Read_Methods {
 			'provider'                                   => $provider,
 			'model'                                      => $model,
 			'trace_id'                                   => $trace_id,
+			'import_media'                               => $import_media,
+			'media_file_name'                            => $media_file_name,
 			'dry_run'                                    => true,
 			'commit'                                     => false,
 			'idempotency_key'                            => 'article-audio-adoption-' . substr( md5( $post_id . '|' . $kind . '|' . $audio_url ), 0, 16 ),

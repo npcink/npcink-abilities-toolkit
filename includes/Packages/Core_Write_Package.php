@@ -234,6 +234,8 @@ final class Core_Write_Package {
 						'provider'            => array( 'type' => 'string', 'maxLength' => 80 ),
 						'model'               => array( 'type' => 'string', 'maxLength' => 160 ),
 						'trace_id'            => array( 'type' => 'string', 'maxLength' => 160 ),
+						'import_media'        => array( 'type' => 'boolean', 'default' => false ),
+						'media_file_name'     => array( 'type' => 'string', 'maxLength' => 180 ),
 					),
 					array( 'post_id', 'audio_url' )
 				),
@@ -241,6 +243,9 @@ final class Core_Write_Package {
 					array(
 						'post_id'           => array( 'type' => 'integer' ),
 						'updated'           => array( 'type' => 'boolean' ),
+						'attachment_id'     => array( 'type' => 'integer' ),
+						'local_audio_url'   => array( 'type' => 'string' ),
+						'storage_mode'      => array( 'type' => 'string' ),
 						'audio_meta_keys'   => array( 'type' => 'array', 'items' => array( 'type' => 'string' ) ),
 						'changes'           => array( 'type' => 'object', 'additionalProperties' => true ),
 						'freshness_evidence' => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -1573,9 +1578,11 @@ final class Core_Write_Package {
 		}
 
 		$duration_seconds = isset( $input['duration_seconds'] ) && is_numeric( $input['duration_seconds'] ) ? max( 0, (float) $input['duration_seconds'] ) : 0.0;
+		$import_media     = ! empty( $input['import_media'] );
+		$audio_title      = sanitize_text_field( (string) ( $input['audio_title'] ?? ( 'article_audio_summary' === $audio_kind ? __( 'Audio summary', 'npcink-abilities-toolkit' ) : __( 'Article narration', 'npcink-abilities-toolkit' ) ) ) );
 		$meta_updates     = array(
 			'_npcink_toolbox_article_audio_url'                 => $audio_url,
-			'_npcink_toolbox_article_audio_title'               => sanitize_text_field( (string) ( $input['audio_title'] ?? ( 'article_audio_summary' === $audio_kind ? __( 'Audio summary', 'npcink-abilities-toolkit' ) : __( 'Article narration', 'npcink-abilities-toolkit' ) ) ) ),
+			'_npcink_toolbox_article_audio_title'               => $audio_title,
 			'_npcink_toolbox_article_audio_kind'                => $audio_kind,
 			'_npcink_toolbox_article_audio_duration_seconds'    => (string) $duration_seconds,
 			'_npcink_toolbox_article_audio_mime_type'           => sanitize_text_field( (string) ( $input['mime_type'] ?? 'audio/mpeg' ) ),
@@ -1583,6 +1590,9 @@ final class Core_Write_Package {
 			'_npcink_toolbox_article_audio_source_word_count'   => (string) absint( $input['source_word_count'] ?? 0 ),
 			'_npcink_toolbox_article_audio_source_generated_at' => sanitize_text_field( (string) ( $input['source_generated_at'] ?? gmdate( 'c' ) ) ),
 		);
+		if ( $import_media ) {
+			$meta_updates['_npcink_toolbox_article_audio_attachment_id'] = '0';
+		}
 
 		$optional_updates = array(
 			'_npcink_toolbox_article_audio_provider' => sanitize_key( (string) ( $input['provider'] ?? '' ) ),
@@ -1598,6 +1608,9 @@ final class Core_Write_Package {
 		$payload = array(
 			'post_id'           => $post_id,
 			'updated'           => false,
+			'attachment_id'     => 0,
+			'local_audio_url'   => '',
+			'storage_mode'      => $import_media ? 'wordpress_media_library' : 'remote_url',
 			'audio_meta_keys'   => array_keys( $meta_updates ),
 			'changes'           => $meta_updates,
 			'freshness_evidence' => array(
@@ -1610,7 +1623,8 @@ final class Core_Write_Package {
 				'changed_meta_key_count' => count( $meta_updates ),
 				'no_content_write'      => true,
 				'no_publish'            => true,
-				'no_media_import'       => true,
+				'no_media_import'       => ! $import_media,
+				'media_import'          => $import_media ? 'planned' : 'none',
 			),
 			'edit_link'         => $this->edit_link( $post_id ),
 		);
@@ -1626,12 +1640,36 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_post_meta_unavailable', __( 'Post meta writer is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
+		if ( $import_media ) {
+			if ( ! current_user_can( 'upload_files' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to upload media.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			$attachment_id = $this->upload_media_asset_from_url( $audio_url, $post_id, $audio_title, (string) ( $input['media_file_name'] ?? '' ) );
+			if ( is_wp_error( $attachment_id ) ) {
+				return $attachment_id;
+			}
+			$attachment_id = absint( $attachment_id );
+			$local_url     = function_exists( 'wp_get_attachment_url' ) ? esc_url_raw( (string) wp_get_attachment_url( $attachment_id ) ) : '';
+			$local_mime    = function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : '';
+			if ( '' !== $local_url ) {
+				$meta_updates['_npcink_toolbox_article_audio_url'] = $local_url;
+			}
+			if ( '' !== $local_mime ) {
+				$meta_updates['_npcink_toolbox_article_audio_mime_type'] = $local_mime;
+			}
+			$meta_updates['_npcink_toolbox_article_audio_attachment_id'] = (string) $attachment_id;
+			$payload['attachment_id'] = $attachment_id;
+			$payload['local_audio_url'] = $local_url;
+		}
+
 		foreach ( $meta_updates as $key => $value ) {
 			update_post_meta( $post_id, $key, $value );
 		}
 
 		$payload['updated'] = true;
 		$payload['dry_run'] = false;
+		$payload['audio_meta_keys'] = array_keys( $meta_updates );
+		$payload['changes'] = $meta_updates;
 		unset( $payload['preview'] );
 		return $payload;
 	}
@@ -4097,6 +4135,13 @@ final class Core_Write_Package {
 				'image/png'  => 'png',
 				'image/gif'  => 'gif',
 				'image/webp' => 'webp',
+				'audio/mpeg' => 'mp3',
+				'audio/mp3'  => 'mp3',
+				'audio/wav'  => 'wav',
+				'audio/x-wav' => 'wav',
+				'audio/mp4'  => 'm4a',
+				'audio/aac'  => 'aac',
+				'audio/ogg'  => 'ogg',
 			);
 			if ( isset( $extension_map[ $content_type ] ) ) {
 				$filename .= '.' . $extension_map[ $content_type ];
