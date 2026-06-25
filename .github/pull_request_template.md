@@ -12,6 +12,16 @@
 - [ ] `git diff --check`
 - [ ] `WP_PATH=/path/to/wordpress composer release:verify` if release-facing
 
+## Boundary
+
+- [ ] Ability definitions remain reusable WordPress contracts, not model routing, workflow runtime, approval storage, billing, quota, cloud execution, or MCP gateway policy.
+- [ ] Write-like behavior remains dry-run or host-governed where the existing contracts require it.
+
+## Risk
+
+- Residual risk:
+- Rollback plan:
+
 ## Release Impact
 
 - [ ] No release needed
