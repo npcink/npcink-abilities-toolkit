@@ -314,7 +314,7 @@ trait Content_Inventory_Read_Methods {
 				'preview'           => $preview,
 				'risk'              => array(
 					'level'  => empty( $preview['terms'] ) ? 'medium' : 'high',
-					'reason' => 'Posts and comments are trashable; term deletion is irreversible and only proposed for unused terms.',
+					'reason' => __( 'Posts and comments are trashable; term deletion is irreversible and only proposed for unused terms.', 'npcink-abilities-toolkit' ),
 				),
 				'inventory_summary' => is_array( $data['summary'] ?? null ) ? $data['summary'] : array(),
 			),
@@ -397,7 +397,7 @@ trait Content_Inventory_Read_Methods {
 				'preview'           => $preview,
 				'risk'              => array(
 					'level'  => 'medium',
-					'reason' => 'Plan maps issues to existing write abilities only; final writes require Core approval and host execution.',
+					'reason' => __( 'Plan maps issues to existing write abilities only; final writes require Core approval and host execution.', 'npcink-abilities-toolkit' ),
 				),
 			),
 			array(

@@ -337,6 +337,10 @@ foreach (
 		'Raw discovery fetches',
 		'Contract Endpoint',
 		'Copy Contract Endpoint',
+		'Details',
+		'Raw response for support',
+		'Adopt Article Audio',
+		'Writes reviewed generated narration or audio summary metadata to one post after host approval, or returns a dry-run preview by default.',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $translation_template ) && false !== strpos( $translation_template, $required ), 'translation template includes admin diagnostics string: ' . $required );
@@ -689,6 +693,21 @@ add_filter(
 );
 $plugin = Plugin::instance();
 $plugin->boot();
+$loaded_textdomains = isset( $GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'] )
+	? $GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains']
+	: array();
+$loaded_toolkit_textdomain = false;
+foreach ( $loaded_textdomains as $loaded_textdomain ) {
+	if (
+		is_array( $loaded_textdomain )
+		&& 'npcink-abilities-toolkit' === ( $loaded_textdomain['domain'] ?? '' )
+		&& false !== strpos( (string) ( $loaded_textdomain['path'] ?? '' ), 'languages' )
+	) {
+		$loaded_toolkit_textdomain = true;
+		break;
+	}
+}
+npcink_abilities_toolkit_assert_true( $loaded_toolkit_textdomain, 'plugin boot loads bundled translations from the languages directory' );
 $plugin_abilities = $plugin->abilities()->all();
 npcink_abilities_toolkit_assert_true( isset( $plugin_abilities['npcink-abilities-toolkit/site-info'] ), 'package filter keeps enabled core read package' );
 npcink_abilities_toolkit_assert_true( ! isset( $plugin_abilities['npcink-abilities-toolkit/create-draft'] ), 'package filter disables core write package' );
@@ -2960,6 +2979,9 @@ $mention_suggest = $core_comment_package->build_comment_mention_reply_suggest(
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['success'] ?? null, 'build-comment-mention-reply-suggest returns a success envelope' );
 npcink_abilities_toolkit_assert_same( true, $mention_suggest['data']['trigger']['trigger_detected'] ?? null, 'build-comment-mention-reply-suggest detects mention trigger' );
 npcink_abilities_toolkit_assert_true( ! empty( $mention_suggest['data']['reply_options'] ), 'build-comment-mention-reply-suggest returns review-only reply options' );
+npcink_abilities_toolkit_assert_same( 'acknowledge_and_answer', $mention_suggest['data']['reply_options'][0]['id'] ?? '', 'build-comment-mention-reply-suggest keeps stable reply option ids' );
+npcink_abilities_toolkit_assert_true( '' !== (string) ( $mention_suggest['data']['reply_options'][0]['label'] ?? '' ), 'build-comment-mention-reply-suggest exposes reply option labels' );
+npcink_abilities_toolkit_assert_true( '' !== (string) ( $mention_suggest['data']['reply_options'][0]['reason'] ?? '' ), 'build-comment-mention-reply-suggest exposes reply option reasons' );
 $text_reply_suggest = $core_comment_package->build_comment_mention_reply_suggest(
 	array(
 		'post_id'        => 77,
@@ -5475,6 +5497,13 @@ npcink_abilities_toolkit_assert_same( 'article_taxonomy_suggestions.v1', $post_t
 npcink_abilities_toolkit_assert_same( 'suggestion_only', $post_taxonomy_suggestions['data']['write_posture'] ?? '', 'suggest-post-taxonomy-terms stays suggestion-only' );
 npcink_abilities_toolkit_assert_same( 'core_proposal_required', $post_taxonomy_suggestions['data']['final_write_path'] ?? '', 'suggest-post-taxonomy-terms requires Core proposal for writes' );
 npcink_abilities_toolkit_assert_same( 'AI Workflow', $post_taxonomy_suggestions['data']['tag_candidates'][0]['name'] ?? '', 'suggest-post-taxonomy-terms ranks matching existing tags' );
+$taxonomy_recommendation_labels = array_map(
+	static function ( array $candidate ): string {
+		return (string) ( $candidate['label'] ?? '' );
+	},
+	is_array( $post_taxonomy_suggestions['data']['recommendation_candidates'] ?? null ) ? $post_taxonomy_suggestions['data']['recommendation_candidates'] : array()
+);
+npcink_abilities_toolkit_assert_true( in_array( 'Existing tag', $taxonomy_recommendation_labels, true ), 'suggest-post-taxonomy-terms exposes recommendation candidate labels' );
 npcink_abilities_toolkit_assert_true( in_array( 'related_site_knowledge_term', $post_taxonomy_suggestions['data']['tag_candidates'][0]['match_signals'] ?? array(), true ), 'suggest-post-taxonomy-terms keeps related evidence as ranking signal' );
 npcink_abilities_toolkit_assert_same( true, $post_taxonomy_suggestions['data']['selection_policy']['new_terms_deferred'] ?? null, 'suggest-post-taxonomy-terms defers new term creation' );
 $GLOBALS['npcink_abilities_toolkit_unit_post_terms'][77]['post_tag'] = array(
