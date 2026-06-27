@@ -11,6 +11,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ) {
 	define( 'NPCINK_ABILITIES_TOOLKIT_VERSION', '0.1.0-test' );
 }
+if ( ! defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
+	define( 'NPCINK_ABILITIES_TOOLKIT_FILE', dirname( __DIR__ ) . '/npcink-abilities-toolkit.php' );
+}
 if ( ! defined( 'MB_IN_BYTES' ) ) {
 	define( 'MB_IN_BYTES', 1048576 );
 }
@@ -248,6 +251,26 @@ if ( ! function_exists( '__' ) ) {
 	function __( $text, $domain = 'default' ) {
 		unset( $domain );
 		return $text;
+	}
+}
+
+if ( ! function_exists( 'plugin_basename' ) ) {
+	function plugin_basename( $file ) {
+		return basename( dirname( (string) $file ) ) . '/' . basename( (string) $file );
+	}
+}
+
+if ( ! function_exists( 'load_plugin_textdomain' ) ) {
+	function load_plugin_textdomain( $domain, $deprecated = false, $plugin_rel_path = false ) {
+		unset( $deprecated );
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'] = array();
+		}
+		$GLOBALS['npcink_abilities_toolkit_unit_loaded_textdomains'][] = array(
+			'domain' => (string) $domain,
+			'path'   => (string) $plugin_rel_path,
+		);
+		return true;
 	}
 }
 

@@ -139,6 +139,7 @@ final class Plugin {
 		}
 
 		$this->booted = true;
+		$this->load_textdomain();
 		if ( function_exists( 'add_action' ) ) {
 			add_action( 'rest_api_init', array( new Contract_Controller(), 'register_routes' ) );
 		}
@@ -161,13 +162,30 @@ final class Plugin {
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
 			$this->test_page->boot();
-			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) ) {
-				add_filter( 'plugin_action_links_' . plugin_basename( NPCINK_ABILITIES_TOOLKIT_FILE ), array( $this, 'filter_plugin_action_links' ) );
+			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) && defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
+				add_filter( 'plugin_action_links_' . plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ), array( $this, 'filter_plugin_action_links' ) );
 			}
 		}
 		if ( $this->is_package_enabled( 'read_cache_hooks' ) ) {
 			$this->register_cache_invalidation_hooks();
 		}
+	}
+
+	/**
+	 * Loads bundled translations from the plugin languages directory.
+	 *
+	 * @return void
+	 */
+	private function load_textdomain(): void {
+		if ( ! function_exists( 'load_plugin_textdomain' ) || ! function_exists( 'plugin_basename' ) || ! defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
+			return;
+		}
+
+		load_plugin_textdomain(
+			'npcink-abilities-toolkit',
+			false,
+			dirname( plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) ) . '/languages'
+		);
 	}
 
 	/**

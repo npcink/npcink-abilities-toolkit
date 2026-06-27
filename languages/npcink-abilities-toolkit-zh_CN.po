@@ -277,12 +277,6 @@ msgstr "显示 %1$d-%2$d 项能力（共 %3$d 项）。"
 msgid "No abilities match the current filters."
 msgstr "没有能力匹配当前筛选条件。"
 
-#. translators: 1: ability count, 2: missing callback count.
-#: includes/Admin/Test_Page.php:493
-#, php-format
-msgid "%1$d abilities, %2$d callback issues"
-msgstr "%1$d 能力，%2$d 回调问题"
-
 #: includes/Admin/Test_Page.php:549
 msgid "Search"
 msgstr "搜索"
@@ -1331,6 +1325,18 @@ msgid ""
 "choices without applying writes."
 msgstr "根据已审核的摘要、分类和标签选择构建 Core 可接收的应用计划，而不执行写入。"
 
+#: includes/Packages/Core_Read_Package.php:1071
+msgid "Build Article Audio Adoption Plan"
+msgstr "构建文章音频采用计划"
+
+#: includes/Packages/Core_Read_Package.php:1072
+msgid ""
+"Builds one Core-ready plan for attaching a reviewed generated narration or "
+"audio summary to a post without writing metadata directly."
+msgstr ""
+"构建一个可交给 Core 的计划，用于将已审核的生成旁白或音频摘要附加到文章，而不"
+"直接写入元数据。"
+
 #: includes/Packages/Core_Read_Package.php:1070
 msgid "Compose Article Optimization Apply Result"
 msgstr "撰写文章优化应用结果"
@@ -2144,6 +2150,60 @@ msgstr ""
 "在 host 批准后更新一篇文章的 SEO 标题和描述元数据，或默认返回 dry-run 预览。"
 
 #: includes/Packages/Core_Write_Package.php:216
+msgid "Adopt Article Audio"
+msgstr "采用文章音频"
+
+#: includes/Packages/Core_Write_Package.php:217
+msgid ""
+"Writes reviewed generated narration or audio summary metadata to one post "
+"after host approval, or returns a dry-run preview by default."
+msgstr ""
+"在 host 批准后，将已审核的生成旁白或音频摘要元数据写入一篇文章，或默认返回 "
+"dry-run 预览。"
+
+#: includes/Packages/Core_Write_Package.php:1572
+msgid "Article audio URL is required."
+msgstr "需要文章音频 URL。"
+
+#: includes/Packages/Core_Write_Package.php:1577
+msgid "Article audio kind is invalid."
+msgstr "文章音频类型无效。"
+
+#: includes/Packages/Core_Write_Package.php:1582
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:42
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:44
+msgid "Audio summary"
+msgstr "音频摘要"
+
+#: includes/Packages/Core_Write_Package.php:1582
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:42
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:44
+msgid "Article narration"
+msgstr "文章旁白"
+
+#: includes/Packages/Core_Write_Package.php:1640
+msgid "Post meta writer is unavailable."
+msgstr "文章元数据写入器不可用。"
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:31
+msgid "A post_id is required before preparing article audio adoption."
+msgstr "准备文章音频采用前需要 post_id。"
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:34
+msgid "An audio URL is required before preparing article audio adoption."
+msgstr "准备文章音频采用前需要音频 URL。"
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:89
+msgid ""
+"Attach the reviewed generated audio candidate to the current post after Core "
+"approval."
+msgstr "在 Core 批准后，将已审核的生成音频候选附加到当前文章。"
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:142
+msgid "Article audio adoption plan is ready for Core proposal intake."
+msgstr "文章音频采用计划已可交给 Core 提案入口。"
+
+#: includes/Packages/Core_Write_Package.php:216
 msgid "Patch Post Content"
 msgstr "补丁发布内容"
 
@@ -2881,6 +2941,20 @@ msgstr "当前媒体文件与预期值不匹配。"
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2174
 msgid "The current media MIME type did not match the expected value."
 msgstr "当前媒体 MIME 类型与预期值不匹配。"
+
+#: includes/Packages/Core_Write_Package.php:5493
+msgid "The current media storage provider did not match the expected value."
+msgstr "当前媒体存储提供方与预期值不匹配。"
+
+#: includes/Packages/Core_Write_Package.php:5497
+msgid "The current media storage adapter did not match the expected value."
+msgstr "当前媒体存储适配器与预期值不匹配。"
+
+#: includes/Packages/Core_Write_Package.php:5513
+msgid ""
+"Current media storage requires a host storage adapter before this file "
+"operation can commit."
+msgstr "当前媒体存储需要 host 存储适配器后才能提交此文件操作。"
 
 #: includes/Packages/Core_Write_Package.php:5261
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2156
@@ -4315,3 +4389,133 @@ msgstr "为 true 时，尝试执行最终提交。仍然需要 host 审批上下
 msgid ""
 "Optional host-provided idempotency key for audit and replay correlation."
 msgstr "可选的 host 提供幂等键，用于审计和重放关联。"
+
+#: includes/Packages/Core_Comment_Package.php:882
+msgid "this article"
+msgstr "这篇文章"
+
+#: includes/Packages/Core_Comment_Package.php:887
+msgid "Acknowledge and answer"
+msgstr "确认并回复"
+
+#: includes/Packages/Core_Comment_Package.php:888
+msgid ""
+"Thanks for raising this. We will review it against the article before taking "
+"action."
+msgstr "感谢提出这个问题。我们会先对照文章审核，再采取后续操作。"
+
+#: includes/Packages/Core_Comment_Package.php:889
+msgid ""
+"Useful when the comment asks for clarification or a concrete next step."
+msgstr "适用于评论要求澄清或给出具体下一步的情况。"
+
+#: includes/Packages/Core_Comment_Package.php:896
+msgid "Ask for detail"
+msgstr "询问更多细节"
+
+#: includes/Packages/Core_Comment_Package.php:897
+msgid ""
+"Thanks for the note. Could you share one concrete example or the context "
+"where you saw this issue? That will make the follow-up more accurate."
+msgstr "感谢反馈。能否提供一个具体示例，或说明看到这个问题的上下文？这样后续处理会更准确。"
+
+#: includes/Packages/Core_Comment_Package.php:898
+msgid ""
+"Useful when the comment is broad, ambiguous, or missing enough context for a "
+"confident answer."
+msgstr "适用于评论较宽泛、含糊，或缺少足够上下文，无法有把握回复的情况。"
+
+#: includes/Packages/Core_Comment_Package.php:905
+msgid "Review against article"
+msgstr "对照文章审核"
+
+#. translators: 1: comment excerpt, 2: post title or article fallback.
+#: includes/Packages/Core_Comment_Package.php:908
+#, php-format
+msgid ""
+"Thanks for flagging this. I will review \"%1$s\" against \"%2$s\" first so "
+"the reply does not overstate anything unsupported."
+msgstr "感谢指出这个问题。我会先将“%1$s”与“%2$s”对照审核，避免回复夸大没有依据的内容。"
+
+#: includes/Packages/Core_Comment_Package.php:912
+msgid ""
+"Useful when the comment asks for a claim, recommendation, or commitment that "
+"needs source review."
+msgstr "适用于评论要求给出主张、建议或承诺，且需要核查来源的情况。"
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:693
+msgid "Existing category"
+msgstr "现有分类"
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:693
+msgid "Existing tag"
+msgstr "现有标签"
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:317
+msgid ""
+"Posts and comments are trashable; term deletion is irreversible and only "
+"proposed for unused terms."
+msgstr "文章和评论可以移入回收站；分类项删除不可逆，因此只会针对未使用的分类项提出建议。"
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:400
+msgid ""
+"Plan maps issues to existing write abilities only; final writes require Core "
+"approval and host execution."
+msgstr "该计划只将问题映射到现有写入能力；最终写入需要 Core 批准并由 host 执行。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:195
+msgid ""
+"Use the resolved attachment_id only after reviewing match evidence; if "
+"ambiguous, inspect candidates before creating any Core proposal."
+msgstr "只有在审核匹配证据后才使用解析出的 attachment_id；如有歧义，先检查候选项，再创建任何 Core 提案。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1110
+msgid ""
+"Show the Cloud derivative result as a local proposal before recording, "
+"attaching, or replacing any WordPress media file."
+msgstr "在记录、附加或替换任何 WordPress 媒体文件前，先将 Cloud 衍生结果作为本地提案展示。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1114
+msgid ""
+"This ability only prepares a bounded Cloud request contract. File "
+"generation, artifact transport, and WordPress adoption are separate host-"
+"governed steps."
+msgstr "此能力只准备有边界的 Cloud 请求合约。文件生成、工件传输和 WordPress 采用是独立的 host 治理步骤。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1509
+msgid ""
+"One attachment metadata update and one reviewed Cloud derivative adoption "
+"share one Core approval."
+msgstr "一次附件元数据更新和一次已审核的 Cloud 衍生采用共用一次 Core 批准。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4183
+msgid ""
+"Settings repairs are limited to exact URL replacements and require Core "
+"approval before any WordPress setting write."
+msgstr "设置修复仅限精确 URL 替换；写入任何 WordPress 设置前都需要 Core 批准。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4330
+msgid ""
+"Source and attribution metadata must come from a verified source, not a "
+"deterministic guess."
+msgstr "来源和署名元数据必须来自已验证来源，不能来自确定性猜测。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4337
+msgid "Fill missing media SEO and source metadata."
+msgstr "补全缺失的媒体 SEO 和来源元数据。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4338
+msgid "Fill missing media SEO metadata."
+msgstr "补全缺失的媒体 SEO 元数据。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4355
+msgid ""
+"Format attention is a file-asset concern. The media inventory fix plan "
+"records read-only diagnostics and does not map it to a write action."
+msgstr "格式注意项属于文件资产问题。媒体库存修复计划只记录只读诊断，不会将其映射为写入动作。"
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:6024
+msgid ""
+"Asset resize, compression, conversion, or replacement changes files and must "
+"stay out of the media inventory metadata fix action path."
+msgstr "资产缩放、压缩、转换或替换会修改文件，必须留在媒体库存元数据修复动作路径之外。"

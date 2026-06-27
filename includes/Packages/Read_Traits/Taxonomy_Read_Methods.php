@@ -690,7 +690,7 @@ trait Taxonomy_Read_Methods {
 				'candidate_contract' => 'recommendation_candidate.v1',
 				'id'                 => ( 'category' === $taxonomy ? 'category_' : 'tag_' ) . $term_id,
 				'kind'               => 'category' === $taxonomy ? 'category' : 'tag',
-				'label'              => 'category' === $taxonomy ? 'Existing category' : 'Existing tag',
+				'label'              => 'category' === $taxonomy ? __( 'Existing category', 'npcink-abilities-toolkit' ) : __( 'Existing tag', 'npcink-abilities-toolkit' ),
 				'value'              => $name,
 				'reason'             => sanitize_text_field( (string) ( $item['reason'] ?? '' ) ),
 				'confidence'         => $quality['confidence'],

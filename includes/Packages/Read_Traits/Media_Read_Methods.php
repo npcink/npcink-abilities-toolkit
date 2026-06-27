@@ -192,7 +192,7 @@ trait Media_Read_Methods {
 				'proposal_created'            => false,
 				'approval_decision_included'  => false,
 				'canonical_media_truth_included' => false,
-				'suggested_next_step'         => 'Use the resolved attachment_id only after reviewing match evidence; if ambiguous, inspect candidates before creating any Core proposal.',
+				'suggested_next_step'         => __( 'Use the resolved attachment_id only after reviewing match evidence; if ambiguous, inspect candidates before creating any Core proposal.', 'npcink-abilities-toolkit' ),
 			),
 		);
 		if ( $attachment_id > 0 ) {
@@ -1107,11 +1107,11 @@ trait Media_Read_Methods {
 					'final_write_owner'      => 'local_wordpress_host',
 					'approval_required'      => true,
 					'wordpress_write_included' => false,
-					'suggested_next_step'    => 'Show the Cloud derivative result as a local proposal before recording, attaching, or replacing any WordPress media file.',
+					'suggested_next_step'    => __( 'Show the Cloud derivative result as a local proposal before recording, attaching, or replacing any WordPress media file.', 'npcink-abilities-toolkit' ),
 				),
 				'risk'                     => array(
 					'level'  => 'read',
-					'reason' => 'This ability only prepares a bounded Cloud request contract. File generation, artifact transport, and WordPress adoption are separate host-governed steps.',
+					'reason' => __( 'This ability only prepares a bounded Cloud request contract. File generation, artifact transport, and WordPress adoption are separate host-governed steps.', 'npcink-abilities-toolkit' ),
 				),
 			),
 			array(
@@ -1506,7 +1506,7 @@ trait Media_Read_Methods {
 					'write_actions'       => array( $metadata_action, $derivative_action ),
 					'risk'                => array(
 						'level'  => 'medium',
-						'reason' => 'One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval.',
+						'reason' => __( 'One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval.', 'npcink-abilities-toolkit' ),
 					),
 				),
 				array(
@@ -4180,7 +4180,7 @@ trait Media_Read_Methods {
 				'manual_review'     => $manual_review,
 				'risk'              => array(
 					'level'  => ! empty( $manual_review ) ? 'high' : 'medium',
-					'reason' => 'Settings repairs are limited to exact URL replacements and require Core approval before any WordPress setting write.',
+					'reason' => __( 'Settings repairs are limited to exact URL replacements and require Core approval before any WordPress setting write.', 'npcink-abilities-toolkit' ),
 				),
 			),
 			array(
@@ -4327,15 +4327,15 @@ trait Media_Read_Methods {
 					'target_ability_id' => 'npcink-abilities-toolkit/update-media-details',
 					'requires_input'    => array( 'source_type', 'source_page_url_or_attribution_text' ),
 					'proposal_ready'    => false,
-					'reason'            => 'Source and attribution metadata must come from a verified source, not a deterministic guess.',
+					'reason'            => __( 'Source and attribution metadata must come from a verified source, not a deterministic guess.', 'npcink-abilities-toolkit' ),
 				);
 			}
 		}
 
 		if ( count( $update_input ) > 1 && count( $actions ) < $remaining_slots ) {
 			$summary = array_key_exists( 'source_type', $update_input )
-				? 'Fill missing media SEO and source metadata.'
-				: 'Fill missing media SEO metadata.';
+				? __( 'Fill missing media SEO and source metadata.', 'npcink-abilities-toolkit' )
+				: __( 'Fill missing media SEO metadata.', 'npcink-abilities-toolkit' );
 			$actions[] = $this->build_plan_action( 'update_media_details_' . $attachment_id, 'npcink-abilities-toolkit/update-media-details', $update_input, array( 'media.write' ), 'medium', $summary );
 		}
 
@@ -4352,7 +4352,7 @@ trait Media_Read_Methods {
 				'format_governance' => $this->build_media_format_manual_review_context( $format_plan, $warnings ),
 				'requires_input'    => array( 'optimized_derivative_or_operator_decision' ),
 				'proposal_ready'    => false,
-				'reason'            => 'Format attention is a file-asset concern. The media inventory fix plan records read-only diagnostics and does not map it to a write action.',
+				'reason'            => __( 'Format attention is a file-asset concern. The media inventory fix plan records read-only diagnostics and does not map it to a write action.', 'npcink-abilities-toolkit' ),
 			);
 		}
 
@@ -6021,7 +6021,7 @@ trait Media_Read_Methods {
 			'write_action_generated' => false,
 			'estimated_risk'         => 'high',
 			'boundary'               => 'read_only_manual_review',
-			'reason'                 => 'Asset resize, compression, conversion, or replacement changes files and must stay out of the media inventory metadata fix action path.',
+			'reason'                 => __( 'Asset resize, compression, conversion, or replacement changes files and must stay out of the media inventory metadata fix action path.', 'npcink-abilities-toolkit' ),
 		);
 	}
 

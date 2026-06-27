@@ -879,32 +879,37 @@ final class Core_Comment_Package {
 		if ( '' === $post_title && ! empty( $input['title'] ) ) {
 			$post_title = $this->sanitize_text_value( (string) $input['title'] );
 		}
-		$topic = '' !== $post_title ? $post_title : 'this article';
+		$topic = '' !== $post_title ? $post_title : __( 'this article', 'npcink-abilities-toolkit' );
 
 		return array(
 			array(
 				'id'            => 'acknowledge_and_answer',
-				'label'         => 'Acknowledge and answer',
-				'reply_text'    => '' !== $primary_reply ? $primary_reply : 'Thanks for raising this. We will review it against the article before taking action.',
-				'reason'        => 'Useful when the comment asks for clarification or a concrete next step.',
+				'label'         => __( 'Acknowledge and answer', 'npcink-abilities-toolkit' ),
+				'reply_text'    => '' !== $primary_reply ? $primary_reply : __( 'Thanks for raising this. We will review it against the article before taking action.', 'npcink-abilities-toolkit' ),
+				'reason'        => __( 'Useful when the comment asks for clarification or a concrete next step.', 'npcink-abilities-toolkit' ),
 				'status'        => 'review_required',
 				'action_policy' => 'operator_review_only_no_comment_publish',
 				'target_field'  => 'comment_reply',
 			),
 			array(
 				'id'            => 'ask_for_detail',
-				'label'         => 'Ask for detail',
-				'reply_text'    => 'Thanks for the note. Could you share one concrete example or the context where you saw this issue? That will make the follow-up more accurate.',
-				'reason'        => 'Useful when the comment is broad, ambiguous, or missing enough context for a confident answer.',
+				'label'         => __( 'Ask for detail', 'npcink-abilities-toolkit' ),
+				'reply_text'    => __( 'Thanks for the note. Could you share one concrete example or the context where you saw this issue? That will make the follow-up more accurate.', 'npcink-abilities-toolkit' ),
+				'reason'        => __( 'Useful when the comment is broad, ambiguous, or missing enough context for a confident answer.', 'npcink-abilities-toolkit' ),
 				'status'        => 'review_required',
 				'action_policy' => 'operator_review_only_no_comment_publish',
 				'target_field'  => 'comment_reply',
 			),
 			array(
 				'id'            => 'review_against_article',
-				'label'         => 'Review against article',
-				'reply_text'    => sprintf( 'Thanks for flagging this. I will review "%1$s" against "%2$s" first so the reply does not overstate anything unsupported.', $excerpt, $topic ),
-				'reason'        => 'Useful when the comment asks for a claim, recommendation, or commitment that needs source review.',
+				'label'         => __( 'Review against article', 'npcink-abilities-toolkit' ),
+				'reply_text'    => sprintf(
+					/* translators: 1: comment excerpt, 2: post title or article fallback. */
+					__( 'Thanks for flagging this. I will review "%1$s" against "%2$s" first so the reply does not overstate anything unsupported.', 'npcink-abilities-toolkit' ),
+					$excerpt,
+					$topic
+				),
+				'reason'        => __( 'Useful when the comment asks for a claim, recommendation, or commitment that needs source review.', 'npcink-abilities-toolkit' ),
 				'status'        => 'review_required',
 				'action_policy' => 'operator_review_only_no_comment_publish',
 				'target_field'  => 'comment_reply',

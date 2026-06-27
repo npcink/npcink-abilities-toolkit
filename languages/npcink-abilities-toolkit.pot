@@ -265,12 +265,6 @@ msgstr ""
 msgid "No abilities match the current filters."
 msgstr ""
 
-#. translators: 1: ability count, 2: missing callback count.
-#: includes/Admin/Test_Page.php:493
-#, php-format
-msgid "%1$d abilities, %2$d callback issues"
-msgstr ""
-
 #: includes/Admin/Test_Page.php:549
 msgid "Search"
 msgstr ""
@@ -1225,6 +1219,14 @@ msgstr ""
 msgid "Builds a Core-ready apply plan from reviewed excerpt, category, and tag choices without applying writes."
 msgstr ""
 
+#: includes/Packages/Core_Read_Package.php:1071
+msgid "Build Article Audio Adoption Plan"
+msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:1072
+msgid "Builds one Core-ready plan for attaching a reviewed generated narration or audio summary to a post without writing metadata directly."
+msgstr ""
+
 #: includes/Packages/Core_Read_Package.php:1070
 msgid "Compose Article Optimization Apply Result"
 msgstr ""
@@ -1823,6 +1825,54 @@ msgstr ""
 
 #: includes/Packages/Core_Write_Package.php:185
 msgid "Updates SEO title and description metadata for one post after host approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:216
+msgid "Adopt Article Audio"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:217
+msgid "Writes reviewed generated narration or audio summary metadata to one post after host approval, or returns a dry-run preview by default."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1572
+msgid "Article audio URL is required."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1577
+msgid "Article audio kind is invalid."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1582
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:42
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:44
+msgid "Audio summary"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1582
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:42
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:44
+msgid "Article narration"
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:1640
+msgid "Post meta writer is unavailable."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:31
+msgid "A post_id is required before preparing article audio adoption."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:34
+msgid "An audio URL is required before preparing article audio adoption."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:89
+msgid "Attach the reviewed generated audio candidate to the current post after Core approval."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Article_Audio_Read_Methods.php:142
+msgid "Article audio adoption plan is ready for Core proposal intake."
 msgstr ""
 
 #: includes/Packages/Core_Write_Package.php:216
@@ -2485,6 +2535,18 @@ msgstr ""
 #: includes/Packages/Core_Write_Package.php:5242
 #: includes/Packages/Read_Traits/Media_Read_Methods.php:2174
 msgid "The current media MIME type did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5493
+msgid "The current media storage provider did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5497
+msgid "The current media storage adapter did not match the expected value."
+msgstr ""
+
+#: includes/Packages/Core_Write_Package.php:5513
+msgid "Current media storage requires a host storage adapter before this file operation can commit."
 msgstr ""
 
 #: includes/Packages/Core_Write_Package.php:5261
@@ -3763,4 +3825,102 @@ msgstr ""
 
 #: includes/Registry/Contract_Normalizer.php:218
 msgid "Optional host-provided idempotency key for audit and replay correlation."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:882
+msgid "this article"
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:887
+msgid "Acknowledge and answer"
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:888
+msgid "Thanks for raising this. We will review it against the article before taking action."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:889
+msgid "Useful when the comment asks for clarification or a concrete next step."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:896
+msgid "Ask for detail"
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:897
+msgid "Thanks for the note. Could you share one concrete example or the context where you saw this issue? That will make the follow-up more accurate."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:898
+msgid "Useful when the comment is broad, ambiguous, or missing enough context for a confident answer."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:905
+msgid "Review against article"
+msgstr ""
+
+#. translators: 1: comment excerpt, 2: post title or article fallback.
+#: includes/Packages/Core_Comment_Package.php:908
+#, php-format
+msgid "Thanks for flagging this. I will review \"%1$s\" against \"%2$s\" first so the reply does not overstate anything unsupported."
+msgstr ""
+
+#: includes/Packages/Core_Comment_Package.php:912
+msgid "Useful when the comment asks for a claim, recommendation, or commitment that needs source review."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:693
+msgid "Existing category"
+msgstr ""
+
+#: includes/Packages/Read_Traits/Taxonomy_Read_Methods.php:693
+msgid "Existing tag"
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:317
+msgid "Posts and comments are trashable; term deletion is irreversible and only proposed for unused terms."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:400
+msgid "Plan maps issues to existing write abilities only; final writes require Core approval and host execution."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:195
+msgid "Use the resolved attachment_id only after reviewing match evidence; if ambiguous, inspect candidates before creating any Core proposal."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1110
+msgid "Show the Cloud derivative result as a local proposal before recording, attaching, or replacing any WordPress media file."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1114
+msgid "This ability only prepares a bounded Cloud request contract. File generation, artifact transport, and WordPress adoption are separate host-governed steps."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:1509
+msgid "One attachment metadata update and one reviewed Cloud derivative adoption share one Core approval."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4183
+msgid "Settings repairs are limited to exact URL replacements and require Core approval before any WordPress setting write."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4330
+msgid "Source and attribution metadata must come from a verified source, not a deterministic guess."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4337
+msgid "Fill missing media SEO and source metadata."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4338
+msgid "Fill missing media SEO metadata."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:4355
+msgid "Format attention is a file-asset concern. The media inventory fix plan records read-only diagnostics and does not map it to a write action."
+msgstr ""
+
+#: includes/Packages/Read_Traits/Media_Read_Methods.php:6024
+msgid "Asset resize, compression, conversion, or replacement changes files and must stay out of the media inventory metadata fix action path."
 msgstr ""
