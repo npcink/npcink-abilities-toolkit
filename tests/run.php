@@ -324,6 +324,9 @@ foreach (
 }
 
 $translation_template = file_get_contents( __DIR__ . '/../languages/npcink-abilities-toolkit.pot' );
+$traditional_chinese_po = __DIR__ . '/../languages/npcink-abilities-toolkit-zh_TW.po';
+$traditional_chinese_mo = __DIR__ . '/../languages/npcink-abilities-toolkit-zh_TW.mo';
+npcink_abilities_toolkit_assert_true( ! file_exists( $traditional_chinese_po ) && ! file_exists( $traditional_chinese_mo ), 'bundled translations do not include an incomplete Traditional Chinese locale pack' );
 foreach (
 	array(
 		'Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.',

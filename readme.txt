@@ -177,7 +177,7 @@ For isolated bounded-chain performance validation, run:
 = 0.5.0 =
 
 * Improved the admin page as a connection and discovery surface with clearer package status, catalog navigation, copyable REST endpoints, and two bounded read-only checks.
-* Added bundled translation templates and eight starter locale packs for the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages.
+* Added bundled translation templates and starter locale packs for the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages.
 * Removed development demo ability controls from the admin page and kept showcase, model-call, write, and workflow execution outside this package surface.
 * Renamed nonproduction cleanup abilities and media cleanup inputs to avoid public `test` terminology in released ability ids and schema fields.
 * Added taxonomy assignment proposal support and strengthened Core consumer handoff checks for harvested workflow surfaces.
