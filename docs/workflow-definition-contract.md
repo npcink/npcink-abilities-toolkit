@@ -1,6 +1,6 @@
 # Workflow Definition Contract
 
-Status: proposed for the 0.3 stabilization line.
+Status: active v1 contract for the current release line.
 
 Workflow definitions are machine-readable recipe guidance for hosts that compose
 WordPress Abilities API abilities. They are not a workflow runtime and they are
@@ -32,7 +32,9 @@ same manifest through:
 
 The replay fixture at `tests/fixtures/agent-workflow-replay.json` mirrors the
 production provider for consumer-side tests. It remains intentionally small while
-the contract stabilizes.
+the contract evolves, but it is a parity fixture for the active provider and not
+a workflow execution log, host registry, queue record, retry plan, approval
+record, audit record, or runtime state store.
 
 Each case should define:
 

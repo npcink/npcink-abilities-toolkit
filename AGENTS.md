@@ -32,6 +32,10 @@ This package does not own model routing, prompt selection, workflow runtime
 execution, final write authorization, approval storage, billing, quota, cloud
 execution, or MCP gateway policy.
 
+Product UI, market packaging, China-market site-owner workflows, commercial
+onboarding, and end-user toolbox experiences belong in consuming products, not
+in this package.
+
 Do not turn this plugin into a second workflow registry, second ability registry,
 or second WordPress control plane. Write-like behavior must stay dry-run or
 host-governed where the existing contracts require it.
@@ -41,6 +45,8 @@ metadata for host-side composition. They must not gain workflow state,
 scheduling, retries, queues, leases, approval stores, audit stores, prompt
 registries, model routing, or final write authority. `composer check:boundary`
 must continue to guard those forbidden fields.
+See `docs/workflow-definition-contract.md` for the complete forbidden field
+list guarded by `composer check:boundary`.
 
 ## Branch And PR Discipline
 
@@ -156,6 +162,8 @@ current release verification example.
   release verification note.
 - Use `composer check:boundary`, `composer check:wporg`, and
   `composer release:verify` before tagging or WordPress.org publishing.
+- Verify boundary-language drift across `AGENTS.md` and
+  `docs/workflow-definition-contract.md` before tagging.
 - Use `VERSION=X.Y.Z composer release:prepare-wporg` to prepare the local SVN
   working copy.
 - WordPress.org SVN credentials must be typed only into the user's terminal.

@@ -1,7 +1,16 @@
 # Project Positioning And Next Stage Plan
 
-Status: active
+Status: historical planning baseline; current operating rules live in
+`AGENTS.md`, `CONTRIBUTING.md`, and `docs/next-stage-operating-standard.md`.
 Date: 2026-05-28
+Last reviewed: 2026-07-01
+
+This document records the positioning and 30/60/90-day plan used to split the
+package into an independent ability infrastructure layer. Treat the positioning
+principles as durable, but treat dated roadmap items as historical unless they
+are restated in current release or operating-standard documents.
+Do not cite this document as the current boundary authority when `AGENTS.md`,
+`CONTRIBUTING.md`, or `docs/next-stage-operating-standard.md` says otherwise.
 
 ## Positioning
 

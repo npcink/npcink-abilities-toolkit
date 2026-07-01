@@ -150,6 +150,11 @@ foreach (
 	array(
 		'not a workflow registry',
 		'They are not a workflow registry, execution engine, scheduler, approval store, audit store, model router, prompt registry, or final write authority',
+		'is a package inspection helper for registered Toolkit abilities',
+		'not an authoritative replacement for WordPress Abilities API discovery or execution',
+		'upload-media-from-url',
+		'defaults to a dry-run preview',
+		'stores no provider credentials, remote-service configuration, model routing, or cloud execution truth',
 	) as $required_readme_boundary
 ) {
 	if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $readme, $required_readme_boundary ) ) {
@@ -177,6 +182,67 @@ foreach (
 $agents = npcink_abilities_toolkit_boundary_read( $root . '/AGENTS.md' );
 if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $agents, 'Workflow definition helpers in this repository are static, read-only recipe metadata' ) ) {
 	npcink_abilities_toolkit_boundary_fail( 'AGENTS.md is missing workflow metadata boundary text.' );
+}
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $agents, 'Product UI, market packaging, China-market site-owner workflows, commercial onboarding, and end-user toolbox experiences belong in consuming products' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'AGENTS.md is missing product-surface ownership boundary text.' );
+}
+
+$workflow_contract = npcink_abilities_toolkit_boundary_read( $root . '/docs/workflow-definition-contract.md' );
+foreach (
+	array(
+		'Status: active v1 contract for the current release line',
+		'not a workflow execution log, host registry, queue record, retry plan, approval record, audit record, or runtime state store',
+	) as $required_workflow_contract_boundary
+) {
+	if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $workflow_contract, $required_workflow_contract_boundary ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'Workflow definition contract is missing boundary text: ' . $required_workflow_contract_boundary );
+	}
+}
+
+$documented_workflow_forbidden_fields = array(
+	'workflow_state',
+	'execution_state',
+	'schedule',
+	'scheduler',
+	'retry_policy',
+	'queue',
+	'lease',
+	'model',
+	'model_routing',
+	'prompt',
+	'prompt_registry',
+	'approval_store',
+	'approval_policy',
+	'audit_log',
+	'quota',
+	'commit_policy',
+	'final_write_authority',
+);
+foreach ( $documented_workflow_forbidden_fields as $documented_workflow_forbidden_field ) {
+	if ( false === strpos( $workflow_contract, '`' . $documented_workflow_forbidden_field . '`' ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'Workflow definition contract is missing forbidden field: ' . $documented_workflow_forbidden_field );
+	}
+}
+
+$workflow_recipes = npcink_abilities_toolkit_boundary_read( $root . '/docs/workflow-recipes.md' );
+foreach (
+	array(
+		'reference recipe list, not a runtime owned by this package',
+		'contract discovery for static recipe metadata, not synchronization with a host workflow registry and not an execution obligation',
+		'This file must remain declarative only',
+	) as $required_workflow_recipe_boundary
+) {
+	if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $workflow_recipes, $required_workflow_recipe_boundary ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'Workflow recipes doc is missing boundary text: ' . $required_workflow_recipe_boundary );
+	}
+}
+
+$positioning_plan = npcink_abilities_toolkit_boundary_read( $root . '/docs/project-positioning-and-next-stage-plan.md' );
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $positioning_plan, 'Status: historical planning baseline' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'Project positioning plan must be marked as historical planning baseline.' );
+}
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $positioning_plan, 'Do not cite this document as the current boundary authority' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'Project positioning plan must warn against current-boundary citation.' );
 }
 
 $forbidden_patterns = array(
@@ -217,6 +283,7 @@ foreach (
 		'forbidden_field_keys',
 		"'workflow_state'",
 		"'execution_state'",
+		"'schedule'",
 		"'scheduler'",
 		"'retry_policy'",
 		"'queue'",
@@ -231,10 +298,15 @@ foreach (
 		"'quota'",
 		"'commit_policy'",
 		"'final_write_authority'",
-	) as $required_workflow_guard
+) as $required_workflow_guard
 ) {
 	if ( false === strpos( npcink_abilities_toolkit_boundary_read( $workflow_path ), $required_workflow_guard ) ) {
 		npcink_abilities_toolkit_boundary_fail( 'Workflow definition provider is missing boundary guard: ' . $required_workflow_guard );
+	}
+}
+foreach ( $documented_workflow_forbidden_fields as $documented_workflow_forbidden_field ) {
+	if ( false === strpos( npcink_abilities_toolkit_boundary_read( $workflow_path ), "'" . $documented_workflow_forbidden_field . "'" ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'Workflow definition provider is missing documented forbidden field: ' . $documented_workflow_forbidden_field );
 	}
 }
 
