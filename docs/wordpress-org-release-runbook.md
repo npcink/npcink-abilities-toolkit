@@ -48,6 +48,8 @@ Git workspace:
 
 ```sh
 cd /Users/muze/gitee/npcink-abilities-toolkit
+composer check:boundary
+composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 
@@ -72,6 +74,24 @@ If the Git working tree has unrelated local edits, do not sync the SVN release
 from the dirty worktree. Build or stage from the release tag/commit instead.
 For `0.5.0`, the SVN working copy was prepared from Git tag `0.5.0` at commit
 `ff3e88b`, while unrelated local edits existed in the Git workspace.
+
+## Locale Release Safety
+
+Bundled runtime locale files under `languages/` are repository-maintained
+starter translations. They are separate from WordPress.org directory
+translations, which are managed through translate.wordpress.org/GlotPress and
+may require locale editor approval before becoming visible on localized plugin
+directory pages.
+
+Only ship bundled locale packs that are intentionally maintained as complete
+starter sets. If a locale is incomplete, remove both its `.po` and `.mo` files
+from the source package until it can be maintained properly, and record the
+reason in `readme.txt`, `CHANGELOG.md`, or the release verification note.
+
+`composer check:wporg` verifies the known bundled starter locale set, rejects
+known-incomplete locale packs such as `zh_TW`, and fails when a `.po` file does
+not have the matching `.mo` file or vice versa. Keep that guard aligned with
+the files that are actually intended to ship in `languages/`.
 
 ## Commit Command
 

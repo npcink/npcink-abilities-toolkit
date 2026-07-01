@@ -26,13 +26,15 @@ Read-only host composition recipe metadata may document how hosts can compose ab
 
 Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership.
 
+Bundled starter locale files are limited to translations intentionally maintained in this repository. Incomplete bundled locale packs are removed until they can be maintained as complete starter translations. WordPress.org directory translations are managed separately through translate.wordpress.org/GlotPress and are not runtime authority owned by this plugin.
+
 == External Services and Remote Requests ==
 
 This plugin does not automatically contact Npcink AI, model providers, analytics services, tracking services, or cloud services.
 
 Some abilities can prepare request payloads for a separate host or cloud add-on, but this plugin does not send those payloads to an external service by itself.
 
-The `npcink-abilities-toolkit/upload-media-from-url` ability can download a media file from a URL provided by an authenticated caller when an approved host runtime commits that ability. In that case WordPress sends an HTTP request to the caller-provided URL in order to fetch the media file for the local media library. The remote endpoint is chosen by the caller, not by this plugin.
+The `npcink-abilities-toolkit/upload-media-from-url` ability is inert as a dry-run preview unless a separate authenticated host supplies approval context and commits the operation. When an approved host runtime commits that ability, WordPress sends an HTTP request to the caller-provided URL in order to fetch the media file for the local media library. The remote endpoint is chosen by the caller, not by this plugin. This plugin stores no provider credentials or remote-service configuration for that ability. This is not provider routing, cloud execution, or stored external-service configuration.
 
 == Requirements ==
 
@@ -51,6 +53,8 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability can download a medi
 * `npcink_abilities_toolkit_get_registered()`
 * `npcink_abilities_toolkit_get_workflow_definitions()`
 * `npcink_abilities_toolkit_get_workflow_definition( $recipe_id )`
+
+The workflow definition helpers return read-only recipe metadata for host-side composition. They are not a workflow registry, execution engine, scheduler, approval store, audit store, model router, prompt registry, or final write authority.
 
 == Third-Party Integration Quickstart ==
 
@@ -94,7 +98,7 @@ providers or clients.
 
 After activation with a Npcink AI host plugin, open Npcink AI -> AI Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Site AI Abilities instead.
 
-The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities.
+The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities. The Tools -> Site AI Abilities page remains the standalone surface when no Npcink AI host menu is active; host detection must not create approval, quota, audit, or workflow control-plane behavior in this plugin.
 
 == Frequently Asked Questions ==
 

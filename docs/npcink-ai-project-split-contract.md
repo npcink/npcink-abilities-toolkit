@@ -140,7 +140,8 @@ Workflow recipes in this project may define:
 - documentation-only recipe ids such as `npcink-abilities-toolkit/recipes/article-draft`;
 - ability sequences and handoff expectations;
 - dry-run, approval, risk, and failure-handling guidance;
-- smoke-test targets for proving ability chains through WordPress Abilities API.
+- static test-fixture metadata for proving ability-chain contracts. Execution
+  remains outside this repository.
 
 Workflow recipes in this project must not define:
 
@@ -184,8 +185,13 @@ Allowed integration is limited to optional WordPress hooks and filters, for exam
 For this project:
 
 - `composer test:all`
-- `composer smoke:wp` in a WordPress site where the plugin is installed
 - `composer check:boundary`
+- `composer smoke:wp` in a WordPress site where the plugin is installed, for
+  release-facing or environment-dependent smoke evidence.
+
+`composer test:all` and `composer check:boundary` are source gates. WordPress
+smoke requires a real site target; if that site is unavailable during ordinary
+development, record the deferral and run it before release-facing handoff.
 
 For Npcink AI:
 

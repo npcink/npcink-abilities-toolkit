@@ -36,6 +36,12 @@ Do not turn this plugin into a second workflow registry, second ability registry
 or second WordPress control plane. Write-like behavior must stay dry-run or
 host-governed where the existing contracts require it.
 
+Workflow definition helpers in this repository are static, read-only recipe
+metadata for host-side composition. They must not gain workflow state,
+scheduling, retries, queues, leases, approval stores, audit stores, prompt
+registries, model routing, or final write authority. `composer check:boundary`
+must continue to guard those forbidden fields.
+
 ## Branch And PR Discipline
 
 - Use topic branches, normally `codex/short-description`.
@@ -115,7 +121,17 @@ git diff --check
 Release-facing gate:
 
 ```bash
+composer check:boundary
+composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
+```
+
+Before preparing WordPress.org SVN from source, run those same explicit
+boundary and WordPress.org static guards:
+
+```bash
+composer check:boundary
+composer check:wporg
 ```
 
 For this device, WP-CLI is installed globally:
@@ -138,7 +154,8 @@ current release verification example.
 - Release work should update the plugin header version,
   `NPCINK_ABILITIES_TOOLKIT_VERSION`, `readme.txt`, `CHANGELOG.md`, and a
   release verification note.
-- Use `composer release:verify` before WordPress.org publishing.
+- Use `composer check:boundary`, `composer check:wporg`, and
+  `composer release:verify` before tagging or WordPress.org publishing.
 - Use `VERSION=X.Y.Z composer release:prepare-wporg` to prepare the local SVN
   working copy.
 - WordPress.org SVN credentials must be typed only into the user's terminal.
