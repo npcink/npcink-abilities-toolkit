@@ -66,9 +66,9 @@ must continue to guard those forbidden fields.
   either push/open or update the PR, or explicitly record why the commits remain
   local-only.
 - For multi-repo closeout, run the central quality matrix from
-  `/Users/muze/gitee/npcink-toolbox`: `composer quality:matrix` for status and
-  `composer quality:matrix:run` for the gate-running matrix. Do not copy that
-  cross-repo script into this repository.
+  `/Users/muze/gitee/npcink-workflow-toolbox`: `composer quality:matrix` for
+  status and `composer quality:matrix:run` for the gate-running matrix. Do not
+  copy that cross-repo script into this repository.
 
 ## Post-Merge Cleanup
 

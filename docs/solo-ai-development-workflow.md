@@ -108,10 +108,11 @@ cleanup unless the user explicitly asks for that exact operation.
 ## Cross-Repo Quality Matrix
 
 For Toolkit-only work, keep using this repository's local gates. For multi-repo
-work or milestone closeout, run the central matrix from `npcink-toolbox`:
+work or milestone closeout, run the central matrix from
+`npcink-workflow-toolbox`:
 
 ```bash
-cd /Users/muze/gitee/npcink-toolbox
+cd /Users/muze/gitee/npcink-workflow-toolbox
 composer quality:matrix
 composer quality:matrix:run
 ```
@@ -125,7 +126,7 @@ php scripts/cross-repo-quality-matrix.php --run-gates --fail-on-dirty
 ```
 
 Do not copy the cross-repo matrix script into Toolkit. The central script remains
-owned by `npcink-toolbox` so gate definitions stay in one place.
+owned by `npcink-workflow-toolbox` so gate definitions stay in one place.
 
 ## Publication Status Gate
 
