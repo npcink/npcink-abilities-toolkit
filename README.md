@@ -23,6 +23,11 @@ Host-governed callbacks default to dry-run previews. A real commit requires appr
 
 It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, admission, approval storage, audit truth, or final commit authorization.
 
+This package may provide bounded WordPress callback implementations for generic
+read, write, and destructive operations, but it does not decide whether a commit
+is allowed, store approval state, own audit truth, or act as the control plane
+for writes.
+
 ## Requirements
 
 - WordPress 7.0+ with the Abilities API available
@@ -55,6 +60,11 @@ npcink_abilities_toolkit_get_workflow_definitions();
 npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
 ```
 
+The workflow definition helpers return read-only recipe metadata for host-side
+composition. They are not a workflow registry, execution engine, scheduler,
+approval store, audit store, model router, prompt registry, or final write
+authority.
+
 Runtime contract discovery is available through:
 
 ```text
@@ -71,10 +81,14 @@ compatibility, catalog/schema ownership, callback-free hash posture, and the
 host-governed write boundary. It never returns callbacks, approval records,
 audit truth, runtime state, prompt material, model routing, provider secrets,
 or cloud execution truth.
+The contract endpoint is not authoritative for admission, approval, audit,
+routing, catalog policy, or execution; hosts must enforce their own governance,
+and the WordPress Abilities API remains the ability discovery and execution
+surface.
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
-The independent-project split and Npcink AI integration boundary are documented in [docs/npcink-ai-project-split-contract.md](docs/npcink-ai-project-split-contract.md).
+The independent-project split and Npcink AI integration boundary are documented in [docs/npcink-ai-project-split-contract.md](docs/npcink-ai-project-split-contract.md), which is the canonical ownership source when boundary documents disagree.
 The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
 Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
 The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
@@ -101,7 +115,7 @@ The 2026-06-17 freeze/observe proof phase closeout is recorded in
 [docs/freeze-observe-phase-closeout-2026-06-17.md](docs/freeze-observe-phase-closeout-2026-06-17.md).
 The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
 Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
-Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese.
+Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese. The package only ships locale files that are intentionally maintained in this repository; incomplete bundled locale packs are removed until they can be maintained as a complete starter set. WordPress.org directory translations remain managed through translate.wordpress.org/GlotPress and are not a runtime authority owned by this plugin.
 
 ## Minimal Example
 
@@ -196,10 +210,16 @@ The Developer Access tab can:
 This page is an ability status, review, check, and connection surface. It does
 not run showcase workflows, model calls, write abilities, approval flows, or
 demo abilities.
+It must never display, store, or act on approval, quota, audit, or workflow
+state owned by any host runtime.
 
-## Built-In WordPress Read and Comment Packages
+## Built-In WordPress Read, Handoff, and Comment Packages
 
-The migrated core read and deterministic comment packages provide these read-only WordPress abilities:
+The migrated core read, suggestion, handoff, and deterministic comment packages
+provide these WordPress abilities. Abilities whose names include request,
+apply-plan, cloud, decision, or trigger-queue wording return bounded context,
+request payloads, plans, or host-review artifacts only unless the documented
+host-governed write contract requires a separate approval envelope.
 
 - `npcink-abilities-toolkit/site-info`
 - `npcink-abilities-toolkit/list-post-types`
@@ -271,6 +291,10 @@ and an `internal_link_candidates.v1` artifact for editor or third-party review
 surfaces. Hosts may pass already gathered related-content evidence for ranking
 context, but provider search, vector stores, and Site Knowledge runtimes remain
 host-owned.
+
+`read-comment-trigger-queue` is a frozen compatibility ability id for bounded
+comment trigger context. It only reads local context for host review; it does
+not create, persist, lease, retry, schedule, drain, or own queues.
 - `npcink-abilities-toolkit/build-article-style-profile`
 - `npcink-abilities-toolkit/get-post-stats`
 - `npcink-abilities-toolkit/list-revisions`

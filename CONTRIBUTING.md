@@ -46,6 +46,14 @@ composer test:all
 composer analyse:phpstan
 ```
 
+When the change touches documentation boundaries, public APIs, workflow recipes,
+ability contracts, projection, admin surfaces, release packaging, or governance
+text, also run the explicit boundary guard before handoff:
+
+```bash
+composer check:boundary
+```
+
 The required GitHub checks are:
 
 - `php (8.0)`
@@ -92,6 +100,8 @@ At minimum, agents should:
 - preserve host-governed write and approval boundaries;
 - use `composer test:all`, `composer analyse:phpstan`, and `git diff --check`
   before handoff when code or contracts change;
+- use `composer check:boundary` when docs, public APIs, workflow recipes,
+  projection, admin surfaces, release packaging, or governance text change;
 - use `WP_PATH=/path/to/wordpress composer release:verify` for release-facing
   changes.
 
@@ -150,6 +160,8 @@ This package owns:
 - ability registration helpers and category helpers;
 - schema, annotation, and metadata normalization;
 - first-party read, write, and destructive ability contracts;
+- read-only workflow definition helpers that expose static recipe metadata for
+  host-side composition;
 - permission callbacks and risk metadata;
 - dry-run defaults and host approval-context requirements;
 - diagnostics redaction and bounded performance checks.
@@ -158,12 +170,19 @@ This package does not own:
 
 - model routing or prompt selection;
 - workflow runtime execution;
+- workflow state, scheduling, retries, queues, leases, approval stores, audit
+  stores, prompt registries, or final write authority;
 - final write authorization;
 - approval storage or audit truth;
 - quota, billing, app keys, cloud execution, or MCP gateway policy.
 
-If a change moves host-owned runtime behavior into this package, stop and write
-or update the relevant design document first.
+Do not turn this plugin into a second workflow registry, second ability
+registry, or second WordPress control plane.
+
+If a change would move host-owned runtime behavior into this package, reject the
+move or split it into the host-owned repository. Design documents may record the
+rejection, split, or handoff, but they must not approve runtime/control-plane
+ownership inside this package.
 
 ## Adding Or Changing Abilities
 
@@ -178,7 +197,9 @@ protect the public surface:
 - `composer check:consumer` and `composer check:catalog` for Core governance
   handoff and high-value consumer payloads;
 - `composer check:workflow-consumer` for workflow recipes and replay fixtures;
-- `composer check:mcp-exposure` for MCP public exposure and server routing;
+- `composer check:mcp-exposure` for static ability metadata and exposure-safety
+  annotations only; it does not own MCP gateway policy, server routing,
+  admission, or runtime exposure decisions;
 - `composer perf:smoke` for performance-sensitive read chains, aggregators,
   diagnostics, or cache behavior.
 
@@ -191,6 +212,8 @@ tag from the verified `master` commit.
 Before a GitHub or WordPress.org release:
 
 ```bash
+composer check:boundary
+composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 

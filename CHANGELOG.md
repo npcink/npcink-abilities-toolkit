@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.3 - Unreleased
+
+- Removed the incomplete bundled Traditional Chinese (`zh_TW`) starter locale
+  pack from the source tree until it can be maintained as a complete
+  translation set.
+- Documented that bundled starter locales are repository-maintained runtime
+  files, while WordPress.org directory translations remain managed separately
+  through translate.wordpress.org/GlotPress.
+
 ## 0.5.2 - 2026-06-22
 
 - Reworked the wp-admin surface around ordinary site operators: renamed the

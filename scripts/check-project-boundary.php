@@ -110,6 +110,20 @@ function npcink_abilities_toolkit_boundary_find_forbidden_key( $value, array $fo
 	return '';
 }
 
+/**
+ * Returns whether text contains a phrase after whitespace normalization.
+ *
+ * @param string $haystack Text to search.
+ * @param string $needle   Required phrase.
+ * @return bool
+ */
+function npcink_abilities_toolkit_boundary_contains_phrase( $haystack, $needle ) {
+	$haystack = preg_replace( '/\s+/', ' ', (string) $haystack );
+	$needle   = preg_replace( '/\s+/', ' ', (string) $needle );
+
+	return is_string( $haystack ) && is_string( $needle ) && false !== strpos( $haystack, $needle );
+}
+
 $contract_path = $root . '/docs/npcink-ai-project-split-contract.md';
 $contract      = npcink_abilities_toolkit_boundary_read( $contract_path );
 
@@ -131,6 +145,38 @@ foreach (
 $readme = npcink_abilities_toolkit_boundary_read( $root . '/README.md' );
 if ( false === strpos( $readme, 'docs/npcink-ai-project-split-contract.md' ) ) {
 	npcink_abilities_toolkit_boundary_fail( 'README must link to docs/npcink-ai-project-split-contract.md.' );
+}
+foreach (
+	array(
+		'not a workflow registry',
+		'They are not a workflow registry, execution engine, scheduler, approval store, audit store, model router, prompt registry, or final write authority',
+	) as $required_readme_boundary
+) {
+	if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $readme, $required_readme_boundary ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'README is missing workflow metadata boundary text: ' . $required_readme_boundary );
+	}
+}
+
+$readme_txt = npcink_abilities_toolkit_boundary_read( $root . '/readme.txt' );
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $readme_txt, 'They are not a workflow registry, execution engine, scheduler, approval store, audit store, model router, prompt registry, or final write authority.' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'readme.txt is missing workflow metadata boundary text.' );
+}
+
+$contributing = npcink_abilities_toolkit_boundary_read( $root . '/CONTRIBUTING.md' );
+foreach (
+	array(
+		'read-only workflow definition helpers that expose static recipe metadata',
+		'workflow state, scheduling, retries, queues, leases, approval stores, audit',
+	) as $required_contributing_boundary
+) {
+	if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $contributing, $required_contributing_boundary ) ) {
+		npcink_abilities_toolkit_boundary_fail( 'CONTRIBUTING is missing workflow metadata boundary text: ' . $required_contributing_boundary );
+	}
+}
+
+$agents = npcink_abilities_toolkit_boundary_read( $root . '/AGENTS.md' );
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $agents, 'Workflow definition helpers in this repository are static, read-only recipe metadata' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'AGENTS.md is missing workflow metadata boundary text.' );
 }
 
 $forbidden_patterns = array(

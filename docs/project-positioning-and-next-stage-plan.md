@@ -5,11 +5,21 @@ Date: 2026-05-28
 
 ## Positioning
 
-`npcink-abilities-toolkit` is the WordPress AI Agent ability infrastructure layer.
+`npcink-abilities-toolkit` is the WordPress AI Agent ability contract and
+registration infrastructure layer.
 
-It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, discover, and execute reusable WordPress abilities through the WordPress Abilities API.
+It should be developed as an Abilities Pack SDK plus first-party WordPress ability packages: a stable way to define, normalize, register, and discover reusable WordPress ability contracts and bounded callbacks that the WordPress Abilities API or a host may invoke.
 
-It is not the end-user AI product, not the China-focused site-owner toolbox, and not the Npcink AI runtime. Npcink AI, Npcink AI Toolbox, external MCP hosts, and third-party plugins are consumers of this project.
+It is not the end-user AI product, not the China-focused site-owner toolbox, and
+not the Npcink AI runtime. Its workflow recipe helpers are read-only metadata
+for host-side composition, not a workflow registry or execution layer. Npcink
+AI, Npcink AI Toolbox, external MCP hosts, and third-party plugins are consumers
+of this project.
+
+If Npcink AI is absent, this package must still not create fallback workflow
+runtime, approval storage, audit logs, quota enforcement, MCP gateway policy, or
+product catalog governance. A standalone install can expose abilities and local
+checks, but it does not become the host control plane.
 
 ## Why This Positioning
 
