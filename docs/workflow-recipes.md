@@ -2,8 +2,12 @@
 
 Status: active reference guidance.
 
+This file must remain declarative only. Reject additions that introduce
+workflow state, scheduling, retries, queues, leases, approval fields, audit
+fields, model routing, prompt ownership, or final write authority.
+
 This document publishes recommended ways to compose first-party abilities into
-useful host workflows. It is a recipe catalog, not a runtime owned by this
+useful host workflows. It is a reference recipe list, not a runtime owned by this
 package.
 
 The first three stabilization recipes also have a machine-readable consumer
@@ -17,6 +21,8 @@ The machine-readable field contract is documented in
 Hosts that need runtime discovery can use
 `npcink_abilities_toolkit_get_workflow_definitions()` or the read-only
 `npcink-abilities-toolkit/list-workflow-recipes` ability.
+This is contract discovery for static recipe metadata, not synchronization with
+a host workflow registry and not an execution obligation.
 
 ## Core Principle For AI Agents
 

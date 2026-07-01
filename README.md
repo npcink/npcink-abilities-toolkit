@@ -60,6 +60,11 @@ npcink_abilities_toolkit_get_workflow_definitions();
 npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
 ```
 
+`npcink_abilities_toolkit_get_registered()` is a package inspection helper for
+registered Toolkit abilities. It is not an authoritative replacement for
+WordPress Abilities API discovery or execution, and it does not make this
+package a second ability registry.
+
 The workflow definition helpers return read-only recipe metadata for host-side
 composition. They are not a workflow registry, execution engine, scheduler,
 approval store, audit store, model router, prompt registry, or final write
@@ -184,7 +189,7 @@ is installed without a Npcink AI host menu, open **Tools -> Site AI
 Abilities** instead.
 
 The default page is intended for site operators. It shows site ability status
-and focused next actions:
+and read-only status indicators:
 
 - WordPress Abilities API support
 - available ability count
@@ -209,7 +214,7 @@ The Developer Access tab can:
 
 This page is an ability status, review, check, and connection surface. It does
 not run showcase workflows, model calls, write abilities, approval flows, or
-demo abilities.
+demo abilities. It never triggers host workflows or approvals.
 It must never display, store, or act on approval, quota, audit, or workflow
 state owned by any host runtime.
 
@@ -266,6 +271,7 @@ host-governed write contract requires a separate approval envelope.
 - `npcink-abilities-toolkit/build-media-optimization-plan`
 - `npcink-abilities-toolkit/build-image-candidate-review-artifact`
 - `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
+- `npcink-abilities-toolkit/upload-media-from-url`
 - `npcink-abilities-toolkit/build-media-rename-plan`
 - `npcink-abilities-toolkit/position-inline-image-blocks`
 - `npcink-abilities-toolkit/build-article-optimization-report`
@@ -295,6 +301,12 @@ host-owned.
 `read-comment-trigger-queue` is a frozen compatibility ability id for bounded
 comment trigger context. It only reads local context for host review; it does
 not create, persist, lease, retry, schedule, drain, or own queues.
+
+`upload-media-from-url` is write-like and external-request capable, but it
+defaults to a dry-run preview. A real upload requires a separate host approval
+envelope; the caller chooses the remote URL, and this package stores no provider
+credentials, remote-service configuration, model routing, or cloud execution
+truth for that operation.
 - `npcink-abilities-toolkit/build-article-style-profile`
 - `npcink-abilities-toolkit/get-post-stats`
 - `npcink-abilities-toolkit/list-revisions`
