@@ -136,6 +136,7 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
 $admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
 $docs_readme = (string) file_get_contents( __DIR__ . '/../docs/README.md' );
@@ -157,6 +158,9 @@ npcink_abilities_toolkit_assert_true( false === strpos( strtolower( $oss_storage
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'PARENT_MENU_SLUG' ), 'admin test page knows the shared Npcink AI parent slug' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const PARENT_MENU_SLUG    = 'npcink-ai';" ), 'admin test page targets the shared Npcink AI parent menu.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "const MENU_SLUG           = 'npcink-abilities-toolkit';" ), 'admin test page uses the canonical Abilities admin slug' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'npcink-ai-tabs npcink-abilities-toolkit-tabs' ) && false !== strpos( $admin_test_page, 'npcink-ai-tab-active' ) && false !== strpos( $admin_test_page, 'aria-current="page"' ), 'admin test page uses the shared Npcink AI tab visual standard.' );
+npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'nav-tab-wrapper' ) && false === strpos( $admin_test_page, 'nav-tab-active' ), 'admin test page no longer uses boxed WordPress nav tabs.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_css, '.npcink-ai-tabs' ) && false !== strpos( $admin_css, '.npcink-ai-tab-active' ), 'admin CSS includes the shared Npcink AI tab visual standard.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'plugin_action_links_' ) && false !== strpos( $plugin_source, 'filter_plugin_action_links' ), 'plugin screen exposes an abilities shortcut when the admin page is enabled.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, "esc_html__( 'View Abilities', 'npcink-abilities-toolkit' )" ), 'plugin screen abilities shortcut uses the plugin text domain.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'menu_page_url' ) && false !== strpos( $plugin_source, 'admin.php?page=npcink-abilities-toolkit' ) && false !== strpos( $plugin_source, 'tools.php?page=npcink-abilities-toolkit' ), 'plugin screen abilities shortcut targets the registered menu page or standalone Tools fallback.' );
@@ -166,7 +170,7 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'View 
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Abilities', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "'Npcink Abilities Toolkit',\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'npcink_abilities_toolkit_nonce' ), 'admin diagnostic tab and filter URLs stay stable without one-time GET nonces.' );
 $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
@@ -251,7 +255,7 @@ $admin_surface_standard = file_get_contents( __DIR__ . '/../docs/admin-surface-s
 foreach (
 	array(
 		'site-operator ability status',
-		'Site AI Abilities',
+		'AI Ability Set',
 		'available ability count',
 		'write-safeguard posture',
 		'Available Abilities',
@@ -331,8 +335,7 @@ foreach (
 	array(
 		'Standalone WordPress Abilities API package toolkit for safely exposing agent-callable abilities.',
 		'View Abilities',
-		'Site AI Abilities',
-		'AI Abilities',
+		'AI Ability Set',
 		'Available AI Abilities',
 		'Developer Access',
 		'Run Redacted Diagnostics',

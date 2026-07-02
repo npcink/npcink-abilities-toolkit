@@ -15,8 +15,8 @@ abilities from a WordPress site where `npcink-abilities-toolkit` is active.
 
 After activation, open the admin page and switch to the Developer Access tab:
 
-- With a Npcink AI host menu: `Npcink AI -> AI Abilities -> Developer Access`
-- Standalone fallback: `Tools -> Site AI Abilities -> Developer Access`
+- With a Npcink AI host menu: `Npcink AI -> AI Ability Set -> Developer Access`
+- Standalone fallback: `Tools -> AI Ability Set -> Developer Access`
 
 The Developer Access tab exposes copyable endpoint values for the current site.
 The standard REST routes are:

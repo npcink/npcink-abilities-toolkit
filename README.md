@@ -184,9 +184,9 @@ cross-repo Core integration changes.
 ## Admin Page
 
 After activating the plugin with a Npcink AI host plugin, open
-**Npcink AI -> AI Abilities** in wp-admin. When this standalone package
-is installed without a Npcink AI host menu, open **Tools -> Site AI
-Abilities** instead.
+**Npcink AI -> AI Ability Set** in wp-admin. When this standalone package
+is installed without a Npcink AI host menu, open **Tools -> AI Ability
+Set** instead.
 
 The default page is intended for site operators. It shows site ability status
 and read-only status indicators:

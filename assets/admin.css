@@ -6,6 +6,49 @@
 	margin-top: 16px;
 }
 
+.npcink-ai-tabs {
+	display: flex;
+	gap: 20px;
+	align-items: flex-end;
+	box-sizing: border-box;
+	border-bottom: 1px solid #dcdcde;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+
+.npcink-ai-tab {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 2px;
+	border: 0;
+	border-bottom: 4px solid transparent;
+	background: transparent;
+	box-shadow: none;
+	color: #50575e;
+	cursor: pointer;
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.3;
+	text-decoration: none;
+}
+
+.npcink-ai-tab:hover,
+.npcink-ai-tab:focus {
+	border-bottom-color: #3858e9;
+	color: #3858e9;
+	box-shadow: none;
+	outline-offset: -2px;
+}
+
+.npcink-ai-tab-active,
+.npcink-ai-tab-active:hover,
+.npcink-ai-tab-active:focus {
+	border-bottom-color: #3858e9;
+	color: #3858e9;
+}
+
 .npcink-abilities-toolkit-tab-panel {
 	padding-top: 16px;
 }

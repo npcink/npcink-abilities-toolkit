@@ -96,9 +96,9 @@ providers or clients.
 
 == Admin Page ==
 
-After activation with a Npcink AI host plugin, open Npcink AI -> AI Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> Site AI Abilities instead.
+After activation with a Npcink AI host plugin, open Npcink AI -> AI Ability Set in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> AI Ability Set instead.
 
-The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities. The Tools -> Site AI Abilities page remains the standalone surface when no Npcink AI host menu is active; host detection must not create approval, quota, audit, or workflow control-plane behavior in this plugin.
+The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities. The Tools -> AI Ability Set page remains the standalone surface when no Npcink AI host menu is active; host detection must not create approval, quota, audit, or workflow control-plane behavior in this plugin.
 
 == Frequently Asked Questions ==
 
@@ -124,7 +124,7 @@ No. The diagnostics summary intentionally omits Npcink AI settings, MCP settings
 
 = What should I do if abilities are not visible to a host product or AI client? =
 
-Open Tools -> Site AI Abilities, or Npcink AI -> AI Abilities when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses.
+Open Tools -> AI Ability Set, or Npcink AI -> AI Ability Set when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses.
 
 = What if the wp-abilities/v1 REST routes are missing? =
 
