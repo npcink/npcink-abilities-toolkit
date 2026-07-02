@@ -104,8 +104,8 @@ final class Test_Page {
 		if ( $this->has_npcink_parent_menu() ) {
 			$this->hook_suffixes[] = add_submenu_page(
 				self::PARENT_MENU_SLUG,
-				__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),
-				__( 'AI Abilities', 'npcink-abilities-toolkit' ),
+				'Npcink Abilities Toolkit',
+				__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 				'manage_options',
 				self::MENU_SLUG,
 				array( $this, 'render' ),
@@ -115,8 +115,8 @@ final class Test_Page {
 		}
 
 		$this->hook_suffixes[] = add_management_page(
-			__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),
-			__( 'Site AI Abilities', 'npcink-abilities-toolkit' ),
+			'Npcink Abilities Toolkit',
+			__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render' )
@@ -158,7 +158,7 @@ final class Test_Page {
 		$active_tab     = $this->get_active_tab();
 		?>
 		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>" data-check-summary-labels="<?php echo esc_attr( wp_json_encode( $this->get_check_summary_labels() ) ); ?>">
-			<h1><?php echo esc_html__( 'Site AI Abilities', 'npcink-abilities-toolkit' ); ?></h1>
+			<h1><?php echo esc_html( 'Npcink Abilities Toolkit' ); ?></h1>
 			<p><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
 
 			<?php $this->render_tab_nav( $active_tab ); ?>
@@ -222,10 +222,10 @@ final class Test_Page {
 	private function render_tab_nav( $active_tab ) {
 		$base_url = menu_page_url( self::MENU_SLUG, false );
 		?>
-		<nav class="nav-tab-wrapper npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
+		<nav class="npcink-ai-tabs npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
 			<?php foreach ( $this->get_tabs() as $tab => $label ) : ?>
 				<?php $tab_url = $this->get_tab_url( $tab ); ?>
-				<a class="<?php echo esc_attr( 'nav-tab ' . ( $active_tab === $tab ? 'nav-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $tab_url ); ?>">
+				<a class="<?php echo esc_attr( 'npcink-ai-tab ' . ( $active_tab === $tab ? 'npcink-ai-tab-active' : '' ) ); ?>" href="<?php echo esc_url( $tab_url ); ?>" <?php echo $active_tab === $tab ? 'aria-current="page"' : ''; ?>>
 					<?php echo esc_html( $label ); ?>
 				</a>
 			<?php endforeach; ?>

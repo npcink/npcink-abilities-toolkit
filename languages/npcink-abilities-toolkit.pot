@@ -29,15 +29,9 @@ msgstr ""
 msgid "Npcink"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:97
 #: includes/Admin/Test_Page.php:108
-#: includes/Admin/Test_Page.php:109
-#: includes/Admin/Test_Page.php:151
-msgid "Site AI Abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:98
-msgid "AI Abilities"
+#: includes/Admin/Test_Page.php:119
+msgid "AI Ability Set"
 msgstr ""
 
 #: includes/Admin/Test_Page.php:140

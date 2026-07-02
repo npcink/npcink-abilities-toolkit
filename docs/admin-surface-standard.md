@@ -1,7 +1,7 @@
 # Abilities Admin Surface Standard
 
-Status: active for `Npcink AI -> AI Abilities` and the standalone
-`Tools -> Site AI Abilities` fallback.
+Status: active for `Npcink AI -> AI Ability Set` and the standalone
+`Tools -> AI Ability Set` fallback.
 
 ## Purpose
 
@@ -66,7 +66,7 @@ Connection and low-frequency details belong in the Developer Access tab:
   callback status;
 - compatibility projection notes for Npcink AI consumers.
 
-## Site AI Abilities
+## AI Ability Set
 
 The page should avoid looking like a general settings page. Plugin-list action
 links, page headings, and menu labels should use abilities language rather than

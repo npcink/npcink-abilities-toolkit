@@ -50,8 +50,8 @@ WordPress REST API.
 
 1. Start with [REST Client Quickstart](rest-client-quickstart.md).
 2. Use the admin page endpoint values from
-   `Tools -> Site AI Abilities -> Developer Access` or
-   `Npcink AI -> AI Abilities -> Developer Access`.
+   `Tools -> AI Ability Set -> Developer Access` or
+   `Npcink AI -> AI Ability Set -> Developer Access`.
 3. Use [Troubleshooting](troubleshooting.md) for common 401, 403, missing route,
    missing ability, and dry-run issues.
 

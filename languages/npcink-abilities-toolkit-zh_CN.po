@@ -32,14 +32,9 @@ msgstr ""
 msgid "Npcink"
 msgstr "Npcink"
 
-#: includes/Admin/Test_Page.php:97 includes/Admin/Test_Page.php:108
-#: includes/Admin/Test_Page.php:109 includes/Admin/Test_Page.php:151
-msgid "Site AI Abilities"
-msgstr "站点 AI 能力"
-
-#: includes/Admin/Test_Page.php:98
-msgid "AI Abilities"
-msgstr "AI 能力"
+#: includes/Admin/Test_Page.php:108 includes/Admin/Test_Page.php:119
+msgid "AI Ability Set"
+msgstr "AI 能力集"
 
 #: includes/Admin/Test_Page.php:140
 msgid "You do not have permission to access this page."

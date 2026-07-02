@@ -26,9 +26,9 @@ msgid "The WordPress Abilities API routes must be available before clients can d
 msgstr "在客户端可以发现和运行 abilities 之前，WordPress Abilities API routes 必须可用。请为目标站点启用 WordPress Abilities API 基线或兼容插件。"
 
 #. Found in faq paragraph.
-msgid "Open Tools -&gt; Site AI Abilities, or Npcink AI -&gt; AI Abilities when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses."
+msgid "Open Tools -&gt; AI Ability Set, or Npcink AI -&gt; AI Ability Set when a Npcink AI host menu is present. Use the Checks tab to confirm safe read-only responses, then use Available Abilities to review what the site exposes. Developers and host products can use Developer Access for REST endpoint values and raw discovery responses."
 msgstr ""
-"打开 Tools -&gt; Site AI Abilities；如果存在 Npcink AI host 菜单，则打开 Npcink AI -&gt; AI Abilities。使用 Checks tab 确认安全的只读响应，然后使用 Available Abilities 查看站点暴露了哪些能力。开发者和 host 产品可以在 Developer Access 中获取 REST endpoint 值和 raw discovery responses。"
+"打开 Tools -&gt; AI Ability Set；如果存在 Npcink AI host 菜单，则打开 Npcink AI -&gt; AI Ability Set。使用 Checks tab 确认安全的只读响应，然后使用 Available Abilities 查看站点暴露了哪些能力。开发者和 host 产品可以在 Developer Access 中获取 REST endpoint 值和 raw discovery responses。"
 
 #. Found in faq paragraph.
 msgid "No. The diagnostics summary intentionally omits Npcink AI settings, MCP settings, API keys, database names, table prefixes, filesystem paths, error logs, and external HTTP probes."
@@ -247,9 +247,9 @@ msgstr ""
 "插件包含迁移后的低风险 WordPress read abilities、确定性的 comment helpers，以及使用规范 <code>npcink-abilities-toolkit/*</code> ids 的 host-governed WordPress write/destructive abilities。"
 
 #. Found in description paragraph.
-msgid "After activation with a Npcink AI host plugin, open Npcink AI -&gt; AI Abilities in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -&gt; Site AI Abilities instead."
+msgid "After activation with a Npcink AI host plugin, open Npcink AI -&gt; AI Ability Set in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -&gt; AI Ability Set instead."
 msgstr ""
-"与 Npcink AI host 插件一起启用后，在 wp-admin 中打开 Npcink AI -&gt; AI Abilities。单独安装本包且没有 Npcink AI host 菜单时，打开 Tools -&gt; Site AI Abilities。"
+"与 Npcink AI host 插件一起启用后，在 wp-admin 中打开 Npcink AI -&gt; AI Ability Set。单独安装本包且没有 Npcink AI host 菜单时，打开 Tools -&gt; AI Ability Set。"
 
 #. Found in description paragraph.
 msgid "The <code>npcink-abilities-toolkit/upload-media-from-url</code> ability can download a media file from a URL provided by an authenticated caller when an approved host runtime commits that ability. In that case WordPress sends an HTTP request to the caller-provided URL in order to fetch the media file for the local media library. The remote endpoint is chosen by the caller, not by this plugin."
