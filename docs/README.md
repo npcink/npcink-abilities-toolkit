@@ -94,7 +94,10 @@ Use this path when changing this package.
 11. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
-12. Record release evidence in the relevant release verification document.
+12. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
+    for the current submitted-but-waiting GlotPress state and the PTE request
+    handoff text.
+13. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
