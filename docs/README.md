@@ -85,16 +85,19 @@ Use this path when changing this package.
    when a WordPress site is available.
 8. Run [Official Stack E2E Environment](official-stack-e2e.md) before changing
    official Abilities API, MCP, or AI plugin compatibility assumptions.
-9. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+9. Use [Ability Metadata Reference Notes - 2026-07](ability-metadata-reference-notes-2026-07.md)
+   before turning official WordPress AI or Abilities API inspiration into
+   Toolkit contract changes.
+10. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
    for the public repository handoff, CI baseline, and post-publication gate
    status.
-10. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
+11. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-11. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+12. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
-12. Record release evidence in the relevant release verification document.
+13. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
