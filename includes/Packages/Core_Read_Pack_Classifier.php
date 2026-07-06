@@ -150,6 +150,7 @@ final class Core_Read_Pack_Classifier {
 			'npcink-abilities-toolkit/build-media-reference-repair-plan'       => 'media_governance',
 			'npcink-abilities-toolkit/build-image-candidate-adoption-plan'     => 'media_governance',
 			'npcink-abilities-toolkit/build-image-candidate-review-artifact'   => 'media_governance',
+			'npcink-abilities-toolkit/build-media-alt-caption-review-set'      => 'media_governance',
 			'npcink-abilities-toolkit/build-media-adoption-enhancement-plan'   => 'media_governance',
 			'npcink-abilities-toolkit/build-media-settings-reference-repair-plan' => 'media_governance',
 			'npcink-abilities-toolkit/inspect-media-asset'                     => 'media_governance',

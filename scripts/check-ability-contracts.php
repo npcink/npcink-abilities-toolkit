@@ -91,6 +91,8 @@ function npcink_abilities_toolkit_contract_audit_additional_properties_allowlist
 		'npcink-abilities-toolkit/build-image-candidate-adoption-plan input_schema.properties.candidate',
 		'npcink-abilities-toolkit/build-image-candidate-adoption-plan input_schema.properties.image_candidate',
 		'npcink-abilities-toolkit/build-image-candidate-review-artifact input_schema.properties.image_candidates.items',
+		'npcink-abilities-toolkit/build-media-alt-caption-review-set input_schema.properties.image_context_evidence.properties.items.items',
+		'npcink-abilities-toolkit/build-media-alt-caption-review-set input_schema.properties.media_snapshot.properties.items.items',
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.generated_inline_media.items',
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.inline_plan.items',
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.uploaded_inline_media.items',

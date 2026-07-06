@@ -270,6 +270,7 @@ host-governed write contract requires a separate approval envelope.
 - `npcink-abilities-toolkit/build-media-derivative-cloud-request`
 - `npcink-abilities-toolkit/build-media-optimization-plan`
 - `npcink-abilities-toolkit/build-image-candidate-review-artifact`
+- `npcink-abilities-toolkit/build-media-alt-caption-review-set`
 - `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
 - `npcink-abilities-toolkit/upload-media-from-url`
 - `npcink-abilities-toolkit/build-media-rename-plan`

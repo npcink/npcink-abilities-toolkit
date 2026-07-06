@@ -1705,6 +1705,11 @@ npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities[
 npcink_abilities_toolkit_assert_same( 12, $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['image_candidates']['maxItems'] ?? null, 'image candidate review artifact bounds candidate evidence input' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['commit'] ), 'image candidate review artifact does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-review-artifact']['input_schema']['properties']['provider'] ), 'image candidate review artifact does not expose provider runtime selection' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set'] ), 'build-media-alt-caption-review-set is registered as a read-only review ability' );
+npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media ALT/caption review set is classified as media governance' );
+npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['required_scopes'] ?? array(), 'media ALT/caption review set only reads supplied media evidence' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['commit'] ), 'media ALT/caption review set does not expose a commit control' );
+npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['provider'] ), 'media ALT/caption review set does not expose provider runtime selection' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan'] ), 'build-image-candidate-adoption-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['required_scopes'] ?? array(), 'image candidate adoption plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['required'] ?? array(), 'image candidate adoption plan accepts image_candidate or direct URL input' );
@@ -5053,6 +5058,68 @@ npcink_abilities_toolkit_assert_same( 'image_candidate.v1', $image_candidate_rev
 npcink_abilities_toolkit_assert_same( 'https://api.unsplash.example.test/download-location', $image_candidate_review_artifact['data']['items'][0]['download_location'] ?? '', 'image candidate review artifact preserves source download tracking metadata' );
 npcink_abilities_toolkit_assert_same( 'review', $image_candidate_review_artifact['data']['recommendation_candidates'][0]['quality_status'] ?? '', 'image candidate review artifact projects strong candidates for review' );
 npcink_abilities_toolkit_assert_same( 'weak', $image_candidate_review_artifact['data']['recommendation_candidates'][1]['quality_status'] ?? '', 'image candidate review artifact downgrades candidates missing usable URLs' );
+
+$media_alt_caption_review_set = $core_read_package->build_media_alt_caption_review_set(
+	array(
+		'review_set_limit'       => 2,
+		'media_snapshot'         => array(
+			'snapshot_policy' => 'current_article_media_metadata_only',
+			'media_scope'     => 'current_article_used_images',
+			'post_context'    => array(
+				'post_id' => 82,
+				'title'   => 'AI workflow operations',
+			),
+			'items'           => array(
+				array(
+					'attachment_id' => 711,
+					'title'         => 'Operator reviewing workflow dashboard',
+					'filename'      => 'workflow-dashboard-hero.jpg',
+					'alt'           => '',
+					'caption'       => '',
+					'description'   => 'Generated with model: keep this provenance out of ALT.',
+					'thumbnail_url' => 'https://cdn.example.test/workflow-dashboard-thumb.jpg',
+					'url'           => 'https://cdn.example.test/workflow-dashboard.jpg',
+					'mime_type'     => 'image/jpeg',
+				),
+				array(
+					'attachment_id' => 712,
+					'title'         => 'IMG_1234',
+					'filename'      => 'IMG_1234.jpg',
+					'alt'           => 'IMG_1234',
+					'caption'       => '',
+					'description'   => '',
+					'thumbnail_url' => 'https://cdn.example.test/img-1234-thumb.jpg',
+					'url'           => 'https://cdn.example.test/img-1234.jpg',
+					'mime_type'     => 'image/jpeg',
+				),
+			),
+		),
+		'image_context_evidence' => array(
+			'contract_version'       => 'image_context_evidence.v1',
+			'write_posture'          => 'suggestion_only',
+			'direct_wordpress_write' => false,
+			'items'                  => array(
+				array(
+					'attachment_id'  => 711,
+					'visual_summary' => 'WordPress operator reviewing an AI workflow dashboard',
+					'objects'        => array( 'dashboard', 'workflow cards' ),
+					'confidence'     => 'high',
+				),
+			),
+		),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $media_alt_caption_review_set['success'] ?? null, 'build-media-alt-caption-review-set returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'media_alt_caption_review_set.v1', $media_alt_caption_review_set['data']['contract_version'] ?? '', 'media ALT/caption review set declares the reusable contract' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-alt-caption-review-set', $media_alt_caption_review_set['data']['source_ability_id'] ?? '', 'media ALT/caption review set records Toolkit source ability' );
+npcink_abilities_toolkit_assert_same( 'current_article_media_metadata_only_no_pixel_vision', $media_alt_caption_review_set['data']['source_policy'] ?? '', 'media ALT/caption review set keeps no-pixel-vision metadata policy' );
+npcink_abilities_toolkit_assert_same( false, $media_alt_caption_review_set['data']['direct_wordpress_write'] ?? null, 'media ALT/caption review set does not directly write WordPress' );
+npcink_abilities_toolkit_assert_same( false, $media_alt_caption_review_set['data']['proposal_created'] ?? null, 'media ALT/caption review set does not create proposals' );
+npcink_abilities_toolkit_assert_same( false, $media_alt_caption_review_set['data']['safety']['media_derivative_run_created'] ?? null, 'media ALT/caption review set does not create derivative runs' );
+npcink_abilities_toolkit_assert_same( true, $media_alt_caption_review_set['data']['selected_items'][0]['needs_human_visual_check'] ?? null, 'media ALT/caption review set requires human visual review' );
+npcink_abilities_toolkit_assert_same( 'visual_fact', $media_alt_caption_review_set['data']['selected_items'][0]['candidate_fact_types'][0] ?? '', 'media ALT/caption review set can use supplied reviewed image context as visual fact evidence' );
+npcink_abilities_toolkit_assert_true( false === strpos( implode( ' ', $media_alt_caption_review_set['data']['selected_items'][0]['alt_candidates'] ?? array() ), 'Generated with model' ), 'media ALT/caption review set filters runtime provenance from candidates' );
+npcink_abilities_toolkit_assert_same( 'image_context_evidence_request.v1', $media_alt_caption_review_set['data']['image_context_evidence_request']['contract_version'] ?? '', 'media ALT/caption review set can request bounded external visual evidence for weak metadata rows' );
 
 $image_candidate_adoption_plan = $core_read_package->build_image_candidate_adoption_plan(
 	array(

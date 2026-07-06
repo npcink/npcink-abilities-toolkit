@@ -127,6 +127,12 @@ returns `image_candidate_review.v1` plus lightweight recommendation projections
 without searching image providers, generating images, importing media, or
 writing featured images.
 
+`npcink-abilities-toolkit/build-media-alt-caption-review-set` is the reusable
+review artifact builder for supplied media metadata snapshots and optional
+reviewed `image_context_evidence.v1`. It returns
+`media_alt_caption_review_set.v1` without inspecting pixels, choosing providers,
+creating proposals, running media derivatives, or writing media metadata.
+
 `npcink-abilities-toolkit/build-image-candidate-adoption-plan` is the reusable
 Core handoff planner for one reviewed `image_candidate.v1`. It preserves source,
 attribution, download tracking, filename suggestion, and asset-persistence
