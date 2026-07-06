@@ -244,6 +244,7 @@ host-governed write contract requires a separate approval envelope.
 - `npcink-abilities-toolkit/list-tags`
 - `npcink-abilities-toolkit/get-term`
 - `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
+- `npcink-abilities-toolkit/build-taxonomy-tag-review-set`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/propose-post-excerpt`
 - `npcink-abilities-toolkit/list-users`

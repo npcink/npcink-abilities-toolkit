@@ -56,6 +56,7 @@ Representative abilities:
 - `npcink-abilities-toolkit/get-taxonomy-inventory-health`
 - `npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions`
 - `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
+- `npcink-abilities-toolkit/build-taxonomy-tag-review-set`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
 - `npcink-abilities-toolkit/list-terms`
 - `npcink-abilities-toolkit/list-taxonomy-terms`
@@ -132,6 +133,12 @@ review artifact builder for supplied media metadata snapshots and optional
 reviewed `image_context_evidence.v1`. It returns
 `media_alt_caption_review_set.v1` without inspecting pixels, choosing providers,
 creating proposals, running media derivatives, or writing media metadata.
+
+`npcink-abilities-toolkit/build-taxonomy-tag-review-set` is the reusable
+review artifact builder for existing WordPress category and tag candidates. It
+returns `taxonomy_tag_review_set.v1` from supplied post context and optional
+ranking evidence without creating terms, assigning terms, calling Cloud
+runtime, creating proposals, or writing taxonomy metadata.
 
 `npcink-abilities-toolkit/build-image-candidate-adoption-plan` is the reusable
 Core handoff planner for one reviewed `image_candidate.v1`. It preserves source,
