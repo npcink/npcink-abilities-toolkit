@@ -3751,16 +3751,16 @@ trait Media_Read_Methods {
 			$tier                      = 'context_required';
 			$basis_summary             = 'context_requires_confirmation';
 			$automation_recommendation = 'confirm_context_terms_or_edit_alt';
-		} elseif ( in_array( 'visual_fact', $fact_types, true ) && $has_alt ) {
-			$score                     = 90;
-			$tier                      = 'ready';
-			$basis_summary             = 'visual_evidence';
-			$automation_recommendation = 'ready_for_core_handoff_after_visual_check';
-		} elseif ( in_array( 'metadata_fact', $fact_types, true ) && $has_alt ) {
-			$score                     = 75;
-			$tier                      = 'ready';
-			$basis_summary             = 'metadata_evidence';
-			$automation_recommendation = 'ready_for_core_handoff_after_visual_check';
+			} elseif ( in_array( 'visual_fact', $fact_types, true ) && $has_alt ) {
+				$score                     = 90;
+				$tier                      = 'ready';
+				$basis_summary             = 'visual_evidence';
+				$automation_recommendation = 'eligible_for_local_preview_after_visual_check';
+			} elseif ( in_array( 'metadata_fact', $fact_types, true ) && $has_alt ) {
+				$score                     = 75;
+				$tier                      = 'ready';
+				$basis_summary             = 'metadata_evidence';
+				$automation_recommendation = 'eligible_for_local_preview_after_visual_check';
 		} elseif ( $has_alt ) {
 			$score                     = 55;
 			$tier                      = 'review';
@@ -3789,9 +3789,9 @@ trait Media_Read_Methods {
 	 * @return array<string,int>
 	 */
 	private function media_alt_caption_review_quality_summary( array $selected, array $blocked ) {
-		$summary = array(
-			'ready_for_handoff_count'       => 0,
-			'context_confirmation_count'    => 0,
+			$summary = array(
+				'local_preview_candidate_count' => 0,
+				'context_confirmation_count'    => 0,
 			'caption_review_only_count'     => 0,
 			'visual_evidence_request_count' => 0,
 			'insufficient_quality_count'    => 0,
@@ -3800,8 +3800,8 @@ trait Media_Read_Methods {
 		foreach ( $selected as $item ) {
 			$quality = is_array( $item['candidate_quality'] ?? null ) ? $item['candidate_quality'] : array();
 			$tier    = sanitize_key( (string) ( $quality['tier'] ?? ( $item['candidate_quality_tier'] ?? '' ) ) );
-			if ( 'ready' === $tier ) {
-				++$summary['ready_for_handoff_count'];
+				if ( 'ready' === $tier ) {
+					++$summary['local_preview_candidate_count'];
 			} elseif ( 'context_required' === $tier ) {
 				++$summary['context_confirmation_count'];
 			} elseif ( 'caption_only' === $tier ) {

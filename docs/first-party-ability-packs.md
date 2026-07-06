@@ -135,9 +135,11 @@ reviewed `image_context_evidence.v1`. It returns
 creating proposals, running media derivatives, or writing media metadata. Each
 candidate row includes deterministic quality guidance such as
 `candidate_quality.score`, `candidate_quality.tier`, and
-`candidate_quality.automation_recommendation` so consumers can prioritize ready,
-context-required, caption-only, and visual-evidence-needed rows without treating
-those hints as write authorization.
+`candidate_quality.automation_recommendation` so consumers can prioritize local
+preview, context-required, caption-only, and visual-evidence-needed rows without
+treating those hints as write authorization. `local_preview_candidate_count` is
+the emitted summary count; deprecated ready-for-handoff aliases are not emitted
+by the P0 builder and must not be used as proposal or write authorization.
 
 `npcink-abilities-toolkit/build-taxonomy-tag-review-set` is the reusable
 review artifact builder for existing WordPress category and tag candidates. It
