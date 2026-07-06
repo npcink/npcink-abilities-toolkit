@@ -3037,6 +3037,72 @@ final class Core_Read_Package {
 				),
 				'execute_callback' => array( $this, 'build_image_candidate_review_artifact' ),
 			),
+			'npcink-abilities-toolkit/build-media-alt-caption-review-set' => array(
+				'label'            => __( 'Build Media ALT/Caption Review Set', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Builds a deterministic review-only media ALT and caption candidate set from supplied media metadata and optional reviewed image-context evidence without inspecting pixels or writing media.', 'npcink-abilities-toolkit' ),
+				'category'         => 'npcink-abilities-toolkit-data',
+				'capability'       => 'upload_files',
+				'required_scope'   => 'media.read',
+				'required_scopes'  => array( 'media.read' ),
+				'contract_version' => 'v1',
+				'source'           => 'official',
+				'input_schema'     => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'media_snapshot'         => array(
+							'type'                 => 'object',
+							'properties'           => array(
+								'snapshot_policy' => array( 'type' => 'string' ),
+								'media_scope'     => array( 'type' => 'string' ),
+								'media_filter'    => array( 'type' => 'string' ),
+								'post_context'    => array(
+									'type'                 => 'object',
+									'properties'           => array(
+										'post_id' => array( 'type' => 'integer' ),
+										'title'   => array( 'type' => 'string' ),
+									),
+									'additionalProperties' => false,
+								),
+								'items'           => array(
+									'type'     => 'array',
+									'maxItems' => 30,
+									'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
+								),
+							),
+							'additionalProperties' => false,
+						),
+						'image_context_evidence' => array(
+							'type'                 => array( 'object', 'null' ),
+							'properties'           => array(
+								'contract_version'       => array( 'type' => 'string' ),
+								'write_posture'          => array( 'type' => 'string' ),
+								'direct_wordpress_write' => array( 'type' => 'boolean' ),
+								'items'                  => array(
+									'type'     => 'array',
+									'maxItems' => 10,
+									'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
+								),
+							),
+							'additionalProperties' => false,
+						),
+						'review_set_limit'       => array( 'type' => array( 'integer', 'null' ), 'minimum' => 1, 'maximum' => 10, 'default' => 5 ),
+						'max_items'              => array( 'type' => array( 'integer', 'null' ), 'minimum' => 1, 'maximum' => 10 ),
+					),
+					'required'             => array(),
+					'additionalProperties' => false,
+				),
+				'output_schema'    => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array( 'type' => 'boolean' ),
+						'data'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
+						'message' => array( 'type' => 'string' ),
+					),
+					'required'   => array( 'success', 'data' ),
+				),
+				'execute_callback' => array( $this, 'build_media_alt_caption_review_set' ),
+			),
 			'npcink-abilities-toolkit/build-media-settings-reference-repair-plan' => array(
 				'label'            => __( 'Build Media Settings Reference Repair Plan', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Scans selected WordPress options and theme mods for hard-coded URLs to a previously replaced media file and builds governed exact replacement actions without mutating settings.', 'npcink-abilities-toolkit' ),
