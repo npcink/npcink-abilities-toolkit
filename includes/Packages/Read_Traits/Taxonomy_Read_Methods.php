@@ -351,6 +351,115 @@ trait Taxonomy_Read_Methods {
 	}
 
 	/**
+	 * Builds a review-only taxonomy/tag candidate set.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_taxonomy_tag_review_set( $input ) {
+		$input = is_array( $input ) ? $input : array();
+		$review_set_limit = max( 1, min( 20, $this->absint_value( $input['review_set_limit'] ?? 8 ) ) );
+		$suggestions      = $this->suggest_post_taxonomy_terms( $input );
+		if ( is_wp_error( $suggestions ) ) {
+			return $suggestions;
+		}
+
+		$suggestion_data = is_array( $suggestions['data'] ?? null ) ? $suggestions['data'] : array();
+		$taxonomy_terms  = is_array( $suggestion_data['taxonomy_terms'] ?? null ) ? $suggestion_data['taxonomy_terms'] : array();
+		$candidates      = is_array( $taxonomy_terms['items'] ?? null ) ? $taxonomy_terms['items'] : array();
+		$selected        = array();
+		$blocked         = array();
+
+		foreach ( $candidates as $candidate ) {
+			if ( ! is_array( $candidate ) ) {
+				continue;
+			}
+			$item    = $this->taxonomy_review_set_item_from_candidate( $candidate );
+			$quality = is_array( $item['quality'] ?? null ) ? $item['quality'] : array();
+			if ( '' === (string) ( $item['name'] ?? '' ) || $this->absint_value( $item['term_id'] ?? 0 ) <= 0 ) {
+				$item['blocked_reason'] = 'invalid_existing_term_candidate';
+				$blocked[] = $item;
+				continue;
+			}
+
+			if ( 'weak' === (string) ( $quality['status'] ?? '' ) ) {
+				$item['blocked_reason'] = 'weak_taxonomy_evidence';
+				$blocked[] = $item;
+				continue;
+			}
+
+			if ( count( $selected ) >= $review_set_limit ) {
+				$item['blocked_reason'] = 'review_set_limit_reached';
+				$blocked[] = $item;
+				continue;
+			}
+
+			$item['review_status'] = 'good' === (string) ( $quality['status'] ?? '' ) ? 'ready_for_review' : 'review_recommended';
+			$selected[] = $item;
+		}
+
+		$taxonomy_counts = array(
+			'category' => 0,
+			'post_tag' => 0,
+		);
+		foreach ( $selected as $item ) {
+			$taxonomy = sanitize_key( (string) ( $item['taxonomy'] ?? '' ) );
+			if ( isset( $taxonomy_counts[ $taxonomy ] ) ) {
+				++$taxonomy_counts[ $taxonomy ];
+			}
+		}
+
+		$data = array(
+			'contract_version'       => 'taxonomy_tag_review_set.v1',
+			'artifact_type'          => 'taxonomy_tag_review_set',
+			'mode'                   => 'governed_review_set',
+			'write_posture'          => 'suggestion_only',
+			'final_write_path'       => 'core_proposal_required',
+			'direct_wordpress_write' => false,
+			'proposal_created'       => false,
+			'execution_created'      => false,
+			'commit_execution'       => false,
+			'source_ability_id'      => 'npcink-abilities-toolkit/build-taxonomy-tag-review-set',
+			'source_candidate_ability_id' => 'npcink-abilities-toolkit/suggest-post-taxonomy-terms',
+			'runtime_owner'          => 'npcink-abilities-toolkit',
+			'review_set_limit'       => $review_set_limit,
+			'eligibility_summary'    => array(
+				'scanned'           => count( $candidates ),
+				'selected'          => count( $selected ),
+				'blocked'           => count( $blocked ),
+				'selected_category' => $taxonomy_counts['category'],
+				'selected_tag'      => $taxonomy_counts['post_tag'],
+			),
+			'selected_items'         => $selected,
+			'blocked_items'          => $blocked,
+			'safety'                 => array(
+				'term_creation_allowed'     => false,
+				'term_assignment_allowed'   => false,
+				'proposal_created'          => false,
+				'direct_wordpress_write'    => false,
+				'provider_runtime_used'     => false,
+				'cloud_runtime_dependency'  => false,
+			),
+			'handoff'                => array(
+				'accepted_selection_target' => 'npcink-abilities-toolkit/build-content-metadata-apply-plan',
+				'term_assignment_target'    => 'npcink-abilities-toolkit/set-post-terms',
+				'final_write_path'          => 'core_proposal_required',
+				'operator_review_required'  => true,
+			),
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'local_taxonomy_tag_review_set',
+				'execution_mode' => 'deterministic',
+				'readonly'       => true,
+			),
+			'Taxonomy/tag review set built.'
+		);
+	}
+
+	/**
 	 * Builds a post taxonomy assignment proposal from existing terms.
 	 *
 	 * @param mixed $input Input args.
@@ -475,6 +584,65 @@ trait Taxonomy_Read_Methods {
 			),
 			'Post taxonomy term proposal built.'
 		);
+	}
+
+	/**
+	 * Converts one ranked taxonomy candidate into a review-set row.
+	 *
+	 * @param array<string,mixed> $candidate Candidate row.
+	 * @return array<string,mixed>
+	 */
+	private function taxonomy_review_set_item_from_candidate( array $candidate ): array {
+		$taxonomy = sanitize_key( (string) ( $candidate['taxonomy'] ?? '' ) );
+		$term_id  = $this->absint_value( $candidate['term_id'] ?? 0 );
+		$name     = sanitize_text_field( (string) ( $candidate['name'] ?? '' ) );
+		$quality  = $this->taxonomy_suggestion_candidate_quality( $candidate );
+
+		return array(
+			'candidate_id'                => ( 'category' === $taxonomy ? 'category_' : 'tag_' ) . $term_id,
+			'candidate_contract'          => 'taxonomy_tag_review_candidate.v1',
+			'taxonomy'                    => $taxonomy,
+			'term_id'                     => $term_id,
+			'name'                        => $name,
+			'slug'                        => sanitize_title( (string) ( $candidate['slug'] ?? '' ) ),
+			'score'                       => is_numeric( $candidate['score'] ?? null ) ? (float) $candidate['score'] : 0.0,
+			'quality'                     => $quality,
+			'matched_tokens'              => is_array( $candidate['matched_tokens'] ?? null ) ? array_values( array_map( 'sanitize_text_field', $candidate['matched_tokens'] ) ) : array(),
+			'match_signals'               => is_array( $candidate['match_signals'] ?? null ) ? array_values( array_map( 'sanitize_key', $candidate['match_signals'] ) ) : array(),
+			'related_context'             => is_array( $candidate['related_context'] ?? null ) ? $this->taxonomy_review_set_sanitize_payload( $candidate['related_context'] ) : array(),
+			'evidence_refs'               => is_array( $candidate['evidence_refs'] ?? null ) ? array_values( array_map( 'sanitize_text_field', $candidate['evidence_refs'] ) ) : array(),
+			'reason'                      => sanitize_text_field( (string) ( $candidate['reason'] ?? '' ) ),
+			'proposed_action'             => 'append_existing_term',
+			'needs_operator_review'       => true,
+			'direct_wordpress_write'      => false,
+			'term_creation_allowed'       => false,
+			'term_assignment_authorized'  => false,
+		);
+	}
+
+	/**
+	 * Sanitizes nested review-set evidence payloads.
+	 *
+	 * @param mixed $payload Raw payload.
+	 * @param int   $depth Recursion depth.
+	 * @return mixed
+	 */
+	private function taxonomy_review_set_sanitize_payload( $payload, $depth = 0 ) {
+		if ( $depth > 4 ) {
+			return is_array( $payload ) ? array() : $this->sanitize_metadata_text( (string) $payload );
+		}
+		if ( is_array( $payload ) ) {
+			$clean = array();
+			foreach ( $payload as $key => $value ) {
+				$clean[ is_string( $key ) ? sanitize_key( $key ) : $key ] = $this->taxonomy_review_set_sanitize_payload( $value, $depth + 1 );
+			}
+			return $clean;
+		}
+		if ( is_bool( $payload ) || is_int( $payload ) || is_float( $payload ) || null === $payload ) {
+			return $payload;
+		}
+
+		return $this->sanitize_metadata_text( (string) $payload );
 	}
 
 	/**
