@@ -357,27 +357,20 @@ function npcink_abilities_toolkit_contract_audit_agent_usage( array $abilities )
 }
 
 /**
- * Checks that priority write abilities expose implementation posture metadata.
+ * Checks that all write-like abilities expose implementation posture metadata.
  *
  * @param array<string,array<string,mixed>> $abilities Registered abilities.
  * @return void
  */
 function npcink_abilities_toolkit_contract_audit_implementation_posture( array $abilities ) {
-	$required_posture = array(
-		'npcink-abilities-toolkit/create-draft',
-		'npcink-abilities-toolkit/update-post',
-		'npcink-abilities-toolkit/update-post-blocks',
-		'npcink-abilities-toolkit/set-post-terms',
-		'npcink-abilities-toolkit/update-media-details',
-	);
-
-	foreach ( $required_posture as $ability_id ) {
-		if ( ! isset( $abilities[ $ability_id ] ) || ! is_array( $abilities[ $ability_id ] ) ) {
-			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} is missing from the registered ability set" );
+	foreach ( $abilities as $ability_id => $ability ) {
+		if ( ! is_array( $ability ) ) {
+			continue;
+		}
+		if ( ! in_array( (string) ( $ability['risk_level'] ?? '' ), array( 'write', 'destructive' ), true ) ) {
 			continue;
 		}
 
-		$ability        = $abilities[ $ability_id ];
 		$posture        = isset( $ability['implementation_posture'] ) && is_array( $ability['implementation_posture'] )
 			? $ability['implementation_posture']
 			: array();

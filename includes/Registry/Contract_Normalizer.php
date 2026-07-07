@@ -311,15 +311,34 @@ final class Contract_Normalizer {
 	 * @return array<string,mixed>
 	 */
 	private function normalize_implementation_posture( $posture, $risk_level ) {
-		if ( ! is_array( $posture ) || empty( $posture ) ) {
+		$is_write = in_array( $risk_level, array( 'write', 'destructive' ), true );
+		if ( ( ! is_array( $posture ) || empty( $posture ) ) && ! $is_write ) {
 			return array();
 		}
+		$posture = is_array( $posture ) ? $posture : array();
+		$default_reference_patterns = array(
+			'WordPress Abilities API callback provides a dry-run preview before any host-governed commit.',
+			'Host runtime calls the ability for final writes only after governance approval and commit intent.',
+		);
+		$default_verification_contract = array(
+			'Dry-run returns a preview payload without mutation.',
+			'Commit evidence is returned to the host runtime after an approved final write attempt.',
+			'Host verifies approval context, current target identity, and idempotency_key before commit.',
+		);
+		$default_required_host_evidence = array(
+			'approved proposal id or equivalent host approval token',
+			'caller identity and capability context',
+			'idempotency_key for replay protection',
+		);
+		$default_non_goals = array(
+			'Workflow runtime, scheduling, queues, model routing, provider credentials, approval storage, and audit truth.',
+		);
 
 		$normalized = array(
 			'schema_version'                 => 'npcink_abilities_toolkit_implementation_posture.v1',
 			'implementation_owner'           => 'npcink-abilities-toolkit',
 			'execution_surface'              => 'wordpress_abilities_api_host_governed',
-			'write_posture'                  => in_array( $risk_level, array( 'write', 'destructive' ), true ) ? 'host_governed_dry_run_first' : 'read_only',
+			'write_posture'                  => $is_write ? 'host_governed_dry_run_first' : 'read_only',
 			'commit_authority'               => 'host_runtime_approval_context_required',
 			'final_authorization_owner'      => 'host_governance_layer',
 			'approval_truth_owner'           => 'host_governance_layer',
@@ -327,10 +346,10 @@ final class Contract_Normalizer {
 			'direct_wordpress_write_default' => false,
 			'dry_run_default'                => true,
 			'commit_default'                 => false,
-			'reference_patterns'             => $this->sanitize_string_list( $posture['reference_patterns'] ?? array() ),
-			'verification_contract'          => $this->sanitize_string_list( $posture['verification_contract'] ?? array() ),
-			'required_host_evidence'         => $this->sanitize_string_list( $posture['required_host_evidence'] ?? array() ),
-			'non_goals'                      => $this->sanitize_string_list( $posture['non_goals'] ?? array() ),
+			'reference_patterns'             => $this->sanitize_string_list( $posture['reference_patterns'] ?? $default_reference_patterns ),
+			'verification_contract'          => $this->sanitize_string_list( $posture['verification_contract'] ?? $default_verification_contract ),
+			'required_host_evidence'         => $this->sanitize_string_list( $posture['required_host_evidence'] ?? $default_required_host_evidence ),
+			'non_goals'                      => $this->sanitize_string_list( $posture['non_goals'] ?? $default_non_goals ),
 			'workflow_runtime'               => false,
 			'queue_or_scheduler'             => false,
 			'model_routing'                  => false,
@@ -346,6 +365,18 @@ final class Contract_Normalizer {
 		}
 		if ( isset( $posture['schema_version'] ) && '' !== trim( (string) $posture['schema_version'] ) ) {
 			$normalized['schema_version'] = sanitize_text_field( (string) $posture['schema_version'] );
+		}
+		foreach (
+			array(
+				'reference_patterns'     => $default_reference_patterns,
+				'verification_contract'  => $default_verification_contract,
+				'required_host_evidence' => $default_required_host_evidence,
+				'non_goals'              => $default_non_goals,
+			) as $field => $default_items
+		) {
+			if ( empty( $normalized[ $field ] ) ) {
+				$normalized[ $field ] = $this->sanitize_string_list( $default_items );
+			}
 		}
 
 		return $normalized;

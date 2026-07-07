@@ -17,7 +17,8 @@ destructive abilities.
   either be tightened or added to that allowlist with a reviewed reason.
 - Write/destructive abilities expose both `requires_confirm=true` and
   `requires_approval=true`.
-- Priority host-governed writes expose `implementation_posture` metadata with
+- All host-governed write/destructive abilities expose `implementation_posture`
+  metadata with
   WordPress reference patterns, required host evidence, and verification
   contracts while keeping approval storage, audit truth, workflow runtime,
   queues, model routing, and provider credentials out of Toolkit.
@@ -47,5 +48,5 @@ before broad public automation:
 
 The lightweight tests enforce the common write controls and selected high-value
 behavior. The WordPress smoke test verifies that REST ability details expose
-`risk_level`, `requires_approval`, `input_schema`, `output_schema`, and priority
-`implementation_posture` metadata for the Core handoff abilities.
+`risk_level`, `requires_approval`, `input_schema`, `output_schema`, and
+`implementation_posture` metadata for representative Core handoff abilities.

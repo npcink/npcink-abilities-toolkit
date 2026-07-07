@@ -480,10 +480,17 @@ function npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( $abi
 	npcink_abilities_toolkit_smoke_assert( 'host_governed_dry_run_first' === (string) ( $posture['write_posture'] ?? '' ), "{$ability_id} REST detail exposes dry-run-first write posture." );
 	npcink_abilities_toolkit_smoke_assert( 'host_runtime_approval_context_required' === (string) ( $posture['commit_authority'] ?? '' ), "{$ability_id} REST detail leaves commit authority with host runtime." );
 	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $posture['final_authorization_owner'] ?? '' ), "{$ability_id} REST detail leaves final authorization with host governance." );
+	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $posture['approval_truth_owner'] ?? '' ), "{$ability_id} REST detail leaves approval truth with host governance." );
+	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $posture['audit_truth_owner'] ?? '' ), "{$ability_id} REST detail leaves audit truth with host governance." );
+	npcink_abilities_toolkit_smoke_assert( true === (bool) ( $posture['dry_run_default'] ?? false ), "{$ability_id} REST detail defaults posture to dry-run." );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['commit_default'] ?? true ), "{$ability_id} REST detail disables commit by default." );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['direct_wordpress_write_default'] ?? true ), "{$ability_id} REST detail disables direct WordPress write by default." );
 	npcink_abilities_toolkit_smoke_assert( ! empty( $posture['reference_patterns'] ) && is_array( $posture['reference_patterns'] ), "{$ability_id} REST detail exposes reference patterns." );
 	npcink_abilities_toolkit_smoke_assert( ! empty( $posture['verification_contract'] ) && is_array( $posture['verification_contract'] ), "{$ability_id} REST detail exposes verification contract." );
-	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['workflow_runtime'] ?? true ), "{$ability_id} REST detail excludes workflow runtime ownership." );
-	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['approval_storage'] ?? true ), "{$ability_id} REST detail excludes approval storage." );
+	npcink_abilities_toolkit_smoke_assert( ! empty( $posture['required_host_evidence'] ) && is_array( $posture['required_host_evidence'] ), "{$ability_id} REST detail exposes required host evidence." );
+	foreach ( array( 'workflow_runtime', 'queue_or_scheduler', 'model_routing', 'provider_credentials', 'approval_storage', 'audit_storage' ) as $forbidden_flag ) {
+		npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture[ $forbidden_flag ] ?? true ), "{$ability_id} REST detail excludes {$forbidden_flag} ownership." );
+	}
 }
 
 npcink_abilities_toolkit_smoke_assert( function_exists( 'wp_register_ability' ), 'WordPress Abilities API registration function exists.' );
@@ -530,6 +537,7 @@ if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
 	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/create-draft' );
 	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/update-post-blocks' );
 	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/update-media-details' );
+	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/trash-post' );
 }
 
 if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {

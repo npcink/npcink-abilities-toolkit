@@ -510,9 +510,10 @@ function npcink_abilities_toolkit_assert_package_write_ability_contract( $abilit
 	npcink_abilities_toolkit_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	npcink_abilities_toolkit_assert_same( true, $definition['meta']['mcp']['public'] ?? null, "{$ability_id} is MCP-public for governed write server discovery" );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition );
 }
 
-function npcink_abilities_toolkit_assert_priority_write_implementation_posture( $ability_id, $definition ) {
+function npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition ) {
 	$definition = is_array( $definition ) ? $definition : array();
 	$posture    = isset( $definition['implementation_posture'] ) && is_array( $definition['implementation_posture'] )
 		? $definition['implementation_posture']
@@ -560,6 +561,7 @@ function npcink_abilities_toolkit_assert_package_destructive_ability_contract( $
 	npcink_abilities_toolkit_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
 	npcink_abilities_toolkit_assert_same( 'destructive', $definition['meta']['mcp']['risk'] ?? '', "{$ability_id} MCP risk is destructive" );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition );
 }
 
 $schema_normalizer = new Schema_Normalizer();
@@ -1955,7 +1957,7 @@ foreach ( $migrated_write_ability_ids as $migrated_write_ability_id ) {
 }
 foreach ( $priority_write_implementation_posture_ids as $posture_ability_id ) {
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $posture_ability_id ] ), "core write package owns priority implementation posture ability {$posture_ability_id}" );
-	npcink_abilities_toolkit_assert_priority_write_implementation_posture( $posture_ability_id, $package_abilities[ $posture_ability_id ] );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $posture_ability_id, $package_abilities[ $posture_ability_id ] );
 }
 foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id ) {
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $migrated_destructive_ability_id ] ), "core destructive package owns migrated {$migrated_destructive_ability_id} ability" );

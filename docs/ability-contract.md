@@ -108,6 +108,15 @@ Host-governed writes and destructive abilities may live in this package only
 when they are generic WordPress operations. Direct clients receive dry-run
 previews by default; final commit requires host approval context.
 
+Write-like normalized contracts also expose `implementation_posture` at the
+top level, in `meta.implementation_posture`, and in
+`meta.npcink.implementation_posture`. This metadata tells Core, Adapter, and
+other host runtimes that the ability is dry-run-first, host-governed, and
+metadata-only: Toolkit owns the implementation contract, while approval truth,
+audit truth, and final authorization remain with the host governance layer.
+The posture must keep workflow runtime, queues, model routing, provider
+credentials, approval storage, and audit storage out of Toolkit.
+
 Write-like input schemas should reject undeclared fields unless a specific
 ability has a documented reason to accept extension data. Permission checks must
 run before both dry-run previews and final commits so previews do not leak data

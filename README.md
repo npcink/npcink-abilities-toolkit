@@ -90,6 +90,10 @@ The contract endpoint is not authoritative for admission, approval, audit,
 routing, catalog policy, or execution; hosts must enforce their own governance,
 and the WordPress Abilities API remains the ability discovery and execution
 surface.
+Normalized write-like ability contracts also expose `implementation_posture`
+metadata so governance consumers can verify dry-run-first, host-governed posture
+without treating Toolkit as an approval store, audit store, runtime, or final
+write authority.
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
