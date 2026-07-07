@@ -124,9 +124,11 @@ Cloud Addon, Cloud, or a separate runtime owner before implementation.
 
 ## Candidate Improvements
 
-These are candidate notes only. They should not be implemented until the
-current branch's taxonomy review-set work is resolved and a scoped issue is
-opened.
+These notes are implementation candidates. The first compact official-stack
+alignment checklist and `meta.annotations` guard were implemented as a minimal
+contract-hardening slice after the branch was repurposed for Abilities API
+metadata alignment. Remaining items still need their own scoped decision before
+implementation.
 
 ### P1 - Preserve
 
@@ -146,9 +148,9 @@ Keep these existing Toolkit choices:
 
 Potential future documentation or admin-surface improvements:
 
-- Add a compact "official-stack alignment" checklist to ability review docs:
-  id, category, label, description, schemas, permission, REST visibility, risk,
-  and host-governed write posture.
+- Maintain the compact "official-stack alignment" checklist in ability review
+  docs: id, category, label, description, schemas, permission, REST visibility,
+  official annotations, risk, and host-governed write posture.
 - Make the admin Available Abilities technical details explicitly distinguish
   REST visibility, MCP public exposure, and Npcink projection.
 - In provider-facing docs, emphasize that `show_in_rest=true` does not mean the

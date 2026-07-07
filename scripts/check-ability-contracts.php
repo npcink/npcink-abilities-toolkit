@@ -272,12 +272,25 @@ function npcink_abilities_toolkit_contract_audit_ability( $ability_id, array $ab
 	$annotations = isset( $ability['annotations'] ) && is_array( $ability['annotations'] )
 		? $ability['annotations']
 		: array();
+	$meta_annotations = npcink_abilities_toolkit_contract_audit_get( $ability, array( 'meta', 'annotations' ) );
+	if ( $annotations !== $meta_annotations ) {
+		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations must mirror normalized annotations" );
+	}
 	if ( ( 'read' === $risk_level ) !== (bool) ( $annotations['readonly'] ?? false ) ) {
 		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} readonly annotation must match risk level" );
 	}
 
 	if ( ( 'destructive' === $risk_level ) !== (bool) ( $annotations['destructive'] ?? false ) ) {
 		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} destructive annotation must match risk level" );
+	}
+	if ( is_array( $meta_annotations ) ) {
+		if ( ( 'read' === $risk_level ) !== (bool) ( $meta_annotations['readonly'] ?? false ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations.readonly must match risk level" );
+		}
+
+		if ( ( 'destructive' === $risk_level ) !== (bool) ( $meta_annotations['destructive'] ?? false ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations.destructive must match risk level" );
+		}
 	}
 
 	$properties = isset( $ability['input_schema']['properties'] ) && is_array( $ability['input_schema']['properties'] )
