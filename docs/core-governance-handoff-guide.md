@@ -82,6 +82,14 @@ signals. Those signals should be treated as host workflow or product extraction
 guidance unless a future consumer proof demonstrates a missing reusable
 WordPress-only contract.
 
+Priority host-governed write abilities now expose `implementation_posture`
+metadata. Core and Adapter consumers can use this metadata to learn the intended
+WordPress reference patterns, required host evidence, and verification contract
+for `create-draft`, `update-post`, `update-post-blocks`, `set-post-terms`, and
+`update-media-details`. This metadata is advisory contract evidence only: it
+does not move approval truth, final authorization, audit truth, workflow
+runtime, queue execution, model routing, or provider credentials into Toolkit.
+
 ## Deferred Surfaces
 
 Keep these out of the current Core governance implementation:

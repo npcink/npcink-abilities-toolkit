@@ -464,6 +464,28 @@ function npcink_abilities_toolkit_smoke_assert_rest_governance_contract( $abilit
 	npcink_abilities_toolkit_smoke_assert( $requires_approval === (bool) ( $ability['meta']['npcink']['requires_approval'] ?? ! $requires_approval ), "{$ability_id} REST detail exposes requires_approval." );
 }
 
+/**
+ * Asserts that one REST ability detail exposes implementation posture metadata.
+ *
+ * @param string $ability_id Ability id.
+ * @return void
+ */
+function npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( $ability_id ) {
+	$ability = npcink_abilities_toolkit_smoke_rest_ability( $ability_id );
+	$posture = isset( $ability['meta']['npcink']['implementation_posture'] ) && is_array( $ability['meta']['npcink']['implementation_posture'] )
+		? $ability['meta']['npcink']['implementation_posture']
+		: array();
+
+	npcink_abilities_toolkit_smoke_assert( 'npcink_abilities_toolkit_implementation_posture.v1' === (string) ( $posture['schema_version'] ?? '' ), "{$ability_id} REST detail exposes implementation posture schema." );
+	npcink_abilities_toolkit_smoke_assert( 'host_governed_dry_run_first' === (string) ( $posture['write_posture'] ?? '' ), "{$ability_id} REST detail exposes dry-run-first write posture." );
+	npcink_abilities_toolkit_smoke_assert( 'host_runtime_approval_context_required' === (string) ( $posture['commit_authority'] ?? '' ), "{$ability_id} REST detail leaves commit authority with host runtime." );
+	npcink_abilities_toolkit_smoke_assert( 'host_governance_layer' === (string) ( $posture['final_authorization_owner'] ?? '' ), "{$ability_id} REST detail leaves final authorization with host governance." );
+	npcink_abilities_toolkit_smoke_assert( ! empty( $posture['reference_patterns'] ) && is_array( $posture['reference_patterns'] ), "{$ability_id} REST detail exposes reference patterns." );
+	npcink_abilities_toolkit_smoke_assert( ! empty( $posture['verification_contract'] ) && is_array( $posture['verification_contract'] ), "{$ability_id} REST detail exposes verification contract." );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['workflow_runtime'] ?? true ), "{$ability_id} REST detail excludes workflow runtime ownership." );
+	npcink_abilities_toolkit_smoke_assert( false === (bool) ( $posture['approval_storage'] ?? true ), "{$ability_id} REST detail excludes approval storage." );
+}
+
 npcink_abilities_toolkit_smoke_assert( function_exists( 'wp_register_ability' ), 'WordPress Abilities API registration function exists.' );
 npcink_abilities_toolkit_smoke_assert( function_exists( 'wp_register_ability_category' ), 'WordPress Abilities API category registration function exists.' );
 npcink_abilities_toolkit_smoke_assert( function_exists( 'npcink_abilities_toolkit_register_readonly' ), 'Plugin public readonly registration helper is loaded.' );
@@ -489,23 +511,26 @@ $provider_abilities_data = npcink_abilities_toolkit_smoke_rest_catalog( 'npcink-
 $runtime_contract = npcink_abilities_toolkit_smoke_runtime_contract();
 npcink_abilities_toolkit_smoke_assert_runtime_contract( $runtime_contract, count( npcink_abilities_toolkit_smoke_local_abilities() ) );
 if ( 'light_core_read' !== $npcink_abilities_toolkit_smoke_profile ) {
-		npcink_abilities_toolkit_smoke_assert(
-			npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-diagnostics-summary' ),
-			'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
-		);
-		npcink_abilities_toolkit_smoke_assert(
-			npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-ops-diagnostics-detail' ),
-			'Authenticated abilities REST catalog contains the standalone ops diagnostics detail ability.'
-		);
-		npcink_abilities_toolkit_smoke_assert(
-			npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/list-workflow-recipes' ),
-			'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
-		);
-		npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/create-draft', 'write', true );
-		npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/set-post-seo-meta', 'write', true );
-		npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/approve-comment', 'write', true );
-		npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/list-workflow-recipes', 'read', false );
-	}
+	npcink_abilities_toolkit_smoke_assert(
+		npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-diagnostics-summary' ),
+		'Authenticated abilities REST catalog contains the standalone diagnostics ability.'
+	);
+	npcink_abilities_toolkit_smoke_assert(
+		npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/wp-ops-diagnostics-detail' ),
+		'Authenticated abilities REST catalog contains the standalone ops diagnostics detail ability.'
+	);
+	npcink_abilities_toolkit_smoke_assert(
+		npcink_abilities_toolkit_smoke_has_ability_name( $provider_abilities_data, 'npcink-abilities-toolkit/list-workflow-recipes' ),
+		'Authenticated abilities REST catalog contains the workflow recipe discovery ability.'
+	);
+	npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/create-draft', 'write', true );
+	npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/set-post-seo-meta', 'write', true );
+	npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/approve-comment', 'write', true );
+	npcink_abilities_toolkit_smoke_assert_rest_governance_contract( 'npcink-abilities-toolkit/list-workflow-recipes', 'read', false );
+	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/create-draft' );
+	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/update-post-blocks' );
+	npcink_abilities_toolkit_smoke_assert_rest_implementation_posture( 'npcink-abilities-toolkit/update-media-details' );
+}
 
 if ( 'light_core_read' === $npcink_abilities_toolkit_smoke_profile ) {
 	$light_profile_local_abilities = npcink_abilities_toolkit_smoke_local_abilities();

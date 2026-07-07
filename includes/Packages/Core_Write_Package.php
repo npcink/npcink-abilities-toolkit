@@ -77,6 +77,7 @@ final class Core_Write_Package {
 			$definition['source']                    = 'official';
 			$definition['project_to_npcink_catalog'] = true;
 			$definition = $this->with_agent_usage_metadata( $ability_id, $definition );
+			$definition = $this->with_implementation_posture_metadata( $ability_id, $definition );
 			$this->abilities->add_write_host_governed( $ability_id, $definition );
 		}
 	}
@@ -3703,6 +3704,125 @@ final class Core_Write_Package {
 
 		if ( isset( $usage[ $ability_id ] ) ) {
 			$definition['agent_usage'] = $usage[ $ability_id ];
+		}
+
+		return $definition;
+	}
+
+	/**
+	 * Adds implementation posture metadata for priority host-governed writes.
+	 *
+	 * @param string              $ability_id Ability id.
+	 * @param array<string,mixed> $definition Ability definition.
+	 * @return array<string,mixed>
+	 */
+	private function with_implementation_posture_metadata( $ability_id, array $definition ) {
+		$posture = array(
+			'npcink-abilities-toolkit/create-draft' => array(
+				'reference_patterns'     => array(
+					'wp_insert_post for draft creation',
+					'wp_kses_post for approved HTML content handling',
+					'get_edit_post_link and get_preview_post_link for review links',
+				),
+				'verification_contract'  => array(
+					'Dry-run returns action=create_draft, post_type, status=draft, title, and content_format without mutation.',
+					'Commit evidence includes post_id, status, edit_link, preview_link, and content_format.',
+					'Host verifies approval context and idempotency_key before commit.',
+				),
+				'required_host_evidence' => array(
+					'approved proposal id or equivalent host approval token',
+					'caller identity and capability context',
+					'idempotency_key for replay protection',
+				),
+				'non_goals'              => array(
+					'Publishing, scheduling, model routing, prompt selection, approval storage, and audit truth.',
+				),
+			),
+			'npcink-abilities-toolkit/update-post' => array(
+				'reference_patterns'     => array(
+					'wp_update_post for approved post field changes',
+					'wp_kses_post for approved HTML content handling',
+					'get_post for before/after verification',
+				),
+				'verification_contract'  => array(
+					'Dry-run returns action=update_post, post_id, status, and changed_fields without mutation.',
+					'Commit evidence includes post_id, updated=true, status, edit_link, and changed_fields.',
+					'Host verifies target post identity, approval context, and idempotency_key before commit.',
+				),
+				'required_host_evidence' => array(
+					'approved proposal id or equivalent host approval token',
+					'target post id and current status evidence',
+					'idempotency_key for replay protection',
+				),
+				'non_goals'              => array(
+					'Block-document planning, publishing, scheduling, approval storage, and audit truth.',
+				),
+			),
+			'npcink-abilities-toolkit/update-post-blocks' => array(
+				'reference_patterns'     => array(
+					'parse_blocks for existing block readback',
+					'serialize_blocks for approved block document serialization',
+					'Gutenberg_Block_Document for Toolkit block safety checks',
+					'wp_update_post for final approved content commit',
+				),
+				'verification_contract'  => array(
+					'Dry-run returns action=update_post_blocks, post_id, block_count, and serialized content preview without mutation.',
+					'Commit evidence includes post_id, updated=true, block_count, changed_blocks, and edit_link.',
+					'Host verifies block round-trip evidence, approval context, and idempotency_key before commit.',
+				),
+				'required_host_evidence' => array(
+					'approved proposal id or equivalent host approval token',
+					'block round-trip validation evidence',
+					'idempotency_key for replay protection',
+				),
+				'non_goals'              => array(
+					'Article generation workflow runtime, reusable workflow registry, approval storage, and audit truth.',
+				),
+			),
+			'npcink-abilities-toolkit/set-post-terms' => array(
+				'reference_patterns'     => array(
+					'wp_set_object_terms for approved taxonomy assignment',
+					'get_the_terms for before/after readback',
+					'get_taxonomy for taxonomy capability checks',
+				),
+				'verification_contract'  => array(
+					'Dry-run returns action=set_post_terms, post_id, taxonomy, current_terms, and requested_terms without mutation.',
+					'Commit evidence includes post_id, taxonomy, term_ids, added_terms, removed_terms, and updated=true.',
+					'Host verifies taxonomy scope, approval context, and idempotency_key before commit.',
+				),
+				'required_host_evidence' => array(
+					'approved proposal id or equivalent host approval token',
+					'taxonomy and term id review evidence',
+					'idempotency_key for replay protection',
+				),
+				'non_goals'              => array(
+					'Taxonomy strategy generation, approval storage, audit truth, and bulk queue execution.',
+				),
+			),
+			'npcink-abilities-toolkit/update-media-details' => array(
+				'reference_patterns'     => array(
+					'wp_update_post for attachment title, caption, and description changes',
+					'update_post_meta for _wp_attachment_image_alt changes',
+					'wp_get_attachment_metadata for media readback context',
+				),
+				'verification_contract'  => array(
+					'Dry-run returns action=update_media_details, attachment_id, current fields, and requested changes without mutation.',
+					'Commit evidence includes attachment_id, updated=true, changed_fields, edit_link, and media_type.',
+					'Host verifies attachment identity, approval context, and idempotency_key before commit.',
+				),
+				'required_host_evidence' => array(
+					'approved proposal id or equivalent host approval token',
+					'attachment identity and current metadata evidence',
+					'idempotency_key for replay protection',
+				),
+				'non_goals'              => array(
+					'Media upload, image generation, file replacement, approval storage, and audit truth.',
+				),
+			),
+		);
+
+		if ( isset( $posture[ $ability_id ] ) ) {
+			$definition['implementation_posture'] = $posture[ $ability_id ];
 		}
 
 		return $definition;

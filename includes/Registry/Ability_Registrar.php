@@ -375,6 +375,7 @@ final class Ability_Registrar {
 			'deprecated'                => ! empty( $definition['deprecated'] ),
 			'successor'                 => (string) ( $definition['successor'] ?? '' ),
 			'project_to_npcink_catalog' => ! empty( $definition['project_to_npcink_catalog'] ),
+			'implementation_posture'    => is_array( $definition['implementation_posture'] ?? null ) ? $definition['implementation_posture'] : array(),
 		);
 
 		return $this->stable_normalize_value( $stable );
