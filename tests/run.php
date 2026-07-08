@@ -142,10 +142,39 @@ $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
 $docs_readme = (string) file_get_contents( __DIR__ . '/../docs/README.md' );
 $third_party_plugin_guide = (string) file_get_contents( __DIR__ . '/../docs/third-party-plugin-guide.md' );
 $public_api_doc = (string) file_get_contents( __DIR__ . '/../docs/public-api.md' );
+$ability_contract_reuse_readiness = (string) file_get_contents( __DIR__ . '/../docs/ability-contract-reuse-readiness-2026-07-08.md' );
 $media_boundary_doc = (string) file_get_contents( __DIR__ . '/../docs/media-format-attention-boundary.md' );
 $oss_storage_shim_doc = (string) file_get_contents( __DIR__ . '/../docs/oss-storage-compatibility-shim.md' );
 $oss_storage_shim_example = (string) file_get_contents( __DIR__ . '/../examples/oss-storage-shim.php' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $docs_readme, 'OSS Storage Compatibility Shim' ), 'documentation guide links the OSS storage shim contract' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $docs_readme, 'Ability Contract Reuse Readiness - 2026-07-08' ), 'documentation guide links the ability contract reuse readiness record' );
+npcink_abilities_toolkit_assert_true( false !== strpos( (string) file_get_contents( __DIR__ . '/../README.md' ), 'ability-contract-reuse-readiness-2026-07-08.md' ), 'root README links the ability contract reuse readiness record' );
+foreach (
+	array(
+		'Ability Contract Reuse Readiness',
+		'ability_contracts',
+		'proposal_handoff',
+		'execution_profiles',
+		'product_surface',
+		'signed_transport',
+		'runtime_detail',
+		'No new Toolkit ability or runtime code is needed for this pass.',
+		'implementation_posture',
+		'meta.npcink.implementation_posture',
+		'composer check:contracts',
+		'composer check:consumer',
+		'npcink-abilities-toolkit/create-draft',
+		'npcink-abilities-toolkit/update-post-blocks',
+		'npcink-abilities-toolkit/set-post-terms',
+		'npcink-abilities-toolkit/update-media-details',
+		'Stop and write a boundary note or ADR',
+		'final WordPress mutation policy',
+		'npcink-ai-client-adapter',
+		'composer analyse:phpstan',
+	) as $required_reuse_readiness_text
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $ability_contract_reuse_readiness, $required_reuse_readiness_text ), 'ability contract reuse readiness keeps required text: ' . $required_reuse_readiness_text );
+}
 npcink_abilities_toolkit_assert_true( false !== strpos( $third_party_plugin_guide, 'npcink_abilities_toolkit_media_storage_inspection' ), 'third-party guide documents the media storage inspection shim' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $public_api_doc, 'npcink_abilities_toolkit_media_storage_inspection' ), 'public API documents the media storage inspection filter' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $media_boundary_doc, 'oss-storage-compatibility-shim.md' ), 'media boundary links the OSS storage shim contract' );
@@ -510,6 +539,34 @@ function npcink_abilities_toolkit_assert_package_write_ability_contract( $abilit
 	npcink_abilities_toolkit_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	npcink_abilities_toolkit_assert_same( true, $definition['meta']['mcp']['public'] ?? null, "{$ability_id} is MCP-public for governed write server discovery" );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition );
+}
+
+function npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition ) {
+	$definition = is_array( $definition ) ? $definition : array();
+	$posture    = isset( $definition['implementation_posture'] ) && is_array( $definition['implementation_posture'] )
+		? $definition['implementation_posture']
+		: array();
+
+	npcink_abilities_toolkit_assert_same( $posture, $definition['meta']['implementation_posture'] ?? array(), "{$ability_id} mirrors implementation_posture into meta" );
+	npcink_abilities_toolkit_assert_same( $posture, $definition['meta']['npcink']['implementation_posture'] ?? array(), "{$ability_id} mirrors implementation_posture into Npcink metadata" );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_implementation_posture.v1', $posture['schema_version'] ?? '', "{$ability_id} exposes implementation posture schema version" );
+	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit', $posture['implementation_owner'] ?? '', "{$ability_id} keeps Toolkit as implementation owner" );
+	npcink_abilities_toolkit_assert_same( 'wordpress_abilities_api_host_governed', $posture['execution_surface'] ?? '', "{$ability_id} exposes host-governed Abilities API execution surface" );
+	npcink_abilities_toolkit_assert_same( 'host_governed_dry_run_first', $posture['write_posture'] ?? '', "{$ability_id} declares dry-run-first write posture" );
+	npcink_abilities_toolkit_assert_same( 'host_runtime_approval_context_required', $posture['commit_authority'] ?? '', "{$ability_id} leaves commit authority with the host runtime" );
+	npcink_abilities_toolkit_assert_same( 'host_governance_layer', $posture['final_authorization_owner'] ?? '', "{$ability_id} leaves final authorization with the host governance layer" );
+	npcink_abilities_toolkit_assert_same( 'host_governance_layer', $posture['approval_truth_owner'] ?? '', "{$ability_id} leaves approval truth with the host governance layer" );
+	npcink_abilities_toolkit_assert_same( 'host_governance_layer', $posture['audit_truth_owner'] ?? '', "{$ability_id} leaves audit truth with the host governance layer" );
+	npcink_abilities_toolkit_assert_same( false, $posture['direct_wordpress_write_default'] ?? true, "{$ability_id} does not default to direct WordPress mutation" );
+	npcink_abilities_toolkit_assert_same( true, $posture['dry_run_default'] ?? null, "{$ability_id} implementation posture defaults to dry-run" );
+	npcink_abilities_toolkit_assert_same( false, $posture['commit_default'] ?? true, "{$ability_id} implementation posture disables commit by default" );
+	npcink_abilities_toolkit_assert_true( ! empty( $posture['reference_patterns'] ) && is_array( $posture['reference_patterns'] ), "{$ability_id} names reference implementation patterns" );
+	npcink_abilities_toolkit_assert_true( ! empty( $posture['verification_contract'] ) && is_array( $posture['verification_contract'] ), "{$ability_id} names verification contract evidence" );
+	npcink_abilities_toolkit_assert_true( ! empty( $posture['required_host_evidence'] ) && is_array( $posture['required_host_evidence'] ), "{$ability_id} names required host evidence" );
+	foreach ( array( 'workflow_runtime', 'queue_or_scheduler', 'model_routing', 'provider_credentials', 'approval_storage', 'audit_storage' ) as $forbidden_flag ) {
+		npcink_abilities_toolkit_assert_same( false, $posture[ $forbidden_flag ] ?? true, "{$ability_id} implementation posture excludes {$forbidden_flag}" );
+	}
 }
 
 function npcink_abilities_toolkit_assert_package_destructive_ability_contract( $ability_id, $definition ) {
@@ -533,6 +590,7 @@ function npcink_abilities_toolkit_assert_package_destructive_ability_contract( $
 	npcink_abilities_toolkit_assert_same( 190, $definition['input_schema']['properties']['idempotency_key']['maxLength'] ?? null, "{$ability_id} idempotency key is bounded" );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit-write', $definition['meta']['mcp']['server'] ?? '', "{$ability_id} belongs on governed write server" );
 	npcink_abilities_toolkit_assert_same( 'destructive', $definition['meta']['mcp']['risk'] ?? '', "{$ability_id} MCP risk is destructive" );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $ability_id, $definition );
 }
 
 $schema_normalizer = new Schema_Normalizer();
@@ -1215,9 +1273,9 @@ $migrated_write_ability_ids = array(
 	'npcink-abilities-toolkit/update-media-details',
 	'npcink-abilities-toolkit/upload-media-from-url',
 	'npcink-abilities-toolkit/optimize-media-asset',
-		'npcink-abilities-toolkit/replace-media-file',
-		'npcink-abilities-toolkit/restore-media-backup',
-		'npcink-abilities-toolkit/rename-media-file',
+	'npcink-abilities-toolkit/replace-media-file',
+	'npcink-abilities-toolkit/restore-media-backup',
+	'npcink-abilities-toolkit/rename-media-file',
 	'npcink-abilities-toolkit/set-post-featured-image',
 	'npcink-abilities-toolkit/schedule-post',
 	'npcink-abilities-toolkit/publish-post',
@@ -1225,6 +1283,13 @@ $migrated_write_ability_ids = array(
 	'npcink-abilities-toolkit/approve-comment',
 	'npcink-abilities-toolkit/reply-comment',
 	'npcink-abilities-toolkit/adopt-article-audio',
+);
+$priority_write_implementation_posture_ids = array(
+	'npcink-abilities-toolkit/create-draft',
+	'npcink-abilities-toolkit/update-post',
+	'npcink-abilities-toolkit/update-post-blocks',
+	'npcink-abilities-toolkit/set-post-terms',
+	'npcink-abilities-toolkit/update-media-details',
 );
 $migrated_destructive_ability_ids = array(
 	'npcink-abilities-toolkit/delete-term',
@@ -1918,6 +1983,10 @@ remove_all_filters( 'npcink_abilities_toolkit_enabled_comment_packs' );
 foreach ( $migrated_write_ability_ids as $migrated_write_ability_id ) {
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $migrated_write_ability_id ] ), "core write package owns migrated {$migrated_write_ability_id} ability" );
 	npcink_abilities_toolkit_assert_package_write_ability_contract( $migrated_write_ability_id, $package_abilities[ $migrated_write_ability_id ] );
+}
+foreach ( $priority_write_implementation_posture_ids as $posture_ability_id ) {
+	npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $posture_ability_id ] ), "core write package owns priority implementation posture ability {$posture_ability_id}" );
+	npcink_abilities_toolkit_assert_write_like_implementation_posture( $posture_ability_id, $package_abilities[ $posture_ability_id ] );
 }
 foreach ( $migrated_destructive_ability_ids as $migrated_destructive_ability_id ) {
 	npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $migrated_destructive_ability_id ] ), "core destructive package owns migrated {$migrated_destructive_ability_id} ability" );

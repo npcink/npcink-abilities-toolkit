@@ -68,6 +68,9 @@ least broad WordPress capability that matches the operation.
 ## REST, MCP, And Magick Metadata
 
 - `meta.show_in_rest`
+- `meta.annotations.readonly`
+- `meta.annotations.destructive`
+- `meta.annotations.idempotent`
 - `meta.mcp.annotations.readonly`
 - `meta.mcp.annotations.destructive`
 - `meta.mcp.annotations.idempotent`
@@ -78,6 +81,10 @@ least broad WordPress capability that matches the operation.
 Rules:
 
 - `meta.show_in_rest` defaults to `true`.
+- `meta.annotations` is the official WordPress Abilities API annotation
+  location. It must mirror the normalized top-level annotations so generic
+  WordPress, MCP Adapter, and explorer-style clients do not need Npcink-specific
+  metadata to understand read/write/destructive posture.
 - `meta.mcp.public` is not the same as `meta.show_in_rest`.
 - Default MCP-public read abilities are limited to the approved entrypoint
   allowlist recorded in [ADR 0004](adr/0004-default-mcp-exposure-policy.md).
@@ -89,6 +96,26 @@ Rules:
 - `agent_usage` is static descriptive guidance only. It must not define model
   routing, approval policy, channel-local execution, or workflow runtime rules.
   See [Agent Usage Metadata](agent-usage-metadata.md).
+
+## Official Abilities API Alignment Checklist
+
+Every public Toolkit ability should continue to map directly to the core
+`wp_register_ability()` argument shape:
+
+- stable `namespace/name` id;
+- top-level `label`, `description`, and `category`;
+- top-level `input_schema` and `output_schema`;
+- top-level `execute_callback` and `permission_callback`;
+- `meta.show_in_rest=true` when the ability is intended for Abilities API REST
+  discovery;
+- `meta.annotations` using WordPress Abilities API annotation names;
+- Toolkit-specific `risk_level`, `requires_approval`, `agent_usage`,
+  `meta.mcp`, and `meta.npcink` metadata as additive compatibility fields only.
+
+The WordPress Abilities API catalog remains the public discovery and execution
+surface. `npcink_abilities_toolkit_get_registered()` and the Toolkit contract
+endpoint are inspection aids for hosts; they must not become a second
+authoritative ability registry or control plane.
 
 ## Risk And Governance
 
@@ -107,6 +134,15 @@ Risk levels:
 Host-governed writes and destructive abilities may live in this package only
 when they are generic WordPress operations. Direct clients receive dry-run
 previews by default; final commit requires host approval context.
+
+Write-like normalized contracts also expose `implementation_posture` at the
+top level, in `meta.implementation_posture`, and in
+`meta.npcink.implementation_posture`. This metadata tells Core, Adapter, and
+other host runtimes that the ability is dry-run-first, host-governed, and
+metadata-only: Toolkit owns the implementation contract, while approval truth,
+audit truth, and final authorization remain with the host governance layer.
+The posture must keep workflow runtime, queues, model routing, provider
+credentials, approval storage, and audit storage out of Toolkit.
 
 Write-like input schemas should reject undeclared fields unless a specific
 ability has a documented reason to accept extension data. Permission checks must

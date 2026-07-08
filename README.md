@@ -90,6 +90,10 @@ The contract endpoint is not authoritative for admission, approval, audit,
 routing, catalog policy, or execution; hosts must enforce their own governance,
 and the WordPress Abilities API remains the ability discovery and execution
 surface.
+Normalized write-like ability contracts also expose `implementation_posture`
+metadata so governance consumers can verify dry-run-first, host-governed posture
+without treating Toolkit as an approval store, audit store, runtime, or final
+write authority.
 
 The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
 The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
@@ -113,6 +117,8 @@ Official WordPress AI stack compatibility guidance is documented in
 The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
 The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md), with maintenance patches recorded in [docs/release-0.5.1-verification.md](docs/release-0.5.1-verification.md) and [docs/release-0.5.2-verification.md](docs/release-0.5.2-verification.md).
 The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
+The 2026-07-08 Core/Adapter/Product reuse readiness observation is tracked in
+[docs/ability-contract-reuse-readiness-2026-07-08.md](docs/ability-contract-reuse-readiness-2026-07-08.md).
 The next-stage operating standard for freeze/observe mode, workflow proof,
 performance gates, and security boundaries is tracked in
 [docs/next-stage-operating-standard.md](docs/next-stage-operating-standard.md).

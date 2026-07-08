@@ -49,6 +49,7 @@ foreach ( $abilities as $ability_id => $ability ) {
 	$meta       = isset( $ability['meta'] ) && is_array( $ability['meta'] ) ? $ability['meta'] : array();
 	$mcp_meta   = isset( $meta['mcp'] ) && is_array( $meta['mcp'] ) ? $meta['mcp'] : array();
 	$npcink     = isset( $meta['npcink'] ) && is_array( $meta['npcink'] ) ? $meta['npcink'] : array();
+	$annotations = isset( $meta['annotations'] ) && is_array( $meta['annotations'] ) ? $meta['annotations'] : array();
 	$risk_level = (string) ( $ability['risk_level'] ?? '' );
 
 	npcink_abilities_toolkit_official_stack_assert( false !== strpos( $ability_id, '/' ), "{$ability_id} uses namespace/name id for Abilities API discovery" );
@@ -56,6 +57,9 @@ foreach ( $abilities as $ability_id => $ability ) {
 	npcink_abilities_toolkit_official_stack_assert( '' !== trim( (string) ( $ability['description'] ?? '' ) ), "{$ability_id} has a description for official explorer surfaces" );
 	npcink_abilities_toolkit_official_stack_assert( '' !== trim( (string) ( $ability['category'] ?? '' ) ), "{$ability_id} has a category" );
 	npcink_abilities_toolkit_official_stack_assert( true === (bool) ( $meta['show_in_rest'] ?? false ), "{$ability_id} is visible through Abilities API REST metadata" );
+	npcink_abilities_toolkit_official_stack_assert( ! empty( $annotations ), "{$ability_id} exposes WordPress Abilities API annotations metadata" );
+	npcink_abilities_toolkit_official_stack_assert( ( 'read' === $risk_level ) === (bool) ( $annotations['readonly'] ?? false ), "{$ability_id} WordPress readonly annotation mirrors risk" );
+	npcink_abilities_toolkit_official_stack_assert( ( 'destructive' === $risk_level ) === (bool) ( $annotations['destructive'] ?? false ), "{$ability_id} WordPress destructive annotation mirrors risk" );
 	npcink_abilities_toolkit_official_stack_assert( is_callable( $ability['permission_callback'] ?? null ), "{$ability_id} has an executable WordPress permission callback" );
 	npcink_abilities_toolkit_official_stack_assert( is_callable( $ability['execute_callback'] ?? null ), "{$ability_id} has an executable callback" );
 	npcink_abilities_toolkit_official_stack_assert( $risk_level === (string) ( $mcp_meta['risk'] ?? '' ), "{$ability_id} mirrors risk in MCP metadata" );

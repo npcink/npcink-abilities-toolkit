@@ -67,6 +67,10 @@ final class Contract_Normalizer {
 		$agent_usage = $this->normalize_agent_usage(
 			isset( $definition['agent_usage'] ) ? $definition['agent_usage'] : ( $meta['agent_usage'] ?? array() )
 		);
+		$implementation_posture = $this->normalize_implementation_posture(
+			isset( $definition['implementation_posture'] ) ? $definition['implementation_posture'] : ( $meta['implementation_posture'] ?? array() ),
+			$risk_level
+		);
 
 		$mcp_meta = isset( $meta['mcp'] ) && is_array( $meta['mcp'] )
 			? $meta['mcp']
@@ -88,6 +92,9 @@ final class Contract_Normalizer {
 		$npcink_meta['channels']             = isset( $definition['channels'] ) && is_array( $definition['channels'] )
 			? array_values( array_map( 'sanitize_key', $definition['channels'] ) )
 			: array( 'abilities_rest' );
+		if ( ! empty( $implementation_posture ) ) {
+			$npcink_meta['implementation_posture'] = $implementation_posture;
+		}
 
 		$meta['show_in_rest'] = array_key_exists( 'show_in_rest', $meta )
 			? ! empty( $meta['show_in_rest'] )
@@ -97,6 +104,9 @@ final class Contract_Normalizer {
 		$meta['npcink']      = $npcink_meta;
 		if ( $this->has_agent_usage( $agent_usage ) ) {
 			$meta['agent_usage'] = $agent_usage;
+		}
+		if ( ! empty( $implementation_posture ) ) {
+			$meta['implementation_posture'] = $implementation_posture;
 		}
 
 		$capability = isset( $definition['capability'] ) ? sanitize_key( (string) $definition['capability'] ) : 'manage_options';
@@ -160,6 +170,9 @@ final class Contract_Normalizer {
 
 		if ( $this->has_agent_usage( $agent_usage ) ) {
 			$contract['agent_usage'] = $agent_usage;
+		}
+		if ( ! empty( $implementation_posture ) ) {
+			$contract['implementation_posture'] = $implementation_posture;
 		}
 
 		return $contract;
@@ -288,5 +301,110 @@ final class Contract_Normalizer {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Normalizes implementation posture metadata for host-governed abilities.
+	 *
+	 * @param mixed  $posture Raw implementation posture metadata.
+	 * @param string $risk_level Normalized ability risk level.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_implementation_posture( $posture, $risk_level ) {
+		$is_write = in_array( $risk_level, array( 'write', 'destructive' ), true );
+		if ( ( ! is_array( $posture ) || empty( $posture ) ) && ! $is_write ) {
+			return array();
+		}
+		$posture = is_array( $posture ) ? $posture : array();
+		$default_reference_patterns = array(
+			'WordPress Abilities API callback provides a dry-run preview before any host-governed commit.',
+			'Host runtime calls the ability for final writes only after governance approval and commit intent.',
+		);
+		$default_verification_contract = array(
+			'Dry-run returns a preview payload without mutation.',
+			'Commit evidence is returned to the host runtime after an approved final write attempt.',
+			'Host verifies approval context, current target identity, and idempotency_key before commit.',
+		);
+		$default_required_host_evidence = array(
+			'approved proposal id or equivalent host approval token',
+			'caller identity and capability context',
+			'idempotency_key for replay protection',
+		);
+		$default_non_goals = array(
+			'Workflow runtime, scheduling, queues, model routing, provider credentials, approval storage, and audit truth.',
+		);
+
+		$normalized = array(
+			'schema_version'                 => 'npcink_abilities_toolkit_implementation_posture.v1',
+			'implementation_owner'           => 'npcink-abilities-toolkit',
+			'execution_surface'              => 'wordpress_abilities_api_host_governed',
+			'write_posture'                  => $is_write ? 'host_governed_dry_run_first' : 'read_only',
+			'commit_authority'               => 'host_runtime_approval_context_required',
+			'final_authorization_owner'      => 'host_governance_layer',
+			'approval_truth_owner'           => 'host_governance_layer',
+			'audit_truth_owner'              => 'host_governance_layer',
+			'direct_wordpress_write_default' => false,
+			'dry_run_default'                => true,
+			'commit_default'                 => false,
+			'reference_patterns'             => $this->sanitize_string_list( $posture['reference_patterns'] ?? $default_reference_patterns ),
+			'verification_contract'          => $this->sanitize_string_list( $posture['verification_contract'] ?? $default_verification_contract ),
+			'required_host_evidence'         => $this->sanitize_string_list( $posture['required_host_evidence'] ?? $default_required_host_evidence ),
+			'non_goals'                      => $this->sanitize_string_list( $posture['non_goals'] ?? $default_non_goals ),
+			'workflow_runtime'               => false,
+			'queue_or_scheduler'             => false,
+			'model_routing'                  => false,
+			'provider_credentials'           => false,
+			'approval_storage'               => false,
+			'audit_storage'                  => false,
+		);
+
+		foreach ( array( 'implementation_owner', 'execution_surface', 'write_posture', 'commit_authority', 'final_authorization_owner', 'approval_truth_owner', 'audit_truth_owner' ) as $field ) {
+			if ( isset( $posture[ $field ] ) && '' !== trim( (string) $posture[ $field ] ) ) {
+				$normalized[ $field ] = sanitize_key( (string) $posture[ $field ] );
+			}
+		}
+		if ( isset( $posture['schema_version'] ) && '' !== trim( (string) $posture['schema_version'] ) ) {
+			$normalized['schema_version'] = sanitize_text_field( (string) $posture['schema_version'] );
+		}
+		foreach (
+			array(
+				'reference_patterns'     => $default_reference_patterns,
+				'verification_contract'  => $default_verification_contract,
+				'required_host_evidence' => $default_required_host_evidence,
+				'non_goals'              => $default_non_goals,
+			) as $field => $default_items
+		) {
+			if ( empty( $normalized[ $field ] ) ) {
+				$normalized[ $field ] = $this->sanitize_string_list( $default_items );
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Sanitizes a list of short contract strings.
+	 *
+	 * @param mixed $items Raw list.
+	 * @return array<int,string>
+	 */
+	private function sanitize_string_list( $items ) {
+		if ( ! is_array( $items ) ) {
+			$items = array( $items );
+		}
+
+		return array_values(
+			array_filter(
+				array_map(
+					static function ( $item ) {
+						return sanitize_text_field( (string) $item );
+					},
+					$items
+				),
+				static function ( $item ) {
+					return '' !== $item;
+				}
+			)
+		);
 	}
 }

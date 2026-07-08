@@ -272,12 +272,25 @@ function npcink_abilities_toolkit_contract_audit_ability( $ability_id, array $ab
 	$annotations = isset( $ability['annotations'] ) && is_array( $ability['annotations'] )
 		? $ability['annotations']
 		: array();
+	$meta_annotations = npcink_abilities_toolkit_contract_audit_get( $ability, array( 'meta', 'annotations' ) );
+	if ( $annotations !== $meta_annotations ) {
+		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations must mirror normalized annotations" );
+	}
 	if ( ( 'read' === $risk_level ) !== (bool) ( $annotations['readonly'] ?? false ) ) {
 		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} readonly annotation must match risk level" );
 	}
 
 	if ( ( 'destructive' === $risk_level ) !== (bool) ( $annotations['destructive'] ?? false ) ) {
 		npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} destructive annotation must match risk level" );
+	}
+	if ( is_array( $meta_annotations ) ) {
+		if ( ( 'read' === $risk_level ) !== (bool) ( $meta_annotations['readonly'] ?? false ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations.readonly must match risk level" );
+		}
+
+		if ( ( 'destructive' === $risk_level ) !== (bool) ( $meta_annotations['destructive'] ?? false ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} meta.annotations.destructive must match risk level" );
+		}
 	}
 
 	$properties = isset( $ability['input_schema']['properties'] ) && is_array( $ability['input_schema']['properties'] )
@@ -357,6 +370,73 @@ function npcink_abilities_toolkit_contract_audit_agent_usage( array $abilities )
 }
 
 /**
+ * Checks that all write-like abilities expose implementation posture metadata.
+ *
+ * @param array<string,array<string,mixed>> $abilities Registered abilities.
+ * @return void
+ */
+function npcink_abilities_toolkit_contract_audit_implementation_posture( array $abilities ) {
+	foreach ( $abilities as $ability_id => $ability ) {
+		if ( ! is_array( $ability ) ) {
+			continue;
+		}
+		if ( ! in_array( (string) ( $ability['risk_level'] ?? '' ), array( 'write', 'destructive' ), true ) ) {
+			continue;
+		}
+
+		$posture        = isset( $ability['implementation_posture'] ) && is_array( $ability['implementation_posture'] )
+			? $ability['implementation_posture']
+			: array();
+		$meta_posture   = npcink_abilities_toolkit_contract_audit_get( $ability, array( 'meta', 'implementation_posture' ) );
+		$npcink_posture = npcink_abilities_toolkit_contract_audit_get( $ability, array( 'meta', 'npcink', 'implementation_posture' ) );
+
+		if ( empty( $posture ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} must expose implementation_posture" );
+			continue;
+		}
+		if ( $posture !== $meta_posture || $posture !== $npcink_posture ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture must be mirrored into meta and meta.npcink" );
+		}
+
+		$expected = array(
+			'schema_version'            => 'npcink_abilities_toolkit_implementation_posture.v1',
+			'implementation_owner'      => 'npcink-abilities-toolkit',
+			'execution_surface'         => 'wordpress_abilities_api_host_governed',
+			'write_posture'             => 'host_governed_dry_run_first',
+			'commit_authority'          => 'host_runtime_approval_context_required',
+			'final_authorization_owner' => 'host_governance_layer',
+			'approval_truth_owner'      => 'host_governance_layer',
+			'audit_truth_owner'         => 'host_governance_layer',
+		);
+		foreach ( $expected as $field => $value ) {
+			if ( $value !== (string) ( $posture[ $field ] ?? '' ) ) {
+				npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.{$field} must be {$value}" );
+			}
+		}
+
+		if ( true !== (bool) ( $posture['dry_run_default'] ?? false ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.dry_run_default must be true" );
+		}
+		if ( false !== (bool) ( $posture['commit_default'] ?? true ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.commit_default must be false" );
+		}
+		if ( false !== (bool) ( $posture['direct_wordpress_write_default'] ?? true ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.direct_wordpress_write_default must be false" );
+		}
+		foreach ( array( 'reference_patterns', 'verification_contract', 'required_host_evidence' ) as $list_field ) {
+			if ( empty( $posture[ $list_field ] ) || ! is_array( $posture[ $list_field ] ) ) {
+				npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.{$list_field} must contain at least one item" );
+			}
+		}
+		foreach ( array( 'workflow_runtime', 'queue_or_scheduler', 'model_routing', 'provider_credentials', 'approval_storage', 'audit_storage' ) as $forbidden_flag ) {
+			if ( false !== (bool) ( $posture[ $forbidden_flag ] ?? true ) ) {
+				npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} implementation_posture.{$forbidden_flag} must be false" );
+			}
+		}
+	}
+}
+
+/**
  * Checks workflow recipes only reference registered ability ids.
  *
  * @param array<string,array<string,mixed>> $abilities Registered abilities.
@@ -410,6 +490,7 @@ foreach ( $abilities as $ability_id => $ability ) {
 }
 
 npcink_abilities_toolkit_contract_audit_agent_usage( $abilities );
+npcink_abilities_toolkit_contract_audit_implementation_posture( $abilities );
 npcink_abilities_toolkit_contract_audit_workflow_recipes( $abilities );
 
 if ( ! empty( $failures ) ) {

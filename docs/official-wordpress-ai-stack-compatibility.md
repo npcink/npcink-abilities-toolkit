@@ -56,6 +56,8 @@ MCP Adapter, and explorer-style tools need:
 - every registered ability has a stable `namespace/name` id;
 - every ability has label, description, category, callable callbacks, object
   input/output schemas, and REST visibility metadata;
+- `meta.annotations` mirrors the normalized WordPress Abilities API annotation
+  values for read/write/destructive posture;
 - `meta.mcp.risk` mirrors ability risk;
 - `meta.npcink.wp_ability_id` preserves the canonical WordPress ability id;
 - priority discovery abilities and the workflow recipe manifest remain present.

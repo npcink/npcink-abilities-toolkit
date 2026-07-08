@@ -165,14 +165,15 @@ final class Contract_Controller {
 				'risk_level'         => (string) ( $ability['risk_level'] ?? '' ),
 				'requires_confirm'   => (bool) ( $ability['requires_confirm'] ?? false ),
 				'requires_approval'  => (bool) ( $ability['requires_approval'] ?? false ),
-				'required_scope'     => (string) ( $ability['required_scope'] ?? '' ),
-				'required_scopes'    => array_values( array_map( 'strval', (array) ( $ability['required_scopes'] ?? array() ) ) ),
-				'input_schema'       => is_array( $ability['input_schema'] ?? null ) ? $ability['input_schema'] : array(),
-				'output_schema'      => is_array( $ability['output_schema'] ?? null ) ? $ability['output_schema'] : array(),
-				'annotations'        => is_array( $ability['annotations'] ?? null ) ? $ability['annotations'] : array(),
-				'channels'           => array_values( array_map( 'strval', (array) ( $ability['channels'] ?? array() ) ) ),
-				'meta'               => $this->meta_contract_projection( is_array( $ability['meta'] ?? null ) ? $ability['meta'] : array() ),
-			);
+					'required_scope'     => (string) ( $ability['required_scope'] ?? '' ),
+					'required_scopes'    => array_values( array_map( 'strval', (array) ( $ability['required_scopes'] ?? array() ) ) ),
+					'input_schema'       => is_array( $ability['input_schema'] ?? null ) ? $ability['input_schema'] : array(),
+					'output_schema'      => is_array( $ability['output_schema'] ?? null ) ? $ability['output_schema'] : array(),
+					'annotations'        => is_array( $ability['annotations'] ?? null ) ? $ability['annotations'] : array(),
+					'implementation_posture' => is_array( $ability['implementation_posture'] ?? null ) ? $ability['implementation_posture'] : array(),
+					'channels'           => array_values( array_map( 'strval', (array) ( $ability['channels'] ?? array() ) ) ),
+					'meta'               => $this->meta_contract_projection( is_array( $ability['meta'] ?? null ) ? $ability['meta'] : array() ),
+				);
 		}
 
 		ksort( $projection, SORT_STRING );
@@ -195,6 +196,7 @@ final class Contract_Controller {
 				'canonical_ability_id' => (string) ( $npcink['canonical_ability_id'] ?? '' ),
 				'risk_level'           => (string) ( $npcink['risk_level'] ?? '' ),
 				'requires_approval'    => (bool) ( $npcink['requires_approval'] ?? false ),
+				'implementation_posture' => is_array( $npcink['implementation_posture'] ?? null ) ? $npcink['implementation_posture'] : array(),
 			),
 			'mcp'          => array(
 				'public' => (bool) ( $mcp['public'] ?? false ),

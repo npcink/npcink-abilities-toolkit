@@ -230,9 +230,13 @@ Defaults are the same as read-only registration except:
 - input schema is extended with `dry_run`, `commit`, and `idempotency_key`.
 - output schema is extended with `dry_run`, `host_governed`,
   `commit_required`, and `preview`.
+- write-like contracts expose `implementation_posture` metadata for host
+  governance consumers.
 
 The injected write-control fields describe the host contract only. They do not
-make the provider callback authorized to commit.
+make the provider callback authorized to commit. `implementation_posture` is
+also metadata only: it lets a host verify dry-run-first and host-governed
+posture, but approval, audit, and final authorization stay outside Toolkit.
 
 Example:
 
