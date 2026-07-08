@@ -4,6 +4,11 @@ Use this page as the entry point for integration and debugging work. The
 repository contains detailed contract and release notes; this guide points each
 reader to the smallest useful path first.
 
+Cross-project platform coordination starts from
+`/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
+repository owns Toolkit ability contracts and should not become the platform
+coordination source of truth.
+
 ## Plugin Authors
 
 Use this path when another WordPress plugin wants to provide abilities through

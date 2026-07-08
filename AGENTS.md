@@ -7,6 +7,12 @@ WordPress.org release safety.
 The full solo AI development operating workflow is summarized in
 `docs/solo-ai-development-workflow.md`.
 
+Cross-project platform coordination starts from
+`/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
+repository remains the ability contract owner; do not expand platform,
+governance, runtime, connector, product-surface, or release-coordination rules
+here beyond Toolkit-owned ability contracts.
+
 ## Startup Checklist
 
 Before changing files:

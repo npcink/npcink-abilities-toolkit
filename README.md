@@ -38,6 +38,11 @@ for writes.
 Use [docs/README.md](docs/README.md) as the documentation entry point for
 external integration and debugging:
 
+Cross-project platform coordination starts from
+`/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
+repository remains the authoritative owner for Toolkit ability contracts,
+schemas, dry-run previews, and host-governed callbacks.
+
 - plugin authors providing abilities should start with
   [docs/third-party-plugin-guide.md](docs/third-party-plugin-guide.md);
 - REST and external clients should start with
