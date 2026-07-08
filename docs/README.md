@@ -88,19 +88,22 @@ Use this path when changing this package.
 9. Use [Ability Metadata Reference Notes - 2026-07](ability-metadata-reference-notes-2026-07.md)
    before turning official WordPress AI or Abilities API inspiration into
    Toolkit contract changes.
-10. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+10. Use [Ability Contract Reuse Readiness - 2026-07-08](ability-contract-reuse-readiness-2026-07-08.md)
+   before adding new ability functionality for the Core/Adapter/Product reuse
+   chain.
+11. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
    for the public repository handoff, CI baseline, and post-publication gate
    status.
-11. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
+12. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-12. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+13. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
-13. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
+14. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
     for the current submitted-but-waiting GlotPress state and the PTE request
     handoff text.
-14. Record release evidence in the relevant release verification document.
+15. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

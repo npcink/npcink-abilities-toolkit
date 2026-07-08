@@ -142,10 +142,39 @@ $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
 $docs_readme = (string) file_get_contents( __DIR__ . '/../docs/README.md' );
 $third_party_plugin_guide = (string) file_get_contents( __DIR__ . '/../docs/third-party-plugin-guide.md' );
 $public_api_doc = (string) file_get_contents( __DIR__ . '/../docs/public-api.md' );
+$ability_contract_reuse_readiness = (string) file_get_contents( __DIR__ . '/../docs/ability-contract-reuse-readiness-2026-07-08.md' );
 $media_boundary_doc = (string) file_get_contents( __DIR__ . '/../docs/media-format-attention-boundary.md' );
 $oss_storage_shim_doc = (string) file_get_contents( __DIR__ . '/../docs/oss-storage-compatibility-shim.md' );
 $oss_storage_shim_example = (string) file_get_contents( __DIR__ . '/../examples/oss-storage-shim.php' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $docs_readme, 'OSS Storage Compatibility Shim' ), 'documentation guide links the OSS storage shim contract' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $docs_readme, 'Ability Contract Reuse Readiness - 2026-07-08' ), 'documentation guide links the ability contract reuse readiness record' );
+npcink_abilities_toolkit_assert_true( false !== strpos( (string) file_get_contents( __DIR__ . '/../README.md' ), 'ability-contract-reuse-readiness-2026-07-08.md' ), 'root README links the ability contract reuse readiness record' );
+foreach (
+	array(
+		'Ability Contract Reuse Readiness',
+		'ability_contracts',
+		'proposal_handoff',
+		'execution_profiles',
+		'product_surface',
+		'signed_transport',
+		'runtime_detail',
+		'No new Toolkit ability or runtime code is needed for this pass.',
+		'implementation_posture',
+		'meta.npcink.implementation_posture',
+		'composer check:contracts',
+		'composer check:consumer',
+		'npcink-abilities-toolkit/create-draft',
+		'npcink-abilities-toolkit/update-post-blocks',
+		'npcink-abilities-toolkit/set-post-terms',
+		'npcink-abilities-toolkit/update-media-details',
+		'Stop and write a boundary note or ADR',
+		'final WordPress mutation policy',
+		'npcink-ai-client-adapter',
+		'composer analyse:phpstan',
+	) as $required_reuse_readiness_text
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $ability_contract_reuse_readiness, $required_reuse_readiness_text ), 'ability contract reuse readiness keeps required text: ' . $required_reuse_readiness_text );
+}
 npcink_abilities_toolkit_assert_true( false !== strpos( $third_party_plugin_guide, 'npcink_abilities_toolkit_media_storage_inspection' ), 'third-party guide documents the media storage inspection shim' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $public_api_doc, 'npcink_abilities_toolkit_media_storage_inspection' ), 'public API documents the media storage inspection filter' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $media_boundary_doc, 'oss-storage-compatibility-shim.md' ), 'media boundary links the OSS storage shim contract' );
