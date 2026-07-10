@@ -4559,43 +4559,6 @@ final class Core_Write_Package {
 	}
 
 	/**
-	 * Fallback for runtimes that cannot stream HTTP responses into temporary files.
-	 *
-	 * @param string              $url Remote URL.
-	 * @param array<string,mixed> $args HTTP request args.
-	 * @param int                 $max_bytes Maximum allowed bytes.
-	 * @param string              $filename Upload filename.
-	 * @return array<string,string>|\WP_Error
-	 */
-	private function upload_remote_media_body_from_memory( $url, array $args, $max_bytes, $filename ) {
-		if ( ! function_exists( 'wp_upload_bits' ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
-		}
-
-		$get_response = wp_safe_remote_get( $url, $args );
-		if ( is_wp_error( $get_response ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', $get_response->get_error_message(), array( 'status' => 400 ) );
-		}
-		$get_status = (int) wp_remote_retrieve_response_code( $get_response );
-		if ( $get_status >= 400 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$file_contents = (string) wp_remote_retrieve_body( $get_response );
-		$file_size     = strlen( $file_contents );
-		if ( $file_size <= 0 || $file_size > $max_bytes ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$upload = wp_upload_bits( $filename, null, $file_contents );
-		if ( ! empty( $upload['error'] ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', sanitize_text_field( (string) $upload['error'] ), array( 'status' => 400 ) );
-		}
-
-		return $upload;
-	}
-
-	/**
 	 * Generates and persists attachment metadata for a media file.
 	 *
 	 * @param int    $attachment_id Attachment id.
