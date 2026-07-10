@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.3 - Unreleased
+## 0.5.3 - 2026-07-10
 
 - Made built-in write and destructive callbacks fail safe when `commit=false`
   or `dry_run=true`, including conflicting control values.

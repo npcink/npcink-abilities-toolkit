@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -164,6 +164,14 @@ For isolated bounded-chain performance validation, run:
 `composer perf:smoke`
 
 == Changelog ==
+
+= 0.5.3 =
+
+* Made write and destructive callbacks fail safe unless commit intent is explicit and host-governed.
+* Restricted post-meta reads to explicit non-sensitive keys and required host allowlists for setting patch targets.
+* Validated remote media before uploads, removed the obsolete in-memory fallback, and redacted reversible setting fragments.
+* Added internal autoloading, lazy package construction, and a cold-bootstrap performance budget.
+* Removed the incomplete bundled Traditional Chinese starter locale until it can be maintained as a complete pack.
 
 = 0.5.2 =
 
