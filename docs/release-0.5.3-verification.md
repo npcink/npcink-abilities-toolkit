@@ -1,6 +1,6 @@
 # 0.5.3 Release Verification
 
-Status: candidate.
+Status: compatibility verified; publication blocked on a clean cross-repo release matrix.
 Date: 2026-07-10.
 
 This note records the `0.5.3` security-hardening candidate. The release keeps
@@ -32,16 +32,18 @@ safer by default.
 | Full WordPress smoke | Pass | The Local.app site completed 435 authenticated contract and behavior assertions. |
 | Light-profile WordPress smoke | Pass | The Local.app site completed 56 package-profile assertions. |
 | Plugin package check | Pass | The packaged WordPress.org surface completed Plugin Check without a blocking error. |
-| Adapter consumer compatibility | Pending | Adapter must distinguish execution-profile support from site-specific setting-target readiness before release. |
-| Central cross-repo quality matrix | Pending | Run after the Adapter compatibility change is verified. |
+| Adapter consumer compatibility | Pass | Adapter PR #31 separates protocol support from per-site setting-target readiness; its release gate and real WordPress smoke passed unconfigured, allowlisted, and sensitive-target cases. |
+| Central cross-repo functional matrix | Pass | All 7 repository gates passed, including Toolkit, Core, Adapter, Workflow Toolbox, Cloud Addon, Cloud, and Magick Toolbox. |
+| Strict cross-repo cleanliness | Blocked | `composer quality:matrix -- --fail-on-dirty` correctly rejects the 19 existing uncommitted Workflow Toolbox changes; those unrelated changes were not modified. |
 | WordPress.org publication | Pending | Publish only from the verified `master` release commit. |
 
 ## Release Decision
 
-Do not publish `0.5.3` until the Adapter compatibility proof and central
-cross-repository matrix pass. The Toolkit security defaults are intentional;
-consumers must not weaken them or hardcode site-specific setting names into a
-channel adapter.
+Do not publish `0.5.3` until the Workflow Toolbox worktree is intentionally
+closed out and the strict cross-repository cleanliness check passes. Adapter
+compatibility and all functional repository gates are already verified. The
+Toolkit security defaults are intentional; consumers must not weaken them or
+hardcode site-specific setting names into a channel adapter.
 
 ## Post-Release Observation
 
