@@ -229,29 +229,19 @@ trait Post_Primitives_Read_Methods {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read this post meta.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
-
-			if ( '' !== $meta_key ) {
-				return array(
-					'post_id'  => $post_id,
-					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Response field name mirrors the requested post meta key and is not a query argument.
-					'meta_key' => $meta_key,
-					'value'    => get_post_meta( $post_id, $meta_key, $single ),
-					'single'   => $single,
-			);
+		if ( '' === $meta_key ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_meta_key_required', __( 'One explicit non-sensitive meta key is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-
-		$all_meta = get_post_meta( $post_id );
-		$items = array();
-		foreach ( ( is_array( $all_meta ) ? $all_meta : array() ) as $key => $values ) {
-			$items[] = array(
-				'key'    => sanitize_key( (string) $key ),
-				'values' => is_array( $values ) ? array_values( $values ) : array( $values ),
-			);
+		if ( $this->is_sensitive_post_meta_key( $meta_key ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_meta_key_blocked', __( 'This post meta key cannot be exposed through an ability.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		return array(
-			'post_id' => $post_id,
-			'items'   => $items,
+			'post_id'  => $post_id,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Response field name mirrors the requested post meta key and is not a query argument.
+			'meta_key' => $meta_key,
+			'value'    => get_post_meta( $post_id, $meta_key, $single ),
+			'single'   => $single,
 		);
 	}
 
@@ -1214,16 +1204,10 @@ trait Post_Primitives_Read_Methods {
 	 */
 	private function get_scoped_post_meta( $post_id, $meta_keys ) {
 		$post_id = absint( $post_id );
-		$keys = is_array( $meta_keys ) ? array_filter( array_map( 'sanitize_key', $meta_keys ) ) : array();
+		$keys = $this->normalize_safe_meta_keys( $meta_keys );
 		$meta = array();
 
 		if ( empty( $keys ) ) {
-			$all_meta = get_post_meta( $post_id );
-			foreach ( ( is_array( $all_meta ) ? $all_meta : array() ) as $key => $values ) {
-				$key = sanitize_key( (string) $key );
-				$meta[ $key ] = is_array( $values ) && 1 === count( $values ) ? $values[0] : $values;
-			}
-
 			return $meta;
 		}
 
@@ -1382,17 +1366,27 @@ trait Post_Primitives_Read_Methods {
 	 * @return string[]
 	 */
 	private function normalize_search_meta_keys( $raw ) {
+		return array_slice( $this->normalize_safe_meta_keys( $raw ), 0, 10 );
+	}
+
+	/**
+	 * Normalizes explicit post meta keys and removes sensitive keys.
+	 *
+	 * @param mixed $raw Raw meta key list.
+	 * @return string[]
+	 */
+	private function normalize_safe_meta_keys( $raw ) {
 		$raw_items = is_array( $raw ) ? $raw : explode( ',', (string) $raw );
-		$keys = array();
+		$keys      = array();
 		foreach ( $raw_items as $item ) {
 			$key = sanitize_key( (string) $item );
-			if ( '' === $key || $this->is_sensitive_search_meta_key( $key ) ) {
+			if ( '' === $key || $this->is_sensitive_post_meta_key( $key ) ) {
 				continue;
 			}
 			$keys[] = $key;
 		}
 
-		return array_slice( array_values( array_unique( $keys ) ), 0, 10 );
+		return array_values( array_unique( $keys ) );
 	}
 
 	/**
@@ -1401,15 +1395,19 @@ trait Post_Primitives_Read_Methods {
 	 * @param string $key Meta key.
 	 * @return bool
 	 */
-	private function is_sensitive_search_meta_key( $key ) {
+	private function is_sensitive_post_meta_key( $key ) {
 		$key = strtolower( (string) $key );
+		$is_sensitive = false;
 		foreach ( array( 'password', 'passwd', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key', 'client_secret', 'auth', 'credential' ) as $marker ) {
 			if ( false !== strpos( $key, $marker ) ) {
-				return true;
+				$is_sensitive = true;
+				break;
 			}
 		}
 
-		return false;
+		return function_exists( 'apply_filters' )
+			? (bool) apply_filters( 'npcink_abilities_toolkit_is_sensitive_post_meta_key', $is_sensitive, $key )
+			: $is_sensitive;
 	}
 
 	/**

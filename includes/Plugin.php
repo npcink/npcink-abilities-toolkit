@@ -59,35 +59,35 @@ final class Plugin {
 	/**
 	 * Core WordPress read package.
 	 *
-	 * @var Core_Read_Package
+	 * @var Core_Read_Package|null
 	 */
 	private $core_read_package;
 
 	/**
 	 * Core WordPress write package.
 	 *
-	 * @var Core_Write_Package
+	 * @var Core_Write_Package|null
 	 */
 	private $core_write_package;
 
 	/**
 	 * Core WordPress destructive package.
 	 *
-	 * @var Core_Destructive_Package
+	 * @var Core_Destructive_Package|null
 	 */
 	private $core_destructive_package;
 
 	/**
 	 * Core WordPress comment helper package.
 	 *
-	 * @var Core_Comment_Package
+	 * @var Core_Comment_Package|null
 	 */
 	private $core_comment_package;
 
 	/**
 	 * Admin page.
 	 *
-	 * @var Test_Page
+	 * @var Test_Page|null
 	 */
 	private $test_page;
 
@@ -118,14 +118,14 @@ final class Plugin {
 		$schema_normalizer   = new Schema_Normalizer();
 		$contract_normalizer = new Contract_Normalizer( $schema_normalizer, new Annotation_Normalizer() );
 
-		$this->categories     = new Category_Registrar();
-		$this->abilities      = new Ability_Registrar( $this->categories, $contract_normalizer );
-		$this->catalog_bridge = new Npcink_Catalog_Bridge( $this->abilities );
-		$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
-		$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
-		$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
-		$this->core_comment_package = new Core_Comment_Package( $this->categories, $this->abilities );
-		$this->test_page      = new Test_Page( $this->abilities, $this->categories );
+		$this->categories               = new Category_Registrar();
+		$this->abilities                = new Ability_Registrar( $this->categories, $contract_normalizer );
+		$this->catalog_bridge           = new Npcink_Catalog_Bridge( $this->abilities );
+		$this->core_read_package        = null;
+		$this->core_write_package       = null;
+		$this->core_destructive_package = null;
+		$this->core_comment_package     = null;
+		$this->test_page                = null;
 	}
 
 	/**
@@ -146,22 +146,22 @@ final class Plugin {
 		$this->categories->boot();
 		$this->abilities->boot();
 		if ( $this->is_package_enabled( 'core_read' ) ) {
-			$this->core_read_package->boot();
+			$this->core_read_package()->boot();
 		}
 		if ( $this->is_package_enabled( 'core_write' ) ) {
-			$this->core_write_package->boot();
+			$this->core_write_package()->boot();
 		}
 		if ( $this->is_package_enabled( 'core_destructive' ) ) {
-			$this->core_destructive_package->boot();
+			$this->core_destructive_package()->boot();
 		}
 		if ( $this->is_package_enabled( 'core_comment' ) ) {
-			$this->core_comment_package->boot();
+			$this->core_comment_package()->boot();
 		}
 		if ( $this->is_package_enabled( 'npcink_catalog_bridge' ) ) {
 			$this->catalog_bridge->boot();
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
-			$this->test_page->boot();
+			$this->test_page()->boot();
 			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) && defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
 				add_filter( 'plugin_action_links_' . plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ), array( $this, 'filter_plugin_action_links' ) );
 			}
@@ -169,6 +169,71 @@ final class Plugin {
 		if ( $this->is_package_enabled( 'read_cache_hooks' ) ) {
 			$this->register_cache_invalidation_hooks();
 		}
+	}
+
+	/**
+	 * Returns the lazily-loaded core read package.
+	 *
+	 * @return Core_Read_Package
+	 */
+	private function core_read_package() {
+		if ( ! $this->core_read_package instanceof Core_Read_Package ) {
+			$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
+		}
+
+		return $this->core_read_package;
+	}
+
+	/**
+	 * Returns the lazily-loaded core write package.
+	 *
+	 * @return Core_Write_Package
+	 */
+	private function core_write_package() {
+		if ( ! $this->core_write_package instanceof Core_Write_Package ) {
+			$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
+		}
+
+		return $this->core_write_package;
+	}
+
+	/**
+	 * Returns the lazily-loaded core destructive package.
+	 *
+	 * @return Core_Destructive_Package
+	 */
+	private function core_destructive_package() {
+		if ( ! $this->core_destructive_package instanceof Core_Destructive_Package ) {
+			$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
+		}
+
+		return $this->core_destructive_package;
+	}
+
+	/**
+	 * Returns the lazily-loaded core comment package.
+	 *
+	 * @return Core_Comment_Package
+	 */
+	private function core_comment_package() {
+		if ( ! $this->core_comment_package instanceof Core_Comment_Package ) {
+			$this->core_comment_package = new Core_Comment_Package( $this->categories, $this->abilities );
+		}
+
+		return $this->core_comment_package;
+	}
+
+	/**
+	 * Returns the lazily-loaded admin test page.
+	 *
+	 * @return Test_Page
+	 */
+	private function test_page() {
+		if ( ! $this->test_page instanceof Test_Page ) {
+			$this->test_page = new Test_Page( $this->abilities, $this->categories );
+		}
+
+		return $this->test_page;
 	}
 
 	/**

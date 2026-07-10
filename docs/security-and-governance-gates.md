@@ -18,7 +18,8 @@ MCP governance, audit storage, quota enforcement, or product administration.
 - dry-run defaults for write and destructive abilities;
 - host approval context requirements before commit;
 - bounded input schemas;
-- redaction in diagnostics and operational summaries;
+- redaction in diagnostics, operational summaries, read surfaces, and setting
+  patch previews;
 - uploads path containment for package-owned media file writes and moves.
 
 ## Not Owned Here

@@ -49,6 +49,11 @@ Write-like definitions receive common host-governed input fields:
 - `idempotency_key` (`string`): optional host-provided replay/audit key.
   Implementations bound this field to 190 characters for storage/index safety.
 
+An operation may mutate WordPress only when `commit=true` and its host approval
+context is valid. `commit=false` is always a preview, even if a caller also
+sets `dry_run=false`. `dry_run=true` also forces a preview when paired with
+`commit=true`; this makes conflicting control values fail safe.
+
 Write-like definitions also receive common output fields:
 
 - `dry_run` (`boolean`): whether the result is a preview.

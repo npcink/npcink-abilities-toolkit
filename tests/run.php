@@ -1407,6 +1407,7 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-posts']['output_schema']['properties']['filters'] ), 'search-posts returns applied filters' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-posts']['output_schema']['properties']['items']['items']['properties']['matched_fields'] ), 'search-posts returns matched field hints' );
 npcink_abilities_toolkit_assert_same( array( 'search', 'meta_keys' ), $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['required'] ?? array(), 'search-post-meta requires search and explicit meta keys' );
+npcink_abilities_toolkit_assert_same( array( 'post_id', 'meta_key' ), $package_abilities['npcink-abilities-toolkit/get-post-meta']['input_schema']['required'] ?? array(), 'get-post-meta requires one explicit safe meta key' );
 npcink_abilities_toolkit_assert_same( 10, $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['properties']['meta_keys']['maxItems'] ?? null, 'search-post-meta bounds meta key count' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['additionalProperties'] ?? null, 'search-post-meta rejects undeclared inputs' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-post-meta']['output_schema']['properties']['items']['items']['properties']['matched_meta_keys'] ), 'search-post-meta returns matched meta keys' );
@@ -2088,8 +2089,39 @@ $oversized_create_preview = $core_write_package->create_draft(
 npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_create_preview ), 'create-draft rejects oversized content before preview generation' );
 npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_create_preview->code ?? '', 'create-draft oversized content fails with stable code' );
 
-$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
-$created = $core_write_package->create_draft(
+	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+	$posts_before_non_commit_write = count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] );
+	$non_commit_create = $core_write_package->create_draft(
+		array(
+			'title'   => 'Must Stay Preview',
+			'content' => 'Explicitly disabling dry run cannot replace commit intent.',
+			'dry_run' => false,
+			'commit'  => false,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $non_commit_create['dry_run'] ?? null, 'create-draft keeps dry-run when commit is explicitly false' );
+	npcink_abilities_toolkit_assert_same( $posts_before_non_commit_write, count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ), 'create-draft does not mutate when commit is explicitly false' );
+	$conflicting_write_controls = $core_write_package->create_draft(
+		array(
+			'title'   => 'Conflicting Controls',
+			'content' => 'Dry-run wins when write controls conflict.',
+			'dry_run' => true,
+			'commit'  => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $conflicting_write_controls['dry_run'] ?? null, 'create-draft keeps dry-run when commit conflicts with dry_run=true' );
+	npcink_abilities_toolkit_assert_same( $posts_before_non_commit_write, count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ), 'create-draft does not mutate when write controls conflict' );
+	$destructive_status_before_non_commit = (string) ( get_post( 501 )->post_status ?? '' );
+	$non_commit_trash = $core_destructive_package->trash_post(
+		array(
+			'post_id' => 501,
+			'dry_run' => false,
+			'commit'  => false,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $non_commit_trash['dry_run'] ?? null, 'destructive package keeps dry-run when commit is explicitly false' );
+	npcink_abilities_toolkit_assert_same( $destructive_status_before_non_commit, (string) ( get_post( 501 )->post_status ?? '' ), 'destructive package does not mutate when commit is explicitly false' );
+	$created = $core_write_package->create_draft(
 	array(
 		'title' => 'Migrated Draft',
 		'content' => "# Migrated Draft\n\n![Alt](https://example.test/image.jpg)\n\nBody text.",
@@ -2225,7 +2257,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_http_responses'] = array(
 	),
 );
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
-$article_audio_imported = $core_write_package->adopt_article_audio(
+	$article_audio_imported = $core_write_package->adopt_article_audio(
 	array(
 		'post_id'             => 501,
 		'audio_url'           => 'https://cloud.example.test/audio/signed-runtime-url',
@@ -2934,6 +2966,16 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 			'commit'             => true,
 		)
 	);
+	$unsafe_media_upload = $core_write_package->upload_media_from_url(
+		array(
+			'url'       => 'https://cloud.example.test/audio/signed-runtime-url',
+			'file_name' => 'unsafe.php',
+			'commit'    => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $unsafe_media_upload ), 'upload-media-from-url rejects an unapproved media extension before it reaches uploads' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_type_blocked', $unsafe_media_upload->get_error_code() ?? '', 'upload-media-from-url reports the blocked media type' );
+	npcink_abilities_toolkit_assert_true( ! file_exists( $article_audio_upload_dir . '/unsafe.php' ), 'upload-media-from-url never copies an invalid remote file into uploads' );
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
 	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $block_document, $template_update_output_schema, $template_written, 'update-template-blocks commit' );
@@ -3616,7 +3658,33 @@ npcink_abilities_toolkit_assert_same( true, $agent_post_context['success'] ?? nu
 npcink_abilities_toolkit_assert_same( 77, $agent_post_context['data']['post']['id'] ?? null, 'get-post-context reads the requested post id' );
 npcink_abilities_toolkit_assert_same( 'Optimization context content.', $agent_post_context['data']['post']['content'] ?? '', 'get-post-context includes post content by default' );
 npcink_abilities_toolkit_assert_same( 1, $agent_post_context['data']['stats']['block_count'] ?? null, 'get-post-context falls back to a freeform block for plain content' );
-npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $agent_post_context['data']['meta']['_yoast_wpseo_title'] ?? '', 'get-post-context supports scoped metadata reads' );
+	npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $agent_post_context['data']['meta']['_yoast_wpseo_title'] ?? '', 'get-post-context supports scoped metadata reads' );
+	$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][77]['_vendor_api_token'] = 'tok-super-secret';
+	$unscoped_agent_post_context = $core_read_package->get_post_context(
+		array(
+			'post_id'      => 77,
+			'include_meta' => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( ! isset( $unscoped_agent_post_context['data']['meta']['_vendor_api_token'] ), 'get-post-context never returns all metadata when no safe keys are supplied' );
+	$blocked_post_meta = $core_read_package->get_post_meta(
+		array(
+			'post_id'  => 77,
+			'meta_key' => '_vendor_api_token',
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $blocked_post_meta ), 'get-post-meta blocks sensitive metadata keys' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_meta_key_blocked', $blocked_post_meta->get_error_code() ?? '', 'get-post-meta uses a stable sensitive-key error code' );
+	$missing_post_meta_key = $core_read_package->get_post_meta( array( 'post_id' => 77 ) );
+	npcink_abilities_toolkit_assert_true( is_wp_error( $missing_post_meta_key ), 'get-post-meta requires one explicit safe key' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_meta_key_required', $missing_post_meta_key->get_error_code() ?? '', 'get-post-meta uses a stable missing-key error code' );
+	$safe_post_meta = $core_read_package->get_post_meta(
+		array(
+			'post_id'  => 77,
+			'meta_key' => '_yoast_wpseo_title',
+		)
+	);
+	npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $safe_post_meta['value'] ?? '', 'get-post-meta returns an explicitly requested safe key' );
 $publishing_checklist = $core_read_package->get_content_publishing_checklist(
 	array(
 		'post_id' => 77,
@@ -5293,16 +5361,47 @@ $media_settings_excluded_plan = $core_read_package->build_media_settings_referen
 npcink_abilities_toolkit_assert_same( true, $media_settings_excluded_plan['success'] ?? null, 'media settings reference repair accepts excluded format policy' );
 npcink_abilities_toolkit_assert_same( 0, $media_settings_excluded_plan['data']['action_count'] ?? 1, 'media settings reference repair does not build actions for excluded source formats' );
 npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_settings_excluded_plan['data']['manual_review'][0]['reason'] ?? '', 'media settings reference repair sends excluded formats to manual review' );
-$patch_setting_preview = $core_write_package->patch_setting_value(
-	array(
+	$patch_setting_preview = $core_write_package->patch_setting_value(
+		array(
+			'target_type' => 'option',
+			'target_name' => 'theme_builder_media_setting',
+			'operations'  => $media_settings_reference_plan['data']['write_actions'][0]['input']['operations'] ?? array(),
+			'dry_run'     => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $patch_setting_preview ), 'patch-setting-value rejects settings that the host has not allowlisted' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_setting_target_not_allowed', $patch_setting_preview->get_error_code() ?? '', 'patch-setting-value uses a stable not-allowlisted error code' );
+	add_filter(
+		'npcink_abilities_toolkit_patchable_setting_targets',
+		static function ( $targets ) {
+			$targets = is_array( $targets ) ? $targets : array();
+			$targets['option'] = array( 'theme_builder_media_setting', 'oversized_setting_value' );
+			$targets['theme_mod'] = array( 'header_image' );
+			return $targets;
+		}
+	);
+	$blocked_sensitive_setting = $core_write_package->patch_setting_value(
+		array(
+			'target_type' => 'option',
+			'target_name' => 'vendor_api_token',
+			'operations'  => array( array( 'op' => 'replace', 'find' => 'old', 'replace' => 'new' ) ),
+			'dry_run'     => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $blocked_sensitive_setting ), 'patch-setting-value blocks sensitive setting names even when a host filter allows them' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_setting_target_blocked', $blocked_sensitive_setting->get_error_code() ?? '', 'patch-setting-value uses a stable sensitive-setting error code' );
+	$patch_setting_preview = $core_write_package->patch_setting_value(
+		array(
 		'target_type' => 'option',
 		'target_name' => 'theme_builder_media_setting',
 		'operations'  => $media_settings_reference_plan['data']['write_actions'][0]['input']['operations'] ?? array(),
 		'dry_run'     => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
-npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+	npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
+	npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+	npcink_abilities_toolkit_assert_true( ! isset( $patch_setting_preview['diff_preview']['before_fragment'] ) && ! isset( $patch_setting_preview['diff_preview']['after_fragment'] ), 'patch-setting-value does not expose stored setting fragments in its diff' );
+	npcink_abilities_toolkit_assert_true( ! isset( $patch_setting_preview['impact_ranges'][0]['before_preview'] ) && ! isset( $patch_setting_preview['impact_ranges'][0]['after_preview'] ), 'patch-setting-value does not expose stored setting fragments in impact ranges' );
 $GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] = str_repeat( 'x', 262145 );
 $oversized_patch_setting = $core_write_package->patch_setting_value(
 	array(
@@ -5331,8 +5430,9 @@ $patch_setting_commit = $core_write_package->patch_setting_value(
 	)
 );
 unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
-npcink_abilities_toolkit_assert_same( false, $patch_setting_commit['dry_run'] ?? null, 'patch-setting-value commit exits dry-run after approval' );
-npcink_abilities_toolkit_assert_true( false !== strpos( (string) get_theme_mod( 'header_image', '' ), 'workflow-diagram-image-optimized.webp' ), 'patch-setting-value commits exact theme mod URL replacement' );
+	npcink_abilities_toolkit_assert_same( false, $patch_setting_commit['dry_run'] ?? null, 'patch-setting-value commit exits dry-run after approval' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( (string) get_theme_mod( 'header_image', '' ), 'workflow-diagram-image-optimized.webp' ), 'patch-setting-value commits exact theme mod URL replacement' );
+	remove_all_filters( 'npcink_abilities_toolkit_patchable_setting_targets' );
 $media_health = $core_read_package->get_media_inventory_health(
 	array(
 		'mime_type' => 'image',

@@ -466,20 +466,20 @@ final class Core_WordPress_Read_Definitions {
 			),
 			'npcink-abilities-toolkit/get-post-meta'   => array(
 				'label'            => __( 'Get Post Meta', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Reads post meta for one post, optionally scoped to a single meta key.', 'npcink-abilities-toolkit' ),
+				'description'      => __( 'Reads one explicitly requested non-sensitive post meta key.', 'npcink-abilities-toolkit' ),
 				'category'         => 'npcink-abilities-toolkit-data',
 				'capability'       => 'edit_posts',
 				'contract_version' => 'v1',
 				'source'           => 'official',
 				'input_schema'     => array(
-						'type'       => 'object',
-						'properties' => array(
+					'type'       => 'object',
+					'properties' => array(
 							'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
 							// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- This is a JSON schema property name, not a WP_Query argument.
 							'meta_key' => array( 'type' => 'string' ),
 							'single'   => array( 'type' => 'boolean', 'default' => true ),
 						),
-					'required'   => array( 'post_id' ),
+					'required'   => array( 'post_id', 'meta_key' ),
 				),
 				'output_schema'    => array(
 					'type'       => 'object',

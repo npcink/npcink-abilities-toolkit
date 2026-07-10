@@ -22,8 +22,8 @@ composer test:all
 validation, Composer dependency advisory audit, project boundary checks,
 contract readiness, consumer handoff, workflow consumer proof, official stack
 compatibility, MCP exposure, provider demo compatibility, catalog audit,
-WordPress.org static review checks, performance smoke, lightweight regression
-tests, and PHP syntax linting.
+WordPress.org static review checks, bootstrap and runtime performance smoke,
+lightweight regression tests, and PHP syntax linting.
 
 Run targeted gates while iterating:
 
@@ -39,6 +39,7 @@ composer check:mcp-exposure
 composer check:provider-demo
 composer check:catalog
 composer check:wporg
+composer perf:bootstrap
 composer perf:smoke
 composer pilot:gutenberg-composer
 ```
@@ -76,6 +77,8 @@ change can affect:
 - read/write/destructive risk metadata;
 - `requires_confirm`, `requires_approval`, `dry_run`, `commit`, and
   `idempotency_key` behavior;
+- fail-safe conflicting write-control behavior, explicit safe post-meta reads,
+  host-approved setting targets, and remote-media validation before uploads;
 - REST, MCP, and Npcink metadata consistency;
 - MCP public exposure allowlists and server routing;
 - workflow recipe discovery, replay fixture parity, and read-only entrypoints;
@@ -98,6 +101,7 @@ move with each kind of change.
 | MCP public exposure, MCP risk metadata, annotations, or read/write server routing | Update the MCP exposure assertions and run `composer check:mcp-exposure`. |
 | Provider helper behavior, third-party demo registration, or Npcink catalog projection defaults | Update the demo or projection assertions and run `composer check:provider-demo`. |
 | WordPress.org review-risk surfaces such as admin assets, nonce handling, escaping, or forbidden include paths | Update static guards when possible and run `composer check:wporg`; before packaging, also run `composer check:plugin-package` in a WordPress environment. |
+| Bootstrap assumptions, autoloading, or package-loading boundaries | Update `tests/bootstrap-performance.php` when the cold-load budget changes and run `composer perf:bootstrap`. |
 | Performance-sensitive read chains, bounded aggregators, diagnostics, or cache behavior | Update `tests/performance-smoke.php` when the budgeted path changes and run `composer perf:smoke`. |
 | Gutenberg composer routing, profile selection, read-only repair loops, or proposal-candidate quality gates | Update `tests/gutenberg-composer-pilot/` and run `composer pilot:gutenberg-composer`. |
 | Public PHP class boundaries, bootstrap assumptions, or typed contracts | Run `composer analyse:phpstan` in addition to the source gate. |

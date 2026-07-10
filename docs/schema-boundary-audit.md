@@ -10,6 +10,9 @@ destructive abilities.
 - Normalized write/destructive inputs include `dry_run`, `commit`, and
   `idempotency_key`.
 - `dry_run` defaults to `true`; `commit` defaults to `false`.
+- A mutation requires both `commit=true` and valid host approval context.
+  `commit=false` and `dry_run=true` both force a preview, including when a
+  caller supplies conflicting control values.
 - `idempotency_key` is bounded to 190 characters.
 - First-party write/destructive input schemas use `additionalProperties=false`.
 - Intentional input schema extension points are recorded in
@@ -27,6 +30,14 @@ destructive abilities.
   updates preserve the existing description.
 - `approve-comment` permission behavior is tested so dry-run preview requires
   `moderate_comments`.
+- Post-meta reads require an explicit non-sensitive key. Context and page
+  readers accept only explicitly supplied safe meta-key allowlists and never
+  fall back to every stored value.
+- `patch-setting-value` accepts only explicit host-approved setting targets,
+  rejects credential-like names, and returns summary hashes rather than setting
+  value fragments.
+- Remote media is validated in a temporary file before it is copied into the
+  uploads directory or registered as an attachment.
 
 ## Remaining Watch Items
 
@@ -40,9 +51,6 @@ before broad public automation:
 - Bulk and remote-media abilities already carry operation limits, but hosts
   should still enforce rate limits and proposal review before exposing them to
   unattended agents.
-- Remote media sideloading streams to a temporary file when WordPress provides
-  temp-file support, then moves the file into uploads before MIME validation and
-  attachment creation.
 
 ## Verification
 
