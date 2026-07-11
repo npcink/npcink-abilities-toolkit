@@ -40,17 +40,17 @@ safer by default.
 | Light-profile WordPress smoke | Pass | The same Local.app site completed 56 package-profile assertions. |
 | Plugin package check | Pass | The packaged WordPress.org surface completed Plugin Check without a blocking error. |
 | Adapter consumer compatibility | Pass | Adapter PR #31 is merged and preserves conditional setting-target readiness after Toolkit hardening. |
-| Central cross-repo functional matrix | Pending revalidation | Re-run after the platform-alignment PR is merged. |
-| Strict cross-repo cleanliness | Pending revalidation | All related worktrees were clean at the start of this follow-up; rerun the strict matrix before publication. |
+| Central cross-repo functional matrix | Pass | `composer quality:matrix:run` passed all seven configured repository gates on 2026-07-11. |
+| Strict cross-repo cleanliness | Pass | `composer quality:matrix -- --fail-on-dirty` reported zero dirty files across all seven configured repositories. |
 | WordPress.org publication | Pending | Publish only from the verified `master` release commit. |
 
 ## Release Decision
 
-Do not publish `0.5.3` until the platform-alignment PR and strict
-cross-repository matrix pass on the final release commit. The minimum-version,
-current-site, and package checks pass. The Toolkit security defaults are
-intentional; consumers must not weaken them or hardcode site-specific setting
-names into a channel adapter.
+Publish `0.5.3` only after the platform-alignment PR is merged and the resulting
+`master` commit is confirmed as the release commit. The minimum-version,
+current-site, package, and strict cross-repository checks pass. The Toolkit
+security defaults are intentional; consumers must not weaken them or hardcode
+site-specific setting names into a channel adapter.
 
 ## Post-Release Observation
 
