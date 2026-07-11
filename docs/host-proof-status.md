@@ -76,11 +76,26 @@ Run the next stage in this order:
 | --- | --- | --- | --- |
 | `npcink-abilities-toolkit/recipes/article-optimization` | Closed-loop host proof passed on 2026-06-17. Toolkit exposes the declarative workflow and replay fixture. Core smoke preserves the recipe ref through from-plan proposal intake and verifies no post excerpt mutation. Adapter pull requests #2 and #3 resolved signed-client preflight binding and dependency contract semantic checks. Adapter pull request #5 added and passed a real WordPress smoke that runs the Toolkit apply plan through Adapter `run-read-ability`, submits it through Adapter `/proposals/from-plan`, reads the Core proposal back through Adapter, and verifies the source recipe, no-direct-write posture, and unchanged post excerpt. | Keep observing; no Toolkit ability gap is open from this proof. | None. |
 | `npcink-abilities-toolkit/recipes/article-media-handoff` | Closed-loop host proof passed on 2026-06-17. Toolkit exposes the declarative workflow/replay direction. Toolbox has adjacent article/media batch and media conversion review-set evidence that keeps Core proposal review and no-execute boundaries visible. Adapter pull request #6 added and passed a real WordPress smoke that discovers the workflow through Adapter, runs `build-media-seo-assets`, creates a governed Core `update-media-details` proposal from reviewed metadata, reads the proposal back through Adapter, and verifies the recipe ref, no-direct-write posture, and unchanged attachment metadata before approval/execution. | Keep observing; no Toolkit ability gap is open from this proof. | None. |
-| Block theme / Gutenberg intent routing | Next active narrow proof. Toolkit and Core now cover block theme context, bounded layout profiles, proposal preservation, and no mutation during from-plan intake. Recent Gutenberg composer repair-loop work expanded the proof surface, so the freeze posture must be watched closely. | Run a host-side intent-routing proof that discovers abilities through WordPress Abilities API, records the existing ability chain, preserves recipe or source-task context in the proposal handoff, and stops at proposal/write targets. Do not add another Toolkit ability unless that proof identifies a reusable WordPress contract gap. | Host proof; Toolkit only if failed proof is Toolkit-owned. |
+| Block theme / Gutenberg intent routing | Real-host proof passed on 2026-07-11 against WordPress `7.1-alpha-62692` with Twenty Twenty-Five 1.5 active. The proof discovered the existing routing, pattern-page, block-theme planning, template, and template-part abilities through WordPress Abilities REST; read, parsed, and rendered the real `single` template plus file-backed `header` template part; routed landing-page and bounded Site Editor intents; parsed and rendered proposed blocks through the real Core block engine; and completed 49 assertions. The pattern plan exposed governed `create-draft` plus `update-post-blocks` targets, while the Site Editor plan exposed `update-template-blocks`. Every action remained approval-required with `dry_run=true` and `commit=false`. The before/after page, template, template-part, related postmeta, theme, and reading-setting fingerprint remained identical. | Keep the explicit real-host proof command green. No new Toolkit ability gap was found, so freeze/observe remains the correct posture. | None. |
 
-The deterministic Gutenberg composer pilot is useful contract evidence, but it
-does not close this row: the row requires a real host or Adapter path and
-no-mutation evidence across the handoff boundary.
+The deterministic Gutenberg composer pilot remains useful contract evidence,
+while the explicit real-host proof now supplies the previously missing host
+path and no-mutation evidence.
+
+Run the proof with:
+
+```bash
+WP_CLI=/opt/homebrew/bin/wp \
+WP_CLI_PHP=/opt/homebrew/bin/php \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
+composer smoke:block-theme-host-proof
+```
+
+The generated evidence file is intentionally ignored under
+`build/block-theme-host-proof.json`; the durable contract is the repeatable
+proof command plus this ledger entry, not a committed snapshot of one local
+site.
 
 The Block theme / Gutenberg proof does not block basic third-party provider
 onboarding. Provider plugins that register read-only abilities or

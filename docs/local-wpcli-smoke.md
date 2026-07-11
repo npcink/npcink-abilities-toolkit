@@ -143,6 +143,18 @@ WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:wp
 ```
 
+For the explicit real block-theme planning proof on the same site, replace the
+last command with:
+
+```bash
+composer smoke:block-theme-host-proof
+```
+
+This discovers the existing intent-routing and planning abilities through the
+WordPress Abilities REST surface, parses and renders proposed blocks on the
+active block theme, and fails if pages, templates, template parts, theme
+selection, or reading settings change.
+
 Expected result:
 
 ```text
