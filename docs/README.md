@@ -101,19 +101,21 @@ Use this path when changing this package.
     before adding or deprecating generic WordPress entity abilities.
 12. Read [ADR 0005](adr/0005-own-reusable-workflow-definitions-and-converge-with-core.md)
     for reusable workflow-definition ownership and Core convergence rules.
-13. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+13. Use [Structural Split Plan](structural-split-plan.md) before extracting
+    oversized package methods, definition providers, or test suites.
+14. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
     for the public repository handoff, CI baseline, and post-publication gate
     status.
-14. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
+15. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-15. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+16. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
-16. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
+17. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
     for the current submitted-but-waiting GlotPress state and the PTE request
     handoff text.
-17. Record release evidence in the relevant release verification document.
+18. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

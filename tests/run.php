@@ -136,6 +136,19 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$autoloader_source = file_get_contents( __DIR__ . '/../includes/Autoloader.php' );
+$core_write_source = file_get_contents( __DIR__ . '/../includes/Packages/Core_Write_Package.php' );
+$post_attribute_write_trait = file_get_contents( __DIR__ . '/../includes/Packages/Write_Traits/Post_Attribute_Write_Methods.php' );
+$structural_split_plan = file_get_contents( __DIR__ . '/../docs/structural-split-plan.md' );
+npcink_abilities_toolkit_assert_true( is_string( $autoloader_source ) && false !== strpos( $autoloader_source, '_Write_Methods' ) && false !== strpos( $autoloader_source, 'Packages/Write_Traits/' ), 'internal autoloader maps write method traits lazily' );
+npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false !== strpos( $core_write_source, 'use Post_Attribute_Write_Methods;' ), 'Core write package composes the post attribute write trait' );
+npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false === strpos( $core_write_source, 'public function set_post_slug(' ), 'Core write package does not duplicate moved post attribute methods' );
+foreach ( array( 'set_post_slug', 'set_post_author', 'set_post_template', 'set_post_format' ) as $moved_post_attribute_method ) {
+	npcink_abilities_toolkit_assert_true( is_string( $post_attribute_write_trait ) && false !== strpos( $post_attribute_write_trait, 'function ' . $moved_post_attribute_method . '(' ), 'post attribute trait owns moved method: ' . $moved_post_attribute_method );
+}
+foreach ( array( 'Baseline Inventory', 'Accepted Sequence', 'Gate Per Slice', 'Core_Write_Package.php', 'tests/run.php', 'Post_Attribute_Write_Methods' ) as $required_structural_split_text ) {
+	npcink_abilities_toolkit_assert_true( is_string( $structural_split_plan ) && false !== strpos( $structural_split_plan, $required_structural_split_text ), 'structural split plan preserves incremental extraction guidance: ' . $required_structural_split_text );
+}
 $admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
 $admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );

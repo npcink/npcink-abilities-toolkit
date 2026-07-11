@@ -60,6 +60,9 @@ final class Autoloader {
 		if ( 0 === strpos( $relative, 'Packages\\' ) && str_ends_with( $relative, '_Read_Methods' ) ) {
 			$file = $root . 'includes/Packages/Read_Traits/' . basename( str_replace( '\\', '/', $relative ) ) . '.php';
 		}
+		if ( 0 === strpos( $relative, 'Packages\\' ) && str_ends_with( $relative, '_Write_Methods' ) ) {
+			$file = $root . 'includes/Packages/Write_Traits/' . basename( str_replace( '\\', '/', $relative ) ) . '.php';
+		}
 		if ( is_readable( $file ) ) {
 			require_once $file;
 		}
