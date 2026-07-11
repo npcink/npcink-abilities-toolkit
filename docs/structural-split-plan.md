@@ -30,9 +30,13 @@ cohesive responsibility can move without changing its public contract.
    `set-post-slug`, `set-post-author`, `set-post-template`, and
    `set-post-format` live in `Post_Attribute_Write_Methods`. The owning class
    still registers the definitions and supplies shared governance helpers.
-2. **Site Editor and Gutenberg writes.** Extract post/template block mutation
-   callbacks only after the first trait pattern has remained stable through a
-   full source gate and real-host proof.
+2. **Site Editor and Gutenberg writes — completed in the second slice.**
+   `update-post-blocks`, `update-template-blocks`, `upsert-template-blocks`, and
+   `update-template-part-blocks` now use implementations from
+   `Site_Editor_Write_Methods`. The trait also owns their private block-document
+   and template lookup helpers. `Core_Write_Package` remains the definition and
+   composition owner, and the extraction preserves host-governed dry-run and
+   final authorization behavior.
 3. **Media write lifecycle.** Split remote intake, derivative materialization,
    file replacement/rollback, and reference repair into bounded traits. Keep
    each slice separate because these paths have different security and rollback
