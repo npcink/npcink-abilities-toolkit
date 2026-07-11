@@ -139,6 +139,7 @@ $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.ph
 $autoloader_source = file_get_contents( __DIR__ . '/../includes/Autoloader.php' );
 $core_write_source = file_get_contents( __DIR__ . '/../includes/Packages/Core_Write_Package.php' );
 $post_attribute_write_trait = file_get_contents( __DIR__ . '/../includes/Packages/Write_Traits/Post_Attribute_Write_Methods.php' );
+$site_editor_write_trait = file_get_contents( __DIR__ . '/../includes/Packages/Write_Traits/Site_Editor_Write_Methods.php' );
 $structural_split_plan = file_get_contents( __DIR__ . '/../docs/structural-split-plan.md' );
 npcink_abilities_toolkit_assert_true( is_string( $autoloader_source ) && false !== strpos( $autoloader_source, '_Write_Methods' ) && false !== strpos( $autoloader_source, 'Packages/Write_Traits/' ), 'internal autoloader maps write method traits lazily' );
 npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false !== strpos( $core_write_source, 'use Post_Attribute_Write_Methods;' ), 'Core write package composes the post attribute write trait' );
@@ -146,7 +147,15 @@ npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false =
 foreach ( array( 'set_post_slug', 'set_post_author', 'set_post_template', 'set_post_format' ) as $moved_post_attribute_method ) {
 	npcink_abilities_toolkit_assert_true( is_string( $post_attribute_write_trait ) && false !== strpos( $post_attribute_write_trait, 'function ' . $moved_post_attribute_method . '(' ), 'post attribute trait owns moved method: ' . $moved_post_attribute_method );
 }
-foreach ( array( 'Baseline Inventory', 'Accepted Sequence', 'Gate Per Slice', 'Core_Write_Package.php', 'tests/run.php', 'Post_Attribute_Write_Methods' ) as $required_structural_split_text ) {
+npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false !== strpos( $core_write_source, 'use Site_Editor_Write_Methods;' ), 'Core write package composes the Site Editor write trait' );
+foreach ( array( 'update_post_blocks', 'update_template_blocks', 'upsert_template_blocks', 'update_template_part_blocks', 'update_site_editor_entity_blocks', 'normalize_template_slug', 'active_theme_stylesheet', 'find_template_override_post', 'normalize_blocks_input', 'count_blocks_recursive', 'serialize_blocks_native' ) as $moved_site_editor_method ) {
+	npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false === strpos( $core_write_source, 'function ' . $moved_site_editor_method . '(' ), 'Core write package does not duplicate moved Site Editor method: ' . $moved_site_editor_method );
+	npcink_abilities_toolkit_assert_true( is_string( $site_editor_write_trait ) && false !== strpos( $site_editor_write_trait, 'function ' . $moved_site_editor_method . '(' ), 'Site Editor trait owns moved method: ' . $moved_site_editor_method );
+}
+foreach ( array( 'npcink-abilities-toolkit/update-post-blocks', 'npcink-abilities-toolkit/update-template-blocks', 'npcink-abilities-toolkit/upsert-template-blocks', 'npcink-abilities-toolkit/update-template-part-blocks' ) as $site_editor_ability_id ) {
+	npcink_abilities_toolkit_assert_true( is_string( $core_write_source ) && false !== strpos( $core_write_source, "'" . $site_editor_ability_id . "' => array(" ), 'Core write package remains the definition owner for Site Editor ability: ' . $site_editor_ability_id );
+}
+foreach ( array( 'Baseline Inventory', 'Accepted Sequence', 'Gate Per Slice', 'Core_Write_Package.php', 'tests/run.php', 'Post_Attribute_Write_Methods', 'Site_Editor_Write_Methods' ) as $required_structural_split_text ) {
 	npcink_abilities_toolkit_assert_true( is_string( $structural_split_plan ) && false !== strpos( $structural_split_plan, $required_structural_split_text ), 'structural split plan preserves incremental extraction guidance: ' . $required_structural_split_text );
 }
 $admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
