@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "observed_wordpress_version": "7.1-alpha-62692",
+  "observed_at": "2026-07-11",
+  "source": "authenticated WordPress Abilities REST catalog on the local real-host proof site",
+  "rows": [
+    {
+      "core_ability_id": "core/get-site-info",
+      "toolkit_ability_ids": [
+        "npcink-abilities-toolkit/site-info"
+      ],
+      "classification": "review_later",
+      "core_contract_status": "pre_release",
+      "comparison": {
+        "input_schema": "partial",
+        "output_schema": "partial",
+        "permissions": "unverified",
+        "error_envelope": "unverified",
+        "write_posture": "equivalent"
+      },
+      "consumer_proof": {
+        "adapter": "not_run",
+        "toolbox": "not_run"
+      },
+      "decision": "keep",
+      "migration": "Keep the Toolkit id while WordPress 6.9 remains supported and the Core contract is pre-release.",
+      "rollback": "Retain the existing Toolkit registration and restore Toolkit-first consumer discovery if a later Core preference causes a regression.",
+      "minimum_overlap_releases": 1
+    },
+    {
+      "core_ability_id": "core/get-user-info",
+      "toolkit_ability_ids": [
+        "npcink-abilities-toolkit/list-users"
+      ],
+      "classification": "toolkit_extension",
+      "core_contract_status": "pre_release",
+      "comparison": {
+        "input_schema": "different",
+        "output_schema": "different",
+        "permissions": "unverified",
+        "error_envelope": "unverified",
+        "write_posture": "equivalent"
+      },
+      "consumer_proof": {
+        "adapter": "not_required",
+        "toolbox": "not_required"
+      },
+      "decision": "keep",
+      "migration": "No migration: Core returns the current user while Toolkit provides a bounded user-list and author-context contract.",
+      "rollback": "Keep the Toolkit definition unchanged; no consumer routing change is authorized by this row.",
+      "minimum_overlap_releases": 1
+    },
+    {
+      "core_ability_id": "core/get-environment-info",
+      "toolkit_ability_ids": [
+        "npcink-abilities-toolkit/wp-diagnostics-summary",
+        "npcink-abilities-toolkit/wp-ops-diagnostics-detail"
+      ],
+      "classification": "toolkit_extension",
+      "core_contract_status": "pre_release",
+      "comparison": {
+        "input_schema": "different",
+        "output_schema": "different",
+        "permissions": "unverified",
+        "error_envelope": "unverified",
+        "write_posture": "equivalent"
+      },
+      "consumer_proof": {
+        "adapter": "not_required",
+        "toolbox": "not_required"
+      },
+      "decision": "keep",
+      "migration": "No migration: Toolkit diagnostics add bounded profiles, redaction, severity summaries, and support-oriented evidence.",
+      "rollback": "Keep both Toolkit diagnostics abilities unchanged; no Core substitution is authorized by this row.",
+      "minimum_overlap_releases": 1
+    }
+  ]
+}

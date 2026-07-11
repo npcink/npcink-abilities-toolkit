@@ -98,6 +98,7 @@ Use this path when changing this package.
     before adding new ability functionality for the Core/Adapter/Product reuse
     chain.
 11. Use [WordPress Core Ability Convergence](wordpress-core-ability-convergence.md)
+    and its [machine-readable overlap manifest](wordpress-core-ability-convergence.json)
     before adding or deprecating generic WordPress entity abilities.
 12. Read [ADR 0005](adr/0005-own-reusable-workflow-definitions-and-converge-with-core.md)
     for reusable workflow-definition ownership and Core convergence rules.

@@ -25,21 +25,52 @@ Use these dispositions when a stable Core ability is available:
 | `toolkit_unique` | The contract is outside the generic Core entity baseline and remains Toolkit-owned. |
 | `review_later` | The Core proposal is not stable enough for a compatibility decision. |
 
-## Initial Overlap Map
+## Observed Overlap Map
 
-The WordPress 7.1 merge proposal is still under review, so every row remains
-non-breaking and evidence-first.
+The machine-readable companion is
+[`wordpress-core-ability-convergence.json`](wordpress-core-ability-convergence.json).
+The current rows were observed through the authenticated WordPress Abilities
+REST catalog on WordPress `7.1-alpha-62692`. Because that is a pre-release
+build, every decision remains non-breaking and evidence-first.
 
 Proposal source:
 https://make.wordpress.org/core/2026/07/02/merge-proposal-expanding-wordpress-core-abilities/
 
-| Core direction | Current Toolkit surface | Initial disposition | Required evidence before change |
+| Observed Core ability | Current Toolkit surface | Classification | Current decision and evidence gap |
 | --- | --- | --- | --- |
-| `core/read-settings` | `site-info`, bounded diagnostics, explicit setting inspection helpers | `review_later` | Compare opt-in behavior, permissions, redaction, schemas, and host consumers. |
-| `core/read-content` | `list-posts`, `get-post`, `list-pages`, `get-page`, `search-posts`, post context and inventory reports | Generic CRUD: `review_later`; advanced reports: `toolkit_extension` | Compare pagination, fields, post-type opt-in, advanced filters, and workflow output requirements. |
-| `core/read-users` | `list-users` and author context projections | `review_later` | Compare privacy filtering, permission behavior, lookup fields, and returned author context. |
-| Future Core content management | create/update/publish/schedule/trash and bounded patch abilities | `review_later` | Preserve host approval, dry-run, idempotency, conflict detection, and rollback evidence. |
-| Future Core comments, taxonomy, media, themes, and plugins | Toolkit read, plan, write, and destructive packs | `review_later` | Review each stable Core contract before choosing Core preference or Toolkit extension. |
+| `core/get-site-info` | `npcink-abilities-toolkit/site-info` | `review_later` | Keep Toolkit while WordPress 6.9 remains supported. Input/output schemas only partially overlap; permissions and error envelopes still need comparison, followed by Adapter and Toolbox consumer proofs before any preference or deprecation. |
+| `core/get-user-info` | `npcink-abilities-toolkit/list-users` | `toolkit_extension` | Keep Toolkit. Core returns the current authenticated user, while Toolkit provides a bounded user-list and author-context contract; the schemas and cardinality are intentionally different. |
+| `core/get-environment-info` | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | `toolkit_extension` | Keep Toolkit. The diagnostic contracts add bounded profiles, redaction, severity summaries, and support evidence not represented by the generic Core environment response. |
+
+Future Core content, comment, taxonomy, media, theme, plugin, and management
+abilities must be added as new observed rows only after they appear in a
+testable WordPress release. Do not convert proposal directions into successor
+ids.
+
+## Automated Gate
+
+Run:
+
+```bash
+composer check:core-convergence
+```
+
+The checker validates that every Toolkit id exists, the Markdown and JSON rows
+stay synchronized, and each row compares input schema, output schema,
+permissions, error envelope, and write posture. A `deprecate` decision fails
+unless all of these are true:
+
+- the Core contract status is `stable`;
+- every comparison dimension is `equivalent`;
+- Adapter and Toolbox consumer proofs are `passed`;
+- the classification is `core_preferred` or `compatibility_bridge`;
+- at least one overlap release, migration guidance, and rollback guidance are
+  recorded.
+
+Raw ability or catalog counts are forbidden as convergence evidence.
+Maintainers may set `NPCINK_CORE_CONVERGENCE_MANIFEST` to an alternate JSON
+file when exercising negative fixtures; the default gate always reads the
+versioned companion beside this document.
 
 ## Decision Rules
 
