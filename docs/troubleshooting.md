@@ -30,7 +30,7 @@ WP_PATH=/path/to/wordpress composer smoke:wp
 
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
-| `/wp-json/wp-abilities/v1/*` returns 404 | WordPress Abilities API is missing or permalinks/routes need refresh | Use WordPress 7.0+ with Abilities API available, activate the compatibility plugin when needed, then flush rewrite rules if the site requires it. |
+| `/wp-json/wp-abilities/v1/*` returns 404 | WordPress Abilities API is missing or permalinks/routes need refresh | Use WordPress 6.9+ with Abilities API available, activate the compatibility plugin when needed, then flush rewrite rules if the site requires it. |
 | Catalog request returns 401 | No valid REST authentication | Use a logged-in REST nonce from wp-admin or an Application Password for server-to-server checks. |
 | Catalog request returns 403 | Current user lacks required capability | Test with an administrator first, then lower privileges only after confirming the ability's `capability` or `permission_callback`. |
 | Ability id is missing | Package/filter profile disabled it, provider registered too early, or duplicate ownership was removed | Check `npcink_abilities_toolkit_enabled_packages`, read/comment sub-pack filters, and provider hook timing. Register provider abilities on `plugins_loaded` after checking public helper functions. |

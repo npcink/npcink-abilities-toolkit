@@ -1,6 +1,6 @@
 # Ability Acceptance Matrix
 
-Status: active for the 0.3 stabilization line.
+Status: active for the 0.5.x freeze/observe line.
 
 This matrix translates the first-party ability packs into real agent tasks. It
 is intentionally task-oriented: adding another ability only helps when it closes

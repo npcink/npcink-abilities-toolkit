@@ -48,6 +48,7 @@
     ],
     "eval:gutenberg-recipe:judge:compare": "@php tests/gutenberg-recipe-eval/compare-ai-judge-results.php",
     "smoke:wp": "bash tests/smoke-wp.sh",
+    "smoke:wp-minimum": "bash scripts/minimum-wordpress-smoke.sh",
     "e2e:official-stack": "bash scripts/official-stack-e2e.sh",
     "release:verify": "bash scripts/release-verify.sh",
     "release:prepare-wporg": "bash scripts/prepare-wporg-svn-release.sh",

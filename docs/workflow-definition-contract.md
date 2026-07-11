@@ -3,8 +3,9 @@
 Status: active v1 contract for the current release line.
 
 Workflow definitions are machine-readable recipe guidance for hosts that compose
-WordPress Abilities API abilities. They are not a workflow runtime and they are
-not a second registry.
+WordPress Abilities API abilities. `npcink-abilities-toolkit` is the canonical
+owner of reusable workflow definitions in the Npcink stack. This catalog is not
+a host/runtime workflow registry and is not a workflow runtime.
 
 ## Core Principle
 

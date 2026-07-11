@@ -2,6 +2,12 @@
 
 ## 0.5.3 - 2026-07-10
 
+- Corrected the minimum WordPress version to 6.9, where the Abilities API was
+  introduced, while keeping WordPress 7.0 as the current tested-up-to line.
+- Replaced the ability-count floor in the official-stack gate with explicit
+  representative contracts so quality checks do not reward catalog growth.
+- Recorded Toolkit as the canonical owner of reusable static workflow
+  definitions while keeping execution, governance, and runtime state in hosts.
 - Made built-in write and destructive callbacks fail safe when `commit=false`
   or `dry_run=true`, including conflicting control values.
 - Restricted post-meta reads to explicit non-sensitive keys and removed

@@ -3,7 +3,7 @@
  * Plugin Name: Npcink Abilities Toolkit Demo
  * Description: Example provider plugin that registers abilities through Npcink Abilities Toolkit.
  * Version: 0.1.0
- * Requires at least: 7.0
+ * Requires at least: 6.9
  * Requires PHP: 8.0
  * Author: Npcink
  * Text Domain: npcink-abilities-toolkit-demo

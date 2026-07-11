@@ -6,8 +6,9 @@ reader to the smallest useful path first.
 
 Cross-project platform coordination starts from
 `/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
-repository owns Toolkit ability contracts and should not become the platform
-coordination source of truth.
+repository owns Toolkit ability contracts and reusable static workflow
+definitions, but it should not become the platform coordination source of
+truth.
 
 ## Plugin Authors
 
@@ -94,21 +95,25 @@ Use this path when changing this package.
    before turning official WordPress AI or Abilities API inspiration into
    Toolkit contract changes.
 10. Use [Ability Contract Reuse Readiness - 2026-07-08](ability-contract-reuse-readiness-2026-07-08.md)
-   before adding new ability functionality for the Core/Adapter/Product reuse
-   chain.
-11. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
-   for the public repository handoff, CI baseline, and post-publication gate
-   status.
-12. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
+    before adding new ability functionality for the Core/Adapter/Product reuse
+    chain.
+11. Use [WordPress Core Ability Convergence](wordpress-core-ability-convergence.md)
+    before adding or deprecating generic WordPress entity abilities.
+12. Read [ADR 0005](adr/0005-own-reusable-workflow-definitions-and-converge-with-core.md)
+    for reusable workflow-definition ownership and Core convergence rules.
+13. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
+    for the public repository handoff, CI baseline, and post-publication gate
+    status.
+14. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
     for the PR #57 merged hardening scope, validation evidence, and no-release
     decision.
-13. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
+15. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
-14. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
+16. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
     for the current submitted-but-waiting GlotPress state and the PTE request
     handoff text.
-15. Record release evidence in the relevant release verification document.
+17. Record release evidence in the relevant release verification document.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

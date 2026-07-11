@@ -382,7 +382,7 @@ foreach (
 }
 
 $main_plugin_header = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 7.0' ), 'main plugin header requires WordPress 7.0' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $main_plugin_header, 'Requires at least: 6.9' ), 'main plugin header requires WordPress 6.9' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $main_plugin_header, 'Requires PHP: 8.0' ), 'main plugin header requires PHP 8.0' );
 
 $readme = file_get_contents( __DIR__ . '/../README.md' );

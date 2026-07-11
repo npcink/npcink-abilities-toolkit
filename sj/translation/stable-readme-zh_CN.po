@@ -306,8 +306,8 @@ msgid "PHP 8.0 or later."
 msgstr "PHP 8.0 或更高版本。"
 
 #. Found in description list item.
-msgid "WordPress 7.0 or later. This release intentionally targets the WordPress Abilities API baseline available in WordPress 7.0+."
-msgstr "WordPress 7.0 或更高版本。本版本有意面向 WordPress 7.0+ 提供的 WordPress Abilities API 基线。"
+msgid "WordPress 6.9 or later. This release targets the WordPress version that introduced the Abilities API."
+msgstr "WordPress 6.9 或更高版本。本版本面向首次引入 Abilities API 的 WordPress 版本。"
 
 #. Found in description header.
 msgid "Built-In Abilities"

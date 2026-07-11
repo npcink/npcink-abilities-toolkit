@@ -19,5 +19,6 @@ cd "$ROOT_DIR"
 composer test:all
 composer analyse:phpstan
 git diff --check
+composer smoke:wp-minimum
 composer smoke:wp
 composer check:plugin-package

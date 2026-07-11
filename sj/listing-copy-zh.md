@@ -64,7 +64,7 @@ Host composition recipe metadata 通过只读 helper 和 Abilities API discovery
 
 ## Requirements
 
-* WordPress 7.0 或更高版本。本版本有意面向 WordPress 7.0+ 提供的 WordPress Abilities API 基线。
+* WordPress 6.9 或更高版本。WordPress 6.9 已提供本插件使用的 WordPress Abilities API。
 * PHP 8.0 或更高版本。
 * 在第三方 provider 插件或外部客户端发现并运行能力之前，WordPress Abilities API REST routes 必须可用。
 

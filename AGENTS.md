@@ -31,8 +31,9 @@ Before changing files:
 ## Project Boundaries
 
 Npcink Abilities Toolkit owns ability registration helpers, category helpers,
-schema and annotation normalization, first-party ability contracts, permission
-callbacks, risk metadata, diagnostics redaction, and bounded performance checks.
+schema and annotation normalization, first-party ability contracts, reusable
+static workflow definitions, permission callbacks, risk metadata, diagnostics
+redaction, and bounded performance checks.
 
 This package does not own model routing, prompt selection, workflow runtime
 execution, final write authorization, approval storage, billing, quota, cloud
@@ -42,9 +43,11 @@ Product UI, market packaging, China-market site-owner workflows, commercial
 onboarding, and end-user toolbox experiences belong in consuming products, not
 in this package.
 
-Do not turn this plugin into a second workflow registry, second ability registry,
-or second WordPress control plane. Write-like behavior must stay dry-run or
-host-governed where the existing contracts require it.
+This repository is the canonical owner of reusable, static workflow
+definitions for the Npcink stack. Do not turn that definition catalog into a
+host/runtime workflow registry, a second ability registry, or a second
+WordPress control plane. Write-like behavior must stay dry-run or host-governed
+where the existing contracts require it.
 
 Workflow definition helpers in this repository are static, read-only recipe
 metadata for host-side composition. They must not gain workflow state,

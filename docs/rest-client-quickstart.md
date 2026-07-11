@@ -5,7 +5,7 @@ abilities from a WordPress site where `npcink-abilities-toolkit` is active.
 
 ## Requirements
 
-- WordPress 7.0+ with the WordPress Abilities API available, or the official
+- WordPress 6.9+ with the WordPress Abilities API available, or the official
   Abilities API compatibility plugin active.
 - PHP 8.0+ on the WordPress site.
 - `npcink-abilities-toolkit` installed and active.

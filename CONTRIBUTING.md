@@ -176,8 +176,9 @@ This package does not own:
 - approval storage or audit truth;
 - quota, billing, app keys, cloud execution, or MCP gateway policy.
 
-Do not turn this plugin into a second workflow registry, second ability
-registry, or second WordPress control plane.
+Toolkit is the canonical owner of reusable static workflow definitions for the
+Npcink stack. Do not turn that definition catalog into a host/runtime workflow
+registry, a second ability registry, or a second WordPress control plane.
 
 If a change would move host-owned runtime behavior into this package, reject the
 move or split it into the host-owned repository. Design documents may record the

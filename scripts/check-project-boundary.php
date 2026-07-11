@@ -170,6 +170,7 @@ if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $readme_txt, 'They are
 $contributing = npcink_abilities_toolkit_boundary_read( $root . '/CONTRIBUTING.md' );
 foreach (
 	array(
+		'Toolkit is the canonical owner of reusable static workflow definitions',
 		'read-only workflow definition helpers that expose static recipe metadata',
 		'workflow state, scheduling, retries, queues, leases, approval stores, audit',
 	) as $required_contributing_boundary
@@ -180,6 +181,9 @@ foreach (
 }
 
 $agents = npcink_abilities_toolkit_boundary_read( $root . '/AGENTS.md' );
+if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $agents, 'This repository is the canonical owner of reusable, static workflow definitions' ) ) {
+	npcink_abilities_toolkit_boundary_fail( 'AGENTS.md is missing canonical workflow definition ownership text.' );
+}
 if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $agents, 'Workflow definition helpers in this repository are static, read-only recipe metadata' ) ) {
 	npcink_abilities_toolkit_boundary_fail( 'AGENTS.md is missing workflow metadata boundary text.' );
 }
@@ -191,6 +195,7 @@ $workflow_contract = npcink_abilities_toolkit_boundary_read( $root . '/docs/work
 foreach (
 	array(
 		'Status: active v1 contract for the current release line',
+		'is the canonical owner of reusable workflow definitions in the Npcink stack',
 		'not a workflow execution log, host registry, queue record, retry plan, approval record, audit record, or runtime state store',
 	) as $required_workflow_contract_boundary
 ) {
@@ -248,6 +253,8 @@ if ( ! npcink_abilities_toolkit_boundary_contains_phrase( $positioning_plan, 'Do
 $forbidden_patterns = array(
 	'magick-ai-root',
 	'/includes/abilities/',
+	'Npcink\\GovernanceCore',
+	'Npcink\\OpenClawAdapter',
 	'npcink_ai_core_run_capability',
 	'npcink_ai_execute_runtime_bridge',
 	'npcink_ai_dispatch_capability',
