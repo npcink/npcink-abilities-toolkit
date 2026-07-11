@@ -160,6 +160,43 @@ final class Workflow_Definition_Provider {
 				),
 				'host_governed_write_boundary'   => true,
 			),
+			'media_optimization'        => array(
+				'definition_kind'                => 'workflow_recipe',
+				'contract_version'               => 'v1',
+				'title'                          => 'Governed media optimization',
+				'natural_tasks'                  => array(
+					'Prepare a reviewed media optimization plan for one attachment.',
+					'Build metadata and derivative adoption actions before asking Core for approval.',
+					'Preview media replacement and content reference repairs without changing WordPress.',
+				),
+				'preferred_ability_id'           => 'npcink-abilities-toolkit/build-media-optimization-plan',
+				'entrypoint_ability_id'          => 'npcink-abilities-toolkit/build-media-optimization-plan',
+				'expanded_ability_ids'           => array(
+					'npcink-abilities-toolkit/build-media-optimization-plan',
+				),
+				'recipe_id'                      => 'npcink-abilities-toolkit/recipes/media-optimization',
+				'recipe_aliases'                 => array( 'media_optimization_v1' ),
+				'required_scope'                 => 'media.read',
+				'required_inputs'                => array( 'attachment_id', 'media_details_input', 'derivative_artifact' ),
+				'expected_sections'              => array(
+					'artifact_type',
+					'proposal_mode',
+					'write_actions',
+					'derivative_preview',
+					'content_reference_repairs_preview',
+				),
+				'handoff'                        => array(
+					'kind'        => 'approval_request',
+					'owner'       => 'host',
+					'next_action' => 'submit_reviewed_media_optimization_plan_to_core_then_stop',
+				),
+				'failure_policy'                 => 'fail_closed',
+				'disallowed_default_ability_ids' => array(
+					'npcink-abilities-toolkit/update-media-details',
+					'npcink-abilities-toolkit/adopt-cloud-media-derivative',
+				),
+				'host_governed_write_boundary'   => true,
+			),
 			'article_media_handoff'     => array(
 				'definition_kind'                => 'workflow_recipe',
 				'contract_version'               => 'v1',

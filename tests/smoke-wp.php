@@ -755,6 +755,9 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	$workflow_recipes_run_data = $workflow_recipes_run_response->get_data();
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_publish_preflight'] ), 'Workflow recipe discovery returns publish preflight definition.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_optimization'] ), 'Workflow recipe discovery returns article optimization definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'media_optimization_v1' === (string) ( $workflow_recipes_run_data['cases']['media_optimization']['recipe_aliases'][0] ?? '' ), 'Workflow recipe discovery returns canonical media optimization projection alias.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/build-media-optimization-plan' === (string) ( $workflow_recipes_run_data['cases']['media_optimization']['entrypoint_ability_id'] ?? '' ), 'Media optimization workflow projection uses the read-only plan entrypoint.' );
+	npcink_abilities_toolkit_smoke_assert( 'approval_request' === (string) ( $workflow_recipes_run_data['cases']['media_optimization']['handoff']['kind'] ?? '' ), 'Media optimization workflow projection hands off a governed approval request.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_media_handoff'] ), 'Workflow recipe discovery returns article media handoff definition.' );
 
 	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-workflow-recipe/run' );
