@@ -37,11 +37,21 @@ $header    = (string) file_get_contents( dirname( __DIR__ ) . '/npcink-abilities
 $composer  = json_decode( (string) file_get_contents( dirname( __DIR__ ) . '/composer.json' ), true );
 $composer  = is_array( $composer ) ? $composer : array();
 
-npcink_abilities_toolkit_official_stack_assert( false !== strpos( $header, 'Requires at least: 7.0' ), 'plugin header targets a WordPress version with Abilities API availability' );
+npcink_abilities_toolkit_official_stack_assert( false !== strpos( $header, 'Requires at least: 6.9' ), 'plugin header targets the WordPress version that introduced the Abilities API' );
 npcink_abilities_toolkit_official_stack_assert( 'wordpress-plugin' === (string) ( $composer['type'] ?? '' ), 'composer declares wordpress-plugin type' );
 npcink_abilities_toolkit_official_stack_assert( ! isset( $composer['require']['wordpress/ai'] ), 'official AI plugin is not a runtime dependency' );
 npcink_abilities_toolkit_official_stack_assert( ! isset( $composer['require']['wordpress/mcp-adapter'] ), 'official MCP Adapter is not a runtime dependency' );
-npcink_abilities_toolkit_official_stack_assert( count( $abilities ) >= 100, 'catalog exposes the first-party ability pack surface' );
+
+$required_pack_representatives = array(
+	'npcink-abilities-toolkit/site-info',
+	'npcink-abilities-toolkit/get-post-context',
+	'npcink-abilities-toolkit/list-workflow-recipes',
+	'npcink-abilities-toolkit/create-draft',
+	'npcink-abilities-toolkit/trash-post',
+);
+foreach ( $required_pack_representatives as $required_ability_id ) {
+	npcink_abilities_toolkit_official_stack_assert( isset( $abilities[ $required_ability_id ] ), "official stack keeps required pack representative {$required_ability_id}" );
+}
 
 foreach ( $abilities as $ability_id => $ability ) {
 	$ability_id = (string) $ability_id;

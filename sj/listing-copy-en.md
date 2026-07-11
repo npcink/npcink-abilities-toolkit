@@ -100,8 +100,8 @@ probes.
 
 ## Requirements
 
-- WordPress 7.0 or later. This release intentionally targets the WordPress
-  Abilities API baseline available in WordPress 7.0+.
+- WordPress 6.9 or later. WordPress 6.9 introduced the Abilities API used by
+  this plugin.
 - PHP 8.0 or later.
 
 ## Integration Boundary

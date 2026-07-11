@@ -1,7 +1,7 @@
 # 0.5.3 Release Verification
 
-Status: compatibility verified; publication blocked on a clean cross-repo release matrix.
-Date: 2026-07-10.
+Status: release candidate revalidation in progress after platform-alignment follow-up.
+Date: 2026-07-11.
 
 This note records the `0.5.3` security-hardening candidate. The release keeps
 Toolkit as the WordPress ability-contract owner while making write controls,
@@ -22,28 +22,35 @@ safer by default.
   lazy package construction, protected by a cold-bootstrap performance budget.
 - Keep approval truth, audit truth, final authorization, runtime state, model
   routing, and consumer product policy outside Toolkit.
+- Correct the technical WordPress minimum to 6.9 and prove it with a disposable
+  real WordPress smoke.
+- Record Toolkit as the canonical owner of reusable static workflow definitions
+  without adding runtime or governance state.
+- Replace the catalog-size floor with representative contract assertions and
+  document evidence-first convergence with future WordPress Core abilities.
 
 ## Verification
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `composer test:all` | Pass | 163 ability contracts, 6 workflow recipes, 6242 assertions, boundary checks, WordPress.org guards, performance budgets, and PHP syntax lint passed. |
+| `composer test:all` | Pass | 164 ability contracts, 6 workflow recipes, 6276 assertions, boundary checks, WordPress.org guards, performance budgets, and PHP syntax lint passed. |
 | `composer analyse:phpstan` | Pass | PHPStan completed successfully with the package's PHP 8.0 baseline. |
-| Full WordPress smoke | Pass | The Local.app site completed 435 authenticated contract and behavior assertions. |
-| Light-profile WordPress smoke | Pass | The Local.app site completed 56 package-profile assertions. |
+| Minimum WordPress smoke | Pass | A disposable Docker site on WordPress 6.9.4 completed the official probes and 435 authenticated contract and behavior assertions. |
+| Full WordPress smoke | Pass | The current Local.app site on WordPress `7.1-alpha-62683` completed 436 authenticated contract and behavior assertions. |
+| Light-profile WordPress smoke | Pass | The same Local.app site completed 56 package-profile assertions. |
 | Plugin package check | Pass | The packaged WordPress.org surface completed Plugin Check without a blocking error. |
-| Adapter consumer compatibility | Pass | Adapter PR #31 separates protocol support from per-site setting-target readiness; its release gate and real WordPress smoke passed unconfigured, allowlisted, and sensitive-target cases. |
-| Central cross-repo functional matrix | Pass | All 7 repository gates passed, including Toolkit, Core, Adapter, Workflow Toolbox, Cloud Addon, Cloud, and Magick Toolbox. |
-| Strict cross-repo cleanliness | Blocked | `composer quality:matrix -- --fail-on-dirty` correctly rejects the 19 existing uncommitted Workflow Toolbox changes; those unrelated changes were not modified. |
+| Adapter consumer compatibility | Pass | Adapter PR #31 is merged and preserves conditional setting-target readiness after Toolkit hardening. |
+| Central cross-repo functional matrix | Pass | `composer quality:matrix:run` passed all seven configured repository gates on 2026-07-11. |
+| Strict cross-repo cleanliness | Pass | `composer quality:matrix -- --fail-on-dirty` reported zero dirty files across all seven configured repositories. |
 | WordPress.org publication | Pending | Publish only from the verified `master` release commit. |
 
 ## Release Decision
 
-Do not publish `0.5.3` until the Workflow Toolbox worktree is intentionally
-closed out and the strict cross-repository cleanliness check passes. Adapter
-compatibility and all functional repository gates are already verified. The
-Toolkit security defaults are intentional; consumers must not weaken them or
-hardcode site-specific setting names into a channel adapter.
+Publish `0.5.3` only after the platform-alignment PR is merged and the resulting
+`master` commit is confirmed as the release commit. The minimum-version,
+current-site, package, and strict cross-repository checks pass. The Toolkit
+security defaults are intentional; consumers must not weaken them or hardcode
+site-specific setting names into a channel adapter.
 
 ## Post-Release Observation
 

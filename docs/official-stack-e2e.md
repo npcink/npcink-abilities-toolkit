@@ -93,10 +93,19 @@ composer e2e:official-stack -- --status
 ```bash
 OFFICIAL_STACK_HTTP_PORT=8899 composer e2e:official-stack
 OFFICIAL_STACK_PROJECT_NAME=npcink_abilities_official_stack composer e2e:official-stack
+OFFICIAL_STACK_WORDPRESS_VERSION=6.9.4 composer e2e:official-stack
 OFFICIAL_STACK_INSTALL_AI=0 composer e2e:official-stack
 OFFICIAL_STACK_INSTALL_MCP=0 composer e2e:official-stack
 OFFICIAL_STACK_RUN_MCP_HTTP_PROBE=0 composer e2e:official-stack
 OFFICIAL_STACK_REINSTALL_OFFICIAL_PLUGINS=1 composer e2e:official-stack
+```
+
+`OFFICIAL_STACK_WORDPRESS_VERSION` replaces the shared Docker volume with an
+exact WordPress release before installation. The release-facing minimum-version
+wrapper runs the full project smoke without the optional AI or MCP plugins:
+
+```bash
+composer smoke:wp-minimum
 ```
 
 Use a local plugin zip instead of downloading the current GitHub release:

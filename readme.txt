@@ -1,7 +1,7 @@
 === Npcink Abilities Toolkit ===
 Contributors: muze233
 Tags: abilities api, agents, ai, automation
-Requires at least: 7.0
+Requires at least: 6.9
 Tested up to: 7.0
 Requires PHP: 8.0
 Stable tag: 0.5.3
@@ -38,7 +38,7 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability is inert as a dry-r
 
 == Requirements ==
 
-* WordPress 7.0 or later. This release intentionally targets the WordPress Abilities API baseline available in WordPress 7.0+.
+* WordPress 6.9 or later. WordPress 6.9 introduced the Abilities API used by this plugin.
 * PHP 8.0 or later.
 * The WordPress Abilities API REST routes must be available before third-party
   provider plugins or external clients can discover and run abilities.
@@ -167,6 +167,9 @@ For isolated bounded-chain performance validation, run:
 
 = 0.5.3 =
 
+* Corrected the minimum WordPress version to 6.9 and added a real minimum-version release smoke.
+* Made Toolkit the canonical owner of reusable static workflow definitions without adding workflow runtime state.
+* Replaced the raw ability-count gate with representative contract assertions and documented WordPress Core convergence rules.
 * Made write and destructive callbacks fail safe unless commit intent is explicit and host-governed.
 * Restricted post-meta reads to explicit non-sensitive keys and required host allowlists for setting patch targets.
 * Validated remote media before uploads, removed the obsolete in-memory fallback, and redacted reversible setting fragments.

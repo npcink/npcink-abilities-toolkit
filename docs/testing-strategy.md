@@ -57,9 +57,15 @@ additional release checks there:
 
 ```bash
 composer analyse:phpstan
+composer smoke:wp-minimum
 composer smoke:wp
 composer check:plugin-package
 ```
+
+`composer smoke:wp-minimum` runs the real WordPress smoke against WordPress
+6.9.4 in a disposable Docker environment. `composer smoke:wp` should target the
+current tested-up-to WordPress line. Both are release gates when the declared
+minimum or official-stack assumptions change.
 
 Use `composer analyse:phpstan` when public PHP contracts, class boundaries, or
 bootstrap assumptions change, even outside a WordPress.org release. Use

@@ -40,6 +40,6 @@ body:
     attributes:
       label: Boundary Checks
       options:
-        - label: This does not create a second workflow registry or control plane.
+        - label: This keeps reusable definitions in Toolkit and does not create a host/runtime workflow registry or control plane.
         - label: Final writes remain host-governed where required.
         - label: Tests and catalog snapshots will be updated in the same change set.

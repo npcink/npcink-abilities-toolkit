@@ -30,7 +30,7 @@ for writes.
 
 ## Requirements
 
-- WordPress 7.0+ with the Abilities API available
+- WordPress 6.9+ with the Abilities API available
 - PHP 8.0+
 
 ## External Integration Paths

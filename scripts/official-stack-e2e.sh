@@ -8,6 +8,8 @@ HTTP_PORT="${OFFICIAL_STACK_HTTP_PORT:-8899}"
 CACHE_DIR="${OFFICIAL_STACK_CACHE_DIR:-$ROOT_DIR/build/official-stack-cache}"
 ARTIFACT_DIR="${OFFICIAL_STACK_ARTIFACT_DIR:-$ROOT_DIR/build/official-stack-e2e}"
 WP_URL="${OFFICIAL_STACK_WP_URL:-http://localhost:$HTTP_PORT}"
+WORDPRESS_VERSION="${OFFICIAL_STACK_WORDPRESS_VERSION:-}"
+WORDPRESS_SOURCE_DIR="${OFFICIAL_STACK_WORDPRESS_SOURCE_DIR:-}"
 ADMIN_USER="${OFFICIAL_STACK_ADMIN_USER:-admin}"
 ADMIN_PASSWORD="${OFFICIAL_STACK_ADMIN_PASSWORD:-password}"
 ADMIN_EMAIL="${OFFICIAL_STACK_ADMIN_EMAIL:-admin@example.test}"
@@ -40,6 +42,8 @@ Options:
 Useful environment overrides:
   OFFICIAL_STACK_HTTP_PORT=8899
   OFFICIAL_STACK_PROJECT_NAME=npcink_abilities_official_stack
+  OFFICIAL_STACK_WORDPRESS_VERSION=6.9.4
+  OFFICIAL_STACK_WORDPRESS_SOURCE_DIR=/official-stack-cache/wordpress-6.9.4/wordpress
   OFFICIAL_STACK_MCP_ADAPTER_ZIP=/path/to/mcp-adapter.zip
   OFFICIAL_STACK_AI_PLUGIN_ZIP=/path/to/ai.zip
   OFFICIAL_STACK_ABILITIES_API_ZIP=/path/to/abilities-api.zip
@@ -52,6 +56,10 @@ EOF
 
 compose() {
 	COMPOSE_PROJECT_NAME="$PROJECT_NAME" OFFICIAL_STACK_HTTP_PORT="$HTTP_PORT" docker compose -f "$COMPOSE_FILE" "$@"
+}
+
+cli_shell() {
+	compose run --rm --entrypoint sh cli -c "$1"
 }
 
 wp() {
@@ -132,6 +140,28 @@ wait_for_wordpress_files() {
 	done
 
 	fail "WordPress files were not ready in the Docker volume."
+}
+
+ensure_wordpress_version() {
+	if [[ -z "$WORDPRESS_VERSION" ]]; then
+		return
+	fi
+
+	local current_version
+	current_version="$(wp core version 2>/dev/null || true)"
+	if [[ "$current_version" != "$WORDPRESS_VERSION" ]]; then
+		if [[ -n "$WORDPRESS_SOURCE_DIR" ]]; then
+			log "Installing WordPress core $WORDPRESS_VERSION from the mounted source cache"
+			cli_shell "test -f '$WORDPRESS_SOURCE_DIR/wp-settings.php' && find /var/www/html -maxdepth 1 -type f -name '*.php' ! -name 'wp-config.php' -delete && rm -rf /var/www/html/wp-admin /var/www/html/wp-includes && cp -a '$WORDPRESS_SOURCE_DIR/.' /var/www/html/"
+		else
+			log "Installing WordPress core $WORDPRESS_VERSION in the shared test volume"
+			wp core download --version="$WORDPRESS_VERSION" --force >/dev/null
+		fi
+	fi
+
+	current_version="$(wp core version 2>/dev/null || true)"
+	[[ "$current_version" == "$WORDPRESS_VERSION" ]] \
+		|| fail "Expected WordPress $WORDPRESS_VERSION, found ${current_version:-unknown}."
 }
 
 install_wordpress_if_needed() {
@@ -788,6 +818,7 @@ fi
 log "Starting reusable official-stack Docker environment on $WP_URL"
 compose up -d db wordpress
 wait_for_wordpress_files
+ensure_wordpress_version
 install_wordpress_if_needed
 ensure_abilities_api_available
 activate_project_plugin
