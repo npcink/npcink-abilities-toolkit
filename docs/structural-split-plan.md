@@ -1,12 +1,43 @@
 # Structural Split Plan
 
-Status: active incremental refactor plan.
+Status: paused; resume only from concrete change evidence.
 Date: 2026-07-11.
 
 This plan reduces review cost and change collisions without combining structural
 moves with ability changes. Every slice must preserve public ability ids,
 schemas, annotations, callbacks, lazy loading, dry-run defaults, and host-owned
 approval and final authorization.
+
+## Stabilization Checkpoint
+
+The first two slices established the write-trait pattern and reduced
+`Core_Write_Package` from 8,183 to 7,485 lines without changing its public
+contracts. Source gates, PHPStan, bootstrap performance, real WordPress smoke,
+and the real block-theme host proof passed after those moves.
+
+The remaining sequence is intentionally paused after the 0.5.3 release. That
+release hardened remote-media temporary-file validation, upload handling, and
+write safety. Moving the media lifecycle immediately after that hardening would
+add structural risk without a current consumer defect, feature requirement, or
+measured review bottleneck. File size alone is not sufficient evidence to
+resume the refactor.
+
+Keep issue #89 open as an evidence-triggered maintenance record. Resume only
+when at least one of these conditions is observed:
+
+- repeated pull requests change the same responsibility and cause review or
+  merge conflicts;
+- a concrete bug or approved feature must cross unrelated responsibilities in
+  one oversized module;
+- security review cannot isolate remote input, file lifecycle, rollback, or
+  reference-repair behavior;
+- tests cannot independently prove the responsibility being changed;
+- a maintainer or agent repeatedly modifies unrelated behavior because the
+  current ownership boundary is unclear.
+
+Do not resume merely to reduce line counts, complete this sequence, or make the
+directory tree more symmetrical. During the pause, prioritize release
+stability and evidence from Core, Adapter, Toolbox, and real WordPress hosts.
 
 ## Baseline Inventory
 
@@ -37,18 +68,23 @@ cohesive responsibility can move without changing its public contract.
    and template lookup helpers. `Core_Write_Package` remains the definition and
    composition owner, and the extraction preserves host-governed dry-run and
    final authorization behavior.
-3. **Media write lifecycle.** Split remote intake, derivative materialization,
-   file replacement/rollback, and reference repair into bounded traits. Keep
-   each slice separate because these paths have different security and rollback
-   risks.
-4. **Definition providers.** Move large read/write definition arrays only after
-   callback ownership is stable; definitions must continue to bind to the same
-   object callbacks and metadata.
-5. **Test suites.** Split `tests/run.php` by contract surface last, preserving a
-   single default `composer test` entrypoint and aggregate assertion result.
+3. **Media write lifecycle — deferred pending evidence.** If a resume condition
+   is met, evaluate remote intake, derivative materialization, file
+   replacement/rollback, and reference repair independently. These paths have
+   different security and rollback risks and must not move as one campaign.
+4. **Definition providers — deferred pending callback pressure.** Move large
+   read/write definition arrays only when a concrete definition change is made
+   harder by current ownership and callback ownership is already stable.
+   Definitions must continue to bind to the same object callbacks and metadata.
+5. **Test suites — deferred pending test-maintenance pressure.** Split
+   `tests/run.php` by contract surface only when test changes show repeated
+   collision or isolation problems. Preserve a single default `composer test`
+   entrypoint and aggregate assertion result.
 
-Do not execute the remaining sequence automatically as one refactor. Open one
-focused pull request per slice and re-evaluate the next boundary after merge.
+Do not execute the remaining sequence automatically. When evidence justifies a
+resume, open one focused pull request for the affected responsibility, verify
+it, and return to stabilization unless the next responsibility has independent
+evidence of its own.
 
 ## Gate Per Slice
 
