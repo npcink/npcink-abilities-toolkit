@@ -980,11 +980,11 @@ final class Core_Destructive_Package {
 	 * @return bool
 	 */
 	private function should_dry_run( array $input ) {
-		if ( array_key_exists( 'dry_run', $input ) ) {
-			return ! empty( $input['dry_run'] );
+		if ( empty( $input['commit'] ) ) {
+			return true;
 		}
 
-		return empty( $input['commit'] );
+		return array_key_exists( 'dry_run', $input ) && ! empty( $input['dry_run'] );
 	}
 
 	/**

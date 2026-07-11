@@ -1,7 +1,20 @@
 # Changelog
 
-## 0.5.3 - Unreleased
+## 0.5.3 - 2026-07-10
 
+- Made built-in write and destructive callbacks fail safe when `commit=false`
+  or `dry_run=true`, including conflicting control values.
+- Restricted post-meta reads to explicit non-sensitive keys and removed
+  unscoped fallbacks that exposed every stored post-meta value.
+- Required hosts to explicitly allowlist non-sensitive targets before
+  `patch-setting-value` can preview or commit a change, and replaced reversible
+  setting fragments with bounded hashes and lengths.
+- Validated remote media in a temporary file before copying it into uploads,
+  and removed the obsolete in-memory upload fallback.
+- Added namespace autoloading, lazy package construction, and a cold-bootstrap
+  performance budget to reduce unconditional plugin load cost.
+- Updated ability, security, schema, performance, testing, and local WP-CLI
+  documentation for the hardened contracts and current verification baseline.
 - Removed the incomplete bundled Traditional Chinese (`zh_TW`) starter locale
   pack from the source tree until it can be maintained as a complete
   translation set.

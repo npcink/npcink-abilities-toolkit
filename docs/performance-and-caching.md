@@ -61,6 +61,17 @@ Do not cache:
 
 ## Performance Smoke
 
+The plugin also guards its cold bootstrap separately:
+
+```bash
+composer perf:bootstrap
+```
+
+This check loads the main plugin file in a fresh PHP process before WordPress
+`init` and budgets only the bootstrap loader. It catches accidental eager loads
+of optional package implementations; it is not a substitute for real-site
+latency measurement with OPcache enabled.
+
 Run the isolated performance smoke with:
 
 ```bash
@@ -73,6 +84,7 @@ alone while changing read chains or cache behavior.
 The smoke measures representative bounded chains:
 
 - cached catalog fingerprint reuse;
+- cold main-plugin bootstrap loading;
 - bounded diagnostics log tail reads against a large local log;
 - content inventory health;
 - cached SEO/GEO gap report;

@@ -1,11 +1,12 @@
 # Public API
 
-The 0.1 public API is intentionally small. Provider plugins should use these
-functions instead of classes under `includes/`, which remain implementation
-details.
+The public provider API remains intentionally small. The original 0.1 provider
+surface is documented as a compatibility baseline; provider plugins should use
+these functions instead of classes under `includes/`, which remain
+implementation details.
 
 Host-governed write and destructive commit helpers are not public third-party
-APIs in 0.1. Third-party providers may register read-only abilities and
+APIs. Third-party providers may register read-only abilities and
 write-proposal abilities only. Final commit authorization belongs to a host
 runtime such as Npcink AI.
 
@@ -36,10 +37,21 @@ registration set with filters:
   optional Npcink AI compatibility row. The default row is intentionally thin;
   hosts that need product-specific runtime fields should add them here or in
   the consuming host, not by expanding this package's default projection.
+- `npcink_abilities_toolkit_patchable_setting_targets`: explicit host allowlist
+  for the built-in `patch-setting-value` ability. It receives and returns an
+  array with `option` and `theme_mod` name lists. It defaults to no permitted
+  targets; hosts must opt in only to reviewed, non-sensitive settings.
+- `npcink_abilities_toolkit_is_sensitive_post_meta_key`: marks a post-meta key
+  as non-exportable. Built-in credential-like key names are blocked by default;
+  hosts can mark additional site-specific keys as sensitive.
 
 These filters are host composition controls, not new public ability-definition
 APIs. They prevent this package from becoming a forced Npcink AI catalog bundle
 in installations that only want reusable WordPress ability definitions.
+
+`npcink-abilities-toolkit/get-post-meta` requires one explicit non-sensitive
+`meta_key`. Context and page readers only return metadata when callers provide
+safe `meta_keys`; they never fall back to dumping every stored post-meta value.
 
 The projection filter is metadata-only. It must not be used to move final
 approval, quota, audit, Open API exposure, MCP policy, workflow state, or model

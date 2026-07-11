@@ -787,6 +787,8 @@ final class Core_Write_Package {
 						'attachment_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
 						'title'             => $text,
 						'alt'               => $text,
+						'expected_current_alt' => array( 'type' => 'string', 'maxLength' => 160 ),
+						'operator_visual_review_confirmed' => array( 'type' => 'boolean' ),
 						'caption'           => $text,
 						'description'       => $text,
 						'source_type'       => array(
@@ -806,6 +808,9 @@ final class Core_Write_Package {
 						'updated'           => array( 'type' => 'boolean' ),
 						'title'             => array( 'type' => 'string' ),
 						'alt'               => array( 'type' => 'string' ),
+						'expected_current_alt' => array( 'type' => 'string' ),
+						'operator_visual_review_confirmed' => array( 'type' => 'boolean' ),
+						'idempotency_key'   => array( 'type' => 'string' ),
 						'caption'           => array( 'type' => 'string' ),
 						'description'       => array( 'type' => 'string' ),
 						'source_type'       => array( 'type' => 'string' ),
@@ -1768,6 +1773,10 @@ final class Core_Write_Package {
 		if ( ! current_user_can( $required_cap ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to patch this setting.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
+		$target_allowed = $this->assert_patchable_setting_target( $target_type, $target_name );
+		if ( is_wp_error( $target_allowed ) ) {
+			return $target_allowed;
+		}
 
 		$before_value = $this->get_patchable_setting_value( $target_type, $target_name );
 		$patch_result = $this->apply_patch_operations_to_value( $before_value, is_array( $input['operations'] ?? null ) ? $input['operations'] : array() );
@@ -1792,9 +1801,9 @@ final class Core_Write_Package {
 			'target_name'   => $target_name,
 			'updated'       => $updated,
 			'value_type'    => $this->setting_value_type( $before_value ),
-			'impact_ranges' => is_array( $patch_result['impact_ranges'] ?? null ) ? $patch_result['impact_ranges'] : array(),
+			'impact_ranges' => $this->redact_setting_patch_impact_ranges( is_array( $patch_result['impact_ranges'] ?? null ) ? $patch_result['impact_ranges'] : array() ),
 			'patch_preview' => is_array( $patch_result['patch_preview'] ?? null ) ? $patch_result['patch_preview'] : array(),
-			'diff_preview'  => $this->build_text_diff_preview( $before_text, $after_text ),
+			'diff_preview'  => $this->build_setting_diff_summary( $before_text, $after_text ),
 			'preview'       => array(
 				'action' => 'patch_setting_value',
 			),
@@ -2694,6 +2703,33 @@ final class Core_Write_Package {
 		}
 
 		$current = $this->media_snapshot( $attachment );
+		$alt_guarded = array_key_exists( 'expected_current_alt', $input );
+		if ( $alt_guarded ) {
+			foreach ( array( 'title', 'caption', 'description', 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $forbidden_field ) {
+				if ( array_key_exists( $forbidden_field, $input ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_media_alt_only_fields_required', __( 'Guarded media ALT updates accept only attachment_id, alt, expected_current_alt, visual confirmation, and host controls.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+				}
+			}
+			$mime_type = sanitize_text_field( (string) get_post_mime_type( $attachment_id ) );
+			if ( 0 !== strpos( $mime_type, 'image/' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_image_required', __( 'Guarded ALT updates are limited to image attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( true !== ( $input['operator_visual_review_confirmed'] ?? false ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_visual_confirmation_required', __( 'Confirm that the operator reviewed the image before preparing this ALT update.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$expected_current_alt = (string) $input['expected_current_alt'];
+			$current_alt          = (string) ( $current['alt'] ?? '' );
+			if ( '' !== $expected_current_alt ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_missing_only', __( 'The first guarded ALT contract only fills an empty current ALT value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( $expected_current_alt !== $current_alt ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_stale', __( 'The attachment ALT changed after review. Rebuild the review plan before continuing.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			$guarded_alt = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
+			if ( strlen( $guarded_alt ) < 3 || strlen( $guarded_alt ) > 160 ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_quality_invalid', __( 'The reviewed ALT must contain between 3 and 160 characters.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+		}
 		$next    = $current;
 		$changes = array();
 		foreach ( array( 'title', 'alt', 'caption', 'description', 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
@@ -2728,6 +2764,13 @@ final class Core_Write_Package {
 				),
 			)
 		);
+		if ( $alt_guarded ) {
+			$payload['expected_current_alt']              = sanitize_text_field( (string) $input['expected_current_alt'] );
+			$payload['operator_visual_review_confirmed'] = true;
+			$payload['idempotency_key']                  = sanitize_text_field( (string) ( $input['idempotency_key'] ?? '' ) );
+			$payload['preview']['contract_version']      = 'media_alt_only_write.v1';
+			$payload['preview']['write_scope']           = 'missing_alt_only';
+		}
 		if ( $this->should_dry_run( $input ) ) {
 			return $this->dry_run_payload( $payload );
 		}
@@ -3914,11 +3957,107 @@ final class Core_Write_Package {
 	 * @return bool
 	 */
 	private function should_dry_run( array $input ) {
-		if ( array_key_exists( 'dry_run', $input ) ) {
-			return ! empty( $input['dry_run'] );
+		if ( empty( $input['commit'] ) ) {
+			return true;
 		}
 
-		return empty( $input['commit'] );
+		return array_key_exists( 'dry_run', $input ) && ! empty( $input['dry_run'] );
+	}
+
+	/**
+	 * Ensures that a settings patch has an explicit host allowlist entry.
+	 *
+	 * Settings may contain credentials or control WordPress itself, so this
+	 * generic ability must not accept arbitrary option or theme-mod names.
+	 *
+	 * @param string $target_type option|theme_mod.
+	 * @param string $target_name Setting name.
+	 * @return true|\WP_Error
+	 */
+	private function assert_patchable_setting_target( $target_type, $target_name ) {
+		$target_type = sanitize_key( (string) $target_type );
+		$target_name = sanitize_key( (string) $target_name );
+		if ( $this->is_sensitive_setting_target( $target_type, $target_name ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_setting_target_blocked', __( 'This setting target cannot be patched through an ability.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$allowed_targets = array(
+			'option'    => array(),
+			'theme_mod' => array(),
+		);
+		if ( function_exists( 'apply_filters' ) ) {
+			$allowed_targets = apply_filters( 'npcink_abilities_toolkit_patchable_setting_targets', $allowed_targets, $target_type, $target_name );
+		}
+		$allowed_targets = is_array( $allowed_targets ) ? $allowed_targets : array();
+		$allowed_names   = isset( $allowed_targets[ $target_type ] ) && is_array( $allowed_targets[ $target_type ] )
+			? array_map( 'sanitize_key', $allowed_targets[ $target_type ] )
+			: array();
+
+		if ( in_array( $target_name, $allowed_names, true ) ) {
+			return true;
+		}
+
+		return new \WP_Error( 'npcink_abilities_toolkit_setting_target_not_allowed', __( 'This setting target is not enabled for ability-based patching.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+	}
+
+	/**
+	 * Returns whether a setting target must never be exposed to this ability.
+	 *
+	 * @param string $target_type option|theme_mod.
+	 * @param string $target_name Setting name.
+	 * @return bool
+	 */
+	private function is_sensitive_setting_target( $target_type, $target_name ) {
+		$target_type = sanitize_key( (string) $target_type );
+		$target_name = strtolower( sanitize_key( (string) $target_name ) );
+		if ( 'option' === $target_type && in_array( $target_name, array( 'active_plugins', 'home', 'siteurl', 'admin_email', 'users_can_register', 'default_role' ), true ) ) {
+			return true;
+		}
+
+		foreach ( array( 'password', 'passwd', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key', 'client_secret', 'credential', 'auth' ) as $marker ) {
+			if ( false !== strpos( $target_name, $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Redacts stored setting fragments from patch impact output.
+	 *
+	 * @param array<int,mixed> $impact_ranges Raw impact rows.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function redact_setting_patch_impact_ranges( array $impact_ranges ) {
+		$redacted = array();
+		foreach ( $impact_ranges as $row ) {
+			$row = is_array( $row ) ? $row : array();
+			unset( $row['before_preview'], $row['after_preview'] );
+			$redacted[] = $row;
+		}
+
+		return $redacted;
+	}
+
+	/**
+	 * Returns non-reversible setting change evidence for host review.
+	 *
+	 * @param string $before Before value.
+	 * @param string $after After value.
+	 * @return array<string,mixed>
+	 */
+	private function build_setting_diff_summary( $before, $after ) {
+		$before = (string) $before;
+		$after  = (string) $after;
+
+		return array(
+			'changed'       => $before !== $after,
+			'before_hash'   => hash( 'sha256', $before ),
+			'after_hash'    => hash( 'sha256', $after ),
+			'before_length' => strlen( $before ),
+			'after_length'  => strlen( $after ),
+		);
 	}
 
 	/**
@@ -4274,21 +4413,18 @@ final class Core_Write_Package {
 			'reject_unsafe_urls'  => true,
 			'limit_response_size' => $max_bytes + 1,
 		);
-		$upload   = array();
 		$download = $this->download_remote_media_to_temp_file( $url, $get_args, $max_bytes );
 		if ( is_wp_error( $download ) ) {
 			return $download;
 		}
-		if ( is_array( $download ) ) {
-			$upload = $this->upload_temp_media_file_to_uploads( (string) ( $download['tmp_file'] ?? '' ), $filename );
-			if ( is_wp_error( $upload ) ) {
-				return $upload;
-			}
-		} else {
-			$upload = $this->upload_remote_media_body_from_memory( $url, $get_args, $max_bytes, $filename );
-			if ( is_wp_error( $upload ) ) {
-				return $upload;
-			}
+		$tmp_file = (string) ( is_array( $download ) ? ( $download['tmp_file'] ?? '' ) : '' );
+		$filetype = $this->validate_remote_media_file( $tmp_file, $filename );
+		if ( is_wp_error( $filetype ) ) {
+			return $filetype;
+		}
+		$upload = $this->upload_temp_media_file_to_uploads( $tmp_file, $filename );
+		if ( is_wp_error( $upload ) ) {
+			return $upload;
 		}
 
 		$file_path = (string) ( $upload['file'] ?? '' );
@@ -4297,16 +4433,8 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Uploaded media file is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 
-		$allowed_mimes = function_exists( 'get_allowed_mime_types' ) ? get_allowed_mime_types() : array();
-		$filetype      = function_exists( 'wp_check_filetype_and_ext' )
-			? wp_check_filetype_and_ext( $file_path, $filename, $allowed_mimes )
-			: wp_check_filetype( $filename, $allowed_mimes );
 		$detected_type = sanitize_text_field( (string) ( $filetype['type'] ?? '' ) );
 		$detected_ext  = sanitize_key( (string) ( $filetype['ext'] ?? '' ) );
-		if ( '' === $detected_type || '' === $detected_ext ) {
-			wp_delete_file( $file_path );
-			return new \WP_Error( 'npcink_abilities_toolkit_media_type_blocked', __( 'Remote media type is not allowed.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
 
 		$attachment_title = sanitize_text_field( (string) $title );
 		if ( '' === $attachment_title ) {
@@ -4342,16 +4470,14 @@ final class Core_Write_Package {
 	 * @param string              $url Remote URL.
 	 * @param array<string,mixed> $args HTTP request args.
 	 * @param int                 $max_bytes Maximum allowed bytes.
-	 * @return array<string,mixed>|\WP_Error|null
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function download_remote_media_to_temp_file( $url, array $args, $max_bytes ) {
-		if ( ! function_exists( 'wp_tempnam' ) ) {
-			return null;
-		}
-
-		$tmp_file = wp_tempnam( $url );
+		$tmp_file = function_exists( 'wp_tempnam' )
+			? wp_tempnam( $url )
+			: tempnam( sys_get_temp_dir(), 'npcink-abilities-toolkit-media-' );
 		if ( ! is_string( $tmp_file ) || '' === $tmp_file ) {
-			return null;
+			return new \WP_Error( 'npcink_abilities_toolkit_media_tempfile_unavailable', __( 'A temporary media file could not be created.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
 
 		$args['stream']   = true;
@@ -4378,6 +4504,37 @@ final class Core_Write_Package {
 			'tmp_file'       => $tmp_file,
 			'filesize_bytes' => $file_size,
 		);
+	}
+
+	/**
+	 * Validates a downloaded media file before it enters the public uploads path.
+	 *
+	 * @param string $file_path Temporary file path.
+	 * @param string $filename Intended upload filename.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function validate_remote_media_file( $file_path, $filename ) {
+		$file_path = (string) $file_path;
+		$filename  = $this->sanitize_media_file_name( (string) $filename );
+		if ( '' === $file_path || ! is_readable( $file_path ) || '' === $filename ) {
+			if ( '' !== $file_path ) {
+				wp_delete_file( $file_path );
+			}
+			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', __( 'Downloaded media file is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$allowed_mimes = function_exists( 'get_allowed_mime_types' ) ? get_allowed_mime_types() : array();
+		$filetype      = function_exists( 'wp_check_filetype_and_ext' )
+			? wp_check_filetype_and_ext( $file_path, $filename, $allowed_mimes )
+			: wp_check_filetype( $filename, $allowed_mimes );
+		$detected_type = sanitize_text_field( (string) ( $filetype['type'] ?? '' ) );
+		$detected_ext  = sanitize_key( (string) ( $filetype['ext'] ?? '' ) );
+		if ( '' === $detected_type || '' === $detected_ext ) {
+			wp_delete_file( $file_path );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_type_blocked', __( 'Remote media type is not allowed.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		return $filetype;
 	}
 
 	/**
@@ -4438,43 +4595,6 @@ final class Core_Write_Package {
 			'file' => $target_path,
 			'url'  => $this->trailingslashit_value( $path_url ) . $filename,
 		);
-	}
-
-	/**
-	 * Fallback for runtimes that cannot stream HTTP responses into temporary files.
-	 *
-	 * @param string              $url Remote URL.
-	 * @param array<string,mixed> $args HTTP request args.
-	 * @param int                 $max_bytes Maximum allowed bytes.
-	 * @param string              $filename Upload filename.
-	 * @return array<string,string>|\WP_Error
-	 */
-	private function upload_remote_media_body_from_memory( $url, array $args, $max_bytes, $filename ) {
-		if ( ! function_exists( 'wp_upload_bits' ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_runtime_unavailable', __( 'Media runtime is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
-		}
-
-		$get_response = wp_safe_remote_get( $url, $args );
-		if ( is_wp_error( $get_response ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', $get_response->get_error_message(), array( 'status' => 400 ) );
-		}
-		$get_status = (int) wp_remote_retrieve_response_code( $get_response );
-		if ( $get_status >= 400 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_download_failed', __( 'Remote media is not reachable.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$file_contents = (string) wp_remote_retrieve_body( $get_response );
-		$file_size     = strlen( $file_contents );
-		if ( $file_size <= 0 || $file_size > $max_bytes ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_too_large', __( 'Remote media exceeds the allowed size.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$upload = wp_upload_bits( $filename, null, $file_contents );
-		if ( ! empty( $upload['error'] ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_upload_failed', sanitize_text_field( (string) $upload['error'] ), array( 'status' => 400 ) );
-		}
-
-		return $upload;
 	}
 
 	/**

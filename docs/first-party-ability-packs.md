@@ -141,6 +141,12 @@ treating those hints as write authorization. `local_preview_candidate_count` is
 the emitted summary count; deprecated ready-for-handoff aliases are not emitted
 by the P0 builder and must not be used as proposal or write authorization.
 
+Accepted missing-ALT rows can be normalized through
+`npcink-abilities-toolkit/build-media-alt-apply-plan`. The planner emits one
+`update-media-details` dry-run action carrying `expected_current_alt`, explicit
+operator visual confirmation, and a stable idempotency key. It never creates,
+approves, or executes a Core proposal and does not authorize attachment writes.
+
 `npcink-abilities-toolkit/build-taxonomy-tag-review-set` is the reusable
 review artifact builder for existing WordPress category and tag candidates. It
 returns `taxonomy_tag_review_set.v1` from supplied post context and optional

@@ -9,7 +9,7 @@ Use this shared Local site for repeatable manual and smoke verification:
 - Site URL: `https://magick-ai.local`
 - WordPress path: `/Users/muze/Local Sites/magick-ai/app/public`
 - Local MySQL socket: `/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock`
-- WP-CLI phar: `/tmp/wp-cli.phar`
+- WP-CLI command: `/opt/homebrew/bin/wp`
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
 - Test admin password: `[REDACTED_SECRET]`
@@ -19,7 +19,13 @@ Use this shared Local site for repeatable manual and smoke verification:
 - Standalone fallback admin page:
   `https://magick-ai.local/wp-admin/tools.php?page=npcink-abilities-toolkit`
 
-Verification status through 2026-05-30:
+Current verification as of 2026-07-10:
+
+- `composer smoke:wp` passed with `Smoke OK: 435 assertions` for the full
+  profile and `Smoke OK: 56 assertions` for the light profile.
+- Run the socket-aware command below with the globally installed `wp` command.
+
+Historical verification notes:
 
 - `curl -k -I https://magick-ai.local/` returned HTTP 200.
 - `https://magick-ai.local/wp-json/` exposed `/wp-abilities/v1`.
@@ -112,9 +118,9 @@ Verification status through 2026-05-30:
   `Smoke OK: 266 assertions`, light `core_wordpress_read` profile
   `Smoke OK: 21 assertions`.
 
-The current WP-CLI phar emits PHP 8.5 deprecation notices from
-`vendor/wp-cli/php-cli-tools/lib/cli/Colors.php`. Those notices come from the
-WP-CLI phar and do not fail the smoke test.
+The current global WP-CLI command is managed through Homebrew. If a project
+uses a different PHP binary or Local.app socket, keep passing those values
+explicitly through the command below.
 
 ## Standard WP-CLI
 
@@ -129,7 +135,7 @@ Local can set `DB_HOST` to `localhost`, while the system PHP used by WP-CLI look
 For the `https://magick-ai.local/` test site:
 
 ```bash
-WP_CLI=/tmp/wp-cli.phar \
+WP_CLI=/opt/homebrew/bin/wp \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
 WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
@@ -140,8 +146,8 @@ composer smoke:wp
 Expected result:
 
 ```text
-Smoke OK: 266 assertions
-Smoke OK: 21 assertions
+Smoke OK: 435 assertions
+Smoke OK: 56 assertions
 ```
 
 The default smoke profile verifies Abilities API availability, authenticated

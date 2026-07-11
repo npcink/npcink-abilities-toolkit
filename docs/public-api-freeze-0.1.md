@@ -1,6 +1,7 @@
 # Public API Freeze 0.1
 
-Status: active for the 0.1 development line.
+Status: historical 0.1 baseline. Superseded for current provider and host
+guidance by [Public API](public-api.md).
 
 The following functions are the only public PHP API for provider plugins and consumers in 0.1:
 

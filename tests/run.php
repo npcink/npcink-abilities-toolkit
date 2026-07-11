@@ -1246,6 +1246,7 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/get-media-inventory-health',
 	'npcink-abilities-toolkit/inspect-media-asset',
 	'npcink-abilities-toolkit/build-media-derivative-cloud-request',
+	'npcink-abilities-toolkit/build-media-alt-apply-plan',
 	'npcink-abilities-toolkit/get-post-seo-geo-readiness',
 	'npcink-abilities-toolkit/get-site-topic-coverage-report',
 	'npcink-abilities-toolkit/get-taxonomy-inventory-health',
@@ -1407,6 +1408,7 @@ npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilitie
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-posts']['output_schema']['properties']['filters'] ), 'search-posts returns applied filters' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-posts']['output_schema']['properties']['items']['items']['properties']['matched_fields'] ), 'search-posts returns matched field hints' );
 npcink_abilities_toolkit_assert_same( array( 'search', 'meta_keys' ), $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['required'] ?? array(), 'search-post-meta requires search and explicit meta keys' );
+npcink_abilities_toolkit_assert_same( array( 'post_id', 'meta_key' ), $package_abilities['npcink-abilities-toolkit/get-post-meta']['input_schema']['required'] ?? array(), 'get-post-meta requires one explicit safe meta key' );
 npcink_abilities_toolkit_assert_same( 10, $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['properties']['meta_keys']['maxItems'] ?? null, 'search-post-meta bounds meta key count' );
 npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/search-post-meta']['input_schema']['additionalProperties'] ?? null, 'search-post-meta rejects undeclared inputs' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/search-post-meta']['output_schema']['properties']['items']['items']['properties']['matched_meta_keys'] ), 'search-post-meta returns matched meta keys' );
@@ -1775,6 +1777,11 @@ npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['np
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['required_scopes'] ?? array(), 'media ALT/caption review set only reads supplied media evidence' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['commit'] ), 'media ALT/caption review set does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['provider'] ), 'media ALT/caption review set does not expose provider runtime selection' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan'] ), 'build-media-alt-apply-plan is registered as a read-only governed planner' );
+npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media ALT apply plan is classified as media governance' );
+npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'alt', 'expected_current_alt', 'operator_visual_review_confirmed', 'review_set_contract' ), $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan']['input_schema']['required'] ?? array(), 'media ALT apply plan requires reviewed value, old value, visual confirmation, and review contract' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['expected_current_alt'] ), 'update-media-details exposes the optional ALT old-value guard' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['operator_visual_review_confirmed'] ), 'update-media-details exposes guarded ALT visual confirmation' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan'] ), 'build-image-candidate-adoption-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['required_scopes'] ?? array(), 'image candidate adoption plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['required'] ?? array(), 'image candidate adoption plan accepts image_candidate or direct URL input' );
@@ -2088,8 +2095,39 @@ $oversized_create_preview = $core_write_package->create_draft(
 npcink_abilities_toolkit_assert_true( is_wp_error( $oversized_create_preview ), 'create-draft rejects oversized content before preview generation' );
 npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_input_too_large', $oversized_create_preview->code ?? '', 'create-draft oversized content fails with stable code' );
 
-$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
-$created = $core_write_package->create_draft(
+	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
+	$posts_before_non_commit_write = count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] );
+	$non_commit_create = $core_write_package->create_draft(
+		array(
+			'title'   => 'Must Stay Preview',
+			'content' => 'Explicitly disabling dry run cannot replace commit intent.',
+			'dry_run' => false,
+			'commit'  => false,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $non_commit_create['dry_run'] ?? null, 'create-draft keeps dry-run when commit is explicitly false' );
+	npcink_abilities_toolkit_assert_same( $posts_before_non_commit_write, count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ), 'create-draft does not mutate when commit is explicitly false' );
+	$conflicting_write_controls = $core_write_package->create_draft(
+		array(
+			'title'   => 'Conflicting Controls',
+			'content' => 'Dry-run wins when write controls conflict.',
+			'dry_run' => true,
+			'commit'  => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $conflicting_write_controls['dry_run'] ?? null, 'create-draft keeps dry-run when commit conflicts with dry_run=true' );
+	npcink_abilities_toolkit_assert_same( $posts_before_non_commit_write, count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ), 'create-draft does not mutate when write controls conflict' );
+	$destructive_status_before_non_commit = (string) ( get_post( 501 )->post_status ?? '' );
+	$non_commit_trash = $core_destructive_package->trash_post(
+		array(
+			'post_id' => 501,
+			'dry_run' => false,
+			'commit'  => false,
+		)
+	);
+	npcink_abilities_toolkit_assert_same( true, $non_commit_trash['dry_run'] ?? null, 'destructive package keeps dry-run when commit is explicitly false' );
+	npcink_abilities_toolkit_assert_same( $destructive_status_before_non_commit, (string) ( get_post( 501 )->post_status ?? '' ), 'destructive package does not mutate when commit is explicitly false' );
+	$created = $core_write_package->create_draft(
 	array(
 		'title' => 'Migrated Draft',
 		'content' => "# Migrated Draft\n\n![Alt](https://example.test/image.jpg)\n\nBody text.",
@@ -2225,7 +2263,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_http_responses'] = array(
 	),
 );
 $GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => true ) );
-$article_audio_imported = $core_write_package->adopt_article_audio(
+	$article_audio_imported = $core_write_package->adopt_article_audio(
 	array(
 		'post_id'             => 501,
 		'audio_url'           => 'https://cloud.example.test/audio/signed-runtime-url',
@@ -2934,6 +2972,16 @@ npcink_abilities_toolkit_assert_same( false, $nested_blocks_written['dry_run'] ?
 			'commit'             => true,
 		)
 	);
+	$unsafe_media_upload = $core_write_package->upload_media_from_url(
+		array(
+			'url'       => 'https://cloud.example.test/audio/signed-runtime-url',
+			'file_name' => 'unsafe.php',
+			'commit'    => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $unsafe_media_upload ), 'upload-media-from-url rejects an unapproved media extension before it reaches uploads' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_type_blocked', $unsafe_media_upload->get_error_code() ?? '', 'upload-media-from-url reports the blocked media type' );
+	npcink_abilities_toolkit_assert_true( ! file_exists( $article_audio_upload_dir . '/unsafe.php' ), 'upload-media-from-url never copies an invalid remote file into uploads' );
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
 	npcink_abilities_toolkit_assert_same( false, $template_written['dry_run'] ?? null, 'update-template-blocks commits after host approval' );
 	npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( $block_document, $template_update_output_schema, $template_written, 'update-template-blocks commit' );
@@ -3616,7 +3664,33 @@ npcink_abilities_toolkit_assert_same( true, $agent_post_context['success'] ?? nu
 npcink_abilities_toolkit_assert_same( 77, $agent_post_context['data']['post']['id'] ?? null, 'get-post-context reads the requested post id' );
 npcink_abilities_toolkit_assert_same( 'Optimization context content.', $agent_post_context['data']['post']['content'] ?? '', 'get-post-context includes post content by default' );
 npcink_abilities_toolkit_assert_same( 1, $agent_post_context['data']['stats']['block_count'] ?? null, 'get-post-context falls back to a freeform block for plain content' );
-npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $agent_post_context['data']['meta']['_yoast_wpseo_title'] ?? '', 'get-post-context supports scoped metadata reads' );
+	npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $agent_post_context['data']['meta']['_yoast_wpseo_title'] ?? '', 'get-post-context supports scoped metadata reads' );
+	$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][77]['_vendor_api_token'] = 'tok-super-secret';
+	$unscoped_agent_post_context = $core_read_package->get_post_context(
+		array(
+			'post_id'      => 77,
+			'include_meta' => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( ! isset( $unscoped_agent_post_context['data']['meta']['_vendor_api_token'] ), 'get-post-context never returns all metadata when no safe keys are supplied' );
+	$blocked_post_meta = $core_read_package->get_post_meta(
+		array(
+			'post_id'  => 77,
+			'meta_key' => '_vendor_api_token',
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $blocked_post_meta ), 'get-post-meta blocks sensitive metadata keys' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_meta_key_blocked', $blocked_post_meta->get_error_code() ?? '', 'get-post-meta uses a stable sensitive-key error code' );
+	$missing_post_meta_key = $core_read_package->get_post_meta( array( 'post_id' => 77 ) );
+	npcink_abilities_toolkit_assert_true( is_wp_error( $missing_post_meta_key ), 'get-post-meta requires one explicit safe key' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_meta_key_required', $missing_post_meta_key->get_error_code() ?? '', 'get-post-meta uses a stable missing-key error code' );
+	$safe_post_meta = $core_read_package->get_post_meta(
+		array(
+			'post_id'  => 77,
+			'meta_key' => '_yoast_wpseo_title',
+		)
+	);
+	npcink_abilities_toolkit_assert_same( 'Optimization SEO Title', $safe_post_meta['value'] ?? '', 'get-post-meta returns an explicitly requested safe key' );
 $publishing_checklist = $core_read_package->get_content_publishing_checklist(
 	array(
 		'post_id' => 77,
@@ -5220,6 +5294,56 @@ npcink_abilities_toolkit_assert_same( 1, $media_alt_caption_review_set['data']['
 npcink_abilities_toolkit_assert_same( 'insufficient', $media_alt_caption_review_set['data']['blocked_items'][0]['candidate_quality']['tier'] ?? '', 'media ALT/caption review set marks metadata-only failures as insufficient quality' );
 npcink_abilities_toolkit_assert_true( false === strpos( implode( ' ', $media_alt_caption_review_set['data']['selected_items'][0]['alt_candidates'] ?? array() ), 'Generated with model' ), 'media ALT/caption review set filters runtime provenance from candidates' );
 npcink_abilities_toolkit_assert_same( 'image_context_evidence_request.v1', $media_alt_caption_review_set['data']['image_context_evidence_request']['contract_version'] ?? '', 'media ALT/caption review set can request bounded external visual evidence for weak metadata rows' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-alt-apply-plan', $media_alt_caption_review_set['data']['handoff']['accepted_selection_target'] ?? '', 'media ALT/caption review set points accepted rows to the ALT-only apply planner' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][713] = (object) array(
+	'ID'             => 713,
+	'post_type'      => 'attachment',
+	'post_status'    => 'inherit',
+	'post_title'     => 'Reviewed workflow dashboard',
+	'post_content'   => '',
+	'post_excerpt'   => '',
+	'post_mime_type' => 'image/jpeg',
+	'guid'           => 'https://example.test/wp-content/uploads/workflow-dashboard.jpg',
+);
+$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][713]['_wp_attachment_image_alt'] = '';
+$media_alt_apply_plan_input = array(
+	'attachment_id'                     => 713,
+	'alt'                               => 'Operator reviewing the workflow dashboard',
+	'expected_current_alt'              => '',
+	'operator_visual_review_confirmed' => true,
+	'review_set_contract'               => 'media_alt_caption_review_set.v1',
+	'source_item_id'                    => 'media-alt-caption:713',
+	'evidence_refs'                     => array( 'image-context:713', 'article-context:82' ),
+);
+$media_alt_apply_plan = $core_read_package->build_media_alt_apply_plan( $media_alt_apply_plan_input );
+npcink_abilities_toolkit_assert_same( true, $media_alt_apply_plan['success'] ?? null, 'build-media-alt-apply-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'media_alt_apply_plan.v1', $media_alt_apply_plan['data']['contract_version'] ?? '', 'media ALT apply plan declares the shared contract' );
+npcink_abilities_toolkit_assert_same( 'core_proposal_required', $media_alt_apply_plan['data']['authorization']['classification'] ?? '', 'media ALT apply plan requires Core governance' );
+npcink_abilities_toolkit_assert_same( 1, count( $media_alt_apply_plan['data']['write_actions'] ?? array() ), 'media ALT apply plan emits exactly one write action' );
+$media_alt_apply_action = $media_alt_apply_plan['data']['write_actions'][0] ?? array();
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $media_alt_apply_action['target_ability_id'] ?? '', 'media ALT apply plan reuses update-media-details' );
+npcink_abilities_toolkit_assert_same( '', $media_alt_apply_action['input']['expected_current_alt'] ?? null, 'media ALT apply plan preserves the reviewed empty old value' );
+npcink_abilities_toolkit_assert_same( true, $media_alt_apply_action['input']['operator_visual_review_confirmed'] ?? null, 'media ALT apply plan preserves visual confirmation' );
+npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $media_alt_apply_action['input']['idempotency_key'] ?? '' ), 'media-alt-missing-713-' ), 'media ALT apply plan emits a stable bounded idempotency key' );
+npcink_abilities_toolkit_assert_same( 'media_alt_apply_plan_item', $media_alt_apply_action['preview']['artifact_type'] ?? '', 'media ALT apply action carries Core-readable review evidence' );
+
+$media_alt_dry_run = $core_write_package->update_media_details( $media_alt_apply_action['input'] ?? array() );
+npcink_abilities_toolkit_assert_same( true, $media_alt_dry_run['dry_run'] ?? null, 'guarded update-media-details returns a dry-run preview' );
+npcink_abilities_toolkit_assert_same( 'media_alt_only_write.v1', $media_alt_dry_run['preview']['contract_version'] ?? '', 'guarded media ALT dry run declares its write contract' );
+npcink_abilities_toolkit_assert_same( '', get_post_meta( 713, '_wp_attachment_image_alt', true ), 'guarded media ALT dry run does not mutate attachment metadata' );
+
+$media_alt_unconfirmed_input = $media_alt_apply_plan_input;
+$media_alt_unconfirmed_input['operator_visual_review_confirmed'] = false;
+$media_alt_unconfirmed = $core_read_package->build_media_alt_apply_plan( $media_alt_unconfirmed_input );
+npcink_abilities_toolkit_assert_true( is_wp_error( $media_alt_unconfirmed ), 'media ALT apply plan rejects missing visual confirmation' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_alt_visual_confirmation_required', $media_alt_unconfirmed->get_error_code(), 'media ALT visual confirmation failure is machine-readable' );
+
+update_post_meta( 713, '_wp_attachment_image_alt', 'Changed after review' );
+$media_alt_stale = $core_read_package->build_media_alt_apply_plan( $media_alt_apply_plan_input );
+npcink_abilities_toolkit_assert_true( is_wp_error( $media_alt_stale ), 'media ALT apply plan rejects a stale old value' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_alt_stale', $media_alt_stale->get_error_code(), 'media ALT stale-value failure is machine-readable' );
+update_post_meta( 713, '_wp_attachment_image_alt', '' );
 
 $image_candidate_adoption_plan = $core_read_package->build_image_candidate_adoption_plan(
 	array(
@@ -5293,16 +5417,47 @@ $media_settings_excluded_plan = $core_read_package->build_media_settings_referen
 npcink_abilities_toolkit_assert_same( true, $media_settings_excluded_plan['success'] ?? null, 'media settings reference repair accepts excluded format policy' );
 npcink_abilities_toolkit_assert_same( 0, $media_settings_excluded_plan['data']['action_count'] ?? 1, 'media settings reference repair does not build actions for excluded source formats' );
 npcink_abilities_toolkit_assert_same( 'source_format_excluded', $media_settings_excluded_plan['data']['manual_review'][0]['reason'] ?? '', 'media settings reference repair sends excluded formats to manual review' );
-$patch_setting_preview = $core_write_package->patch_setting_value(
-	array(
+	$patch_setting_preview = $core_write_package->patch_setting_value(
+		array(
+			'target_type' => 'option',
+			'target_name' => 'theme_builder_media_setting',
+			'operations'  => $media_settings_reference_plan['data']['write_actions'][0]['input']['operations'] ?? array(),
+			'dry_run'     => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $patch_setting_preview ), 'patch-setting-value rejects settings that the host has not allowlisted' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_setting_target_not_allowed', $patch_setting_preview->get_error_code() ?? '', 'patch-setting-value uses a stable not-allowlisted error code' );
+	add_filter(
+		'npcink_abilities_toolkit_patchable_setting_targets',
+		static function ( $targets ) {
+			$targets = is_array( $targets ) ? $targets : array();
+			$targets['option'] = array( 'theme_builder_media_setting', 'oversized_setting_value' );
+			$targets['theme_mod'] = array( 'header_image' );
+			return $targets;
+		}
+	);
+	$blocked_sensitive_setting = $core_write_package->patch_setting_value(
+		array(
+			'target_type' => 'option',
+			'target_name' => 'vendor_api_token',
+			'operations'  => array( array( 'op' => 'replace', 'find' => 'old', 'replace' => 'new' ) ),
+			'dry_run'     => true,
+		)
+	);
+	npcink_abilities_toolkit_assert_true( is_wp_error( $blocked_sensitive_setting ), 'patch-setting-value blocks sensitive setting names even when a host filter allows them' );
+	npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_setting_target_blocked', $blocked_sensitive_setting->get_error_code() ?? '', 'patch-setting-value uses a stable sensitive-setting error code' );
+	$patch_setting_preview = $core_write_package->patch_setting_value(
+		array(
 		'target_type' => 'option',
 		'target_name' => 'theme_builder_media_setting',
 		'operations'  => $media_settings_reference_plan['data']['write_actions'][0]['input']['operations'] ?? array(),
 		'dry_run'     => true,
 	)
 );
-npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
-npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+	npcink_abilities_toolkit_assert_same( true, $patch_setting_preview['dry_run'] ?? null, 'patch-setting-value returns a governed dry-run preview' );
+	npcink_abilities_toolkit_assert_same( 1, $patch_setting_preview['patch_preview'][0]['applied'] ?? null, 'patch-setting-value reports applied operation count' );
+	npcink_abilities_toolkit_assert_true( ! isset( $patch_setting_preview['diff_preview']['before_fragment'] ) && ! isset( $patch_setting_preview['diff_preview']['after_fragment'] ), 'patch-setting-value does not expose stored setting fragments in its diff' );
+	npcink_abilities_toolkit_assert_true( ! isset( $patch_setting_preview['impact_ranges'][0]['before_preview'] ) && ! isset( $patch_setting_preview['impact_ranges'][0]['after_preview'] ), 'patch-setting-value does not expose stored setting fragments in impact ranges' );
 $GLOBALS['npcink_abilities_toolkit_unit_options']['oversized_setting_value'] = str_repeat( 'x', 262145 );
 $oversized_patch_setting = $core_write_package->patch_setting_value(
 	array(
@@ -5331,8 +5486,9 @@ $patch_setting_commit = $core_write_package->patch_setting_value(
 	)
 );
 unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
-npcink_abilities_toolkit_assert_same( false, $patch_setting_commit['dry_run'] ?? null, 'patch-setting-value commit exits dry-run after approval' );
-npcink_abilities_toolkit_assert_true( false !== strpos( (string) get_theme_mod( 'header_image', '' ), 'workflow-diagram-image-optimized.webp' ), 'patch-setting-value commits exact theme mod URL replacement' );
+	npcink_abilities_toolkit_assert_same( false, $patch_setting_commit['dry_run'] ?? null, 'patch-setting-value commit exits dry-run after approval' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( (string) get_theme_mod( 'header_image', '' ), 'workflow-diagram-image-optimized.webp' ), 'patch-setting-value commits exact theme mod URL replacement' );
+	remove_all_filters( 'npcink_abilities_toolkit_patchable_setting_targets' );
 $media_health = $core_read_package->get_media_inventory_health(
 	array(
 		'mime_type' => 'image',
