@@ -126,6 +126,7 @@ Use targeted gates while iterating:
 composer test
 composer audit:composer
 composer check:contracts
+composer check:core-convergence
 composer check:consumer
 composer check:workflow-consumer
 composer check:mcp-exposure
