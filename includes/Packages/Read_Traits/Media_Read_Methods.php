@@ -3387,8 +3387,9 @@ trait Media_Read_Methods {
 			),
 			'handoff'                => array(
 				'current_stage'                => 'review_only',
-				'future_apply_path'            => 'Core proposal only after a media metadata WordPress ability contract exists.',
-				'blocked_direct_apply_reason'  => 'Toolkit only builds review artifacts; final media metadata writes require Core governance and a write ability.',
+				'accepted_selection_target'    => 'npcink-abilities-toolkit/build-media-alt-apply-plan',
+				'future_apply_path'            => 'Build the ALT-only apply plan, then submit it to Core after the host verifies contract compatibility.',
+				'blocked_direct_apply_reason'  => 'Toolkit review artifacts do not authorize writes; the ALT-only plan and final media update still require Core governance.',
 				'direct_wordpress_write'       => false,
 			),
 		);
@@ -3402,6 +3403,123 @@ trait Media_Read_Methods {
 				'readonly'       => true,
 			),
 			'Media ALT/caption review set built.'
+		);
+	}
+
+	/**
+	 * Builds one governed missing-ALT apply plan from reviewed attachment evidence.
+	 *
+	 * @param mixed $input Input args.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	public function build_media_alt_apply_plan( $input ) {
+		$input         = is_array( $input ) ? $input : array();
+		$attachment_id = absint( $input['attachment_id'] ?? 0 );
+		$attachment    = $attachment_id > 0 ? get_post( $attachment_id ) : null;
+		if ( ! is_object( $attachment ) || 'attachment' !== (string) ( $attachment->post_type ?? '' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_attachment_invalid', __( 'A valid media attachment is required.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to review this attachment.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+		}
+
+		$mime_type = sanitize_text_field( (string) get_post_mime_type( $attachment_id ) );
+		if ( 0 !== strpos( $mime_type, 'image/' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_image_required', __( 'The guarded ALT plan is limited to image attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$expected_current_alt = (string) ( $input['expected_current_alt'] ?? '' );
+		$current_alt          = (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+		if ( '' !== $expected_current_alt ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_missing_only', __( 'The first guarded ALT plan only fills attachments whose current ALT is empty.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( $expected_current_alt !== $current_alt ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_stale', __( 'The attachment ALT changed after review. Rebuild the review set.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( true !== ( $input['operator_visual_review_confirmed'] ?? false ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_visual_confirmation_required', __( 'Confirm that the operator reviewed the image before building the apply plan.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		if ( 'media_alt_caption_review_set.v1' !== (string) ( $input['review_set_contract'] ?? '' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_review_contract_invalid', __( 'The ALT apply plan requires the media ALT review-set v1 contract.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$alt = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
+		if ( strlen( $alt ) < 3 || strlen( $alt ) > 160 || preg_match( '/https?:\/\/|generated\s+by|prompt\s*:|model\s*:|provider\s*:|profile\s*:/i', $alt ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_alt_quality_invalid', __( 'Provide a concise reviewed ALT without URLs, prompts, model names, or provider metadata.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+
+		$source_item_id = sanitize_text_field( (string) ( $input['source_item_id'] ?? ( 'media-alt-caption:' . $attachment_id ) ) );
+		$evidence_refs  = array_values(
+			array_filter(
+				array_map(
+					'sanitize_text_field',
+					array_slice( is_array( $input['evidence_refs'] ?? null ) ? $input['evidence_refs'] : array(), 0, 20 )
+				)
+			)
+		);
+		$idempotency_key = 'media-alt-missing-' . $attachment_id . '-' . substr( md5( $expected_current_alt . '|' . $alt ), 0, 16 );
+		$action = $this->build_plan_action(
+			'update_media_alt_' . $attachment_id,
+			'npcink-abilities-toolkit/update-media-details',
+			array(
+				'attachment_id'                     => $attachment_id,
+				'alt'                               => $alt,
+				'expected_current_alt'              => $expected_current_alt,
+				'operator_visual_review_confirmed' => true,
+				'idempotency_key'                   => $idempotency_key,
+			),
+			array( 'media.write' ),
+			'medium',
+			'Apply one operator-reviewed ALT value only while the attachment ALT remains empty.'
+		);
+		$action['preview'] = array(
+			'artifact_type'                    => 'media_alt_apply_plan_item',
+			'contract_version'                 => 'media_alt_apply_plan.v1',
+			'review_set_contract'              => 'media_alt_caption_review_set.v1',
+			'source_item_id'                   => $source_item_id,
+			'attachment_id'                    => $attachment_id,
+			'mime_type'                        => $mime_type,
+			'current_alt_status'               => 'missing',
+			'expected_current_alt'             => $expected_current_alt,
+			'proposed_alt'                     => $alt,
+			'operator_reviewed'                => true,
+			'operator_visual_review_confirmed' => true,
+			'evidence_refs'                    => $evidence_refs,
+		);
+
+		$data = array(
+			'artifact_type'          => 'media_alt_apply_plan',
+			'contract_version'       => 'media_alt_apply_plan.v1',
+			'source_ability_id'      => 'npcink-abilities-toolkit/build-media-alt-apply-plan',
+			'source_review_contract' => 'media_alt_caption_review_set.v1',
+			'proposal_mode'          => 'single',
+			'requires_approval'      => true,
+			'dry_run'                => true,
+			'commit_execution'       => false,
+			'direct_wordpress_write' => false,
+			'authorization'          => array(
+				'classification' => 'core_proposal_required',
+				'authority'      => 'npcink-governance-core',
+			),
+			'write_actions'          => array( $action ),
+			'handoff'                => array(
+				'plan_ability_id'       => 'npcink-abilities-toolkit/build-media-alt-apply-plan',
+				'target_ability_id'     => 'npcink-abilities-toolkit/update-media-details',
+				'operator_next_action'  => 'submit_plan_to_core_review',
+				'approval_mode_owner'   => 'npcink-governance-core',
+				'direct_wordpress_write' => false,
+			),
+		);
+
+		return $this->build_analysis_success_response(
+			$data,
+			array(
+				'source'         => 'reviewed_media_alt_apply_plan',
+				'execution_mode' => 'deterministic',
+				'plan_only'      => true,
+				'readonly'       => true,
+			),
+			'Media ALT apply plan built.'
 		);
 	}
 

@@ -1246,6 +1246,7 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/get-media-inventory-health',
 	'npcink-abilities-toolkit/inspect-media-asset',
 	'npcink-abilities-toolkit/build-media-derivative-cloud-request',
+	'npcink-abilities-toolkit/build-media-alt-apply-plan',
 	'npcink-abilities-toolkit/get-post-seo-geo-readiness',
 	'npcink-abilities-toolkit/get-site-topic-coverage-report',
 	'npcink-abilities-toolkit/get-taxonomy-inventory-health',
@@ -1776,6 +1777,11 @@ npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['np
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['required_scopes'] ?? array(), 'media ALT/caption review set only reads supplied media evidence' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['commit'] ), 'media ALT/caption review set does not expose a commit control' );
 npcink_abilities_toolkit_assert_true( ! isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-caption-review-set']['input_schema']['properties']['provider'] ), 'media ALT/caption review set does not expose provider runtime selection' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan'] ), 'build-media-alt-apply-plan is registered as a read-only governed planner' );
+npcink_abilities_toolkit_assert_same( 'media_governance', $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan']['meta']['npcink_abilities_toolkit']['pack'] ?? '', 'media ALT apply plan is classified as media governance' );
+npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'alt', 'expected_current_alt', 'operator_visual_review_confirmed', 'review_set_contract' ), $package_abilities['npcink-abilities-toolkit/build-media-alt-apply-plan']['input_schema']['required'] ?? array(), 'media ALT apply plan requires reviewed value, old value, visual confirmation, and review contract' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['expected_current_alt'] ), 'update-media-details exposes the optional ALT old-value guard' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/update-media-details']['input_schema']['properties']['operator_visual_review_confirmed'] ), 'update-media-details exposes guarded ALT visual confirmation' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan'] ), 'build-image-candidate-adoption-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['required_scopes'] ?? array(), 'image candidate adoption plan reads media and post references' );
 npcink_abilities_toolkit_assert_same( array(), $package_abilities['npcink-abilities-toolkit/build-image-candidate-adoption-plan']['input_schema']['required'] ?? array(), 'image candidate adoption plan accepts image_candidate or direct URL input' );
@@ -5288,6 +5294,56 @@ npcink_abilities_toolkit_assert_same( 1, $media_alt_caption_review_set['data']['
 npcink_abilities_toolkit_assert_same( 'insufficient', $media_alt_caption_review_set['data']['blocked_items'][0]['candidate_quality']['tier'] ?? '', 'media ALT/caption review set marks metadata-only failures as insufficient quality' );
 npcink_abilities_toolkit_assert_true( false === strpos( implode( ' ', $media_alt_caption_review_set['data']['selected_items'][0]['alt_candidates'] ?? array() ), 'Generated with model' ), 'media ALT/caption review set filters runtime provenance from candidates' );
 npcink_abilities_toolkit_assert_same( 'image_context_evidence_request.v1', $media_alt_caption_review_set['data']['image_context_evidence_request']['contract_version'] ?? '', 'media ALT/caption review set can request bounded external visual evidence for weak metadata rows' );
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/build-media-alt-apply-plan', $media_alt_caption_review_set['data']['handoff']['accepted_selection_target'] ?? '', 'media ALT/caption review set points accepted rows to the ALT-only apply planner' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][713] = (object) array(
+	'ID'             => 713,
+	'post_type'      => 'attachment',
+	'post_status'    => 'inherit',
+	'post_title'     => 'Reviewed workflow dashboard',
+	'post_content'   => '',
+	'post_excerpt'   => '',
+	'post_mime_type' => 'image/jpeg',
+	'guid'           => 'https://example.test/wp-content/uploads/workflow-dashboard.jpg',
+);
+$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][713]['_wp_attachment_image_alt'] = '';
+$media_alt_apply_plan_input = array(
+	'attachment_id'                     => 713,
+	'alt'                               => 'Operator reviewing the workflow dashboard',
+	'expected_current_alt'              => '',
+	'operator_visual_review_confirmed' => true,
+	'review_set_contract'               => 'media_alt_caption_review_set.v1',
+	'source_item_id'                    => 'media-alt-caption:713',
+	'evidence_refs'                     => array( 'image-context:713', 'article-context:82' ),
+);
+$media_alt_apply_plan = $core_read_package->build_media_alt_apply_plan( $media_alt_apply_plan_input );
+npcink_abilities_toolkit_assert_same( true, $media_alt_apply_plan['success'] ?? null, 'build-media-alt-apply-plan returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'media_alt_apply_plan.v1', $media_alt_apply_plan['data']['contract_version'] ?? '', 'media ALT apply plan declares the shared contract' );
+npcink_abilities_toolkit_assert_same( 'core_proposal_required', $media_alt_apply_plan['data']['authorization']['classification'] ?? '', 'media ALT apply plan requires Core governance' );
+npcink_abilities_toolkit_assert_same( 1, count( $media_alt_apply_plan['data']['write_actions'] ?? array() ), 'media ALT apply plan emits exactly one write action' );
+$media_alt_apply_action = $media_alt_apply_plan['data']['write_actions'][0] ?? array();
+npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $media_alt_apply_action['target_ability_id'] ?? '', 'media ALT apply plan reuses update-media-details' );
+npcink_abilities_toolkit_assert_same( '', $media_alt_apply_action['input']['expected_current_alt'] ?? null, 'media ALT apply plan preserves the reviewed empty old value' );
+npcink_abilities_toolkit_assert_same( true, $media_alt_apply_action['input']['operator_visual_review_confirmed'] ?? null, 'media ALT apply plan preserves visual confirmation' );
+npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $media_alt_apply_action['input']['idempotency_key'] ?? '' ), 'media-alt-missing-713-' ), 'media ALT apply plan emits a stable bounded idempotency key' );
+npcink_abilities_toolkit_assert_same( 'media_alt_apply_plan_item', $media_alt_apply_action['preview']['artifact_type'] ?? '', 'media ALT apply action carries Core-readable review evidence' );
+
+$media_alt_dry_run = $core_write_package->update_media_details( $media_alt_apply_action['input'] ?? array() );
+npcink_abilities_toolkit_assert_same( true, $media_alt_dry_run['dry_run'] ?? null, 'guarded update-media-details returns a dry-run preview' );
+npcink_abilities_toolkit_assert_same( 'media_alt_only_write.v1', $media_alt_dry_run['preview']['contract_version'] ?? '', 'guarded media ALT dry run declares its write contract' );
+npcink_abilities_toolkit_assert_same( '', get_post_meta( 713, '_wp_attachment_image_alt', true ), 'guarded media ALT dry run does not mutate attachment metadata' );
+
+$media_alt_unconfirmed_input = $media_alt_apply_plan_input;
+$media_alt_unconfirmed_input['operator_visual_review_confirmed'] = false;
+$media_alt_unconfirmed = $core_read_package->build_media_alt_apply_plan( $media_alt_unconfirmed_input );
+npcink_abilities_toolkit_assert_true( is_wp_error( $media_alt_unconfirmed ), 'media ALT apply plan rejects missing visual confirmation' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_alt_visual_confirmation_required', $media_alt_unconfirmed->get_error_code(), 'media ALT visual confirmation failure is machine-readable' );
+
+update_post_meta( 713, '_wp_attachment_image_alt', 'Changed after review' );
+$media_alt_stale = $core_read_package->build_media_alt_apply_plan( $media_alt_apply_plan_input );
+npcink_abilities_toolkit_assert_true( is_wp_error( $media_alt_stale ), 'media ALT apply plan rejects a stale old value' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_media_alt_stale', $media_alt_stale->get_error_code(), 'media ALT stale-value failure is machine-readable' );
+update_post_meta( 713, '_wp_attachment_image_alt', '' );
 
 $image_candidate_adoption_plan = $core_read_package->build_image_candidate_adoption_plan(
 	array(

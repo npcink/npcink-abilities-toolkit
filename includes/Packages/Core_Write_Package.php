@@ -787,6 +787,8 @@ final class Core_Write_Package {
 						'attachment_id'     => array( 'type' => 'integer', 'minimum' => 1 ),
 						'title'             => $text,
 						'alt'               => $text,
+						'expected_current_alt' => array( 'type' => 'string', 'maxLength' => 160 ),
+						'operator_visual_review_confirmed' => array( 'type' => 'boolean' ),
 						'caption'           => $text,
 						'description'       => $text,
 						'source_type'       => array(
@@ -806,6 +808,9 @@ final class Core_Write_Package {
 						'updated'           => array( 'type' => 'boolean' ),
 						'title'             => array( 'type' => 'string' ),
 						'alt'               => array( 'type' => 'string' ),
+						'expected_current_alt' => array( 'type' => 'string' ),
+						'operator_visual_review_confirmed' => array( 'type' => 'boolean' ),
+						'idempotency_key'   => array( 'type' => 'string' ),
 						'caption'           => array( 'type' => 'string' ),
 						'description'       => array( 'type' => 'string' ),
 						'source_type'       => array( 'type' => 'string' ),
@@ -2698,6 +2703,33 @@ final class Core_Write_Package {
 		}
 
 		$current = $this->media_snapshot( $attachment );
+		$alt_guarded = array_key_exists( 'expected_current_alt', $input );
+		if ( $alt_guarded ) {
+			foreach ( array( 'title', 'caption', 'description', 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $forbidden_field ) {
+				if ( array_key_exists( $forbidden_field, $input ) ) {
+					return new \WP_Error( 'npcink_abilities_toolkit_media_alt_only_fields_required', __( 'Guarded media ALT updates accept only attachment_id, alt, expected_current_alt, visual confirmation, and host controls.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+				}
+			}
+			$mime_type = sanitize_text_field( (string) get_post_mime_type( $attachment_id ) );
+			if ( 0 !== strpos( $mime_type, 'image/' ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_image_required', __( 'Guarded ALT updates are limited to image attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			if ( true !== ( $input['operator_visual_review_confirmed'] ?? false ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_visual_confirmation_required', __( 'Confirm that the operator reviewed the image before preparing this ALT update.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+			$expected_current_alt = (string) $input['expected_current_alt'];
+			$current_alt          = (string) ( $current['alt'] ?? '' );
+			if ( '' !== $expected_current_alt ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_missing_only', __( 'The first guarded ALT contract only fills an empty current ALT value.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			if ( $expected_current_alt !== $current_alt ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_stale', __( 'The attachment ALT changed after review. Rebuild the review plan before continuing.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+			}
+			$guarded_alt = sanitize_text_field( (string) ( $input['alt'] ?? '' ) );
+			if ( strlen( $guarded_alt ) < 3 || strlen( $guarded_alt ) > 160 ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_media_alt_quality_invalid', __( 'The reviewed ALT must contain between 3 and 160 characters.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+			}
+		}
 		$next    = $current;
 		$changes = array();
 		foreach ( array( 'title', 'alt', 'caption', 'description', 'source_type', 'source_page_url', 'photographer_name', 'attribution_text', 'copyright_notice' ) as $field ) {
@@ -2732,6 +2764,13 @@ final class Core_Write_Package {
 				),
 			)
 		);
+		if ( $alt_guarded ) {
+			$payload['expected_current_alt']              = sanitize_text_field( (string) $input['expected_current_alt'] );
+			$payload['operator_visual_review_confirmed'] = true;
+			$payload['idempotency_key']                  = sanitize_text_field( (string) ( $input['idempotency_key'] ?? '' ) );
+			$payload['preview']['contract_version']      = 'media_alt_only_write.v1';
+			$payload['preview']['write_scope']           = 'missing_alt_only';
+		}
 		if ( $this->should_dry_run( $input ) ) {
 			return $this->dry_run_payload( $payload );
 		}
