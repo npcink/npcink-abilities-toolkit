@@ -331,6 +331,28 @@ foreach (
 }
 
 $host_proof_status = file_get_contents( __DIR__ . '/../docs/host-proof-status.md' );
+$block_theme_host_proof = file_get_contents( __DIR__ . '/block-theme-host-proof.php' );
+$block_theme_host_proof_runner = file_get_contents( __DIR__ . '/../scripts/block-theme-host-proof.sh' );
+foreach (
+	array(
+		'route-content-intent',
+		'build-pattern-page-plan',
+		'build-block-theme-site-plan',
+		'fingerprint_before',
+		'fingerprint_after',
+		'postmeta',
+		'no_mutation',
+		'block_theme_proof_read_surface',
+		'parse_blocks',
+		'do_blocks',
+		"'dry_run'",
+		"'commit'",
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( is_string( $block_theme_host_proof ) && false !== strpos( $block_theme_host_proof, $required ), 'block-theme host proof preserves real-host no-mutation evidence: ' . $required );
+}
+npcink_abilities_toolkit_assert_true( is_string( $block_theme_host_proof_runner ) && false !== strpos( $block_theme_host_proof_runner, 'WP_CLI_MYSQL_SOCKET' ), 'block-theme host proof runner supports Local MySQL sockets' );
+npcink_abilities_toolkit_assert_true( is_string( $block_theme_host_proof_runner ) && false !== strpos( $block_theme_host_proof_runner, 'Set WP_PATH' ), 'block-theme host proof requires an explicit real WordPress target' );
 foreach (
 	array(
 		'Next-Stage Execution Queue',
@@ -6639,6 +6661,7 @@ npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/get-gutenberg-bl
 npcink_abilities_toolkit_assert_same( 'gutenberg_native_v1', $gutenberg_recipe_default_eval['data']['guardrails']['block_capability_catalog_id'] ?? '', 'Gutenberg recipe evaluation reports the block capability catalog id' );
 npcink_abilities_toolkit_assert_same( 'bounded_block_composition', $gutenberg_recipe_default_eval['data']['guardrails']['composition_model'] ?? '', 'Gutenberg recipe evaluation reports bounded block composition' );
 $gutenberg_recipe_composer = file_get_contents( dirname( __DIR__ ) . '/composer.json' );
+npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'smoke:block-theme-host-proof' ), 'Composer exposes the explicit real block-theme host proof command' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:suite' ), 'Composer exposes Gutenberg recipe suite export command' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'eval:gutenberg-recipe:judge:eval-lab' ), 'Composer exposes Gutenberg recipe eval-lab judge wrapper command' );
 npcink_abilities_toolkit_assert_true( is_string( $gutenberg_recipe_composer ) && false !== strpos( $gutenberg_recipe_composer, 'export-default-suite.php' ), 'Gutenberg recipe eval-lab wrapper exports the latest default suite before judging' );

@@ -110,6 +110,7 @@ move with each kind of change.
 | Bootstrap assumptions, autoloading, or package-loading boundaries | Update `tests/bootstrap-performance.php` when the cold-load budget changes and run `composer perf:bootstrap`. |
 | Performance-sensitive read chains, bounded aggregators, diagnostics, or cache behavior | Update `tests/performance-smoke.php` when the budgeted path changes and run `composer perf:smoke`. |
 | Gutenberg composer routing, profile selection, read-only repair loops, or proposal-candidate quality gates | Update `tests/gutenberg-composer-pilot/` and run `composer pilot:gutenberg-composer`. |
+| Real block-theme host discovery, routing, parsing, rendering, or no-mutation evidence | Run `WP_PATH=/path/to/wordpress composer smoke:block-theme-host-proof`; keep this explicit host gate outside the default source loop. |
 | Public PHP class boundaries, bootstrap assumptions, or typed contracts | Run `composer analyse:phpstan` in addition to the source gate. |
 
 ## What Not To Test Here
