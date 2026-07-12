@@ -242,6 +242,34 @@ Governance:
 - suggestions and apply plans are read/proposal outputs;
 - WordPress mutations are host-governed writes.
 
+## Recipe: Governed Media Optimization
+
+Recipe id: `npcink-abilities-toolkit/recipes/media-optimization`
+
+Compatibility alias: `media_optimization_v1`
+
+Goal: prepare one reviewed media metadata and derivative-adoption plan without
+changing WordPress or executing a workflow.
+
+Ability sequence:
+
+1. `npcink-abilities-toolkit/build-media-optimization-plan`
+
+Handoff:
+
+- preserve the reviewed attachment, metadata, derivative artifact, reference
+  repair preview, and ordered write actions;
+- submit the selected plan to Core as one governed proposal, then stop;
+- let Adapter execute only explicitly profiled actions after Core approval and
+  commit preflight.
+
+Governance:
+
+- the entrypoint is a read-only plan ability;
+- `update-media-details` and `adopt-cloud-media-derivative` are disallowed as
+  default entrypoints;
+- Toolkit stores no execution state, approval record, queue, retry, or audit.
+
 ## Recipe: Article Media Handoff
 
 Recipe id: `npcink-abilities-toolkit/recipes/article-media-handoff`

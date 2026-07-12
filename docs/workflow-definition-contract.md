@@ -37,6 +37,12 @@ the contract evolves, but it is a parity fixture for the active provider and not
 a workflow execution log, host registry, queue record, retry plan, approval
 record, audit record, or runtime state store.
 
+`media_optimization_v1` is the first explicit cross-surface projection sample.
+Its canonical definition remains here; Toolbox may render it as a fixed review
+button and AI Client Adapter may expose it to OpenClaw-compatible clients, but
+neither consumer may copy the definition into a local registry or weaken its
+Core proposal handoff.
+
 Each case should define:
 
 - `definition_kind`: `workflow_recipe`.

@@ -7679,6 +7679,17 @@ $expected_workflow_replay_cases = array(
 		'handoff_kind'       => 'suggestion',
 		'disallowed_default' => array( 'npcink-abilities-toolkit/patch-post-content', 'npcink-abilities-toolkit/set-post-seo-meta', 'npcink-abilities-toolkit/update-post-blocks' ),
 	),
+	'media_optimization'             => array(
+		'ability_id'         => 'npcink-abilities-toolkit/build-media-optimization-plan',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/media-optimization',
+		'recipe_aliases'     => array( 'media_optimization_v1' ),
+		'required_scope'     => 'media.read',
+		'required_inputs'    => array( 'attachment_id', 'media_details_input', 'derivative_artifact' ),
+		'expected_sections'  => array( 'artifact_type', 'proposal_mode', 'write_actions', 'derivative_preview', 'content_reference_repairs_preview' ),
+		'expanded_abilities' => array( 'npcink-abilities-toolkit/build-media-optimization-plan' ),
+		'handoff_kind'       => 'approval_request',
+		'disallowed_default' => array( 'npcink-abilities-toolkit/update-media-details', 'npcink-abilities-toolkit/adopt-cloud-media-derivative' ),
+	),
 	'article_media_handoff'          => array(
 		'ability_id'         => 'npcink-abilities-toolkit/build-media-seo-assets',
 		'recipe_id'          => 'npcink-abilities-toolkit/recipes/article-media-handoff',
@@ -7775,6 +7786,8 @@ $workflow_list = call_user_func( $package_abilities['npcink-abilities-toolkit/li
 npcink_abilities_toolkit_assert_same( $workflow_manifest, $workflow_list, 'workflow recipe discovery ability returns provider manifest' );
 $workflow_draft_alias = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'article_draft_v1' ) );
 npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['article_draft'], $workflow_draft_alias, 'workflow recipe detail ability resolves article_draft_v1 alias' );
+$workflow_media_optimization_alias = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'media_optimization_v1' ) );
+npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['media_optimization'], $workflow_media_optimization_alias, 'workflow recipe detail ability resolves media_optimization_v1 alias' );
 $workflow_get = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'npcink-abilities-toolkit/recipes/comment-compliance-handoff' ) );
 npcink_abilities_toolkit_assert_same( $workflow_manifest['cases']['comment_compliance_handoff'], $workflow_get, 'workflow recipe detail ability resolves recipe id' );
 $workflow_missing = call_user_func( $package_abilities['npcink-abilities-toolkit/get-workflow-recipe']['execute_callback'], array( 'recipe_id' => 'workflow/missing' ) );
