@@ -21,6 +21,8 @@ MCP governance, audit storage, quota enforcement, or product administration.
 - redaction in diagnostics, operational summaries, read surfaces, and setting
   patch previews;
 - uploads path containment for package-owned media file writes and moves.
+- exact SHA-256, byte-size, MIME, identity, dimension, and expiry checks for
+  reviewed Cloud derivative artifacts before a local media write.
 
 ## Not Owned Here
 

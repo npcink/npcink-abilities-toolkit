@@ -166,6 +166,13 @@ Read-only abilities may return data directly.
 
 Write-proposal abilities must return a proposal, preview, diff, or other reviewable artifact. They must not commit destructive WordPress changes directly.
 
+Cloud media derivative proposal evidence must bind approval to exact bytes.
+The shared artifact schema requires `artifact_id`, future `expires_at`, a
+supported `mime_type`, positive bounded `width`, `height`, and
+`filesize_bytes`, plus a canonical 64-character `sha256`. Planning and final
+adoption must use the same normalizer; final adoption must recompute the digest
+and byte count after signed transport and before writing to uploads.
+
 Host-governed commit abilities are not public third-party registration helpers
 in 0.1. They are reserved for first-party package abilities and host runtime
 contracts. If a future release exposes third-party host-governed registration,

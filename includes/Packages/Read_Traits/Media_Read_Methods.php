@@ -7,6 +7,8 @@
 
 namespace Npcink_Abilities_Toolkit\Packages;
 
+use Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -2414,32 +2416,7 @@ trait Media_Read_Methods {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function normalize_media_optimization_derivative_artifact( $artifact ) {
-		$artifact = is_array( $artifact ) ? $artifact : array();
-		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) );
-		if ( '' === $artifact_id ) {
-			return new \WP_Error(
-				'npcink_abilities_toolkit_media_optimization_artifact_required',
-				__( 'Media optimization plans require derivative_artifact evidence.', 'npcink-abilities-toolkit' ),
-				array( 'status' => 400 )
-			);
-			}
-
-			$normalized = array( 'artifact_id' => $artifact_id );
-			foreach ( array( 'run_id', 'expires_at', 'mime_type', 'format', 'checksum', 'sha256', 'download_url' ) as $field ) {
-				if ( array_key_exists( $field, $artifact ) && '' !== (string) $artifact[ $field ] ) {
-					$normalized[ $field ] = sanitize_text_field( (string) $artifact[ $field ] );
-				}
-			}
-			if ( array_key_exists( 'suggested_filename', $artifact ) && '' !== (string) $artifact['suggested_filename'] ) {
-				$normalized['suggested_filename'] = $this->sanitize_file_name_value( (string) $artifact['suggested_filename'] );
-			}
-			foreach ( array( 'width', 'height', 'filesize_bytes' ) as $field ) {
-				if ( array_key_exists( $field, $artifact ) ) {
-					$normalized[ $field ] = $this->absint_value( $artifact[ $field ] );
-				}
-			}
-
-			return $normalized;
+		return Cloud_Derivative_Artifact::normalize( $artifact );
 		}
 
 		/**

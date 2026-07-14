@@ -9,6 +9,7 @@ namespace Npcink_Abilities_Toolkit\Packages;
 
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact;
 use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -1055,7 +1056,7 @@ final class Core_Write_Package {
 					'input_schema'    => $this->schema(
 						array(
 							'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
-							'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'derivative_artifact'            => Cloud_Derivative_Artifact::schema(),
 							'expected_current_relative_file' => array( 'type' => 'string' ),
 							'expected_current_mime_type'     => array( 'type' => 'string' ),
 							'expected_derivative_mime_type'  => array( 'type' => 'string' ),
@@ -4288,49 +4289,23 @@ final class Core_Write_Package {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function normalize_cloud_media_derivative_artifact( array $artifact ) {
-		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? $artifact['id'] ?? '' ) );
-		if ( '' === $artifact_id ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_id_required', __( 'A derivative artifact_id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		$normalized = Cloud_Derivative_Artifact::normalize( $artifact );
+		if ( is_wp_error( $normalized ) ) {
+			return $normalized;
 		}
-		$mime_type = sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) );
-		if ( ! in_array( $mime_type, array( 'image/webp', 'image/avif', 'image/jpeg', 'image/png' ), true ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_mime_invalid', __( 'The derivative artifact MIME type is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		$filename_basis = is_array( $artifact['filename_basis'] ?? null ) ? $artifact['filename_basis'] : array();
+		$normalized['filename_basis'] = array();
+		foreach ( array( 'owner', 'strategy' ) as $field ) {
+			$value = substr( sanitize_text_field( (string) ( $filename_basis[ $field ] ?? '' ) ), 0, 80 );
+			if ( '' !== $value ) {
+				$normalized['filename_basis'][ $field ] = $value;
+			}
 		}
-		$expires_at = sanitize_text_field( (string) ( $artifact['expires_at'] ?? '' ) );
-		$expires_ts = absint( $artifact['expires_ts'] ?? 0 );
-		if ( $expires_ts <= 0 && '' !== $expires_at ) {
-			$parsed = strtotime( $expires_at );
-			$expires_ts = false !== $parsed ? absint( $parsed ) : 0;
-		}
-		if ( $expires_ts <= 0 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expiry_required', __( 'The derivative artifact expiry is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		if ( $expires_ts <= time() ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact has expired. Generate a new preview before adoption.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
-		}
-		$format = sanitize_key( (string) ( $artifact['format'] ?? '' ) );
-		if ( '' === $format || 'original' === $format ) {
-			$format = $this->media_format_for_mime( $mime_type );
-		}
-		if ( ! in_array( $format, array( 'webp', 'avif', 'jpeg', 'png' ), true ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_format_invalid', __( 'The derivative artifact format is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		if ( array_key_exists( 'final_sanitize_unique_required', $filename_basis ) ) {
+			$normalized['filename_basis']['final_sanitize_unique_required'] = ! empty( $filename_basis['final_sanitize_unique_required'] );
 		}
 
-		return array(
-			'artifact_id'         => $artifact_id,
-			'expires_at'          => '' !== $expires_at ? $expires_at : gmdate( 'c', $expires_ts ),
-			'expires_ts'          => $expires_ts,
-			'mime_type'           => $mime_type,
-			'format'              => $format,
-			'width'               => absint( $artifact['width'] ?? 0 ),
-			'height'              => absint( $artifact['height'] ?? 0 ),
-			'filesize_bytes'      => absint( $artifact['filesize_bytes'] ?? 0 ),
-			'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? $artifact['sha256'] ?? '' ) ),
-			'sha256'              => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
-			'suggested_filename'  => $this->sanitize_media_file_name( (string) ( $artifact['suggested_filename'] ?? '' ) ),
-			'filename_basis'      => is_array( $artifact['filename_basis'] ?? null ) ? $this->sanitize_payload( $artifact['filename_basis'] ) : array(),
-			'processing_warnings' => array_values( array_filter( array_map( 'sanitize_text_field', (array) ( $artifact['processing_warnings'] ?? array() ) ) ) ),
-		);
+		return $normalized;
 	}
 
 	/**
@@ -4381,6 +4356,10 @@ final class Core_Write_Package {
 	 */
 	private function materialize_cloud_media_derivative_artifact( $attachment_id, array $plan ) {
 		$artifact = is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array();
+		$expires_ts = Cloud_Derivative_Artifact::expiry_timestamp( (string) ( $artifact['expires_at'] ?? '' ) );
+		if ( $expires_ts <= time() ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact expired before its bytes could be adopted.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
+		}
 		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
 		$storage_ready = $this->validate_media_storage_commit_ready( $current );
 		if ( is_wp_error( $storage_ready ) ) {
@@ -4402,14 +4381,38 @@ final class Core_Write_Package {
 		if ( is_wp_error( $download ) ) {
 			return $download;
 		}
+		$download_artifact_id = is_array( $download ) ? sanitize_text_field( (string) ( $download['artifact_id'] ?? '' ) ) : '';
+		if ( '' !== $download_artifact_id && $download_artifact_id !== (string) ( $artifact['artifact_id'] ?? '' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_id_mismatch', __( 'The downloaded derivative artifact id did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		$download_mime_type = is_array( $download ) ? strtolower( sanitize_text_field( (string) ( $download['mime_type'] ?? '' ) ) ) : '';
+		if ( '' !== $download_mime_type && $download_mime_type !== (string) ( $artifact['mime_type'] ?? '' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_mime_mismatch', __( 'The downloaded derivative MIME type did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
 		$contents = is_array( $download ) ? (string) ( $download['contents'] ?? '' ) : '';
 		if ( '' === $contents ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_empty', __( 'The downloaded derivative artifact was empty.', 'npcink-abilities-toolkit' ), array( 'status' => 502 ) );
 		}
+		$actual_filesize = strlen( $contents );
+		$expected_filesize = absint( $artifact['filesize_bytes'] ?? 0 );
+		if ( $actual_filesize !== $expected_filesize ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_filesize_mismatch', __( 'The downloaded derivative size did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
 		$sha256 = hash( 'sha256', $contents );
-		$expected_sha256 = $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) );
-		if ( '' !== $expected_sha256 && $expected_sha256 !== $sha256 ) {
+		$expected_sha256 = Cloud_Derivative_Artifact::normalize_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) );
+		if ( '' === $expected_sha256 || ! hash_equals( $expected_sha256, $sha256 ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_checksum_mismatch', __( 'The downloaded derivative checksum did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		$raw_download_sha256 = is_array( $download ) ? trim( (string) ( $download['sha256'] ?? '' ) ) : '';
+		$download_sha256 = Cloud_Derivative_Artifact::normalize_sha256( $raw_download_sha256 );
+		if ( '' !== $raw_download_sha256 && '' === $download_sha256 ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_download_digest_invalid', __( 'The artifact transport returned an invalid SHA-256 digest.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( '' !== $download_sha256 && ! hash_equals( $download_sha256, $sha256 ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_download_digest_mismatch', __( 'The artifact transport digest did not match the downloaded bytes.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( Cloud_Derivative_Artifact::expiry_timestamp( (string) ( $artifact['expires_at'] ?? '' ) ) <= time() ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact expired before its bytes could be adopted.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
 		}
 
 		$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();

@@ -1548,6 +1548,10 @@ npcink_abilities_toolkit_assert_true( ! empty( $package_abilities['npcink-abilit
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan'] ), 'build-media-optimization-plan is registered as a read-only planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['required_scopes'] ?? array(), 'media optimization plan remains a read-scope planning ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'media_details_input', 'derivative_artifact' ), $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['required'] ?? array(), 'media optimization plan requires metadata and artifact evidence' );
+$media_derivative_artifact_schema = $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['properties']['derivative_artifact'] ?? array();
+npcink_abilities_toolkit_assert_same( array( 'artifact_id', 'expires_at', 'mime_type', 'width', 'height', 'filesize_bytes', 'sha256' ), $media_derivative_artifact_schema['required'] ?? array(), 'media optimization artifacts require exact identity, expiry, dimensions, size, and SHA-256 evidence' );
+npcink_abilities_toolkit_assert_same( false, $media_derivative_artifact_schema['additionalProperties'] ?? null, 'media optimization artifacts reject undeclared descriptor fields at the public ability boundary' );
+npcink_abilities_toolkit_assert_same( 26214400, $media_derivative_artifact_schema['properties']['filesize_bytes']['maximum'] ?? 0, 'media optimization artifact evidence stays within the shared 25 MiB local limit' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-optimization-plan']['input_schema']['properties']['file_name'] ), 'media optimization plan accepts a reviewed custom derivative file name' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary'] ), 'build-media-adoption-preflight-summary is registered as a read-only summary ability' );
 npcink_abilities_toolkit_assert_same( array( 'media.read', 'post.read' ), $package_abilities['npcink-abilities-toolkit/build-media-adoption-preflight-summary']['required_scopes'] ?? array(), 'media adoption preflight summary reads media and bounded post references' );
@@ -4358,6 +4362,84 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][90] = (object) array(
 	'post_name'    => 'media-optimization-reference-preview-candidate',
 	'post_author'  => 7,
 );
+$invalid_integrity_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_invalid_integrity',
+		'expires_at'     => gmdate( 'c', time() + 600 ),
+		'mime_type'      => 'image/webp',
+		'format'         => 'webp',
+		'width'          => 1600,
+		'height'         => 862,
+		'filesize_bytes' => 210000,
+		'sha256'         => 'not-a-sha256',
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $invalid_integrity_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_sha256_required' === $invalid_integrity_artifact->get_error_code(), 'shared derivative artifact contract rejects missing or malformed SHA-256 evidence' );
+$relative_expiry_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_relative_expiry',
+		'expires_at'     => 'tomorrow',
+		'mime_type'      => 'image/webp',
+		'format'         => 'webp',
+		'width'          => 1600,
+		'height'         => 862,
+		'filesize_bytes' => 210000,
+		'sha256'         => hash( 'sha256', 'relative-expiry' ),
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $relative_expiry_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_expiry_required' === $relative_expiry_artifact->get_error_code(), 'shared derivative artifact contract rejects relative timestamps outside the RFC3339 schema' );
+$negative_dimension_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_negative_dimension',
+		'expires_at'     => gmdate( 'c', time() + 600 ),
+		'mime_type'      => 'image/webp',
+		'format'         => 'webp',
+		'width'          => -1,
+		'height'         => 862,
+		'filesize_bytes' => 210000,
+		'sha256'         => hash( 'sha256', 'negative-dimension' ),
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $negative_dimension_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_dimensions_invalid' === $negative_dimension_artifact->get_error_code(), 'shared derivative artifact contract rejects negative dimensions even through the direct PHP seam' );
+$non_integer_dimension_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_non_integer_dimension',
+		'expires_at'     => gmdate( 'c', time() + 600 ),
+		'mime_type'      => 'image/webp',
+		'format'         => 'webp',
+		'width'          => true,
+		'height'         => 862.5,
+		'filesize_bytes' => 210000,
+		'sha256'         => hash( 'sha256', 'non-integer-dimension' ),
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $non_integer_dimension_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_dimensions_invalid' === $non_integer_dimension_artifact->get_error_code(), 'shared derivative artifact contract rejects booleans and floats instead of coercing them into dimensions' );
+$non_integer_filesize_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_non_integer_filesize',
+		'expires_at'     => gmdate( 'c', time() + 600 ),
+		'mime_type'      => 'image/webp',
+		'format'         => 'webp',
+		'width'          => 1600,
+		'height'         => 862,
+		'filesize_bytes' => true,
+		'sha256'         => hash( 'sha256', 'non-integer-filesize' ),
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $non_integer_filesize_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_filesize_invalid' === $non_integer_filesize_artifact->get_error_code(), 'shared derivative artifact contract rejects non-integer byte counts through the direct PHP seam' );
+$mismatched_format_artifact = \Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact::normalize(
+	array(
+		'artifact_id'    => 'art_mismatched_format',
+		'expires_at'     => gmdate( 'c', time() + 600 ),
+		'mime_type'      => 'image/webp',
+		'format'         => 'png',
+		'width'          => 1600,
+		'height'         => 862,
+		'filesize_bytes' => 210000,
+		'sha256'         => hash( 'sha256', 'mismatched-format' ),
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $mismatched_format_artifact ) && 'npcink_abilities_toolkit_cloud_artifact_format_mismatch' === $mismatched_format_artifact->get_error_code(), 'shared derivative artifact contract rejects MIME and format contradictions' );
 $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 	array(
 		'attachment_id'                 => 79,
@@ -4376,6 +4458,7 @@ $media_optimization_plan = $core_read_package->build_media_optimization_plan(
 			'width'              => 1600,
 			'height'             => 862,
 			'filesize_bytes'     => 210000,
+			'sha256'             => hash( 'sha256', 'media-optimization-plan-artifact' ),
 			'suggested_filename' => 'workflow-diagram-cloud-plan.webp',
 		),
 		'file_name'                     => 'f553110d20d666349676892b1b0fbeb7.webp',
@@ -4390,6 +4473,12 @@ npcink_abilities_toolkit_assert_same( true, $media_optimization_plan['data']['ba
 npcink_abilities_toolkit_assert_same( 2, count( (array) ( $media_optimization_plan['data']['write_actions'] ?? array() ) ), 'media optimization plan includes metadata and derivative actions' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/update-media-details', $media_optimization_plan['data']['write_actions'][0]['target_ability_id'] ?? '', 'media optimization plan starts with metadata action' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/adopt-cloud-media-derivative', $media_optimization_plan['data']['write_actions'][1]['target_ability_id'] ?? '', 'media optimization plan includes Cloud derivative adoption action' );
+npcink_abilities_toolkit_assert_same( hash( 'sha256', 'media-optimization-plan-artifact' ), $media_optimization_plan['data']['write_actions'][1]['input']['derivative_artifact']['sha256'] ?? '', 'media optimization plan binds the governed adoption action to the reviewed artifact SHA-256' );
+$planned_derivative_artifact = $media_optimization_plan['data']['write_actions'][1]['input']['derivative_artifact'] ?? array();
+$write_derivative_schema = $package_abilities['npcink-abilities-toolkit/adopt-cloud-media-derivative']['input_schema']['properties']['derivative_artifact'] ?? array();
+npcink_abilities_toolkit_assert_same( array(), array_values( array_diff( array_keys( $planned_derivative_artifact ), array_keys( (array) ( $write_derivative_schema['properties'] ?? array() ) ) ) ), 'media optimization plan emits no derivative artifact fields rejected by the target write ability schema' );
+npcink_abilities_toolkit_assert_same( array(), array_values( array_diff( (array) ( $write_derivative_schema['required'] ?? array() ), array_keys( $planned_derivative_artifact ) ) ), 'media optimization plan emits every derivative artifact field required by the target write ability schema' );
+npcink_abilities_toolkit_assert_true( ! isset( $planned_derivative_artifact['expires_ts'] ), 'media optimization plan keeps parsed expiry timestamps internal instead of leaking undeclared action input' );
 npcink_abilities_toolkit_assert_same( 'f553110d20d666349676892b1b0fbeb7.webp', $media_optimization_plan['data']['write_actions'][1]['input']['file_name'] ?? '', 'media optimization plan passes reviewed derivative file_name into adoption action' );
 npcink_abilities_toolkit_assert_same( array( 90 ), $media_optimization_plan['data']['write_actions'][1]['input']['expected_content_reference_post_ids'] ?? array(), 'media optimization plan carries reviewed content reference post targets into adoption input' );
 npcink_abilities_toolkit_assert_same( 1, $media_optimization_plan['data']['write_actions'][1]['input']['expected_content_reference_post_count'] ?? null, 'media optimization plan carries reviewed content reference post count into adoption input' );
@@ -4416,7 +4505,7 @@ $media_adoption_preflight_summary = $core_read_package->build_media_adoption_pre
 			'width'              => 1600,
 			'height'             => 862,
 			'filesize_bytes'     => 210000,
-			'checksum'           => 'sha256:media-preflight-checksum',
+			'sha256'             => hash( 'sha256', 'media-preflight-artifact' ),
 			'processing_warnings' => array( 'source_resized' ),
 		),
 		'file_name'            => 'f553110d20d666349676892b1b0fbeb7.webp',
@@ -4498,6 +4587,7 @@ $media_optimization_original_plan = $core_read_package->build_media_optimization
 			'width'              => 1920,
 			'height'             => 1080,
 			'filesize_bytes'     => 126482,
+			'sha256'             => hash( 'sha256', 'media-original-reference-artifact' ),
 			'suggested_filename' => 'photo-optimized.webp',
 		),
 		'expected_current_mime_type'    => 'image/jpeg',
@@ -4812,6 +4902,7 @@ $cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_deriv
 				'owner'                          => 'wordpress_write_ability_final',
 				'strategy'                       => 'format_checksum',
 				'final_sanitize_unique_required' => true,
+				'undeclared_internal_hint'       => 'must-not-survive',
 			),
 		),
 		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
@@ -4822,6 +4913,7 @@ $cloud_suggested_filename_preview = $core_write_package->adopt_cloud_media_deriv
 npcink_abilities_toolkit_assert_same( 'cloud-suggested-file.webp', $cloud_suggested_filename_preview['proposed_filename'] ?? '', 'adopt-cloud-media-derivative adopts a sanitized Cloud suggested filename as local proposal evidence' );
 npcink_abilities_toolkit_assert_same( 'cloud_artifact_suggestion', $cloud_suggested_filename_preview['filename_policy']['source'] ?? '', 'adopt-cloud-media-derivative marks Cloud filenames as suggestions, not write decisions' );
 npcink_abilities_toolkit_assert_same( true, $cloud_suggested_filename_preview['filename_policy']['final_sanitize_unique_required'] ?? null, 'adopt-cloud-media-derivative requires final WordPress-side filename finalization' );
+npcink_abilities_toolkit_assert_true( ! isset( $cloud_suggested_filename_preview['artifact']['filename_basis']['undeclared_internal_hint'] ), 'direct PHP artifact normalization drops filename basis fields not declared by the public schema' );
 $expired_cloud_adoption = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'       => 79,
@@ -4854,6 +4946,69 @@ $GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array(
 	'approval_commit_authorized' => true,
 	'approval_id'                => 'approval-cloud-media-adoption',
 );
+$valid_cloud_artifact_download_callback = $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'];
+$GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] = static function ( array $artifact ) use ( $cloud_artifact_contents, &$cloud_artifact_download_count ) {
+	++$cloud_artifact_download_count;
+	return array(
+		'artifact_id'    => (string) ( $artifact['artifact_id'] ?? '' ),
+		'contents'       => $cloud_artifact_contents,
+		'mime_type'      => 'image/webp',
+		'filesize_bytes' => strlen( $cloud_artifact_contents ),
+		'sha256'         => 'invalid-transport-digest',
+		'expires_at'     => (string) ( $artifact['expires_at'] ?? '' ),
+	);
+};
+$cloud_adoption_invalid_transport_digest = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'    => 'art_cloud_media_invalid_transport_digest',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => strlen( $cloud_artifact_contents ),
+			'sha256'         => $cloud_artifact_sha256,
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+		'expected_content_reference_post_ids' => $cloud_adoption_expected_post_ids,
+		'expected_content_reference_post_count' => $cloud_adoption_expected_post_count,
+		'expected_content_reference_replacement_count' => $cloud_adoption_expected_replacement_count,
+		'commit'                       => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $cloud_adoption_invalid_transport_digest ) && 'npcink_abilities_toolkit_cloud_artifact_download_digest_invalid' === $cloud_adoption_invalid_transport_digest->get_error_code(), 'adopt-cloud-media-derivative rejects a non-empty malformed transport digest' );
+$GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] = $valid_cloud_artifact_download_callback;
+$cloud_artifact_download_count = 0;
+$cloud_adoption_size_mismatch = $core_write_package->adopt_cloud_media_derivative(
+	array(
+		'attachment_id'                 => 79,
+		'derivative_artifact'           => array(
+			'artifact_id'    => 'art_cloud_media_size_mismatch',
+			'expires_at'     => gmdate( 'c', time() + 600 ),
+			'mime_type'      => 'image/webp',
+			'format'         => 'webp',
+			'width'          => 1600,
+			'height'         => 862,
+			'filesize_bytes' => strlen( $cloud_artifact_contents ) + 1,
+			'sha256'         => $cloud_artifact_sha256,
+		),
+		'expected_current_relative_file' => '2026/06/workflow-diagram-image.jpg',
+		'expected_current_mime_type'    => 'image/jpeg',
+		'expected_derivative_mime_type' => 'image/webp',
+		'expected_content_reference_post_ids' => $cloud_adoption_expected_post_ids,
+		'expected_content_reference_post_count' => $cloud_adoption_expected_post_count,
+		'expected_content_reference_replacement_count' => $cloud_adoption_expected_replacement_count,
+		'commit'                       => true,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $cloud_adoption_size_mismatch ) && 'npcink_abilities_toolkit_cloud_artifact_filesize_mismatch' === $cloud_adoption_size_mismatch->get_error_code(), 'adopt-cloud-media-derivative rejects downloaded bytes whose size differs from approved artifact evidence' );
+npcink_abilities_toolkit_assert_same( 1, $cloud_artifact_download_count, 'artifact size integrity is checked immediately after the bounded download' );
+npcink_abilities_toolkit_assert_same( '2026/06/workflow-diagram-image.jpg', get_post_meta( 79, '_wp_attached_file', true ), 'artifact size mismatch leaves the attachment pointer unchanged' );
+$cloud_artifact_download_count = 0;
 $cloud_adoption_drift = $core_write_package->adopt_cloud_media_derivative(
 	array(
 		'attachment_id'                 => 79,

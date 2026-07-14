@@ -61,6 +61,22 @@ The Cloud addon or host transport layer owns upload, signing, and dispatch. The
 Cloud worker owns derivative generation. The local WordPress host owns final
 approval, recording, replacement, rollback, and metadata writes.
 
+## Derivative Artifact Integrity Contract
+
+Planning and adoption share one fail-closed artifact descriptor. A derivative
+is proposal-ready only when it has a bounded `artifact_id`, a future expiry, a
+supported and internally consistent MIME/format pair, positive bounded width
+and height, a byte count no greater than 25 MiB, and a valid SHA-256 digest.
+The SHA-256 and byte count are approval evidence: they bind the reviewed Core
+proposal to exact bytes rather than only to an opaque Cloud artifact id.
+
+Immediately after the signed Cloud Addon download, the write ability verifies
+the returned artifact id and MIME type when present, then recomputes SHA-256
+and byte count from the downloaded body before any local file is written.
+Mismatch, expiry, or incomplete evidence fails closed and leaves the attachment
+pointer unchanged. Toolkit still does not download arbitrary artifact URLs;
+the Cloud Addon owns the named signed artifact transport.
+
 ## Remote Object Storage Preflight
 
 Media inspection and derivative request planning expose a `storage` evidence
@@ -147,3 +163,5 @@ Recommended rollout order:
 - Do not introduce queue, cache, CDN, or rollback ownership into the read-only
   inventory path.
 - Treat actual file mutation as high risk and host-approved.
+- Do not submit or adopt Cloud derivative artifacts without exact SHA-256,
+  size, dimension, MIME, and expiry evidence.
