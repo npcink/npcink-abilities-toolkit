@@ -14,6 +14,7 @@ use Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package;
 use Npcink_Abilities_Toolkit\Packages\Core_Read_Pack_Classifier;
 use Npcink_Abilities_Toolkit\Packages\Core_Read_Package;
 use Npcink_Abilities_Toolkit\Packages\Core_Write_Package;
+use Npcink_Abilities_Toolkit\Packages\Read_Definitions\Media_Governance_Read_Definitions;
 use Npcink_Abilities_Toolkit\Plugin;
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Annotation_Normalizer;
@@ -24,6 +25,7 @@ use Npcink_Abilities_Toolkit\Rest\Contract_Controller;
 use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 $assertions = 0;
+$core_read_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Read_Package.php' );
 $core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
 $ability_namespace_migration_map = (string) file_get_contents( dirname( __DIR__ ) . '/docs/ability-namespace-migration-map.md' );
 $ability_namespace_migration_script = (string) file_get_contents( dirname( __DIR__ ) . '/scripts/audit-legacy-ability-ids.php' );
@@ -1938,6 +1940,40 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/wp-diagnostics-summary']['meta']['mcp']['public'] ?? null, 'diagnostics summary stays out of default MCP discovery' );
 	npcink_abilities_toolkit_assert_same( false, $package_abilities['npcink-abilities-toolkit/get-site-operations-dashboard']['meta']['mcp']['public'] ?? null, 'site operations dashboard stays out of default MCP discovery' );
 	$core_read_definition_ids = array_keys( $core_read_package->definitions() );
+	$media_governance_definition_ids = array(
+		'npcink-abilities-toolkit/list-media',
+		'npcink-abilities-toolkit/resolve-media-attachment-by-url',
+		'npcink-abilities-toolkit/build-inline-image-blocks',
+		'npcink-abilities-toolkit/build-media-seo-assets',
+		'npcink-abilities-toolkit/optimize-media-metadata',
+		'npcink-abilities-toolkit/position-inline-image-blocks',
+		'npcink-abilities-toolkit/get-media-cleanup-opportunities',
+		'npcink-abilities-toolkit/list-media-backups',
+		'npcink-abilities-toolkit/build-media-inventory-fix-plan',
+		'npcink-abilities-toolkit/build-media-reference-repair-plan',
+		'npcink-abilities-toolkit/build-media-adoption-enhancement-plan',
+		'npcink-abilities-toolkit/build-image-candidate-adoption-plan',
+		'npcink-abilities-toolkit/build-image-candidate-review-artifact',
+		'npcink-abilities-toolkit/build-media-alt-caption-review-set',
+		'npcink-abilities-toolkit/build-media-alt-apply-plan',
+		'npcink-abilities-toolkit/build-media-settings-reference-repair-plan',
+		'npcink-abilities-toolkit/get-media-inventory-health',
+		'npcink-abilities-toolkit/inspect-media-asset',
+		'npcink-abilities-toolkit/build-media-derivative-cloud-request',
+		'npcink-abilities-toolkit/build-media-optimization-plan',
+		'npcink-abilities-toolkit/build-media-adoption-preflight-summary',
+		'npcink-abilities-toolkit/build-media-rename-plan',
+		'npcink-abilities-toolkit/build-media-derivative-batch-plan',
+	);
+	$media_governance_definitions = Media_Governance_Read_Definitions::definitions( $core_read_package );
+	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 23 definitions in stable source order' );
+	npcink_abilities_toolkit_assert_same( 116, count( $core_read_definition_ids ), 'core read package preserves the 116-definition public surface after media provider split' );
+	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 116-definition public order' );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'Media_Governance_Read_Definitions::definitions( $this )' ), 'core read package composes media governance definitions through the dedicated provider' );
+	foreach ( $media_governance_definition_ids as $media_ability_id ) {
+		$inline_definition_pattern = "/'" . preg_quote( $media_ability_id, '/' ) . "'\\s*=>\\s*array\\s*\\(/";
+		npcink_abilities_toolkit_assert_same( 0, preg_match( $inline_definition_pattern, $core_read_package_source ), "core read package no longer inlines {$media_ability_id}" );
+	}
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/site-info', $core_read_definition_ids[0] ?? '', 'core read definitions keep site-info first after provider split' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/wp-diagnostics-summary', $core_read_definition_ids[1] ?? '', 'core read definitions keep diagnostics second after provider split' );
 	npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/wp-ops-diagnostics-detail', $core_read_definition_ids[2] ?? '', 'core read definitions keep ops diagnostics after diagnostics summary' );

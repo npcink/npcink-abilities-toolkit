@@ -86,6 +86,20 @@ resume, open one focused pull request for the affected responsibility, verify
 it, and return to stabilization unless the next responsibility has independent
 evidence of its own.
 
+## 2026-07-14 Evidence-Triggered Slice
+
+Since 2026-06-01, non-merge history records 54 commits changing
+`Core_Read_Package.php` and 31 changing `Media_Read_Methods.php`. That
+concentrated definition and callback pressure satisfies the repeated-change
+trigger for one narrow maintenance slice.
+
+This slice resumes only the media governance read definition provider:
+`Core_Read_Package` remains the composition and callback owner, while the 23
+existing media definitions move unchanged to a stateless provider. Media method
+implementations, ability contracts, ordering, host governance, and runtime
+ownership do not move. This evidence does not unpause the broader structural
+sequence; every later slice still requires its own concrete trigger.
+
 ## Gate Per Slice
 
 Each extraction must pass:
