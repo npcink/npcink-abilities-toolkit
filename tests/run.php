@@ -26,6 +26,8 @@ use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 $assertions = 0;
 $core_read_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Read_Package.php' );
+$media_read_trait_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Read_Methods.php' );
+$media_alt_caption_read_trait_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Alt_Caption_Read_Methods.php' );
 $core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
 $ability_namespace_migration_map = (string) file_get_contents( dirname( __DIR__ ) . '/docs/ability-namespace-migration-map.md' );
 $ability_namespace_migration_script = (string) file_get_contents( dirname( __DIR__ ) . '/scripts/audit-legacy-ability-ids.php' );
@@ -159,6 +161,44 @@ foreach ( array( 'npcink-abilities-toolkit/update-post-blocks', 'npcink-abilitie
 }
 foreach ( array( 'Baseline Inventory', 'Accepted Sequence', 'Gate Per Slice', 'Core_Write_Package.php', 'tests/run.php', 'Post_Attribute_Write_Methods', 'Site_Editor_Write_Methods' ) as $required_structural_split_text ) {
 	npcink_abilities_toolkit_assert_true( is_string( $structural_split_plan ) && false !== strpos( $structural_split_plan, $required_structural_split_text ), 'structural split plan preserves incremental extraction guidance: ' . $required_structural_split_text );
+}
+npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'use Media_Alt_Caption_Read_Methods;' ), 'Core read package composes the media ALT/caption read trait' );
+$moved_media_alt_caption_methods = array(
+	'build_media_alt_caption_review_set',
+	'build_media_alt_apply_plan',
+	'media_alt_caption_review_source_policy',
+	'media_alt_caption_index_image_context_evidence',
+	'media_alt_caption_apply_image_context_evidence',
+	'media_alt_caption_public_image_context_evidence',
+	'media_alt_caption_image_context_evidence_request',
+	'media_alt_caption_item_status',
+	'media_alt_caption_candidate_quality',
+	'media_alt_caption_candidate_quality_assessment',
+	'media_alt_caption_review_quality_summary',
+	'media_alt_caption_candidate_rejection_reason',
+	'media_alt_caption_candidate_context_profile',
+	'media_alt_caption_merge_candidate_confidence',
+	'media_alt_caption_candidate_needs_context_confirmation',
+	'media_alt_caption_clean_candidate',
+	'media_alt_caption_normalized_candidate',
+	'media_alt_caption_is_duplicate_metadata',
+	'media_alt_caption_is_url_or_source_text',
+	'media_alt_caption_is_runtime_provenance_text',
+	'media_alt_caption_is_camera_default',
+	'media_alt_caption_candidate_is_too_short',
+	'media_alt_caption_is_too_generic_candidate',
+	'media_alt_caption_has_metadata_conflict',
+	'media_alt_caption_sentence',
+	'media_alt_caption_filename_descriptor',
+	'media_alt_caption_is_filename_like',
+	'media_alt_caption_trim_chars',
+	'media_alt_caption_text_length',
+	'media_alt_caption_sanitize_string_list',
+	'media_alt_caption_sanitize_payload',
+);
+foreach ( $moved_media_alt_caption_methods as $moved_media_alt_caption_method ) {
+	npcink_abilities_toolkit_assert_true( false === strpos( $media_read_trait_source, 'function ' . $moved_media_alt_caption_method . '(' ), 'general media read trait does not duplicate moved ALT/caption method: ' . $moved_media_alt_caption_method );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $media_alt_caption_read_trait_source, 'function ' . $moved_media_alt_caption_method . '(' ), 'media ALT/caption read trait owns moved method: ' . $moved_media_alt_caption_method );
 }
 $admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
 $admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );

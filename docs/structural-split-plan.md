@@ -100,6 +100,20 @@ implementations, ability contracts, ordering, host governance, and runtime
 ownership do not move. This evidence does not unpause the broader structural
 sequence; every later slice still requires its own concrete trigger.
 
+The ALT/caption callback family has independent evidence. Since 2026-06-01,
+four non-merge commits changed that concentrated chain: the initial review-set
+ability, deterministic candidate scoring, preview-only quality guidance, and
+the governed missing-ALT apply contract. Those changes repeatedly crossed the
+same two public callbacks and their private candidate-quality helpers inside
+the broader media trait.
+
+The second slice therefore unfreezes only
+`Media_Alt_Caption_Read_Methods`: `build_media_alt_caption_review_set`,
+`build_media_alt_apply_plan`, and their 29 `media_alt_caption_*` private helpers
+move together without wrappers. Other media methods, media definitions,
+ability ids, schemas, callbacks, permissions, outputs, and runtime ownership do
+not move. This evidence does not authorize another media-method extraction.
+
 ## Gate Per Slice
 
 Each extraction must pass:
