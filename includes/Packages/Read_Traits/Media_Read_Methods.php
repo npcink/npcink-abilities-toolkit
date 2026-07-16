@@ -1615,7 +1615,7 @@ trait Media_Read_Methods {
 					'width'               => $artifact_width,
 					'height'              => $artifact_height,
 					'filesize_bytes'      => $artifact_size,
-					'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? '' ) ),
+					'sha256'              => sanitize_text_field( (string) ( $artifact['sha256'] ?? '' ) ),
 					'reviewed_file_name'  => $reviewed_file_name,
 					'processing_warnings' => array_values( array_map( 'sanitize_key', (array) ( $artifact['processing_warnings'] ?? array() ) ) ),
 				);

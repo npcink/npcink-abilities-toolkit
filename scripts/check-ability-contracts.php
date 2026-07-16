@@ -67,7 +67,6 @@ function npcink_abilities_toolkit_contract_audit_schema( $ability_id, array $abi
  */
 function npcink_abilities_toolkit_contract_audit_additional_properties_allowlist() {
 	$paths = array(
-		'npcink-abilities-toolkit/adopt-cloud-media-derivative input_schema.properties.derivative_artifact',
 		'npcink-abilities-toolkit/build-article-block-plan input_schema.properties.variables',
 		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.generated_excerpt',
 		'npcink-abilities-toolkit/build-article-optimization-apply-plan input_schema.properties.optimization_plan',
@@ -96,8 +95,6 @@ function npcink_abilities_toolkit_contract_audit_additional_properties_allowlist
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.generated_inline_media.items',
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.inline_plan.items',
 		'npcink-abilities-toolkit/build-inline-image-blocks input_schema.properties.uploaded_inline_media.items',
-		'npcink-abilities-toolkit/build-media-adoption-preflight-summary input_schema.properties.derivative_artifact',
-		'npcink-abilities-toolkit/build-media-optimization-plan input_schema.properties.derivative_artifact',
 		'npcink-abilities-toolkit/build-media-optimization-plan input_schema.properties.media_details_input',
 		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.article',
 		'npcink-abilities-toolkit/build-media-seo-assets input_schema.properties.featured_upload',
