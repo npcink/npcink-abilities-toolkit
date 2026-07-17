@@ -9,6 +9,7 @@ namespace Npcink_Abilities_Toolkit\Packages;
 
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Support\Cloud_Derivative_Artifact;
 use Npcink_Abilities_Toolkit\Support\Gutenberg_Block_Document;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -49,6 +50,20 @@ final class Core_Write_Package {
 	 * @var Gutenberg_Block_Document
 	 */
 	private $block_document;
+
+	/**
+	 * Prevents WordPress hooks from opening a nested Cloud media transaction.
+	 *
+	 * @var bool
+	 */
+	private $cloud_media_transaction_active = false;
+
+	/**
+	 * Blocks further Cloud media transactions after an unconfirmed rollback.
+	 *
+	 * @var bool
+	 */
+	private $cloud_media_transaction_poisoned = false;
 
 	/**
 	 * Constructor.
@@ -1055,7 +1070,7 @@ final class Core_Write_Package {
 					'input_schema'    => $this->schema(
 						array(
 							'attachment_id'                  => array( 'type' => 'integer', 'minimum' => 1 ),
-							'derivative_artifact'            => array( 'type' => 'object', 'additionalProperties' => true ),
+							'derivative_artifact'            => Cloud_Derivative_Artifact::schema(),
 							'expected_current_relative_file' => array( 'type' => 'string' ),
 							'expected_current_mime_type'     => array( 'type' => 'string' ),
 							'expected_derivative_mime_type'  => array( 'type' => 'string' ),
@@ -1079,7 +1094,9 @@ final class Core_Write_Package {
 						'before'             => array( 'type' => 'object', 'additionalProperties' => true ),
 						'after'              => array( 'type' => 'object', 'additionalProperties' => true ),
 						'backup'             => array( 'type' => 'object', 'additionalProperties' => true ),
-						'artifact'           => array( 'type' => 'object', 'additionalProperties' => true ),
+						'artifact'           => Cloud_Derivative_Artifact::schema(),
+						'transfer_evidence'  => Cloud_Derivative_Artifact::transfer_evidence_schema(),
+						'delivery_ack'       => Cloud_Derivative_Artifact::delivery_ack_schema(),
 						'proposed_filename'  => array( 'type' => 'string' ),
 						'filename_policy'    => array( 'type' => 'object', 'additionalProperties' => true ),
 						'content_reference_repairs' => array( 'type' => 'object', 'additionalProperties' => true ),
@@ -2688,17 +2705,55 @@ final class Core_Write_Package {
 		if ( is_wp_error( $expectation_error ) ) {
 			return $expectation_error;
 		}
+		$rollback_state = $this->capture_cloud_media_adoption_state(
+			$attachment_id,
+			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$plan
+		);
 		$materialized = $this->materialize_cloud_media_derivative_artifact( $attachment_id, $plan );
 		if ( is_wp_error( $materialized ) ) {
 			return $materialized;
 		}
+		$transfer_evidence = is_array( $materialized['_transfer_evidence'] ?? null ) ? $materialized['_transfer_evidence'] : array();
+		$delivery_ack = is_array( $materialized['_delivery_ack'] ?? null ) ? $materialized['_delivery_ack'] : array();
+		$created_file = is_array( $materialized['_created_file'] ?? null ) ? $materialized['_created_file'] : array();
+		unset( $materialized['_transfer_evidence'], $materialized['_delivery_ack'], $materialized['_created_file'] );
+		$batch_manifest = (object) array(
+			'created_files' => ! empty( $created_file ) ? array( $created_file ) : array(),
+			'mutations'     => array(),
+		);
 		$plan['_derivative'] = $materialized;
 		$plan['after'] = $this->media_file_state_from_derivative( $attachment_id, $materialized );
-		$this->append_media_optimized_derivative( $attachment_id, $materialized );
+		$plan['_cloud_batch_manifest'] = $batch_manifest;
+		$precommit = $this->validate_cloud_media_adoption_precommit_state(
+			$attachment_id,
+			$plan,
+			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$rollback_state
+		);
+		if ( is_wp_error( $precommit ) ) {
+			return $this->cloud_media_adoption_precommit_failure_with_discard( $precommit, $batch_manifest, $attachment_id );
+		}
+		$plan['_current'] = is_array( $precommit['current'] ?? null ) ? $precommit['current'] : array();
+		$plan['before'] = $this->public_media_file_state( $plan['_current'] );
+		$rollback_state = is_array( $precommit['rollback_state'] ?? null ) ? $precommit['rollback_state'] : $rollback_state;
+		$batch_manifest->rollback_state = $rollback_state;
+		$payload['before'] = $plan['before'];
+		$payload['after'] = $plan['after'];
+		$payload['content_reference_repairs'] = is_array( $precommit['content_reference_repairs'] ?? null ) ? $precommit['content_reference_repairs'] : array();
+		$plan['_cloud_precommit_repairs'] = $payload['content_reference_repairs'];
+		$plan['_cloud_precommit_state'] = $rollback_state;
 
 		$result = $this->execute_media_file_replacement( $attachment_id, $plan );
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			if ( 'npcink_abilities_toolkit_cloud_adoption_precommit_drift' === $result->get_error_code() ) {
+				return $this->cloud_media_adoption_precommit_failure_with_discard( $result, $batch_manifest, $attachment_id );
+			}
+			return $this->cloud_media_adoption_failure_with_cleanup( $result, $attachment_id, $plan, $materialized, $rollback_state );
+		}
+		$optimized_derivative_updated = $this->append_media_optimized_derivative( $attachment_id, $materialized, $batch_manifest );
+		if ( is_wp_error( $optimized_derivative_updated ) ) {
+			return $this->cloud_media_adoption_failure_with_cleanup( $optimized_derivative_updated, $attachment_id, $plan, $materialized, $rollback_state );
 		}
 
 		$payload['replaced'] = ! empty( $result['replaced'] );
@@ -2706,6 +2761,17 @@ final class Core_Write_Package {
 		$payload['backup'] = is_array( $result['backup'] ?? null ) ? $result['backup'] : $payload['backup'];
 		$payload['content_reference_repairs'] = is_array( $result['content_reference_repairs'] ?? null ) ? $result['content_reference_repairs'] : $payload['content_reference_repairs'];
 		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['backup'], $payload['content_reference_repairs'] );
+		$commit_verified = $this->verify_cloud_media_adoption_commit(
+			$attachment_id,
+			$plan,
+			$materialized,
+			$payload['verification']
+		);
+		if ( is_wp_error( $commit_verified ) ) {
+			return $this->cloud_media_adoption_failure_with_cleanup( $commit_verified, $attachment_id, $plan, $materialized, $rollback_state );
+		}
+		$payload['transfer_evidence'] = $transfer_evidence;
+		$payload['delivery_ack'] = $delivery_ack;
 		$payload['history'] = $this->get_media_file_replacement_history( $attachment_id );
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -3936,17 +4002,19 @@ final class Core_Write_Package {
 	 *
 	 * @param int    $attachment_id Attachment id.
 	 * @param string $file_path Absolute media file path.
+	 * @param bool   $persist Whether to persist generated metadata here.
 	 * @return array<string,mixed>
 	 */
-	private function generate_attachment_metadata_for_file( $attachment_id, $file_path ) {
+	private function generate_attachment_metadata_for_file( $attachment_id, $file_path, $persist = true ) {
 		$attachment_id = absint( $attachment_id );
 		$file_path = (string) $file_path;
 		if ( $attachment_id <= 0 || '' === $file_path || ! is_readable( $file_path ) ) {
 			return array();
 		}
 
-		$metadata = array();
-		if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+
+		$metadata = ! $persist ? $this->minimal_attachment_metadata_for_file( $file_path ) : array();
+		if ( $persist && function_exists( 'wp_generate_attachment_metadata' ) ) {
 			$generated = wp_generate_attachment_metadata( $attachment_id, $file_path );
 			if ( is_array( $generated ) && ! empty( $generated ) ) {
 				$metadata = $generated;
@@ -3956,7 +4024,7 @@ final class Core_Write_Package {
 		if ( empty( $metadata ) ) {
 			$metadata = $this->minimal_attachment_metadata_for_file( $file_path );
 		}
-		if ( ! empty( $metadata ) ) {
+		if ( $persist && ! empty( $metadata ) ) {
 			if ( function_exists( 'wp_update_attachment_metadata' ) ) {
 				wp_update_attachment_metadata( $attachment_id, $metadata );
 			} elseif ( function_exists( 'update_post_meta' ) ) {
@@ -4202,13 +4270,23 @@ final class Core_Write_Package {
 	 *
 	 * @param int                 $attachment_id Attachment id.
 	 * @param array<string,mixed> $derivative Derivative record.
-	 * @return array<int,array<string,mixed>>
+	 * @param mixed               $batch_manifest Optional Cloud adoption mutation manifest.
+	 * @return array<int,array<string,mixed>>|\WP_Error
 	 */
-	private function append_media_optimized_derivative( $attachment_id, array $derivative ) {
+	private function append_media_optimized_derivative( $attachment_id, array $derivative, $batch_manifest = null ) {
 		$derivatives = $this->get_media_optimized_derivatives( $attachment_id );
 		$derivatives[] = $derivative;
 		$derivatives = array_slice( $derivatives, -20 );
-		if ( function_exists( 'update_post_meta' ) ) {
+		if ( is_object( $batch_manifest ) ) {
+			$derivatives_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_optimized_derivatives', $derivatives );
+			if ( is_wp_error( $derivatives_updated ) ) {
+				return $derivatives_updated;
+			}
+			$latest_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_latest_optimized_derivative', $derivative );
+			if ( is_wp_error( $latest_updated ) ) {
+				return $latest_updated;
+			}
+		} elseif ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( absint( $attachment_id ), '_npcink_ai_media_optimized_derivatives', $derivatives );
 			update_post_meta( absint( $attachment_id ), '_npcink_ai_media_latest_optimized_derivative', $derivative );
 		}
@@ -4288,49 +4366,7 @@ final class Core_Write_Package {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function normalize_cloud_media_derivative_artifact( array $artifact ) {
-		$artifact_id = sanitize_text_field( (string) ( $artifact['artifact_id'] ?? $artifact['id'] ?? '' ) );
-		if ( '' === $artifact_id ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_id_required', __( 'A derivative artifact_id is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		$mime_type = sanitize_text_field( (string) ( $artifact['mime_type'] ?? '' ) );
-		if ( ! in_array( $mime_type, array( 'image/webp', 'image/avif', 'image/jpeg', 'image/png' ), true ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_mime_invalid', __( 'The derivative artifact MIME type is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		$expires_at = sanitize_text_field( (string) ( $artifact['expires_at'] ?? '' ) );
-		$expires_ts = absint( $artifact['expires_ts'] ?? 0 );
-		if ( $expires_ts <= 0 && '' !== $expires_at ) {
-			$parsed = strtotime( $expires_at );
-			$expires_ts = false !== $parsed ? absint( $parsed ) : 0;
-		}
-		if ( $expires_ts <= 0 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expiry_required', __( 'The derivative artifact expiry is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		if ( $expires_ts <= time() ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact has expired. Generate a new preview before adoption.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
-		}
-		$format = sanitize_key( (string) ( $artifact['format'] ?? '' ) );
-		if ( '' === $format || 'original' === $format ) {
-			$format = $this->media_format_for_mime( $mime_type );
-		}
-		if ( ! in_array( $format, array( 'webp', 'avif', 'jpeg', 'png' ), true ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_format_invalid', __( 'The derivative artifact format is not supported for media replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		return array(
-			'artifact_id'         => $artifact_id,
-			'expires_at'          => '' !== $expires_at ? $expires_at : gmdate( 'c', $expires_ts ),
-			'expires_ts'          => $expires_ts,
-			'mime_type'           => $mime_type,
-			'format'              => $format,
-			'width'               => absint( $artifact['width'] ?? 0 ),
-			'height'              => absint( $artifact['height'] ?? 0 ),
-			'filesize_bytes'      => absint( $artifact['filesize_bytes'] ?? 0 ),
-			'checksum'            => sanitize_text_field( (string) ( $artifact['checksum'] ?? $artifact['sha256'] ?? '' ) ),
-			'sha256'              => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
-			'suggested_filename'  => $this->sanitize_media_file_name( (string) ( $artifact['suggested_filename'] ?? '' ) ),
-			'filename_basis'      => is_array( $artifact['filename_basis'] ?? null ) ? $this->sanitize_payload( $artifact['filename_basis'] ) : array(),
-			'processing_warnings' => array_values( array_filter( array_map( 'sanitize_text_field', (array) ( $artifact['processing_warnings'] ?? array() ) ) ) ),
-		);
+		return Cloud_Derivative_Artifact::normalize( $artifact );
 	}
 
 	/**
@@ -4368,7 +4404,7 @@ final class Core_Write_Package {
 			'generated_at_gmt' => gmdate( 'c' ),
 			'source'          => 'cloud_derivative_artifact',
 			'artifact_id'     => sanitize_text_field( (string) ( $artifact['artifact_id'] ?? '' ) ),
-			'artifact_checksum' => $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) ),
+			'artifact_checksum' => Cloud_Derivative_Artifact::normalize_sha256( $artifact['sha256'] ?? '' ),
 		);
 	}
 
@@ -4381,35 +4417,31 @@ final class Core_Write_Package {
 	 */
 	private function materialize_cloud_media_derivative_artifact( $attachment_id, array $plan ) {
 		$artifact = is_array( $plan['artifact'] ?? null ) ? $plan['artifact'] : array();
+		$expires_ts = Cloud_Derivative_Artifact::expiry_timestamp( (string) ( $artifact['expires_at'] ?? '' ) );
+		if ( $expires_ts <= time() ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact expired before its bytes could be adopted.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
+		}
 		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
 		$storage_ready = $this->validate_media_storage_commit_ready( $current );
 		if ( is_wp_error( $storage_ready ) ) {
 			return $storage_ready;
 		}
-		$download = apply_filters(
-			'npcink_abilities_toolkit_cloud_media_derivative_artifact_download',
-			null,
-			$artifact,
-			(string) ( $plan['replacement_id'] ?? '' ),
-			absint( $attachment_id )
-		);
-		if ( null === $download ) {
-			if ( ! function_exists( 'npcink_cloud_addon_download_media_derivative_artifact' ) ) {
-				return new \WP_Error( 'npcink_abilities_toolkit_cloud_addon_unavailable', __( 'Cloud Addon artifact download is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-			}
-			$download = npcink_cloud_addon_download_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+		if ( ! function_exists( 'npcink_cloud_addon_receive_media_derivative_artifact' ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_addon_unavailable', __( 'Cloud Addon verified artifact receiving is unavailable on this site.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
-		if ( is_wp_error( $download ) ) {
-			return $download;
+		$received = npcink_cloud_addon_receive_media_derivative_artifact( $artifact, (string) ( $plan['replacement_id'] ?? '' ) );
+		if ( is_wp_error( $received ) ) {
+			return $received;
 		}
-		$contents = is_array( $download ) ? (string) ( $download['contents'] ?? '' ) : '';
-		if ( '' === $contents ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_empty', __( 'The downloaded derivative artifact was empty.', 'npcink-abilities-toolkit' ), array( 'status' => 502 ) );
+		$received = Cloud_Derivative_Artifact::verify_received_payload( $received, $artifact );
+		if ( is_wp_error( $received ) ) {
+			return $received;
 		}
-		$sha256 = hash( 'sha256', $contents );
-		$expected_sha256 = $this->normalize_media_sha256( (string) ( $artifact['sha256'] ?? $artifact['checksum'] ?? '' ) );
-		if ( '' !== $expected_sha256 && $expected_sha256 !== $sha256 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_checksum_mismatch', __( 'The downloaded derivative checksum did not match the proposal evidence.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		$contents = $received['contents'];
+		$actual_filesize = $received['filesize_bytes'];
+		$sha256 = $received['sha256'];
+		if ( Cloud_Derivative_Artifact::expiry_timestamp( $received['expires_at'] ) <= time() ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_artifact_expired', __( 'The derivative artifact expired before its bytes could be adopted.', 'npcink-abilities-toolkit' ), array( 'status' => 410 ) );
 		}
 
 		$derivative = is_array( $plan['_derivative'] ?? null ) ? $plan['_derivative'] : array();
@@ -4436,19 +4468,34 @@ final class Core_Write_Package {
 			$relative_dir = '.' !== $relative_dir ? trim( $relative_dir, '/' ) : '';
 			$relative_file = '' !== $relative_dir ? $relative_dir . '/' . $basename : $basename;
 		}
-		if (
-			false === $this->write_media_file(
-				$destination,
-				$contents,
-				array(
-					'operation'     => 'adopt_cloud_media_derivative',
-					'step'          => 'write_derivative',
-					'attachment_id' => $attachment_id,
-					'relative_file' => $relative_file,
-				)
+		$created_file = $this->write_cloud_media_file_exclusive(
+			$destination,
+			$contents,
+			array(
+				'operation'     => 'adopt_cloud_media_derivative',
+				'step'          => 'write_derivative',
+				'attachment_id' => $attachment_id,
+				'relative_file' => $relative_file,
 			)
-		) {
-			return new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_write_failed', __( 'The local derivative file could not be written.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		);
+		if ( is_wp_error( $created_file ) ) {
+			return $created_file;
+		}
+		$written_size = is_readable( $destination ) ? filesize( $destination ) : false;
+		$written_sha256 = is_readable( $destination ) ? hash_file( 'sha256', $destination ) : false;
+		$written_image = is_readable( $destination ) ? @getimagesize( $destination ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- a corrupt local write must fail closed without emitting warnings.
+		$write_verified = is_int( $written_size )
+			&& $written_size === $actual_filesize
+			&& is_string( $written_sha256 )
+			&& hash_equals( $sha256, $written_sha256 )
+			&& is_array( $written_image )
+			&& ( $written_image['mime'] ?? '' ) === $received['mime_type']
+			&& ( $written_image[0] ?? 0 ) === $received['width']
+			&& ( $written_image[1] ?? 0 ) === $received['height']
+			&& Cloud_Derivative_Artifact::dimensions_within_limits( $written_image[0] ?? null, $written_image[1] ?? null );
+		if ( ! $write_verified || Cloud_Derivative_Artifact::expiry_timestamp( $received['expires_at'] ) <= time() ) {
+			$cause = new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_local_verification_failed', __( 'The local derivative file did not preserve the verified transfer facts.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			return $this->cloud_media_created_file_failure_with_discard( $cause, $created_file );
 		}
 
 		$derivative['file_basename'] = $basename;
@@ -4457,8 +4504,567 @@ final class Core_Write_Package {
 		$derivative['filesize_bytes'] = absint( filesize( $destination ) );
 		$derivative['artifact_checksum'] = $sha256;
 		$derivative['generated_at_gmt'] = gmdate( 'c' );
+		$derivative['_transfer_evidence'] = $received['transfer_evidence'];
+		$derivative['_delivery_ack'] = $received['delivery_ack'];
+		$derivative['_created_file'] = $created_file;
 
 		return $derivative;
+	}
+
+	/**
+	 * Captures only the local state that this adoption batch is allowed to mutate.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $repairs Reviewed content repair plan.
+	 * @param array<string,mixed> $plan Adoption plan.
+	 * @return array<string,mixed>
+	 */
+	private function capture_cloud_media_adoption_state( $attachment_id, array $repairs, array $plan ) {
+		$attachment_id = absint( $attachment_id );
+		$meta = array();
+		foreach (
+			array(
+				'_wp_attached_file',
+				'_wp_attachment_metadata',
+				'_npcink_ai_media_optimized_derivatives',
+				'_npcink_ai_media_latest_optimized_derivative',
+				'_npcink_ai_media_file_replacement_history',
+				'_npcink_ai_media_latest_file_replacement',
+			) as $meta_key
+		) {
+			$meta[ $meta_key ] = $this->cloud_media_post_meta_snapshot( $attachment_id, $meta_key );
+		}
+
+		$post_contents = array();
+		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $repair ) {
+			$post_id = absint( is_array( $repair ) ? ( $repair['post_id'] ?? 0 ) : 0 );
+			$post = $post_id > 0 ? get_post( $post_id ) : null;
+			if ( is_object( $post ) ) {
+				$post_contents[ $post_id ] = (string) ( $post->post_content ?? '' );
+			}
+		}
+
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$protected_files = $this->cloud_media_metadata_file_paths( is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array() );
+		$current_path = (string) ( $current['file_path'] ?? '' );
+		if ( '' !== $current_path ) {
+			$protected_files[] = $current_path;
+		}
+
+		return array(
+			'attachment_mime_type' => function_exists( 'get_post_mime_type' ) ? (string) get_post_mime_type( $attachment_id ) : '',
+			'meta'                 => $meta,
+			'post_contents'        => $post_contents,
+			'protected_files'      => array_values( array_unique( array_filter( $protected_files, 'is_string' ) ) ),
+			'current_state'        => $this->cloud_media_current_state_snapshot( $current ),
+			'current_file'         => $this->cloud_media_current_file_snapshot( $current_path ),
+			'storage'              => is_array( $current['storage'] ?? null ) ? $current['storage'] : array(),
+			'content_reference_repairs' => $repairs,
+		);
+	}
+
+	/**
+	 * Revalidates all mutable WordPress truth after Cloud receive and local materialization.
+	 *
+	 * No attachment, metadata, backup, history, or post-content write may happen
+	 * before this second optimistic-concurrency gate succeeds.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Materialized adoption plan.
+	 * @param array<string,mixed> $reviewed_repairs Repair plan captured before receive.
+	 * @param array<string,mixed> $rollback_state State captured before receive.
+	 * @return array<string,mixed>|\WP_Error
+	 */
+	private function validate_cloud_media_adoption_precommit_state( $attachment_id, array $plan, array $reviewed_repairs, array $rollback_state ) {
+		$current = $this->current_media_file_state( absint( $attachment_id ) );
+		if ( is_wp_error( $current ) ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_precommit_drift',
+				__( 'The attachment changed while the Cloud derivative was being received.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 409, 'drift_fields' => array( 'attachment_state' ), 'cause' => $current->get_error_code() )
+			);
+		}
+
+		$fresh_plan = $plan;
+		$fresh_plan['_current'] = $current;
+		$fresh_plan['before'] = $this->public_media_file_state( $current );
+		$fresh_repairs = $this->build_media_content_reference_repairs( $attachment_id, $fresh_plan, false );
+		$expectation_error = $this->validate_media_content_reference_repair_expectations(
+			$fresh_repairs,
+			is_array( $plan['content_reference_repair_expectations'] ?? null ) ? $plan['content_reference_repair_expectations'] : array()
+		);
+		$fresh_state = $this->capture_cloud_media_adoption_state( $attachment_id, $fresh_repairs, $fresh_plan );
+		$drift_fields = array();
+
+		if ( ( $rollback_state['current_state'] ?? null ) !== ( $fresh_state['current_state'] ?? null ) ) {
+			$drift_fields[] = 'attachment_state';
+		}
+		if ( ( $rollback_state['current_file'] ?? null ) !== ( $fresh_state['current_file'] ?? null ) ) {
+			$drift_fields[] = 'attachment_file';
+		}
+		if ( ( $rollback_state['meta'] ?? null ) !== ( $fresh_state['meta'] ?? null ) ) {
+			$drift_fields[] = 'attachment_meta';
+		}
+		if ( ( $rollback_state['attachment_mime_type'] ?? null ) !== ( $fresh_state['attachment_mime_type'] ?? null ) ) {
+			$drift_fields[] = 'attachment_mime_type';
+		}
+		if ( ( $rollback_state['storage'] ?? null ) !== ( $fresh_state['storage'] ?? null ) ) {
+			$drift_fields[] = 'storage';
+		}
+		if ( ( $rollback_state['post_contents'] ?? null ) !== ( $fresh_state['post_contents'] ?? null ) ) {
+			$drift_fields[] = 'post_contents';
+		}
+		if ( $reviewed_repairs !== $fresh_repairs || ( $rollback_state['content_reference_repairs'] ?? null ) !== $fresh_repairs ) {
+			$drift_fields[] = 'content_reference_repairs';
+		}
+		if ( is_wp_error( $expectation_error ) ) {
+			$drift_fields[] = 'content_reference_repair_expectations';
+		}
+
+		$drift_fields = array_values( array_unique( $drift_fields ) );
+		if ( ! empty( $drift_fields ) ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_precommit_drift',
+				__( 'The attachment or its reviewed content references changed while the Cloud derivative was being received.', 'npcink-abilities-toolkit' ),
+				array(
+					'status'       => 409,
+					'drift_fields' => $drift_fields,
+					'cause'        => is_wp_error( $expectation_error ) ? $expectation_error->get_error_code() : '',
+				)
+			);
+		}
+
+		return array(
+			'current'                   => $current,
+			'content_reference_repairs' => $fresh_repairs,
+			'rollback_state'            => $fresh_state,
+		);
+	}
+
+	/**
+	 * Builds a strict, serialization-safe projection of current attachment state.
+	 *
+	 * @param array<string,mixed> $current Current state.
+	 * @return array<string,mixed>
+	 */
+	private function cloud_media_current_state_snapshot( array $current ) {
+		return array(
+			'relative_file'  => (string) ( $current['relative_file'] ?? '' ),
+			'url'            => (string) ( $current['url'] ?? '' ),
+			'file_basename'  => (string) ( $current['file_basename'] ?? '' ),
+			'file_path'      => (string) ( $current['file_path'] ?? '' ),
+			'mime_type'      => (string) ( $current['mime_type'] ?? '' ),
+			'width'          => absint( $current['width'] ?? 0 ),
+			'height'         => absint( $current['height'] ?? 0 ),
+			'filesize_bytes' => absint( $current['filesize_bytes'] ?? 0 ),
+			'metadata'       => is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array(),
+			'storage'        => is_array( $current['storage'] ?? null ) ? $current['storage'] : array(),
+		);
+	}
+
+	/**
+	 * Captures current source bytes so in-place file changes also trigger drift.
+	 *
+	 * @param string $path Current attachment path.
+	 * @return array<string,mixed>
+	 */
+	private function cloud_media_current_file_snapshot( $path ) {
+		$path = (string) $path;
+		$sha256 = '' !== $path && is_readable( $path ) ? hash_file( 'sha256', $path ) : false;
+
+		return array(
+			'path'           => $path,
+			'readable'       => '' !== $path && is_readable( $path ),
+			'filesize_bytes' => '' !== $path && is_readable( $path ) ? absint( filesize( $path ) ) : 0,
+			'sha256'         => is_string( $sha256 ) ? $sha256 : '',
+		);
+	}
+
+	/**
+	 * Returns one exact post-meta value and whether the row existed.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $meta_key Meta key.
+	 * @return array{exists:bool,value:mixed}
+	 */
+	private function cloud_media_post_meta_snapshot( $post_id, $meta_key ) {
+		$post_id = absint( $post_id );
+		$meta_key = (string) $meta_key;
+		if (
+			isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+			&& is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+			&& array_key_exists( $meta_key, $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+		) {
+			return array(
+				'exists' => true,
+				'value'  => $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ][ $meta_key ],
+			);
+		}
+		$exists = function_exists( 'metadata_exists' ) && metadata_exists( 'post', $post_id, $meta_key );
+
+		return array(
+			'exists' => $exists,
+			'value'  => $exists && function_exists( 'get_post_meta' ) ? get_post_meta( $post_id, $meta_key, true ) : null,
+		);
+	}
+
+	/**
+	 * Restores one exact post-meta snapshot.
+	 *
+	 * @param int                       $post_id Post id.
+	 * @param string                    $meta_key Meta key.
+	 * @param array{exists:bool,value:mixed} $snapshot Snapshot.
+	 * @return bool
+	 */
+	private function restore_cloud_media_post_meta_snapshot( $post_id, $meta_key, array $snapshot ) {
+		if ( ! empty( $snapshot['exists'] ) ) {
+			update_post_meta( absint( $post_id ), (string) $meta_key, $snapshot['value'] ?? null );
+		} elseif ( function_exists( 'delete_post_meta' ) ) {
+			delete_post_meta( absint( $post_id ), (string) $meta_key );
+		}
+		$current = $this->cloud_media_post_meta_snapshot( $post_id, $meta_key );
+
+		return (bool) $current['exists'] === (bool) ( $snapshot['exists'] ?? false )
+			&& ( empty( $snapshot['exists'] ) || $current['value'] === ( $snapshot['value'] ?? null ) );
+	}
+
+	/**
+	 * Converts attachment metadata file references to bounded uploads paths.
+	 *
+	 * @param array<string,mixed> $metadata Attachment metadata.
+	 * @return array<int,string>
+	 */
+	private function cloud_media_metadata_file_paths( array $metadata ) {
+		$relative_file = $this->normalize_media_relative_file( (string) ( $metadata['file'] ?? '' ) );
+		$dir = dirname( $relative_file );
+		$dir = '.' !== $dir ? trim( $dir, '/' ) : '';
+		$relative_files = array( $relative_file );
+		foreach ( (array) ( $metadata['sizes'] ?? array() ) as $size ) {
+			$basename = $this->sanitize_media_file_name( is_array( $size ) ? (string) ( $size['file'] ?? '' ) : '' );
+			if ( '' !== $basename ) {
+				$relative_files[] = '' !== $dir ? $dir . '/' . $basename : $basename;
+			}
+		}
+		$original_image = $this->sanitize_media_file_name( (string) ( $metadata['original_image'] ?? '' ) );
+		if ( '' !== $original_image ) {
+			$relative_files[] = '' !== $dir ? $dir . '/' . $original_image : $original_image;
+		}
+
+		$paths = array();
+		foreach ( array_unique( array_filter( $relative_files ) ) as $relative ) {
+			$path = $this->media_uploads_path_for_relative_file( $relative );
+			if ( '' !== $path ) {
+				$paths[] = $path;
+			}
+		}
+
+		return $paths;
+	}
+
+	/**
+	 * Restores all local truth after a failed Cloud adoption attempt.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Adoption plan.
+	 * @param array<string,mixed> $materialized Materialized derivative.
+	 * @param array<string,mixed> $rollback_state Captured state.
+	 * @return true|\WP_Error
+	 */
+	private function cleanup_failed_cloud_media_adoption( $attachment_id, array $plan, array $materialized, array $rollback_state ) {
+		$attachment_id = absint( $attachment_id );
+		unset( $materialized );
+		$failures = array();
+		$conflicts = array();
+		$mutations = is_object( $plan['_cloud_batch_manifest'] ?? null ) && isset( $plan['_cloud_batch_manifest']->mutations ) && is_array( $plan['_cloud_batch_manifest']->mutations )
+			? $plan['_cloud_batch_manifest']->mutations
+			: array();
+
+		foreach ( (array) ( $rollback_state['post_contents'] ?? array() ) as $post_id => $post_content ) {
+			$post = get_post( absint( $post_id ) );
+			$current_content = is_object( $post ) ? (string) ( $post->post_content ?? '' ) : '';
+			if ( $current_content === (string) $post_content ) {
+				continue;
+			}
+			$mutation = is_array( $mutations[ 'post_content:' . absint( $post_id ) ] ?? null ) ? $mutations[ 'post_content:' . absint( $post_id ) ] : array();
+			if ( empty( $mutation ) || $current_content !== (string) ( $mutation['after'] ?? '' ) ) {
+				$conflicts[] = 'post_content:' . absint( $post_id );
+				continue;
+			}
+			$result = $this->cloud_media_atomic_compare_and_swap_post_field( absint( $post_id ), 'post_content', $current_content, (string) $post_content );
+			if ( $this->cloud_media_transaction_rollback_unconfirmed( $result ) ) {
+				return $this->cloud_media_unknown_transaction_cleanup_conflict();
+			}
+			$post = get_post( absint( $post_id ) );
+			if ( is_wp_error( $result ) || ! is_object( $post ) || (string) ( $post->post_content ?? '' ) !== (string) $post_content ) {
+				$conflicts[] = 'post_content:' . absint( $post_id );
+			}
+		}
+
+		$original_mime = (string) ( $rollback_state['attachment_mime_type'] ?? '' );
+		$current_mime = (string) get_post_mime_type( $attachment_id );
+		if ( $current_mime !== $original_mime ) {
+			$mime_mutation = is_array( $mutations[ 'mime:' . $attachment_id ] ?? null ) ? $mutations[ 'mime:' . $attachment_id ] : array();
+			if ( empty( $mime_mutation ) || $current_mime !== (string) ( $mime_mutation['after'] ?? '' ) ) {
+				$conflicts[] = 'attachment_mime_type';
+			} else {
+				$mime_result = $this->cloud_media_atomic_compare_and_swap_post_field( $attachment_id, 'post_mime_type', $current_mime, $original_mime );
+				if ( $this->cloud_media_transaction_rollback_unconfirmed( $mime_result ) ) {
+					return $this->cloud_media_unknown_transaction_cleanup_conflict();
+				}
+				if ( is_wp_error( $mime_result ) || (string) get_post_mime_type( $attachment_id ) !== $original_mime ) {
+					$conflicts[] = 'attachment_mime_type';
+				}
+			}
+		}
+
+		foreach ( (array) ( $rollback_state['meta'] ?? array() ) as $meta_key => $snapshot ) {
+			if ( ! is_array( $snapshot ) ) {
+				$failures[] = 'meta:' . sanitize_key( (string) $meta_key );
+				continue;
+			}
+			$current = $this->cloud_media_post_meta_snapshot( $attachment_id, (string) $meta_key );
+			if ( $current === $snapshot ) {
+				continue;
+			}
+			$mutation_id = 'meta:' . $attachment_id . ':' . (string) $meta_key;
+			$mutation = is_array( $mutations[ $mutation_id ] ?? null ) ? $mutations[ $mutation_id ] : array();
+			$batch_after = is_array( $mutation['after'] ?? null ) ? $mutation['after'] : array();
+			if ( empty( $mutation ) || $current !== $batch_after ) {
+				$conflicts[] = 'meta:' . sanitize_key( (string) $meta_key );
+				continue;
+			}
+			$restored = $this->cloud_media_atomic_compare_and_swap_post_meta( $attachment_id, (string) $meta_key, $batch_after, $snapshot );
+			if ( $this->cloud_media_transaction_rollback_unconfirmed( $restored ) ) {
+				return $this->cloud_media_unknown_transaction_cleanup_conflict();
+			}
+			if ( is_wp_error( $restored ) || $this->cloud_media_post_meta_snapshot( $attachment_id, (string) $meta_key ) !== $snapshot ) {
+				$conflicts[] = 'meta:' . sanitize_key( (string) $meta_key );
+			}
+		}
+
+		$batch_manifest = $plan['_cloud_batch_manifest'] ?? null;
+		if ( ! empty( $conflicts ) ) {
+			// A concurrent WordPress value may reference any batch file. Preserve the
+			// complete bounded manifest for diagnosis instead of risking a broken URL.
+		} elseif ( is_object( $batch_manifest ) ) {
+			$manifest_cleanup = $this->cleanup_cloud_media_batch_manifest( $batch_manifest, $attachment_id );
+			if ( is_wp_error( $manifest_cleanup ) ) {
+				$manifest_data = $manifest_cleanup->get_error_data();
+				if ( 'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict' === $manifest_cleanup->get_error_code() ) {
+					foreach ( (array) ( is_array( $manifest_data ) ? ( $manifest_data['conflicts'] ?? array() ) : array() ) as $conflict ) {
+						$conflicts[] = 'file:' . sanitize_file_name( (string) $conflict );
+					}
+				} else {
+					foreach ( (array) ( is_array( $manifest_data ) ? ( $manifest_data['failures'] ?? array() ) : array() ) as $failure ) {
+						$failures[] = 'file:' . sanitize_file_name( (string) $failure );
+					}
+				}
+			}
+		} else {
+			$failures[] = 'batch_manifest_missing';
+		}
+
+		if ( ! empty( $failures ) ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_cleanup_failed',
+				__( 'The failed Cloud media adoption could not be fully rolled back.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 500, 'failures' => $failures )
+			);
+		}
+		if ( ! empty( $conflicts ) ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict',
+				__( 'Concurrent WordPress state prevented full Cloud adoption compensation.', 'npcink-abilities-toolkit' ),
+				array( 'status' => 409, 'conflicts' => array_values( array_unique( $conflicts ) ) )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Discards only this batch's materialized files after precommit drift.
+	 *
+	 * This path intentionally does not invoke compensating state restoration:
+	 * the current WordPress values belong to the concurrent request that won.
+	 *
+	 * @param \WP_Error $cause Precommit drift failure.
+	 * @param mixed     $batch_manifest Batch manifest object.
+	 * @param int       $attachment_id Attachment id.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_adoption_precommit_failure_with_discard( \WP_Error $cause, $batch_manifest, $attachment_id ) {
+		$cleaned = $this->cleanup_cloud_media_batch_manifest( $batch_manifest, absint( $attachment_id ) );
+		if ( ! is_wp_error( $cleaned ) ) {
+			return $cause;
+		}
+		if ( 'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict' === $cleaned->get_error_code() ) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict',
+				$cleaned->get_error_message(),
+				array(
+					'status'    => 409,
+					'cause'     => $cause->get_error_code(),
+					'conflicts' => (array) ( is_array( $cleaned->get_error_data() ) ? ( $cleaned->get_error_data()['conflicts'] ?? array() ) : array() ),
+				)
+			);
+		}
+
+		return new \WP_Error(
+			'npcink_abilities_toolkit_cloud_adoption_cleanup_failed',
+			$cleaned->get_error_message(),
+			array(
+				'status'        => 500,
+				'cause'         => $cause->get_error_code(),
+				'cleanup_error' => $cleaned->get_error_data(),
+			)
+		);
+	}
+
+	/**
+	 * Preserves the original failure when compensation succeeds.
+	 *
+	 * @param \WP_Error           $cause Original failure.
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Adoption plan.
+	 * @param array<string,mixed> $materialized Materialized derivative.
+	 * @param array<string,mixed> $rollback_state Captured state.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_adoption_failure_with_cleanup( \WP_Error $cause, $attachment_id, array $plan, array $materialized, array $rollback_state ) {
+		$cause_data = $cause->get_error_data();
+		$cause_stage = is_array( $cause_data ) ? (string) ( $cause_data['stage'] ?? '' ) : '';
+		if (
+			'npcink_abilities_toolkit_cloud_adoption_mutation_conflict' === $cause->get_error_code()
+			&& strlen( $cause_stage ) >= strlen( '_rollback_failed' )
+			&& '_rollback_failed' === substr( $cause_stage, -strlen( '_rollback_failed' ) )
+		) {
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict',
+				__( 'The WordPress transaction rollback could not be confirmed, so Cloud adoption compensation was stopped.', 'npcink-abilities-toolkit' ),
+				array(
+					'status'    => 409,
+					'cause'     => $cause->get_error_code(),
+					'conflicts' => array( 'wordpress_transaction_state_unknown' ),
+				)
+			);
+		}
+		$cleaned = $this->cleanup_failed_cloud_media_adoption( $attachment_id, $plan, $materialized, $rollback_state );
+		if ( is_wp_error( $cleaned ) ) {
+			if ( 'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict' === $cleaned->get_error_code() ) {
+				return new \WP_Error(
+					'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict',
+					$cleaned->get_error_message(),
+					array(
+						'status'    => 409,
+						'cause'     => $cause->get_error_code(),
+						'conflicts' => (array) ( is_array( $cleaned->get_error_data() ) ? ( $cleaned->get_error_data()['conflicts'] ?? array() ) : array() ),
+					)
+				);
+			}
+			return new \WP_Error(
+				'npcink_abilities_toolkit_cloud_adoption_cleanup_failed',
+				$cleaned->get_error_message(),
+				array(
+					'status'        => 500,
+					'cause'         => $cause->get_error_code(),
+					'cleanup_error' => $cleaned->get_error_data(),
+				)
+			);
+		}
+
+		return $cause;
+	}
+
+	/**
+	 * Verifies the full local commit before the ability reports success.
+	 *
+	 * @param int                 $attachment_id Attachment id.
+	 * @param array<string,mixed> $plan Adoption plan.
+	 * @param array<string,mixed> $materialized Materialized derivative.
+	 * @param array<string,mixed> $verification Operation verification.
+	 * @return true|\WP_Error
+	 */
+	private function verify_cloud_media_adoption_commit( $attachment_id, array $plan, array $materialized, array $verification ) {
+		$current = $this->current_media_file_state( $attachment_id );
+		if ( is_wp_error( $current ) ) {
+			return $current;
+		}
+		$expected_relative = $this->normalize_media_relative_file( (string) ( $materialized['relative_file'] ?? '' ) );
+		$expected_mime = (string) ( $materialized['mime_type'] ?? '' );
+		$path = (string) ( $current['file_path'] ?? '' );
+		if ( $expected_relative !== (string) ( $current['relative_file'] ?? '' ) || $expected_mime !== (string) ( $current['mime_type'] ?? '' ) || '' === $path || ! is_readable( $path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_commit_mismatch', __( 'The adopted attachment pointer did not match the verified derivative.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$attachment_metadata = is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array();
+		if (
+			$expected_relative !== $this->normalize_media_relative_file( (string) ( $attachment_metadata['file'] ?? '' ) )
+			|| (int) ( $materialized['width'] ?? 0 ) !== (int) ( $attachment_metadata['width'] ?? 0 )
+			|| (int) ( $materialized['height'] ?? 0 ) !== (int) ( $attachment_metadata['height'] ?? 0 )
+			|| (int) ( $materialized['filesize_bytes'] ?? 0 ) !== (int) ( $attachment_metadata['filesize'] ?? 0 )
+		) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_attachment_metadata_mismatch', __( 'The attachment metadata did not match the verified derivative.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$image = @getimagesize( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- final verification must fail closed without emitting warnings.
+		$sha256 = is_readable( $path ) ? hash_file( 'sha256', $path ) : false;
+		if (
+			filesize( $path ) !== (int) ( $materialized['filesize_bytes'] ?? 0 )
+			|| ! is_string( $sha256 )
+			|| ! hash_equals( (string) ( $materialized['artifact_checksum'] ?? '' ), $sha256 )
+			|| ! is_array( $image )
+			|| ( $image['mime'] ?? '' ) !== $expected_mime
+			|| ( $image[0] ?? 0 ) !== (int) ( $materialized['width'] ?? 0 )
+			|| ( $image[1] ?? 0 ) !== (int) ( $materialized['height'] ?? 0 )
+			|| ! Cloud_Derivative_Artifact::dimensions_within_limits( $image[0] ?? null, $image[1] ?? null )
+		) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_file_verification_failed', __( 'The committed media file no longer matches the verified transfer bytes.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		$replacement_id = (string) ( $plan['replacement_id'] ?? '' );
+		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
+		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
+		$original_path = (string) ( is_array( $plan['_current'] ?? null ) ? ( $plan['_current']['file_path'] ?? '' ) : '' );
+		$backup_matches_original = '' !== $backup_path
+			&& '' !== $original_path
+			&& is_readable( $backup_path )
+			&& is_readable( $original_path )
+			&& filesize( $backup_path ) === filesize( $original_path )
+			&& hash_equals( (string) hash_file( 'sha256', $original_path ), (string) hash_file( 'sha256', $backup_path ) );
+		if ( ! $backup_matches_original ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_backup_verification_failed', __( 'The local rollback backup did not match the original media bytes.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$history = $this->find_media_file_replacement_history( $attachment_id, $replacement_id );
+		$latest_replacement = $this->cloud_media_post_meta_snapshot( $attachment_id, '_npcink_ai_media_latest_file_replacement' );
+		$latest_derivative = $this->cloud_media_post_meta_snapshot( $attachment_id, '_npcink_ai_media_latest_optimized_derivative' );
+		$artifact_id = (string) ( $materialized['artifact_id'] ?? '' );
+		$derivative_recorded = false;
+		foreach ( $this->get_media_optimized_derivatives( $attachment_id ) as $derivative ) {
+			if ( $artifact_id === (string) ( $derivative['artifact_id'] ?? '' ) && $expected_relative === (string) ( $derivative['relative_file'] ?? '' ) ) {
+				$derivative_recorded = true;
+				break;
+			}
+		}
+		if (
+			empty( $history )
+			|| ! $latest_replacement['exists']
+			|| $replacement_id !== (string) ( is_array( $latest_replacement['value'] ) ? ( $latest_replacement['value']['replacement_id'] ?? '' ) : '' )
+			|| ! $derivative_recorded
+			|| ! $latest_derivative['exists']
+			|| $artifact_id !== (string) ( is_array( $latest_derivative['value'] ) ? ( $latest_derivative['value']['artifact_id'] ?? '' ) : '' )
+		) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_metadata_verification_failed', __( 'The local derivative and rollback metadata were not recorded completely.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		if ( empty( $verification['media_file_matches_expected'] ) || empty( $verification['media_mime_type_matches_expected'] ) || empty( $verification['backup_available'] ) || empty( $verification['rollback_available'] ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_rollback_verification_failed', __( 'The local media adoption did not retain a verified rollback path.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		foreach ( (array) ( $verification['post_references_verified'] ?? array() ) as $post_reference ) {
+			if ( ! is_array( $post_reference ) || empty( $post_reference['old_url_absent'] ) || empty( $post_reference['new_url_present'] ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_reference_verification_failed', __( 'A local content reference repair could not be verified.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -4728,6 +5334,7 @@ final class Core_Write_Package {
 		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
 		$derivative_relative = $this->normalize_media_relative_file( (string) ( $derivative['relative_file'] ?? '' ) );
 		$derivative_path = $this->media_uploads_path_for_relative_file( $derivative_relative );
+		$batch_manifest = $plan['_cloud_batch_manifest'] ?? null;
 		if ( '' === $current_path || ! is_readable( $current_path ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'The current attachment file is unavailable for backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
@@ -4735,36 +5342,53 @@ final class Core_Write_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_derivative_file_unavailable', __( 'The derivative file is unavailable for replacement.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$backup_dir_ready = '' !== $backup_path && $this->ensure_media_directory( dirname( $backup_path ) );
-		if (
-			'' === $backup_path ||
-			! $backup_dir_ready ||
-			! $this->copy_media_file(
-				$current_path,
-				$backup_path,
-				array(
-					'operation'     => 'replace_media_file',
-					'step'          => 'backup_current',
-					'attachment_id' => $attachment_id,
-					'relative_file' => $backup_relative,
-				)
-			)
-		) {
+		$backup_context = array(
+			'operation'     => 'replace_media_file',
+			'step'          => 'backup_current',
+			'attachment_id' => $attachment_id,
+			'relative_file' => $backup_relative,
+		);
+		if ( is_object( $batch_manifest ) && '' !== $backup_path && $backup_dir_ready ) {
+			$backup_created_file = $this->copy_cloud_media_file_exclusive( $current_path, $backup_path, $backup_context );
+			if ( is_wp_error( $backup_created_file ) ) {
+				return $backup_created_file;
+			}
+			$this->add_cloud_media_created_file_to_manifest( $batch_manifest, $backup_created_file );
+			$backup_succeeded = true;
+		} else {
+			$backup_succeeded = '' !== $backup_path && $backup_dir_ready && $this->copy_media_file( $current_path, $backup_path, $backup_context );
+		}
+		if ( ! $backup_succeeded ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		if ( is_object( $batch_manifest ) ) {
+			$late_precommit = $this->validate_cloud_media_adoption_precommit_state(
+				$attachment_id,
+				$plan,
+				is_array( $plan['_cloud_precommit_repairs'] ?? null ) ? $plan['_cloud_precommit_repairs'] : array(),
+				is_array( $plan['_cloud_precommit_state'] ?? null ) ? $plan['_cloud_precommit_state'] : array()
+			);
+			if ( is_wp_error( $late_precommit ) ) {
+				return $late_precommit;
+			}
+			$current = is_array( $late_precommit['current'] ?? null ) ? $late_precommit['current'] : $current;
+			$current_path = (string) ( $current['file_path'] ?? $current_path );
+			$content_reference_repairs = is_array( $late_precommit['content_reference_repairs'] ?? null ) ? $late_precommit['content_reference_repairs'] : $content_reference_repairs;
 		}
 
 		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
 		$after['filesize_bytes'] = absint( filesize( $derivative_path ) );
 		$backup = is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array();
 		$backup['filesize_bytes'] = absint( filesize( $backup_path ) );
-		$updated = $this->update_media_file_pointer( $attachment_id, $derivative_relative, (string) ( $after['mime_type'] ?? '' ), $after );
+		$updated = $this->update_media_file_pointer( $attachment_id, $derivative_relative, (string) ( $after['mime_type'] ?? '' ), $after, $batch_manifest );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
-		$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs );
+		$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs, $batch_manifest );
 		if ( is_wp_error( $content_reference_repairs ) ) {
 			return $content_reference_repairs;
 		}
-		$this->append_media_file_replacement_history(
+		$history_updated = $this->append_media_file_replacement_history(
 			$attachment_id,
 			array(
 				'replacement_id'     => (string) ( $plan['replacement_id'] ?? '' ),
@@ -4774,8 +5398,12 @@ final class Core_Write_Package {
 				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
 				'after'              => $after,
 				'backup'             => $backup,
-			)
+			),
+			$batch_manifest
 		);
+		if ( is_wp_error( $history_updated ) ) {
+			return $history_updated;
+		}
 
 		return array(
 			'replaced' => true,
@@ -5375,16 +6003,28 @@ final class Core_Write_Package {
 	 *
 	 * @param int                 $attachment_id Attachment id.
 	 * @param array<string,mixed> $record History record.
-	 * @return void
+	 * @param mixed               $batch_manifest Optional Cloud adoption mutation manifest.
+	 * @return true|\WP_Error
 	 */
-	private function append_media_file_replacement_history( $attachment_id, array $record ) {
+	private function append_media_file_replacement_history( $attachment_id, array $record, $batch_manifest = null ) {
 		$history = $this->get_media_file_replacement_history( $attachment_id );
 		$history[] = $record;
 		$history = array_slice( $history, -20 );
-		if ( function_exists( 'update_post_meta' ) ) {
+		if ( is_object( $batch_manifest ) ) {
+			$history_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_file_replacement_history', $history );
+			if ( is_wp_error( $history_updated ) ) {
+				return $history_updated;
+			}
+			$latest_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_latest_file_replacement', $record );
+			if ( is_wp_error( $latest_updated ) ) {
+				return $latest_updated;
+			}
+		} elseif ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( absint( $attachment_id ), '_npcink_ai_media_file_replacement_history', $history );
 			update_post_meta( absint( $attachment_id ), '_npcink_ai_media_latest_file_replacement', $record );
 		}
+
+		return true;
 	}
 
 	/**
@@ -5416,23 +6056,28 @@ final class Core_Write_Package {
 	 * @param string              $relative_file Uploads-relative file.
 	 * @param string              $mime_type MIME type.
 	 * @param array<string,mixed> $state Public file state.
+	 * @param mixed               $batch_manifest Optional Cloud adoption batch manifest.
 	 * @return true|\WP_Error
 	 */
-	private function update_media_file_pointer( $attachment_id, $relative_file, $mime_type, array $state ) {
+	private function update_media_file_pointer( $attachment_id, $relative_file, $mime_type, array $state, $batch_manifest = null ) {
 		$attachment_id = absint( $attachment_id );
 		$relative_file = $this->normalize_media_relative_file( $relative_file );
 		$file_path = $this->media_uploads_path_for_relative_file( $relative_file );
 		if ( '' === $relative_file || '' === $file_path ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_replacement_path_invalid', __( 'Replacement file path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-		if ( function_exists( 'update_post_meta' ) ) {
+		if ( is_object( $batch_manifest ) ) {
+			$pointer_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_wp_attached_file', $relative_file );
+			if ( is_wp_error( $pointer_updated ) ) {
+				return $pointer_updated;
+			}
+		} elseif ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( $attachment_id, '_wp_attached_file', $relative_file );
 		}
-		$update_args = array(
-			'ID'             => $attachment_id,
-			'post_mime_type' => sanitize_text_field( (string) $mime_type ),
-		);
-		$updated = wp_update_post( $update_args, true );
+		$normalized_mime_type = sanitize_text_field( (string) $mime_type );
+		$updated = is_object( $batch_manifest )
+			? $this->cloud_media_cas_update_attachment_mime( $batch_manifest, $attachment_id, $normalized_mime_type )
+			: wp_update_post( array( 'ID' => $attachment_id, 'post_mime_type' => $normalized_mime_type ), true );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
@@ -5446,17 +6091,66 @@ final class Core_Write_Package {
 			if ( is_array( $state['_metadata'] ?? null ) ) {
 				$metadata = $state['_metadata'];
 			} elseif ( is_readable( $file_path ) ) {
-				$generated = $this->generate_attachment_metadata_for_file( $attachment_id, $file_path );
+				$pre_generation_files = is_object( $batch_manifest ) ? $this->cloud_media_directory_file_snapshot( dirname( $file_path ) ) : array();
+				$generated = $this->generate_attachment_metadata_for_file( $attachment_id, $file_path, ! is_object( $batch_manifest ) );
 				if ( ! empty( $generated ) ) {
 					$metadata = $generated;
 				}
+				if ( is_object( $batch_manifest ) ) {
+					$this->track_cloud_media_generated_files( $batch_manifest, $metadata, $pre_generation_files );
+				}
 			}
-		if ( function_exists( 'update_post_meta' ) ) {
+		if ( is_object( $batch_manifest ) ) {
+			$metadata_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_wp_attachment_metadata', $metadata );
+			if ( is_wp_error( $metadata_updated ) ) {
+				return $metadata_updated;
+			}
+		} elseif ( function_exists( 'update_post_meta' ) ) {
 			update_post_meta( $attachment_id, '_wp_attachment_metadata', $metadata );
 		}
 
 			return true;
 		}
+
+	/**
+	 * Captures filesystem identities before WordPress generates attachment sizes.
+	 *
+	 * @param string $directory Directory path.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function cloud_media_directory_file_snapshot( $directory ) {
+		$directory = (string) $directory;
+		$files = is_dir( $directory ) ? glob( $this->trailingslashit_value( $directory ) . '*' ) : array();
+		$files = is_array( $files ) ? $files : array();
+		$snapshot = array();
+		foreach ( $files as $path ) {
+			if ( is_string( $path ) && is_file( $path ) ) {
+				$snapshot[ $path ] = $this->cloud_media_created_file_record( $path );
+			}
+		}
+
+		return $snapshot;
+	}
+
+	/**
+	 * Adds newly generated sizes/original-image files to the batch manifest.
+	 *
+	 * Files that existed before generation are deliberately never claimed by the
+	 * batch, so compensation cannot delete another request's file.
+	 *
+	 * @param mixed                                   $manifest Batch manifest object.
+	 * @param array<string,mixed>                     $metadata Generated attachment metadata.
+	 * @param array<string,array<string,mixed>>       $pre_generation_files Files present before generation.
+	 * @return void
+	 */
+	private function track_cloud_media_generated_files( $manifest, array $metadata, array $pre_generation_files ) {
+		foreach ( $this->cloud_media_metadata_file_paths( $metadata ) as $path ) {
+			if ( isset( $pre_generation_files[ $path ] ) || ! is_file( $path ) ) {
+				continue;
+			}
+			$this->add_cloud_media_created_file_to_manifest( $manifest, $this->cloud_media_created_file_record( $path ) );
+		}
+	}
 
 		/**
 		 * Preserves attachment metadata when only the main file basename changes.
@@ -5683,6 +6377,650 @@ final class Core_Write_Package {
 			return false;
 		}
 		return false !== file_put_contents( $target_path, $contents );
+	}
+
+	/**
+	 * Creates one Cloud adoption file without ever overwriting an existing path.
+	 *
+	 * @param string              $target_path Target path.
+	 * @param string              $contents File contents.
+	 * @param array<string,mixed> $context Operation context.
+	 * @return array<string,mixed>|\WP_Error Created-file ownership record or error.
+	 */
+	private function write_cloud_media_file_exclusive( $target_path, $contents, array $context = array() ) {
+		$target_path = (string) $target_path;
+		$contents = (string) $contents;
+		if ( ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_path_invalid', __( 'The local derivative path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		}
+		$blocked = apply_filters( 'npcink_abilities_toolkit_media_file_write_blocked', false, $target_path, strlen( $contents ), $context );
+		if ( true === $blocked ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_write_failed', __( 'The local derivative file could not be written.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+
+		$handle = @fopen( $target_path, 'x+b' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- exclusive-create conflicts are expected and must fail closed.
+		if ( false === $handle ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_target_conflict', __( 'The local derivative target was created by another request.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		$stat = fstat( $handle );
+		$created_file = $this->cloud_media_created_file_record( $target_path, is_array( $stat ) ? $stat : array() );
+		$written = 0;
+		$length = strlen( $contents );
+		while ( $written < $length ) {
+			$chunk = fwrite( $handle, substr( $contents, $written ) );
+			if ( false === $chunk || 0 === $chunk ) {
+				break;
+			}
+			$written += $chunk;
+		}
+		$flushed = fflush( $handle );
+		fclose( $handle );
+		if ( $written !== $length || ! $flushed ) {
+			$cause = new \WP_Error( 'npcink_abilities_toolkit_cloud_derivative_write_failed', __( 'The local derivative file could not be written.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			return $this->cloud_media_created_file_failure_with_discard( $cause, $created_file );
+		}
+
+		return $created_file;
+	}
+
+	/**
+	 * Copies a Cloud adoption backup through an exclusive destination handle.
+	 *
+	 * @param string              $source_path Source path.
+	 * @param string              $target_path Target path.
+	 * @param array<string,mixed> $context Operation context.
+	 * @return array<string,mixed>|\WP_Error Created-file ownership record or error.
+	 */
+	private function copy_cloud_media_file_exclusive( $source_path, $target_path, array $context = array() ) {
+		$source_path = (string) $source_path;
+		$target_path = (string) $target_path;
+		if ( ! is_readable( $source_path ) || ! $this->is_media_uploads_path_allowed( $target_path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$blocked = apply_filters( 'npcink_abilities_toolkit_media_file_copy_blocked', false, $source_path, $target_path, $context );
+		if ( true === $blocked ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$source = @fopen( $source_path, 'rb' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- errors are converted to bounded WP_Error values.
+		if ( false === $source ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be opened for backup.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		}
+		$target = @fopen( $target_path, 'x+b' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- exclusive-create conflicts are expected and must fail closed.
+		if ( false === $target ) {
+			fclose( $source );
+			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment backup target is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => file_exists( $target_path ) ? 409 : 500 ) );
+		}
+		$stat = fstat( $target );
+		$created_file = $this->cloud_media_created_file_record( $target_path, is_array( $stat ) ? $stat : array() );
+		$copied = stream_copy_to_stream( $source, $target );
+		$flushed = fflush( $target );
+		fclose( $source );
+		fclose( $target );
+		$source_size = filesize( $source_path );
+		$target_size = is_readable( $target_path ) ? filesize( $target_path ) : false;
+		if ( false === $copied || ! $flushed || $source_size !== $target_size ) {
+			$cause = new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			return $this->cloud_media_created_file_failure_with_discard( $cause, $created_file );
+		}
+
+		return $created_file;
+	}
+
+	/**
+	 * Records the filesystem identity of a file exclusively created by this batch.
+	 *
+	 * @param string              $path Absolute path.
+	 * @param array<string,mixed> $stat Optional open-handle stat.
+	 * @return array<string,mixed>
+	 */
+	private function cloud_media_created_file_record( $path, array $stat = array() ) {
+		if ( empty( $stat ) ) {
+			$read_stat = @lstat( (string) $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- missing files are represented as an empty identity.
+			$stat = is_array( $read_stat ) ? $read_stat : array();
+		}
+
+		return array(
+			'path'                  => (string) $path,
+			'device'                => isset( $stat['dev'] ) ? (int) $stat['dev'] : -1,
+			'inode'                 => isset( $stat['ino'] ) ? (int) $stat['ino'] : -1,
+			'created_by_this_batch' => true,
+		);
+	}
+
+	/**
+	 * Adds a created file to the mutable in-memory Cloud adoption manifest.
+	 *
+	 * @param mixed               $manifest Batch manifest object.
+	 * @param array<string,mixed> $created_file Created-file record.
+	 * @return void
+	 */
+	private function add_cloud_media_created_file_to_manifest( $manifest, array $created_file ) {
+		if ( ! is_object( $manifest ) || empty( $created_file['created_by_this_batch'] ) ) {
+			return;
+		}
+		$created_files = isset( $manifest->created_files ) && is_array( $manifest->created_files ) ? $manifest->created_files : array();
+		foreach ( $created_files as $existing ) {
+			if ( is_array( $existing ) && (string) ( $existing['path'] ?? '' ) === (string) ( $created_file['path'] ?? '' ) && (int) ( $existing['inode'] ?? -1 ) === (int) ( $created_file['inode'] ?? -1 ) ) {
+				return;
+			}
+		}
+		$created_files[] = $created_file;
+		$manifest->created_files = $created_files;
+	}
+
+	/**
+	 * Applies one attachment meta mutation only while its exact reviewed value remains current.
+	 *
+	 * @param mixed  $manifest Batch manifest object.
+	 * @param int    $post_id Attachment id.
+	 * @param string $meta_key Meta key.
+	 * @param mixed  $after Batch value.
+	 * @return true|\WP_Error
+	 */
+	private function cloud_media_cas_update_post_meta( $manifest, $post_id, $meta_key, $after ) {
+		$post_id = absint( $post_id );
+		$meta_key = (string) $meta_key;
+		$mutation_id = 'meta:' . $post_id . ':' . $meta_key;
+		$mutations = is_object( $manifest ) && isset( $manifest->mutations ) && is_array( $manifest->mutations ) ? $manifest->mutations : array();
+		$existing_mutation = is_array( $mutations[ $mutation_id ] ?? null ) ? $mutations[ $mutation_id ] : array();
+		$rollback_state = is_object( $manifest ) && isset( $manifest->rollback_state ) && is_array( $manifest->rollback_state ) ? $manifest->rollback_state : array();
+		$before = ! empty( $existing_mutation )
+			? ( is_array( $existing_mutation['after'] ?? null ) ? $existing_mutation['after'] : array() )
+			: ( is_array( $rollback_state['meta'][ $meta_key ] ?? null ) ? $rollback_state['meta'][ $meta_key ] : array() );
+		if ( empty( $before ) ) {
+			return $this->cloud_media_mutation_conflict( 'meta:' . sanitize_key( $meta_key ) );
+		}
+		$after_snapshot = array( 'exists' => true, 'value' => $after );
+		$mutations[ $mutation_id ] = array(
+			'kind'     => 'meta',
+			'post_id'  => $post_id,
+			'meta_key' => $meta_key,
+			'before'   => ! empty( $existing_mutation ) ? $existing_mutation['before'] : $before,
+			'after'    => $after_snapshot,
+		);
+		$manifest->mutations = $mutations;
+
+		return $this->cloud_media_atomic_compare_and_swap_post_meta( $post_id, $meta_key, $before, $after_snapshot );
+	}
+
+	/**
+	 * Changes one allowlisted attachment meta value under an attachment row lock.
+	 *
+	 * Raw postmeta reads provide byte-exact comparison while the WordPress Meta
+	 * API remains the only writer so hooks and cache invalidation still run.
+	 *
+	 * @param int                       $post_id Attachment id.
+	 * @param string                    $meta_key Allowlisted meta key.
+	 * @param array{exists:bool,value:mixed} $before Expected snapshot.
+	 * @param array{exists:bool,value:mixed} $after Replacement snapshot.
+	 * @return true|\WP_Error
+	 */
+	private function cloud_media_atomic_compare_and_swap_post_meta( $post_id, $meta_key, array $before, array $after ) {
+		global $wpdb;
+		$post_id = absint( $post_id );
+		$meta_key = (string) $meta_key;
+		$allowed_meta_keys = array(
+			'_wp_attached_file',
+			'_wp_attachment_metadata',
+			'_npcink_ai_media_file_replacement_history',
+			'_npcink_ai_media_latest_file_replacement',
+			'_npcink_ai_media_optimized_derivatives',
+			'_npcink_ai_media_latest_optimized_derivative',
+		);
+		if ( $this->cloud_media_transaction_poisoned ) {
+			return $this->cloud_media_mutation_conflict( 'meta:' . sanitize_key( $meta_key ), 'transaction_unusable_rollback_failed' );
+		}
+		if ( $this->cloud_media_transaction_active ) {
+			return $this->cloud_media_mutation_conflict( 'meta:' . sanitize_key( $meta_key ), 'transaction_reentrant' );
+		}
+		if (
+			! in_array( $meta_key, $allowed_meta_keys, true )
+			|| ! array_key_exists( 'exists', $before )
+			|| ! array_key_exists( 'exists', $after )
+			|| ! is_bool( $before['exists'] )
+			|| ! is_bool( $after['exists'] )
+			|| ! is_object( $wpdb )
+			|| ! isset( $wpdb->posts, $wpdb->postmeta )
+			|| ! method_exists( $wpdb, 'query' )
+			|| ! method_exists( $wpdb, 'prepare' )
+			|| ! method_exists( $wpdb, 'get_row' )
+			|| ! method_exists( $wpdb, 'get_results' )
+			|| ! function_exists( 'maybe_serialize' )
+			|| ! function_exists( 'update_post_meta' )
+			|| ! function_exists( 'add_post_meta' )
+			|| ! function_exists( 'delete_post_meta' )
+		) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_atomic_update_unavailable', __( 'Atomic WordPress metadata mutation support is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500, 'field' => sanitize_key( $meta_key ) ) );
+		}
+
+		$this->cloud_media_transaction_active = true;
+		try {
+			if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- the attachment lock serializes local Cloud batches.
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'transaction_start_failed' );
+			}
+			$parent_sql = $wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the table comes from wpdb.
+				$post_id
+			);
+			$parent_row = $wpdb->get_row( $parent_sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the attachment serialization lock.
+			if ( ! is_object( $parent_row ) || $post_id !== absint( $parent_row->ID ?? 0 ) ) {
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'attachment_lock_failed' );
+			}
+			$meta_sql = $wpdb->prepare(
+				"SELECT meta_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id ASC FOR UPDATE", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table comes from wpdb and values are prepared.
+				$post_id,
+				$meta_key
+			);
+			$before_rows = $wpdb->get_results( $meta_sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- raw locked values are required for byte-exact comparison.
+			if ( ! is_array( $before_rows ) || ! $this->cloud_media_locked_post_meta_rows_match( $before_rows, $meta_key, $before ) ) {
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'locked_value_drift' );
+			}
+			$before_meta_id = ! empty( $before['exists'] ) && isset( $before_rows[0]->meta_id ) ? absint( $before_rows[0]->meta_id ) : 0;
+
+			if ( ! empty( $after['exists'] ) ) {
+				$written = ! empty( $before['exists'] )
+					? update_post_meta( $post_id, $meta_key, $after['value'] ?? null )
+					: add_post_meta( $post_id, $meta_key, $after['value'] ?? null, true );
+			} else {
+				$written = ! empty( $before['exists'] ) && delete_post_meta( $post_id, $meta_key );
+			}
+			if ( false === $written ) {
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'wordpress_meta_update_failed' );
+			}
+
+			$after_rows = $wpdb->get_results( $meta_sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- verify the exact committed candidate while locks remain held.
+			if ( ! is_array( $after_rows ) || ! $this->cloud_media_locked_post_meta_rows_match( $after_rows, $meta_key, $after ) ) {
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'wordpress_meta_write_drift' );
+			}
+			if ( ! empty( $before['exists'] ) && ! empty( $after['exists'] ) && $before_meta_id !== absint( $after_rows[0]->meta_id ?? 0 ) ) {
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'wordpress_meta_identity_drift' );
+			}
+
+			if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- commit closes the bounded attachment/meta lock transaction.
+				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'transaction_commit_failed' );
+			}
+			$this->cloud_media_clean_post_meta_cache( $post_id );
+		} catch ( \Throwable $exception ) {
+			unset( $exception );
+			return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'transaction_exception' );
+		} finally {
+			$this->cloud_media_transaction_active = false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks an exact raw postmeta row set against one logical snapshot.
+	 *
+	 * @param array<int,mixed>           $rows Locked raw rows.
+	 * @param string                     $meta_key Expected exact key.
+	 * @param array{exists:bool,value:mixed} $snapshot Expected snapshot.
+	 * @return bool
+	 */
+	private function cloud_media_locked_post_meta_rows_match( array $rows, $meta_key, array $snapshot ) {
+		if ( empty( $snapshot['exists'] ) ) {
+			return empty( $rows );
+		}
+		if ( 1 !== count( $rows ) || ! is_object( $rows[0] ) ) {
+			return false;
+		}
+
+		return absint( $rows[0]->meta_id ?? 0 ) > 0
+			&& (string) ( $rows[0]->meta_key ?? '' ) === (string) $meta_key
+			&& (string) ( $rows[0]->meta_value ?? '' ) === (string) maybe_serialize( $snapshot['value'] ?? null );
+	}
+
+	/**
+	 * Rolls back one locked postmeta mutation and clears its object cache.
+	 *
+	 * @param int    $post_id Attachment id.
+	 * @param string $meta_key Meta key.
+	 * @param string $stage Failure stage.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, $stage ) {
+		global $wpdb;
+		$rolled_back = false;
+		try {
+			$rolled_back = is_object( $wpdb ) && method_exists( $wpdb, 'query' ) && false !== $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- rollback is mandatory transaction compensation.
+		} catch ( \Throwable $exception ) {
+			unset( $exception );
+		}
+		$this->cloud_media_clean_post_meta_cache( absint( $post_id ) );
+		if ( ! $rolled_back ) {
+			$this->cloud_media_transaction_poisoned = true;
+			$stage .= '_rollback_failed';
+		}
+
+		return $this->cloud_media_mutation_conflict( 'meta:' . sanitize_key( (string) $meta_key ), $stage );
+	}
+
+	/**
+	 * Clears the postmeta cache after raw transaction commit or rollback.
+	 *
+	 * @param int $post_id Post id.
+	 * @return void
+	 */
+	private function cloud_media_clean_post_meta_cache( $post_id ) {
+		if ( function_exists( 'wp_cache_delete' ) ) {
+			wp_cache_delete( absint( $post_id ), 'post_meta' );
+		}
+		if ( function_exists( 'clean_post_cache' ) ) {
+			clean_post_cache( absint( $post_id ) );
+		}
+	}
+
+	/**
+	 * Applies the attachment MIME mutation only while the reviewed MIME remains current.
+	 *
+	 * @param mixed  $manifest Batch manifest object.
+	 * @param int    $attachment_id Attachment id.
+	 * @param string $after Batch MIME value.
+	 * @return true|\WP_Error
+	 */
+	private function cloud_media_cas_update_attachment_mime( $manifest, $attachment_id, $after ) {
+		$attachment_id = absint( $attachment_id );
+		$mutation_id = 'mime:' . $attachment_id;
+		$mutations = is_object( $manifest ) && isset( $manifest->mutations ) && is_array( $manifest->mutations ) ? $manifest->mutations : array();
+		$existing_mutation = is_array( $mutations[ $mutation_id ] ?? null ) ? $mutations[ $mutation_id ] : array();
+		$rollback_state = is_object( $manifest ) && isset( $manifest->rollback_state ) && is_array( $manifest->rollback_state ) ? $manifest->rollback_state : array();
+		$before = ! empty( $existing_mutation ) ? (string) ( $existing_mutation['after'] ?? '' ) : (string) ( $rollback_state['attachment_mime_type'] ?? '' );
+		$current = function_exists( 'get_post_mime_type' ) ? (string) get_post_mime_type( $attachment_id ) : '';
+		if ( $current !== $before ) {
+			return $this->cloud_media_mutation_conflict( 'attachment_mime_type' );
+		}
+		$mutations[ $mutation_id ] = array(
+			'kind'    => 'mime',
+			'post_id' => $attachment_id,
+			'before'  => ! empty( $existing_mutation ) ? $existing_mutation['before'] : $before,
+			'after'   => (string) $after,
+		);
+		$manifest->mutations = $mutations;
+		$updated = $this->cloud_media_atomic_compare_and_swap_post_field( $attachment_id, 'post_mime_type', $before, (string) $after );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		if ( (string) get_post_mime_type( $attachment_id ) !== (string) $after ) {
+			return $this->cloud_media_mutation_conflict( 'attachment_mime_type' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Applies one reviewed post-content mutation with an exact expected-before guard.
+	 *
+	 * @param mixed  $manifest Batch manifest object.
+	 * @param int    $post_id Post id.
+	 * @param string $expected_before Expected reviewed content.
+	 * @param string $after Batch content.
+	 * @return true|\WP_Error
+	 */
+	private function cloud_media_cas_update_post_content( $manifest, $post_id, $expected_before, $after ) {
+		$post_id = absint( $post_id );
+		$mutation_id = 'post_content:' . $post_id;
+		$mutations = is_object( $manifest ) && isset( $manifest->mutations ) && is_array( $manifest->mutations ) ? $manifest->mutations : array();
+		$existing_mutation = is_array( $mutations[ $mutation_id ] ?? null ) ? $mutations[ $mutation_id ] : array();
+		$rollback_state = is_object( $manifest ) && isset( $manifest->rollback_state ) && is_array( $manifest->rollback_state ) ? $manifest->rollback_state : array();
+		$reviewed_before = ! empty( $existing_mutation ) ? (string) ( $existing_mutation['after'] ?? '' ) : (string) ( $rollback_state['post_contents'][ $post_id ] ?? '' );
+		$post = get_post( $post_id );
+		$current = is_object( $post ) ? (string) ( $post->post_content ?? '' ) : '';
+		if ( $current !== $reviewed_before || (string) $expected_before !== $reviewed_before ) {
+			return $this->cloud_media_mutation_conflict( 'post_content:' . $post_id );
+		}
+		$mutations[ $mutation_id ] = array(
+			'kind'    => 'post_content',
+			'post_id' => $post_id,
+			'before'  => ! empty( $existing_mutation ) ? $existing_mutation['before'] : $reviewed_before,
+			'after'   => (string) $after,
+		);
+		$manifest->mutations = $mutations;
+		$updated = $this->cloud_media_atomic_compare_and_swap_post_field( $post_id, 'post_content', $reviewed_before, (string) $after );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		$post = get_post( $post_id );
+		if ( ! is_object( $post ) || (string) ( $post->post_content ?? '' ) !== (string) $after ) {
+			return $this->cloud_media_mutation_conflict( 'post_content:' . $post_id );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Changes one allowlisted wp_posts field under a row lock through WordPress lifecycle APIs.
+	 *
+	 * @param int    $post_id Post id.
+	 * @param string $field post_mime_type or post_content.
+	 * @param string $before Expected current value.
+	 * @param string $after Replacement value.
+	 * @return true|\WP_Error
+	 */
+	private function cloud_media_atomic_compare_and_swap_post_field( $post_id, $field, $before, $after ) {
+		global $wpdb;
+		$field = (string) $field;
+		$post_id = absint( $post_id );
+		if ( $this->cloud_media_transaction_poisoned ) {
+			return $this->cloud_media_mutation_conflict( $field . ':' . $post_id, 'transaction_unusable_rollback_failed' );
+		}
+		if ( $this->cloud_media_transaction_active ) {
+			return $this->cloud_media_mutation_conflict( $field . ':' . $post_id, 'transaction_reentrant' );
+		}
+		if (
+			! in_array( $field, array( 'post_mime_type', 'post_content' ), true )
+			|| ! is_object( $wpdb )
+			|| ! isset( $wpdb->posts )
+			|| ! method_exists( $wpdb, 'query' )
+			|| ! method_exists( $wpdb, 'prepare' )
+			|| ! method_exists( $wpdb, 'get_row' )
+			|| ! function_exists( 'wp_update_post' )
+		) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_atomic_update_unavailable', __( 'Atomic WordPress post mutation support is unavailable.', 'npcink-abilities-toolkit' ), array( 'status' => 500, 'field' => sanitize_key( $field ) ) );
+		}
+
+		$this->cloud_media_transaction_active = true;
+		try {
+			if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- bounded row lock is required for lifecycle-safe compare-and-swap.
+				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'transaction_start_failed' );
+			}
+			$select_sql = $wpdb->prepare(
+				"SELECT `{$field}` FROM {$wpdb->posts} WHERE ID = %d FOR UPDATE", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- field is allowlisted and the table comes from wpdb.
+				$post_id
+			);
+			$locked_row = $wpdb->get_row( $select_sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- this is the transaction's row lock.
+			if ( ! is_object( $locked_row ) || ! property_exists( $locked_row, $field ) || (string) $locked_row->{$field} !== (string) $before ) {
+				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'locked_value_drift' );
+			}
+			if ( function_exists( 'clean_post_cache' ) ) {
+				clean_post_cache( $post_id );
+			}
+
+			$updated = wp_update_post( array( 'ID' => $post_id, $field => (string) $after ), true );
+			if ( is_wp_error( $updated ) || $post_id !== absint( $updated ) ) {
+				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'wordpress_update_failed' );
+			}
+
+			$written_row = $wpdb->get_row( $select_sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- exact verification occurs while the row remains locked.
+			if ( ! is_object( $written_row ) || ! property_exists( $written_row, $field ) || (string) $written_row->{$field} !== (string) $after ) {
+				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'wordpress_write_drift' );
+			}
+
+			if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- commit closes the bounded row-lock transaction.
+				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'transaction_commit_failed' );
+			}
+			if ( function_exists( 'clean_post_cache' ) ) {
+				clean_post_cache( $post_id );
+			}
+		} catch ( \Throwable $exception ) {
+			unset( $exception );
+			return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'transaction_exception' );
+		} finally {
+			$this->cloud_media_transaction_active = false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Rolls back one bounded row-lock mutation and returns a conflict.
+	 *
+	 * @param string $field Allowlisted post field.
+	 * @param int    $post_id Post id.
+	 * @param string $stage Failure stage.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_rollback_locked_post_mutation( $field, $post_id, $stage ) {
+		global $wpdb;
+		$rolled_back = false;
+		try {
+			$rolled_back = is_object( $wpdb ) && method_exists( $wpdb, 'query' ) && false !== $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- rollback is mandatory compensation for this bounded transaction.
+		} catch ( \Throwable $exception ) {
+			unset( $exception );
+		}
+		if ( function_exists( 'clean_post_cache' ) ) {
+			clean_post_cache( absint( $post_id ) );
+		}
+		if ( ! $rolled_back ) {
+			$this->cloud_media_transaction_poisoned = true;
+			$stage .= '_rollback_failed';
+		}
+
+		return $this->cloud_media_mutation_conflict( (string) $field . ':' . absint( $post_id ), $stage );
+	}
+
+	/**
+	 * Returns one bounded logical mutation conflict.
+	 *
+	 * @param string $field Safe field identifier.
+	 * @param string $stage Bounded failure stage.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_mutation_conflict( $field, $stage = 'compare' ) {
+		return new \WP_Error(
+			'npcink_abilities_toolkit_cloud_adoption_mutation_conflict',
+			__( 'WordPress state changed before the Cloud adoption mutation could commit.', 'npcink-abilities-toolkit' ),
+			array( 'status' => 409, 'field' => sanitize_text_field( (string) $field ), 'stage' => sanitize_key( (string) $stage ) )
+		);
+	}
+
+	/**
+	 * Detects an unconfirmed transaction rollback that forbids further cleanup.
+	 *
+	 * @param mixed $result Mutation result.
+	 * @return bool
+	 */
+	private function cloud_media_transaction_rollback_unconfirmed( $result ) {
+		if ( ! is_wp_error( $result ) ) {
+			return false;
+		}
+		$data = $result->get_error_data();
+		$stage = is_array( $data ) ? (string) ( $data['stage'] ?? '' ) : '';
+
+		return strlen( $stage ) >= strlen( '_rollback_failed' )
+			&& '_rollback_failed' === substr( $stage, -strlen( '_rollback_failed' ) );
+	}
+
+	/**
+	 * Returns the stop-all cleanup result for an unknown transaction state.
+	 *
+	 * @return \WP_Error
+	 */
+	private function cloud_media_unknown_transaction_cleanup_conflict() {
+		return new \WP_Error(
+			'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict',
+			__( 'The WordPress transaction rollback could not be confirmed, so Cloud adoption compensation was stopped.', 'npcink-abilities-toolkit' ),
+			array( 'status' => 409, 'conflicts' => array( 'wordpress_transaction_state_unknown' ) )
+		);
+	}
+
+	/**
+	 * Deletes a file only while its device/inode still matches this batch.
+	 *
+	 * @param array<string,mixed> $created_file Created-file record.
+	 * @return bool
+	 */
+	private function discard_cloud_media_created_file( array $created_file ) {
+		$path = (string) ( $created_file['path'] ?? '' );
+		if ( empty( $created_file['created_by_this_batch'] ) || '' === $path || ! $this->is_media_uploads_path_allowed( $path ) ) {
+			return false;
+		}
+		if ( ! is_file( $path ) ) {
+			return true;
+		}
+		$current_stat = @lstat( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- identity mismatch means an external file must be preserved.
+		if ( ! is_array( $current_stat ) ) {
+			return true;
+		}
+		if ( (int) ( $created_file['device'] ?? -1 ) !== (int) ( $current_stat['dev'] ?? -2 ) || (int) ( $created_file['inode'] ?? -1 ) !== (int) ( $current_stat['ino'] ?? -2 ) ) {
+			return true;
+		}
+		wp_delete_file( $path );
+
+		return ! is_file( $path );
+	}
+
+	/**
+	 * Removes every file known to have been created by this batch.
+	 *
+	 * @param mixed $manifest Batch manifest object.
+	 * @param int   $attachment_id Optional attachment id for current-reference protection.
+	 * @return true|\WP_Error
+	 */
+	private function cleanup_cloud_media_batch_manifest( $manifest, $attachment_id = 0 ) {
+		if ( ! is_object( $manifest ) ) {
+			return true;
+		}
+		$failures = array();
+		$conflicts = array();
+		$protected_paths = array();
+		$attachment_id = absint( $attachment_id );
+		if ( $attachment_id > 0 ) {
+			$current_relative = $this->normalize_media_relative_file( (string) get_post_meta( $attachment_id, '_wp_attached_file', true ) );
+			$current_path = '' !== $current_relative ? $this->media_uploads_path_for_relative_file( $current_relative ) : '';
+			if ( '' !== $current_path ) {
+				$protected_paths[ $current_path ] = true;
+			}
+			$current_metadata = wp_get_attachment_metadata( $attachment_id );
+			foreach ( $this->cloud_media_metadata_file_paths( is_array( $current_metadata ) ? $current_metadata : array() ) as $metadata_path ) {
+				$protected_paths[ $metadata_path ] = true;
+			}
+		}
+		$created_files = isset( $manifest->created_files ) && is_array( $manifest->created_files ) ? array_reverse( $manifest->created_files ) : array();
+		foreach ( $created_files as $created_file ) {
+			$path = (string) ( is_array( $created_file ) ? ( $created_file['path'] ?? '' ) : '' );
+			if ( '' !== $path && isset( $protected_paths[ $path ] ) ) {
+				$conflicts[] = basename( $path );
+			}
+		}
+		if ( ! empty( $conflicts ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_cleanup_conflict', __( 'Current WordPress media state still references files from the failed Cloud adoption batch.', 'npcink-abilities-toolkit' ), array( 'status' => 409, 'conflicts' => $conflicts ) );
+		}
+		foreach ( $created_files as $created_file ) {
+			$path = (string) ( is_array( $created_file ) ? ( $created_file['path'] ?? '' ) : '' );
+			if ( ! is_array( $created_file ) || ! $this->discard_cloud_media_created_file( $created_file ) ) {
+				$failures[] = basename( $path );
+			}
+		}
+		if ( ! empty( $failures ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_cleanup_failed', __( 'The failed Cloud media adoption could not remove all files created by its batch.', 'npcink-abilities-toolkit' ), array( 'status' => 500, 'failures' => $failures ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Preserves a file-creation failure only after its owned file is discarded.
+	 *
+	 * @param \WP_Error           $cause Original failure.
+	 * @param array<string,mixed> $created_file Created-file record.
+	 * @return \WP_Error
+	 */
+	private function cloud_media_created_file_failure_with_discard( \WP_Error $cause, array $created_file ) {
+		if ( $this->discard_cloud_media_created_file( $created_file ) ) {
+			return $cause;
+		}
+
+		return new \WP_Error( 'npcink_abilities_toolkit_cloud_adoption_cleanup_failed', __( 'The failed Cloud media file could not be safely removed.', 'npcink-abilities-toolkit' ), array( 'status' => 500, 'cause' => $cause->get_error_code() ) );
 	}
 
 	/**
@@ -6676,9 +8014,10 @@ final class Core_Write_Package {
 	 * Applies planned post-content media reference repairs.
 	 *
 	 * @param array<string,mixed> $repairs Repair plan.
+	 * @param mixed               $batch_manifest Optional Cloud adoption mutation manifest.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	private function apply_media_content_reference_repairs( array $repairs ) {
+	private function apply_media_content_reference_repairs( array $repairs, $batch_manifest = null ) {
 		$updated_count = 0;
 		foreach ( (array) ( $repairs['repairs'] ?? array() ) as $index => $repair ) {
 			$repair = is_array( $repair ) ? $repair : array();
@@ -6694,7 +8033,9 @@ final class Core_Write_Package {
 			$after_content = (string) ( $patch['content'] ?? ( $post->post_content ?? '' ) );
 			$changed = $after_content !== (string) ( $post->post_content ?? '' );
 			if ( $changed ) {
-				$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+				$result = is_object( $batch_manifest )
+					? $this->cloud_media_cas_update_post_content( $batch_manifest, $post_id, (string) ( $post->post_content ?? '' ), $after_content )
+					: wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}

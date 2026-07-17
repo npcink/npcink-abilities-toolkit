@@ -227,13 +227,22 @@ if ( ! function_exists( 'wp_delete_file' ) ) {
 	}
 }
 
-if ( ! function_exists( 'npcink_cloud_addon_download_media_derivative_artifact' ) ) {
-	function npcink_cloud_addon_download_media_derivative_artifact( array $derivative_artifact, string $trace_id = '' ) {
-		unset( $trace_id );
-		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'] ) ) {
-			return call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_download_callback'], $derivative_artifact );
+if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+	function wp_generate_attachment_metadata( $attachment_id, $file_path ) {
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_generate_attachment_metadata_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_generate_attachment_metadata_callback'] ) ) {
+			return call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_generate_attachment_metadata_callback'], (int) $attachment_id, (string) $file_path );
 		}
-		return new WP_Error( 'cloud_addon_unavailable', 'Cloud artifact download unavailable.' );
+		return array();
+	}
+}
+
+if ( ! function_exists( 'npcink_cloud_addon_receive_media_derivative_artifact' ) ) {
+	function npcink_cloud_addon_receive_media_derivative_artifact( array $derivative_artifact, string $replacement_id = '' ) {
+		unset( $replacement_id );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_receive_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_receive_callback'] ) ) {
+			return call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_cloud_artifact_receive_callback'], $derivative_artifact );
+		}
+		return new WP_Error( 'cloud_addon_unavailable', 'Cloud artifact receiving unavailable.' );
 	}
 }
 
@@ -475,15 +484,26 @@ if ( ! function_exists( 'wp_insert_attachment' ) ) {
 if ( ! function_exists( 'wp_update_post' ) ) {
 	function wp_update_post( $postarr, $wp_error = false ) {
 		unset( $wp_error );
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'] ) ) {
+			$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'], $postarr );
+			if ( is_wp_error( $injected ) ) {
+				return $injected;
+			}
+		}
 		$post_id = (int) ( $postarr['ID'] ?? 0 );
 		if ( $post_id <= 0 || ! isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ] ) ) {
 			return new WP_Error( 'not_found', 'Post not found.' );
 		}
+		$post_before = clone $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ];
 		foreach ( array( 'post_title', 'post_content', 'post_excerpt', 'post_status', 'post_name', 'post_author', 'post_mime_type' ) as $field ) {
 			if ( array_key_exists( $field, $postarr ) ) {
 				$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ]->{$field} = $postarr[ $field ];
 			}
 		}
+		$post_after = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ $post_id ];
+		do_action( 'post_updated', $post_id, $post_after, $post_before );
+		do_action( 'save_post', $post_id, $post_after, true );
+		do_action( 'wp_after_insert_post', $post_id, $post_after, true, $post_before );
 		return $post_id;
 	}
 }
@@ -501,12 +521,88 @@ if ( ! function_exists( 'wp_set_post_terms' ) ) {
 	}
 }
 
+if ( ! function_exists( 'maybe_serialize' ) ) {
+	function maybe_serialize( $value ) {
+		return is_array( $value ) || is_object( $value ) ? serialize( $value ) : $value;
+	}
+}
+
+if ( ! function_exists( 'npcink_abilities_toolkit_unit_meta_id' ) ) {
+	function npcink_abilities_toolkit_unit_meta_id( $post_id, $meta_key, $create = true ) {
+		$post_id = (int) $post_id;
+		$meta_key = (string) $meta_key;
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] = array();
+		}
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'][ $post_id ][ $meta_key ] ) ) {
+			return (int) $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'][ $post_id ][ $meta_key ];
+		}
+		if ( ! $create ) {
+			return 0;
+		}
+		$GLOBALS['npcink_abilities_toolkit_unit_next_meta_id'] = (int) ( $GLOBALS['npcink_abilities_toolkit_unit_next_meta_id'] ?? 10000 ) + 1;
+		$GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'][ $post_id ][ $meta_key ] = $GLOBALS['npcink_abilities_toolkit_unit_next_meta_id'];
+		return (int) $GLOBALS['npcink_abilities_toolkit_unit_next_meta_id'];
+	}
+}
+
 if ( ! function_exists( 'update_post_meta' ) ) {
-	function update_post_meta( $post_id, $meta_key, $meta_value ) {
+	function update_post_meta( $post_id, $meta_key, $meta_value, $prev_value = null ) {
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_update_post_meta_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_update_post_meta_callback'] ) ) {
+			$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_update_post_meta_callback'], $post_id, $meta_key, $meta_value );
+			if ( false === $injected ) {
+				return false;
+			}
+		}
 		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ) ) {
 			$GLOBALS['npcink_abilities_toolkit_unit_post_meta'] = array();
 		}
+		if ( func_num_args() >= 4 ) {
+			$current = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] ?? null;
+			if ( $current !== $prev_value ) {
+				return false;
+			}
+		}
 		$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] = $meta_value;
+		npcink_abilities_toolkit_unit_meta_id( $post_id, $meta_key );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'add_post_meta' ) ) {
+	function add_post_meta( $post_id, $meta_key, $meta_value, $unique = false ) {
+		$post_id = (int) $post_id;
+		$meta_key = (string) $meta_key;
+		$exists = isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+			&& is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+			&& array_key_exists( $meta_key, $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] );
+		if ( $unique && $exists ) {
+			return false;
+		}
+		$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ][ $meta_key ] = $meta_value;
+		npcink_abilities_toolkit_unit_meta_id( $post_id, $meta_key );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'metadata_exists' ) ) {
+	function metadata_exists( $meta_type, $object_id, $meta_key ) {
+		return 'post' === (string) $meta_type
+			&& isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $object_id ] )
+			&& is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $object_id ] )
+			&& array_key_exists( (string) $meta_key, $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $object_id ] );
+	}
+}
+
+if ( ! function_exists( 'delete_post_meta' ) ) {
+	function delete_post_meta( $post_id, $meta_key, $meta_value = '' ) {
+		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ] ) ) {
+			if ( func_num_args() >= 3 && ( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] ?? null ) !== $meta_value ) {
+				return false;
+			}
+			unset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ (int) $post_id ][ (string) $meta_key ] );
+			unset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'][ (int) $post_id ][ (string) $meta_key ] );
+		}
 		return true;
 	}
 }
@@ -517,17 +613,16 @@ if ( ! function_exists( 'get_post_meta' ) ) {
 		if ( '' === (string) $meta_key ) {
 			$all_meta = array();
 			foreach ( ( is_array( $post_meta ) ? $post_meta : array() ) as $key => $value ) {
-				$all_meta[ (string) $key ] = is_array( $value ) ? $value : array( $value );
+				$all_meta[ (string) $key ] = array( $value );
 			}
 			return $all_meta;
 		}
-		$value = is_array( $post_meta ) && array_key_exists( (string) $meta_key, $post_meta )
-			? $post_meta[ (string) $meta_key ]
-			: '';
-		if ( $single && is_array( $value ) ) {
-			return $value[0] ?? '';
+		$exists = is_array( $post_meta ) && array_key_exists( (string) $meta_key, $post_meta );
+		if ( ! $exists ) {
+			return $single ? '' : array();
 		}
-		return $value;
+		$value = $post_meta[ (string) $meta_key ];
+		return $single ? $value : array( $value );
 	}
 }
 
@@ -977,12 +1072,189 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		public function get_error_code() {
 			return $this->code;
 		}
+
+		public function get_error_data() {
+			return $this->data;
+		}
 	}
 }
 
 if ( ! function_exists( 'is_wp_error' ) ) {
 	function is_wp_error( $value ) {
 		return $value instanceof WP_Error;
+	}
+}
+
+if ( ! class_exists( 'Npcink_Abilities_Toolkit_Unit_Wpdb' ) ) {
+	class Npcink_Abilities_Toolkit_Unit_Wpdb {
+		public $posts = 'wp_posts';
+		public $postmeta = 'wp_postmeta';
+		private $transaction_active = false;
+		private $transaction_locked = false;
+		private $transaction_meta_locked = false;
+		private $transaction_posts = array();
+		private $transaction_meta = array();
+		private $transaction_meta_ids = array();
+
+		private function clone_posts() {
+			$posts = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ?? array();
+			return array_map(
+				static function ( $post ) {
+					return is_object( $post ) ? clone $post : $post;
+				},
+				(array) $posts
+			);
+		}
+
+		public function query( $sql ) {
+			$sql = trim( (string) $sql );
+			if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_query_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_query_callback'] ) ) {
+				$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_query_callback'], $sql );
+				if ( is_int( $injected ) || false === $injected ) {
+					return $injected;
+				}
+			}
+			if ( 'START TRANSACTION' === strtoupper( $sql ) ) {
+				$this->transaction_active = true;
+				$this->transaction_locked = false;
+				$this->transaction_meta_locked = false;
+				$this->transaction_posts = $this->clone_posts();
+				$this->transaction_meta = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ?? array();
+				$this->transaction_meta_ids = $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ?? array();
+				return 0;
+			}
+			if ( 'COMMIT' === strtoupper( $sql ) ) {
+				if ( ! $this->transaction_active ) {
+					return false;
+				}
+				$this->transaction_active = false;
+				$this->transaction_locked = false;
+				$this->transaction_meta_locked = false;
+				$this->transaction_posts = array();
+				$this->transaction_meta = array();
+				$this->transaction_meta_ids = array();
+				return 0;
+			}
+			if ( 'ROLLBACK' === strtoupper( $sql ) ) {
+				if ( ! $this->transaction_active ) {
+					return false;
+				}
+				$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = $this->transaction_posts;
+				$GLOBALS['npcink_abilities_toolkit_unit_post_meta'] = $this->transaction_meta;
+				$GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] = $this->transaction_meta_ids;
+				$this->transaction_active = false;
+				$this->transaction_locked = false;
+				$this->transaction_meta_locked = false;
+				$this->transaction_posts = array();
+				$this->transaction_meta = array();
+				$this->transaction_meta_ids = array();
+				return 0;
+			}
+
+			return false;
+		}
+
+		public function prepare( $query, ...$args ) {
+			$query = (string) $query;
+			foreach ( $args as $arg ) {
+				if ( 1 === preg_match( '/%(?:d|s)/', $query, $placeholder ) ) {
+					$replacement = '%d' === $placeholder[0] ? (string) (int) $arg : "'" . addslashes( (string) $arg ) . "'";
+					$query = preg_replace( '/%(?:d|s)/', $replacement, $query, 1 );
+				}
+			}
+			return $query;
+		}
+
+		public function get_row( $query ) {
+			$query = (string) $query;
+			if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_select_for_update_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_select_for_update_callback'] ) ) {
+				$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_select_for_update_callback'], $query );
+				if ( false === $injected ) {
+					return null;
+				}
+			}
+			if ( preg_match( '/SELECT ID FROM wp_posts WHERE ID = (?<id>\d+) FOR UPDATE/i', $query, $matches ) ) {
+				if ( $this->transaction_active && ! $this->transaction_locked ) {
+					$this->transaction_posts = $this->clone_posts();
+					$this->transaction_meta = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ?? array();
+					$this->transaction_meta_ids = $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ?? array();
+					$this->transaction_locked = true;
+				}
+				$post = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ (int) $matches['id'] ] ?? null;
+				return is_object( $post ) ? (object) array( 'ID' => (int) $matches['id'] ) : null;
+			}
+			if ( ! preg_match( '/SELECT `(?<field>post_mime_type|post_content)` FROM wp_posts WHERE ID = (?<id>\d+) FOR UPDATE/i', $query, $matches ) ) {
+				return null;
+			}
+			if ( $this->transaction_active && ! $this->transaction_locked ) {
+				// A test callback represents a separately committed writer that won
+				// before this connection acquired the row lock.
+				$this->transaction_posts = $this->clone_posts();
+				$this->transaction_meta = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ?? array();
+				$this->transaction_meta_ids = $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ?? array();
+				$this->transaction_locked = true;
+			}
+			$post = $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][ (int) $matches['id'] ] ?? null;
+			if ( ! is_object( $post ) ) {
+				return null;
+			}
+
+			$field = (string) $matches['field'];
+			return (object) array( $field => (string) ( $post->{$field} ?? '' ) );
+		}
+
+		public function get_results( $query ) {
+			$query = (string) $query;
+			if ( ! preg_match( "/SELECT meta_id, meta_key, meta_value FROM wp_postmeta WHERE post_id = (?<id>\\d+) AND meta_key = '(?<key>[^']*)' ORDER BY meta_id ASC FOR UPDATE/i", $query, $matches ) ) {
+				return null;
+			}
+			$post_id = (int) $matches['id'];
+			$meta_key = stripslashes( (string) $matches['key'] );
+			if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_postmeta_select_for_update_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_postmeta_select_for_update_callback'] ) ) {
+				$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_wpdb_postmeta_select_for_update_callback'], $post_id, $meta_key, $query );
+				if ( false === $injected ) {
+					return null;
+				}
+			}
+			if ( $this->transaction_active && ! $this->transaction_meta_locked ) {
+				// The callback represents an external writer that committed before
+				// this transaction acquired the postmeta row/gap lock.
+				$this->transaction_meta = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'] ?? array();
+				$this->transaction_meta_ids = $GLOBALS['npcink_abilities_toolkit_unit_post_meta_ids'] ?? array();
+				$this->transaction_meta_locked = true;
+			}
+			$exists = isset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+				&& is_array( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] )
+				&& array_key_exists( $meta_key, $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ] );
+			if ( ! $exists ) {
+				return array();
+			}
+			$value = $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][ $post_id ][ $meta_key ];
+			return array(
+				(object) array(
+					'meta_id'    => npcink_abilities_toolkit_unit_meta_id( $post_id, $meta_key ),
+					'meta_key'   => $meta_key,
+					'meta_value' => (string) maybe_serialize( $value ),
+				),
+			);
+		}
+	}
+}
+
+if ( ! isset( $GLOBALS['wpdb'] ) ) {
+	$GLOBALS['wpdb'] = new Npcink_Abilities_Toolkit_Unit_Wpdb();
+}
+
+if ( ! function_exists( 'clean_post_cache' ) ) {
+	function clean_post_cache( $post_id ) {
+		unset( $post_id );
+	}
+}
+
+if ( ! function_exists( 'wp_cache_delete' ) ) {
+	function wp_cache_delete( $key, $group = '' ) {
+		unset( $key, $group );
+		return true;
 	}
 }
 

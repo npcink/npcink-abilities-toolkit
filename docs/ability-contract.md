@@ -166,6 +166,44 @@ Read-only abilities may return data directly.
 
 Write-proposal abilities must return a proposal, preview, diff, or other reviewable artifact. They must not commit destructive WordPress changes directly.
 
+Cloud media derivative proposal evidence must bind approval to exact bytes.
+The shared local proposal schema is an exact 11-field contract:
+`artifact_id`, `expires_at`, `mime_type`, `format`, `width`, `height`,
+`filesize_bytes`, `sha256`, `suggested_filename`, `filename_basis`, and
+`processing_warnings`. `artifact_id` must match `art_[0-9a-f]{32}` and the
+canonical SHA-256 is lowercase without a prefix. `filename_basis` always keeps
+final naming authority in WordPress with
+`owner=wordpress_write_ability_final`, `strategy=format_checksum`, and
+`final_sanitize_unique_required=true`. Legacy URL, run, checksum-alias, id,
+and size-alias fields are rejected at both REST and direct PHP seams.
+
+Final adoption calls only the Cloud Addon's verified receive helper. Its exact
+10-field result contains eight transfer facts plus
+`media_artifact_verified_transfer.v1` evidence and the exact
+`media_artifact_delivery_ack.v1` projection. Toolkit independently recomputes
+byte length and SHA-256, decodes the image, checks its real MIME and dimensions,
+and requires received `expires_at` plus `delivery_ack.artifact_expires_at` to
+preserve the original local11 proposal expiry exactly. ACK never shortens the
+artifact TTL. The ACK proves verified transfer only; it does not prove local
+application. Contract timestamps are strict UTC RFC3339; an ACK may arrive just
+before its deadline while the retained artifact expires later. Both
+proposal and decoded bytes are limited
+to 8192 pixels per axis and 16,777,216 pixels total. Cloud adoption writes only
+the independently verified main-file metadata (`file`, `width`, `height`,
+`filesize`, and `sizes=[]`) through the locked CAS. WordPress sub-size
+regeneration is deferred so image helpers cannot mutate attachment truth or
+create unowned files before that commit. Before the first WordPress write,
+Toolkit rechecks attachment state, source bytes, metadata, MIME, storage,
+and reviewed content references. Concurrent drift returns `409` and discards
+only the exclusively created derivative. Each adopted pointer, metadata,
+history, latest projection, MIME, and post-content mutation records exact
+before/batch-after values. MIME and post-content changes use a short row-lock
+transaction with PHP strict comparison and `wp_update_post()`, preserving the
+WordPress revision, hook, modified-time, and cache lifecycle. Compensation only
+reverts values still equal to this batch's exact result. Any logical conflict or
+unconfirmed rollback preserves the entire bounded file manifest; otherwise the
+batch removes only files recorded as created by the failed batch.
+
 Host-governed commit abilities are not public third-party registration helpers
 in 0.1. They are reserved for first-party package abilities and host runtime
 contracts. If a future release exposes third-party host-governed registration,

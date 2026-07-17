@@ -61,6 +61,52 @@ The Cloud addon or host transport layer owns upload, signing, and dispatch. The
 Cloud worker owns derivative generation. The local WordPress host owns final
 approval, recording, replacement, rollback, and metadata writes.
 
+## Derivative Artifact Integrity Contract
+
+Planning and adoption share one fail-closed, exact 11-field artifact descriptor.
+It requires a canonical `art_[0-9a-f]{32}` id, future expiry, supported and
+internally consistent MIME/format pair, positive bounded dimensions, a byte
+count no greater than 25 MiB, lowercase SHA-256, a local filename suggestion,
+the fixed WordPress-final filename basis, and an explicit bounded warnings
+array. Each image axis is limited to 8192 pixels and decoded area is limited to
+16,777,216 pixels. Missing fields, undeclared fields, arbitrary URLs, run ids,
+and legacy checksum aliases fail closed.
+
+Final commit calls only
+`npcink_cloud_addon_receive_media_derivative_artifact()`. The Addon returns an
+exact 10-field payload: artifact id, raw contents, MIME, width, height, byte
+size, SHA-256, unchanged proposal expiry, verified-transfer evidence, and the exact
+Cloud delivery ACK projection. Toolkit independently recomputes byte length and
+SHA-256, uses the local image inspector to verify decode/MIME/dimensions, and
+checks every received fact against the approved descriptor. Received expiry
+and `delivery_ack.artifact_expires_at` must equal the original local11 proposal
+expiry; acknowledging receipt never creates a shorter retention window.
+Timestamps are strict UTC RFC3339. ACK time must be no later than its deadline,
+and the unchanged artifact expiry must remain after the ACK.
+
+The ACK is `verified_transfer_only`; it is never local apply evidence. Toolkit
+writes only after every transfer check passes, re-verifies the local file, and
+then enters the existing Core-governed replacement path. If file creation,
+backup, attachment replacement, metadata persistence, reference repair, or
+final verification fails, the batch restores the original pointer, MIME,
+attachment metadata, affected post content, derivative metadata, and existing
+backup history, then removes new derivative/backup/generated files. Toolkit
+rechecks attachment pointer, bytes, metadata, MIME, storage, and reviewed post
+references after receive and local materialization but before any WordPress
+write. Drift returns `409` and removes only the derivative exclusively created
+by the losing batch; it never restores over the concurrent winner. Derivative
+and backup creation use no-overwrite semantics, and compensation deletes only
+files whose recorded filesystem identity still belongs to the batch. The batch
+also records exact before and batch-after values for pointer, attachment
+metadata, history/latest projections, MIME, and repaired post content. MIME and
+post-content writes and rollback use a short `SELECT ... FOR UPDATE` transaction,
+PHP strict comparison, and `wp_update_post()` so case-only drift cannot be lost
+and the WordPress revision/hook/modified-time/cache lifecycle still runs. A
+concurrent logical value or unconfirmed transaction rollback stops all manifest
+deletion and returns a bounded `409` conflict. Toolkit does not download
+arbitrary artifact URLs; the Cloud Addon owns signed pull and ACK transport
+while WordPress remains final review/write/restore truth.
+
 ## Remote Object Storage Preflight
 
 Media inspection and derivative request planning expose a `storage` evidence
@@ -147,3 +193,5 @@ Recommended rollout order:
 - Do not introduce queue, cache, CDN, or rollback ownership into the read-only
   inventory path.
 - Treat actual file mutation as high risk and host-approved.
+- Do not submit or adopt Cloud derivative artifacts without exact SHA-256,
+  size, dimension, MIME, and expiry evidence.

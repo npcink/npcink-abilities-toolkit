@@ -86,6 +86,34 @@ resume, open one focused pull request for the affected responsibility, verify
 it, and return to stabilization unless the next responsibility has independent
 evidence of its own.
 
+## 2026-07-14 Evidence-Triggered Slice
+
+Since 2026-06-01, non-merge history records 54 commits changing
+`Core_Read_Package.php` and 31 changing `Media_Read_Methods.php`. That
+concentrated definition and callback pressure satisfies the repeated-change
+trigger for one narrow maintenance slice.
+
+This slice resumes only the media governance read definition provider:
+`Core_Read_Package` remains the composition and callback owner, while the 23
+existing media definitions move unchanged to a stateless provider. Media method
+implementations, ability contracts, ordering, host governance, and runtime
+ownership do not move. This evidence does not unpause the broader structural
+sequence; every later slice still requires its own concrete trigger.
+
+The ALT/caption callback family has independent evidence. Since 2026-06-01,
+four non-merge commits changed that concentrated chain: the initial review-set
+ability, deterministic candidate scoring, preview-only quality guidance, and
+the governed missing-ALT apply contract. Those changes repeatedly crossed the
+same two public callbacks and their private candidate-quality helpers inside
+the broader media trait.
+
+The second slice therefore unfreezes only
+`Media_Alt_Caption_Read_Methods`: `build_media_alt_caption_review_set`,
+`build_media_alt_apply_plan`, and their 29 `media_alt_caption_*` private helpers
+move together without wrappers. Other media methods, media definitions,
+ability ids, schemas, callbacks, permissions, outputs, and runtime ownership do
+not move. This evidence does not authorize another media-method extraction.
+
 ## Gate Per Slice
 
 Each extraction must pass:
