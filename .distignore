@@ -4,6 +4,7 @@
 .gitattributes
 .gitignore
 AGENTS.md
+CONTRIBUTING.md
 docker-compose.official-stack.yml
 .DS_Store
 CHANGELOG.md
