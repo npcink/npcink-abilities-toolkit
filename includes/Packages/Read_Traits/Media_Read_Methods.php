@@ -1324,7 +1324,7 @@ trait Media_Read_Methods {
 			'execution_plan'        => array(
 				'steps' => array(
 					'Review candidates and skipped reasons.',
-					'For each candidate, call npcink-abilities-toolkit/build-media-derivative-cloud-request or Adapter POST /media-derivative-runs.',
+					'For each reviewed candidate, call npcink-abilities-toolkit/build-media-derivative-cloud-request, then let the consuming product dispatch the validated request through its Cloud connector; signed Cloud transport and result reads stay behind that connector, and preview does not write WordPress.',
 					'Preview non-expired derivative artifacts through the local same-origin preview route.',
 					'Submit Core proposal payloads for npcink-abilities-toolkit/adopt-cloud-media-derivative only after review.',
 					'Approve and execute through Core; run reference repair planning when hard-coded URLs or settings references remain.',
