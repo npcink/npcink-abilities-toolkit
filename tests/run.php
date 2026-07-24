@@ -31,6 +31,9 @@ $media_alt_caption_read_trait_source = (string) file_get_contents( dirname( __DI
 $core_write_package_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Core_Write_Package.php' );
 $ability_namespace_migration_map = (string) file_get_contents( dirname( __DIR__ ) . '/docs/ability-namespace-migration-map.md' );
 $ability_namespace_migration_script = (string) file_get_contents( dirname( __DIR__ ) . '/scripts/audit-legacy-ability-ids.php' );
+$pr_publisher = (string) file_get_contents( dirname( __DIR__ ) . '/scripts/publish-pr.sh' );
+$pr_template = (string) file_get_contents( dirname( __DIR__ ) . '/.github/pull_request_template.md' );
+$composer_source = (string) file_get_contents( dirname( __DIR__ ) . '/composer.json' );
 
 function npcink_abilities_toolkit_assert_true( $condition, $message ) {
 	global $assertions;
@@ -44,6 +47,20 @@ function npcink_abilities_toolkit_assert_true( $condition, $message ) {
 function npcink_abilities_toolkit_assert_same( $expected, $actual, $message ) {
 	npcink_abilities_toolkit_assert_true( $expected === $actual, $message . ' Expected ' . var_export( $expected, true ) . ', got ' . var_export( $actual, true ) );
 }
+
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $composer_source, '"pr:publish": "bash scripts/publish-pr.sh"' )
+	&& false !== strpos( $pr_template, '## Scope' )
+	&& false !== strpos( $pr_template, '## Boundary' )
+	&& false !== strpos( $pr_template, '## Verification' )
+	&& false !== strpos( $pr_template, '## Risk' )
+	&& false !== strpos( $pr_publisher, 'git status --porcelain' )
+	&& false !== strpos( $pr_publisher, 'git merge-base --is-ancestor "origin/${base_branch}" HEAD' )
+	&& false !== strpos( $pr_publisher, '--body-file "${body_path}"' )
+	&& false !== strpos( $pr_publisher, '--auto --squash --match-head-commit "${head_sha}"' )
+	&& false === strpos( $pr_publisher, '--delete-branch' ),
+	'PR publisher validates the checked-in body contract and preserves protected multi-worktree merging.'
+);
 
 function npcink_abilities_toolkit_assert_output_schema_declares_payload_keys( Gutenberg_Block_Document $document, array $schema, array $payload, $message ) {
 	npcink_abilities_toolkit_assert_same( false, $schema['additionalProperties'] ?? null, "{$message} keeps a strict output schema" );

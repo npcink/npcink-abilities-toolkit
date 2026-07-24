@@ -34,6 +34,7 @@
     "check:catalog": "@php scripts/audit-ability-catalog.php tests/fixtures/core-governance-catalog-snapshot.json",
     "check:wporg": "@php scripts/check-wordpress-org-review-rules.php",
     "check:plugin-package": "bash scripts/check-plugin-package.sh",
+    "pr:publish": "bash scripts/publish-pr.sh",
     "lint:php": "@php tests/lint.php",
     "analyse:phpstan": "phpstan analyse --memory-limit=512M",
     "perf:smoke": "@php tests/performance-smoke.php",

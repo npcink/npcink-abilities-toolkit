@@ -20,14 +20,19 @@ Use short topic branches:
 git switch -c codex/short-description
 ```
 
-Publish the branch and open a pull request:
+Complete a copy of `.github/pull_request_template.md`, then publish the clean
+branch and request protected squash auto-merge:
 
 ```bash
-git push -u origin codex/short-description
-gh pr create --base master --head codex/short-description
+composer pr:publish -- \
+  --title "fix: describe the focused change" \
+  --body-file /absolute/path/to/completed-pr-body.md
 ```
 
-Wait for the required GitHub checks to pass before merging. If GitHub reports
+The publisher requires `Scope`, `Boundary`, `Verification`, and `Risk`, checks
+that the branch includes the latest `origin/master`, and does not delete
+branches in multi-worktree repositories. Wait for the required GitHub checks to
+pass before merging. If GitHub reports
 that required status checks were bypassed, treat it as an operations exception:
 confirm that the pushed commit's checks completed successfully, record why a
 direct push was necessary, and return to the pull-request path for the next
