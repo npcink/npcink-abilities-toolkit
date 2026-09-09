@@ -46,7 +46,7 @@
     ],
     "pr:publish": "bash scripts/publish-pr.sh",
     "lint:php": "@php tests/lint.php",
-    "analyse:phpstan": "phpstan --version | grep -F \"PHPStan - PHP Static Analysis Tool\" && phpstan analyse --memory-limit=2G --no-progress",
+    "analyse:phpstan": "phpstan --version | grep -F \"PHPStan - PHP Static Analysis Tool\" && phpstan analyse --memory-limit=4G --no-progress",
     "perf:smoke": "@php tests/performance-smoke.php",
     "perf:bootstrap": "@php tests/bootstrap-performance.php",
     "pilot:gutenberg-composer": "@php tests/gutenberg-composer-pilot/run-pilot.php",
