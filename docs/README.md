@@ -118,6 +118,10 @@ change, or deciding whether a development stage is complete.
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
 17. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
+
+18. Use [PHPStan Dependency Upgrade And Closeout](phpstan-dependency-upgrade-and-closeout-2026-09-09.md)
+    when reviewing dependency upgrades that change static-analysis resource
+    requirements or closing a Dependabot analysis failure.
     for the current submitted-but-waiting GlotPress state and the PTE request
     handoff text.
 18. Record release evidence in the relevant release verification document.
