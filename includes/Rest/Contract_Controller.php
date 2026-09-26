@@ -88,6 +88,7 @@ final class Contract_Controller {
 			),
 			'ability_count'               => count( $ability_ids ),
 			'ability_risk_counts'         => $risk_counts,
+			'abilities'                   => $ability_projection,
 			'catalog'                     => array(
 				'ability_definitions_owner' => 'npcink-abilities-toolkit',
 				'ability_catalog_source'    => 'wordpress_abilities_api',
@@ -172,8 +173,17 @@ final class Contract_Controller {
 					'annotations'        => is_array( $ability['annotations'] ?? null ) ? $ability['annotations'] : array(),
 					'implementation_posture' => is_array( $ability['implementation_posture'] ?? null ) ? $ability['implementation_posture'] : array(),
 					'channels'           => array_values( array_map( 'strval', (array) ( $ability['channels'] ?? array() ) ) ),
-					'meta'               => $this->meta_contract_projection( is_array( $ability['meta'] ?? null ) ? $ability['meta'] : array() ),
-				);
+				'meta'               => $this->meta_contract_projection( is_array( $ability['meta'] ?? null ) ? $ability['meta'] : array() ),
+			);
+			$projection[ (string) $ability_id ]['schema_hash'] = $this->sha256(
+				array(
+					'input_schema'  => $projection[ (string) $ability_id ]['input_schema'],
+					'output_schema' => $projection[ (string) $ability_id ]['output_schema'],
+				)
+			);
+			$implementation_posture = $projection[ (string) $ability_id ]['implementation_posture'];
+			$projection[ (string) $ability_id ]['write_posture'] = (string) ( $implementation_posture['write_posture'] ?? ( 'read' === $projection[ (string) $ability_id ]['risk_level'] ? 'read_only' : 'host_governed_dry_run_first' ) );
+			$projection[ (string) $ability_id ]['verification_state'] = 'registered';
 		}
 
 		ksort( $projection, SORT_STRING );

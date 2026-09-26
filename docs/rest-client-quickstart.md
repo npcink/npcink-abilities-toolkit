@@ -40,8 +40,11 @@ The Toolkit contract endpoint is for host/runtime discovery and requires a
 REST caller with `manage_options`. It returns metadata such as plugin version,
 contract versions, registered ability count, stable ability/workflow hashes,
 catalog/schema ownership, read/write execution surfaces, forbidden payload
-families, and the host-governed write boundary. It does not replace the
-WordPress Abilities API catalog and does not run abilities.
+families, and the host-governed write boundary. Its `abilities` projection is
+the machine-readable source for each local Ability's input/output schema,
+`schema_hash`, `risk_level`, `requires_approval`, `write_posture`, and
+`verification_state=registered`. It does not replace the WordPress Abilities
+API catalog and does not run abilities.
 
 ## Authentication
 
