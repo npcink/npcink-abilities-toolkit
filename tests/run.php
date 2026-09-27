@@ -1043,6 +1043,11 @@ npcink_abilities_toolkit_assert_same( 0, $runtime_contract['ability_risk_counts'
 npcink_abilities_toolkit_assert_same( count( $plugin_abilities ), array_sum( (array) ( $runtime_contract['ability_risk_counts'] ?? array() ) ), 'runtime contract risk counts add up to the ability count' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit', $runtime_contract['catalog']['ability_definitions_owner'] ?? '', 'runtime contract names Toolkit as ability definitions owner' );
 npcink_abilities_toolkit_assert_same( 'wordpress_abilities_api', $runtime_contract['catalog']['ability_catalog_source'] ?? '', 'runtime contract points hosts to WordPress Abilities API catalog' );
+npcink_abilities_toolkit_assert_true( isset( $runtime_contract['abilities']['npcink-abilities-toolkit/site-info'] ), 'runtime contract exposes the machine-readable Ability projection' );
+$site_info_contract = $runtime_contract['abilities']['npcink-abilities-toolkit/site-info'] ?? array();
+npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $site_info_contract['schema_hash'] ?? '' ), 'sha256:' ), 'Ability projection exposes a stable schema hash' );
+npcink_abilities_toolkit_assert_same( 'registered', $site_info_contract['verification_state'] ?? '', 'Ability projection exposes registered verification state' );
+npcink_abilities_toolkit_assert_same( 'read_only', $site_info_contract['write_posture'] ?? '', 'read Ability projection exposes read-only write posture' );
 npcink_abilities_toolkit_assert_same( true, $runtime_contract['schema_controls']['callback_free_hashes'] ?? null, 'runtime contract exposes callback-free schema hashes' );
 npcink_abilities_toolkit_assert_same( true, $runtime_contract['write_controls']['dry_run_default'] ?? null, 'runtime contract keeps dry-run as the default write posture' );
 npcink_abilities_toolkit_assert_same( false, $runtime_contract['write_controls']['commit_default'] ?? null, 'runtime contract keeps commit disabled by default' );
