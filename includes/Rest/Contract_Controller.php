@@ -20,6 +20,7 @@ final class Contract_Controller {
 	const ABILITY_REGISTRY_VERSION  = '1';
 	const WORKFLOW_RECIPES_VERSION  = '1';
 	const RUNTIME_CONTRACT_ENDPOINT_VERSION = '1';
+	const ABILITY_CONTRACT_SOURCE = 'npcink_abilities_toolkit';
 
 	/**
 	 * Registers REST routes.
@@ -161,6 +162,7 @@ final class Contract_Controller {
 
 			$projection[ (string) $ability_id ] = array(
 				'ability_id'         => (string) ( $ability['ability_id'] ?? $ability_id ),
+				'contract_source'    => self::ABILITY_CONTRACT_SOURCE,
 				'contract_version'   => (string) ( $ability['contract_version'] ?? '' ),
 				'category'           => (string) ( $ability['category'] ?? '' ),
 				'risk_level'         => (string) ( $ability['risk_level'] ?? '' ),
