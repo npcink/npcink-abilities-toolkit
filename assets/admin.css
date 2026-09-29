@@ -163,6 +163,10 @@
 	margin-top: 2px;
 }
 
+.npcink-abilities-toolkit-subnav {
+	margin: 4px 0 12px;
+}
+
 .npcink-abilities-toolkit-scenarios__grid {
 	display: grid;
 	gap: 12px;

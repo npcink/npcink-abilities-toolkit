@@ -192,10 +192,30 @@ final class Test_Page {
 	 * @return void
 	 */
 	private function render_technical_tab( $abilities_url, $categories_url, $contract_url, array $registered ) {
-		$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
-		$this->render_ability_catalog( $registered );
-		$this->render_site_checks( $registered );
-		$this->render_workflow_scenarios();
+		$active_sub = $this->get_active_sub();
+		?>
+		<ul class="subsubsub npcink-abilities-toolkit-subnav">
+			<?php $sub_index = 0; ?>
+			<?php foreach ( $this->get_technical_subs() as $sub => $label ) : ?>
+				<li>
+					<a class="<?php echo esc_attr( $active_sub === $sub ? 'current' : '' ); ?>" href="<?php echo esc_url( $this->get_technical_url( $sub ) ); ?>">
+						<?php echo esc_html( $label ); ?>
+					</a>
+					<?php echo esc_html( ++$sub_index < count( $this->get_technical_subs() ) ? ' |' : '' ); ?>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<br class="clear" />
+		<?php
+		if ( 'catalog' === $active_sub ) {
+			$this->render_ability_catalog( $registered );
+		} elseif ( 'checks' === $active_sub ) {
+			$this->render_site_checks( $registered );
+		} elseif ( 'scenarios' === $active_sub ) {
+			$this->render_workflow_scenarios();
+		} else {
+			$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
+		}
 	}
 
 	/**
@@ -269,7 +289,7 @@ final class Test_Page {
 				<?php endforeach; ?>
 			</ul>
 			<p class="description">
-				<a href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'Review the full technical catalog in Developer Tools', 'npcink-abilities-toolkit' ); ?></a>
+				<a href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'Review the full technical catalog in Developer Tools', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
 		</section>
 		<?php
@@ -295,6 +315,69 @@ final class Test_Page {
 		}
 
 		return in_array( $tab, $tabs, true ) ? $tab : 'overview';
+	}
+
+	/**
+	 * Returns the technical tab sub-navigation labels.
+	 *
+	 * @return array<string,string>
+	 */
+	private function get_technical_subs() {
+		return array(
+			'connection' => __( 'Connection', 'npcink-abilities-toolkit' ),
+			'catalog'    => __( 'Ability Catalog', 'npcink-abilities-toolkit' ),
+			'checks'     => __( 'Checks', 'npcink-abilities-toolkit' ),
+			'scenarios'  => __( 'Workflow scenarios', 'npcink-abilities-toolkit' ),
+		);
+	}
+
+	/**
+	 * Returns the active technical sub-section.
+	 *
+	 * @return string
+	 */
+	private function get_active_sub() {
+		$subs = array_keys( $this->get_technical_subs() );
+		$sub  = $this->get_admin_query_arg( 'npcink_abilities_toolkit_sub', '' );
+
+		$legacy_subs = array(
+			'connections' => 'connection',
+			'developer'   => 'connection',
+			'catalog'     => 'catalog',
+			'abilities'   => 'catalog',
+			'checks'      => 'checks',
+		);
+		if ( '' === $sub ) {
+			$legacy_tab = $this->get_admin_query_arg( 'npcink_abilities_toolkit_tab', '' );
+			if ( isset( $legacy_subs[ $legacy_tab ] ) ) {
+				$sub = $legacy_subs[ $legacy_tab ];
+			}
+		}
+
+		return in_array( $sub, $subs, true ) ? $sub : 'connection';
+	}
+
+	/**
+	 * Returns an admin URL for one technical sub-section.
+	 *
+	 * @param string $sub Sub-section key.
+	 * @param string $fragment Optional element fragment.
+	 * @return string
+	 */
+	private function get_technical_url( $sub, $fragment = '' ) {
+		$url = add_query_arg(
+			array(
+				'npcink_abilities_toolkit_tab' => 'technical',
+				'npcink_abilities_toolkit_sub' => $sub,
+			),
+			menu_page_url( self::MENU_SLUG, false )
+		);
+
+		if ( '' !== $fragment ) {
+			$url .= '#' . rawurlencode( $fragment );
+		}
+
+		return $url;
 	}
 
 	/**
@@ -400,17 +483,17 @@ final class Test_Page {
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'View site abilities', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'See what AI clients can read, suggest, or request approval to change.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button button-primary" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button button-primary" href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Run safe checks', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'Confirm the site can return basic information and redacted diagnostics.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'checks', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Use a host product', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
 					<p class="description">
 						<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 					</p>
@@ -418,7 +501,7 @@ final class Test_Page {
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Developer access', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'Copy REST endpoints and raw ability IDs when connecting external clients.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 			</div>
 			<p class="description">
@@ -428,7 +511,7 @@ final class Test_Page {
 				<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
 				<?php if ( $scenario_count > 0 ) : ?>
 					<p class="description npcink-abilities-toolkit-scenario-summary">
-						<a href="<?php echo esc_url( $this->get_tab_url( 'developer', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
+						<a href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
 							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
 						</a>
 					</p>

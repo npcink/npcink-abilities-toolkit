@@ -20,11 +20,13 @@ The page has exactly two tabs, split by audience rather than by surface type:
 - **Overview** (default) answers the site owner in one screen: status tiles,
   a plain-language capability summary grouped by category, write posture, and
   guided next actions.
-- **Developer Tools** hosts every technical surface in one anchored page:
-  connection values, raw discovery fetches, catalog export, the Available
-  Abilities audit table, the read-only checks, and the workflow scenario
-  catalog. Legacy tab URLs (`abilities`, `checks`, `developer`, `catalog`,
-  `connections`) alias to this tab so bookmarks keep working.
+- **Developer Tools** hosts every technical surface behind one WordPress
+  standard `.subsubsub` sub-navigation cut by developer task: Connection
+  (endpoints, discovery fetches, catalog export), Ability Catalog (the
+  Available Abilities audit table), Checks (read-only site checks), and
+  Workflow scenarios. Only the active sub-section renders. Legacy tab URLs
+  (`abilities`, `checks`, `developer`, `catalog`, `connections`) alias to
+  this tab with the matching sub-section so bookmarks keep working.
 
 Tabs are cut by audience because nobody arrives wanting "a review surface" —
 site owners arrive with "is it working and what can AI do here", developers
