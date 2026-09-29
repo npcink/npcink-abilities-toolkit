@@ -100,7 +100,10 @@ the real contract:
   silent long run is usually a retry cycle, not a hang.
 - Squash-merged topic branches never satisfy `git branch -d`. Verify content
   equivalence with `git cherry master <branch>` (0 unmatched patches) before
-  `git branch -D`, and record the reasoning for anything kept.
+  `git branch -D`, and record the reasoning for anything kept. Fetch
+  `origin/master` first: a squash merge that landed after the last fetch makes
+  a fully merged branch look unmatched, and deleting on the stale view loses
+  the only local copy of the commits.
 - The old `codex/ability-contract-source` branch (commit 738c15f) was deleted
   on 2026-09-29 after verifying its `contract_source` metadata content is
   present on master via PR #122; it was an earlier text form of merged work.
