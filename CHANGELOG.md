@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Added five machine-readable workflow recipes: article-production, media-seo-handoff, media-governance-scan, site-operations-scan, and diagnostics-triage (7 -> 12 cases), each with replay-fixture locks and real-site smoke coverage.
+- Documented the host-agnostic Host Approval Contract for governing write and destructive commits, with a fail-closed third-party host example and a dedicated `check:host-approval` gate; the contract is referenced from the platform index and the Adapter/Core contract docs.
+- Added a read-only workflow scenario overview and integration documentation links to the admin page, including standalone-install next-step guidance.
+- Added contract gates: ability response shape registration (`check:shapes`, 126 read abilities), scope semantics with an explicit capability-gated list, and locale-independent standalone admin smoke assertions.
+- Completed the `get-block-theme-context` output schema declaration to match its twelve-key runtime response.
+- Reordered the root README and documentation entry point to lead with user value; added the three-persona walkthrough standard and closeout records for future sessions.
+- Backfilled the zh_CN locale to full parity (1,052 translated strings) after regenerating the stale POT template.
+
 ## 0.5.5 - 2026-09-05
 
 - Isolated the packaged Plugin Check regression test from inherited `WP_CLI_PHP`, error-reporting, and database socket settings so the cross-repository release gate remains deterministic.
