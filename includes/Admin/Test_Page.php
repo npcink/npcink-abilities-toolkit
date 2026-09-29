@@ -85,16 +85,33 @@ final class Test_Page {
 			$handle,
 			plugins_url( 'assets/admin.css', NPCINK_ABILITIES_TOOLKIT_FILE ),
 			array(),
-			$version
+			$this->asset_version( 'assets/admin.css', $version )
 		);
 
 		wp_enqueue_script(
 			$handle,
 			plugins_url( 'assets/admin.js', NPCINK_ABILITIES_TOOLKIT_FILE ),
 			array(),
-			$version,
+			$this->asset_version( 'assets/admin.js', $version ),
 			true
 		);
+	}
+
+	/**
+	 * Returns a cache-busting version for one bundled asset.
+	 *
+	 * The plugin version only changes at release time, so styling and script
+	 * changes between releases would otherwise stay pinned to a stale browser
+	 * cache. The file modification time busts the cache on every real change.
+	 *
+	 * @param string $relative_path Path relative to the plugin root.
+	 * @param string $fallback_version Fallback when the file is unreadable.
+	 * @return string
+	 */
+	private function asset_version( $relative_path, $fallback_version ) {
+		$path = plugin_dir_path( NPCINK_ABILITIES_TOOLKIT_FILE ) . $relative_path;
+		$mtime = file_exists( $path ) ? filemtime( $path ) : false;
+		return false !== $mtime ? (string) $mtime : (string) $fallback_version;
 	}
 
 	/**
