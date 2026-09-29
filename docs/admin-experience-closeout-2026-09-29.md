@@ -40,6 +40,13 @@ so the same class of miss is less likely to recur.
 
 ## Durable Rules
 
+- Tabs are cut by audience, not by surface type: Overview answers the site
+  owner in one screen (status, plain-language capability summary, write
+  posture, guided next actions); Developer Tools hosts every technical
+  section behind anchors, and legacy tab keys alias to it (#143 moved the
+  scenario catalog there; #144 landed the full two-audience restructure
+  after maintainer feedback that the four-tab layout mismatched the
+  capability-package positioning).
 - Run the three-persona walkthrough (see Solo AI Development Workflow) for
   every user-facing surface change; gates do not replace it.
 - Every read ability's response shape lives in
