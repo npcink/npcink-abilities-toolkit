@@ -328,8 +328,17 @@ final class Test_Page {
 			<p class="description">
 				<?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?>
 			</p>
+			<?php if ( function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) : ?>
+				<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
+				<?php if ( $scenario_count > 0 ) : ?>
+					<p class="description npcink-abilities-toolkit-scenario-summary">
+						<a href="<?php echo esc_url( $this->get_tab_url( 'developer', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
+							<?php echo esc_html( sprintf( /* translators: %d: published workflow scenario count. */ __( 'This site publishes %d workflow scenarios that a host product can run.', 'npcink-abilities-toolkit' ), $scenario_count ) ); ?>
+						</a>
+					</p>
+				<?php endif; ?>
+			<?php endif; ?>
 		</section>
-		<?php $this->render_workflow_scenarios(); ?>
 		<?php
 	}
 
@@ -352,7 +361,7 @@ final class Test_Page {
 			return;
 		}
 		?>
-		<section class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
+		<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
 			<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
 			<p class="description">
 				<?php echo esc_html__( 'Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes.', 'npcink-abilities-toolkit' ); ?>
@@ -1036,6 +1045,7 @@ final class Test_Page {
 		</section>
 
 		<?php $this->render_advanced_checks( $registered ); ?>
+		<?php $this->render_workflow_scenarios(); ?>
 		<?php
 	}
 
