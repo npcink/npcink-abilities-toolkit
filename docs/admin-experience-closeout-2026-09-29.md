@@ -80,3 +80,37 @@ so the same class of miss is less likely to recur.
   richer WordPress stubs exist (`runtime_verified: false`).
 - Recipe batch 3 (style baseline) and the deferred contract decisions remain
   tracked in the positioning closeout document.
+
+## Admin Iteration Record (Rounds #143-#152)
+
+Six further maintainer-driven rounds refined the surface after the
+two-audience restructure. Durable rules they established:
+
+- **Task-based sub navigation**: the Developer Tools tab renders only the
+  active sub-section (Connection / Ability Catalog / Checks / Workflow
+  scenarios) behind core WP `.subsubsub` styling; legacy tab keys map to
+  their sub-section (#147).
+- **Hero stat hierarchy**: stat tiles show large values with explanations
+  demoted to hover tooltips; next-action cards are compact
+  label-plus-button pairs. Numbers first, words on demand (#149).
+- **Every navigation target has exactly one entry**: the capability summary
+  dropped its duplicate catalog link and intro sentence, and the duplicate
+  developer-access card merged into the host-product card because both
+  targeted the connection sub-section (#150). Two locked assertions were
+  migrated with the rationale recorded in the assertion message itself.
+- **Identity messaging lives at the top**: the boundary sentence sits in the
+  intro block, and the page ends on actions instead of a disclaimer (#151).
+- **Asset cache busting uses file modification time, not the plugin
+  version** (#152): versioning admin.css/admin.js with the release-time
+  plugin constant left every between-release styling change pinned to a
+  stale browser cache — new HTML rendered with old CSS and looked like
+  "nothing changed". Verify rendered output, not just committed code.
+- **OpenCodeReview advisory comments block required conversation
+  resolution**: every PR now collects bot review threads that must be
+  resolved before auto-merge completes; treat thread resolution as a
+  standard closeout step for each PR.
+
+The recurring meta-lesson: each round was driven by an actual screenshot
+from the maintainer, and each correct fix REMOVED something (a section, a
+duplicate, a sentence) rather than adding. When a layout feels wrong,
+suspect redundancy before absence.
