@@ -52,6 +52,11 @@ so the same class of miss is less likely to recur.
 - Admin external links follow `docs/admin-surface-standard.md`: stable
   documentation URLs as class constants, `rel="noopener noreferrer"`,
   integration guidance only.
+- A new admin section needs its markup AND its stylesheet entries in
+  `assets/admin.css` in the same change. The scenario overview in #132
+  shipped without its grid styles and rendered as an unstyled stack until
+  #139; no gate pairs custom classes with CSS, so check the rendered page,
+  not just the PHP output.
 - i18n strategy: new admin strings ship English-first with zh_CN translated
   in the same change; other bundled locales fall back to English. Note the
   pre-existing backlog: regenerating the POT on 2026-09-29 exposed 132
