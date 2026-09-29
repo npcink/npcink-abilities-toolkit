@@ -802,6 +802,12 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/build-article-production-fingerprint' === (string) ( $workflow_recipes_run_data['cases']['article_production']['entrypoint_ability_id'] ?? '' ), 'Article production workflow uses the fingerprint chain entrypoint.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['media_seo_enrichment'] ), 'Workflow recipe discovery returns media SEO enrichment definition.' );
 	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/get-media-inventory-health' === (string) ( $workflow_recipes_run_data['cases']['media_seo_enrichment']['entrypoint_ability_id'] ?? '' ), 'Media SEO enrichment workflow uses the read-only inventory health entrypoint.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['media_governance_scan'] ), 'Workflow recipe discovery returns media governance scan definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/get-media-cleanup-opportunities' === (string) ( $workflow_recipes_run_data['cases']['media_governance_scan']['entrypoint_ability_id'] ?? '' ), 'Media governance scan workflow uses the read-only cleanup opportunities entrypoint.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['site_operations_scan'] ), 'Workflow recipe discovery returns site operations scan definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/get-site-operations-dashboard' === (string) ( $workflow_recipes_run_data['cases']['site_operations_scan']['entrypoint_ability_id'] ?? '' ), 'Site operations scan workflow uses the read-only operations dashboard entrypoint.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['diagnostics_triage'] ), 'Workflow recipe discovery returns diagnostics triage definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/wp-diagnostics-summary' === (string) ( $workflow_recipes_run_data['cases']['diagnostics_triage']['entrypoint_ability_id'] ?? '' ), 'Diagnostics triage workflow uses the local-only diagnostics summary entrypoint.' );
 
 	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-workflow-recipe/run' );
 	$workflow_recipe_run_request->set_query_params(
@@ -1926,6 +1932,57 @@ $media_seo_metadata_run_response = rest_do_request( $media_seo_metadata_run_requ
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_seo_metadata_run_response->get_status(), 'Authenticated media metadata optimization ability run returns 200.' );
 $media_seo_metadata_run_data = $media_seo_metadata_run_response->get_data();
 
+$media_governance_cleanup_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-media-cleanup-opportunities/run' );
+$media_governance_cleanup_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+			'page'     => 1,
+		),
+	)
+);
+$media_governance_cleanup_run_response = rest_do_request( $media_governance_cleanup_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_governance_cleanup_run_response->get_status(), 'Authenticated media cleanup opportunities ability run returns 200.' );
+$media_governance_cleanup_run_data = $media_governance_cleanup_run_response->get_data();
+
+$media_governance_fix_plan_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-media-inventory-fix-plan/run' );
+$media_governance_fix_plan_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+			'page'     => 1,
+		),
+	)
+);
+$media_governance_fix_plan_run_response = rest_do_request( $media_governance_fix_plan_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_governance_fix_plan_run_response->get_status(), 'Authenticated media inventory fix plan ability run returns 200.' );
+$media_governance_fix_plan_run_data = $media_governance_fix_plan_run_response->get_data();
+
+$site_operations_dashboard_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-site-operations-dashboard/run' );
+$site_operations_dashboard_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+		),
+	)
+);
+$site_operations_dashboard_run_response = rest_do_request( $site_operations_dashboard_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $site_operations_dashboard_run_response->get_status(), 'Authenticated site operations dashboard ability run returns 200.' );
+$site_operations_dashboard_run_data = $site_operations_dashboard_run_response->get_data();
+
+$site_operations_taxonomy_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-taxonomy-inventory-health/run' );
+$site_operations_taxonomy_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+			'page'     => 1,
+		),
+	)
+);
+$site_operations_taxonomy_run_response = rest_do_request( $site_operations_taxonomy_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $site_operations_taxonomy_run_response->get_status(), 'Authenticated taxonomy inventory health ability run returns 200.' );
+$site_operations_taxonomy_run_data = $site_operations_taxonomy_run_response->get_data();
+
 npcink_abilities_toolkit_smoke_assert(
 	true === ( $post_context_run_data['success'] ?? null )
 	&& true === ( $publishing_checklist_run_data['success'] ?? null )
@@ -2004,6 +2061,31 @@ npcink_abilities_toolkit_smoke_assert(
 	&& ! isset( $media_seo_metadata_run_data['data']['commit_execution'] )
 	&& ! isset( $media_seo_list_run_data['data']['commit_execution'] ),
 	'Article production and media SEO enrichment chains keep write execution outside the default read chain.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $media_governance_cleanup_run_data['success'] ?? null )
+	&& true === ( $media_governance_fix_plan_run_data['success'] ?? null ),
+	'Media governance workflow returns success envelopes across cleanup opportunities and inventory fix plans.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	false === ( $media_governance_cleanup_run_data['data']['commit_execution'] ?? false )
+	&& false === ( $media_governance_fix_plan_run_data['data']['commit_execution'] ?? false ),
+	'Media governance chain keeps write execution outside the default read chain.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $site_operations_dashboard_run_data['success'] ?? null )
+	&& true === ( $site_operations_taxonomy_run_data['success'] ?? null ),
+	'Site operations workflow returns success envelopes across the operations dashboard and taxonomy inventory health.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	false === ( $site_operations_dashboard_run_data['data']['commit_execution'] ?? false )
+	&& false === ( $site_operations_taxonomy_run_data['data']['commit_execution'] ?? false ),
+	'Site operations chain keeps write execution outside the default read chain.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	isset( $ops_diagnostics_run_data['redacted'] )
+	&& isset( $ops_diagnostics_run_data['detail_version'] ),
+	'Diagnostics triage workflow returns the redacted ops detail contract without a success envelope.'
 );
 
 npcink_abilities_toolkit_smoke_cleanup_fixtures();
