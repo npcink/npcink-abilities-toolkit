@@ -4,8 +4,8 @@ Use this page as the entry point for integration and debugging work. The
 repository contains detailed contract and release notes; this guide points each
 reader to the smallest useful path first.
 
-Cross-project platform coordination starts from
-`/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
+Cross-project platform coordination starts from the `npcink-workflow-toolbox`
+repository's `docs/platform/README.md`. This
 repository owns Toolkit ability contracts and reusable static workflow
 definitions, but it should not become the platform coordination source of
 truth.
@@ -36,17 +36,18 @@ files under `includes/` or instantiate classes in the
 Use this path when a host product discovers, filters, runs, or projects
 abilities.
 
-1. Read the project ownership boundary in the root [README](../README.md).
-2. Follow the [Host Approval Contract](host-approval-contract.md) to govern
+1. Follow the [Host Approval Contract](host-approval-contract.md) to govern
    write and destructive commits. It is host-agnostic; Npcink AI is only the
    first implementer.
-3. Choose a deployment shape in [Host Profiles](host-profiles.md).
-4. Use [Permission Matrix](permission-matrix.md) for write and destructive
+2. Choose a deployment shape in [Host Profiles](host-profiles.md).
+3. Use [Permission Matrix](permission-matrix.md) for write and destructive
    capability expectations.
-5. Use [Core Governance Handoff Guide](core-governance-handoff-guide.md) when
+4. Use [Core Governance Handoff Guide](core-governance-handoff-guide.md) when
    preparing proposal payloads for a governed host.
-6. Use [Npcink AI Integration Contract](npcink-ai-integration.md) only when the
+5. Use [Npcink AI Integration Contract](npcink-ai-integration.md) only when the
    consuming host is Npcink AI or a compatible projection consumer.
+6. Read the project ownership boundary in the root [README](../README.md)
+   before publishing an integration.
 
 Hosts own caller identity, approval, audit, quota, model routing, MCP transport,
 and final write authorization. This package owns ability registration, schema
@@ -121,13 +122,21 @@ change, or deciding whether a development stage is complete.
     for the admin-surface release, SVN publication, icon refresh, and Chinese
     Stable Readme translation status.
 17. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
-
+    for the current submitted-but-waiting GlotPress state and the PTE request
+    handoff text.
 18. Use [PHPStan Dependency Upgrade And Closeout](phpstan-dependency-upgrade-and-closeout-2026-09-09.md)
     when reviewing dependency upgrades that change static-analysis resource
     requirements or closing a Dependabot analysis failure.
-    for the current submitted-but-waiting GlotPress state and the PTE request
-    handoff text.
-18. Record release evidence in the relevant release verification document.
+19. Record release evidence in the relevant release verification document.
+20. Release and maintainer records indexed from the root README: the 0.3
+    stabilization surface ([Ability Acceptance Matrix](ability-acceptance-matrix.md),
+    [Agent Workflow Validation](agent-workflow-validation.md),
+    [Release 0.3 Scope](release-0.3-scope.md)), the 0.5 release verification
+    line ([0.5](release-0.5-verification.md),
+    [0.5.1](release-0.5.1-verification.md), [0.5.2](release-0.5.2-verification.md),
+    and the [ability contract readiness plan](ability-contract-readiness-0.5.md)),
+    the [freeze/observe proof phase closeout](freeze-observe-phase-closeout-2026-06-17.md),
+    and the [admin surface standard](admin-surface-standard.md).
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
