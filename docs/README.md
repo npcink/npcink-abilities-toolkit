@@ -37,12 +37,15 @@ Use this path when a host product discovers, filters, runs, or projects
 abilities.
 
 1. Read the project ownership boundary in the root [README](../README.md).
-2. Choose a deployment shape in [Host Profiles](host-profiles.md).
-3. Use [Permission Matrix](permission-matrix.md) for write and destructive
+2. Follow the [Host Approval Contract](host-approval-contract.md) to govern
+   write and destructive commits. It is host-agnostic; Npcink AI is only the
+   first implementer.
+3. Choose a deployment shape in [Host Profiles](host-profiles.md).
+4. Use [Permission Matrix](permission-matrix.md) for write and destructive
    capability expectations.
-4. Use [Core Governance Handoff Guide](core-governance-handoff-guide.md) when
+5. Use [Core Governance Handoff Guide](core-governance-handoff-guide.md) when
    preparing proposal payloads for a governed host.
-5. Use [Npcink AI Integration Contract](npcink-ai-integration.md) only when the
+6. Use [Npcink AI Integration Contract](npcink-ai-integration.md) only when the
    consuming host is Npcink AI or a compatible projection consumer.
 
 Hosts own caller identity, approval, audit, quota, model routing, MCP transport,
