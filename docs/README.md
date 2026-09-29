@@ -145,6 +145,10 @@ change, or deciding whether a development stage is complete.
     reordering README boundary text; it records the durable entrypoint,
     response-shape, and documentation rules learned while landing both recipe
     batches and the contract adoption.
+22. Read [Admin Experience And Caller Contract Closeout - 2026-09-29](admin-experience-closeout-2026-09-29.md)
+    before changing admin surfaces or response shapes; it records the
+    three-persona walkthrough rationale, the shape registration rules, the
+    scope semantics, and the root causes these gates now cover.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
