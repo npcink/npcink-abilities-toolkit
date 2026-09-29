@@ -482,27 +482,23 @@ final class Test_Page {
 		<section class="npcink-abilities-toolkit-next" aria-labelledby="npcink-abilities-toolkit-next-title">
 			<h2 id="npcink-abilities-toolkit-next-title"><?php echo esc_html__( 'Next actions', 'npcink-abilities-toolkit' ); ?></h2>
 			<div class="npcink-abilities-toolkit-next__grid">
-				<div class="npcink-abilities-toolkit-next__item">
+				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'See what AI clients can read, suggest, or request approval to change.', 'npcink-abilities-toolkit' ); ?>">
 					<h3><?php echo esc_html__( 'View site abilities', 'npcink-abilities-toolkit' ); ?></h3>
-					<p><?php echo esc_html__( 'See what AI clients can read, suggest, or request approval to change.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button button-primary" href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
-				<div class="npcink-abilities-toolkit-next__item">
+				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'Confirm the site can return basic information and redacted diagnostics.', 'npcink-abilities-toolkit' ); ?>">
 					<h3><?php echo esc_html__( 'Run safe checks', 'npcink-abilities-toolkit' ); ?></h3>
-					<p><?php echo esc_html__( 'Confirm the site can return basic information and redacted diagnostics.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'checks', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
-				<div class="npcink-abilities-toolkit-next__item">
+				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?>">
 					<h3><?php echo esc_html__( 'Use a host product', 'npcink-abilities-toolkit' ); ?></h3>
-					<p><?php echo esc_html__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
 					<p class="description">
 						<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 					</p>
 				</div>
-				<div class="npcink-abilities-toolkit-next__item">
+				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'Copy REST endpoints and raw ability IDs when connecting external clients.', 'npcink-abilities-toolkit' ); ?>">
 					<h3><?php echo esc_html__( 'Developer access', 'npcink-abilities-toolkit' ); ?></h3>
-					<p><?php echo esc_html__( 'Copy REST endpoints and raw ability IDs when connecting external clients.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 			</div>
@@ -608,10 +604,9 @@ final class Test_Page {
 	 */
 	private function render_status_tile( $label, $value, $state, $detail ) {
 		?>
-		<div class="npcink-abilities-toolkit-status is-<?php echo esc_attr( $state ); ?>" role="listitem">
+		<div class="npcink-abilities-toolkit-status is-<?php echo esc_attr( $state ); ?>" role="listitem" title="<?php echo esc_attr( $detail ); ?>">
 			<span class="npcink-abilities-toolkit-status__label"><?php echo esc_html( $label ); ?></span>
 			<span class="npcink-abilities-toolkit-status__value"><?php echo esc_html( $value ); ?></span>
-			<span class="npcink-abilities-toolkit-status__detail"><?php echo esc_html( $detail ); ?></span>
 		</div>
 		<?php
 	}
