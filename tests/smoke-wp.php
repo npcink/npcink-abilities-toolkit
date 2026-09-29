@@ -787,6 +787,42 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 		npcink_abilities_toolkit_smoke_assert( is_array( $ops_diagnostics_first_source ) && array_key_exists( 'message_fingerprint', $ops_diagnostics_first_source ), 'Ops diagnostics source summary includes message fingerprints when entries exist.' );
 	}
 
+	/*
+	 * Standalone admin surface consistency: the overview host tile must reflect
+	 * the real host-menu state in both directions. The assertion uses the
+	 * is-inactive state class so it stays locale-independent.
+	 */
+	if ( class_exists( 'Npcink_Abilities_Toolkit\Admin\Test_Page' ) ) {
+		$admin_page_instance = new Npcink_Abilities_Toolkit\Admin\Test_Page(
+			Npcink_Abilities_Toolkit\Plugin::instance()->abilities(),
+			Npcink_Abilities_Toolkit\Plugin::instance()->categories()
+		);
+		$menu_backup = isset( $GLOBALS['menu'] ) ? $GLOBALS['menu'] : null;
+
+		$GLOBALS['menu'] = array(
+			array( 'Dashboard', 'read', 'index.php', '', 'menu-top' ),
+		);
+		ob_start();
+		$admin_page_instance->render();
+		$standalone_html = (string) ob_get_clean();
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'is-inactive' ), 'Standalone admin overview marks the host tile inactive when no Npcink AI menu exists.' );
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'npcink-abilities-toolkit-scenarios' ), 'Standalone admin overview renders the workflow scenario overview.' );
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'docs/host-approval-contract.md' ), 'Standalone admin overview links the Host Approval Contract.' );
+
+		$GLOBALS['menu'][] = array( 'Npcink AI', 'manage_options', 'npcink-ai', '', 'menu-top' );
+		ob_start();
+		$admin_page_instance->render();
+		$host_html = (string) ob_get_clean();
+		npcink_abilities_toolkit_smoke_assert( false === strpos( $host_html, 'is-inactive' ), 'Admin overview drops the inactive host state when a Npcink AI menu exists.' );
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $host_html, 'npcink-abilities-toolkit-scenarios' ), 'Admin overview renders the workflow scenario overview with a host menu present.' );
+
+		if ( null === $menu_backup ) {
+			unset( $GLOBALS['menu'] );
+		} else {
+			$GLOBALS['menu'] = $menu_backup;
+		}
+	}
+
 	$workflow_recipes_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-workflow-recipes/run' );
 	$workflow_recipes_run_request->set_query_params( array( 'input' => array() ) );
 	$workflow_recipes_run_response = rest_do_request( $workflow_recipes_run_request );
