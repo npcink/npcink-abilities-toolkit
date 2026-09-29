@@ -2,139 +2,20 @@
 
 Standalone WordPress Abilities API plugin for packaging and registering agent-callable abilities.
 
-## Scope
+## What You Get
 
-This project is an independent Abilities API capability-package plugin. It can be used by any WordPress plugin that wants to expose abilities to agents, and by clients that consume the WordPress Abilities API directly.
+Install this plugin and your AI assistant gets a safe toolbox for WordPress: it can read articles, media, comments, menus, and site diagnostics, suggest tags and excerpts, and follow documented article, media, and comment workflow recipes. Every write-like ability defaults to a dry-run preview, and a real commit only happens after your host product approves it — the approval decision and the audit trail stay with the host, never with this package. It works with any WordPress Abilities API client; Npcink AI is just one optional consumer.
 
-Npcink AI is only one optional consumer/integration target. This plugin is not a Npcink AI runtime module and must remain useful without Npcink AI installed.
-
-This project owns the WordPress Abilities API registration layer:
-
-- ability categories
-- read-only ability registration
-- write-proposal ability registration
-- first-party host-governed dry-run/write and destructive callbacks
-- schema and metadata normalization
-- low-risk WordPress read ability packages
-- host-governed WordPress write/destructive ability packages
-- optional canonical projection for Npcink AI when Npcink AI is installed
-
-Host-governed callbacks default to dry-run previews. A real commit requires approval context from Npcink AI Core, Adapter, or another host runtime.
-
-It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, admission, approval storage, audit truth, or final commit authorization.
-
-This package may provide bounded WordPress callback implementations for generic
-read, write, and destructive operations, but it does not decide whether a commit
-is allowed, store approval state, own audit truth, or act as the control plane
-for writes.
+- Site owners: review everything on the **AI Ability Set** admin page — no AI model runs here, and nothing is written without host approval.
+- Plugin authors: expose your own abilities through [docs/third-party-plugin-guide.md](docs/third-party-plugin-guide.md).
+- Host products: govern commits through the [Host Approval Contract](docs/host-approval-contract.md) and pick a deployment shape in [docs/host-profiles.md](docs/host-profiles.md) and [docs/permission-matrix.md](docs/permission-matrix.md).
+- REST and external clients: start with [docs/rest-client-quickstart.md](docs/rest-client-quickstart.md).
+- Common setup, authentication, permission, and dry-run failures are covered in [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ## Requirements
 
 - WordPress 6.9+ with the Abilities API available
 - PHP 8.0+
-
-## External Integration Paths
-
-Use [docs/README.md](docs/README.md) as the documentation entry point for
-external integration and debugging:
-
-Cross-project platform coordination starts from
-`/Users/muze/gitee/npcink-workflow-toolbox/docs/platform/README.md`. This
-repository remains the authoritative owner for Toolkit ability contracts,
-schemas, dry-run previews, and host-governed callbacks.
-
-- plugin authors providing abilities should start with
-  [docs/third-party-plugin-guide.md](docs/third-party-plugin-guide.md);
-- REST and external clients should start with
-  [docs/rest-client-quickstart.md](docs/rest-client-quickstart.md);
-- host products should start with [docs/host-profiles.md](docs/host-profiles.md)
-  and [docs/permission-matrix.md](docs/permission-matrix.md);
-- common setup, authentication, permission, and dry-run failures are covered in
-  [docs/troubleshooting.md](docs/troubleshooting.md).
-
-## Public API
-
-```php
-npcink_abilities_toolkit_register_category( $category_id, $args );
-npcink_abilities_toolkit_register_readonly( $ability_id, $definition );
-npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition );
-npcink_abilities_toolkit_normalize_schema( $schema, $default_type );
-npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level );
-npcink_abilities_toolkit_get_registered();
-npcink_abilities_toolkit_get_workflow_definitions();
-npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
-```
-
-`npcink_abilities_toolkit_get_registered()` is a package inspection helper for
-registered Toolkit abilities. It is not an authoritative replacement for
-WordPress Abilities API discovery or execution, and it does not make this
-package a second ability registry.
-
-The workflow definition helpers return read-only recipe metadata for host-side
-composition. They are not a workflow registry, execution engine, scheduler,
-approval store, audit store, model router, prompt registry, or final write
-authority.
-
-Runtime contract discovery is available through:
-
-```text
-GET /wp-json/npcink-abilities-toolkit/v1/contract
-```
-
-The contract endpoint requires a WordPress REST caller with `manage_options`
-and returns non-secret metadata for host runtimes, including the active plugin
-version, contract versions, registered ability count, stable catalog hashes,
-workflow definition hash, and write-boundary posture. It is a discovery
-endpoint only; clients should still use the WordPress Abilities API catalog for
-ability definitions and execution. It also reports Adapter-facing
-compatibility, catalog/schema ownership, callback-free hash posture, and the
-host-governed write boundary. It never returns callbacks, approval records,
-audit truth, runtime state, prompt material, model routing, provider secrets,
-or cloud execution truth.
-The contract endpoint is not authoritative for admission, approval, audit,
-routing, catalog policy, or execution; hosts must enforce their own governance,
-and the WordPress Abilities API remains the ability discovery and execution
-surface.
-Normalized write-like ability contracts also expose `implementation_posture`
-metadata so governance consumers can verify dry-run-first, host-governed posture
-without treating Toolkit as an approval store, audit store, runtime, or final
-write authority.
-Hosts govern commits through the documented, host-agnostic
-[Host Approval Contract](docs/host-approval-contract.md); Npcink AI is only the
-first implementer.
-
-The 0.1 public API freeze is documented in [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md).
-The migration boundary from the Npcink AI plugin is documented in [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md).
-The independent-project split and Npcink AI integration boundary are documented in [docs/npcink-ai-project-split-contract.md](docs/npcink-ai-project-split-contract.md), which is the canonical ownership source when boundary documents disagree.
-The built-in abilities are grouped by product purpose in [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md).
-Recommended host-side workflow compositions are documented as reference recipes in [docs/workflow-recipes.md](docs/workflow-recipes.md).
-The machine-readable workflow definition field rules are documented in [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md).
-The article workflow ability map is documented in [docs/article-workflow-abilities-v1.md](docs/article-workflow-abilities-v1.md).
-Static agent and MCP usage guidance rules are documented in [docs/agent-usage-metadata.md](docs/agent-usage-metadata.md).
-The Core governance handoff rules are documented in [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md).
-The Core handoff catalog snapshot, permission matrix, and schema boundary audit
-are documented in [docs/core-governance-catalog-snapshot.md](docs/core-governance-catalog-snapshot.md),
-[docs/permission-matrix.md](docs/permission-matrix.md), and
-[docs/schema-boundary-audit.md](docs/schema-boundary-audit.md).
-Recommended full and light host profiles are documented in [docs/host-profiles.md](docs/host-profiles.md).
-Performance and caching rules are documented in [docs/performance-and-caching.md](docs/performance-and-caching.md).
-Security and governance gates for this package's contract boundary are
-documented in [docs/security-and-governance-gates.md](docs/security-and-governance-gates.md).
-Official WordPress AI stack compatibility guidance is documented in
-[docs/official-wordpress-ai-stack-compatibility.md](docs/official-wordpress-ai-stack-compatibility.md).
-The 0.3 stabilization surface is tracked in [docs/ability-acceptance-matrix.md](docs/ability-acceptance-matrix.md), [docs/agent-workflow-validation.md](docs/agent-workflow-validation.md), and [docs/release-0.3-scope.md](docs/release-0.3-scope.md). Npcink AI consumers that depend on package gating, thin projection defaults, or explicit sub-pack maps should require version `0.3.0` or newer.
-The 0.5 release verification line is tracked in [docs/release-0.5-verification.md](docs/release-0.5-verification.md), with maintenance patches recorded in [docs/release-0.5.1-verification.md](docs/release-0.5.1-verification.md) and [docs/release-0.5.2-verification.md](docs/release-0.5.2-verification.md).
-The 0.5 ability contract readiness plan is tracked in [docs/ability-contract-readiness-0.5.md](docs/ability-contract-readiness-0.5.md).
-The 2026-07-08 Core/Adapter/Product reuse readiness observation is tracked in
-[docs/ability-contract-reuse-readiness-2026-07-08.md](docs/ability-contract-reuse-readiness-2026-07-08.md).
-The next-stage operating standard for freeze/observe mode, workflow proof,
-performance gates, and security boundaries is tracked in
-[docs/next-stage-operating-standard.md](docs/next-stage-operating-standard.md).
-The 2026-06-17 freeze/observe proof phase closeout is recorded in
-[docs/freeze-observe-phase-closeout-2026-06-17.md](docs/freeze-observe-phase-closeout-2026-06-17.md).
-The admin page scope is documented in [docs/admin-surface-standard.md](docs/admin-surface-standard.md).
-Release notes are tracked in [CHANGELOG.md](CHANGELOG.md), and the WordPress plugin directory style metadata lives in [readme.txt](readme.txt).
-Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese. The package only ships locale files that are intentionally maintained in this repository; incomplete bundled locale packs are removed until they can be maintained as a complete starter set. WordPress.org directory translations remain managed through translate.wordpress.org/GlotPress and are not a runtime authority owned by this plugin.
 
 ## Minimal Example
 
@@ -355,6 +236,116 @@ The standalone workflow definition package provides:
 - `npcink-abilities-toolkit/get-workflow-recipe`
 
 These abilities return read-only recipe definitions for host-side ability composition. They do not execute workflow steps, schedule work, approve writes, route models, select prompts, audit runs, or commit final WordPress writes.
+
+## Public API
+
+```php
+npcink_abilities_toolkit_register_category( $category_id, $args );
+npcink_abilities_toolkit_register_readonly( $ability_id, $definition );
+npcink_abilities_toolkit_register_write_proposal( $ability_id, $definition );
+npcink_abilities_toolkit_normalize_schema( $schema, $default_type );
+npcink_abilities_toolkit_normalize_annotations( $annotations, $risk_level );
+npcink_abilities_toolkit_get_registered();
+npcink_abilities_toolkit_get_workflow_definitions();
+npcink_abilities_toolkit_get_workflow_definition( $recipe_id );
+```
+
+`npcink_abilities_toolkit_get_registered()` is a package inspection helper for
+registered Toolkit abilities. It is not an authoritative replacement for
+WordPress Abilities API discovery or execution, and it does not make this
+package a second ability registry.
+
+The workflow definition helpers return read-only recipe metadata for host-side
+composition. They are not a workflow registry, execution engine, scheduler,
+approval store, audit store, model router, prompt registry, or final write
+authority.
+
+Runtime contract discovery is available through:
+
+```text
+GET /wp-json/npcink-abilities-toolkit/v1/contract
+```
+
+The contract endpoint requires a WordPress REST caller with `manage_options`
+and returns non-secret metadata for host runtimes, including the active plugin
+version, contract versions, registered ability count, stable catalog hashes,
+workflow definition hash, and write-boundary posture. It is a discovery
+endpoint only; clients should still use the WordPress Abilities API catalog for
+ability definitions and execution. It also reports Adapter-facing
+compatibility, catalog/schema ownership, callback-free hash posture, and the
+host-governed write boundary. It never returns callbacks, approval records,
+audit truth, runtime state, prompt material, model routing, provider secrets,
+or cloud execution truth.
+The contract endpoint is not authoritative for admission, approval, audit,
+routing, catalog policy, or execution; hosts must enforce their own governance,
+and the WordPress Abilities API remains the ability discovery and execution
+surface.
+Normalized write-like ability contracts also expose `implementation_posture`
+metadata so governance consumers can verify dry-run-first, host-governed posture
+without treating Toolkit as an approval store, audit store, runtime, or final
+write authority.
+Hosts govern commits through the documented, host-agnostic
+[Host Approval Contract](docs/host-approval-contract.md); Npcink AI is only the
+first implementer.
+
+## Documentation Map
+
+Use [docs/README.md](docs/README.md) as the documentation entry point for
+external integration, debugging, and maintainer references.
+
+User-facing contracts and guides:
+
+- Public API freeze: [docs/public-api-freeze-0.1.md](docs/public-api-freeze-0.1.md)
+- Migration boundary from the Npcink AI plugin: [docs/adr/0001-migrate-abilities-from-magick-ai.md](docs/adr/0001-migrate-abilities-from-magick-ai.md)
+- Independent-project split and Npcink AI integration boundary (canonical ownership source): [docs/npcink-ai-project-split-contract.md](docs/npcink-ai-project-split-contract.md)
+- Built-in ability grouping by product purpose: [docs/first-party-ability-packs.md](docs/first-party-ability-packs.md)
+- Host-side workflow compositions as reference recipes: [docs/workflow-recipes.md](docs/workflow-recipes.md)
+- Machine-readable workflow definition field rules: [docs/workflow-definition-contract.md](docs/workflow-definition-contract.md)
+- Article workflow ability map: [docs/article-workflow-abilities-v1.md](docs/article-workflow-abilities-v1.md)
+- Static agent and MCP usage guidance: [docs/agent-usage-metadata.md](docs/agent-usage-metadata.md)
+- Core governance handoff rules: [docs/core-governance-handoff-guide.md](docs/core-governance-handoff-guide.md)
+- Core handoff catalog snapshot, permission matrix, and schema boundary audit: [docs/core-governance-catalog-snapshot.md](docs/core-governance-catalog-snapshot.md), [docs/permission-matrix.md](docs/permission-matrix.md), [docs/schema-boundary-audit.md](docs/schema-boundary-audit.md)
+- Full and light host profiles: [docs/host-profiles.md](docs/host-profiles.md)
+- Performance and caching rules: [docs/performance-and-caching.md](docs/performance-and-caching.md)
+- Security and governance gates: [docs/security-and-governance-gates.md](docs/security-and-governance-gates.md)
+- Official WordPress AI stack compatibility: [docs/official-wordpress-ai-stack-compatibility.md](docs/official-wordpress-ai-stack-compatibility.md)
+- 2026-07-08 Core/Adapter/Product reuse readiness observation: [docs/ability-contract-reuse-readiness-2026-07-08.md](docs/ability-contract-reuse-readiness-2026-07-08.md)
+- Release notes: [CHANGELOG.md](CHANGELOG.md); WordPress plugin directory metadata: [readme.txt](readme.txt)
+
+Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese. The package only ships locale files that are intentionally maintained in this repository; incomplete bundled locale packs are removed until they can be maintained as a complete starter set. WordPress.org directory translations remain managed through translate.wordpress.org/GlotPress and are not a runtime authority owned by this plugin.
+
+Release and maintainer records (0.3/0.5 stabilization, readiness plans, operating standards, phase closeouts, admin surface standard) are indexed in the maintainer section of [docs/README.md](docs/README.md).
+
+## Boundaries And Ownership
+
+This project is an independent Abilities API capability-package plugin. It can be used by any WordPress plugin that wants to expose abilities to agents, and by clients that consume the WordPress Abilities API directly.
+
+Npcink AI is only one optional consumer/integration target. This plugin is not a Npcink AI runtime module and must remain useful without Npcink AI installed.
+
+This project owns the WordPress Abilities API registration layer:
+
+- ability categories
+- read-only ability registration
+- write-proposal ability registration
+- first-party host-governed dry-run/write and destructive callbacks
+- schema and metadata normalization
+- low-risk WordPress read ability packages
+- host-governed WordPress write/destructive ability packages
+- optional canonical projection for Npcink AI when Npcink AI is installed
+
+Host-governed callbacks default to dry-run previews. A real commit requires approval context from Npcink AI Core, Adapter, or another host runtime.
+
+It does not own model routing, cloud execution, billing, quota, workflow runtime, MCP governance, admission, approval storage, audit truth, or final commit authorization.
+
+This package may provide bounded WordPress callback implementations for generic
+read, write, and destructive operations, but it does not decide whether a commit
+is allowed, store approval state, own audit truth, or act as the control plane
+for writes.
+
+Cross-project platform coordination starts from the
+`npcink-workflow-toolbox` repository's `docs/platform/README.md`. This
+repository remains the authoritative owner for Toolkit ability contracts,
+schemas, dry-run previews, and host-governed callbacks.
 
 ## Development
 
