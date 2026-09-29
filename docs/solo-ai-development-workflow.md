@@ -75,6 +75,27 @@ For documentation-only changes, `git diff --check` plus the relevant project
 gate is usually enough. Use `composer test:all` when the document updates
 operating rules that tests or release checks rely on.
 
+## Three-Persona Walkthrough
+
+Whenever a change adds or reshapes a user-facing surface — a new ability, a
+workflow recipe, bundled documentation, or an admin page section — answer one
+question per persona before publishing:
+
+1. **Site owner**: after landing on the admin overview, do they know what this
+   gives them and what to do next? If a host product is required, is the next
+   step one click or one link away?
+2. **Plugin author**: can they copy what they need (ids, endpoints, schemas)
+   and reach the right guide without reading source code?
+3. **Host developer**: is the integration contract (approval gate, scopes,
+   response shape family) documented, registered in its fixture or list, and
+   linked from where they will look?
+
+Gates prove implementations against contracts; they do not notice a missing
+next step, an unlinked guide, or an unregistered shape. The walkthrough is the
+cheap, manual complement: it catches the questions the checklists never
+encoded. Record any gap it finds as an issue or a small follow-up PR instead
+of widening the current one.
+
 ## Commit Scope Gate
 
 Before staging, inspect:
