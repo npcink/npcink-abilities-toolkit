@@ -502,6 +502,10 @@ foreach (
 		"=> 'technical'",
 		'npcink-abilities-toolkit-ability-catalog',
 		'Developer Tools',
+		'get_technical_subs',
+		'get_active_sub',
+		'npcink_abilities_toolkit_sub',
+		'npcink-abilities-toolkit-subnav',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the two-audience structure: ' . $required );
