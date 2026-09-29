@@ -4514,3 +4514,31 @@ msgid ""
 "Asset resize, compression, conversion, or replacement changes files and must "
 "stay out of the media inventory metadata fix action path."
 msgstr "资产缩放、压缩、转换或替换会修改文件，必须留在媒体库存元数据修复动作路径之外。"
+
+#: includes/Admin/Test_Page.php:319
+msgid "Host products: how to govern commits (Host Approval Contract)"
+msgstr "宿主产品：如何治理提交（Host Approval Contract）"
+
+#: includes/Admin/Test_Page.php:356
+msgid "Workflow scenarios"
+msgstr "工作流场景"
+
+#: includes/Admin/Test_Page.php:358
+msgid "Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes."
+msgstr "宿主产品可为常见站点任务运行的能力链建议。此页面仅作展示；执行、审批与最终写入均由宿主负责。"
+
+#: includes/Admin/Test_Page.php:371
+msgid "Entry ability:"
+msgstr "入口能力："
+
+#: includes/Admin/Test_Page.php:980
+msgid "Integration guides:"
+msgstr "集成指南："
+
+#: includes/Admin/Test_Page.php:981
+msgid "REST client quickstart"
+msgstr "REST 客户端快速开始"
+
+#: includes/Admin/Test_Page.php:983
+msgid "Host Approval Contract"
+msgstr "宿主批准契约"

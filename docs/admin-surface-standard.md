@@ -23,7 +23,34 @@ The default page should show:
 - host detection status;
 - stable, shareable admin URLs for tabs and read-only filters;
 - next actions for viewing abilities, running safe checks, using a host
-  product, and opening developer access.
+  product, and opening developer access;
+- a read-only workflow scenario overview listing the published recipe
+  definitions (title, natural task examples, entry ability id) so site
+  operators can see what a host product can do.
+
+## Workflow Scenario Overview
+
+The default view may render the static workflow recipe definitions through
+`npcink_abilities_toolkit_get_workflow_definitions()`. The block is
+documentation-only:
+
+- it renders recipe titles, natural task examples, and entry ability ids;
+- it must not add run, execute, schedule, retry, or approval affordances;
+- it must not display workflow state, approval state, or audit data;
+- host products remain the only execution surface.
+
+## External Documentation Links
+
+The admin surface may link to the repository's published documentation on
+GitHub. External links must:
+
+- use stable `blob/master` documentation URLs declared as class constants;
+- open in a new tab with `rel="noopener noreferrer"`;
+- stay limited to integration and contract guidance (REST client quickstart,
+  host approval contract) — never deep-link source code or internal tooling.
+
+The standalone host card should point host products to the Host Approval
+Contract so a site owner can hand the next step to an integrator.
 
 ## Available Abilities
 

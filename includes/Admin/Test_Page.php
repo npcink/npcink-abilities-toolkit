@@ -21,6 +21,8 @@ final class Test_Page {
 	const PARENT_MENU_SLUG    = 'npcink-ai';
 	const MENU_SLUG           = 'npcink-abilities-toolkit';
 	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
+	const DOCS_QUICKSTART_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/rest-client-quickstart.md';
+	const DOCS_HOST_CONTRACT_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/host-approval-contract.md';
 
 	/**
 	 * Ability registrar.
@@ -313,6 +315,9 @@ final class Test_Page {
 					<h3><?php echo esc_html__( 'Use a host product', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?></p>
 					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'developer' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
+					<p class="description">
+						<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
+					</p>
 				</div>
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Developer access', 'npcink-abilities-toolkit' ); ?></h3>
@@ -323,6 +328,52 @@ final class Test_Page {
 			<p class="description">
 				<?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?>
 			</p>
+		</section>
+		<?php $this->render_workflow_scenarios(); ?>
+		<?php
+	}
+
+	/**
+	 * Renders the read-only workflow scenario overview from the static recipe definitions.
+	 *
+	 * The block only lists scenarios for review. Hosts own execution, approvals,
+	 * and final writes; this surface never runs a workflow step.
+	 *
+	 * @return void
+	 */
+	private function render_workflow_scenarios() {
+		if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
+			return;
+		}
+
+		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
+		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
+		if ( empty( $cases ) ) {
+			return;
+		}
+		?>
+		<section class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
+			<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
+			<p class="description">
+				<?php echo esc_html__( 'Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes.', 'npcink-abilities-toolkit' ); ?>
+			</p>
+			<div class="npcink-abilities-toolkit-scenarios__grid">
+				<?php foreach ( $cases as $case ) : ?>
+					<?php $case = is_array( $case ) ? $case : array(); ?>
+					<div class="npcink-abilities-toolkit-scenarios__item">
+						<h3><?php echo esc_html( (string) ( $case['title'] ?? '' ) ); ?></h3>
+						<ul>
+							<?php foreach ( array_slice( (array) ( $case['natural_tasks'] ?? array() ), 0, 3 ) as $task ) : ?>
+								<li><?php echo esc_html( (string) $task ); ?></li>
+							<?php endforeach; ?>
+						</ul>
+						<p class="description">
+							<?php echo esc_html__( 'Entry ability:', 'npcink-abilities-toolkit' ); ?>
+							<code><?php echo esc_html( (string) ( $case['entrypoint_ability_id'] ?? '' ) ); ?></code>
+						</p>
+					</div>
+				<?php endforeach; ?>
+			</div>
 		</section>
 		<?php
 	}
@@ -924,6 +975,12 @@ final class Test_Page {
 		<h2><?php echo esc_html__( 'Developer Access', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
 			<?php echo esc_html__( 'Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab.', 'npcink-abilities-toolkit' ); ?>
+		</p>
+		<p class="description">
+			<?php echo esc_html__( 'Integration guides:', 'npcink-abilities-toolkit' ); ?>
+			<a href="<?php echo esc_url( self::DOCS_QUICKSTART_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'REST client quickstart', 'npcink-abilities-toolkit' ); ?></a>
+			<span aria-hidden="true"> | </span>
+			<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host Approval Contract', 'npcink-abilities-toolkit' ); ?></a>
 		</p>
 
 		<section id="npcink-abilities-toolkit-connection-values" class="npcink-abilities-toolkit-section">
