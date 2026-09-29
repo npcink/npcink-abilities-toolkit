@@ -9,6 +9,7 @@ msgstr ""
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -67,7 +68,6 @@ msgstr "本站点向 AI 客户端暴露的能力分组摘要。写入与破坏�
 msgid "%1$d capability (%2$d can change content with host approval)"
 msgid_plural "%1$d capabilities (%2$d can change content with host approval)"
 msgstr[0] "%1$d 项能力（其中 %2$d 项可在宿主批准后修改内容）"
-msgstr[1] "%1$d 项能力（其中 %2$d 项可在宿主批准后修改内容）"
 
 #: includes/Admin/Test_Page.php:272
 msgid "Review the full technical catalog in Developer Tools"
@@ -238,8 +238,9 @@ msgstr "此插件开放 WordPress 能力；它本身不运行模型、不审批�
 #. translators: %d: published workflow scenario count.
 #: includes/Admin/Test_Page.php:432
 #, php-format
-msgid "This site publishes %d workflow scenarios that a host product can run."
-msgstr "此站点发布了 %d 个可由宿主产品运行的工作流场景。"
+msgid "This site publishes %d workflow scenario that a host product can run."
+msgid_plural "This site publishes %d workflow scenarios that a host product can run."
+msgstr[0] "此站点发布了 %d 个可由宿主产品运行的工作流场景。"
 
 #: includes/Admin/Test_Page.php:461
 msgid "Workflow scenarios"

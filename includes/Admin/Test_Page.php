@@ -429,7 +429,7 @@ final class Test_Page {
 				<?php if ( $scenario_count > 0 ) : ?>
 					<p class="description npcink-abilities-toolkit-scenario-summary">
 						<a href="<?php echo esc_url( $this->get_tab_url( 'developer', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
-							<?php echo esc_html( sprintf( /* translators: %d: published workflow scenario count. */ __( 'This site publishes %d workflow scenarios that a host product can run.', 'npcink-abilities-toolkit' ), $scenario_count ) ); ?>
+							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
 						</a>
 					</p>
 				<?php endif; ?>
