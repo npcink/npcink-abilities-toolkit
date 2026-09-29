@@ -243,8 +243,9 @@ msgstr ""
 #. translators: %d: published workflow scenario count.
 #: includes/Admin/Test_Page.php:432
 #, php-format
-msgid "This site publishes %d workflow scenarios that a host product can run."
-msgstr ""
+msgid "This site publishes %d workflow scenario that a host product can run."
+msgid_plural "This site publishes %d workflow scenarios that a host product can run."
+msgstr[0] ""
 
 #: includes/Admin/Test_Page.php:461
 msgid "Workflow scenarios"
