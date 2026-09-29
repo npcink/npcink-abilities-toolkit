@@ -27,9 +27,9 @@ For each candidate:
 | P0 | Comment compliance handoff | Already represented by comment queue, priority, suggestion, and handoff abilities. | Content Assistant or comment compliance host. |
 | P1 | Existing article optimization | Promoted to declarative workflow definition and replay fixture. | Content Assistant. |
 | P1 | Article draft handoff | Good recipe fit, but model generation and editor UX belong to Content Assistant. | Content Assistant. |
-| P1 | Article production mainline | Good recipe fit for duplicate, style, review, media, and publish decision handoffs. | Content Assistant. |
+| P1 | Article production mainline | Promoted to declarative workflow definition and replay fixture (`recipes/article-production`). | Content Assistant. |
 | P2 | Article media handoff | Promoted to declarative workflow definition and replay fixture; host still owns upload and metadata approval. | Content Assistant. |
-| P2 | Media alt and SEO enrichment | Good proposal-first ability fit; batch scheduling belongs to the host. | Content Assistant or media tools host. |
+| P2 | Media alt and SEO enrichment | Promoted to declarative workflow definition and replay fixture (`recipes/media-seo-handoff`); batch scheduling belongs to the host. | Content Assistant or media tools host. |
 | P2 | Content tag completion | Useful candidate, but taxonomy proposal generation needs a stable schema decision. | Content Assistant or editorial taxonomy host. |
 | P3 | Cleanup old drafts | Keep as discovery until a host governance screen exists for destructive actions. | Toolbox or an operations host, not Npcink AI Core by default. |
 | P3 | Taxonomy quality governance | Keep as read-only consolidation suggestions first. | Toolbox or editorial taxonomy host. |
@@ -82,7 +82,8 @@ Host-owned pieces:
 
 ### Media Alt And SEO Enrichment
 
-Recommended future entry: `npcink-abilities-toolkit/recipes/media-seo-handoff`.
+Entry: `npcink-abilities-toolkit/recipes/media-seo-handoff` — promoted to a
+machine-readable workflow definition and replay fixture.
 
 Ability chain:
 

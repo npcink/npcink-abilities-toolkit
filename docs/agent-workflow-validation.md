@@ -2,7 +2,7 @@
 
 Status: active for 0.3 stabilization.
 
-This document defines the first five end-to-end workflows that should be proven
+This document defines the first seven end-to-end workflows that should be proven
 before another ability batch is added. The workflows are not a runtime owned by
 this package. They are consumption contracts for Npcink AI, WP Magick Toolbox,
 or any host that executes WordPress abilities.
@@ -148,6 +148,63 @@ Acceptance:
   featured-image writes remain host-owned;
 - media mutation remains a separate host-governed write chain.
 
+## Workflow 6: Article Production Mainline
+
+Goal: carry an article candidate through duplicate checks, lightweight review,
+and a publication decision without bypassing host approval.
+
+Ability sequence:
+
+1. Prefer `npcink-abilities-toolkit/build-article-production-fingerprint` as the
+   production entrypoint to build the stable dedupe fingerprint.
+2. Run `npcink-abilities-toolkit/check-article-production-duplicate` with the
+   returned fingerprint to detect existing production candidates.
+3. Run `npcink-abilities-toolkit/review-article-output-light` when the host
+   needs local quality, style, image, and AI-risk review signals.
+4. Run `npcink-abilities-toolkit/build-media-seo-assets` when media SEO assets
+   are needed for the production handoff.
+5. Run `npcink-abilities-toolkit/resolve-article-publication-decision` to turn
+   publish intent, review signals, and duplicate guard output into a gated
+   publication decision.
+6. Run `npcink-abilities-toolkit/compose-article-production-result` to normalize
+   the production handoff result.
+7. Stop at proposal output unless the host explicitly approves
+   `npcink-abilities-toolkit/update-post`, `npcink-abilities-toolkit/patch-post-content`,
+   `npcink-abilities-toolkit/schedule-post`, or `npcink-abilities-toolkit/publish-post`.
+
+Acceptance:
+
+- every read step returns HTTP 200 through WordPress Abilities API;
+- every read step returns a success envelope;
+- the publication decision keeps publish/schedule intent in gated review mode
+  when review or duplicate signals require a handoff;
+- draft, patch, schedule, and publish writes remain host-governed.
+
+## Workflow 7: Media Alt And SEO Enrichment
+
+Goal: scan the media library, summarize alt/caption/metadata gaps, and prepare
+deterministic metadata suggestions without changing attachments.
+
+Ability sequence:
+
+1. Prefer `npcink-abilities-toolkit/get-media-inventory-health` as the
+   enrichment entrypoint for bounded media inventory health.
+2. Run `npcink-abilities-toolkit/list-media` for a paginated attachment list
+   with alt/caption gap filters.
+3. Run `npcink-abilities-toolkit/build-media-seo-assets` when article context is
+   available and the host needs canonical media SEO assets.
+4. Run `npcink-abilities-toolkit/optimize-media-metadata` to build deterministic
+   title, alt, caption, and source suggestions from media context.
+5. Stop at proposal output unless the host explicitly approves
+   `npcink-abilities-toolkit/update-media-details`.
+
+Acceptance:
+
+- every read step returns HTTP 200 through WordPress Abilities API;
+- every read step returns a success envelope;
+- suggestions are proposal-first and batch scheduling stays host-owned;
+- attachment metadata writes remain host-governed.
+
 ## Smoke Mapping
 
 `tests/smoke-wp.php` now validates these workflow chains in addition to
@@ -163,6 +220,12 @@ single-ability registration and execution:
   optimization suggestion, apply plan, and composed apply result.
 - Article Media Handoff: media SEO assets, inline block generation, and inline
   block placement, with upload and metadata writes kept out of the default
+  entrypoint.
+- Article Production Mainline: production fingerprint, duplicate guard, and
+  publication decision, with publish/schedule writes kept out of the default
+  entrypoint.
+- Media Alt And SEO Enrichment: media inventory health, media list, and
+  metadata suggestions, with attachment metadata writes kept out of the default
   entrypoint.
 
 Use the Local WordPress command documented in
