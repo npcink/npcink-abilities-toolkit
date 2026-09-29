@@ -798,6 +798,10 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/build-media-optimization-plan' === (string) ( $workflow_recipes_run_data['cases']['media_optimization']['entrypoint_ability_id'] ?? '' ), 'Media optimization workflow projection uses the read-only plan entrypoint.' );
 	npcink_abilities_toolkit_smoke_assert( 'approval_request' === (string) ( $workflow_recipes_run_data['cases']['media_optimization']['handoff']['kind'] ?? '' ), 'Media optimization workflow projection hands off a governed approval request.' );
 	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_media_handoff'] ), 'Workflow recipe discovery returns article media handoff definition.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['article_production'] ), 'Workflow recipe discovery returns article production definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/build-article-production-fingerprint' === (string) ( $workflow_recipes_run_data['cases']['article_production']['entrypoint_ability_id'] ?? '' ), 'Article production workflow uses the fingerprint chain entrypoint.' );
+	npcink_abilities_toolkit_smoke_assert( isset( $workflow_recipes_run_data['cases']['media_seo_enrichment'] ), 'Workflow recipe discovery returns media SEO enrichment definition.' );
+	npcink_abilities_toolkit_smoke_assert( 'npcink-abilities-toolkit/get-media-inventory-health' === (string) ( $workflow_recipes_run_data['cases']['media_seo_enrichment']['entrypoint_ability_id'] ?? '' ), 'Media SEO enrichment workflow uses the read-only inventory health entrypoint.' );
 
 	$workflow_recipe_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-workflow-recipe/run' );
 	$workflow_recipe_run_request->set_query_params(
@@ -1832,6 +1836,96 @@ $comment_mention_suggest_run_response = rest_do_request( $comment_mention_sugges
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $comment_mention_suggest_run_response->get_status(), 'Authenticated comment mention reply suggestion ability run returns 200.' );
 $comment_mention_suggest_run_data = $comment_mention_suggest_run_response->get_data();
 
+$article_production_fingerprint_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/build-article-production-fingerprint/run' );
+$article_production_fingerprint_run_request->set_query_params(
+	array(
+		'input' => array(
+			'topic'        => 'ability workflow',
+			'publish_mode' => 'review',
+			'image_mode'   => 'none',
+		),
+	)
+);
+$article_production_fingerprint_run_response = rest_do_request( $article_production_fingerprint_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_production_fingerprint_run_response->get_status(), 'Authenticated article production fingerprint ability run returns 200.' );
+$article_production_fingerprint_run_data = $article_production_fingerprint_run_response->get_data();
+
+$article_production_duplicate_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/check-article-production-duplicate/run' );
+$article_production_duplicate_run_request->set_query_params(
+	array(
+		'input' => array(
+			'production_fingerprint' => (string) ( $article_production_fingerprint_run_data['data']['production_fingerprint'] ?? '' ),
+		),
+	)
+);
+$article_production_duplicate_run_response = rest_do_request( $article_production_duplicate_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_production_duplicate_run_response->get_status(), 'Authenticated article production duplicate guard ability run returns 200.' );
+$article_production_duplicate_run_data = $article_production_duplicate_run_response->get_data();
+
+$article_production_decision_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/resolve-article-publication-decision/run' );
+$article_production_decision_run_request->set_query_params(
+	array(
+		'input' => array(
+			'publish_mode'    => 'review',
+			'duplicate_guard' => array(
+				'duplicate_found'  => (bool) ( $article_production_duplicate_run_data['data']['duplicate_found'] ?? false ),
+				'skip_recommended' => (bool) ( $article_production_duplicate_run_data['data']['skip_recommended'] ?? false ),
+			),
+		),
+	)
+);
+$article_production_decision_run_response = rest_do_request( $article_production_decision_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $article_production_decision_run_response->get_status(), 'Authenticated article production publication decision ability run returns 200.' );
+$article_production_decision_run_data = $article_production_decision_run_response->get_data();
+
+$media_seo_inventory_health_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/get-media-inventory-health/run' );
+$media_seo_inventory_health_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+			'page'     => 1,
+		),
+	)
+);
+$media_seo_inventory_health_run_response = rest_do_request( $media_seo_inventory_health_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_seo_inventory_health_run_response->get_status(), 'Authenticated media inventory health ability run returns 200.' );
+$media_seo_inventory_health_run_data = $media_seo_inventory_health_run_response->get_data();
+
+$media_seo_list_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-media/run' );
+$media_seo_list_run_request->set_query_params(
+	array(
+		'input' => array(
+			'per_page' => 5,
+			'page'     => 1,
+		),
+	)
+);
+$media_seo_list_run_response = rest_do_request( $media_seo_list_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_seo_list_run_response->get_status(), 'Authenticated media list ability run returns 200.' );
+$media_seo_list_run_data = $media_seo_list_run_response->get_data();
+
+$media_seo_metadata_run_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/optimize-media-metadata/run' );
+$media_seo_metadata_run_request->set_query_params(
+	array(
+		'input' => array(
+			'article_title'        => $npcink_abilities_toolkit_smoke_pattern . ' Context Post',
+			'focus_keyword'        => 'ability workflow',
+			'vision_fallback_mode' => 'off',
+			'media_assets'         => array(
+				array(
+					'attachment_id' => (int) $smoke_attachment_id,
+					'alt'           => '',
+					'title'         => '',
+					'mime_type'     => 'image/jpeg',
+				),
+			),
+		),
+	)
+);
+$media_seo_metadata_run_response = rest_do_request( $media_seo_metadata_run_request );
+npcink_abilities_toolkit_smoke_assert( 200 === (int) $media_seo_metadata_run_response->get_status(), 'Authenticated media metadata optimization ability run returns 200.' );
+$media_seo_metadata_run_data = $media_seo_metadata_run_response->get_data();
+
 npcink_abilities_toolkit_smoke_assert(
 	true === ( $post_context_run_data['success'] ?? null )
 	&& true === ( $publishing_checklist_run_data['success'] ?? null )
@@ -1884,6 +1978,32 @@ npcink_abilities_toolkit_smoke_assert(
 npcink_abilities_toolkit_smoke_assert(
 	true === ( $comment_mention_suggest_run_data['data']['trigger']['trigger_detected'] ?? null ),
 	'Comment compliance workflow detects the smoke mention reply trigger.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $article_production_fingerprint_run_data['success'] ?? null )
+	&& true === ( $article_production_duplicate_run_data['success'] ?? null )
+	&& true === ( $article_production_decision_run_data['success'] ?? null )
+	&& '' !== (string) ( $article_production_fingerprint_run_data['data']['production_fingerprint'] ?? '' ),
+	'Article production workflow returns success envelopes across fingerprint, duplicate guard, and publication decision.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	'review' === (string) ( $article_production_decision_run_data['data']['effective_publish_mode'] ?? '' )
+	&& false === (bool) ( $article_production_decision_run_data['data']['publish_blocked'] ?? null ),
+	'Article production workflow keeps publish/schedule handoffs inside the host-governed review mode.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	true === ( $media_seo_inventory_health_run_data['success'] ?? null )
+	&& isset( $media_seo_list_run_data['items'] )
+	&& isset( $media_seo_list_run_data['total'] )
+	&& true === ( $media_seo_metadata_run_data['success'] ?? null ),
+	'Media SEO enrichment workflow returns success envelopes across inventory health and metadata suggestions, plus the paginated media list contract.'
+);
+npcink_abilities_toolkit_smoke_assert(
+	! isset( $article_production_fingerprint_run_data['data']['commit_execution'] )
+	&& ! isset( $article_production_decision_run_data['data']['commit_execution'] )
+	&& ! isset( $media_seo_metadata_run_data['data']['commit_execution'] )
+	&& ! isset( $media_seo_list_run_data['data']['commit_execution'] ),
+	'Article production and media SEO enrichment chains keep write execution outside the default read chain.'
 );
 
 npcink_abilities_toolkit_smoke_cleanup_fixtures();

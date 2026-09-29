@@ -10,7 +10,7 @@ This document publishes recommended ways to compose first-party abilities into
 useful host workflows. It is a reference recipe list, not a runtime owned by this
 package.
 
-The first three stabilization recipes also have a machine-readable consumer
+The active stabilization recipes also have a machine-readable consumer
 replay fixture at `tests/fixtures/agent-workflow-replay.json`. Host-side tests
 can use that fixture to check natural-task routing, preferred bundled ability
 selection, and write-boundary behavior without depending on this package for
@@ -187,22 +187,28 @@ Governance:
 Recipe id: `npcink-abilities-toolkit/recipes/article-production`
 
 Goal: carry an article candidate through duplicate checks, lightweight review,
-media handoff, and publication decision without bypassing host approval.
+media handoff, and publication decision without bypassing host approval. This
+recipe is also a machine-readable workflow definition case.
 
 Ability sequence:
 
-1. `npcink-abilities-toolkit/extract-style-baseline`
-2. `npcink-abilities-toolkit/build-article-production-fingerprint`
-3. `npcink-abilities-toolkit/check-article-production-duplicate`
-4. `npcink-abilities-toolkit/review-article-output-light`
-5. `npcink-abilities-toolkit/build-media-seo-assets`
-6. `npcink-abilities-toolkit/resolve-article-publication-decision`
-7. `npcink-abilities-toolkit/compose-article-production-result`
+1. Preferred entrypoint: `npcink-abilities-toolkit/build-article-production-fingerprint`
+2. Expanded sequence when the host needs individual calls:
+   `npcink-abilities-toolkit/extract-style-baseline`,
+   `npcink-abilities-toolkit/build-article-production-fingerprint`,
+   `npcink-abilities-toolkit/check-article-production-duplicate`,
+   `npcink-abilities-toolkit/review-article-output-light`,
+   `npcink-abilities-toolkit/build-media-seo-assets`,
+   `npcink-abilities-toolkit/resolve-article-publication-decision`, and
+   `npcink-abilities-toolkit/compose-article-production-result`
+3. Optional dry-run: `npcink-abilities-toolkit/update-post`,
+   `npcink-abilities-toolkit/patch-post-content`,
+   `npcink-abilities-toolkit/schedule-post`, or `npcink-abilities-toolkit/publish-post`
 
 Handoff:
 
-- pass duplicate guard, review findings, media assets, publication decision, and
-  next action to the host;
+- pass the production fingerprint, duplicate candidate, review findings,
+  publication decision, and next action to the host;
 - if mutation is needed, branch into Publishing Pack write abilities with
   dry-run previews.
 
@@ -301,6 +307,35 @@ Governance:
 - media asset and block steps are read/proposal outputs;
 - uploads, attachment metadata updates, and featured-image writes remain
   host-governed.
+
+## Recipe: Media Alt And SEO Enrichment
+
+Recipe id: `npcink-abilities-toolkit/recipes/media-seo-handoff`
+
+Goal: scan the media library, summarize alt/caption/metadata gaps, and prepare
+deterministic title, alt, and caption suggestions without changing attachments.
+
+Ability sequence:
+
+1. Preferred entrypoint: `npcink-abilities-toolkit/get-media-inventory-health`
+2. Expanded sequence when the host needs individual calls:
+   `npcink-abilities-toolkit/list-media`,
+   `npcink-abilities-toolkit/get-media-inventory-health`,
+   `npcink-abilities-toolkit/build-media-seo-assets`, and
+   `npcink-abilities-toolkit/optimize-media-metadata`
+3. Optional dry-run: `npcink-abilities-toolkit/update-media-details`
+
+Handoff:
+
+- pass the media inventory, inventory health summary, media SEO assets, and
+  metadata suggestions to the host;
+- let the host own batch selection, per-asset review, scheduled retries, and
+  final metadata write approval.
+
+Governance:
+
+- inventory, asset, and suggestion steps are read/proposal outputs;
+- attachment metadata writes remain host-governed.
 
 ## Recipe: Old Article Refresh Discovery
 
