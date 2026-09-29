@@ -9380,6 +9380,53 @@ $expected_workflow_replay_cases = array(
 		'handoff_kind'       => 'context',
 		'disallowed_default' => array( 'npcink-abilities-toolkit/approve-comment', 'npcink-abilities-toolkit/reply-comment', 'npcink-abilities-toolkit/spam-comment', 'npcink-abilities-toolkit/trash-comment' ),
 	),
+	'media_governance_scan'         => array(
+		'ability_id'         => 'npcink-abilities-toolkit/get-media-cleanup-opportunities',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/media-governance-scan',
+		'required_scope'     => 'media.read',
+		'required_inputs'    => array(),
+		'expected_sections'  => array( 'cleanup_opportunities', 'inventory_fix_plan', 'rename_plan', 'derivative_batch_plan' ),
+		'expanded_abilities' => array(
+			'npcink-abilities-toolkit/get-media-cleanup-opportunities',
+			'npcink-abilities-toolkit/build-media-inventory-fix-plan',
+			'npcink-abilities-toolkit/build-media-rename-plan',
+			'npcink-abilities-toolkit/build-media-derivative-batch-plan',
+		),
+		'handoff_kind'       => 'context',
+		'disallowed_default' => array( 'npcink-abilities-toolkit/update-media-details', 'npcink-abilities-toolkit/delete-media-permanently' ),
+	),
+	'site_operations_scan'          => array(
+		'ability_id'         => 'npcink-abilities-toolkit/get-site-operations-dashboard',
+		'recipe_id'          => 'npcink-abilities-toolkit/recipes/site-operations-scan',
+		'required_scope'     => 'post.read',
+		'required_inputs'    => array(),
+		'expected_sections'  => array( 'operations_dashboard', 'content_inventory', 'media_inventory', 'taxonomy_inventory', 'page_structure' ),
+		'expanded_abilities' => array(
+			'npcink-abilities-toolkit/site-info',
+			'npcink-abilities-toolkit/get-site-operations-dashboard',
+			'npcink-abilities-toolkit/get-content-inventory-health',
+			'npcink-abilities-toolkit/get-media-inventory-health',
+			'npcink-abilities-toolkit/get-taxonomy-inventory-health',
+			'npcink-abilities-toolkit/get-page-structure-health',
+		),
+		'handoff_kind'       => 'context',
+		'disallowed_default' => array( 'npcink-abilities-toolkit/patch-post-content', 'npcink-abilities-toolkit/update-media-details' ),
+	),
+	'diagnostics_triage'            => array(
+		'ability_id'            => 'npcink-abilities-toolkit/wp-diagnostics-summary',
+		'recipe_id'             => 'npcink-abilities-toolkit/recipes/diagnostics-triage',
+		'required_scope'        => '',
+		'required_inputs'       => array(),
+		'expected_sections'     => array( 'environment_summary', 'ops_detail', 'site_context' ),
+		'expanded_abilities'    => array(
+			'npcink-abilities-toolkit/wp-diagnostics-summary',
+			'npcink-abilities-toolkit/wp-ops-diagnostics-detail',
+			'npcink-abilities-toolkit/site-info',
+		),
+		'handoff_kind'          => 'context',
+		'disallowed_default'    => array( 'npcink-abilities-toolkit/create-draft' ),
+		'local_only_entrypoint' => true,
+	),
 );
 npcink_abilities_toolkit_assert_same( array_keys( $expected_workflow_replay_cases ), array_keys( $workflow_replay['cases'] ), 'agent workflow replay fixture keeps the approved local recipe cases in order' );
 foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
@@ -9413,7 +9460,11 @@ foreach ( $expected_workflow_replay_cases as $case_id => $expected_case ) {
 	npcink_abilities_toolkit_assert_same( $expected_case['required_scope'], $entrypoint_ability['required_scope'] ?? '', "agent workflow replay case {$case_id} matches registered ability scope" );
 	npcink_abilities_toolkit_assert_same( $expected_case['required_inputs'], $entrypoint_ability['input_schema']['required'] ?? array(), "agent workflow replay case {$case_id} required inputs match the entrypoint schema" );
 	$case_catalog_key = str_replace( '/', '_', $expected_case['ability_id'] );
-	npcink_abilities_toolkit_assert_same( 'wp_ability', $package_catalog[ $case_catalog_key ]['executor_type'] ?? '', "agent workflow replay case {$case_id} is projected for wp_ability execution" );
+	if ( empty( $expected_case['local_only_entrypoint'] ) ) {
+		npcink_abilities_toolkit_assert_same( 'wp_ability', $package_catalog[ $case_catalog_key ]['executor_type'] ?? '', "agent workflow replay case {$case_id} is projected for wp_ability execution" );
+	} else {
+		npcink_abilities_toolkit_assert_true( ! isset( $package_catalog[ $case_catalog_key ] ), "agent workflow replay case {$case_id} keeps its local-only entrypoint out of the catalog projection" );
+	}
 	foreach ( $expected_case['expanded_abilities'] as $expanded_ability_id ) {
 		npcink_abilities_toolkit_assert_true( isset( $package_abilities[ $expanded_ability_id ] ), "agent workflow replay case {$case_id} references known expanded ability {$expanded_ability_id}" );
 		npcink_abilities_toolkit_assert_true( 'destructive' !== ( $package_abilities[ $expanded_ability_id ]['risk_level'] ?? '' ), "agent workflow replay case {$case_id} expanded ability {$expanded_ability_id} is not destructive" );
