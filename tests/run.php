@@ -482,6 +482,21 @@ foreach (
 
 foreach (
 	array(
+		'render_workflow_scenarios',
+		'npcink-abilities-toolkit-scenarios',
+		'DOCS_QUICKSTART_URL',
+		'DOCS_HOST_CONTRACT_URL',
+		'docs/rest-client-quickstart.md',
+		'docs/host-approval-contract.md',
+		'target="_blank" rel="noopener noreferrer"',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the workflow scenario overview and documentation links: ' . $required );
+}
+npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'data-npcink-abilities-toolkit-run-recipe' ), 'admin workflow scenario overview stays read-only without recipe run affordances' );
+
+foreach (
+	array(
 		'setCheckSummary',
 		'summarizeReadonlyPayload',
 		'npcink-abilities-toolkit-check-summary-body',
