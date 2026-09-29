@@ -806,7 +806,8 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 		$admin_page_instance->render();
 		$standalone_html = (string) ob_get_clean();
 		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'is-inactive' ), 'Standalone admin overview marks the host tile inactive when no Npcink AI menu exists.' );
-		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'npcink-abilities-toolkit-scenarios' ), 'Standalone admin overview renders the workflow scenario overview.' );
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'npcink-abilities-toolkit-scenario-summary' ), 'Standalone admin overview links the workflow scenario summary.' );
+		npcink_abilities_toolkit_smoke_assert( false === strpos( $standalone_html, 'npcink-abilities-toolkit-scenarios__grid' ), 'Standalone admin overview keeps the full scenario grid out of the default view.' );
 		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'docs/host-approval-contract.md' ), 'Standalone admin overview links the Host Approval Contract.' );
 
 		$GLOBALS['menu'][] = array( 'Npcink AI', 'manage_options', 'npcink-ai', '', 'menu-top' );
@@ -814,7 +815,7 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 		$admin_page_instance->render();
 		$host_html = (string) ob_get_clean();
 		npcink_abilities_toolkit_smoke_assert( false === strpos( $host_html, 'is-inactive' ), 'Admin overview drops the inactive host state when a Npcink AI menu exists.' );
-		npcink_abilities_toolkit_smoke_assert( false !== strpos( $host_html, 'npcink-abilities-toolkit-scenarios' ), 'Admin overview renders the workflow scenario overview with a host menu present.' );
+		npcink_abilities_toolkit_smoke_assert( false === strpos( $host_html, 'npcink-abilities-toolkit-scenarios__grid' ), 'Admin overview keeps the full scenario grid out of the default view with a host menu present.' );
 
 		if ( null === $menu_backup ) {
 			unset( $GLOBALS['menu'] );

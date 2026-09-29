@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Npcink Abilities Toolkit 0.5.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
-"POT-Creation-Date: 2026-09-29T06:36:16+00:00\n"
+"POT-Creation-Date: 2026-09-29T08:34:14+00:00\n"
 "PO-Revision-Date: 2026-06-22 00:00+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
@@ -65,7 +65,7 @@ msgstr "可用能力"
 msgid "Checks"
 msgstr "检查"
 
-#: includes/Admin/Test_Page.php:214 includes/Admin/Test_Page.php:975
+#: includes/Admin/Test_Page.php:214 includes/Admin/Test_Page.php:984
 msgid "Developer Access"
 msgstr "开发者接入"
 
@@ -77,8 +77,8 @@ msgstr "能力页面分区"
 msgid "Site ability status"
 msgstr "站点能力状态"
 
-#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:955
-#: includes/Admin/Test_Page.php:1083
+#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:964
+#: includes/Admin/Test_Page.php:1093
 msgid "Status"
 msgstr "状态"
 
@@ -86,8 +86,8 @@ msgstr "状态"
 msgid "working"
 msgstr "正常"
 
-#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:818
-#: includes/Admin/Test_Page.php:1104
+#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:827
+#: includes/Admin/Test_Page.php:1114
 msgid "needs attention"
 msgstr "需要处理"
 
@@ -155,7 +155,7 @@ msgstr "已检测到 Npcink AI host 菜单。"
 msgid "This package provides abilities; use a host product to run AI workflows."
 msgstr "此包提供能力；请使用 host 产品来运行 AI 工作流。"
 
-#: includes/Admin/Test_Page.php:296 includes/Admin/Test_Page.php:958
+#: includes/Admin/Test_Page.php:296 includes/Admin/Test_Page.php:967
 msgid "WordPress"
 msgstr "WordPress"
 
@@ -223,475 +223,481 @@ msgstr "打开开发者接入"
 msgid "This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself."
 msgstr "此插件开放 WordPress 能力；它本身不运行模型、不审批提案，也不执行 AI 工作流。"
 
-#: includes/Admin/Test_Page.php:356
+#. translators: %d: published workflow scenario count.
+#: includes/Admin/Test_Page.php:336
+#, php-format
+msgid "This site publishes %d workflow scenarios that a host product can run."
+msgstr "此站点发布了 %d 个可由宿主产品运行的工作流场景。"
+
+#: includes/Admin/Test_Page.php:365
 msgid "Workflow scenarios"
 msgstr "工作流场景"
 
-#: includes/Admin/Test_Page.php:358
+#: includes/Admin/Test_Page.php:367
 msgid "Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes."
 msgstr "宿主产品可为常见站点任务运行的能力链建议。此页面仅作展示；执行、审批与最终写入均由宿主负责。"
 
-#: includes/Admin/Test_Page.php:371
+#: includes/Admin/Test_Page.php:380
 msgid "Entry ability:"
 msgstr "入口能力："
 
-#: includes/Admin/Test_Page.php:450
+#: includes/Admin/Test_Page.php:459
 msgid "Abilities API registration functions are unavailable."
 msgstr "Abilities API 注册函数不可用。"
 
-#: includes/Admin/Test_Page.php:454
+#: includes/Admin/Test_Page.php:463
 msgid "Abilities API REST discovery routes are missing."
 msgstr "Abilities API REST 发现路由缺失。"
 
-#: includes/Admin/Test_Page.php:458 includes/Admin/Test_Page.php:505
+#: includes/Admin/Test_Page.php:467 includes/Admin/Test_Page.php:514
 msgid "No abilities are registered by this package yet."
 msgstr "此包尚未注册任何能力。"
 
-#: includes/Admin/Test_Page.php:462
+#: includes/Admin/Test_Page.php:471
 msgid "Home URL and Site URL differ; verify local site routing before testing endpoint values."
 msgstr "Home URL 和 Site URL 不一致；测试端点值前请核对本地站点路由。"
 
-#: includes/Admin/Test_Page.php:496
+#: includes/Admin/Test_Page.php:505
 msgid "Available AI Abilities"
 msgstr "可用 AI 能力"
 
-#: includes/Admin/Test_Page.php:498
+#: includes/Admin/Test_Page.php:507
 msgid "Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access."
 msgstr "查看 AI 客户端可在此 WordPress 站点使用的能力。仅开发者需要的能力 ID 和 schema 信号保留在“开发者接入”中。"
 
 #. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
-#: includes/Admin/Test_Page.php:520
+#: includes/Admin/Test_Page.php:529
 #, php-format
 msgid "Showing %1$d-%2$d of %3$d abilities."
 msgstr "显示 %1$d-%2$d 项能力（共 %3$d 项）。"
 
-#: includes/Admin/Test_Page.php:527
+#: includes/Admin/Test_Page.php:536
 msgid "No abilities match the current filters."
 msgstr "没有能力匹配当前筛选条件。"
 
-#: includes/Admin/Test_Page.php:580
+#: includes/Admin/Test_Page.php:589
 msgid "Search"
 msgstr "搜索"
 
-#: includes/Admin/Test_Page.php:581
+#: includes/Admin/Test_Page.php:590
 msgid "Ability name, description, category, or technical ID"
 msgstr "能力名称、描述、分类或技术 ID"
 
-#: includes/Admin/Test_Page.php:585 includes/Admin/Test_Page.php:794
-#: includes/Admin/Test_Page.php:1080
+#: includes/Admin/Test_Page.php:594 includes/Admin/Test_Page.php:803
+#: includes/Admin/Test_Page.php:1090
 msgid "Risk"
 msgstr "风险"
 
-#: includes/Admin/Test_Page.php:587
+#: includes/Admin/Test_Page.php:596
 msgid "All risks"
 msgstr "所有风险"
 
-#: includes/Admin/Test_Page.php:588
+#: includes/Admin/Test_Page.php:597
 msgid "Read"
 msgstr "读取"
 
-#: includes/Admin/Test_Page.php:589
+#: includes/Admin/Test_Page.php:598
 msgid "Write"
 msgstr "写入"
 
-#: includes/Admin/Test_Page.php:590
+#: includes/Admin/Test_Page.php:599
 msgid "Destructive"
 msgstr "破坏性"
 
-#: includes/Admin/Test_Page.php:591
+#: includes/Admin/Test_Page.php:600
 msgid "Other"
 msgstr "其他"
 
-#: includes/Admin/Test_Page.php:596 includes/Admin/Test_Page.php:1079
+#: includes/Admin/Test_Page.php:605 includes/Admin/Test_Page.php:1089
 msgid "Category"
 msgstr "分类"
 
-#: includes/Admin/Test_Page.php:598
+#: includes/Admin/Test_Page.php:607
 msgid "All categories"
 msgstr "所有分类"
 
-#: includes/Admin/Test_Page.php:608
+#: includes/Admin/Test_Page.php:617
 msgid "Per page"
 msgstr "每页"
 
-#: includes/Admin/Test_Page.php:619
+#: includes/Admin/Test_Page.php:628
 msgid "Apply"
 msgstr "应用"
 
-#: includes/Admin/Test_Page.php:620
+#: includes/Admin/Test_Page.php:629
 msgid "Reset"
 msgstr "重置"
 
-#: includes/Admin/Test_Page.php:730
+#: includes/Admin/Test_Page.php:739
 msgid "Previous"
 msgstr "上一页"
 
-#: includes/Admin/Test_Page.php:731
+#: includes/Admin/Test_Page.php:740
 msgid "Next"
 msgstr "下一页"
 
-#: includes/Admin/Test_Page.php:767
+#: includes/Admin/Test_Page.php:776
 msgid "Read-only"
 msgstr "只读"
 
-#: includes/Admin/Test_Page.php:768
+#: includes/Admin/Test_Page.php:777
 msgid "Requires host approval"
 msgstr "需要 host 审批"
 
-#: includes/Admin/Test_Page.php:769
+#: includes/Admin/Test_Page.php:778
 msgid "High risk, approval required"
 msgstr "高风险，需要审批"
 
-#: includes/Admin/Test_Page.php:770
+#: includes/Admin/Test_Page.php:779
 msgid "Review required"
 msgstr "需要审查"
 
-#: includes/Admin/Test_Page.php:792 includes/Admin/Test_Page.php:922
-#: includes/Admin/Test_Page.php:1077
+#: includes/Admin/Test_Page.php:801 includes/Admin/Test_Page.php:931
+#: includes/Admin/Test_Page.php:1087
 msgid "Ability"
 msgstr "能力"
 
-#: includes/Admin/Test_Page.php:793
+#: includes/Admin/Test_Page.php:802
 msgid "What it allows"
 msgstr "允许的操作"
 
-#: includes/Admin/Test_Page.php:813
+#: includes/Admin/Test_Page.php:822
 msgid "No description provided."
 msgstr "未提供描述。"
 
-#: includes/Admin/Test_Page.php:818 includes/Admin/Test_Page.php:1104
+#: includes/Admin/Test_Page.php:827 includes/Admin/Test_Page.php:1114
 msgid "available"
 msgstr "可用"
 
-#: includes/Admin/Test_Page.php:836
+#: includes/Admin/Test_Page.php:845
 msgid "Site Checks"
 msgstr "站点检查"
 
-#: includes/Admin/Test_Page.php:838
+#: includes/Admin/Test_Page.php:847
 msgid "Run safe checks to confirm the site can return basic ability information. These checks do not write content, call models, or contact external services."
 msgstr "运行安全检查，确认站点可以返回基础能力信息。这些检查不会写入内容、调用模型或联系外部服务。"
 
-#: includes/Admin/Test_Page.php:842
+#: includes/Admin/Test_Page.php:851
 msgid "Safe checks"
 msgstr "安全检查"
 
-#: includes/Admin/Test_Page.php:844
+#: includes/Admin/Test_Page.php:853
 msgid "Use these checks when a host product or AI client cannot see site abilities."
 msgstr "当 host 产品或 AI 客户端看不到站点能力时，使用这些检查。"
 
-#: includes/Admin/Test_Page.php:849 includes/Admin/Test_Page.php:928
+#: includes/Admin/Test_Page.php:858 includes/Admin/Test_Page.php:937
 msgid "Check"
 msgstr "检查"
 
-#: includes/Admin/Test_Page.php:850
+#: includes/Admin/Test_Page.php:859
 msgid "What it proves"
 msgstr "能说明什么"
 
-#: includes/Admin/Test_Page.php:851
+#: includes/Admin/Test_Page.php:860
 msgid "What it does not prove"
 msgstr "不能说明什么"
 
-#: includes/Admin/Test_Page.php:856
+#: includes/Admin/Test_Page.php:865
 msgid "Site info"
 msgstr "站点信息"
 
-#: includes/Admin/Test_Page.php:857
+#: includes/Admin/Test_Page.php:866
 msgid "The site can safely return basic WordPress information to an authorized ability client."
 msgstr "站点可以安全地向已授权的能力客户端返回基础 WordPress 信息。"
 
-#: includes/Admin/Test_Page.php:858
+#: includes/Admin/Test_Page.php:867
 msgid "It does not call an AI model, generate content, or change the site."
 msgstr "它不会调用 AI 模型、生成内容或更改站点。"
 
-#: includes/Admin/Test_Page.php:861
+#: includes/Admin/Test_Page.php:870
 msgid "Redacted diagnostics"
 msgstr "脱敏诊断"
 
-#: includes/Admin/Test_Page.php:862
+#: includes/Admin/Test_Page.php:871
 msgid "The site can return a support-friendly environment summary with sensitive fields omitted."
 msgstr "站点可以返回已省略敏感字段、便于支持排查的环境摘要。"
 
-#: includes/Admin/Test_Page.php:863
+#: includes/Admin/Test_Page.php:872
 msgid "It does not expose secrets, inspect private files, or fix configuration by itself."
 msgstr "它不会暴露密钥、检查私有文件，也不会自行修复配置。"
 
-#: includes/Admin/Test_Page.php:868
+#: includes/Admin/Test_Page.php:877
 msgid "Together, these checks confirm that this ability package is reachable and safe to inspect. Use Available Abilities to review what the site exposes, and Developer Access when a host or client needs connection values."
 msgstr "这两个检查一起说明：这个能力包可以被访问，并且可以安全检查。要查看站点暴露了什么，请使用“可用能力”；host 或客户端需要连接信息时，请使用“开发者接入”。"
 
-#: includes/Admin/Test_Page.php:872
+#: includes/Admin/Test_Page.php:881
 msgid "Run Site Info"
 msgstr "运行站点信息"
 
-#: includes/Admin/Test_Page.php:875
+#: includes/Admin/Test_Page.php:884
 msgid "Run Redacted Diagnostics"
 msgstr "运行脱敏诊断"
 
-#: includes/Admin/Test_Page.php:881
+#: includes/Admin/Test_Page.php:890
 msgid "Check results"
 msgstr "检查结果"
 
-#: includes/Admin/Test_Page.php:883
+#: includes/Admin/Test_Page.php:892
 msgid "Results appear as a plain summary table after a check runs. Raw response details are still available for support."
 msgstr "检查运行后，结果会以简明摘要表显示。原始响应细节仍可供支持排查使用。"
 
-#: includes/Admin/Test_Page.php:886
+#: includes/Admin/Test_Page.php:895
 msgid "No check has run yet."
 msgstr "尚未运行检查。"
 
-#: includes/Admin/Test_Page.php:892 includes/Admin/Test_Page.php:937
+#: includes/Admin/Test_Page.php:901 includes/Admin/Test_Page.php:946
 msgid "Item"
 msgstr "项目"
 
-#: includes/Admin/Test_Page.php:893 includes/Admin/Test_Page.php:948
+#: includes/Admin/Test_Page.php:902 includes/Admin/Test_Page.php:957
 msgid "Result"
 msgstr "结果"
 
-#: includes/Admin/Test_Page.php:894 includes/Admin/Test_Page.php:931
+#: includes/Admin/Test_Page.php:903 includes/Admin/Test_Page.php:940
 msgid "Details"
 msgstr "详情"
 
-#: includes/Admin/Test_Page.php:902 includes/Admin/Test_Page.php:947
+#: includes/Admin/Test_Page.php:911 includes/Admin/Test_Page.php:956
 msgid "Raw response for support"
 msgstr "供支持排查使用的原始响应"
 
-#: includes/Admin/Test_Page.php:904
+#: includes/Admin/Test_Page.php:913
 msgid "Full JSON is kept here for support and developer troubleshooting."
 msgstr "完整 JSON 会保留在这里，供支持人员和开发者排查使用。"
 
-#: includes/Admin/Test_Page.php:923
+#: includes/Admin/Test_Page.php:932
 msgid "Abilities API"
 msgstr "Abilities API"
 
-#: includes/Admin/Test_Page.php:924
+#: includes/Admin/Test_Page.php:933
 msgid "Abilities routes found"
 msgstr "已找到能力路由"
 
-#: includes/Admin/Test_Page.php:925
+#: includes/Admin/Test_Page.php:934
 msgid "Available"
 msgstr "可用"
 
-#: includes/Admin/Test_Page.php:926
+#: includes/Admin/Test_Page.php:935
 msgid "Block theme"
 msgstr "区块主题"
 
-#: includes/Admin/Test_Page.php:927
+#: includes/Admin/Test_Page.php:936
 msgid "Category registration"
 msgstr "分类注册"
 
-#: includes/Admin/Test_Page.php:929
+#: includes/Admin/Test_Page.php:938
 msgid "Configured"
 msgstr "已配置"
 
-#: includes/Admin/Test_Page.php:930
+#: includes/Admin/Test_Page.php:939
 msgid "Debug logging"
 msgstr "调试日志"
 
-#: includes/Admin/Test_Page.php:932
+#: includes/Admin/Test_Page.php:941
 msgid "Disabled"
 msgstr "已停用"
 
-#: includes/Admin/Test_Page.php:933
+#: includes/Admin/Test_Page.php:942
 msgid "Enabled"
 msgstr "已启用"
 
-#: includes/Admin/Test_Page.php:934
+#: includes/Admin/Test_Page.php:943
 msgid "External cache active"
 msgstr "外部缓存已启用"
 
-#: includes/Admin/Test_Page.php:935
+#: includes/Admin/Test_Page.php:944
 msgid "Diagnostics check"
 msgstr "诊断检查"
 
-#: includes/Admin/Test_Page.php:936
+#: includes/Admin/Test_Page.php:945
 msgid "HTTPS"
 msgstr "HTTPS"
 
-#: includes/Admin/Test_Page.php:938
+#: includes/Admin/Test_Page.php:947
 msgid "Language and timezone"
 msgstr "语言和时区"
 
-#: includes/Admin/Test_Page.php:939
+#: includes/Admin/Test_Page.php:948
 msgid "Needs attention"
 msgstr "需要处理"
 
-#: includes/Admin/Test_Page.php:940
+#: includes/Admin/Test_Page.php:949
 msgid "No"
 msgstr "否"
 
-#: includes/Admin/Test_Page.php:941
+#: includes/Admin/Test_Page.php:950
 msgid "Not configured"
 msgstr "未配置"
 
-#: includes/Admin/Test_Page.php:942
+#: includes/Admin/Test_Page.php:951
 msgid "Object cache"
 msgstr "对象缓存"
 
-#: includes/Admin/Test_Page.php:943
+#: includes/Admin/Test_Page.php:952
 msgid "Sensitive data"
 msgstr "敏感数据"
 
-#: includes/Admin/Test_Page.php:944
+#: includes/Admin/Test_Page.php:953
 msgid "Sensitive fields are omitted from this check."
 msgstr "此检查已省略敏感字段。"
 
-#: includes/Admin/Test_Page.php:945
+#: includes/Admin/Test_Page.php:954
 msgid "Passed"
 msgstr "通过"
 
-#: includes/Admin/Test_Page.php:946
+#: includes/Admin/Test_Page.php:955
 msgid "Permalinks"
 msgstr "固定链接"
 
-#: includes/Admin/Test_Page.php:949
+#: includes/Admin/Test_Page.php:958
 msgid "REST API"
 msgstr "REST API"
 
-#: includes/Admin/Test_Page.php:950
+#: includes/Admin/Test_Page.php:959
 msgid "Routes"
 msgstr "路由"
 
-#: includes/Admin/Test_Page.php:951
+#: includes/Admin/Test_Page.php:960
 msgid "Runtime cache only"
 msgstr "仅运行时缓存"
 
-#: includes/Admin/Test_Page.php:952
+#: includes/Admin/Test_Page.php:961
 msgid "Site host"
 msgstr "站点主机"
 
-#: includes/Admin/Test_Page.php:953
+#: includes/Admin/Test_Page.php:962
 msgid "Site name"
 msgstr "站点信息"
 
-#: includes/Admin/Test_Page.php:954
+#: includes/Admin/Test_Page.php:963
 msgid "Site URL"
 msgstr "站点 URL"
 
-#: includes/Admin/Test_Page.php:956
+#: includes/Admin/Test_Page.php:965
 msgid "Theme"
 msgstr "主题"
 
-#: includes/Admin/Test_Page.php:957
+#: includes/Admin/Test_Page.php:966
 msgid "Unavailable"
 msgstr "不可用"
 
-#: includes/Admin/Test_Page.php:959
+#: includes/Admin/Test_Page.php:968
 msgid "WordPress HTTPS"
 msgstr "WordPress HTTPS"
 
-#: includes/Admin/Test_Page.php:960
+#: includes/Admin/Test_Page.php:969
 msgid "Yes"
 msgstr "是"
 
-#: includes/Admin/Test_Page.php:977
+#: includes/Admin/Test_Page.php:986
 msgid "Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab."
 msgstr "复制 REST 端点、检查原始发现响应，并导出技术能力 ID。大多数站点用户不需要此标签页。"
 
-#: includes/Admin/Test_Page.php:980
+#: includes/Admin/Test_Page.php:989
 msgid "Integration guides:"
 msgstr "集成指南："
 
-#: includes/Admin/Test_Page.php:981
+#: includes/Admin/Test_Page.php:990
 msgid "REST client quickstart"
 msgstr "REST 客户端快速开始"
 
-#: includes/Admin/Test_Page.php:983
+#: includes/Admin/Test_Page.php:992
 msgid "Host Approval Contract"
 msgstr "宿主批准契约"
 
-#: includes/Admin/Test_Page.php:987
+#: includes/Admin/Test_Page.php:996
 msgid "Connection values"
 msgstr "连接值"
 
-#: includes/Admin/Test_Page.php:991
+#: includes/Admin/Test_Page.php:1000
 msgid "Abilities Endpoint"
 msgstr "能力端点"
 
-#: includes/Admin/Test_Page.php:995
+#: includes/Admin/Test_Page.php:1004
 msgid "Copy Abilities Endpoint"
 msgstr "复制能力端点"
 
-#: includes/Admin/Test_Page.php:1000
+#: includes/Admin/Test_Page.php:1009
 msgid "Categories Endpoint"
 msgstr "分类端点"
 
-#: includes/Admin/Test_Page.php:1004
+#: includes/Admin/Test_Page.php:1013
 msgid "Copy Categories Endpoint"
 msgstr "复制分类端点"
 
-#: includes/Admin/Test_Page.php:1009
+#: includes/Admin/Test_Page.php:1018
 msgid "Contract Endpoint"
 msgstr "契约端点"
 
-#: includes/Admin/Test_Page.php:1013
+#: includes/Admin/Test_Page.php:1022
 msgid "Copy Contract Endpoint"
 msgstr "复制契约端点"
 
-#: includes/Admin/Test_Page.php:1022
+#: includes/Admin/Test_Page.php:1031
 msgid "Raw discovery fetches"
 msgstr "原始发现请求"
 
-#: includes/Admin/Test_Page.php:1024
+#: includes/Admin/Test_Page.php:1033
 msgid "These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication."
 msgstr "这些按钮使用当前 wp-admin 会话和 X-WP-Nonce 请求头。外部客户端应使用 WordPress REST 认证。"
 
-#: includes/Admin/Test_Page.php:1028
+#: includes/Admin/Test_Page.php:1037
 msgid "Fetch Abilities"
 msgstr "获取能力"
 
-#: includes/Admin/Test_Page.php:1031
+#: includes/Admin/Test_Page.php:1040
 msgid "Fetch Categories"
 msgstr "获取分类"
 
-#: includes/Admin/Test_Page.php:1051
+#: includes/Admin/Test_Page.php:1061
 msgid "Catalog export"
 msgstr "目录导出"
 
-#: includes/Admin/Test_Page.php:1055
+#: includes/Admin/Test_Page.php:1065
 msgid "Ability ID export"
 msgstr "能力 ID 导出"
 
-#: includes/Admin/Test_Page.php:1056
+#: includes/Admin/Test_Page.php:1066
 msgid "Copyable ID list for host and catalog audits."
 msgstr "供 host 和目录审计复制使用的 ID 列表。"
 
-#: includes/Admin/Test_Page.php:1061
+#: includes/Admin/Test_Page.php:1071
 msgid "Copy IDs"
 msgstr "复制 ID"
 
-#: includes/Admin/Test_Page.php:1070
+#: includes/Admin/Test_Page.php:1080
 msgid "Ability technical catalog"
 msgstr "能力技术目录"
 
-#: includes/Admin/Test_Page.php:1071
+#: includes/Admin/Test_Page.php:1081
 msgid "Technical IDs, categories, schema availability, and callback status for host integrations."
 msgstr "用于 host 集成的技术 ID、分类、schema 可用性和回调状态。"
 
-#: includes/Admin/Test_Page.php:1078
+#: includes/Admin/Test_Page.php:1088
 msgid "Ability ID"
 msgstr "能力 ID"
 
-#: includes/Admin/Test_Page.php:1081
+#: includes/Admin/Test_Page.php:1091
 msgid "Input"
 msgstr "输入"
 
-#: includes/Admin/Test_Page.php:1082
+#: includes/Admin/Test_Page.php:1092
 msgid "Output"
 msgstr "输出"
 
-#: includes/Admin/Test_Page.php:1100 includes/Admin/Test_Page.php:1101
+#: includes/Admin/Test_Page.php:1110 includes/Admin/Test_Page.php:1111
 msgid "yes"
 msgstr "是"
 
-#: includes/Admin/Test_Page.php:1100 includes/Admin/Test_Page.php:1101
+#: includes/Admin/Test_Page.php:1110 includes/Admin/Test_Page.php:1111
 msgid "no"
 msgstr "否"
 
-#: includes/Admin/Test_Page.php:1124
+#: includes/Admin/Test_Page.php:1134
 msgid "You do not have permission to run this check."
 msgstr "你没有权限运行此检查。"
 
-#: includes/Admin/Test_Page.php:1135
+#: includes/Admin/Test_Page.php:1145
 msgid "Unknown read-only check."
 msgstr "未知的只读检查。"
 
@@ -1365,307 +1371,307 @@ msgstr "获取区块主题上下文"
 msgid "Returns compact active block theme Site Editor context for governed OpenClaw planning."
 msgstr "为受治理的 OpenClaw 规划返回紧凑的当前区块主题站点编辑器上下文。"
 
-#: includes/Packages/Core_Read_Package.php:1642
+#: includes/Packages/Core_Read_Package.php:1656
 msgid "Get Template Blocks"
 msgstr "获取模板区块"
 
-#: includes/Packages/Core_Read_Package.php:1643
+#: includes/Packages/Core_Read_Package.php:1657
 msgid "Returns parsed blocks from one wp_template entity for review and verification."
 msgstr "返回一个 wp_template 实体中解析后的区块，用于审核和验证。"
 
-#: includes/Packages/Core_Read_Package.php:1665
+#: includes/Packages/Core_Read_Package.php:1679
 msgid "Get Template Part Blocks"
 msgstr "获取模板部件区块"
 
-#: includes/Packages/Core_Read_Package.php:1666
+#: includes/Packages/Core_Read_Package.php:1680
 msgid "Returns parsed blocks from one wp_template_part entity for review and verification."
 msgstr "返回一个 wp_template_part 实体中解析后的区块，用于审核和验证。"
 
-#: includes/Packages/Core_Read_Package.php:1688
+#: includes/Packages/Core_Read_Package.php:1702
 msgid "Inspect Block Theme Surface"
 msgstr "检查区块主题表面"
 
-#: includes/Packages/Core_Read_Package.php:1689
+#: includes/Packages/Core_Read_Package.php:1703
 msgid "Inspects supported block theme template issues and returns stable issue codes before any governed Site Editor plan is built."
 msgstr "在构建任何受治理的站点编辑器计划前，检查受支持的区块主题模板问题并返回稳定的问题代码。"
 
-#: includes/Packages/Core_Read_Package.php:1727
+#: includes/Packages/Core_Read_Package.php:1741
 msgid "Build Block Theme Site Plan"
 msgstr "构建区块主题站点计划"
 
-#: includes/Packages/Core_Read_Package.php:1728
+#: includes/Packages/Core_Read_Package.php:1742
 msgid "Builds a governed block theme site configuration plan without writing WordPress Site Editor entities."
 msgstr "构建受治理的区块主题站点配置计划，而不写入 WordPress 站点编辑器实体。"
 
-#: includes/Packages/Core_Read_Package.php:1778
+#: includes/Packages/Core_Read_Package.php:1792
 msgid "Build Pattern Page Plan"
 msgstr "构建页面样板计划"
 
-#: includes/Packages/Core_Read_Package.php:1779
+#: includes/Packages/Core_Read_Package.php:1793
 msgid "Builds a governed page draft plan from a whitelisted Gutenberg page pattern without writing WordPress content."
 msgstr "基于白名单内的 Gutenberg 页面样板构建受治理的页面草稿计划，而不写入 WordPress 内容。"
 
-#: includes/Packages/Core_Read_Package.php:1842
+#: includes/Packages/Core_Read_Package.php:1856
 msgid "Review Pattern Page"
 msgstr "审核页面样板"
 
-#: includes/Packages/Core_Read_Package.php:1843
+#: includes/Packages/Core_Read_Package.php:1857
 msgid "Reviews a Gutenberg pattern page or proposed block tree for layout, media, responsive, and editor-risk signals without writing WordPress content."
 msgstr "审核 Gutenberg 页面样板或拟议区块树的布局、媒体、响应式和编辑器风险信号，而不写入 WordPress 内容。"
 
-#: includes/Packages/Core_Read_Package.php:1881
+#: includes/Packages/Core_Read_Package.php:1895
 msgid "Review Block Editor Surface"
 msgstr "审核区块编辑器表面"
 
-#: includes/Packages/Core_Read_Package.php:1882
+#: includes/Packages/Core_Read_Package.php:1896
 msgid "Reviews a post, page, Site Editor template, template part, or proposed block tree for block-editor quality signals without writing WordPress content."
 msgstr "审核文章、页面、站点编辑器模板、模板部件或拟议区块树的区块编辑器质量信号，而不写入 WordPress 内容。"
 
-#: includes/Packages/Core_Read_Package.php:1929
+#: includes/Packages/Core_Read_Package.php:1943
 msgid "List Pages"
 msgstr "列表页"
 
-#: includes/Packages/Core_Read_Package.php:1930
+#: includes/Packages/Core_Read_Package.php:1944
 msgid "Lists WordPress pages with status, parent, search, sorting, and pagination filters."
 msgstr "列出带有状态、父级、搜索、排序和分页过滤器的 WordPress 页面。"
 
-#: includes/Packages/Core_Read_Package.php:1962
+#: includes/Packages/Core_Read_Package.php:1976
 msgid "Get Page"
 msgstr "获取页面"
 
-#: includes/Packages/Core_Read_Package.php:1963
+#: includes/Packages/Core_Read_Package.php:1977
 msgid "Returns a single WordPress page, including content, template, hierarchy, author, and optional meta."
 msgstr "返回单个 WordPress 页面，包括内容、模板、层次结构、作者和可选元。"
 
-#: includes/Packages/Core_Read_Package.php:2009
+#: includes/Packages/Core_Read_Package.php:2023
 msgid "Inspect Page Structure"
 msgstr "检查页面结构"
 
-#: includes/Packages/Core_Read_Package.php:2010
+#: includes/Packages/Core_Read_Package.php:2024
 msgid "Inspects WordPress page hierarchy, template usage, and orphaned parent relationships without modifying pages."
 msgstr "在不修改页面的情况下检查 WordPress 页面层次结构、模板使用情况和孤立父关系。"
 
-#: includes/Packages/Core_Read_Package.php:2039
+#: includes/Packages/Core_Read_Package.php:2053
 msgid "List Pages Tree"
 msgstr "列表页面树"
 
-#: includes/Packages/Core_Read_Package.php:2040
+#: includes/Packages/Core_Read_Package.php:2054
 msgid "Returns a hierarchical page tree for navigation and site-structure review."
 msgstr "返回用于导航和站点结构审查的分层页面树。"
 
-#: includes/Packages/Core_Read_Package.php:2080
+#: includes/Packages/Core_Read_Package.php:2094
 msgid "Get Content Publishing Checklist"
 msgstr "获取内容发布清单"
 
-#: includes/Packages/Core_Read_Package.php:2081
+#: includes/Packages/Core_Read_Package.php:2095
 msgid "Returns a deterministic pre-publish readiness checklist for one post or page without applying changes."
 msgstr "返回一篇文章或页面的确定性预发布准备清单，而不应用更改。"
 
-#: includes/Packages/Core_Read_Package.php:2125
+#: includes/Packages/Core_Read_Package.php:2139
 msgid "Get Content Inventory Health"
 msgstr "获取内容库存健康状况"
 
-#: includes/Packages/Core_Read_Package.php:2126
+#: includes/Packages/Core_Read_Package.php:2140
 msgid "Scans a bounded content inventory and summarizes missing titles, thin content, excerpt gaps, media gaps, SEO metadata gaps, and stale content."
 msgstr "扫描有限的内容清单并总结缺失的标题、薄弱的内容、摘录差距、媒体差距、SEO 元数据差距和过时的内容。"
 
-#: includes/Packages/Core_Read_Package.php:2171
+#: includes/Packages/Core_Read_Package.php:2185
 msgid "Get Nonproduction Content Inventory"
 msgstr "获取非生产内容清单"
 
-#: includes/Packages/Core_Read_Package.php:2172
+#: includes/Packages/Core_Read_Package.php:2186
 msgid "Detects bounded smoke, fixture, and nonproduction content that may distort content, taxonomy, comment, and operations diagnostics without mutating the site."
 msgstr "检测可能扭曲内容、分类、评论和操作诊断而不改变站点的有限烟雾、固定装置和非生产内容。"
 
-#: includes/Packages/Core_Read_Package.php:2205
+#: includes/Packages/Core_Read_Package.php:2219
 msgid "Build Nonproduction Content Cleanup Plan"
 msgstr "制定非生产内容清理计划"
 
-#: includes/Packages/Core_Read_Package.php:2206
+#: includes/Packages/Core_Read_Package.php:2220
 msgid "Builds a read-only cleanup plan for detected nonproduction content, mapping each candidate to existing governed write abilities without trashing or deleting anything."
 msgstr "为检测到的非生产内容构建只读清理计划，将每个候选内容映射到现有的受控写入能力，不移入回收站，也不删除任何内容。"
 
-#: includes/Packages/Core_Read_Package.php:2240
+#: includes/Packages/Core_Read_Package.php:2254
 msgid "Build Content Inventory Fix Plan"
 msgstr "制定内容库存修复计划"
 
-#: includes/Packages/Core_Read_Package.php:2241
+#: includes/Packages/Core_Read_Package.php:2255
 msgid "Maps bounded content inventory issues to reviewable fix actions that reuse existing governed write abilities without mutating posts."
 msgstr "将有限的内容库存问题映射到可审查的修复操作，这些修复操作可重用现有的受控写入功能，而无需更改文章。"
 
-#: includes/Packages/Core_Read_Package.php:2275
+#: includes/Packages/Core_Read_Package.php:2289
 msgid "Get Bulk Publishing Checklist"
 msgstr "获取批量发布清单"
 
-#: includes/Packages/Core_Read_Package.php:2276
+#: includes/Packages/Core_Read_Package.php:2290
 msgid "Runs the read-only publishing checklist for a bounded list of posts and returns batch readiness totals."
 msgstr "运行有限的文章列表的只读发布清单并返回批次准备情况总计。"
 
-#: includes/Packages/Core_Read_Package.php:2322
+#: includes/Packages/Core_Read_Package.php:2336
 msgid "Get Internal Link Opportunity Report"
 msgstr "获取内部链接机会报告"
 
-#: includes/Packages/Core_Read_Package.php:2323
+#: includes/Packages/Core_Read_Package.php:2337
 msgid "Builds a post-id based internal-link opportunity report with candidate targets, anchor suggestions, and placement hints."
 msgstr "构建基于文章 ID 的内部链接机会报告，其中包含候选目标、锚点建议和放置提示。"
 
-#: includes/Packages/Core_Read_Package.php:2363
+#: includes/Packages/Core_Read_Package.php:2377
 msgid "Get Site Operations Dashboard"
 msgstr "获取站点操作仪表板"
 
-#: includes/Packages/Core_Read_Package.php:2364
+#: includes/Packages/Core_Read_Package.php:2378
 msgid "Builds a bounded read-only site operations dashboard for content status, inventory issues, taxonomy health, comments, and media signals."
 msgstr "为内容状态、库存问题、分类健康状况、评论和媒体信号构建有界只读站点操作仪表板。"
 
-#: includes/Packages/Core_Read_Package.php:2393
+#: includes/Packages/Core_Read_Package.php:2407
 msgid "Get Post Publish Risk Report"
 msgstr "获取发布后风险报告"
 
-#: includes/Packages/Core_Read_Package.php:2394
+#: includes/Packages/Core_Read_Package.php:2408
 msgid "Builds a read-only publish risk report for one post from checklist, SEO/GEO, revision, and internal-link signals."
 msgstr "根据清单、SEO/GEO、修订和内部链接信号为一篇文章构建只读发布风险报告。"
 
-#: includes/Packages/Core_Read_Package.php:2424
+#: includes/Packages/Core_Read_Package.php:2438
 msgid "Get Article Publish Preflight Context"
 msgstr "获取文章 发布 预检上下文"
 
-#: includes/Packages/Core_Read_Package.php:2425
+#: includes/Packages/Core_Read_Package.php:2439
 msgid "Aggregates post context, publishing checklist, publish risk, workflow context, and calendar context for host-side publish preflight workflows without writing."
 msgstr "聚合发布上下文、发布清单、发布风险、工作流上下文和日历上下文，以供 host 端发布预检工作流而不写入。"
 
-#: includes/Packages/Core_Read_Package.php:2457
+#: includes/Packages/Core_Read_Package.php:2471
 msgid "Get Content Refresh Opportunities"
 msgstr "获得内容刷新机会"
 
-#: includes/Packages/Core_Read_Package.php:2458
+#: includes/Packages/Core_Read_Package.php:2472
 msgid "Scans a bounded content set and returns stale, thin, SEO-light, answer-light, and low-link refresh opportunities."
 msgstr "扫描有界内容集并返回陈旧、稀疏、SEO-light、answer-light 和低链接刷新机会。"
 
-#: includes/Packages/Core_Read_Package.php:2490
+#: includes/Packages/Core_Read_Package.php:2504
 msgid "Get Old Article Refresh Context"
 msgstr "获取旧文章刷新上下文"
 
-#: includes/Packages/Core_Read_Package.php:2491
+#: includes/Packages/Core_Read_Package.php:2505
 msgid "Aggregates refresh opportunities, SEO/GEO gaps, site style baseline, internal-link graph health, and optional selected-post link opportunities for host-side old article refresh workflows."
 msgstr "聚合 host 端旧文章刷新工作流程的刷新机会、SEO/GEO 差距、网站样式基线、内部链接图运行状况以及可选的选定文章链接机会。"
 
-#: includes/Packages/Core_Read_Package.php:2525
+#: includes/Packages/Core_Read_Package.php:2539
 msgid "Get Internal Link Graph Health"
 msgstr "获取内部链接图健康状况"
 
-#: includes/Packages/Core_Read_Package.php:2526
+#: includes/Packages/Core_Read_Package.php:2540
 msgid "Scans a bounded content set and summarizes outgoing links, incoming links, orphan posts, and candidate internal-link pairs."
 msgstr "扫描有界内容集并总结传出链接、传入链接、孤立文章和候选内部链接对。"
 
-#: includes/Packages/Core_Read_Package.php:2558
+#: includes/Packages/Core_Read_Package.php:2572
 msgid "Get Taxonomy Consolidation Suggestions"
 msgstr "获取分类整合建议"
 
-#: includes/Packages/Core_Read_Package.php:2559
+#: includes/Packages/Core_Read_Package.php:2573
 msgid "Scans taxonomy terms and suggests read-only consolidation candidates for empty, duplicate, similar, and unused terms."
 msgstr "扫描分类项并针对空的、重复的、相似的和未使用的术语建议只读合并候选。"
 
-#: includes/Packages/Core_Read_Package.php:2589
+#: includes/Packages/Core_Read_Package.php:2603
 msgid "Suggest Post Taxonomy Terms"
 msgstr "建议文章分类项"
 
-#: includes/Packages/Core_Read_Package.php:2590
+#: includes/Packages/Core_Read_Package.php:2604
 msgid "Ranks existing category and tag candidates against a supplied post context without creating terms or mutating posts."
 msgstr "根据提供的文章上下文对现有分类和标签候选进行排序，不创建分类项，也不更改文章。"
 
-#: includes/Packages/Core_Read_Package.php:2667
+#: includes/Packages/Core_Read_Package.php:2681
 msgid "Build Taxonomy/Tag Review Set"
 msgstr "构建分类法/标签审核集"
 
-#: includes/Packages/Core_Read_Package.php:2668
+#: includes/Packages/Core_Read_Package.php:2682
 msgid "Builds a review-only taxonomy and tag candidate set from supplied post context and optional ranking evidence without creating terms, assigning terms, or creating proposals."
 msgstr "根据提供的文章上下文和可选的排序证据，构建仅用于审核的分类法和标签候选集，不会创建或分配词条，也不会创建提案。"
 
-#: includes/Packages/Core_Read_Package.php:2746
+#: includes/Packages/Core_Read_Package.php:2760
 msgid "Propose Post Taxonomy Terms"
 msgstr "提出后分类项"
 
-#: includes/Packages/Core_Read_Package.php:2747
+#: includes/Packages/Core_Read_Package.php:2761
 msgid "Builds a deterministic post taxonomy assignment proposal from existing terms without mutating the post or creating terms."
 msgstr "根据现有术语构建确定性的文章分类分配提案，而无需更改文章或创建术语。"
 
-#: includes/Packages/Core_Read_Package.php:2791
+#: includes/Packages/Core_Read_Package.php:2805
 msgid "Get Page Structure Health"
 msgstr "获取页面结构健康状况"
 
-#: includes/Packages/Core_Read_Package.php:2792
+#: includes/Packages/Core_Read_Package.php:2806
 msgid "Scans one page or a bounded page set and reports heading, CTA, content depth, and block structure health."
 msgstr "扫描一页或有界页面集并报告标题、{{​​CTA}}、内容深度和块结构运行状况。"
 
-#: includes/Packages/Core_Read_Package.php:2821
+#: includes/Packages/Core_Read_Package.php:2835
 msgid "Get SEO GEO Gap Report"
 msgstr "获取 SEO GEO 差距报告"
 
-#: includes/Packages/Core_Read_Package.php:2822
+#: includes/Packages/Core_Read_Package.php:2836
 msgid "Builds a bounded SEO/GEO gap report from topic coverage, refresh opportunities, answer structure, and SEO metadata signals."
 msgstr "根据主题覆盖范围、刷新机会、答案结构和 SEO 元数据信号构建有界 SEO/GEO 差距报告。"
 
-#: includes/Packages/Core_Read_Package.php:2853
+#: includes/Packages/Core_Read_Package.php:2867
 msgid "Get Site Style Baseline"
 msgstr "获取网站风格基线"
 
-#: includes/Packages/Core_Read_Package.php:2854
+#: includes/Packages/Core_Read_Package.php:2868
 msgid "Returns a compact read-only site-wide or author-specific writing style baseline from recent posts."
 msgstr "从最近的文章中返回紧凑的只读站点范围或特定于作者的写作风格基线。"
 
-#: includes/Packages/Core_Read_Package.php:2883
+#: includes/Packages/Core_Read_Package.php:2897
 msgid "Build Article Workflow Context"
 msgstr "构建文章工作流程上下文"
 
-#: includes/Packages/Core_Read_Package.php:2884
+#: includes/Packages/Core_Read_Package.php:2898
 msgid "Builds one read-only context bundle for article refresh, publish, or new-article workflows without model routing."
 msgstr "为文章刷新、发布或新文章工作流程构建一个只读上下文捆绑包，无需模型路由。"
 
-#: includes/Packages/Core_Read_Package.php:2913
+#: includes/Packages/Core_Read_Package.php:2927
 msgid "Get Publishing Calendar Context"
 msgstr "获取发布日历上下文"
 
-#: includes/Packages/Core_Read_Package.php:2914
+#: includes/Packages/Core_Read_Package.php:2928
 msgid "Returns scheduled posts, draft backlog, pending review items, and near-term publishing cadence context."
 msgstr "返回计划的文章、待办事项草稿、待审核项目和近期发布节奏上下文。"
 
-#: includes/Packages/Core_Read_Package.php:2943
+#: includes/Packages/Core_Read_Package.php:2957
 msgid "Get Post SEO GEO Readiness"
 msgstr "准备好发布 SEO GEO"
 
-#: includes/Packages/Core_Read_Package.php:2944
+#: includes/Packages/Core_Read_Package.php:2958
 msgid "Returns one deterministic SEO/GEO readiness snapshot for a post, including metadata, content-depth, question, and media signals."
 msgstr "返回文章的一个确定性 SEO/GEO 准备情况快照，包括元数据、内容深度、问题和媒体信号。"
 
-#: includes/Packages/Core_Read_Package.php:2985
+#: includes/Packages/Core_Read_Package.php:2999
 msgid "Get Site Topic Coverage Report"
 msgstr "获取网站主题覆盖率报告"
 
-#: includes/Packages/Core_Read_Package.php:2986
+#: includes/Packages/Core_Read_Package.php:3000
 msgid "Builds a bounded site topic coverage summary from post titles, terms, and content snippets without model routing."
 msgstr "从文章标题、术语和内容片段构建有界站点主题覆盖摘要，无需模型路由。"
 
-#: includes/Packages/Core_Read_Package.php:3028
+#: includes/Packages/Core_Read_Package.php:3042
 msgid "Get Taxonomy Inventory Health"
 msgstr "获取分类库存健康状况"
 
-#: includes/Packages/Core_Read_Package.php:3029
+#: includes/Packages/Core_Read_Package.php:3043
 msgid "Scans a bounded taxonomy term inventory and summarizes empty, unused, duplicate, and hierarchy attention signals."
 msgstr "扫描有界分类项清单并总结空的、未使用的、重复的和层次结构注意信号。"
 
-#: includes/Packages/Core_Read_Package.php:3073
+#: includes/Packages/Core_Read_Package.php:3087
 msgid "Get Revision Change Risk Report"
 msgstr "获取修订变更风险报告"
 
-#: includes/Packages/Core_Read_Package.php:3074
+#: includes/Packages/Core_Read_Package.php:3088
 msgid "Reads recent revisions for one post and summarizes title, content length, block count, and recency change-risk signals."
 msgstr "阅读一篇文章的最新修订并总结标题、内容长度、块计数和新近变化风险信号。"
 
-#: includes/Packages/Core_Read_Package.php:3157
+#: includes/Packages/Core_Read_Package.php:3171
 msgid "Workflow recipe definition was not found."
 msgstr "未找到工作流程配方定义。"
 
-#: includes/Packages/Core_Read_Package.php:3431
+#: includes/Packages/Core_Read_Package.php:3445
 #: includes/Packages/Read_Traits/Content_Inventory_Read_Methods.php:35
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:44
 #: includes/Packages/Read_Traits/Post_Primitives_Read_Methods.php:271
@@ -1673,19 +1679,19 @@ msgstr "未找到工作流程配方定义。"
 msgid "Post type does not exist."
 msgstr "文章类型不存在。"
 
-#: includes/Packages/Core_Read_Package.php:3459
+#: includes/Packages/Core_Read_Package.php:3473
 msgid "Content is required to generate an excerpt proposal."
 msgstr "生成摘要提案需要内容。"
 
-#: includes/Packages/Core_Read_Package.php:3474
+#: includes/Packages/Core_Read_Package.php:3488
 msgid "Local read-only excerpt proposal generated from explicit content input."
 msgstr "从显式内容输入生成的本地只读摘录提案。"
 
-#: includes/Packages/Core_Read_Package.php:3534
+#: includes/Packages/Core_Read_Package.php:3548
 msgid "Post metadata plan resolved."
 msgstr "发布元数据计划已解决。"
 
-#: includes/Packages/Core_Read_Package.php:3686
+#: includes/Packages/Core_Read_Package.php:3700
 msgid "Menu was not found."
 msgstr "找不到菜单。"
 

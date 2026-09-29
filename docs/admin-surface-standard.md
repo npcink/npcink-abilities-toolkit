@@ -24,13 +24,13 @@ The default page should show:
 - stable, shareable admin URLs for tabs and read-only filters;
 - next actions for viewing abilities, running safe checks, using a host
   product, and opening developer access;
-- a read-only workflow scenario overview listing the published recipe
-  definitions (title, natural task examples, entry ability id) so site
-  operators can see what a host product can do.
+- a one-line workflow scenario summary (published scenario count, host-owned
+  execution) linking the full catalog in the Developer Access tab.
 
 ## Workflow Scenario Overview
 
-The default view may render the static workflow recipe definitions through
+The full workflow scenario catalog renders inside the Developer Access tab,
+after the advanced checks, through
 `npcink_abilities_toolkit_get_workflow_definitions()`. The block is
 documentation-only:
 
@@ -38,6 +38,12 @@ documentation-only:
 - it must not add run, execute, schedule, retry, or approval affordances;
 - it must not display workflow state, approval state, or audit data;
 - host products remain the only execution surface.
+
+The default overview shows only a single localized summary line with the
+scenario count and a link to the Developer tab catalog. The full card grid
+stays out of the default view: site owners need the one-line answer, and the
+card-level detail (contract task phrasing, entry ability ids) serves the
+developer audience that already lives in that tab.
 
 ## External Documentation Links
 
