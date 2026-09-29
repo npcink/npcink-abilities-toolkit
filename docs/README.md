@@ -137,6 +137,11 @@ change, or deciding whether a development stage is complete.
     and the [ability contract readiness plan](ability-contract-readiness-0.5.md)),
     the [freeze/observe proof phase closeout](freeze-observe-phase-closeout-2026-06-17.md),
     and the [admin surface standard](admin-surface-standard.md).
+21. Read [Positioning Adjustment Closeout - 2026-09-29](positioning-adjustment-closeout-2026-09-29.md)
+    before adding workflow recipes, editing the host approval contract, or
+    reordering README boundary text; it records the durable entrypoint,
+    response-shape, and documentation rules learned while landing both recipe
+    batches and the contract adoption.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
