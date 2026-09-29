@@ -475,6 +475,82 @@ function npcink_abilities_toolkit_contract_audit_workflow_recipes( array $abilit
 	}
 }
 
+/**
+ * Audits that every ability's scope semantics are explicit.
+ *
+ * An ability with no required scope is capability-gated: its WordPress
+ * capability is the only authorization surface. Such abilities must appear in
+ * the explicit capability-gated list so the omission is a decision, not an
+ * oversight. See docs/permission-matrix.md for the documented semantics.
+ *
+ * @param array<string,array<string,mixed>> $abilities Registered abilities.
+ * @return void
+ */
+function npcink_abilities_toolkit_contract_audit_scope_semantics( array $abilities ) {
+	$capability_gated = array(
+		'npcink-abilities-toolkit/wp-diagnostics-summary',
+		'npcink-abilities-toolkit/wp-ops-diagnostics-detail',
+		'npcink-abilities-toolkit/list-workflow-recipes',
+		'npcink-abilities-toolkit/get-workflow-recipe',
+		'npcink-abilities-toolkit/list-post-types',
+		'npcink-abilities-toolkit/list-taxonomies',
+		'npcink-abilities-toolkit/list-media',
+		'npcink-abilities-toolkit/list-terms',
+		'npcink-abilities-toolkit/list-taxonomy-terms',
+		'npcink-abilities-toolkit/list-categories',
+		'npcink-abilities-toolkit/list-tags',
+		'npcink-abilities-toolkit/get-term',
+		'npcink-abilities-toolkit/propose-post-excerpt',
+		'npcink-abilities-toolkit/resolve-post-metadata-plan',
+		'npcink-abilities-toolkit/list-users',
+		'npcink-abilities-toolkit/list-comments',
+		'npcink-abilities-toolkit/list-menus',
+		'npcink-abilities-toolkit/get-menu',
+		'npcink-abilities-toolkit/search-posts',
+		'npcink-abilities-toolkit/get-post-stats',
+		'npcink-abilities-toolkit/list-revisions',
+		'npcink-abilities-toolkit/get-post-meta',
+		'npcink-abilities-toolkit/search-post-meta',
+		'npcink-abilities-toolkit/list-pages',
+		'npcink-abilities-toolkit/get-page',
+		'npcink-abilities-toolkit/inspect-page-structure',
+		'npcink-abilities-toolkit/list-pages-tree',
+		'npcink-abilities-toolkit/count-posts',
+		'npcink-abilities-toolkit/list-posts',
+		'npcink-abilities-toolkit/get-post',
+		'npcink-abilities-toolkit/resolve-url-to-post',
+		'npcink-abilities-toolkit/get-post-blocks',
+		'npcink-abilities-toolkit/list-post-revisions',
+	);
+
+	foreach ( $abilities as $ability_id => $ability ) {
+		$scope      = (string) ( $ability['required_scope'] ?? '' );
+		$scopes     = (array) ( $ability['required_scopes'] ?? array() );
+		$has_scope  = '' !== $scope || array() !== array_filter( array_map( 'strval', $scopes ) );
+
+		if ( $has_scope ) {
+			if ( in_array( $ability_id, $capability_gated, true ) ) {
+				npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} declares a scope but stays on the capability-gated list; remove the stale list entry" );
+			}
+			continue;
+		}
+
+		if ( '' === trim( (string) ( $ability['capability'] ?? '' ) ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} has neither a required scope nor a capability; authorization semantics are undefined" );
+		}
+
+		if ( ! in_array( $ability_id, $capability_gated, true ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} has no required scope; either declare one or add it to the explicit capability-gated list with a documented reason" );
+		}
+	}
+
+	foreach ( $capability_gated as $ability_id ) {
+		if ( ! isset( $abilities[ $ability_id ] ) ) {
+			npcink_abilities_toolkit_contract_audit_fail( "{$ability_id} is on the capability-gated list but is not registered; remove the stale entry" );
+		}
+	}
+}
+
 Npcink_Abilities_Toolkit\Plugin::instance()->boot();
 
 $abilities = npcink_abilities_toolkit_get_registered();
@@ -489,6 +565,7 @@ foreach ( $abilities as $ability_id => $ability ) {
 npcink_abilities_toolkit_contract_audit_agent_usage( $abilities );
 npcink_abilities_toolkit_contract_audit_implementation_posture( $abilities );
 npcink_abilities_toolkit_contract_audit_workflow_recipes( $abilities );
+npcink_abilities_toolkit_contract_audit_scope_semantics( $abilities );
 
 if ( ! empty( $failures ) ) {
 	foreach ( $failures as $failure ) {

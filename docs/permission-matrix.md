@@ -10,6 +10,24 @@ Dry-run previews must still pass the same WordPress permission checks as final
 commits so preview payloads do not leak data to callers who could not perform
 the corresponding WordPress operation.
 
+## Scope Semantics
+
+Abilities declare authorization surfaces through `required_scope` /
+`required_scopes` plus a WordPress `capability`. The semantics are:
+
+- **Scope-gated** (`required_scope` non-empty): the host governance layer is
+  expected to check the declared scope in addition to the WordPress
+  capability. All write and destructive abilities are scope-gated.
+- **Capability-gated** (`required_scope` and `required_scopes` both empty):
+  the WordPress capability is the only authorization surface and there is no
+  host-side scope expectation. An empty scope is therefore a deliberate
+  decision, not an omission: `composer check:contracts` enforces that every
+  capability-gated ability appears on the explicit capability-gated list in
+  `scripts/check-ability-contracts.php`, so a new ability must either declare
+  a scope or consciously join that list. The current capability-gated set is
+  read-only (site inventory reads, taxonomy and comment listing, page
+  inspection, diagnostics, and the workflow recipe discovery pair).
+
 | Ability | Risk | WordPress capability | Host scope metadata |
 | --- | --- | --- | --- |
 | `npcink-abilities-toolkit/create-draft` | `write` | `edit_posts` | `post.write` |
