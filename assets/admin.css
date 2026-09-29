@@ -136,6 +136,54 @@
 	gap: 8px;
 }
 
+.npcink-abilities-toolkit-scenarios {
+	margin-top: 20px;
+	max-width: 1100px;
+}
+
+.npcink-abilities-toolkit-scenarios__grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	margin: 12px 0;
+}
+
+.npcink-abilities-toolkit-scenarios__item {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left-width: 3px;
+	border-left-color: #2271b1;
+	padding: 14px;
+}
+
+.npcink-abilities-toolkit-scenarios__item h3 {
+	font-size: 14px;
+	margin: 0 0 8px;
+}
+
+.npcink-abilities-toolkit-scenarios__item ul {
+	list-style: disc;
+	margin: 0 0 10px;
+	padding-left: 18px;
+}
+
+.npcink-abilities-toolkit-scenarios__item li {
+	color: #50575e;
+	font-size: 12px;
+	line-height: 1.5;
+	margin: 0 0 4px;
+}
+
+.npcink-abilities-toolkit-scenarios__item .description {
+	margin: 0;
+}
+
+.npcink-abilities-toolkit-scenarios__item .description code {
+	font-size: 11px;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
 .npcink-abilities-toolkit-connection-table {
 	margin: 12px 0 16px;
 	max-width: 1100px;
@@ -361,6 +409,7 @@
 
 @media (max-width: 782px) {
 	.npcink-abilities-toolkit-next__grid,
+	.npcink-abilities-toolkit-scenarios__grid,
 	.npcink-abilities-toolkit-filter {
 		grid-template-columns: 1fr;
 	}
