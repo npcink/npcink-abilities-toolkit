@@ -101,16 +101,18 @@ owns persisted workflow state and any approval or commit record.
 Recipe id: `npcink-abilities-toolkit/recipes/site-operations-scan`
 
 Goal: identify site content, media, taxonomy, and page-structure attention
-areas without writes.
+areas without writes. This recipe is also a machine-readable workflow
+definition case.
 
 Ability sequence:
 
-1. `npcink-abilities-toolkit/site-info`
-2. `npcink-abilities-toolkit/get-site-operations-dashboard`
-3. `npcink-abilities-toolkit/get-content-inventory-health`
-4. `npcink-abilities-toolkit/get-media-inventory-health`
-5. `npcink-abilities-toolkit/get-taxonomy-inventory-health`
-6. `npcink-abilities-toolkit/get-page-structure-health`
+1. Preferred entrypoint: `npcink-abilities-toolkit/get-site-operations-dashboard`
+2. Expanded sequence when the host needs individual calls:
+   `npcink-abilities-toolkit/site-info`,
+   `npcink-abilities-toolkit/get-content-inventory-health`,
+   `npcink-abilities-toolkit/get-media-inventory-health`,
+   `npcink-abilities-toolkit/get-taxonomy-inventory-health`, and
+   `npcink-abilities-toolkit/get-page-structure-health`
 
 Handoff:
 
@@ -337,6 +339,36 @@ Governance:
 - inventory, asset, and suggestion steps are read/proposal outputs;
 - attachment metadata writes remain host-governed.
 
+## Recipe: Media Governance Scan
+
+Recipe id: `npcink-abilities-toolkit/recipes/media-governance-scan`
+
+Goal: surface media library cleanup opportunities and prepare governed
+inventory fix, rename, and derivative batch plans without deleting, renaming,
+or rewriting any attachment. This recipe is also a machine-readable workflow
+definition case.
+
+Ability sequence:
+
+1. Preferred entrypoint: `npcink-abilities-toolkit/get-media-cleanup-opportunities`
+2. `npcink-abilities-toolkit/build-media-inventory-fix-plan`
+3. `npcink-abilities-toolkit/build-media-rename-plan` for selected attachments
+4. `npcink-abilities-toolkit/build-media-derivative-batch-plan`
+5. Optional dry-run only: `npcink-abilities-toolkit/update-media-details`
+
+Handoff:
+
+- pass cleanup opportunities, inventory fix actions, rename plans, and
+  derivative batch plans to the host;
+- the host decides which cleanup actions to approve and how to schedule them.
+
+Governance:
+
+- read-only discovery and planning;
+- attachment deletion, permanent deletion, metadata writes, and batch
+  scheduling remain host-governed;
+- destructive media operations never run as part of the default chain.
+
 ## Recipe: Old Article Refresh Discovery
 
 Recipe id: `npcink-abilities-toolkit/recipes/old-article-refresh-discovery`
@@ -401,10 +433,13 @@ Governance:
 Recipe id: `npcink-abilities-toolkit/recipes/diagnostics-triage`
 
 Goal: gather redacted WordPress-only diagnostics for support or agent triage.
+This recipe is also a machine-readable workflow definition case. Its
+entrypoint ability is local-only and stays out of the Npcink catalog
+projection by design.
 
 Ability sequence:
 
-1. `npcink-abilities-toolkit/wp-diagnostics-summary`
+1. Preferred entrypoint: `npcink-abilities-toolkit/wp-diagnostics-summary`
 2. `npcink-abilities-toolkit/wp-ops-diagnostics-detail`
 3. `npcink-abilities-toolkit/site-info`
 

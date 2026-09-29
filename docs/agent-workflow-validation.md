@@ -2,7 +2,7 @@
 
 Status: active for 0.3 stabilization.
 
-This document defines the first seven end-to-end workflows that should be proven
+This document defines the first ten end-to-end workflows that should be proven
 before another ability batch is added. The workflows are not a runtime owned by
 this package. They are consumption contracts for Npcink AI, WP Magick Toolbox,
 or any host that executes WordPress abilities.
@@ -205,6 +205,66 @@ Acceptance:
 - suggestions are proposal-first and batch scheduling stays host-owned;
 - attachment metadata writes remain host-governed.
 
+## Workflow 8: Media Governance Scan
+
+Goal: surface media library cleanup opportunities and prepare governed fix,
+rename, and derivative batch plans without touching attachments.
+
+Ability sequence:
+
+1. Run `npcink-abilities-toolkit/get-media-cleanup-opportunities` as the
+   bounded entrypoint.
+2. Run `npcink-abilities-toolkit/build-media-inventory-fix-plan` for proposed
+   remediation actions.
+3. Branch into `npcink-abilities-toolkit/build-media-rename-plan` or
+   `npcink-abilities-toolkit/build-media-derivative-batch-plan` for selected
+   assets.
+
+Acceptance:
+
+- every read step returns HTTP 200 through WordPress Abilities API;
+- cleanup and fix-plan steps return success envelopes;
+- any declared `commit_execution` flag stays false in the default chain;
+- attachment writes and deletions remain host-governed.
+
+## Workflow 9: Site Operations Scan
+
+Goal: run one site-wide pass over content, media, taxonomy, and page
+structure attention areas without writes.
+
+Ability sequence:
+
+1. Run `npcink-abilities-toolkit/get-site-operations-dashboard` as the
+   entrypoint.
+2. Branch into the per-area inventory health abilities
+   (`get-content-inventory-health`, `get-media-inventory-health`,
+   `get-taxonomy-inventory-health`, `get-page-structure-health`) as needed.
+
+Acceptance:
+
+- dashboard and inventory steps return HTTP 200 and success envelopes;
+- remediation stays a separate host-governed recipe.
+
+## Workflow 10: Diagnostics Triage
+
+Goal: gather redacted WordPress-only diagnostics for support or agent triage.
+
+Ability sequence:
+
+1. Run `npcink-abilities-toolkit/wp-diagnostics-summary` as the local-only
+   entrypoint.
+2. Run `npcink-abilities-toolkit/wp-ops-diagnostics-detail` with a bounded
+   plugin group size when support depth is needed.
+3. Optionally include `npcink-abilities-toolkit/site-info` for connection
+   context.
+
+Acceptance:
+
+- summary and ops detail return HTTP 200;
+- the ops detail payload keeps its redacted raw-report contract without a
+  success envelope;
+- no write ability runs as part of the default chain.
+
 ## Smoke Mapping
 
 `tests/smoke-wp.php` now validates these workflow chains in addition to
@@ -227,6 +287,12 @@ single-ability registration and execution:
 - Media Alt And SEO Enrichment: media inventory health, media list, and
   metadata suggestions, with attachment metadata writes kept out of the default
   entrypoint.
+- Media Governance Scan: cleanup opportunities and inventory fix plans, with
+  attachment writes and deletions kept out of the default entrypoint.
+- Site Operations Scan: operations dashboard and taxonomy inventory health,
+  with remediation writes kept out of the default entrypoint.
+- Diagnostics Triage: redacted ops detail contract without a success envelope,
+  with no write ability in the default chain.
 
 Use the Local WordPress command documented in
 [local-wpcli-smoke.md](local-wpcli-smoke.md) to rerun this validation.
