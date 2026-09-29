@@ -59,10 +59,13 @@ Use this path when a client needs to discover or run abilities through the
 WordPress REST API.
 
 1. Start with [REST Client Quickstart](rest-client-quickstart.md).
-2. Use the admin page endpoint values from
+2. Check the response shape family of each ability in
+   [Ability Response Shapes](ability-response-shapes.md) before parsing
+   responses; envelope, paginated, and raw families all exist on purpose.
+3. Use the admin page endpoint values from
    `Tools -> AI Ability Set -> Developer Access` or
    `Npcink AI -> AI Ability Set -> Developer Access`.
-3. Use [Troubleshooting](troubleshooting.md) for common 401, 403, missing route,
+4. Use [Troubleshooting](troubleshooting.md) for common 401, 403, missing route,
    missing ability, and dry-run issues.
 
 REST clients should discover the catalog first, inspect each ability's schema,

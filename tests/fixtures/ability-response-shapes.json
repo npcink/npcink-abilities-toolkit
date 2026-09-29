@@ -1,0 +1,1308 @@
+{
+    "schema_version": "v1",
+    "purpose": "Registered response shape signatures for every read-risk ability. Keys mirror the declared output_schema top-level properties; runtime_verified marks entries whose empty-input execution matches the declared keys exactly. Update this fixture in the same change as any output_schema or callback response-shape change.",
+    "abilities": {
+        "npcink-abilities-toolkit/build-article-audio-adoption-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-article-block-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-article-optimization-apply-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-article-optimization-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-article-production-fingerprint": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-article-single-optimization-suggest": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-article-style-profile": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-article-workflow-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-block-theme-site-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-comment-mention-reply-suggest": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-comment-moderation-batch-suggest": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-comment-moderation-suggest": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-content-inventory-fix-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-content-metadata-apply-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-image-candidate-adoption-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-image-candidate-review-artifact": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-inline-image-blocks": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-media-adoption-enhancement-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-adoption-preflight-summary": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-alt-apply-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-alt-caption-review-set": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-media-derivative-batch-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-media-derivative-cloud-request": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-inventory-fix-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-media-optimization-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-reference-repair-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-rename-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-media-seo-assets": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-media-settings-reference-repair-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-nonproduction-content-cleanup-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/build-pattern-page-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/build-taxonomy-tag-review-set": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/check-article-production-duplicate": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/compose-article-draft-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/compose-article-optimization-apply-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/compose-article-production-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/compose-comment-mention-reply-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/compose-comment-moderation-batch-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/compose-comment-moderation-result": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/compose-gutenberg-block-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/count-posts": {
+            "keys": [
+                "total"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/evaluate-gutenberg-recipe-suite": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/extract-reference-post-style": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/extract-style-baseline": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/geo-analyze": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-article-publish-preflight-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-block-theme-context": {
+            "keys": [
+                "active_theme",
+                "is_block_theme",
+                "templates",
+                "template_parts",
+                "site_context_snapshot",
+                "reading_settings",
+                "template_resolution",
+                "content_inventory",
+                "existing_overrides",
+                "navigation_available",
+                "global_styles_note",
+                "write_posture"
+            ],
+            "family": "raw",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-bulk-publishing-checklist": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-comment-action-priority-queue": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-comment-compliance-handoff": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-comment-queue-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-content-inventory-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-content-publishing-checklist": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-content-refresh-opportunities": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-gutenberg-block-capability-catalog": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-internal-link-graph-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-internal-link-opportunity-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-media-cleanup-opportunities": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-media-inventory-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-menu": {
+            "keys": [
+                "menu",
+                "items",
+                "tree"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-nonproduction-content-inventory": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-old-article-refresh-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-page": {
+            "keys": [
+                "id",
+                "title",
+                "slug",
+                "content",
+                "content_raw",
+                "excerpt",
+                "status",
+                "template",
+                "parent_id",
+                "menu_order",
+                "author",
+                "date",
+                "modified",
+                "meta",
+                "url",
+                "edit_url",
+                "available_templates"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-page-structure-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-post": {
+            "keys": [
+                "id",
+                "title",
+                "status",
+                "post_type",
+                "date",
+                "author",
+                "excerpt",
+                "content",
+                "edit_link"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-blocks": {
+            "keys": [
+                "post_id",
+                "revision_id",
+                "post_type",
+                "status",
+                "block_count",
+                "content_length",
+                "blocks"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-meta": {
+            "keys": [
+                "post_id",
+                "meta_key",
+                "value",
+                "single",
+                "items"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-publish-risk-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-seo-geo-readiness": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-post-stats": {
+            "keys": [
+                "post_id",
+                "word_count",
+                "image_count",
+                "reading_time_minutes",
+                "comment_count",
+                "published_date",
+                "modified_date",
+                "permalink"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-publishing-calendar-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-revision-change-risk-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-seo-geo-gap-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-site-operations-dashboard": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-site-style-baseline": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-site-topic-coverage-report": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-taxonomy-inventory-health": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/get-template-blocks": {
+            "keys": [],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-template-part-blocks": {
+            "keys": [],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-term": {
+            "keys": [
+                "id",
+                "name",
+                "slug",
+                "taxonomy",
+                "parent",
+                "description",
+                "count"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/get-workflow-recipe": {
+            "keys": [],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/inspect-block-theme-surface": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/inspect-gutenberg-composition-contract": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/inspect-media-asset": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/inspect-page-structure": {
+            "keys": [
+                "pages",
+                "total_pages",
+                "top_level_count",
+                "has_more",
+                "findings",
+                "max_pages"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-categories": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-comments": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/list-media": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-media-backups": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-menus": {
+            "keys": [
+                "total",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/list-pages": {
+            "keys": [
+                "pages",
+                "total",
+                "has_more"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-pages-tree": {
+            "keys": [
+                "root_id",
+                "total",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-post-revisions": {
+            "keys": [
+                "post_id",
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-post-types": {
+            "keys": [
+                "total",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-posts": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "filters",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-revisions": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-tags": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-taxonomies": {
+            "keys": [
+                "total",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-taxonomy-terms": {
+            "keys": [
+                "taxonomy",
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-terms": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-users": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/list-workflow-recipes": {
+            "keys": [
+                "schema_version",
+                "purpose",
+                "cases"
+            ],
+            "family": "raw",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/optimize-media-metadata": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/position-inline-image-blocks": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/propose-post-excerpt": {
+            "keys": [
+                "proposal_text",
+                "explain",
+                "meta"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/propose-post-taxonomy-terms": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/read-comment-trigger-queue": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/read-post-optimization-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/resolve-article-publication-decision": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/resolve-internal-link-targets": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/resolve-media-attachment-by-url": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/resolve-post-metadata-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/resolve-url-to-post": {
+            "keys": [
+                "post_id",
+                "post_type",
+                "status",
+                "edit_link",
+                "permalink",
+                "matched_by"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/review-article-output-light": {
+            "keys": [
+                "success",
+                "data",
+                "meta"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/review-block-editor-surface": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/review-pattern-page": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/route-content-intent": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/search-post-meta": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "filters",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/search-posts": {
+            "keys": [
+                "total",
+                "page",
+                "per_page",
+                "filters",
+                "items"
+            ],
+            "family": "paginated_collection",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/seo-report-context": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/site-info": {
+            "keys": [
+                "name",
+                "description",
+                "home_url",
+                "site_url",
+                "language",
+                "timezone",
+                "wp_version",
+                "theme"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/suggest-post-taxonomy-terms": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": true
+        },
+        "npcink-abilities-toolkit/wp-diagnostics-summary": {
+            "keys": [
+                "summary_version",
+                "generated_at",
+                "redacted",
+                "site",
+                "wordpress",
+                "php",
+                "theme",
+                "plugins",
+                "current_user",
+                "object_cache",
+                "rewrite",
+                "https",
+                "rest_api",
+                "abilities_api",
+                "cron",
+                "updates",
+                "omitted"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        },
+        "npcink-abilities-toolkit/wp-ops-diagnostics-detail": {
+            "keys": [
+                "detail_version",
+                "profile",
+                "generated_at",
+                "redacted",
+                "plugins",
+                "current_user",
+                "php",
+                "object_cache",
+                "rewrite",
+                "https",
+                "server",
+                "database",
+                "cron_events",
+                "error_log",
+                "content_types",
+                "roles",
+                "widgets",
+                "block_theme",
+                "search",
+                "integrations",
+                "seo_summary",
+                "security_summary",
+                "performance_summary",
+                "omitted"
+            ],
+            "family": "raw",
+            "runtime_verified": false
+        }
+    }
+}
