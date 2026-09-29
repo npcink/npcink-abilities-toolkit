@@ -167,18 +167,111 @@ final class Test_Page {
 
 			<div class="npcink-abilities-toolkit-tab-panel">
 				<?php
-				if ( 'abilities' === $active_tab ) {
-					$this->render_ability_catalog( $registered );
-				} elseif ( 'checks' === $active_tab ) {
-					$this->render_site_checks( $registered );
-				} elseif ( 'developer' === $active_tab ) {
-					$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
+				if ( 'technical' === $active_tab ) {
+					$this->render_technical_tab( $abilities_url, $categories_url, $contract_url, $registered );
 				} else {
 					$this->render_status_summary( $status, $registered );
 				}
 				?>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Renders the merged developer tools tab.
+	 *
+	 * Hosts connection values, raw discovery, catalog export, the ability
+	 * audit catalog, the read-only site checks, and the workflow scenario
+	 * catalog in one anchored developer surface.
+	 *
+	 * @param string               $abilities_url Abilities REST url.
+	 * @param string               $categories_url Categories REST url.
+	 * @param string               $contract_url Runtime contract REST url.
+	 * @param array<string,mixed>  $registered Registered abilities.
+	 * @return void
+	 */
+	private function render_technical_tab( $abilities_url, $categories_url, $contract_url, array $registered ) {
+		$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
+		$this->render_ability_catalog( $registered );
+		$this->render_site_checks( $registered );
+		$this->render_workflow_scenarios();
+	}
+
+	/**
+	 * Renders the plain-language capability summary for site operators.
+	 *
+	 * Answers "what can AI do on this site" by grouping registered abilities
+	 * by category with counts and risk posture. Technical detail stays in the
+	 * Developer Tools tab.
+	 *
+	 * @param array<string,mixed> $registered Registered abilities.
+	 * @return void
+	 */
+	private function render_capability_summary( array $registered ) {
+		if ( empty( $registered ) ) {
+			return;
+		}
+
+		$category_labels = array();
+		if ( null !== $this->categories && is_callable( array( $this->categories, 'all' ) ) ) {
+			foreach ( $this->categories->all() as $category_id => $category ) {
+				$category_labels[ (string) $category_id ] = (string) ( is_array( $category ) ? ( $category['label'] ?? '' ) : '' );
+			}
+		}
+
+		$groups = array();
+		foreach ( $registered as $ability ) {
+			$ability   = is_array( $ability ) ? $ability : array();
+			$category  = (string) ( $ability['category'] ?? '' );
+			$risk      = (string) ( $ability['risk_level'] ?? 'read' );
+			if ( '' === $category ) {
+				$category = 'uncategorized';
+			}
+			if ( ! isset( $groups[ $category ] ) ) {
+				$label = isset( $category_labels[ $category ] ) && '' !== $category_labels[ $category ]
+					? $category_labels[ $category ]
+					: ucwords( str_replace( array( '-', '_' ), ' ', $category ) );
+				$groups[ $category ] = array(
+					'label' => $label,
+					'total' => 0,
+					'write' => 0,
+				);
+			}
+			++$groups[ $category ]['total'];
+			if ( 'read' !== $risk ) {
+				++$groups[ $category ]['write'];
+			}
+		}
+		?>
+		<section id="npcink-abilities-toolkit-capability-summary" class="npcink-abilities-toolkit-capability-summary" aria-labelledby="npcink-abilities-toolkit-capability-summary-title">
+			<h2 id="npcink-abilities-toolkit-capability-summary-title"><?php echo esc_html__( 'What AI can do on this site', 'npcink-abilities-toolkit' ); ?></h2>
+			<p class="description">
+				<?php echo esc_html__( 'A grouped summary of the abilities this site exposes to AI clients. Writes and destructive actions always require approval from a host product.', 'npcink-abilities-toolkit' ); ?>
+			</p>
+			<ul class="npcink-abilities-toolkit-capability-summary__groups">
+				<?php foreach ( $groups as $group ) : ?>
+					<li>
+						<strong><?php echo esc_html( $group['label'] ); ?></strong>
+						<span class="description">
+							<?php
+							echo esc_html(
+								sprintf(
+									/* translators: 1: capability count, 2: write-like capability count. */
+									_n( '%1$d capability (%2$d can change content with host approval)', '%1$d capabilities (%2$d can change content with host approval)', $group['total'], 'npcink-abilities-toolkit' ),
+									$group['total'],
+									$group['write']
+								)
+							);
+							?>
+						</span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<p class="description">
+				<a href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'Review the full technical catalog in Developer Tools', 'npcink-abilities-toolkit' ); ?></a>
+			</p>
+		</section>
 		<?php
 	}
 
@@ -191,8 +284,11 @@ final class Test_Page {
 		$tabs = array_keys( $this->get_tabs() );
 		$tab = $this->get_admin_query_arg( 'npcink_abilities_toolkit_tab', 'overview' );
 		$legacy_tabs = array(
-			'catalog'     => 'abilities',
-			'connections' => 'developer',
+			'catalog'     => 'technical',
+			'connections' => 'technical',
+			'abilities'   => 'technical',
+			'checks'      => 'technical',
+			'developer'   => 'technical',
 		);
 		if ( isset( $legacy_tabs[ $tab ] ) ) {
 			$tab = $legacy_tabs[ $tab ];
@@ -209,9 +305,7 @@ final class Test_Page {
 	private function get_tabs() {
 		return array(
 			'overview'  => __( 'Overview', 'npcink-abilities-toolkit' ),
-			'abilities' => __( 'Available Abilities', 'npcink-abilities-toolkit' ),
-			'checks'    => __( 'Checks', 'npcink-abilities-toolkit' ),
-			'developer' => __( 'Developer Access', 'npcink-abilities-toolkit' ),
+			'technical' => __( 'Developer Tools', 'npcink-abilities-toolkit' ),
 		);
 	}
 
@@ -298,23 +392,25 @@ final class Test_Page {
 
 		<?php $this->render_status_attention( $status, $registered ); ?>
 
+		<?php $this->render_capability_summary( $registered ); ?>
+
 		<section class="npcink-abilities-toolkit-next" aria-labelledby="npcink-abilities-toolkit-next-title">
 			<h2 id="npcink-abilities-toolkit-next-title"><?php echo esc_html__( 'Next actions', 'npcink-abilities-toolkit' ); ?></h2>
 			<div class="npcink-abilities-toolkit-next__grid">
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'View site abilities', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'See what AI clients can read, suggest, or request approval to change.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button button-primary" href="<?php echo esc_url( $this->get_tab_url( 'abilities' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button button-primary" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Run safe checks', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'Confirm the site can return basic information and redacted diagnostics.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'checks', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Use a host product', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'developer' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
 					<p class="description">
 						<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 					</p>
@@ -322,7 +418,7 @@ final class Test_Page {
 				<div class="npcink-abilities-toolkit-next__item">
 					<h3><?php echo esc_html__( 'Developer access', 'npcink-abilities-toolkit' ); ?></h3>
 					<p><?php echo esc_html__( 'Copy REST endpoints and raw ability IDs when connecting external clients.', 'npcink-abilities-toolkit' ); ?></p>
-					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'developer', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_tab_url( 'technical', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 			</div>
 			<p class="description">
@@ -502,7 +598,8 @@ final class Test_Page {
 		$offset        = ( $current_page - 1 ) * $per_page;
 		$paged_results = array_slice( $filtered, $offset, $per_page, true );
 		?>
-		<h2><?php echo esc_html__( 'Available AI Abilities', 'npcink-abilities-toolkit' ); ?></h2>
+		<section id="npcink-abilities-toolkit-ability-catalog" aria-labelledby="npcink-abilities-toolkit-ability-catalog-title">
+		<h2 id="npcink-abilities-toolkit-ability-catalog-title"><?php echo esc_html__( 'Available AI Abilities', 'npcink-abilities-toolkit' ); ?></h2>
 		<p class="description">
 			<?php echo esc_html__( 'Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access.', 'npcink-abilities-toolkit' ); ?>
 		</p>
@@ -545,6 +642,7 @@ final class Test_Page {
 		?>
 
 		<?php $this->render_catalog_pagination( $current_page, $total_pages, $filters ); ?>
+		</section>
 		<?php
 	}
 
@@ -1045,7 +1143,6 @@ final class Test_Page {
 		</section>
 
 		<?php $this->render_advanced_checks( $registered ); ?>
-		<?php $this->render_workflow_scenarios(); ?>
 		<?php
 	}
 

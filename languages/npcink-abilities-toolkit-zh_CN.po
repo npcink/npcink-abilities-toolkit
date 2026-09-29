@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Npcink Abilities Toolkit 0.5.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
-"POT-Creation-Date: 2026-09-29T08:34:14+00:00\n"
+"POT-Creation-Date: 2026-09-29T09:15:49+00:00\n"
 "PO-Revision-Date: 2026-06-22 00:00+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
@@ -53,651 +53,667 @@ msgstr "正在运行"
 msgid "Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval."
 msgstr "查看此站点向 AI 客户端开放的 WordPress 能力，包括哪些操作是只读的，哪些操作需要 host 审批。"
 
-#: includes/Admin/Test_Page.php:211
+#: includes/Admin/Test_Page.php:248
+msgid "What AI can do on this site"
+msgstr "AI 能在这个网站上做什么"
+
+#: includes/Admin/Test_Page.php:250
+msgid "A grouped summary of the abilities this site exposes to AI clients. Writes and destructive actions always require approval from a host product."
+msgstr "本站点向 AI 客户端暴露的能力分组摘要。写入与破坏性操作始终需要宿主产品批准。"
+
+#. translators: 1: capability count, 2: write-like capability count.
+#: includes/Admin/Test_Page.php:261
+#, php-format
+msgid "%1$d capability (%2$d can change content with host approval)"
+msgid_plural "%1$d capabilities (%2$d can change content with host approval)"
+msgstr[0] "%1$d 项能力（其中 %2$d 项可在宿主批准后修改内容）"
+msgstr[1] "%1$d 项能力（其中 %2$d 项可在宿主批准后修改内容）"
+
+#: includes/Admin/Test_Page.php:272
+msgid "Review the full technical catalog in Developer Tools"
+msgstr "在开发者工具中查看完整技术目录"
+
+#: includes/Admin/Test_Page.php:307
 msgid "Overview"
 msgstr "概览"
 
-#: includes/Admin/Test_Page.php:212
-msgid "Available Abilities"
-msgstr "可用能力"
+#: includes/Admin/Test_Page.php:308
+msgid "Developer Tools"
+msgstr "开发者工具"
 
-#: includes/Admin/Test_Page.php:213
-msgid "Checks"
-msgstr "检查"
-
-#: includes/Admin/Test_Page.php:214 includes/Admin/Test_Page.php:984
-msgid "Developer Access"
-msgstr "开发者接入"
-
-#: includes/Admin/Test_Page.php:227
+#: includes/Admin/Test_Page.php:321
 msgid "Abilities page sections"
 msgstr "能力页面分区"
 
-#: includes/Admin/Test_Page.php:290
+#: includes/Admin/Test_Page.php:384
 msgid "Site ability status"
 msgstr "站点能力状态"
 
-#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:964
-#: includes/Admin/Test_Page.php:1093
+#: includes/Admin/Test_Page.php:386 includes/Admin/Test_Page.php:1062
+#: includes/Admin/Test_Page.php:1190
 msgid "Status"
 msgstr "状态"
 
-#: includes/Admin/Test_Page.php:292
+#: includes/Admin/Test_Page.php:386
 msgid "working"
 msgstr "正常"
 
-#: includes/Admin/Test_Page.php:292 includes/Admin/Test_Page.php:827
-#: includes/Admin/Test_Page.php:1114
+#: includes/Admin/Test_Page.php:386 includes/Admin/Test_Page.php:925
+#: includes/Admin/Test_Page.php:1211
 msgid "needs attention"
 msgstr "需要处理"
 
-#: includes/Admin/Test_Page.php:292
+#: includes/Admin/Test_Page.php:386
 msgid "AI clients can discover this site's abilities."
 msgstr "AI 客户端可以发现此站点的能力。"
 
-#: includes/Admin/Test_Page.php:292
+#: includes/Admin/Test_Page.php:386
 msgid "Review the attention notes below."
 msgstr "请查看下方注意事项。"
 
-#: includes/Admin/Test_Page.php:293
+#: includes/Admin/Test_Page.php:387
 msgid "Available abilities"
 msgstr "可用能力"
 
-#: includes/Admin/Test_Page.php:293
+#: includes/Admin/Test_Page.php:387
 msgid "Abilities exposed by this WordPress site."
 msgstr "此 WordPress 站点开放的能力。"
 
-#: includes/Admin/Test_Page.php:294
+#: includes/Admin/Test_Page.php:388
 msgid "Write safeguards"
 msgstr "写入保护"
 
-#: includes/Admin/Test_Page.php:294
+#: includes/Admin/Test_Page.php:388
 msgid "host approval"
 msgstr "host 审批"
 
-#: includes/Admin/Test_Page.php:294
+#: includes/Admin/Test_Page.php:388
 msgid "read-only"
 msgstr "只读"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:294
+#: includes/Admin/Test_Page.php:388
 #, php-format
 msgid "%d abilities can change content only through host governance."
 msgstr "%d 个能力只能通过 host 治理来修改内容。"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:294
+#: includes/Admin/Test_Page.php:388
 msgid "No write or destructive abilities are currently registered."
 msgstr "当前没有注册写入或破坏性能力。"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:295
+#: includes/Admin/Test_Page.php:389
 msgid "Host"
 msgstr "Host"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:295
+#: includes/Admin/Test_Page.php:389
 msgid "detected"
 msgstr "已检测到"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:295
+#: includes/Admin/Test_Page.php:389
 msgid "standalone"
 msgstr "独立运行"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:295
+#: includes/Admin/Test_Page.php:389
 msgid "A Npcink AI host menu is available."
 msgstr "已检测到 Npcink AI host 菜单。"
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:295
+#: includes/Admin/Test_Page.php:389
 msgid "This package provides abilities; use a host product to run AI workflows."
 msgstr "此包提供能力；请使用 host 产品来运行 AI 工作流。"
 
-#: includes/Admin/Test_Page.php:296 includes/Admin/Test_Page.php:967
+#: includes/Admin/Test_Page.php:390 includes/Admin/Test_Page.php:1065
 msgid "WordPress"
 msgstr "WordPress"
 
-#: includes/Admin/Test_Page.php:296
+#: includes/Admin/Test_Page.php:390
 msgid "Runtime version detected."
 msgstr "已检测到运行时版本。"
 
-#: includes/Admin/Test_Page.php:302
+#: includes/Admin/Test_Page.php:398
 msgid "Next actions"
 msgstr "下一步"
 
-#: includes/Admin/Test_Page.php:305
+#: includes/Admin/Test_Page.php:401
 msgid "View site abilities"
 msgstr "查看站点能力"
 
-#: includes/Admin/Test_Page.php:306
+#: includes/Admin/Test_Page.php:402
 msgid "See what AI clients can read, suggest, or request approval to change."
 msgstr "查看 AI 客户端可以读取、建议或请求审批修改的内容。"
 
-#: includes/Admin/Test_Page.php:307 includes/Plugin.php:291
+#: includes/Admin/Test_Page.php:403 includes/Plugin.php:291
 msgid "View Abilities"
 msgstr "查看能力"
 
-#: includes/Admin/Test_Page.php:310
+#: includes/Admin/Test_Page.php:406
 msgid "Run safe checks"
 msgstr "运行安全检查"
 
-#: includes/Admin/Test_Page.php:311
+#: includes/Admin/Test_Page.php:407
 msgid "Confirm the site can return basic information and redacted diagnostics."
 msgstr "确认站点可以返回基础信息和脱敏诊断。"
 
-#: includes/Admin/Test_Page.php:312
+#: includes/Admin/Test_Page.php:408
 msgid "Open Checks"
 msgstr "打开检查"
 
-#: includes/Admin/Test_Page.php:315
+#: includes/Admin/Test_Page.php:411
 msgid "Use a host product"
 msgstr "使用 host 产品"
 
-#: includes/Admin/Test_Page.php:316
+#: includes/Admin/Test_Page.php:412
 msgid "AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime."
 msgstr "AI 工作流、审批、审计和最终写入属于 Npcink AI 或其他 host runtime。"
 
-#: includes/Admin/Test_Page.php:317
+#: includes/Admin/Test_Page.php:413
 msgid "View Connection Info"
 msgstr "查看接入信息"
 
-#: includes/Admin/Test_Page.php:319
+#: includes/Admin/Test_Page.php:415
 msgid "Host products: how to govern commits (Host Approval Contract)"
 msgstr "宿主产品：如何治理提交（Host Approval Contract）"
 
-#: includes/Admin/Test_Page.php:323
+#: includes/Admin/Test_Page.php:419
 msgid "Developer access"
 msgstr "开发者接入"
 
-#: includes/Admin/Test_Page.php:324
+#: includes/Admin/Test_Page.php:420
 msgid "Copy REST endpoints and raw ability IDs when connecting external clients."
 msgstr "连接外部客户端时复制 REST 端点和原始能力 ID。"
 
-#: includes/Admin/Test_Page.php:325
+#: includes/Admin/Test_Page.php:421
 msgid "Open Developer Access"
 msgstr "打开开发者接入"
 
-#: includes/Admin/Test_Page.php:329
+#: includes/Admin/Test_Page.php:425
 msgid "This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself."
 msgstr "此插件开放 WordPress 能力；它本身不运行模型、不审批提案，也不执行 AI 工作流。"
 
 #. translators: %d: published workflow scenario count.
-#: includes/Admin/Test_Page.php:336
+#: includes/Admin/Test_Page.php:432
 #, php-format
 msgid "This site publishes %d workflow scenarios that a host product can run."
 msgstr "此站点发布了 %d 个可由宿主产品运行的工作流场景。"
 
-#: includes/Admin/Test_Page.php:365
+#: includes/Admin/Test_Page.php:461
 msgid "Workflow scenarios"
 msgstr "工作流场景"
 
-#: includes/Admin/Test_Page.php:367
+#: includes/Admin/Test_Page.php:463
 msgid "Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes."
 msgstr "宿主产品可为常见站点任务运行的能力链建议。此页面仅作展示；执行、审批与最终写入均由宿主负责。"
 
-#: includes/Admin/Test_Page.php:380
+#: includes/Admin/Test_Page.php:476
 msgid "Entry ability:"
 msgstr "入口能力："
 
-#: includes/Admin/Test_Page.php:459
+#: includes/Admin/Test_Page.php:555
 msgid "Abilities API registration functions are unavailable."
 msgstr "Abilities API 注册函数不可用。"
 
-#: includes/Admin/Test_Page.php:463
+#: includes/Admin/Test_Page.php:559
 msgid "Abilities API REST discovery routes are missing."
 msgstr "Abilities API REST 发现路由缺失。"
 
-#: includes/Admin/Test_Page.php:467 includes/Admin/Test_Page.php:514
+#: includes/Admin/Test_Page.php:563 includes/Admin/Test_Page.php:611
 msgid "No abilities are registered by this package yet."
 msgstr "此包尚未注册任何能力。"
 
-#: includes/Admin/Test_Page.php:471
+#: includes/Admin/Test_Page.php:567
 msgid "Home URL and Site URL differ; verify local site routing before testing endpoint values."
 msgstr "Home URL 和 Site URL 不一致；测试端点值前请核对本地站点路由。"
 
-#: includes/Admin/Test_Page.php:505
+#: includes/Admin/Test_Page.php:602
 msgid "Available AI Abilities"
 msgstr "可用 AI 能力"
 
-#: includes/Admin/Test_Page.php:507
+#: includes/Admin/Test_Page.php:604
 msgid "Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access."
 msgstr "查看 AI 客户端可在此 WordPress 站点使用的能力。仅开发者需要的能力 ID 和 schema 信号保留在“开发者接入”中。"
 
 #. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
-#: includes/Admin/Test_Page.php:529
+#: includes/Admin/Test_Page.php:626
 #, php-format
 msgid "Showing %1$d-%2$d of %3$d abilities."
 msgstr "显示 %1$d-%2$d 项能力（共 %3$d 项）。"
 
-#: includes/Admin/Test_Page.php:536
+#: includes/Admin/Test_Page.php:633
 msgid "No abilities match the current filters."
 msgstr "没有能力匹配当前筛选条件。"
 
-#: includes/Admin/Test_Page.php:589
+#: includes/Admin/Test_Page.php:687
 msgid "Search"
 msgstr "搜索"
 
-#: includes/Admin/Test_Page.php:590
+#: includes/Admin/Test_Page.php:688
 msgid "Ability name, description, category, or technical ID"
 msgstr "能力名称、描述、分类或技术 ID"
 
-#: includes/Admin/Test_Page.php:594 includes/Admin/Test_Page.php:803
-#: includes/Admin/Test_Page.php:1090
+#: includes/Admin/Test_Page.php:692 includes/Admin/Test_Page.php:901
+#: includes/Admin/Test_Page.php:1187
 msgid "Risk"
 msgstr "风险"
 
-#: includes/Admin/Test_Page.php:596
+#: includes/Admin/Test_Page.php:694
 msgid "All risks"
 msgstr "所有风险"
 
-#: includes/Admin/Test_Page.php:597
+#: includes/Admin/Test_Page.php:695
 msgid "Read"
 msgstr "读取"
 
-#: includes/Admin/Test_Page.php:598
+#: includes/Admin/Test_Page.php:696
 msgid "Write"
 msgstr "写入"
 
-#: includes/Admin/Test_Page.php:599
+#: includes/Admin/Test_Page.php:697
 msgid "Destructive"
 msgstr "破坏性"
 
-#: includes/Admin/Test_Page.php:600
+#: includes/Admin/Test_Page.php:698
 msgid "Other"
 msgstr "其他"
 
-#: includes/Admin/Test_Page.php:605 includes/Admin/Test_Page.php:1089
+#: includes/Admin/Test_Page.php:703 includes/Admin/Test_Page.php:1186
 msgid "Category"
 msgstr "分类"
 
-#: includes/Admin/Test_Page.php:607
+#: includes/Admin/Test_Page.php:705
 msgid "All categories"
 msgstr "所有分类"
 
-#: includes/Admin/Test_Page.php:617
+#: includes/Admin/Test_Page.php:715
 msgid "Per page"
 msgstr "每页"
 
-#: includes/Admin/Test_Page.php:628
+#: includes/Admin/Test_Page.php:726
 msgid "Apply"
 msgstr "应用"
 
-#: includes/Admin/Test_Page.php:629
+#: includes/Admin/Test_Page.php:727
 msgid "Reset"
 msgstr "重置"
 
-#: includes/Admin/Test_Page.php:739
+#: includes/Admin/Test_Page.php:837
 msgid "Previous"
 msgstr "上一页"
 
-#: includes/Admin/Test_Page.php:740
+#: includes/Admin/Test_Page.php:838
 msgid "Next"
 msgstr "下一页"
 
-#: includes/Admin/Test_Page.php:776
+#: includes/Admin/Test_Page.php:874
 msgid "Read-only"
 msgstr "只读"
 
-#: includes/Admin/Test_Page.php:777
+#: includes/Admin/Test_Page.php:875
 msgid "Requires host approval"
 msgstr "需要 host 审批"
 
-#: includes/Admin/Test_Page.php:778
+#: includes/Admin/Test_Page.php:876
 msgid "High risk, approval required"
 msgstr "高风险，需要审批"
 
-#: includes/Admin/Test_Page.php:779
+#: includes/Admin/Test_Page.php:877
 msgid "Review required"
 msgstr "需要审查"
 
-#: includes/Admin/Test_Page.php:801 includes/Admin/Test_Page.php:931
-#: includes/Admin/Test_Page.php:1087
+#: includes/Admin/Test_Page.php:899 includes/Admin/Test_Page.php:1029
+#: includes/Admin/Test_Page.php:1184
 msgid "Ability"
 msgstr "能力"
 
-#: includes/Admin/Test_Page.php:802
+#: includes/Admin/Test_Page.php:900
 msgid "What it allows"
 msgstr "允许的操作"
 
-#: includes/Admin/Test_Page.php:822
+#: includes/Admin/Test_Page.php:920
 msgid "No description provided."
 msgstr "未提供描述。"
 
-#: includes/Admin/Test_Page.php:827 includes/Admin/Test_Page.php:1114
+#: includes/Admin/Test_Page.php:925 includes/Admin/Test_Page.php:1211
 msgid "available"
 msgstr "可用"
 
-#: includes/Admin/Test_Page.php:845
+#: includes/Admin/Test_Page.php:943
 msgid "Site Checks"
 msgstr "站点检查"
 
-#: includes/Admin/Test_Page.php:847
+#: includes/Admin/Test_Page.php:945
 msgid "Run safe checks to confirm the site can return basic ability information. These checks do not write content, call models, or contact external services."
 msgstr "运行安全检查，确认站点可以返回基础能力信息。这些检查不会写入内容、调用模型或联系外部服务。"
 
-#: includes/Admin/Test_Page.php:851
+#: includes/Admin/Test_Page.php:949
 msgid "Safe checks"
 msgstr "安全检查"
 
-#: includes/Admin/Test_Page.php:853
+#: includes/Admin/Test_Page.php:951
 msgid "Use these checks when a host product or AI client cannot see site abilities."
 msgstr "当 host 产品或 AI 客户端看不到站点能力时，使用这些检查。"
 
-#: includes/Admin/Test_Page.php:858 includes/Admin/Test_Page.php:937
+#: includes/Admin/Test_Page.php:956 includes/Admin/Test_Page.php:1035
 msgid "Check"
 msgstr "检查"
 
-#: includes/Admin/Test_Page.php:859
+#: includes/Admin/Test_Page.php:957
 msgid "What it proves"
 msgstr "能说明什么"
 
-#: includes/Admin/Test_Page.php:860
+#: includes/Admin/Test_Page.php:958
 msgid "What it does not prove"
 msgstr "不能说明什么"
 
-#: includes/Admin/Test_Page.php:865
+#: includes/Admin/Test_Page.php:963
 msgid "Site info"
 msgstr "站点信息"
 
-#: includes/Admin/Test_Page.php:866
+#: includes/Admin/Test_Page.php:964
 msgid "The site can safely return basic WordPress information to an authorized ability client."
 msgstr "站点可以安全地向已授权的能力客户端返回基础 WordPress 信息。"
 
-#: includes/Admin/Test_Page.php:867
+#: includes/Admin/Test_Page.php:965
 msgid "It does not call an AI model, generate content, or change the site."
 msgstr "它不会调用 AI 模型、生成内容或更改站点。"
 
-#: includes/Admin/Test_Page.php:870
+#: includes/Admin/Test_Page.php:968
 msgid "Redacted diagnostics"
 msgstr "脱敏诊断"
 
-#: includes/Admin/Test_Page.php:871
+#: includes/Admin/Test_Page.php:969
 msgid "The site can return a support-friendly environment summary with sensitive fields omitted."
 msgstr "站点可以返回已省略敏感字段、便于支持排查的环境摘要。"
 
-#: includes/Admin/Test_Page.php:872
+#: includes/Admin/Test_Page.php:970
 msgid "It does not expose secrets, inspect private files, or fix configuration by itself."
 msgstr "它不会暴露密钥、检查私有文件，也不会自行修复配置。"
 
-#: includes/Admin/Test_Page.php:877
+#: includes/Admin/Test_Page.php:975
 msgid "Together, these checks confirm that this ability package is reachable and safe to inspect. Use Available Abilities to review what the site exposes, and Developer Access when a host or client needs connection values."
 msgstr "这两个检查一起说明：这个能力包可以被访问，并且可以安全检查。要查看站点暴露了什么，请使用“可用能力”；host 或客户端需要连接信息时，请使用“开发者接入”。"
 
-#: includes/Admin/Test_Page.php:881
+#: includes/Admin/Test_Page.php:979
 msgid "Run Site Info"
 msgstr "运行站点信息"
 
-#: includes/Admin/Test_Page.php:884
+#: includes/Admin/Test_Page.php:982
 msgid "Run Redacted Diagnostics"
 msgstr "运行脱敏诊断"
 
-#: includes/Admin/Test_Page.php:890
+#: includes/Admin/Test_Page.php:988
 msgid "Check results"
 msgstr "检查结果"
 
-#: includes/Admin/Test_Page.php:892
+#: includes/Admin/Test_Page.php:990
 msgid "Results appear as a plain summary table after a check runs. Raw response details are still available for support."
 msgstr "检查运行后，结果会以简明摘要表显示。原始响应细节仍可供支持排查使用。"
 
-#: includes/Admin/Test_Page.php:895
+#: includes/Admin/Test_Page.php:993
 msgid "No check has run yet."
 msgstr "尚未运行检查。"
 
-#: includes/Admin/Test_Page.php:901 includes/Admin/Test_Page.php:946
+#: includes/Admin/Test_Page.php:999 includes/Admin/Test_Page.php:1044
 msgid "Item"
 msgstr "项目"
 
-#: includes/Admin/Test_Page.php:902 includes/Admin/Test_Page.php:957
+#: includes/Admin/Test_Page.php:1000 includes/Admin/Test_Page.php:1055
 msgid "Result"
 msgstr "结果"
 
-#: includes/Admin/Test_Page.php:903 includes/Admin/Test_Page.php:940
+#: includes/Admin/Test_Page.php:1001 includes/Admin/Test_Page.php:1038
 msgid "Details"
 msgstr "详情"
 
-#: includes/Admin/Test_Page.php:911 includes/Admin/Test_Page.php:956
+#: includes/Admin/Test_Page.php:1009 includes/Admin/Test_Page.php:1054
 msgid "Raw response for support"
 msgstr "供支持排查使用的原始响应"
 
-#: includes/Admin/Test_Page.php:913
+#: includes/Admin/Test_Page.php:1011
 msgid "Full JSON is kept here for support and developer troubleshooting."
 msgstr "完整 JSON 会保留在这里，供支持人员和开发者排查使用。"
 
-#: includes/Admin/Test_Page.php:932
+#: includes/Admin/Test_Page.php:1030
 msgid "Abilities API"
 msgstr "Abilities API"
 
-#: includes/Admin/Test_Page.php:933
+#: includes/Admin/Test_Page.php:1031
 msgid "Abilities routes found"
 msgstr "已找到能力路由"
 
-#: includes/Admin/Test_Page.php:934
+#: includes/Admin/Test_Page.php:1032
 msgid "Available"
 msgstr "可用"
 
-#: includes/Admin/Test_Page.php:935
+#: includes/Admin/Test_Page.php:1033
 msgid "Block theme"
 msgstr "区块主题"
 
-#: includes/Admin/Test_Page.php:936
+#: includes/Admin/Test_Page.php:1034
 msgid "Category registration"
 msgstr "分类注册"
 
-#: includes/Admin/Test_Page.php:938
+#: includes/Admin/Test_Page.php:1036
 msgid "Configured"
 msgstr "已配置"
 
-#: includes/Admin/Test_Page.php:939
+#: includes/Admin/Test_Page.php:1037
 msgid "Debug logging"
 msgstr "调试日志"
 
-#: includes/Admin/Test_Page.php:941
+#: includes/Admin/Test_Page.php:1039
 msgid "Disabled"
 msgstr "已停用"
 
-#: includes/Admin/Test_Page.php:942
+#: includes/Admin/Test_Page.php:1040
 msgid "Enabled"
 msgstr "已启用"
 
-#: includes/Admin/Test_Page.php:943
+#: includes/Admin/Test_Page.php:1041
 msgid "External cache active"
 msgstr "外部缓存已启用"
 
-#: includes/Admin/Test_Page.php:944
+#: includes/Admin/Test_Page.php:1042
 msgid "Diagnostics check"
 msgstr "诊断检查"
 
-#: includes/Admin/Test_Page.php:945
+#: includes/Admin/Test_Page.php:1043
 msgid "HTTPS"
 msgstr "HTTPS"
 
-#: includes/Admin/Test_Page.php:947
+#: includes/Admin/Test_Page.php:1045
 msgid "Language and timezone"
 msgstr "语言和时区"
 
-#: includes/Admin/Test_Page.php:948
+#: includes/Admin/Test_Page.php:1046
 msgid "Needs attention"
 msgstr "需要处理"
 
-#: includes/Admin/Test_Page.php:949
+#: includes/Admin/Test_Page.php:1047
 msgid "No"
 msgstr "否"
 
-#: includes/Admin/Test_Page.php:950
+#: includes/Admin/Test_Page.php:1048
 msgid "Not configured"
 msgstr "未配置"
 
-#: includes/Admin/Test_Page.php:951
+#: includes/Admin/Test_Page.php:1049
 msgid "Object cache"
 msgstr "对象缓存"
 
-#: includes/Admin/Test_Page.php:952
+#: includes/Admin/Test_Page.php:1050
 msgid "Sensitive data"
 msgstr "敏感数据"
 
-#: includes/Admin/Test_Page.php:953
+#: includes/Admin/Test_Page.php:1051
 msgid "Sensitive fields are omitted from this check."
 msgstr "此检查已省略敏感字段。"
 
-#: includes/Admin/Test_Page.php:954
+#: includes/Admin/Test_Page.php:1052
 msgid "Passed"
 msgstr "通过"
 
-#: includes/Admin/Test_Page.php:955
+#: includes/Admin/Test_Page.php:1053
 msgid "Permalinks"
 msgstr "固定链接"
 
-#: includes/Admin/Test_Page.php:958
+#: includes/Admin/Test_Page.php:1056
 msgid "REST API"
 msgstr "REST API"
 
-#: includes/Admin/Test_Page.php:959
+#: includes/Admin/Test_Page.php:1057
 msgid "Routes"
 msgstr "路由"
 
-#: includes/Admin/Test_Page.php:960
+#: includes/Admin/Test_Page.php:1058
 msgid "Runtime cache only"
 msgstr "仅运行时缓存"
 
-#: includes/Admin/Test_Page.php:961
+#: includes/Admin/Test_Page.php:1059
 msgid "Site host"
 msgstr "站点主机"
 
-#: includes/Admin/Test_Page.php:962
+#: includes/Admin/Test_Page.php:1060
 msgid "Site name"
 msgstr "站点信息"
 
-#: includes/Admin/Test_Page.php:963
+#: includes/Admin/Test_Page.php:1061
 msgid "Site URL"
 msgstr "站点 URL"
 
-#: includes/Admin/Test_Page.php:965
+#: includes/Admin/Test_Page.php:1063
 msgid "Theme"
 msgstr "主题"
 
-#: includes/Admin/Test_Page.php:966
+#: includes/Admin/Test_Page.php:1064
 msgid "Unavailable"
 msgstr "不可用"
 
-#: includes/Admin/Test_Page.php:968
+#: includes/Admin/Test_Page.php:1066
 msgid "WordPress HTTPS"
 msgstr "WordPress HTTPS"
 
-#: includes/Admin/Test_Page.php:969
+#: includes/Admin/Test_Page.php:1067
 msgid "Yes"
 msgstr "是"
 
-#: includes/Admin/Test_Page.php:986
+#: includes/Admin/Test_Page.php:1082
+msgid "Developer Access"
+msgstr "开发者接入"
+
+#: includes/Admin/Test_Page.php:1084
 msgid "Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab."
 msgstr "复制 REST 端点、检查原始发现响应，并导出技术能力 ID。大多数站点用户不需要此标签页。"
 
-#: includes/Admin/Test_Page.php:989
+#: includes/Admin/Test_Page.php:1087
 msgid "Integration guides:"
 msgstr "集成指南："
 
-#: includes/Admin/Test_Page.php:990
+#: includes/Admin/Test_Page.php:1088
 msgid "REST client quickstart"
 msgstr "REST 客户端快速开始"
 
-#: includes/Admin/Test_Page.php:992
+#: includes/Admin/Test_Page.php:1090
 msgid "Host Approval Contract"
 msgstr "宿主批准契约"
 
-#: includes/Admin/Test_Page.php:996
+#: includes/Admin/Test_Page.php:1094
 msgid "Connection values"
 msgstr "连接值"
 
-#: includes/Admin/Test_Page.php:1000
+#: includes/Admin/Test_Page.php:1098
 msgid "Abilities Endpoint"
 msgstr "能力端点"
 
-#: includes/Admin/Test_Page.php:1004
+#: includes/Admin/Test_Page.php:1102
 msgid "Copy Abilities Endpoint"
 msgstr "复制能力端点"
 
-#: includes/Admin/Test_Page.php:1009
+#: includes/Admin/Test_Page.php:1107
 msgid "Categories Endpoint"
 msgstr "分类端点"
 
-#: includes/Admin/Test_Page.php:1013
+#: includes/Admin/Test_Page.php:1111
 msgid "Copy Categories Endpoint"
 msgstr "复制分类端点"
 
-#: includes/Admin/Test_Page.php:1018
+#: includes/Admin/Test_Page.php:1116
 msgid "Contract Endpoint"
 msgstr "契约端点"
 
-#: includes/Admin/Test_Page.php:1022
+#: includes/Admin/Test_Page.php:1120
 msgid "Copy Contract Endpoint"
 msgstr "复制契约端点"
 
-#: includes/Admin/Test_Page.php:1031
+#: includes/Admin/Test_Page.php:1129
 msgid "Raw discovery fetches"
 msgstr "原始发现请求"
 
-#: includes/Admin/Test_Page.php:1033
+#: includes/Admin/Test_Page.php:1131
 msgid "These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication."
 msgstr "这些按钮使用当前 wp-admin 会话和 X-WP-Nonce 请求头。外部客户端应使用 WordPress REST 认证。"
 
-#: includes/Admin/Test_Page.php:1037
+#: includes/Admin/Test_Page.php:1135
 msgid "Fetch Abilities"
 msgstr "获取能力"
 
-#: includes/Admin/Test_Page.php:1040
+#: includes/Admin/Test_Page.php:1138
 msgid "Fetch Categories"
 msgstr "获取分类"
 
-#: includes/Admin/Test_Page.php:1061
+#: includes/Admin/Test_Page.php:1158
 msgid "Catalog export"
 msgstr "目录导出"
 
-#: includes/Admin/Test_Page.php:1065
+#: includes/Admin/Test_Page.php:1162
 msgid "Ability ID export"
 msgstr "能力 ID 导出"
 
-#: includes/Admin/Test_Page.php:1066
+#: includes/Admin/Test_Page.php:1163
 msgid "Copyable ID list for host and catalog audits."
 msgstr "供 host 和目录审计复制使用的 ID 列表。"
 
-#: includes/Admin/Test_Page.php:1071
+#: includes/Admin/Test_Page.php:1168
 msgid "Copy IDs"
 msgstr "复制 ID"
 
-#: includes/Admin/Test_Page.php:1080
+#: includes/Admin/Test_Page.php:1177
 msgid "Ability technical catalog"
 msgstr "能力技术目录"
 
-#: includes/Admin/Test_Page.php:1081
+#: includes/Admin/Test_Page.php:1178
 msgid "Technical IDs, categories, schema availability, and callback status for host integrations."
 msgstr "用于 host 集成的技术 ID、分类、schema 可用性和回调状态。"
 
-#: includes/Admin/Test_Page.php:1088
+#: includes/Admin/Test_Page.php:1185
 msgid "Ability ID"
 msgstr "能力 ID"
 
-#: includes/Admin/Test_Page.php:1091
+#: includes/Admin/Test_Page.php:1188
 msgid "Input"
 msgstr "输入"
 
-#: includes/Admin/Test_Page.php:1092
+#: includes/Admin/Test_Page.php:1189
 msgid "Output"
 msgstr "输出"
 
-#: includes/Admin/Test_Page.php:1110 includes/Admin/Test_Page.php:1111
+#: includes/Admin/Test_Page.php:1207 includes/Admin/Test_Page.php:1208
 msgid "yes"
 msgstr "是"
 
-#: includes/Admin/Test_Page.php:1110 includes/Admin/Test_Page.php:1111
+#: includes/Admin/Test_Page.php:1207 includes/Admin/Test_Page.php:1208
 msgid "no"
 msgstr "否"
 
-#: includes/Admin/Test_Page.php:1134
+#: includes/Admin/Test_Page.php:1231
 msgid "You do not have permission to run this check."
 msgstr "你没有权限运行此检查。"
 
-#: includes/Admin/Test_Page.php:1145
+#: includes/Admin/Test_Page.php:1242
 msgid "Unknown read-only check."
 msgstr "未知的只读检查。"
 
@@ -4417,6 +4433,12 @@ msgstr "派生文件名依据未保留本地 WordPress 的命名权。"
 #: includes/Support/Cloud_Derivative_Artifact.php:776
 msgid "Derivative processing warnings are invalid."
 msgstr "派生处理警告无效。"
+
+#~ msgid "Available Abilities"
+#~ msgstr "可用能力"
+
+#~ msgid "Checks"
+#~ msgstr "检查"
 
 #~ msgid "A derivative artifact_id is required."
 #~ msgstr "需要导数 artifact_id。"

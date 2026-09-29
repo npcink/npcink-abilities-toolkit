@@ -13,6 +13,23 @@ whether safe read-only checks can run.
 Developer-oriented REST values remain available, but they should not be the
 default first impression.
 
+## Two-Audience Structure
+
+The page has exactly two tabs, split by audience rather than by surface type:
+
+- **Overview** (default) answers the site owner in one screen: status tiles,
+  a plain-language capability summary grouped by category, write posture, and
+  guided next actions.
+- **Developer Tools** hosts every technical surface in one anchored page:
+  connection values, raw discovery fetches, catalog export, the Available
+  Abilities audit table, the read-only checks, and the workflow scenario
+  catalog. Legacy tab URLs (`abilities`, `checks`, `developer`, `catalog`,
+  `connections`) alias to this tab so bookmarks keep working.
+
+Tabs are cut by audience because nobody arrives wanting "a review surface" —
+site owners arrive with "is it working and what can AI do here", developers
+arrive with "give me endpoints and ids".
+
 ## Default View
 
 The default page should show:
@@ -21,16 +38,19 @@ The default page should show:
 - available ability count;
 - write-safeguard posture for write/destructive abilities;
 - host detection status;
+- a plain-language capability summary grouped by category (label, capability
+  counts, how many can change content) that answers "what can AI do on this
+  site" without exposing technical ids;
 - stable, shareable admin URLs for tabs and read-only filters;
 - next actions for viewing abilities, running safe checks, using a host
   product, and opening developer access;
 - a one-line workflow scenario summary (published scenario count, host-owned
-  execution) linking the full catalog in the Developer Access tab.
+  execution) linking the full catalog in the Developer Tools tab.
 
 ## Workflow Scenario Overview
 
-The full workflow scenario catalog renders inside the Developer Access tab,
-after the advanced checks, through
+The full workflow scenario catalog renders at the end of the Developer Tools
+tab, after the read-only checks, through
 `npcink_abilities_toolkit_get_workflow_definitions()`. The block is
 documentation-only:
 
@@ -40,7 +60,7 @@ documentation-only:
 - host products remain the only execution surface.
 
 The default overview shows only a single localized summary line with the
-scenario count and a link to the Developer tab catalog. The full card grid
+scenario count and a link to the Developer Tools catalog. The full card grid
 stays out of the default view: site owners need the one-line answer, and the
 card-level detail (contract task phrasing, entry ability ids) serves the
 developer audience that already lives in that tab.
@@ -60,8 +80,10 @@ Contract so a site owner can hand the next step to an integrator.
 
 ## Available Abilities
 
-The default ability review should use plain labels and task descriptions first.
-Developer-only technical details should not appear in this customer-facing list.
+The Available Abilities section is the audit table inside the Developer Tools
+tab. The default ability review should use plain labels and task descriptions
+first. Developer-only technical details should not appear in this
+customer-facing list.
 
 - show matching abilities in one flat table by default;
 - use search, risk, category, and page-size filters to narrow the table;
@@ -73,14 +95,15 @@ Developer-only technical details should not appear in this customer-facing list.
 
 ## Checks
 
-Safe checks should be separated from developer REST fetches:
+Safe checks render as a section inside the Developer Tools tab, separated
+from developer REST fetches:
 
 - at most two official read-only ability checks may be visible: site info and
   bounded redacted diagnostics summary;
 - check copy must say that the checks do not write content, call models, or
   contact external services;
-- the Checks tab should explain what each check proves and what it does not
-  prove before the operator runs it;
+- the Checks section should explain what each check proves and what it does
+  not prove before the operator runs it;
 - check results should default to a plain summary table that answers what
   worked and what needs attention;
 - raw JSON response details may be kept behind an explicit support disclosure
@@ -88,7 +111,8 @@ Safe checks should be separated from developer REST fetches:
 
 ## Developer Access
 
-Connection and low-frequency details belong in the Developer Access tab:
+Connection and low-frequency details open the Developer Tools tab as its
+first section:
 
 - REST endpoint URLs should be visible with copy actions;
 - the Toolkit contract endpoint should be visible as a copyable host/runtime

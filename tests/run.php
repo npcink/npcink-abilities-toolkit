@@ -497,6 +497,18 @@ npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'data-
 
 foreach (
 	array(
+		'render_technical_tab',
+		'npcink-abilities-toolkit-capability-summary',
+		"=> 'technical'",
+		'npcink-abilities-toolkit-ability-catalog',
+		'Developer Tools',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the two-audience structure: ' . $required );
+}
+
+foreach (
+	array(
 		'setCheckSummary',
 		'summarizeReadonlyPayload',
 		'npcink-abilities-toolkit-check-summary-body',
