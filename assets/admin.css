@@ -109,15 +109,15 @@
 .npcink-abilities-toolkit-next__grid {
 	display: grid;
 	gap: 12px;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 	margin: 12px 0;
-	max-width: 760px;
+	max-width: 1100px;
 }
 
 .npcink-abilities-toolkit-next__item {
 	background: #fff;
 	border: 1px solid #c3c4c7;
-	padding: 14px;
+	padding: 12px;
 }
 
 .npcink-abilities-toolkit-next__item h3 {
@@ -147,20 +147,32 @@
 }
 
 .npcink-abilities-toolkit-capability-summary__groups {
-	display: grid;
-	gap: 8px 20px;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
 	list-style: none;
-	margin: 10px 0;
+	margin: 10px 0 12px;
 }
 
 .npcink-abilities-toolkit-capability-summary__groups li {
+	align-items: baseline;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	display: inline-flex;
+	gap: 8px;
 	margin: 0;
+	padding: 4px 10px;
 }
 
-.npcink-abilities-toolkit-capability-summary__groups li .description {
-	display: block;
-	margin-top: 2px;
+.npcink-abilities-toolkit-capability-summary__groups li .npcink-abilities-toolkit-capability-summary__count {
+	color: #646970;
+	font-size: 12px;
+}
+
+.npcink-abilities-toolkit-capability-summary__groups li .npcink-abilities-toolkit-capability-summary__write {
+	color: #996800;
+	font-size: 11px;
 }
 
 .npcink-abilities-toolkit-subnav {

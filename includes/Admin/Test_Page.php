@@ -273,21 +273,23 @@ final class Test_Page {
 				<?php foreach ( $groups as $group ) : ?>
 					<li>
 						<strong><?php echo esc_html( $group['label'] ); ?></strong>
-						<span class="description">
-							<?php
-							echo esc_html(
-								sprintf(
-									/* translators: 1: capability count, 2: write-like capability count. */
-									_n( '%1$d capability (%2$d can change content with host approval)', '%1$d capabilities (%2$d can change content with host approval)', $group['total'], 'npcink-abilities-toolkit' ),
-									$group['total'],
-									$group['write']
-								)
-							);
-							?>
-						</span>
+						<span class="npcink-abilities-toolkit-capability-summary__count"><?php echo esc_html( (string) $group['total'] ); ?></span>
+						<?php if ( $group['write'] > 0 ) : ?>
+							<span class="npcink-abilities-toolkit-capability-summary__write" aria-label="<?php echo esc_attr__( 'Requires host approval', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html( (string) $group['write'] ); ?>&nbsp;<?php echo esc_html__( 'host approval', 'npcink-abilities-toolkit' ); ?></span>
+						<?php endif; ?>
 					</li>
 				<?php endforeach; ?>
 			</ul>
+			<?php if ( function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) : ?>
+				<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
+				<?php if ( $scenario_count > 0 ) : ?>
+					<p class="description npcink-abilities-toolkit-scenario-summary">
+						<a href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
+							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
+						</a>
+					</p>
+				<?php endif; ?>
+			<?php endif; ?>
 			<p class="description">
 				<a href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'Review the full technical catalog in Developer Tools', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
@@ -507,16 +509,6 @@ final class Test_Page {
 			<p class="description">
 				<?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?>
 			</p>
-			<?php if ( function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) : ?>
-				<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
-				<?php if ( $scenario_count > 0 ) : ?>
-					<p class="description npcink-abilities-toolkit-scenario-summary">
-						<a href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
-							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
-						</a>
-					</p>
-				<?php endif; ?>
-			<?php endif; ?>
 		</section>
 		<?php
 	}
