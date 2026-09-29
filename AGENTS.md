@@ -146,6 +146,18 @@ composer analyse:phpstan
 git diff --check
 ```
 
+Advisory AI review gate (run before `composer pr:publish`):
+
+```bash
+ocr review --from origin/master --to HEAD
+```
+
+Treat findings as a second opinion: fix real defects or record why they are
+acceptable. CI posts the same review on pull requests through the advisory
+OpenCodeReview workflow; it is never a required check. Follows
+AI Code Review Standard v1 in `npcink-workflow-toolbox`
+`docs/platform/ai-code-review-standard-v1.md`.
+
 Release-facing gate:
 
 ```bash
