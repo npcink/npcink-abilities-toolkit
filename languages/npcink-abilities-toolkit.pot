@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-29T09:48:13+00:00\n"
+"POT-Creation-Date: 2026-09-29T11:18:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: npcink-abilities-toolkit\n"
@@ -58,688 +58,668 @@ msgstr ""
 msgid "What AI can do on this site"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:270
-msgid "A grouped summary of the abilities this site exposes to AI clients. Writes and destructive actions always require approval from a host product."
-msgstr ""
-
-#: includes/Admin/Test_Page.php:278
-#: includes/Admin/Test_Page.php:950
+#: includes/Admin/Test_Page.php:275
+#: includes/Admin/Test_Page.php:935
 msgid "Requires host approval"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:278
-#: includes/Admin/Test_Page.php:473
+#: includes/Admin/Test_Page.php:275
+#: includes/Admin/Test_Page.php:467
 msgid "host approval"
 msgstr ""
 
 #. translators: %d: published workflow scenario count.
-#: includes/Admin/Test_Page.php:288
+#: includes/Admin/Test_Page.php:285
 #, php-format
 msgid "This site publishes %d workflow scenario that a host product can run."
 msgid_plural "This site publishes %d workflow scenarios that a host product can run."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/Admin/Test_Page.php:294
-msgid "Review the full technical catalog in Developer Tools"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:329
+#: includes/Admin/Test_Page.php:323
 msgid "Connection"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:330
+#: includes/Admin/Test_Page.php:324
 msgid "Ability Catalog"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:331
+#: includes/Admin/Test_Page.php:325
 msgid "Checks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:332
-#: includes/Admin/Test_Page.php:536
+#: includes/Admin/Test_Page.php:326
+#: includes/Admin/Test_Page.php:522
 msgid "Workflow scenarios"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:392
+#: includes/Admin/Test_Page.php:386
 msgid "Overview"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:393
+#: includes/Admin/Test_Page.php:387
 msgid "Developer Tools"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:406
+#: includes/Admin/Test_Page.php:400
 msgid "Abilities page sections"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:469
+#: includes/Admin/Test_Page.php:463
 msgid "Site ability status"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:471
-#: includes/Admin/Test_Page.php:1137
-#: includes/Admin/Test_Page.php:1265
+#: includes/Admin/Test_Page.php:465
+#: includes/Admin/Test_Page.php:1122
+#: includes/Admin/Test_Page.php:1250
 msgid "Status"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:471
+#: includes/Admin/Test_Page.php:465
 msgid "working"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:471
-#: includes/Admin/Test_Page.php:1000
-#: includes/Admin/Test_Page.php:1286
+#: includes/Admin/Test_Page.php:465
+#: includes/Admin/Test_Page.php:985
+#: includes/Admin/Test_Page.php:1271
 msgid "needs attention"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:471
+#: includes/Admin/Test_Page.php:465
 msgid "AI clients can discover this site's abilities."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:471
+#: includes/Admin/Test_Page.php:465
 msgid "Review the attention notes below."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:472
+#: includes/Admin/Test_Page.php:466
 msgid "Available abilities"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:472
+#: includes/Admin/Test_Page.php:466
 msgid "Abilities exposed by this WordPress site."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:473
+#: includes/Admin/Test_Page.php:467
 msgid "Write safeguards"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:473
+#: includes/Admin/Test_Page.php:467
 msgid "read-only"
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:473
+#: includes/Admin/Test_Page.php:467
 #, php-format
 msgid "%d abilities can change content only through host governance."
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:473
+#: includes/Admin/Test_Page.php:467
 msgid "No write or destructive abilities are currently registered."
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:474
+#: includes/Admin/Test_Page.php:468
 msgid "Host"
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:474
+#: includes/Admin/Test_Page.php:468
 msgid "detected"
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:474
+#: includes/Admin/Test_Page.php:468
 msgid "standalone"
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:474
+#: includes/Admin/Test_Page.php:468
 msgid "A Npcink AI host menu is available."
 msgstr ""
 
 #. translators: %d: write or destructive ability count.
-#: includes/Admin/Test_Page.php:474
+#: includes/Admin/Test_Page.php:468
 msgid "This package provides abilities; use a host product to run AI workflows."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:475
-#: includes/Admin/Test_Page.php:1140
+#: includes/Admin/Test_Page.php:469
+#: includes/Admin/Test_Page.php:1125
 msgid "WordPress"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:475
+#: includes/Admin/Test_Page.php:469
 msgid "Runtime version detected."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:483
+#: includes/Admin/Test_Page.php:477
 msgid "Next actions"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:486
-msgid "View site abilities"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:487
+#: includes/Admin/Test_Page.php:479
 msgid "See what AI clients can read, suggest, or request approval to change."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:488
+#: includes/Admin/Test_Page.php:480
+msgid "View site abilities"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:481
 #: includes/Plugin.php:291
 msgid "View Abilities"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:491
-msgid "Run safe checks"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:492
+#: includes/Admin/Test_Page.php:483
 msgid "Confirm the site can return basic information and redacted diagnostics."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:493
+#: includes/Admin/Test_Page.php:484
+msgid "Run safe checks"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:485
 msgid "Open Checks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:496
-msgid "Use a host product"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:497
+#: includes/Admin/Test_Page.php:487
 msgid "AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:498
+#: includes/Admin/Test_Page.php:488
+msgid "Use a host product"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:489
 msgid "View Connection Info"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:500
+#: includes/Admin/Test_Page.php:491
 msgid "Host products: how to govern commits (Host Approval Contract)"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:504
-msgid "Developer access"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:505
-msgid "Copy REST endpoints and raw ability IDs when connecting external clients."
-msgstr ""
-
-#: includes/Admin/Test_Page.php:506
-msgid "Open Developer Access"
-msgstr ""
-
-#: includes/Admin/Test_Page.php:510
+#: includes/Admin/Test_Page.php:496
 msgid "This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:538
+#: includes/Admin/Test_Page.php:524
 msgid "Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:551
+#: includes/Admin/Test_Page.php:537
 msgid "Entry ability:"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:630
+#: includes/Admin/Test_Page.php:615
 msgid "Abilities API registration functions are unavailable."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:634
+#: includes/Admin/Test_Page.php:619
 msgid "Abilities API REST discovery routes are missing."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:638
-#: includes/Admin/Test_Page.php:686
+#: includes/Admin/Test_Page.php:623
+#: includes/Admin/Test_Page.php:671
 msgid "No abilities are registered by this package yet."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:642
+#: includes/Admin/Test_Page.php:627
 msgid "Home URL and Site URL differ; verify local site routing before testing endpoint values."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:677
+#: includes/Admin/Test_Page.php:662
 msgid "Available AI Abilities"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:679
+#: includes/Admin/Test_Page.php:664
 msgid "Review what AI clients can use on this WordPress site. Developer-only ability IDs and schema signals are kept in Developer Access."
 msgstr ""
 
 #. translators: 1: first visible row, 2: last visible row, 3: total filtered rows.
-#: includes/Admin/Test_Page.php:701
+#: includes/Admin/Test_Page.php:686
 #, php-format
 msgid "Showing %1$d-%2$d of %3$d abilities."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:708
+#: includes/Admin/Test_Page.php:693
 msgid "No abilities match the current filters."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:762
+#: includes/Admin/Test_Page.php:747
 msgid "Search"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:763
+#: includes/Admin/Test_Page.php:748
 msgid "Ability name, description, category, or technical ID"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:767
-#: includes/Admin/Test_Page.php:976
-#: includes/Admin/Test_Page.php:1262
+#: includes/Admin/Test_Page.php:752
+#: includes/Admin/Test_Page.php:961
+#: includes/Admin/Test_Page.php:1247
 msgid "Risk"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:769
+#: includes/Admin/Test_Page.php:754
 msgid "All risks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:770
+#: includes/Admin/Test_Page.php:755
 msgid "Read"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:771
+#: includes/Admin/Test_Page.php:756
 msgid "Write"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:772
+#: includes/Admin/Test_Page.php:757
 msgid "Destructive"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:773
+#: includes/Admin/Test_Page.php:758
 msgid "Other"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:778
-#: includes/Admin/Test_Page.php:1261
+#: includes/Admin/Test_Page.php:763
+#: includes/Admin/Test_Page.php:1246
 msgid "Category"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:780
+#: includes/Admin/Test_Page.php:765
 msgid "All categories"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:790
+#: includes/Admin/Test_Page.php:775
 msgid "Per page"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:801
+#: includes/Admin/Test_Page.php:786
 msgid "Apply"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:802
+#: includes/Admin/Test_Page.php:787
 msgid "Reset"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:912
+#: includes/Admin/Test_Page.php:897
 msgid "Previous"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:913
+#: includes/Admin/Test_Page.php:898
 msgid "Next"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:949
+#: includes/Admin/Test_Page.php:934
 msgid "Read-only"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:951
+#: includes/Admin/Test_Page.php:936
 msgid "High risk, approval required"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:952
+#: includes/Admin/Test_Page.php:937
 msgid "Review required"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:974
-#: includes/Admin/Test_Page.php:1104
-#: includes/Admin/Test_Page.php:1259
+#: includes/Admin/Test_Page.php:959
+#: includes/Admin/Test_Page.php:1089
+#: includes/Admin/Test_Page.php:1244
 msgid "Ability"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:975
+#: includes/Admin/Test_Page.php:960
 msgid "What it allows"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:995
+#: includes/Admin/Test_Page.php:980
 msgid "No description provided."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1000
-#: includes/Admin/Test_Page.php:1286
+#: includes/Admin/Test_Page.php:985
+#: includes/Admin/Test_Page.php:1271
 msgid "available"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1018
+#: includes/Admin/Test_Page.php:1003
 msgid "Site Checks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1020
+#: includes/Admin/Test_Page.php:1005
 msgid "Run safe checks to confirm the site can return basic ability information. These checks do not write content, call models, or contact external services."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1024
+#: includes/Admin/Test_Page.php:1009
 msgid "Safe checks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1026
+#: includes/Admin/Test_Page.php:1011
 msgid "Use these checks when a host product or AI client cannot see site abilities."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1031
-#: includes/Admin/Test_Page.php:1110
+#: includes/Admin/Test_Page.php:1016
+#: includes/Admin/Test_Page.php:1095
 msgid "Check"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1032
+#: includes/Admin/Test_Page.php:1017
 msgid "What it proves"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1033
+#: includes/Admin/Test_Page.php:1018
 msgid "What it does not prove"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1038
+#: includes/Admin/Test_Page.php:1023
 msgid "Site info"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1039
+#: includes/Admin/Test_Page.php:1024
 msgid "The site can safely return basic WordPress information to an authorized ability client."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1040
+#: includes/Admin/Test_Page.php:1025
 msgid "It does not call an AI model, generate content, or change the site."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1043
+#: includes/Admin/Test_Page.php:1028
 msgid "Redacted diagnostics"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1044
+#: includes/Admin/Test_Page.php:1029
 msgid "The site can return a support-friendly environment summary with sensitive fields omitted."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1045
+#: includes/Admin/Test_Page.php:1030
 msgid "It does not expose secrets, inspect private files, or fix configuration by itself."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1050
+#: includes/Admin/Test_Page.php:1035
 msgid "Together, these checks confirm that this ability package is reachable and safe to inspect. Use Available Abilities to review what the site exposes, and Developer Access when a host or client needs connection values."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1054
+#: includes/Admin/Test_Page.php:1039
 msgid "Run Site Info"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1057
+#: includes/Admin/Test_Page.php:1042
 msgid "Run Redacted Diagnostics"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1063
+#: includes/Admin/Test_Page.php:1048
 msgid "Check results"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1065
+#: includes/Admin/Test_Page.php:1050
 msgid "Results appear as a plain summary table after a check runs. Raw response details are still available for support."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1068
+#: includes/Admin/Test_Page.php:1053
 msgid "No check has run yet."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1074
-#: includes/Admin/Test_Page.php:1119
+#: includes/Admin/Test_Page.php:1059
+#: includes/Admin/Test_Page.php:1104
 msgid "Item"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1075
-#: includes/Admin/Test_Page.php:1130
+#: includes/Admin/Test_Page.php:1060
+#: includes/Admin/Test_Page.php:1115
 msgid "Result"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1076
-#: includes/Admin/Test_Page.php:1113
+#: includes/Admin/Test_Page.php:1061
+#: includes/Admin/Test_Page.php:1098
 msgid "Details"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1084
-#: includes/Admin/Test_Page.php:1129
+#: includes/Admin/Test_Page.php:1069
+#: includes/Admin/Test_Page.php:1114
 msgid "Raw response for support"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1086
+#: includes/Admin/Test_Page.php:1071
 msgid "Full JSON is kept here for support and developer troubleshooting."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1105
+#: includes/Admin/Test_Page.php:1090
 msgid "Abilities API"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1106
+#: includes/Admin/Test_Page.php:1091
 msgid "Abilities routes found"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1107
+#: includes/Admin/Test_Page.php:1092
 msgid "Available"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1108
+#: includes/Admin/Test_Page.php:1093
 msgid "Block theme"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1109
+#: includes/Admin/Test_Page.php:1094
 msgid "Category registration"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1111
+#: includes/Admin/Test_Page.php:1096
 msgid "Configured"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1112
+#: includes/Admin/Test_Page.php:1097
 msgid "Debug logging"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1114
+#: includes/Admin/Test_Page.php:1099
 msgid "Disabled"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1115
+#: includes/Admin/Test_Page.php:1100
 msgid "Enabled"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1116
+#: includes/Admin/Test_Page.php:1101
 msgid "External cache active"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1117
+#: includes/Admin/Test_Page.php:1102
 msgid "Diagnostics check"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1118
+#: includes/Admin/Test_Page.php:1103
 msgid "HTTPS"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1120
+#: includes/Admin/Test_Page.php:1105
 msgid "Language and timezone"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1121
+#: includes/Admin/Test_Page.php:1106
 msgid "Needs attention"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1122
+#: includes/Admin/Test_Page.php:1107
 msgid "No"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1123
+#: includes/Admin/Test_Page.php:1108
 msgid "Not configured"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1124
+#: includes/Admin/Test_Page.php:1109
 msgid "Object cache"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1125
+#: includes/Admin/Test_Page.php:1110
 msgid "Sensitive data"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1126
+#: includes/Admin/Test_Page.php:1111
 msgid "Sensitive fields are omitted from this check."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1127
+#: includes/Admin/Test_Page.php:1112
 msgid "Passed"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1128
+#: includes/Admin/Test_Page.php:1113
 msgid "Permalinks"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1131
+#: includes/Admin/Test_Page.php:1116
 msgid "REST API"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1132
+#: includes/Admin/Test_Page.php:1117
 msgid "Routes"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1133
+#: includes/Admin/Test_Page.php:1118
 msgid "Runtime cache only"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1134
+#: includes/Admin/Test_Page.php:1119
 msgid "Site host"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1135
+#: includes/Admin/Test_Page.php:1120
 msgid "Site name"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1136
+#: includes/Admin/Test_Page.php:1121
 msgid "Site URL"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1138
+#: includes/Admin/Test_Page.php:1123
 msgid "Theme"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1139
+#: includes/Admin/Test_Page.php:1124
 msgid "Unavailable"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1141
+#: includes/Admin/Test_Page.php:1126
 msgid "WordPress HTTPS"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1142
+#: includes/Admin/Test_Page.php:1127
 msgid "Yes"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1157
+#: includes/Admin/Test_Page.php:1142
 msgid "Developer Access"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1159
+#: includes/Admin/Test_Page.php:1144
 msgid "Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1162
+#: includes/Admin/Test_Page.php:1147
 msgid "Integration guides:"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1163
+#: includes/Admin/Test_Page.php:1148
 msgid "REST client quickstart"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1165
+#: includes/Admin/Test_Page.php:1150
 msgid "Host Approval Contract"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1169
+#: includes/Admin/Test_Page.php:1154
 msgid "Connection values"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1173
+#: includes/Admin/Test_Page.php:1158
 msgid "Abilities Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1177
+#: includes/Admin/Test_Page.php:1162
 msgid "Copy Abilities Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1182
+#: includes/Admin/Test_Page.php:1167
 msgid "Categories Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1186
+#: includes/Admin/Test_Page.php:1171
 msgid "Copy Categories Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1191
+#: includes/Admin/Test_Page.php:1176
 msgid "Contract Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1195
+#: includes/Admin/Test_Page.php:1180
 msgid "Copy Contract Endpoint"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1204
+#: includes/Admin/Test_Page.php:1189
 msgid "Raw discovery fetches"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1206
+#: includes/Admin/Test_Page.php:1191
 msgid "These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1210
+#: includes/Admin/Test_Page.php:1195
 msgid "Fetch Abilities"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1213
+#: includes/Admin/Test_Page.php:1198
 msgid "Fetch Categories"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1233
+#: includes/Admin/Test_Page.php:1218
 msgid "Catalog export"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1237
+#: includes/Admin/Test_Page.php:1222
 msgid "Ability ID export"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1238
+#: includes/Admin/Test_Page.php:1223
 msgid "Copyable ID list for host and catalog audits."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1243
+#: includes/Admin/Test_Page.php:1228
 msgid "Copy IDs"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1252
+#: includes/Admin/Test_Page.php:1237
 msgid "Ability technical catalog"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1253
+#: includes/Admin/Test_Page.php:1238
 msgid "Technical IDs, categories, schema availability, and callback status for host integrations."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1260
+#: includes/Admin/Test_Page.php:1245
 msgid "Ability ID"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1263
+#: includes/Admin/Test_Page.php:1248
 msgid "Input"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1264
+#: includes/Admin/Test_Page.php:1249
 msgid "Output"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1282
-#: includes/Admin/Test_Page.php:1283
+#: includes/Admin/Test_Page.php:1267
+#: includes/Admin/Test_Page.php:1268
 msgid "yes"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1282
-#: includes/Admin/Test_Page.php:1283
+#: includes/Admin/Test_Page.php:1267
+#: includes/Admin/Test_Page.php:1268
 msgid "no"
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1306
+#: includes/Admin/Test_Page.php:1291
 msgid "You do not have permission to run this check."
 msgstr ""
 
-#: includes/Admin/Test_Page.php:1317
+#: includes/Admin/Test_Page.php:1302
 msgid "Unknown read-only check."
 msgstr ""
 

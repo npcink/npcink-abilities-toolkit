@@ -266,9 +266,6 @@ final class Test_Page {
 		?>
 		<section id="npcink-abilities-toolkit-capability-summary" class="npcink-abilities-toolkit-capability-summary" aria-labelledby="npcink-abilities-toolkit-capability-summary-title">
 			<h2 id="npcink-abilities-toolkit-capability-summary-title"><?php echo esc_html__( 'What AI can do on this site', 'npcink-abilities-toolkit' ); ?></h2>
-			<p class="description">
-				<?php echo esc_html__( 'A grouped summary of the abilities this site exposes to AI clients. Writes and destructive actions always require approval from a host product.', 'npcink-abilities-toolkit' ); ?>
-			</p>
 			<ul class="npcink-abilities-toolkit-capability-summary__groups">
 				<?php foreach ( $groups as $group ) : ?>
 					<li>
@@ -288,11 +285,8 @@ final class Test_Page {
 							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
 						</a>
 					</p>
+					<?php endif; ?>
 				<?php endif; ?>
-			<?php endif; ?>
-			<p class="description">
-				<a href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'Review the full technical catalog in Developer Tools', 'npcink-abilities-toolkit' ); ?></a>
-			</p>
 		</section>
 		<?php
 	}
@@ -492,14 +486,10 @@ final class Test_Page {
 				</div>
 				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'AI workflows, approvals, audits, and final writes belong in Npcink AI or another host runtime.', 'npcink-abilities-toolkit' ); ?>">
 					<h3><?php echo esc_html__( 'Use a host product', 'npcink-abilities-toolkit' ); ?></h3>
-					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
+					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
 					<p class="description">
 						<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 					</p>
-				</div>
-				<div class="npcink-abilities-toolkit-next__item" title="<?php echo esc_attr__( 'Copy REST endpoints and raw ability IDs when connecting external clients.', 'npcink-abilities-toolkit' ); ?>">
-					<h3><?php echo esc_html__( 'Developer access', 'npcink-abilities-toolkit' ); ?></h3>
-					<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'Open Developer Access', 'npcink-abilities-toolkit' ); ?></a>
 				</div>
 			</div>
 			<p class="description">
