@@ -6,6 +6,9 @@ Status: active guidance.
 Hosts should choose explicitly instead of treating the full built-in surface as
 the only safe deployment shape.
 
+Hosts that govern write and destructive commits follow the host-agnostic
+[Host Approval Contract](host-approval-contract.md).
+
 ## Full Profile
 
 Use the full profile when the host is a governed agent runtime such as Npcink AI
