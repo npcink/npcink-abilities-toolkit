@@ -60,7 +60,10 @@ so the same class of miss is less likely to recur.
 
 ## Known Follow-Ups
 
-- The 132-string locale backlog exposed by the POT regeneration.
+- The 132-string locale backlog exposed by the POT regeneration was backfilled
+  for zh_CN on 2026-09-29 (1,052/1,052 translated, complete starter set
+  restored); the other six bundled locales keep falling back to English per
+  the agreed strategy.
 - 80 of 126 shape entries are fixture-only until verification inputs or
   richer WordPress stubs exist (`runtime_verified: false`).
 - Recipe batch 3 (style baseline) and the deferred contract decisions remain
