@@ -28,6 +28,11 @@ The page has exactly two tabs, split by audience rather than by surface type:
   (`abilities`, `checks`, `developer`, `catalog`, `connections`) alias to
   this tab with the matching sub-section so bookmarks keep working.
 
+Navigation discipline: **every navigation target has exactly one entry** on
+the overview. Before adding a link, card, or button, check whether an
+existing entry already reaches that target; merge or remove instead of
+adding a second path.
+
 Tabs are cut by audience because nobody arrives wanting "a review surface" —
 site owners arrive with "is it working and what can AI do here", developers
 arrive with "give me endpoints and ids".
