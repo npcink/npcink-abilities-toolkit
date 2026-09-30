@@ -149,6 +149,12 @@ change, or deciding whether a development stage is complete.
     before changing admin surfaces or response shapes; it records the
     three-persona walkthrough rationale, the shape registration rules, the
     scope semantics, and the root causes these gates now cover.
+23. Read [Write-Package Structural Slices Closeout - 2026-09-30](write-package-structural-slices-closeout-2026-09-30.md)
+    before resuming the structural split plan or touching write-package media
+    paths; it records the slice evidence rules, the core-faithful stub lesson
+    behind the `wp_delete_file` fix, the reconstruction and whitespace-only
+    purity proofs for mechanical moves, and the superseded-branch disposal
+    procedure.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
