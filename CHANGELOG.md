@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed two write paths that treated void-returning `wp_delete_file()` as a boolean: `rename-media-file` commits now verify the delete with `is_file()` instead of always failing and discarding the copied target, and expired-backup cleanup records expiry on the run that removes the file instead of lagging a cycle. The unit-test `wp_delete_file` stub now returns void like WordPress core, so both paths are tested under core-faithful semantics.
 - Extracted the media backup lifecycle (retention cleanup, restore transactions, replacement lineage) into `Media_Backup_Write_Methods` as the evidence-triggered write-side slice recorded in the structural split plan; `Core_Write_Package.php` shrinks from 9,263 to 8,220 lines with no ability id, schema, callback, dry-run, or authorization change.
 
 - Restructured the admin page around two audience tabs: an Overview that answers site owners in one screen (large stat tiles, a plain-language capability summary as category chips, four unique task buttons including a count-carrying scenario entry, boundary messaging folded into the header) and a Developer Tools tab with task-based sub navigation (Connection, Ability Catalog, Checks, Workflow scenarios; raw output areas render on demand); legacy tab URLs alias to their sub-section.

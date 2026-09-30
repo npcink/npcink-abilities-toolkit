@@ -6692,7 +6692,8 @@ final class Core_Write_Package {
 		if ( ! $this->copy_media_file( $source_path, $target_path, $context ) ) {
 			return false;
 		}
-		if ( function_exists( 'wp_delete_file' ) && wp_delete_file( $source_path ) ) {
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $source_path );
 			return ! file_exists( $source_path ) && is_readable( $target_path );
 		}
 		wp_delete_file( $target_path );
