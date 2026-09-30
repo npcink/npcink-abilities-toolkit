@@ -1140,16 +1140,7 @@ final class Test_Page {
 	 */
 	private function render_developer_access( $abilities_url, $categories_url, $contract_url, array $registered ) {
 		?>
-		<h2><?php echo esc_html__( 'Developer Access', 'npcink-abilities-toolkit' ); ?></h2>
-		<p class="description">
-			<?php echo esc_html__( 'Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab.', 'npcink-abilities-toolkit' ); ?>
-		</p>
-		<p class="description">
-			<?php echo esc_html__( 'Integration guides:', 'npcink-abilities-toolkit' ); ?>
-			<a href="<?php echo esc_url( self::DOCS_QUICKSTART_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'REST client quickstart', 'npcink-abilities-toolkit' ); ?></a>
-			<span aria-hidden="true"> | </span>
-			<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host Approval Contract', 'npcink-abilities-toolkit' ); ?></a>
-		</p>
+		<h2 title="<?php echo esc_attr__( 'Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Developer Access', 'npcink-abilities-toolkit' ); ?></h2>
 
 		<section id="npcink-abilities-toolkit-connection-values" class="npcink-abilities-toolkit-section">
 			<h3><?php echo esc_html__( 'Connection values', 'npcink-abilities-toolkit' ); ?></h3>
@@ -1185,6 +1176,13 @@ final class Test_Page {
 				</tbody>
 			</table>
 		</section>
+
+		<p class="description">
+			<?php echo esc_html__( 'Integration guides:', 'npcink-abilities-toolkit' ); ?>
+			<a href="<?php echo esc_url( self::DOCS_QUICKSTART_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'REST client quickstart', 'npcink-abilities-toolkit' ); ?></a>
+			<span aria-hidden="true"> | </span>
+			<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host Approval Contract', 'npcink-abilities-toolkit' ); ?></a>
+		</p>
 
 		<section id="npcink-abilities-toolkit-discovery-checks" class="npcink-abilities-toolkit-section">
 			<h3><?php echo esc_html__( 'Raw discovery fetches', 'npcink-abilities-toolkit' ); ?></h3>
