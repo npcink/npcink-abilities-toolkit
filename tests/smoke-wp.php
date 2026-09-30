@@ -810,7 +810,7 @@ $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
 		npcink_abilities_toolkit_smoke_assert( false === strpos( $standalone_html, 'id="npcink-abilities-toolkit-ability-catalog"' ), 'Standalone admin overview keeps the technical ability catalog out of the default view.' );
 		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'npcink_abilities_toolkit_sub=scenarios' ), 'Standalone admin overview links the workflow scenarios entry in the action row.' );
 		npcink_abilities_toolkit_smoke_assert( false === strpos( $standalone_html, 'npcink-abilities-toolkit-scenarios__grid' ), 'Standalone admin overview keeps the full scenario grid out of the default view.' );
-		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'docs/host-approval-contract.md' ), 'Standalone admin overview links the Host Approval Contract.' );
+		npcink_abilities_toolkit_smoke_assert( false !== strpos( $standalone_html, 'npcink_abilities_toolkit_sub=connection' ), 'Standalone admin overview keeps the connection entry whose sub-section carries the Host Approval Contract guide.' );
 
 		$GLOBALS['menu'][] = array( 'Npcink AI', 'manage_options', 'npcink-ai', '', 'menu-top' );
 		ob_start();
