@@ -207,10 +207,10 @@ trait Media_Backup_Write_Methods {
 		$result = $this->cleanup_expired_media_backups( true, true );
 		return array_merge( $payload, array(
 			'retention_days' => absint( $result['retention_days'] ?? $payload['retention_days'] ),
-				'expired'        => absint( $result['expired'] ?? 0 ),
-				'removed'        => absint( $result['removed'] ?? 0 ),
-				'processed_attachments' => absint( $result['processed_attachments'] ?? 0 ),
-				'has_more'       => ! empty( $result['has_more'] ),
+			'expired'        => absint( $result['expired'] ?? 0 ),
+			'removed'        => absint( $result['removed'] ?? 0 ),
+			'processed_attachments' => absint( $result['processed_attachments'] ?? 0 ),
+			'has_more'       => ! empty( $result['has_more'] ),
 			'dry_run'        => false,
 			'preview'        => array_merge( $payload['preview'], array( 'executed' => true ) ),
 		) );
@@ -506,122 +506,122 @@ trait Media_Backup_Write_Methods {
 		 * @return array<string,mixed>|\WP_Error
 		 */
 	private function execute_media_backup_restore( $attachment_id, array $plan ) {
-			$attachment_id = absint( $attachment_id );
-			$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
-			$storage_ready = $this->validate_media_storage_commit_ready( $current );
-			if ( is_wp_error( $storage_ready ) ) {
-				return $storage_ready;
-			}
-			$current_path = (string) ( $current['file_path'] ?? '' );
-			$backup_path = (string) ( $plan['_backup_path'] ?? '' );
-			$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
-			$target_path = (string) ( $plan['_target_path'] ?? '' );
-			$current_backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_current_backup_relative_file'] ?? '' ) );
-			$current_backup_path = $this->media_uploads_path_for_relative_file( $current_backup_relative );
-			$batch_manifest = $plan['_cloud_batch_manifest'] ?? null;
-			$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
-			$permission_error = $this->validate_media_content_reference_repair_permissions( $content_reference_repairs );
-			if ( is_wp_error( $permission_error ) ) {
-				return $permission_error;
-			}
-			if ( '' === $current_path || ! is_readable( $current_path ) ) {
-				return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'The current attachment file is unavailable for restore backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-			}
-			if ( '' === $backup_path || ! is_readable( $backup_path ) ) {
-				return new \WP_Error( 'npcink_abilities_toolkit_backup_file_unavailable', __( 'The backup file is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-			}
-			if ( '' === $target_relative || '' === $target_path ) {
-				return new \WP_Error( 'npcink_abilities_toolkit_restore_target_unavailable', __( 'The original media file path is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-			}
-			if ( file_exists( $target_path ) && 'overwrite' !== (string) ( $plan['conflict_mode'] ?? 'fail' ) && md5_file( $target_path ) !== md5_file( $backup_path ) ) {
-				return new \WP_Error( 'npcink_abilities_toolkit_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-			}
-			$current_backup_context = array(
-				'operation'     => 'restore_media_backup',
-				'step'          => 'backup_current',
-				'attachment_id' => $attachment_id,
-				'relative_file' => $current_backup_relative,
-			);
-			$current_backup_created = '' !== $current_backup_path && $this->ensure_media_directory( dirname( $current_backup_path ) )
-				? $this->copy_cloud_media_file_exclusive( $current_path, $current_backup_path, $current_backup_context )
-				: new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
-			if ( is_wp_error( $current_backup_created ) ) {
-				return $current_backup_created;
-			}
-			$this->add_cloud_media_created_file_to_manifest( $batch_manifest, $current_backup_created );
-
-			$late_precommit = $this->validate_media_backup_restore_precommit_state(
-				$attachment_id,
-				$plan,
-				is_array( $plan['_restore_precommit_repairs'] ?? null ) ? $plan['_restore_precommit_repairs'] : array(),
-				is_array( $plan['_restore_precommit_state'] ?? null ) ? $plan['_restore_precommit_state'] : array()
-			);
-			if ( is_wp_error( $late_precommit ) ) {
-				return $late_precommit;
-			}
-			$current = is_array( $late_precommit['current'] ?? null ) ? $late_precommit['current'] : $current;
-			$current_path = (string) ( $current['file_path'] ?? $current_path );
-			$content_reference_repairs = is_array( $late_precommit['content_reference_repairs'] ?? null ) ? $late_precommit['content_reference_repairs'] : $content_reference_repairs;
-
-			$target_copy = $this->copy_media_backup_restore_target( $backup_path, $target_path, $target_relative, $attachment_id, $plan, $batch_manifest );
-			if ( is_wp_error( $target_copy ) ) {
-				return $target_copy;
-			}
-
-			$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
-			$after['filesize_bytes'] = absint( filesize( $target_path ) );
-			$after['media_fingerprint'] = $this->normalize_media_sha256( (string) hash_file( 'sha256', $target_path ) );
-			$current_backup = is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array();
-			$current_backup['filesize_bytes'] = absint( filesize( $current_backup_path ) );
-			$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $after, $batch_manifest );
-			if ( is_wp_error( $updated ) ) {
-				return $updated;
-			}
-			$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs, $batch_manifest );
-			if ( is_wp_error( $content_reference_repairs ) ) {
-				return $content_reference_repairs;
-			}
-			$history_updated = $this->record_media_backup_restore_history(
-				$attachment_id,
-				(string) ( $plan['replacement_id'] ?? '' ),
-				array(
-					'replacement_id'     => (string) ( $plan['restore_id'] ?? '' ),
-					'operation'          => 'restore_media_backup',
-					'status'             => 'active',
-					'replaced_at_gmt'    => gmdate( 'c' ),
-					'rolled_back_at_gmt' => '',
-					'restored_from'      => (string) ( $plan['replacement_id'] ?? '' ),
-					'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
-					'after'              => $after,
-					'backup'             => $current_backup,
-					'new_media_fingerprint' => (string) ( $after['media_fingerprint'] ?? '' ),
-					'derived_from_media_fingerprint' => (string) ( $plan['before']['media_fingerprint'] ?? '' ),
-					'transform_type' => 'restore',
-					'visual_reuse_policy' => 'requires_reidentification',
-					'transform_facts' => array( 'restore_from_backup' => true ),
-					'backup_cleanup_policy' => self::MEDIA_BACKUP_CLEANUP_MANUAL === (string) ( $plan['_history']['backup_cleanup_policy'] ?? '' )
-						? self::MEDIA_BACKUP_CLEANUP_MANUAL
-						: self::MEDIA_BACKUP_CLEANUP_AUTOMATIC,
-				),
-				$batch_manifest
-			);
-			if ( is_wp_error( $history_updated ) ) {
-				return $history_updated;
-			}
-			$finalized = $this->finalize_media_backup_restore_files( $batch_manifest );
-			if ( is_wp_error( $finalized ) ) {
-				return $finalized;
-			}
-
-			return array(
-				'restored'       => true,
-				'rolled_back'    => true,
-				'after'          => $after,
-				'backup'         => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
-				'current_backup' => $current_backup,
-				'content_reference_repairs' => $content_reference_repairs,
-			);
+		$attachment_id = absint( $attachment_id );
+		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
+		$storage_ready = $this->validate_media_storage_commit_ready( $current );
+		if ( is_wp_error( $storage_ready ) ) {
+			return $storage_ready;
 		}
+		$current_path = (string) ( $current['file_path'] ?? '' );
+		$backup_path = (string) ( $plan['_backup_path'] ?? '' );
+		$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
+		$target_path = (string) ( $plan['_target_path'] ?? '' );
+		$current_backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_current_backup_relative_file'] ?? '' ) );
+		$current_backup_path = $this->media_uploads_path_for_relative_file( $current_backup_relative );
+		$batch_manifest = $plan['_cloud_batch_manifest'] ?? null;
+		$content_reference_repairs = $this->build_media_content_reference_repairs( $attachment_id, $plan, false );
+		$permission_error = $this->validate_media_content_reference_repair_permissions( $content_reference_repairs );
+		if ( is_wp_error( $permission_error ) ) {
+			return $permission_error;
+		}
+		if ( '' === $current_path || ! is_readable( $current_path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'The current attachment file is unavailable for restore backup.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( '' === $backup_path || ! is_readable( $backup_path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_backup_file_unavailable', __( 'The backup file is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( '' === $target_relative || '' === $target_path ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_restore_target_unavailable', __( 'The original media file path is unavailable for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		if ( file_exists( $target_path ) && 'overwrite' !== (string) ( $plan['conflict_mode'] ?? 'fail' ) && md5_file( $target_path ) !== md5_file( $backup_path ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
+		}
+		$current_backup_context = array(
+			'operation'     => 'restore_media_backup',
+			'step'          => 'backup_current',
+			'attachment_id' => $attachment_id,
+			'relative_file' => $current_backup_relative,
+		);
+		$current_backup_created = '' !== $current_backup_path && $this->ensure_media_directory( dirname( $current_backup_path ) )
+			? $this->copy_cloud_media_file_exclusive( $current_path, $current_backup_path, $current_backup_context )
+			: new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+		if ( is_wp_error( $current_backup_created ) ) {
+			return $current_backup_created;
+		}
+		$this->add_cloud_media_created_file_to_manifest( $batch_manifest, $current_backup_created );
+
+		$late_precommit = $this->validate_media_backup_restore_precommit_state(
+			$attachment_id,
+			$plan,
+			is_array( $plan['_restore_precommit_repairs'] ?? null ) ? $plan['_restore_precommit_repairs'] : array(),
+			is_array( $plan['_restore_precommit_state'] ?? null ) ? $plan['_restore_precommit_state'] : array()
+		);
+		if ( is_wp_error( $late_precommit ) ) {
+			return $late_precommit;
+		}
+		$current = is_array( $late_precommit['current'] ?? null ) ? $late_precommit['current'] : $current;
+		$current_path = (string) ( $current['file_path'] ?? $current_path );
+		$content_reference_repairs = is_array( $late_precommit['content_reference_repairs'] ?? null ) ? $late_precommit['content_reference_repairs'] : $content_reference_repairs;
+
+		$target_copy = $this->copy_media_backup_restore_target( $backup_path, $target_path, $target_relative, $attachment_id, $plan, $batch_manifest );
+		if ( is_wp_error( $target_copy ) ) {
+			return $target_copy;
+		}
+
+		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
+		$after['filesize_bytes'] = absint( filesize( $target_path ) );
+		$after['media_fingerprint'] = $this->normalize_media_sha256( (string) hash_file( 'sha256', $target_path ) );
+		$current_backup = is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array();
+		$current_backup['filesize_bytes'] = absint( filesize( $current_backup_path ) );
+		$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $after, $batch_manifest );
+		if ( is_wp_error( $updated ) ) {
+			return $updated;
+		}
+		$content_reference_repairs = $this->apply_media_content_reference_repairs( $content_reference_repairs, $batch_manifest );
+		if ( is_wp_error( $content_reference_repairs ) ) {
+			return $content_reference_repairs;
+		}
+		$history_updated = $this->record_media_backup_restore_history(
+			$attachment_id,
+			(string) ( $plan['replacement_id'] ?? '' ),
+			array(
+				'replacement_id'     => (string) ( $plan['restore_id'] ?? '' ),
+				'operation'          => 'restore_media_backup',
+				'status'             => 'active',
+				'replaced_at_gmt'    => gmdate( 'c' ),
+				'rolled_back_at_gmt' => '',
+				'restored_from'      => (string) ( $plan['replacement_id'] ?? '' ),
+				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
+				'after'              => $after,
+				'backup'             => $current_backup,
+				'new_media_fingerprint' => (string) ( $after['media_fingerprint'] ?? '' ),
+				'derived_from_media_fingerprint' => (string) ( $plan['before']['media_fingerprint'] ?? '' ),
+				'transform_type' => 'restore',
+				'visual_reuse_policy' => 'requires_reidentification',
+				'transform_facts' => array( 'restore_from_backup' => true ),
+				'backup_cleanup_policy' => self::MEDIA_BACKUP_CLEANUP_MANUAL === (string) ( $plan['_history']['backup_cleanup_policy'] ?? '' )
+					? self::MEDIA_BACKUP_CLEANUP_MANUAL
+					: self::MEDIA_BACKUP_CLEANUP_AUTOMATIC,
+			),
+			$batch_manifest
+		);
+		if ( is_wp_error( $history_updated ) ) {
+			return $history_updated;
+		}
+		$finalized = $this->finalize_media_backup_restore_files( $batch_manifest );
+		if ( is_wp_error( $finalized ) ) {
+			return $finalized;
+		}
+
+		return array(
+			'restored'       => true,
+			'rolled_back'    => true,
+			'after'          => $after,
+			'backup'         => is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array(),
+			'current_backup' => $current_backup,
+			'content_reference_repairs' => $content_reference_repairs,
+		);
+	}
 
 	/**
 	 * Copies a selected backup to the restore target and records file compensation.
@@ -1037,7 +1037,7 @@ trait Media_Backup_Write_Methods {
 		}
 
 			return true;
-		}
+	}
 
 		/**
 		 * Builds a backup relative file in the dedicated uploads backup directory.
