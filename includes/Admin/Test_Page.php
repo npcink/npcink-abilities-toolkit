@@ -178,8 +178,7 @@ final class Test_Page {
 		?>
 		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>" data-check-summary-labels="<?php echo esc_attr( wp_json_encode( $this->get_check_summary_labels() ) ); ?>">
 			<h1><?php echo esc_html( 'Npcink Abilities Toolkit' ); ?></h1>
-			<p><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
-			<p class="description"><?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?></p>
+			<p class="description" title="<?php echo esc_attr__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
 
 			<?php $this->render_tab_nav( $active_tab ); ?>
 
