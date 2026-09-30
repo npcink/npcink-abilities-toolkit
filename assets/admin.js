@@ -300,6 +300,7 @@
 		}
 
 		options = options || {};
+		output.hidden = false;
 		output.value = requestingLabel + ' ' + url + ' ...';
 		try {
 			const headers = {
@@ -338,6 +339,7 @@
 			return;
 		}
 
+		output.hidden = false;
 		output.value = runningLabel + ' ' + check + ' ...';
 		setCheckSummary([
 			{

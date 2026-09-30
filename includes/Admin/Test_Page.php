@@ -1073,7 +1073,7 @@ final class Test_Page {
 					</span>
 				</summary>
 					<div class="npcink-abilities-toolkit-disclosure__body">
-						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
+						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14" hidden></textarea>
 					</div>
 				</details>
 			</section>
@@ -1185,10 +1185,7 @@ final class Test_Page {
 		</p>
 
 		<section id="npcink-abilities-toolkit-discovery-checks" class="npcink-abilities-toolkit-section">
-			<h3><?php echo esc_html__( 'Raw discovery fetches', 'npcink-abilities-toolkit' ); ?></h3>
-			<p class="description">
-				<?php echo esc_html__( 'These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication.', 'npcink-abilities-toolkit' ); ?>
-			</p>
+			<h3 title="<?php echo esc_attr__( 'These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Raw discovery fetches', 'npcink-abilities-toolkit' ); ?></h3>
 			<p class="npcink-abilities-toolkit-actions">
 				<button type="button" class="button button-primary" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $abilities_url ); ?>">
 					<?php echo esc_html__( 'Fetch Abilities', 'npcink-abilities-toolkit' ); ?>
@@ -1198,7 +1195,7 @@ final class Test_Page {
 				</button>
 			</p>
 
-			<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14"></textarea>
+			<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14" hidden></textarea>
 		</section>
 
 		<?php $this->render_advanced_checks( $registered ); ?>
