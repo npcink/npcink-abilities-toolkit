@@ -494,7 +494,6 @@ final class Test_Page {
 					<?php endif; ?>
 				<?php endif; ?>
 				<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
-				<a class="description" href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 			</div>
 		</section>
 		<?php
