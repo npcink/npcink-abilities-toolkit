@@ -156,6 +156,36 @@ derivative materialization, cloud transaction machinery, and the remaining
 write responsibilities still require independent evidence before any further
 extraction.
 
+## 2026-09-30 Cloud Media Transaction Slice
+
+Since the pause, the cloud derivative adoption and compare-and-swap transaction
+machinery has been crossed by at least five merged pull requests: the artifact
+integrity binding, the governed derivative adoption hardening, the analysis and
+runtime gate hardening, the backup restore transaction hardening (#107 shares
+the CAS and batch-manifest machinery), and the 0.5.4 release candidate. That
+concentration, plus explicit maintainer authorization to continue after the
+media backup slice, satisfies the repeated-change trigger for one bounded
+write-side slice.
+
+`Cloud_Media_Write_Methods` now owns the 38 methods for cloud derivative
+adoption planning, artifact materialization, exclusive cloud file writes,
+created-file manifests, atomic compare-and-swap post meta and post field
+mutations with locked-row rollback, and adoption commit verification.
+`Core_Write_Package` shrinks from 8,220 to 6,588 lines and remains the
+composition root, definition owner, and owner of the shared commit guards,
+verification helpers, and media filesystem core; the cloud transaction state
+properties stay on the class. No public ability id, schema, annotation,
+callback, dry-run default, or final authorization changes; the media
+fingerprint, lineage, version-change, and Cloud Addon seam source assertions
+now span the class plus this trait (and the backup trait where applicable).
+
+This slice completes the media lifecycle responsibilities named in the paused
+sequence item 3 except remote intake (upload pipeline), which stays in the
+class. The broader structural sequence remains paused; the remaining clusters
+(post workflow, taxonomy, comments, settings, content formatting, uploads) have
+no post-pause change concentration and require independent evidence before any
+further extraction.
+
 ## Gate Per Slice
 
 Each extraction must pass:
