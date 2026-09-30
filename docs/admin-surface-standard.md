@@ -49,10 +49,9 @@ The default page should show:
   counts, how many can change content) that answers "what can AI do on this
   site" without exposing technical ids;
 - stable, shareable admin URLs for tabs and read-only filters;
-- next actions for viewing abilities, running safe checks, using a host
-  product, and opening developer access;
-- a one-line workflow scenario summary (published scenario count, host-owned
-  execution) linking the full catalog in the Developer Tools tab.
+- next actions for viewing abilities, running safe checks, reviewing
+  workflow scenarios, and using a host product, rendered as one compact
+  button row.
 
 ## Workflow Scenario Overview
 
@@ -66,11 +65,11 @@ documentation-only:
 - it must not display workflow state, approval state, or audit data;
 - host products remain the only execution surface.
 
-The default overview shows only a single localized summary line with the
-scenario count and a link to the Developer Tools catalog. The full card grid
-stays out of the default view: site owners need the one-line answer, and the
-card-level detail (contract task phrasing, entry ability ids) serves the
-developer audience that already lives in that tab.
+The default overview carries the scenario count as a button in the action
+row ("View N Workflow Scenarios") linking the Developer Tools catalog. The
+full card grid stays out of the default view: site owners need the one-line
+answer, and the card-level detail (contract task phrasing, entry ability
+ids) serves the developer audience that already lives in that tab.
 
 ## External Documentation Links
 

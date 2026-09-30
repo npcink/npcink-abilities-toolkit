@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Restructured the admin page around two audience tabs: an Overview that answers site owners in one screen (large stat tiles, a plain-language capability summary as category chips, a scenario count line, three unique task entries, boundary messaging consolidated at the top) and a Developer Tools tab with task-based sub navigation (Connection, Ability Catalog, Checks, Workflow scenarios); legacy tab URLs alias to their sub-section.
+- Restructured the admin page around two audience tabs: an Overview that answers site owners in one screen (large stat tiles, a plain-language capability summary as category chips, four unique task buttons including a count-carrying scenario entry, boundary messaging folded into the header) and a Developer Tools tab with task-based sub navigation (Connection, Ability Catalog, Checks, Workflow scenarios; raw output areas render on demand); legacy tab URLs alias to their sub-section.
 - Fixed the admin asset cache: admin.css/admin.js now version by file modification time so styling changes between releases are no longer pinned to stale browser caches.
 - Added five machine-readable workflow recipes: article-production, media-seo-handoff, media-governance-scan, site-operations-scan, and diagnostics-triage (7 -> 12 cases), each with replay-fixture locks and real-site smoke coverage.
 - Documented the host-agnostic Host Approval Contract for governing write and destructive commits, with a fail-closed third-party host example and a dedicated `check:host-approval` gate; the contract is referenced from the platform index and the Adapter/Core contract docs.
