@@ -72,7 +72,8 @@ trait Media_Backup_Write_Methods {
 				$file_existed = '' !== $path && is_file( $path );
 				$file_removed = ! $file_existed;
 				if ( ! $file_removed && function_exists( 'wp_delete_file' ) ) {
-					$file_removed = (bool) wp_delete_file( $path );
+					wp_delete_file( $path );
+					$file_removed = ! is_file( $path );
 				}
 				if ( ! $file_removed ) {
 					continue;

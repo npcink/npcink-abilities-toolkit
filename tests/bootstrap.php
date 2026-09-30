@@ -236,7 +236,9 @@ if ( ! function_exists( 'wp_mkdir_p' ) ) {
 
 if ( ! function_exists( 'wp_delete_file' ) ) {
 	function wp_delete_file( $file ) {
-		return is_file( (string) $file ) ? unlink( (string) $file ) : true;
+		if ( is_file( (string) $file ) ) {
+			unlink( (string) $file );
+		}
 	}
 }
 
