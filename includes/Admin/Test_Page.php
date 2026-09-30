@@ -294,16 +294,6 @@ final class Test_Page {
 					</li>
 				<?php endforeach; ?>
 			</ul>
-			<?php if ( function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) : ?>
-				<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
-				<?php if ( $scenario_count > 0 ) : ?>
-					<p class="description npcink-abilities-toolkit-scenario-summary">
-						<a href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
-							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'This site publishes %d workflow scenario that a host product can run.', 'This site publishes %d workflow scenarios that a host product can run.', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
-						</a>
-					</p>
-					<?php endif; ?>
-				<?php endif; ?>
 		</section>
 		<?php
 	}
@@ -495,6 +485,14 @@ final class Test_Page {
 			<div class="npcink-abilities-toolkit-actions">
 				<a class="button button-primary" href="<?php echo esc_url( $this->get_technical_url( 'catalog', 'npcink-abilities-toolkit-ability-catalog' ) ); ?>"><?php echo esc_html__( 'View Abilities', 'npcink-abilities-toolkit' ); ?></a>
 				<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'checks', 'npcink-abilities-toolkit-readonly-checks' ) ); ?>"><?php echo esc_html__( 'Open Checks', 'npcink-abilities-toolkit' ); ?></a>
+				<?php if ( function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) : ?>
+					<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
+					<?php if ( $scenario_count > 0 ) : ?>
+						<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
+							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'View %d Workflow Scenario', 'View %d Workflow Scenarios', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
+						</a>
+					<?php endif; ?>
+				<?php endif; ?>
 				<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'connection', 'npcink-abilities-toolkit-connection-values' ) ); ?>"><?php echo esc_html__( 'View Connection Info', 'npcink-abilities-toolkit' ); ?></a>
 				<a class="description" href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host products: how to govern commits (Host Approval Contract)', 'npcink-abilities-toolkit' ); ?></a>
 			</div>
