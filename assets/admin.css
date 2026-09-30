@@ -100,32 +100,12 @@
 	max-width: 1100px;
 }
 
-.npcink-abilities-toolkit-next__grid {
-	display: grid;
-	gap: 12px;
-	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-	margin: 12px 0;
-	max-width: 1100px;
+.npcink-abilities-toolkit-next .npcink-abilities-toolkit-actions {
+	align-items: center;
 }
 
-.npcink-abilities-toolkit-next__item {
-	align-items: flex-start;
-	background: #fff;
-	border: 1px solid #c3c4c7;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	padding: 12px;
-}
-
-.npcink-abilities-toolkit-next__item h3 {
-	font-size: 13px;
-	margin: 0;
-}
-
-.npcink-abilities-toolkit-next__item p {
-	color: #50575e;
-	margin: 0 0 12px;
+.npcink-abilities-toolkit-next .npcink-abilities-toolkit-actions .description {
+	margin-left: 8px;
 }
 
 .npcink-abilities-toolkit-actions {
@@ -444,7 +424,6 @@
 }
 
 @media (max-width: 782px) {
-	.npcink-abilities-toolkit-next__grid,
 	.npcink-abilities-toolkit-scenarios__grid,
 	.npcink-abilities-toolkit-filter {
 		grid-template-columns: 1fr;
