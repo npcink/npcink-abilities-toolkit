@@ -2914,6 +2914,7 @@ trait Block_Theme_Read_Methods {
 			if ( ! is_array( $inner_block ) ) {
 				continue;
 			}
+			/** @var array<string,mixed> $inner_block */
 			if ( $this->block_theme_is_breadcrumbs_block( $inner_block ) ) {
 				if ( null === $found ) {
 					$found = $inner_block;
