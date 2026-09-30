@@ -114,3 +114,32 @@ The recurring meta-lesson: each round was driven by an actual screenshot
 from the maintainer, and each correct fix REMOVED something (a section, a
 duplicate, a sentence) rather than adding. When a layout feels wrong,
 suspect redundancy before absence.
+
+## Admin Iteration Addendum (Rounds #154-#159)
+
+Six further subtraction rounds after the first record, each applying the
+established rules rather than inventing new surfaces:
+
+- **Buttons over cards** (#154): the three next-action cards collapsed into
+  one flex button row; card containers and headings whose semantics repeated
+  the button labels were removed (assertions migrated with rationale in the
+  assertion message).
+- **The tooltip-folding pattern** (#155, #157, #158): locked explanatory
+  sentences that no longer earn vertical space fold verbatim into `title`
+  attributes (page boundary line, connection section description, discovery
+  description). Presence-based assertions are position-independent, so this
+  costs zero migrations — reuse it instead of deleting locked text.
+- **On-demand output** (#158): always-rendered empty diagnostics textareas
+  start `hidden` and are revealed by the writing JS entry points, mirroring
+  the check-summary hidden toggling.
+- **Unique-entry enforcement bites its own tail** (#159): the Host Approval
+  Contract link added to the overview in #132 was removed there because the
+  connection sub-section's integration guides already served the target —
+  the rule caught an entry this same workstream had created.
+- **Entry relocation beats deletion** (#156): the scenario summary line
+  became a count-carrying button; information survived while the layout
+  lost a text line.
+
+Final overview shape: title + one intro line -> large stat tiles -> category
+chips -> four task buttons. Every element has one purpose and every target
+one entry.
