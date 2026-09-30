@@ -130,6 +130,32 @@ schema, annotation, callback, dry-run default, or final authorization changes.
 The broader media lifecycle remains paused and requires independent evidence
 before another extraction.
 
+## 2026-09-30 Media Backup Lifecycle Slice
+
+Since the pause, four merged pull requests each crossed the same media backup
+lifecycle responsibilities inside the oversized write module: #107 hardened
+backup restore transactions, #110 recorded replacement lineage and drift
+guards, #113 added confirmed expired-backup cleanup, and #114 added the
+administrator cleanup policy. `cleanup_expired_media_backups` changed six times
+and the restore/lineage helpers two to three times each. That concentration
+satisfies the repeated-change trigger for one bounded write-side slice, so the
+maintainer approved resuming exactly this responsibility.
+
+`Media_Backup_Write_Methods` now owns the 24 methods for backup retention
+cleanup (including its cron cursor and policy helpers), backup restore
+transactions, and file-replacement lineage/pointer state. `Core_Write_Package`
+shrinks from 9,263 to 8,220 lines and remains the composition root, definition
+owner, and owner of the shared commit guards, verification helpers, and cloud
+media transaction machinery. No public ability id, schema, annotation,
+callback, dry-run default, or final authorization changes; the media
+fingerprint, lineage, and version-change source assertions now span the class
+plus this trait.
+
+This slice does not unfreeze the broader structural sequence. Remote intake,
+derivative materialization, cloud transaction machinery, and the remaining
+write responsibilities still require independent evidence before any further
+extraction.
+
 ## Gate Per Slice
 
 Each extraction must pass:

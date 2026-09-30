@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Extracted the media backup lifecycle (retention cleanup, restore transactions, replacement lineage) into `Media_Backup_Write_Methods` as the evidence-triggered write-side slice recorded in the structural split plan; `Core_Write_Package.php` shrinks from 9,263 to 8,220 lines with no ability id, schema, callback, dry-run, or authorization change.
+
 - Restructured the admin page around two audience tabs: an Overview that answers site owners in one screen (large stat tiles, a plain-language capability summary as category chips, four unique task buttons including a count-carrying scenario entry, boundary messaging folded into the header) and a Developer Tools tab with task-based sub navigation (Connection, Ability Catalog, Checks, Workflow scenarios; raw output areas render on demand); legacy tab URLs alias to their sub-section.
 - Fixed the admin asset cache: admin.css/admin.js now version by file modification time so styling changes between releases are no longer pinned to stale browser caches.
 - Added five machine-readable workflow recipes: article-production, media-seo-handoff, media-governance-scan, site-operations-scan, and diagnostics-triage (7 -> 12 cases), each with replay-fixture locks and real-site smoke coverage.
