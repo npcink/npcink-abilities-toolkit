@@ -186,6 +186,46 @@ class. The broader structural sequence remains paused; the remaining clusters
 no post-pause change concentration and require independent evidence before any
 further extraction.
 
+## 2026-10-01 Evidence Inventory For Future Slices
+
+This section is the refreshable evidence snapshot for the next session that
+considers a slice. Re-measure before acting; do not trust these numbers as
+current. Refresh commands:
+
+```bash
+# change concentration, last two months, per file
+for f in $(find includes tests/run.php -name '*.php'); do \
+  c=$(git log --since="$(date -v-2m +%Y-%m-%d)" --oneline -- "$f" | wc -l); \
+  [ "$c" -gt 2 ] && echo "$c $f"; done | sort -rn
+
+# current sizes
+find includes tests/run.php -name '*.php' | xargs wc -l | sort -rn | head -16
+
+# next analysis-level cost before ratcheting PHPStan
+vendor/bin/phpstan analyse -l <next-level> --memory-limit=4G --no-progress
+```
+
+Ranked candidates as measured on 2026-10-01:
+
+| Candidate | Size | Concentration since 2026-08-01 | Verdict |
+| --- | ---: | ---: | --- |
+| `includes/Admin/Test_Page.php` | 1,365 | 16 PRs (the #144-#160 admin iteration series) | Strongest current evidence. Slice shape: separate data assembly, rendering, and the scenario catalog behind a composition root, one focused PR, same gates. Do it alongside a confirmed next admin iteration, not speculatively. |
+| `tests/run.php` | 9,630 | 18 PRs | Concentration is high, but item 5's trigger is observed collision or isolation pain, not raw count. When that pain is recorded, split by contract surface while preserving the single `composer test` entrypoint and the aggregate assertion count. |
+| `includes/Packages/Read_Traits/Media_Read_Methods.php` | 6,612 | 3 PRs | Insufficient. The 2026-07-14 ALT/caption slice is the carving precedent when evidence arrives. |
+| Definition providers (item 4) | ~75 inline ids in `Core_Read_Package`, ~63 / ~1,220-line block in `Core_Write_Package` | 2 PRs (read), slice work (write) | Trigger is a concrete definition change made harder by current ownership; not observed. The read side already has the `Read_Definitions/` seam and three extracted domains. |
+| Remaining write clusters (post workflow, taxonomy, comments, settings, content formatting, remote intake) | — | 0 | Wait for evidence. |
+
+Adjacent analysis ceiling, decided 2026-09-30: PHPStan stays at level 3.
+Level 4 measured 726 findings; re-measure and ratchet only when the next level
+costs single-digit fixes (see the write-package closeout lesson on ratcheting).
+`Core_Destructive_Package` (1,473 lines) and `Core_Comment_Package` (1,188
+lines) carry no change pressure and are not candidates.
+
+For the mechanics of any future slice — moved-method ownership assertions in
+`tests/run.php`, reconstruction and whitespace-only purity proofs, and the
+advisory-reviewer timeout on large new files — read
+[Write-Package Structural Slices Closeout - 2026-09-30](write-package-structural-slices-closeout-2026-09-30.md).
+
 ## Gate Per Slice
 
 Each extraction must pass:
