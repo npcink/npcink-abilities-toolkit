@@ -1,17 +1,21 @@
 # Delete Attachment Ability Candidate
 
-Status: proposed candidate awaiting acceptance review.
+Status: under revision after the 2026-10-02 acceptance review; see the review
+section at the end before implementing.
 
 ## Host Workflow Proof
 
 `npcink-workflow-toolbox` now surfaces a bounded, suggestion-only flagged
 media review set (`docs/flagged-media-review.md` in that repository, merged
 2026-09-30). When an operator confirms a flagged attachment, the governed
-write path fails today: no reusable WordPress ability exists for attachment
-deletion, so the only fallback is untracked manual WordPress administration
-without an audit trail, without a branch policy, and without reference
-cleanup. That failed host workflow is the motivation for this candidate, per
-the candidate rule recorded in
+write path falls short today: the existing
+`npcink-abilities-toolkit/delete-media-permanently` ability performs a plain
+forced deletion with a minimal preview and no deletion policy branches, no
+referenced-by summary for reference cleanup, no backup branch, no operator
+reason, and no idempotency key. The untracked fallbacks the host wants to
+avoid (manual administration without audit trail, branch policy, or reference
+cleanup) remain. That failed host workflow is the motivation for this
+candidate, per the candidate rule recorded in
 `docs/ability-candidates/npcink-ai-core-ability-candidates.md`.
 
 ## Proposed Ability
@@ -91,3 +95,44 @@ Before this candidate becomes an implemented ability:
 - [ ] restore coverage exists only for `governed_with_backup`;
 - [ ] the cross-repo boundary matrix and Core governance catalog record the
       new ability id.
+
+## Acceptance Review (2026-10-02)
+
+Verdict: **revise before acceptance.** The failed-host-workflow motivation is
+verified and real, but the original premise ("no reusable WordPress ability
+exists for attachment deletion") was factually incorrect and has been
+corrected above. The candidate must be re-argued as a delta over the existing
+ability before it can be accepted.
+
+Verified facts:
+
+- `npcink-abilities-toolkit/delete-media-permanently` exists in
+  `Core_Destructive_Package`: host-approved, dry-run-by-default forced
+  deletion via `wp_delete_attachment( $id, true )`, gated on `delete_posts`
+  plus the `media.write` scope, with a minimal preview (attachment id and
+  parent post only).
+- The toolbox evidence document exists as claimed
+  (`npcink-workflow-toolbox/docs/flagged-media-review.md`) and already
+  specifies the dual-branch policy as the intended input for this contract.
+- The genuine gaps the failed workflow needs, none of which the existing
+  ability provides: deletion policy branches (`illegal_content_no_backup` /
+  `governed_with_backup`), a referenced-by summary for grouping reference
+  cleanup into one proposal, backup evidence fields or a no-backup
+  attestation in the preview, an operator-entered reason, and an idempotency
+  key.
+
+Required revisions before acceptance:
+
+1. Re-argue the candidate from the delta above, not from absence.
+2. Decide the contract vehicle with issue #116 (duplicate ability
+   registration and default destructive package policy) in view:
+   - new `npcink-abilities-toolkit/delete-attachment` id with the governed
+     contract, leaving `delete-media-permanently` as the plain force-delete
+     granularity (mirroring how `trash-post` and `delete-post-permanently`
+     coexist), or
+   - extend `delete-media-permanently` in place — noting that making
+     `deletion_policy_branch` and `reason` required breaks existing callers
+     and therefore effectively requires a new contract version anyway.
+3. Keep the existing acceptance checklist unchanged; it already binds
+   implementation to the no-backup proof, audit-without-content-retention,
+   and restore-coverage constraints.
