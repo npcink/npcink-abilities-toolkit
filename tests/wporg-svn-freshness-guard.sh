@@ -32,6 +32,9 @@ case "\$mode" in
 		printf 'M         3581125   trunk/foo*bar.php\n'
 		printf 'Status against revision: 3723664\n'
 		;;
+	no-trailer)
+		# Exit 0 with no status trailer at all.
+		;;
 	network-error)
 		echo 'svn: E175013: Unable to connect to a repository at URL' >&2
 		exit 1
@@ -57,6 +60,11 @@ grep -q "stale relative to the WordPress.org remote" "$TMPDIR_ROOT/stale.err" \
 
 if ! PATH="$FAKE_BIN:$PATH" FAKE_SVN_MODE=star-in-path bash "$GUARD" "$FAKE_WC" >/dev/null 2>&1; then
 	echo "Freshness guard treated a literal '*' in a path as an out-of-date marker." >&2
+	exit 1
+fi
+
+if PATH="$FAKE_BIN:$PATH" FAKE_SVN_MODE=no-trailer bash "$GUARD" "$FAKE_WC" >/dev/null 2>&1; then
+	echo "Freshness guard accepted output without a remote revision trailer." >&2
 	exit 1
 fi
 
