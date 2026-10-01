@@ -3,6 +3,8 @@
 .distignore
 .gitattributes
 .gitignore
+.zcode
+.zcodeignore
 AGENTS.md
 CONTRIBUTING.md
 docker-compose.official-stack.yml

@@ -489,7 +489,7 @@ final class Test_Page {
 					<?php $scenario_count = count( (array) ( npcink_abilities_toolkit_get_workflow_definitions()['cases'] ?? array() ) ); ?>
 					<?php if ( $scenario_count > 0 ) : ?>
 						<a class="button" href="<?php echo esc_url( $this->get_technical_url( 'scenarios', 'npcink-abilities-toolkit-scenarios' ) ); ?>">
-							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'View %d Workflow Scenario', 'View %d Workflow Scenarios', $scenario_count, 'npcink-abilities-toolkit' ) ), $scenario_count ); ?>
+							<?php printf( /* translators: %d: published workflow scenario count. */ esc_html( _n( 'View %d Workflow Scenario', 'View %d Workflow Scenarios', $scenario_count, 'npcink-abilities-toolkit' ) ), absint( $scenario_count ) ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>
