@@ -155,6 +155,12 @@ change, or deciding whether a development stage is complete.
     behind the `wp_delete_file` fix, the reconstruction and whitespace-only
     purity proofs for mechanical moves, and the superseded-branch disposal
     procedure.
+24. Read [Release 0.5.6 And Acceptance Review Closeout - 2026-10-02](release-and-acceptance-review-closeout-2026-10-02.md)
+    before preparing any release or accepting an ability candidate; it records
+    why green CI is not release-ready, the local release-lane rule, the
+    `.distignore` guard for local tool artifacts, the stale git daemon socket
+    that breaks Docker smoke mounts, and the fact-check step for candidate
+    premises.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
