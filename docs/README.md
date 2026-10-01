@@ -161,6 +161,11 @@ change, or deciding whether a development stage is complete.
     `.distignore` guard for local tool artifacts, the stale git daemon socket
     that breaks Docker smoke mounts, and the fact-check step for candidate
     premises.
+25. Read [WordPress.org 0.5.6 Post-Publication Closeout - 2026-10-02](wordpress-org-0.5.6-post-publication-closeout-2026-10-02.md)
+    before the next WordPress.org SVN publication; it records the stale
+    working-copy incident, the `svn status -u` pre-commit check, the
+    `0.5.3` to `0.5.6` directory jump, and the delegated Keychain-credential
+    commit precedent.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
