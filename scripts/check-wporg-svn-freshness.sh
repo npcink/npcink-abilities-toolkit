@@ -8,7 +8,7 @@ if [[ -z "$SVN_WC" || ! -d "$SVN_WC/.svn" ]]; then
 	exit 2
 fi
 
-if ! remote_status="$(svn status -u "$SVN_WC")"; then
+if ! remote_status="$(LC_ALL=C svn status -u --non-interactive "$SVN_WC")"; then
 	echo "Could not contact the WordPress.org SVN repository to verify: $SVN_WC" >&2
 	echo "Release preparation must run where the SVN remote is reachable." >&2
 	exit 1
