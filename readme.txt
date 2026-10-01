@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.5
+Stable tag: 0.5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -164,6 +164,15 @@ For isolated bounded-chain performance validation, run:
 `composer perf:smoke`
 
 == Changelog ==
+
+= 0.5.6 =
+
+* Fixed `rename-media-file` commits, which previously failed after copying and discarded the copied file, and corrected expired-backup cleanup history timing.
+* Restructured the admin tools page into two audience tabs: a one-screen Overview for site owners and task-based sub navigation for developers.
+* Added five machine-readable workflow recipes (article-production, media-seo-handoff, media-governance-scan, site-operations-scan, diagnostics-triage) with replay-fixture locks.
+* Documented the host-agnostic Host Approval Contract for governing write and destructive commits.
+* Added ability response-shape registration and scope-semantics contract drift gates.
+* Backfilled the bundled zh_CN locale to full parity.
 
 = 0.5.5 =
 
