@@ -2,6 +2,7 @@
 
 ## 0.5.6 - 2026-10-02
 
+- Escaped the admin workflow scenario-count output and excluded local agent-tool dotfiles from release packaging, keeping the packaged Plugin Check error-free.
 - Extracted the cloud derivative adoption and compare-and-swap transaction machinery into `Cloud_Media_Write_Methods` as the second evidence-triggered write-side slice (crossed by at least five merged PRs since the pause); `Core_Write_Package.php` shrinks from 8,220 to 6,588 lines with no ability id, schema, callback, dry-run, or authorization change.
 - Fixed two write paths that treated void-returning `wp_delete_file()` as a boolean: `rename-media-file` commits now verify the delete with `is_file()` instead of always failing and discarding the copied target, and expired-backup cleanup records expiry on the run that removes the file instead of lagging a cycle. The unit-test `wp_delete_file` stub now returns void like WordPress core, so both paths are tested under core-faithful semantics.
 - Extracted the media backup lifecycle (retention cleanup, restore transactions, replacement lineage) into `Media_Backup_Write_Methods` as the evidence-triggered write-side slice recorded in the structural split plan; `Core_Write_Package.php` shrinks from 9,263 to 8,220 lines with no ability id, schema, callback, dry-run, or authorization change.
