@@ -1,7 +1,8 @@
 # Delete Attachment Ability Candidate
 
-Status: under revision after the 2026-10-02 acceptance review; see the review
-section at the end before implementing.
+Status: revised per the 2026-10-02 acceptance review; contract vehicle decided
+(new id, see below); accepted for implementation, gated on the acceptance
+checklist at the end.
 
 ## Host Workflow Proof
 
@@ -26,6 +27,41 @@ A write-like WordPress ability with a mandatory dry-run preview, owned here as
 a reusable contract and callback, executed only after host approval through
 the existing governed handoff (Core proposal, Adapter profile, Toolkit
 callback).
+
+## Contract Vehicle Decision (2026-10-02)
+
+Decision: register a **new `npcink-abilities-toolkit/delete-attachment` id**
+and leave `npcink-abilities-toolkit/delete-media-permanently` unchanged as
+the plain force-delete granularity. This decision was recorded with
+[issue #116](https://github.com/npcink/npcink-abilities-toolkit/issues/116)
+(duplicate ability registration and default destructive package policy) in
+view, but does not resolve that issue's open questions.
+
+Rationale:
+
+- Making `deletion_policy_branch`, `reason`, and `idempotency_key` required
+  inputs on the existing id would break every current caller of
+  `delete-media-permanently`. The frozen public contract rules allow additive
+  optional fields only, so in-place extension would effectively force a new
+  contract version anyway — the review reached the same conclusion.
+- The destructive package already ships coexisting granularities of the same
+  underlying action: `trash-post` and `delete-post-permanently` differ by
+  governance level, not by capability. `delete-attachment` (governed
+  dual-branch deletion with reason, idempotency, reference summary, and
+  backup policy) versus `delete-media-permanently` (plain forced deletion
+  with a minimal preview) follows that precedent.
+- This pair is not a duplicate registration: the two ids declare different
+  input schemas, previews, and post-conditions, and hosts choose between them
+  by governance need. The general policy for silently skipped same-name
+  registrations stays with issue #116; whichever behavior #116 mandates, this
+  pair remains distinguishable by contract, so the decision here does not
+  preclude it.
+- Host adoption is explicit: the flagged-media-review workflow that motivated
+  this candidate switches to the new id; existing `delete-media-permanently`
+  consumers keep working unchanged.
+
+Implementers must document this differentiation in both abilities'
+descriptions when registering, so the catalog shows why both exist.
 
 ## Input Schema
 
@@ -136,3 +172,20 @@ Required revisions before acceptance:
 3. Keep the existing acceptance checklist unchanged; it already binds
    implementation to the no-backup proof, audit-without-content-retention,
    and restore-coverage constraints.
+
+## Revision Record (2026-10-02)
+
+All three required revisions from the acceptance review are complete:
+
+1. The candidate is argued from the verified delta over
+   `delete-media-permanently` (see Host Workflow Proof and the verified-facts
+   list above), not from absence.
+2. The contract vehicle is decided: a new `delete-attachment` id, with the
+   rationale and the #116 interplay recorded in the Contract Vehicle Decision
+   section above.
+3. The acceptance checklist is unchanged and still gates implementation.
+
+The candidate is accepted for implementation. Implementation must satisfy
+every checklist item and register through the standard helpers; the
+cross-repo matrix and Core governance catalog updates are part of that
+checklist, not of this document revision.
