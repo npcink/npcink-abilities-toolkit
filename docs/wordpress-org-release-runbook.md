@@ -54,6 +54,15 @@ composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 
+`composer release:prepare-wporg` verifies the SVN working copy against the
+remote with `scripts/check-wporg-svn-freshness.sh` and fails closed when any
+path is out of date. A stale working copy must be refreshed with
+`svn update` or replaced with a fresh checkout before preparing a release;
+this guard exists because a release was once staged onto a June-era checkout
+and the phantom scheduled adds would have failed the commit. When preparing
+manually, run `svn status -u` yourself and require zero `*` markers plus only
+the intended trunk update and the single new tag directory.
+
 Release packaging and SVN preparation require a clean, non-shallow Git
 worktree. If the requested version already has a Git tag, `HEAD` must match that
 tag's commit exactly. The release ZIP command prints the source commit and

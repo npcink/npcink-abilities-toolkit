@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Added `scripts/check-wporg-svn-freshness.sh` and wired it into `composer release:prepare-wporg`: release preparation now fails closed when the local WordPress.org SVN working copy is out of date against the remote, instead of staging a release onto a stale base whose phantom scheduled adds break the credential commit. Covered by the new `composer test:wporg-svn-freshness-guard` gate, which runs in `composer test:all`.
+
 ## 0.5.6 - 2026-10-02
 
 - Escaped the admin workflow scenario-count output and excluded local agent-tool dotfiles from release packaging, keeping the packaged Plugin Check error-free.
