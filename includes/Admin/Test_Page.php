@@ -480,6 +480,8 @@ final class Test_Page {
 
 		<?php $this->render_capability_summary( $registered ); ?>
 
+		<?php $this->render_package_status(); ?>
+
 		<section class="npcink-abilities-toolkit-next" aria-labelledby="npcink-abilities-toolkit-next-title">
 			<h2 id="npcink-abilities-toolkit-next-title"><?php echo esc_html__( 'Next actions', 'npcink-abilities-toolkit' ); ?></h2>
 			<div class="npcink-abilities-toolkit-actions">
@@ -542,6 +544,65 @@ final class Test_Page {
 			</div>
 		</section>
 		<?php
+	}
+
+	/**
+	 * Renders the built-in package enable map for operators.
+	 *
+	 * The map is read-only here; hosts change it with the
+	 * npcink_abilities_toolkit_enabled_packages filter.
+	 *
+	 * @return void
+	 */
+	private function render_package_status() {
+		$packages = $this->get_enabled_packages();
+		$labels   = array(
+			'core_read'             => __( 'Read abilities', 'npcink-abilities-toolkit' ),
+			'core_write'            => __( 'Write abilities', 'npcink-abilities-toolkit' ),
+			'core_destructive'      => __( 'Destructive abilities', 'npcink-abilities-toolkit' ),
+			'core_comment'          => __( 'Comment helpers', 'npcink-abilities-toolkit' ),
+			'npcink_catalog_bridge' => __( 'Npcink catalog bridge', 'npcink-abilities-toolkit' ),
+			'admin_test_page'       => __( 'Admin status page', 'npcink-abilities-toolkit' ),
+			'read_cache_hooks'      => __( 'Read cache refresh', 'npcink-abilities-toolkit' ),
+		);
+		$write_like_enabled = ! empty( $packages['core_write'] ) || ! empty( $packages['core_destructive'] );
+		?>
+		<section class="npcink-abilities-toolkit-packages" aria-labelledby="npcink-abilities-toolkit-packages-title">
+			<h2 id="npcink-abilities-toolkit-packages-title"><?php echo esc_html__( 'Ability packages', 'npcink-abilities-toolkit' ); ?></h2>
+			<p class="description"><?php echo esc_html__( 'Built-in ability bundles currently registered by this plugin. A host product can turn individual bundles on or off.', 'npcink-abilities-toolkit' ); ?></p>
+			<ul class="npcink-abilities-toolkit-packages__list">
+				<?php foreach ( $labels as $slug => $label ) : ?>
+					<?php $enabled = ! empty( $packages[ $slug ] ); ?>
+					<li class="npcink-abilities-toolkit-packages__item is-<?php echo esc_attr( $enabled ? 'on' : 'off' ); ?>">
+						<span class="npcink-abilities-toolkit-packages__label"><?php echo esc_html( $label ); ?></span>
+						<span class="npcink-abilities-toolkit-packages__state"><?php echo esc_html( $enabled ? __( 'On', 'npcink-abilities-toolkit' ) : __( 'Off', 'npcink-abilities-toolkit' ) ); ?></span>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<?php if ( $write_like_enabled ) : ?>
+				<p class="description npcink-abilities-toolkit-packages__write-note">
+					<?php echo esc_html__( 'Write and destructive abilities are registered. They stay dry-run by default and only change content after a host product approves the commit.', 'npcink-abilities-toolkit' ); ?>
+					<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the host approval contract', 'npcink-abilities-toolkit' ); ?></a>
+				</p>
+			<?php endif; ?>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Returns the resolved built-in package enable map.
+	 *
+	 * @return array<string,bool>
+	 */
+	private function get_enabled_packages() {
+		if ( class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) && method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
+			$packages = \Npcink_Abilities_Toolkit\Plugin::instance()->get_enabled_packages();
+			if ( is_array( $packages ) ) {
+				return $packages;
+			}
+		}
+
+		return array();
 	}
 
 	/**

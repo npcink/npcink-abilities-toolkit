@@ -426,6 +426,8 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'View Abilities' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'View Connection Info' ), 'admin overview links post-install users to distinct ability tasks; the card containers and duplicate card headings were removed in favor of a single button row whose labels carry the same task semantics.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'render_package_status' ) && false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-packages__write-note' ), 'admin overview shows the read-only ability package map with a visible write-safeguard note.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'function get_enabled_packages' ), 'plugin exposes the resolved package enable map for admin display.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "'Npcink Abilities Toolkit',\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
@@ -1123,6 +1125,40 @@ foreach ( array( 'execute_callback', 'permission_callback', 'Closure', '/Users/m
 	npcink_abilities_toolkit_assert_true( false === strpos( (string) $runtime_contract_json, $forbidden_fragment ), 'runtime contract JSON omits internal fragment ' . $forbidden_fragment );
 }
 remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] = 7;
+$plugin->bump_read_cache_version_for_post_meta( 1, 42, '_yoast_wpseo_title', 'seo' );
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'post-meta writes outside save_post bump the read-cache version' );
+$plugin->bump_read_cache_version_for_post_meta( 1, 42, '_edit_lock', 'lock' );
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'edit-lock meta churn does not invalidate the read cache' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] );
+
+$health_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $registrar );
+$health_notices->boot();
+$health_notice_actions = isset( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] )
+	? $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices']
+	: array();
+$has_health_notice_render = false;
+foreach ( $health_notice_actions as $health_action ) {
+	if ( is_array( $health_action ) && isset( $health_action[0] ) && $health_action[0] instanceof Npcink_Abilities_Toolkit\Admin\Health_Notices && 'render_notices' === $health_action[1] ) {
+		$has_health_notice_render = true;
+		break;
+	}
+}
+npcink_abilities_toolkit_assert_true( $has_health_notice_render, 'health notices register the admin_notices surface' );
+npcink_abilities_toolkit_assert_true( $has_health_notice_render, 'health notices register the admin_notices surface' );
+$populated_notices = $health_notices->get_active_notices();
+npcink_abilities_toolkit_assert_true( ! isset( $populated_notices['catalog_empty'] ), 'health notices stay silent about an empty catalog when the catalog is populated' );
+npcink_abilities_toolkit_assert_true( isset( $populated_notices['abilities_api_missing'] ), 'health notices fail loud when an Abilities API registration function is unavailable' );
+$empty_categories   = new Category_Registrar();
+$empty_registrar    = new Ability_Registrar( $empty_categories, $contract_normalizer );
+$empty_notices      = ( new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar ) )->get_active_notices();
+npcink_abilities_toolkit_assert_true( isset( $empty_notices['catalog_empty'] ), 'health notices fail loud when the ability catalog is empty' );
+
+$enabled_packages = $plugin->get_enabled_packages();
+npcink_abilities_toolkit_assert_same( 7, count( $enabled_packages ), 'package enable map resolves the full built-in default map without host filters' );
+npcink_abilities_toolkit_assert_same( true, $enabled_packages['core_read'] ?? null, 'package enable map keeps the core read package enabled by default' );
+npcink_abilities_toolkit_assert_same( true, $enabled_packages['core_destructive'] ?? null, 'package enable map keeps destructive abilities on by default; hosts opt out through the filter' );
 
 npcink_abilities_toolkit_assert_true(
 	$registrar->add_write_host_governed(

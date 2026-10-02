@@ -130,6 +130,10 @@ Open Tools -> AI Ability Set, or Npcink AI -> AI Ability Set when a Npcink AI ho
 
 The WordPress Abilities API routes must be available before clients can discover and run abilities. Enable the WordPress Abilities API baseline or compatibility plugin for the target site.
 
+= What does uninstalling remove? =
+
+Uninstalling deletes the plugin's stored options, the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history and backups with the `npcink_abilities_toolkit_uninstall_preserve_media_backups` filter.
+
 == Screenshots ==
 
 1. Site ability status overview with available ability count, write safeguards, host detection, and next actions.

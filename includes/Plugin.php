@@ -7,6 +7,7 @@
 
 namespace Npcink_Abilities_Toolkit;
 
+use Npcink_Abilities_Toolkit\Admin\Health_Notices;
 use Npcink_Abilities_Toolkit\Admin\Test_Page;
 use Npcink_Abilities_Toolkit\Integration\Npcink_Catalog_Bridge;
 use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
@@ -165,6 +166,7 @@ final class Plugin {
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
 			$this->test_page()->boot();
+			( new Health_Notices( $this->abilities ) )->boot();
 			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) && defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
 				add_filter( 'plugin_action_links_' . plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ), array( $this, 'filter_plugin_action_links' ) );
 			}
@@ -356,6 +358,18 @@ final class Plugin {
 	 * @return bool
 	 */
 	private function is_package_enabled( $package ) {
+		$enabled = $this->get_enabled_packages();
+		$package = sanitize_key( $package );
+
+		return ! empty( $enabled[ $package ] );
+	}
+
+	/**
+	 * Returns the resolved built-in package enable map.
+	 *
+	 * @return array<string,bool>
+	 */
+	public function get_enabled_packages() {
 		$defaults = array(
 			'core_read'             => true,
 			'core_write'            => true,
@@ -375,10 +389,8 @@ final class Plugin {
 		 * @param array<string,bool> $defaults Package enable map.
 		 */
 		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_packages', $defaults );
-		$enabled = is_array( $enabled ) ? $enabled : $defaults;
-		$package = sanitize_key( $package );
 
-		return ! empty( $enabled[ $package ] );
+		return is_array( $enabled ) ? $enabled : $defaults;
 	}
 
 	/**
@@ -400,6 +412,31 @@ final class Plugin {
 		add_action( 'add_attachment', array( $this, 'bump_read_cache_version' ), 20 );
 		add_action( 'edit_attachment', array( $this, 'bump_read_cache_version' ), 20 );
 		add_action( 'delete_attachment', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'added_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+		add_action( 'updated_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+		add_action( 'deleted_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+	}
+
+	/**
+	 * Bumps the read-cache version after direct post-meta writes such as
+	 * set-post-seo-meta or adopt-article-audio, which bypass save_post.
+	 *
+	 * High-frequency editing locks are skipped so heartbeat and autosave
+	 * traffic does not invalidate otherwise fresh report caches.
+	 *
+	 * @param mixed  $meta_ids Meta ids.
+	 * @param int    $post_id Post id.
+	 * @param string $meta_key Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @return void
+	 */
+	public function bump_read_cache_version_for_post_meta( $meta_ids, $post_id, $meta_key, $meta_value ) {
+		unset( $meta_ids, $post_id, $meta_value );
+		if ( in_array( (string) $meta_key, array( '_edit_lock', '_edit_last' ), true ) ) {
+			return;
+		}
+
+		$this->bump_read_cache_version();
 	}
 
 	/**
