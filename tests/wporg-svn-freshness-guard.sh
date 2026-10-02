@@ -14,10 +14,9 @@ trap cleanup EXIT
 
 mkdir -p "$FAKE_BIN" "$FAKE_WC/.svn"
 
-fake_svn_mode="${FAKE_SVN_MODE:-fresh}"
 cat > "$FAKE_BIN/svn" <<SCRIPT
 #!/usr/bin/env bash
-mode="\${FAKE_SVN_MODE:-$fake_svn_mode}"
+mode="\${FAKE_SVN_MODE:?FAKE_SVN_MODE not set}"
 case "\$mode" in
 	fresh)
 		printf 'Status against revision: 3723664\n'

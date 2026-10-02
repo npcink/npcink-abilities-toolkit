@@ -8,11 +8,15 @@ if [[ -z "$SVN_WC" || ! -d "$SVN_WC/.svn" ]]; then
 	exit 2
 fi
 
-if ! remote_status="$(LC_ALL=C svn status -u --non-interactive "$SVN_WC")"; then
-	echo "Could not contact the WordPress.org SVN repository to verify: $SVN_WC" >&2
-	echo "Release preparation must run where the SVN remote is reachable." >&2
+svn_error_file="$(mktemp)"
+if ! remote_status="$(LC_ALL=C svn status -u --non-interactive "$SVN_WC" 2>"$svn_error_file")"; then
+	echo "svn status -u failed while verifying: $SVN_WC" >&2
+	cat "$svn_error_file" >&2
+	echo "One common cause is the WordPress.org SVN remote being unreachable; check network access to plugins.svn.wordpress.org." >&2
+	rm -f "$svn_error_file"
 	exit 1
 fi
+rm -f "$svn_error_file"
 
 # svn status -u marks out-of-date paths with "*" in column 9.
 stale_paths="$(printf '%s\n' "$remote_status" | awk 'substr($0, 9, 1) == "*" { print }')"
