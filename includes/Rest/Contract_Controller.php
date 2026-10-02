@@ -81,6 +81,10 @@ final class Contract_Controller {
 		 * @param string $default Default Cache-Control value.
 		 */
 		$value = apply_filters( 'npcink_abilities_toolkit_contract_cache_control', $default );
+		if ( is_string( $value ) && '' !== $value ) {
+			// Keep the first line only so a filter callback cannot smuggle headers.
+			$value = trim( (string) preg_replace( '/[\r\n\t].*/s', '', $value ) );
+		}
 
 		return is_string( $value ) && '' !== $value ? $value : $default;
 	}
@@ -159,8 +163,11 @@ final class Contract_Controller {
 			/*
 			 * Keep cookie-auth nonce rotation alive on the empty 304 path,
 			 * mirroring the X-WP-Nonce header core emits on full responses.
+			 * Skip it under a publicly cacheable policy so shared caches can
+			 * never capture and replay a user-bound nonce.
 			 */
-			if ( function_exists( 'wp_create_nonce' ) ) {
+			$cache_policy = isset( $headers['Cache-Control'] ) ? (string) $headers['Cache-Control'] : '';
+			if ( function_exists( 'wp_create_nonce' ) && false === stripos( $cache_policy, 'public' ) ) {
 				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
 			}
 		}

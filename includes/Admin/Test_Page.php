@@ -562,6 +562,10 @@ final class Test_Page {
 	 */
 	private function render_package_status() {
 		$packages = $this->get_enabled_packages();
+		if ( array() === $packages ) {
+			// Plugin map unavailable; render nothing rather than a misleading all-off list.
+			return;
+		}
 		$labels   = array(
 			'core_read'             => __( 'Read abilities', 'npcink-abilities-toolkit' ),
 			'core_write'            => __( 'Write abilities', 'npcink-abilities-toolkit' ),

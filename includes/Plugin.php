@@ -453,6 +453,10 @@ final class Plugin {
 			 * Filters the post-meta keys whose direct writes invalidate the
 			 * bounded read cache.
 			 *
+			 * The _edit_lock and _edit_last keys stay excluded even when added
+			 * here, so heartbeat and autosave traffic never invalidates the
+			 * cache.
+			 *
 			 * @param array<int,string> $watched Watched meta keys.
 			 */
 			$watched = apply_filters( 'npcink_abilities_toolkit_read_cache_watched_meta_keys', $watched );

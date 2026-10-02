@@ -132,10 +132,12 @@ final class Health_Notices {
 		if ( ! array_key_exists( $notice_id, $this->get_active_notices() ) ) {
 			return;
 		}
-		$dismissed[ $notice_id ] = $this->plugin_version();
-		if ( function_exists( 'update_user_meta' ) && function_exists( 'get_current_user_id' ) ) {
-			update_user_meta( get_current_user_id(), self::USER_META_KEY, $dismissed );
+		if ( ! function_exists( 'update_user_meta' ) || ! function_exists( 'get_current_user_id' ) ) {
+			// Persistence is impossible in this context; do not redirect as success.
+			return;
 		}
+		$dismissed[ $notice_id ] = $this->plugin_version();
+		update_user_meta( get_current_user_id(), self::USER_META_KEY, $dismissed );
 
 		if ( function_exists( 'wp_safe_redirect' ) ) {
 			$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
@@ -159,7 +161,9 @@ final class Health_Notices {
 				<?php echo esc_html( (string) $notice['message'] ); ?>
 			</p>
 			<p>
-				<a class="button button-small" href="<?php echo esc_url( $this->status_page_url() ); ?>"><?php echo esc_html__( 'Review ability status', 'npcink-abilities-toolkit' ); ?></a>
+				<?php if ( $this->status_page_available() ) : ?>
+					<a class="button button-small" href="<?php echo esc_url( $this->status_page_url() ); ?>"><?php echo esc_html__( 'Review ability status', 'npcink-abilities-toolkit' ); ?></a>
+				<?php endif; ?>
 				<a class="button button-small" href="<?php echo esc_url( $this->troubleshooting_url() ); ?>"><?php echo esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' ); ?></a>
 				<a class="npcink-abilities-toolkit-health-notice__dismiss" href="<?php echo esc_url( $this->dismiss_url( $id ) ); ?>"><?php echo esc_html__( 'Dismiss', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
@@ -219,6 +223,24 @@ final class Health_Notices {
 		$url = admin_url( 'admin-post.php?action=' . self::DISMISS_ACTION . '&notice=' . rawurlencode( $id ) );
 
 		return (string) wp_nonce_url( $url, self::DISMISS_ACTION );
+	}
+
+	/**
+	 * Returns whether the admin status page is registered.
+	 *
+	 * The notices stay booted when a host disables the admin_test_page
+	 * package, so the status-page link only renders when the page exists.
+	 *
+	 * @return bool
+	 */
+	private function status_page_available() {
+		if ( ! class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) || ! method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
+			return false;
+		}
+
+		$packages = \Npcink_Abilities_Toolkit\Plugin::instance()->get_enabled_packages();
+
+		return ! empty( $packages['admin_test_page'] );
 	}
 
 	/**

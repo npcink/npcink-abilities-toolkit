@@ -470,15 +470,27 @@
 				labelTimer = window.setTimeout(restoreLabel, 2000);
 			}
 
+			let selectionPrepared = false;
+			function prepareSelection() {
+				if (selectionPrepared) {
+					return;
+				}
+				selectionPrepared = true;
+				if (typeof target.focus === 'function' && typeof target.select === 'function') {
+					target.focus();
+					target.select();
+					return true;
+				}
+				return false;
+			}
+
 			try {
 				if (navigator.clipboard && navigator.clipboard.writeText) {
 					await navigator.clipboard.writeText(value);
 					flashLabel(copiedLabel);
 					return;
 				}
-				if (typeof target.focus === 'function' && typeof target.select === 'function' && document.execCommand) {
-					target.focus();
-					target.select();
+				if (document.execCommand && prepareSelection()) {
 					if (document.execCommand('copy')) {
 						flashLabel(copiedLabel);
 						return;
@@ -486,10 +498,7 @@
 				}
 				throw new Error('clipboard unavailable');
 			} catch (error) {
-				if (typeof target.focus === 'function' && typeof target.select === 'function') {
-					target.focus();
-					target.select();
-				} else {
+				if (!prepareSelection()) {
 					const fallbackOutput = findOutputFor(button);
 					if (fallbackOutput) {
 						fallbackOutput.hidden = false;
