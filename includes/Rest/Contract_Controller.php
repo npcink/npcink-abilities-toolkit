@@ -23,6 +23,13 @@ final class Contract_Controller {
 	const ABILITY_CONTRACT_SOURCE = 'npcink_abilities_toolkit';
 
 	/**
+	 * Whether the not-modified serve filter was registered for this process.
+	 *
+	 * @var bool
+	 */
+	private static $serve_filter_registered = false;
+
+	/**
 	 * Registers REST routes.
 	 *
 	 * @return void
@@ -43,9 +50,39 @@ final class Contract_Controller {
 				),
 			)
 		);
-		if ( function_exists( 'add_filter' ) ) {
+		if ( function_exists( 'add_filter' ) && ! self::$serve_filter_registered ) {
+			self::$serve_filter_registered = true;
 			add_filter( 'rest_pre_serve_request', array( $this, 'maybe_send_not_modified' ), 10, 4 );
 		}
+	}
+
+	/**
+	 * Returns the cache policy for the contract response.
+	 *
+	 * The default forces revalidation on every poll; the paired ETag makes
+	 * that revalidation an empty 304, so clients never hold a stale contract
+	 * just because a max-age window has not elapsed.
+	 *
+	 * @return string
+	 */
+	private function cache_control() {
+		$default = 'private, no-cache';
+
+		if ( ! function_exists( 'apply_filters' ) ) {
+			return $default;
+		}
+
+		/**
+		 * Filters the Cache-Control header for the runtime contract response.
+		 *
+		 * Hosts that accept a short staleness window can return for example
+		 * 'private, max-age=300'.
+		 *
+		 * @param string $default Default Cache-Control value.
+		 */
+		$value = apply_filters( 'npcink_abilities_toolkit_contract_cache_control', $default );
+
+		return is_string( $value ) && '' !== $value ? $value : $default;
 	}
 
 	/**
@@ -63,7 +100,7 @@ final class Contract_Controller {
 		$response->set_headers(
 			array(
 				'ETag'          => $this->contract_etag( $data ),
-				'Cache-Control' => 'private, max-age=300',
+				'Cache-Control' => $this->cache_control(),
 			)
 		);
 

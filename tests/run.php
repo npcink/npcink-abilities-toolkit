@@ -1375,7 +1375,7 @@ $etag_response = $catalog_honesty_controller->serve_contract();
 npcink_abilities_toolkit_assert_true( $etag_response instanceof WP_REST_Response, 'contract route serves a cache-validated response object' );
 $etag_headers  = $etag_response instanceof WP_REST_Response ? $etag_response->get_headers() : array();
 npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $etag_headers['ETag'] ?? '' ), '"sha256:' ), 'contract ETag is a quoted sha256 digest' );
-npcink_abilities_toolkit_assert_same( 'private, max-age=300', $etag_headers['Cache-Control'] ?? '', 'contract response opts into short private caching' );
+npcink_abilities_toolkit_assert_same( 'private, no-cache', $etag_headers['Cache-Control'] ?? '', 'contract response forces ETag revalidation on every poll by default' );
 $second_etag_response = $catalog_honesty_controller->serve_contract();
 npcink_abilities_toolkit_assert_same( $etag_headers['ETag'], $second_etag_response instanceof WP_REST_Response ? $second_etag_response->get_headers()['ETag'] : '', 'contract ETag stays stable for identical payloads' );
 

@@ -451,7 +451,8 @@
 				return;
 			}
 
-			const originalLabel = button.textContent;
+			const originalLabel = button.getAttribute('data-original-label') || button.textContent;
+			button.setAttribute('data-original-label', originalLabel);
 			const value = target.value || target.textContent || '';
 			let labelTimer = null;
 			function restoreLabel() {

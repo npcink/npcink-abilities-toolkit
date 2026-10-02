@@ -20,6 +20,28 @@ $GLOBALS['npcink_uninstall_deleted_meta_keys'] = array();
 $GLOBALS['npcink_uninstall_preserve_media_backups'] = false;
 
 $npcink_uninstall_uploads = sys_get_temp_dir() . '/npcink-uninstall-test-' . getmypid();
+register_shutdown_function( static function () use ( $npcink_uninstall_uploads ) {
+	if ( is_dir( $npcink_uninstall_uploads ) ) {
+		$npcink_uninstall_stack = array( $npcink_uninstall_uploads );
+		while ( $npcink_uninstall_stack ) {
+			$npcink_uninstall_dir = array_pop( $npcink_uninstall_stack );
+			foreach ( (array) scandir( $npcink_uninstall_dir ) as $npcink_uninstall_entry ) {
+				if ( '.' === $npcink_uninstall_entry || '..' === $npcink_uninstall_entry ) {
+					continue;
+				}
+				$npcink_uninstall_path = $npcink_uninstall_dir . '/' . $npcink_uninstall_entry;
+				if ( is_dir( $npcink_uninstall_path ) && ! is_link( $npcink_uninstall_path ) ) {
+					$npcink_uninstall_stack[] = $npcink_uninstall_path;
+				} elseif ( is_link( $npcink_uninstall_path ) ) {
+					@unlink( $npcink_uninstall_path );
+				} elseif ( is_file( $npcink_uninstall_path ) ) {
+					@unlink( $npcink_uninstall_path );
+				}
+			}
+			@rmdir( $npcink_uninstall_dir );
+		}
+	}
+} );
 $npcink_uninstall_backups = $npcink_uninstall_uploads . '/npcink-abilities-toolkit-backups';
 @mkdir( $npcink_uninstall_backups . '/2026/01', 0777, true );
 @mkdir( $npcink_uninstall_uploads . '/unrelated', 0777, true );

@@ -128,7 +128,10 @@ final class Health_Notices {
 			return;
 		}
 
-		$dismissed            = $this->get_dismissed_notices();
+		$dismissed = $this->get_dismissed_notices();
+		if ( ! array_key_exists( $notice_id, $this->get_active_notices() ) ) {
+			return;
+		}
 		$dismissed[ $notice_id ] = $this->plugin_version();
 		if ( function_exists( 'update_user_meta' ) && function_exists( 'get_current_user_id' ) ) {
 			update_user_meta( get_current_user_id(), self::USER_META_KEY, $dismissed );
