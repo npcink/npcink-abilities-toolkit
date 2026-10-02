@@ -1171,15 +1171,16 @@ $empty_registrar    = new Ability_Registrar( $empty_categories, $contract_normal
 $empty_notices      = ( new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar ) )->get_active_notices();
 npcink_abilities_toolkit_assert_true( isset( $empty_notices['catalog_empty'] ), 'health notices fail loud when the ability catalog is empty' );
 
-if ( ! function_exists( 'check_admin_referer' ) ) {
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
 	/**
 	 * Accepts only the well-known test nonce value for one action.
 	 *
+	 * @param string $nonce Nonce value.
 	 * @param string $action Nonce action.
 	 * @return bool
 	 */
-	function check_admin_referer( $action ) {
-		return isset( $_REQUEST['_wpnonce'] ) && '_valid_' . $action === (string) wp_unslash( $_REQUEST['_wpnonce'] );
+	function wp_verify_nonce( $nonce, $action = '' ) {
+		return '_valid_' . $action === (string) $nonce;
 	}
 }
 if ( ! function_exists( 'get_user_meta' ) ) {

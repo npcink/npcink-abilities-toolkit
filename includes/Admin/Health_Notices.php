@@ -119,31 +119,48 @@ final class Health_Notices {
 			}
 			return;
 		}
-		if ( ! function_exists( 'check_admin_referer' ) || ! check_admin_referer( self::DISMISS_ACTION ) ) {
+		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? (string) wp_unslash( $_REQUEST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '' === $dismiss_nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $dismiss_nonce, self::DISMISS_ACTION ) ) {
+			$this->redirect_back();
 			return;
 		}
 
 		$notice_id = isset( $_REQUEST['notice'] ) ? sanitize_key( wp_unslash( $_REQUEST['notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $notice_id ) {
+			$this->redirect_back();
 			return;
 		}
 
 		$dismissed = $this->get_dismissed_notices();
 		if ( ! array_key_exists( $notice_id, $this->get_active_notices() ) ) {
+			$this->redirect_back();
 			return;
 		}
 		if ( ! function_exists( 'update_user_meta' ) || ! function_exists( 'get_current_user_id' ) ) {
-			// Persistence is impossible in this context; do not redirect as success.
+			// Persistence is impossible in this context; still send the user back.
+			$this->redirect_back();
 			return;
 		}
 		$dismissed[ $notice_id ] = $this->plugin_version();
 		update_user_meta( get_current_user_id(), self::USER_META_KEY, $dismissed );
 
-		if ( function_exists( 'wp_safe_redirect' ) ) {
-			$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
-			wp_safe_redirect( '' !== $referer ? $referer : admin_url( 'plugins.php' ) );
-			exit;
+		$this->redirect_back();
+	}
+
+	/**
+	 * Redirects the dismissal flow back to its referer so admin-post never
+	 * renders a blank dead-end page.
+	 *
+	 * @return void
+	 */
+	private function redirect_back() {
+		if ( ! function_exists( 'wp_safe_redirect' ) ) {
+			return;
 		}
+
+		$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
+		wp_safe_redirect( '' !== $referer ? $referer : admin_url( 'plugins.php' ) );
+		exit;
 	}
 
 	/**

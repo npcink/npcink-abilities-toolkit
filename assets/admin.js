@@ -415,7 +415,7 @@
 				setCheckSummary(summarizeReadonlyPayload(payload, checkLabel || check));
 				return;
 			}
-			targetOutput.value = requestFailedLabel + ': HTTP ' + response.status + '\n\n' + text;
+			targetOutput.value = 'HTTP ' + response.status + '\n\n' + text;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
