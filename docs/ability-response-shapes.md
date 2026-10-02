@@ -1,7 +1,7 @@
 # Ability Response Shapes
 
 Status: active contract guidance.
-Date: 2026-09-29
+Date: 2026-09-29. Convergence decision added 2026-10-02.
 
 This document defines the response shape families for read-risk abilities and
 the registration gate that keeps them from drifting silently. External clients
@@ -28,6 +28,30 @@ that paginate with `pages`/`has_more` instead of `items` (`list-pages`).
 **Unifying these families is a future contract decision, not a maintenance
 edit.** Live consumers across repositories already parse every family, so any
 unification must go through a contract review with consumer migration notes.
+
+## Convergence Decision (2026-10-02)
+
+The shape review on 2026-10-02 recorded the following decision instead of
+changing live contracts in place:
+
+1. **Existing families are frozen.** No currently registered ability changes
+   family, marker keys, or pagination field names. Consumers keep a single
+   parser per family and no migration is required.
+2. **New read abilities register in `success_envelope` only.** A new read
+   ability must declare `success` plus `data`/`meta` so its derived family is
+   `success_envelope`; registrations for new ids in `raw` or
+   `paginated_collection` need an explicit contract-review note in the PR.
+3. **New list abilities use the shared pagination contract.** Input:
+   `page` (1-based) and `per_page` (default 20, maximum 100). Response:
+   rows under `data.items`, totals under `data.total`, and the echoed
+   `page`/`per_page` under `meta`. The pre-existing mixed defaults
+   (10/20/50/100) and caps (50/100) stay as-is for existing abilities.
+4. **A later major contract version may migrate existing abilities** to the
+   unified envelope with compatibility aliases and consumer migration notes;
+   that migration is out of scope for maintenance edits.
+
+The registration gate below keeps enforcing all three live families while
+this convergence path runs; nothing in this section weakens the fixture.
 
 ## Registration Gate
 

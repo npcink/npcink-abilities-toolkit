@@ -1146,7 +1146,6 @@ foreach ( $health_notice_actions as $health_action ) {
 	}
 }
 npcink_abilities_toolkit_assert_true( $has_health_notice_render, 'health notices register the admin_notices surface' );
-npcink_abilities_toolkit_assert_true( $has_health_notice_render, 'health notices register the admin_notices surface' );
 $populated_notices = $health_notices->get_active_notices();
 npcink_abilities_toolkit_assert_true( ! isset( $populated_notices['catalog_empty'] ), 'health notices stay silent about an empty catalog when the catalog is populated' );
 npcink_abilities_toolkit_assert_true( isset( $populated_notices['abilities_api_missing'] ), 'health notices fail loud when an Abilities API registration function is unavailable' );
@@ -1159,6 +1158,101 @@ $enabled_packages = $plugin->get_enabled_packages();
 npcink_abilities_toolkit_assert_same( 7, count( $enabled_packages ), 'package enable map resolves the full built-in default map without host filters' );
 npcink_abilities_toolkit_assert_same( true, $enabled_packages['core_read'] ?? null, 'package enable map keeps the core read package enabled by default' );
 npcink_abilities_toolkit_assert_same( true, $enabled_packages['core_destructive'] ?? null, 'package enable map keeps destructive abilities on by default; hosts opt out through the filter' );
+
+$catalog_honesty_controller = new Contract_Controller();
+npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->contract()['compatibility']['ability_catalog_available'] ?? null, 'runtime contract reports ability_catalog_available honestly when the Abilities API catalog route is absent' );
+if ( ! function_exists( 'rest_get_server' ) ) {
+	/**
+	 * Supplies a live catalog route for contract honesty assertions.
+	 *
+	 * @return object
+	 */
+	function rest_get_server() {
+		return new class() {
+			/**
+			 * Returns the fake route table.
+			 *
+			 * @return array<string,mixed>
+			 */
+			public function get_routes() {
+				return array( '/wp-abilities/v1/abilities' => array() );
+			}
+		};
+	}
+}
+npcink_abilities_toolkit_assert_same( true, $catalog_honesty_controller->contract()['compatibility']['ability_catalog_available'] ?? null, 'runtime contract reports ability_catalog_available when the Abilities API catalog route is live' );
+
+if ( ! class_exists( 'WP_REST_Response' ) ) {
+	/**
+	 * Minimal response stand-in for cache-header assertions.
+	 */
+	class WP_REST_Response {
+		/**
+		 * Response data.
+		 *
+		 * @var mixed
+		 */
+		public $data;
+
+		/**
+		 * Response headers.
+		 *
+		 * @var array<string,string>
+		 */
+		private $headers = array();
+
+		/**
+		 * Constructor.
+		 *
+		 * @param mixed $data Response data.
+		 */
+		public function __construct( $data = null ) {
+			$this->data = $data;
+		}
+
+		/**
+		 * Sets response headers.
+		 *
+		 * @param array<string,string> $headers Headers.
+		 * @return void
+		 */
+		public function set_headers( $headers ) {
+			$this->headers = $headers;
+		}
+
+		/**
+		 * Returns response headers.
+		 *
+		 * @return array<string,string>
+		 */
+		public function get_headers() {
+			return $this->headers;
+		}
+	}
+}
+$etag_response = $catalog_honesty_controller->serve_contract();
+npcink_abilities_toolkit_assert_true( $etag_response instanceof WP_REST_Response, 'contract route serves a cache-validated response object' );
+$etag_headers  = $etag_response instanceof WP_REST_Response ? $etag_response->get_headers() : array();
+npcink_abilities_toolkit_assert_true( 0 === strpos( (string) ( $etag_headers['ETag'] ?? '' ), '"sha256:' ), 'contract ETag is a quoted sha256 digest' );
+npcink_abilities_toolkit_assert_same( 'private, max-age=300', $etag_headers['Cache-Control'] ?? '', 'contract response opts into short private caching' );
+$second_etag_response = $catalog_honesty_controller->serve_contract();
+npcink_abilities_toolkit_assert_same( $etag_headers['ETag'], $second_etag_response instanceof WP_REST_Response ? $second_etag_response->get_headers()['ETag'] : '', 'contract ETag stays stable for identical payloads' );
+
+$not_modified_request = new class() {
+	/**
+	 * Returns the contract route.
+	 *
+	 * @return string
+	 */
+	public function get_route() {
+		return '/npcink-abilities-toolkit/v1/contract';
+	}
+};
+$_SERVER['HTTP_IF_NONE_MATCH'] = (string) ( $etag_headers['ETag'] ?? '' );
+npcink_abilities_toolkit_assert_same( true, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint answers a matching If-None-Match as served-not-modified' );
+$_SERVER['HTTP_IF_NONE_MATCH'] = '"sha256:different"';
+npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint keeps serving the body when If-None-Match differs' );
+unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
 
 npcink_abilities_toolkit_assert_true(
 	$registrar->add_write_host_governed(
