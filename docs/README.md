@@ -166,6 +166,13 @@ change, or deciding whether a development stage is complete.
     working-copy incident, the `svn status -u` pre-commit check, the
     `0.5.3` to `0.5.6` directory jump, and the delegated Keychain-credential
     commit precedent.
+26. Read [User Experience Hardening Closeout - 2026-10-02](user-experience-hardening-closeout-2026-10-02.md)
+    before handling advisory code-review rounds, touching the contract
+    endpoint's cache headers, or widening cache invalidation hooks; it
+    records the converging review-loop protocol (batch a round, fetch
+    authoritative thread ids, fix-or-decline-with-rationale), the declined
+    findings with their reasoning, the watched-key invalidation scope, the
+    304 header-suppression rules, and the symlink-safe uninstall deletion.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.
