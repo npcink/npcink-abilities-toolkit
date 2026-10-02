@@ -415,7 +415,7 @@
 				setCheckSummary(summarizeReadonlyPayload(payload, checkLabel || check));
 				return;
 			}
-			const failureNote = response.status >= 400 ? ' (' + requestFailedLabel + ')' : '';
+			const failureNote = response.ok ? '' : ' (' + requestFailedLabel + ')';
 			targetOutput.value = 'HTTP ' + response.status + failureNote + '\n\n' + text;
 			setCheckSummary([
 				{

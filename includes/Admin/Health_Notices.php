@@ -164,6 +164,9 @@ final class Health_Notices {
 
 		$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
 		$url     = '' !== $referer ? $referer : admin_url( 'plugins.php' );
+		if ( function_exists( 'remove_query_arg' ) ) {
+			$url = remove_query_arg( 'npcink_abilities_toolkit_notice_error', $url );
+		}
 		if ( '' !== $error_code && function_exists( 'add_query_arg' ) ) {
 			$url = add_query_arg( 'npcink_abilities_toolkit_notice_error', sanitize_key( $error_code ), $url );
 		}
