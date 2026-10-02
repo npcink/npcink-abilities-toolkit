@@ -26,7 +26,7 @@ $npcink_uninstall_backups = $npcink_uninstall_uploads . '/npcink-abilities-toolk
 file_put_contents( $npcink_uninstall_backups . '/2026/01/backup.jpg', 'backup-bytes' );
 file_put_contents( $npcink_uninstall_backups . '/top.png', 'backup-bytes' );
 file_put_contents( $npcink_uninstall_uploads . '/unrelated/keep.txt', 'keep' );
-@symlink( $npcink_uninstall_uploads . '/unrelated', $npcink_uninstall_backups . '/linked-outside' );
+$npcink_uninstall_symlinks_supported = @symlink( $npcink_uninstall_uploads . '/unrelated', $npcink_uninstall_backups . '/linked-outside' ) !== false;
 
 function wp_clear_scheduled_hook( $hook ) {
 	$GLOBALS['npcink_uninstall_cleared_hooks'][] = (string) $hook;
@@ -43,6 +43,9 @@ function wp_clear_scheduled_hook( $hook ) {
 function apply_filters( $tag, $value ) {
 	if ( 'npcink_abilities_toolkit_uninstall_preserve_media_backups' === $tag ) {
 		return $GLOBALS['npcink_uninstall_preserve_media_backups'];
+	}
+	if ( 'npcink_abilities_toolkit_uninstall_preserve_media_history' === $tag ) {
+		return isset( $GLOBALS['npcink_uninstall_preserve_media_history'] ) ? $GLOBALS['npcink_uninstall_preserve_media_history'] : $value;
 	}
 	return $value;
 }
@@ -164,7 +167,7 @@ if ( ! is_file( $npcink_uninstall_uploads . '/unrelated/keep.txt' ) || is_dir( $
 	fwrite( STDERR, "Uninstall removed uploads content outside its backups directory.\n" );
 	exit( 1 );
 }
-if ( is_link( $npcink_uninstall_backups . '/linked-outside' ) ) {
+if ( $npcink_uninstall_symlinks_supported && is_link( $npcink_uninstall_backups . '/linked-outside' ) ) {
 	fwrite( STDERR, "Uninstall left a symlinked backup entry behind.\n" );
 	exit( 1 );
 }
@@ -172,26 +175,49 @@ if ( is_link( $npcink_uninstall_backups . '/linked-outside' ) ) {
 $npcink_uninstall_linked_root = $npcink_uninstall_backups;
 @mkdir( $npcink_uninstall_uploads . '/linked-root-target', 0777, true );
 file_put_contents( $npcink_uninstall_uploads . '/linked-root-target/keep.txt', 'keep' );
-@symlink( $npcink_uninstall_uploads . '/linked-root-target', $npcink_uninstall_linked_root );
+$npcink_uninstall_root_symlink_created = @symlink( $npcink_uninstall_uploads . '/linked-root-target', $npcink_uninstall_linked_root ) !== false;
 npcink_abilities_toolkit_uninstall_remove_backups_directory();
-if ( is_link( $npcink_uninstall_linked_root ) ) {
-	fwrite( STDERR, "Uninstall did not remove a symlinked backups directory link.\n" );
-	exit( 1 );
-}
-if ( ! is_file( $npcink_uninstall_uploads . '/linked-root-target/keep.txt' ) ) {
-	fwrite( STDERR, "Uninstall descended through a symlinked backups directory.\n" );
-	exit( 1 );
+if ( $npcink_uninstall_root_symlink_created ) {
+	if ( is_link( $npcink_uninstall_linked_root ) ) {
+		fwrite( STDERR, "Uninstall did not remove a symlinked backups directory link.\n" );
+		exit( 1 );
+	}
+	if ( ! is_file( $npcink_uninstall_uploads . '/linked-root-target/keep.txt' ) ) {
+		fwrite( STDERR, "Uninstall descended through a symlinked backups directory.\n" );
+		exit( 1 );
+	}
+} elseif ( is_link( $npcink_uninstall_linked_root ) ) {
+	fwrite( STDERR, "Symlink fixtures could not be created on this platform; the symlink safeguards ran against the regular tree only.\n" );
 }
 npcink_abilities_toolkit_uninstall_rrmdir( $npcink_uninstall_uploads . '/linked-root-target' );
 
 $GLOBALS['npcink_uninstall_preserve_media_backups'] = true;
+$GLOBALS['npcink_uninstall_preserve_media_history'] = true;
 @mkdir( $npcink_uninstall_backups . '/2026/01', 0777, true );
 file_put_contents( $npcink_uninstall_backups . '/2026/01/backup.jpg', 'backup-bytes' );
+$npcink_uninstall_deleted_meta_keys_backup = $GLOBALS['npcink_uninstall_deleted_meta_keys'];
 npcink_abilities_toolkit_uninstall_media_backup_artifacts();
 if ( ! is_file( $npcink_uninstall_backups . '/2026/01/backup.jpg' ) ) {
-	fwrite( STDERR, "Preserve filter did not keep host-owned media backups.\n" );
+	fwrite( STDERR, "Preserve filters did not keep host-owned media backups and history.\n" );
 	exit( 1 );
 }
+if ( $GLOBALS['npcink_uninstall_deleted_meta_keys'] !== $npcink_uninstall_deleted_meta_keys_backup ) {
+	fwrite( STDERR, "Preserve history filter did not keep the media history meta.\n" );
+	exit( 1 );
+}
+
+$GLOBALS['npcink_uninstall_preserve_media_history'] = true;
+$GLOBALS['npcink_uninstall_preserve_media_backups'] = false;
+npcink_abilities_toolkit_uninstall_media_backup_artifacts();
+if ( is_file( $npcink_uninstall_backups . '/2026/01/backup.jpg' ) || is_dir( $npcink_uninstall_backups ) ) {
+	fwrite( STDERR, "History preservation must not keep backup files on disk.\n" );
+	exit( 1 );
+}
+if ( $GLOBALS['npcink_uninstall_deleted_meta_keys'] !== $npcink_uninstall_deleted_meta_keys_backup ) {
+	fwrite( STDERR, "History-only preservation still deleted the media history meta.\n" );
+	exit( 1 );
+}
+unset( $GLOBALS['npcink_uninstall_preserve_media_backups'], $GLOBALS['npcink_uninstall_preserve_media_history'] );
 
 npcink_abilities_toolkit_uninstall_rrmdir( $npcink_uninstall_uploads );
 

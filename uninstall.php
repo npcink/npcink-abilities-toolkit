@@ -31,9 +31,12 @@ function npcink_abilities_toolkit_uninstall_current_site() {
 /**
  * Removes media replacement history meta and backup files owned by Toolkit.
  *
- * Hosts that keep their own media lineage evidence can set the
- * npcink_abilities_toolkit_uninstall_preserve_media_backups filter to true;
- * the history meta uses the shared legacy _npcink_ai_ prefix.
+ * Two filters control what stays behind: hosts that keep their own media
+ * lineage evidence can set npcink_abilities_toolkit_uninstall_preserve_media_backups
+ * to keep the backup files, and npcink_abilities_toolkit_uninstall_preserve_media_history
+ * (which defaults to the backup setting) to keep the history meta. The history
+ * meta uses the shared legacy _npcink_ai_ prefix, so hosts integrating with a
+ * predecessor plugin usually want to preserve it.
  *
  * @return void
  */
@@ -41,15 +44,21 @@ function npcink_abilities_toolkit_uninstall_media_backup_artifacts() {
 	$preserve = false;
 	if ( function_exists( 'apply_filters' ) ) {
 		$preserve = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_backups', false );
-	}
-	if ( $preserve ) {
-		return;
+		$preserve_history = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_history', $preserve );
+	} else {
+		$preserve_history = false;
 	}
 
-	foreach ( array( '_npcink_ai_media_file_replacement_history', '_npcink_ai_media_latest_file_replacement' ) as $npcink_abilities_toolkit_meta_key ) {
-		if ( function_exists( 'delete_post_meta_by_key' ) ) {
-			delete_post_meta_by_key( $npcink_abilities_toolkit_meta_key );
+	if ( ! $preserve_history ) {
+		foreach ( array( '_npcink_ai_media_file_replacement_history', '_npcink_ai_media_latest_file_replacement' ) as $npcink_abilities_toolkit_meta_key ) {
+			if ( function_exists( 'delete_post_meta_by_key' ) ) {
+				delete_post_meta_by_key( $npcink_abilities_toolkit_meta_key );
+			}
 		}
+	}
+
+	if ( $preserve ) {
+		return;
 	}
 
 	npcink_abilities_toolkit_uninstall_remove_backups_directory();

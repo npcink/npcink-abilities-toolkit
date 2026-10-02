@@ -153,6 +153,11 @@ final class Plugin {
 		}
 		$this->categories->boot();
 		$this->abilities->boot();
+		/*
+		 * Health notices surface silent failure modes; they must stay visible
+		 * even when a host disables the admin status page package.
+		 */
+		( new Health_Notices( $this->abilities ) )->boot();
 		if ( $this->is_package_enabled( 'core_read' ) ) {
 			$this->core_read_package()->boot();
 		}
@@ -173,7 +178,6 @@ final class Plugin {
 		}
 		if ( $this->is_package_enabled( 'admin_test_page' ) ) {
 			$this->test_page()->boot();
-			( new Health_Notices( $this->abilities ) )->boot();
 			if ( function_exists( 'add_filter' ) && function_exists( 'plugin_basename' ) && defined( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) {
 				add_filter( 'plugin_action_links_' . plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ), array( $this, 'filter_plugin_action_links' ) );
 			}

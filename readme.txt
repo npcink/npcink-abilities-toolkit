@@ -139,7 +139,7 @@ The WordPress Abilities API routes must be available before clients can discover
 
 = What does uninstalling remove? =
 
-Uninstalling deletes the plugin's stored options, the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history and backups with the `npcink_abilities_toolkit_uninstall_preserve_media_backups` filter.
+Uninstalling deletes the plugin's stored options, the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the `npcink_abilities_toolkit_uninstall_preserve_media_history` and `npcink_abilities_toolkit_uninstall_preserve_media_backups` filters; the history filter defaults to the backup setting.
 
 == Screenshots ==
 

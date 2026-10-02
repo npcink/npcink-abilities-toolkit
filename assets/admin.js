@@ -3,6 +3,20 @@
 		return (context || document).querySelector('[data-npcink-abilities-toolkit-output]');
 	}
 
+	/**
+	 * Resolves the output element for one button: its own section first, then
+	 * the enclosing tab panel (each sub-view renders exactly one output), and
+	 * finally the page-level first match.
+	 */
+	function findOutputFor(button) {
+		if (!button) {
+			return findOutput();
+		}
+		return findOutput(button.closest('section'))
+			|| findOutput(button.closest('.npcink-abilities-toolkit-tab-panel'))
+			|| findOutput();
+	}
+
 	const output = findOutput();
 	const root = output ? output.closest('.npcink-abilities-toolkit-admin') : null;
 	const checkSummary = document.getElementById('npcink-abilities-toolkit-check-summary');
@@ -315,7 +329,7 @@
 	async function runRequest(url, options) {
 		options = options || {};
 		const button = options.button || null;
-		const targetOutput = (button && findOutput(button.closest('section'))) || output;
+		const targetOutput = findOutputFor(button);
 		if (!targetOutput) {
 			return;
 		}
@@ -361,7 +375,7 @@
 		if (!adminAjaxUrl) {
 			return;
 		}
-		const targetOutput = (button && findOutput(button.closest('section'))) || output;
+		const targetOutput = findOutputFor(button);
 		if (!targetOutput) {
 			return;
 		}
