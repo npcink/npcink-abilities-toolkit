@@ -1,7 +1,7 @@
 # GitHub Publication And Continuous Gates
 
 Status: active operations note.
-Last verified: 2026-07-30.
+Last verified: 2026-10-02.
 
 This note records the public GitHub handoff and the current continuous
 performance and security gates for `npcink-abilities-toolkit`.
@@ -14,14 +14,15 @@ The canonical public source repository is:
 https://github.com/npcink/npcink-abilities-toolkit
 ```
 
-GitHub repository state verified on 2026-07-30:
+GitHub repository state verified on 2026-10-02:
 
 - owner/name: `npcink/npcink-abilities-toolkit`;
 - visibility: public;
 - default branch: `master`;
 - published branch: `master`;
 - published release tags: `0.2.0`, `0.4.0`, `0.5.0`, `0.5.1`, `0.5.2`,
-  and `0.5.3`;
+  `0.5.3`, `0.5.4`, `0.5.5`, and `0.5.6` (`0.5.4` and `0.5.5` were
+  Git-only releases; `0.5.6` is the current WordPress.org stable tag);
 - maintenance marker: `pre-refactor-2026-07-14`.
 
 ## Master Branch Protection
@@ -75,6 +76,7 @@ It now includes:
 - ability catalog audit;
 - WordPress.org review guard;
 - release-source immutability regression;
+- WordPress.org SVN working-copy freshness regression;
 - WordPress smoke lifecycle restoration regression;
 - single-site and multisite uninstall cleanup regression;
 - bounded performance smoke;
@@ -121,9 +123,45 @@ tag's workflow still runs PHP `7.2` while the package already requires
 Do not move the published `0.5.0` tag only to make that historical CI green.
 Use the current `master` baseline for the next patch release instead.
 
+## Auto-Merge Operational Lessons (2026-10-02)
+
+Recorded after the `0.5.6` closeout pull requests (#174–#176) went through
+protected squash auto-merge.
+
+**Advisory review threads gate auto-merge.** The OpenCodeReview workflow
+posts fresh inline comments on every push, and required conversation
+resolution blocks auto-merge while any thread is unresolved — even with
+every required check green. Diagnose with the PR's `reviewThreads` (GraphQL)
+before assuming CI is stuck.
+
+**End the advisory-review loop deliberately.** Every push can trigger one
+more round of low-severity findings. Fix real findings with code, but once a
+round only produces nits that keep regenerating, record why each finding is
+acceptable in a thread reply, resolve the thread, and stop pushing; the
+merge then proceeds on the existing green head. Pushing again to chase the
+latest nit restarts the cycle.
+
+**A sibling merge stalls older pull requests.** With strict up-to-date
+checks, merging one PR first puts still-open PRs into the `BEHIND` state and
+auto-merge waits indefinitely. Merge `origin/master` into the topic branch
+and push; checks rerun and auto-merge resumes.
+
+**Squash merges need verified branch deletion.** After a squash merge,
+`git branch -d` refuses ("not fully merged") because the original commits
+are not ancestors of the squash commit. Verify the content landed with an
+empty `git diff <branch> master` for the PR's files, then delete with
+`git branch -D`.
+
+**Local tool hangs are transient.** During this session `gh`, `curl`, and
+one `composer` script run each stalled once (no code defect; retries and
+direct REST calls recovered). When the `gh` CLI hangs, `curl` against
+`api.github.com` with the token from `gh auth token` usually still works;
+parse API JSON with `strict=False` because review bodies can contain raw
+control characters.
+
 ## Future Release Follow-Up
 
-Before the next public patch release after `0.5.3`:
+Before the next public patch release after `0.5.6`:
 
 1. Run the release gate from a clean, verified source checkout:
 

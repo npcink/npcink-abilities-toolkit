@@ -82,6 +82,26 @@ WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g
 composer release:verify
 ```
 
+The `run/<hash>` socket path rotates whenever Local.app restarts a site, so
+treat any concrete hash in examples as historical. List the live sockets
+first and use the current one:
+
+```sh
+ls ~/Library/Application\ Support/Local/run/*/mysql/mysqld.sock
+```
+
+Only one site's MySQL runs at a time here, and two site directories can
+share the `local` database name, so a WP-CLI query through the wrong site's
+socket silently reads the other site's data — always confirm the returned
+`siteurl` matches the site you intend to touch. When the
+`WP_CLI_MYSQL_SOCKET` variable is not honored, the reliable form is to pass
+the socket straight to PHP:
+
+```sh
+php -d mysqli.default_socket="/path/to/mysqld.sock" \
+  /opt/homebrew/bin/wp --path="/Users/muze/Local Sites/magick-ai/app/public" plugin list
+```
+
 When the local Docker daemon is unavailable, generate exact-revision M4
 compatibility evidence first and pass it to the same release gate:
 
