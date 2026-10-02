@@ -95,6 +95,14 @@
 	line-height: 1.2;
 }
 
+.npcink-abilities-toolkit-status__detail {
+	color: #646970;
+	display: block;
+	font-size: 12px;
+	line-height: 1.4;
+	margin-top: 4px;
+}
+
 .npcink-abilities-toolkit-next {
 	margin-top: 20px;
 	max-width: 1100px;
@@ -151,6 +159,50 @@
 .npcink-abilities-toolkit-capability-summary__groups li .npcink-abilities-toolkit-capability-summary__write {
 	color: #996800;
 	font-size: 11px;
+}
+
+.npcink-abilities-toolkit-packages {
+	margin: 16px 0 4px;
+	max-width: 960px;
+}
+
+.npcink-abilities-toolkit-packages__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	list-style: none;
+	margin: 10px 0 12px;
+}
+
+.npcink-abilities-toolkit-packages__list .npcink-abilities-toolkit-packages__item {
+	align-items: baseline;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	display: inline-flex;
+	gap: 8px;
+	margin: 0;
+	padding: 4px 10px;
+}
+
+.npcink-abilities-toolkit-packages__item .npcink-abilities-toolkit-packages__state {
+	font-size: 11px;
+	font-weight: 600;
+}
+
+.npcink-abilities-toolkit-packages__item.is-on .npcink-abilities-toolkit-packages__state {
+	color: #00a32a;
+}
+
+.npcink-abilities-toolkit-packages__item.is-off .npcink-abilities-toolkit-packages__state {
+	color: #8c8f94;
+}
+
+.npcink-abilities-toolkit-packages__write-note {
+	background: #fcf9e8;
+	border-left: 4px solid #dba617;
+	max-width: 720px;
+	padding: 8px 12px;
 }
 
 .npcink-abilities-toolkit-subnav {

@@ -7,6 +7,7 @@
 
 namespace Npcink_Abilities_Toolkit;
 
+use Npcink_Abilities_Toolkit\Admin\Health_Notices;
 use Npcink_Abilities_Toolkit\Admin\Test_Page;
 use Npcink_Abilities_Toolkit\Integration\Npcink_Catalog_Bridge;
 use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
@@ -99,6 +100,20 @@ final class Plugin {
 	private $booted = false;
 
 	/**
+	 * Whether the read-cache version was already bumped for post-meta this request.
+	 *
+	 * @var bool
+	 */
+	private $read_cache_version_bumped_for_meta = false;
+
+	/**
+	 * Memoized watched post-meta keys for read-cache invalidation.
+	 *
+	 * @var array<int,string>|null
+	 */
+	private $watched_post_meta_keys = null;
+
+	/**
 	 * Returns the shared plugin instance.
 	 *
 	 * @return Plugin
@@ -145,6 +160,11 @@ final class Plugin {
 		}
 		$this->categories->boot();
 		$this->abilities->boot();
+		/*
+		 * Health notices surface silent failure modes; they must stay visible
+		 * even when a host disables the admin status page package.
+		 */
+		( new Health_Notices( $this->abilities ) )->boot();
 		if ( $this->is_package_enabled( 'core_read' ) ) {
 			$this->core_read_package()->boot();
 		}
@@ -356,6 +376,18 @@ final class Plugin {
 	 * @return bool
 	 */
 	private function is_package_enabled( $package ) {
+		$enabled = $this->get_enabled_packages();
+		$package = sanitize_key( $package );
+
+		return ! empty( $enabled[ $package ] );
+	}
+
+	/**
+	 * Returns the resolved built-in package enable map.
+	 *
+	 * @return array<string,bool>
+	 */
+	public function get_enabled_packages() {
 		$defaults = array(
 			'core_read'             => true,
 			'core_write'            => true,
@@ -375,10 +407,8 @@ final class Plugin {
 		 * @param array<string,bool> $defaults Package enable map.
 		 */
 		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_packages', $defaults );
-		$enabled = is_array( $enabled ) ? $enabled : $defaults;
-		$package = sanitize_key( $package );
 
-		return ! empty( $enabled[ $package ] );
+		return is_array( $enabled ) ? $enabled : $defaults;
 	}
 
 	/**
@@ -400,6 +430,81 @@ final class Plugin {
 		add_action( 'add_attachment', array( $this, 'bump_read_cache_version' ), 20 );
 		add_action( 'edit_attachment', array( $this, 'bump_read_cache_version' ), 20 );
 		add_action( 'delete_attachment', array( $this, 'bump_read_cache_version' ), 20 );
+		add_action( 'added_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+		add_action( 'updated_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+		add_action( 'deleted_post_meta', array( $this, 'bump_read_cache_version_for_post_meta' ), 20, 4 );
+	}
+
+	/**
+	 * Returns whether one post-meta write should invalidate the read cache.
+	 *
+	 * The read-cache reports only consume the SEO provider keys and the
+	 * Toolkit's own media metadata, so unrelated high-frequency meta traffic
+	 * (order meta, view counters) does not thrash the cache.
+	 *
+	 * @param string $meta_key Meta key.
+	 * @return bool
+	 */
+	private function is_watched_post_meta_key( $meta_key ) {
+		if ( null !== $this->watched_post_meta_keys ) {
+			return in_array( (string) $meta_key, $this->watched_post_meta_keys, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
+		}
+
+		$watched = array(
+			'_yoast_wpseo_title',
+			'_yoast_wpseo_metadesc',
+			'rank_math_title',
+			'rank_math_description',
+			'_aioseo_title',
+			'_aioseo_description',
+		);
+
+		if ( function_exists( 'apply_filters' ) ) {
+			/**
+			 * Filters the post-meta keys whose direct writes invalidate the
+			 * bounded read cache.
+			 *
+			 * The _edit_lock and _edit_last keys stay excluded even when added
+			 * here, so heartbeat and autosave traffic never invalidates the
+			 * cache.
+			 *
+			 * @param array<int,string> $watched Watched meta keys.
+			 */
+			$watched = apply_filters( 'npcink_abilities_toolkit_read_cache_watched_meta_keys', $watched );
+		}
+		$this->watched_post_meta_keys = is_array( $watched ) ? array_values( array_map( 'strval', $watched ) ) : array();
+
+		return in_array( (string) $meta_key, $this->watched_post_meta_keys, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
+	}
+
+	/**
+	 * Bumps the read-cache version after direct post-meta writes such as
+	 * set-post-seo-meta or adopt-article-audio, which bypass save_post.
+	 *
+	 * One bump per request is enough to invalidate report transients; bulk
+	 * meta operations would otherwise repeat the option round-trip per key.
+	 *
+	 * @param mixed  $meta_ids Meta ids.
+	 * @param int    $post_id Post id.
+	 * @param string $meta_key Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 * @return void
+	 */
+	public function bump_read_cache_version_for_post_meta( $meta_ids, $post_id, $meta_key, $meta_value ) {
+		unset( $meta_ids, $post_id, $meta_value );
+		if ( in_array( (string) $meta_key, array( '_edit_lock', '_edit_last' ), true ) ) {
+			return;
+		}
+		if ( ! $this->is_watched_post_meta_key( $meta_key ) ) {
+			return;
+		}
+
+		if ( $this->read_cache_version_bumped_for_meta ) {
+			return;
+		}
+		$this->read_cache_version_bumped_for_meta = true;
+
+		$this->bump_read_cache_version();
 	}
 
 	/**

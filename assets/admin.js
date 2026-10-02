@@ -1,5 +1,23 @@
 (function () {
-	const output = document.getElementById('npcink-abilities-toolkit-admin-output');
+	function findOutput(context) {
+		return (context || document).querySelector('[data-npcink-abilities-toolkit-output]');
+	}
+
+	/**
+	 * Resolves the output element for one button: its own section first, then
+	 * the enclosing tab panel (each sub-view renders exactly one output), and
+	 * finally the page-level first match.
+	 */
+	function findOutputFor(button) {
+		if (!button) {
+			return findOutput();
+		}
+		return findOutput(button.closest('section'))
+			|| findOutput(button.closest('.npcink-abilities-toolkit-tab-panel'))
+			|| findOutput();
+	}
+
+	const output = findOutput();
 	const root = output ? output.closest('.npcink-abilities-toolkit-admin') : null;
 	const checkSummary = document.getElementById('npcink-abilities-toolkit-check-summary');
 	const checkSummaryBody = document.getElementById('npcink-abilities-toolkit-check-summary-body');
@@ -10,6 +28,8 @@
 	const copiedLabel = root ? root.getAttribute('data-copied-label') : 'Copied';
 	const requestingLabel = root ? root.getAttribute('data-requesting-label') : 'Requesting';
 	const runningLabel = root ? root.getAttribute('data-running-label') : 'Running';
+	const requestFailedLabel = root ? root.getAttribute('data-request-failed-label') : 'Request failed';
+	const copyFailedLabel = root ? root.getAttribute('data-copy-failed-label') : 'Copy failed';
 	const summaryLabels = parseSummaryLabels();
 
 	function parseSummaryLabels() {
@@ -294,14 +314,29 @@
 		return rows;
 	}
 
+	function setButtonBusy(button, busy) {
+		if (!button) {
+			return;
+		}
+		button.disabled = busy;
+		if (busy) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+	}
+
 	async function runRequest(url, options) {
-		if (!output) {
+		options = options || {};
+		const button = options.button || null;
+		const targetOutput = findOutputFor(button);
+		if (!targetOutput) {
 			return;
 		}
 
-		options = options || {};
-		output.hidden = false;
-		output.value = requestingLabel + ' ' + url + ' ...';
+		setButtonBusy(button, true);
+		targetOutput.hidden = false;
+		targetOutput.value = requestingLabel + ' ' + url + ' ...';
 		try {
 			const headers = {
 				'X-WP-Nonce': nonce,
@@ -322,25 +357,32 @@
 			try {
 				body = JSON.stringify(JSON.parse(text), null, 2);
 			} catch (error) {}
-			output.value = 'HTTP ' + response.status + '\n\n' + body;
+			targetOutput.value = 'HTTP ' + response.status + '\n\n' + body;
 		} catch (error) {
-			output.value = String(error && error.message ? error.message : error);
+			targetOutput.value = requestFailedLabel + ': ' + String(error && error.message ? error.message : error) + '\n\n' + url;
+		} finally {
+			setButtonBusy(button, false);
 		}
 	}
 
 	document.querySelectorAll('[data-npcink-abilities-toolkit-fetch]').forEach(function (button) {
 		button.addEventListener('click', function () {
-			runRequest(button.getAttribute('data-npcink-abilities-toolkit-fetch'));
+			runRequest(button.getAttribute('data-npcink-abilities-toolkit-fetch'), { button: button });
 		});
 	});
 
-	async function runReadonlyCheck(check, checkLabel) {
-		if (!output || !adminAjaxUrl) {
+	async function runReadonlyCheck(check, checkLabel, button) {
+		if (!adminAjaxUrl) {
+			return;
+		}
+		const targetOutput = findOutputFor(button);
+		if (!targetOutput) {
 			return;
 		}
 
-		output.hidden = false;
-		output.value = runningLabel + ' ' + check + ' ...';
+		setButtonBusy(button, true);
+		targetOutput.hidden = false;
+		targetOutput.value = runningLabel + ' ' + check + ' ...';
 		setCheckSummary([
 			{
 				item: summaryLabel('check', 'Check'),
@@ -369,11 +411,11 @@
 				payload = JSON.parse(text);
 			} catch (error) {}
 			if (payload && typeof payload === 'object' && 'status' in payload) {
-				output.value = 'REST ' + payload.status + '\n\n' + JSON.stringify(payload.body, null, 2);
+				targetOutput.value = 'REST ' + payload.status + '\n\n' + JSON.stringify(payload.body, null, 2);
 				setCheckSummary(summarizeReadonlyPayload(payload, checkLabel || check));
 				return;
 			}
-			output.value = 'HTTP ' + response.status + '\n\n' + text;
+			targetOutput.value = requestFailedLabel + ': HTTP ' + response.status + '\n\n' + text;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -383,7 +425,7 @@
 			]);
 		} catch (error) {
 			const message = String(error && error.message ? error.message : error);
-			output.value = message;
+			targetOutput.value = requestFailedLabel + ': ' + message;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -391,12 +433,14 @@
 					details: message
 				}
 			]);
+		} finally {
+			setButtonBusy(button, false);
 		}
 	}
 
 	document.querySelectorAll('[data-npcink-abilities-toolkit-readonly-check]').forEach(function (button) {
 		button.addEventListener('click', function () {
-			runReadonlyCheck(button.getAttribute('data-npcink-abilities-toolkit-readonly-check'), button.textContent.trim());
+			runReadonlyCheck(button.getAttribute('data-npcink-abilities-toolkit-readonly-check'), button.textContent.trim(), button);
 		});
 	});
 
@@ -407,19 +451,63 @@
 				return;
 			}
 
+			const originalLabel = button.getAttribute('data-original-label') || button.textContent;
+			button.setAttribute('data-original-label', originalLabel);
 			const value = target.value || target.textContent || '';
-			try {
-				await navigator.clipboard.writeText(value);
-				button.textContent = copiedLabel;
-			} catch (error) {
-				if (typeof target.focus === 'function') {
+			let labelTimer = null;
+			function restoreLabel() {
+				if (labelTimer) {
+					window.clearTimeout(labelTimer);
+					labelTimer = null;
+				}
+				button.textContent = originalLabel;
+			}
+			function flashLabel(label) {
+				button.textContent = label;
+				if (labelTimer) {
+					window.clearTimeout(labelTimer);
+				}
+				labelTimer = window.setTimeout(restoreLabel, 2000);
+			}
+
+			let selectionPrepared = false;
+			function selectionSupported() {
+				return typeof target.focus === 'function' && typeof target.select === 'function';
+			}
+			function prepareSelection() {
+				if (!selectionSupported()) {
+					return false;
+				}
+				if (!selectionPrepared) {
+					selectionPrepared = true;
 					target.focus();
-				}
-				if (typeof target.select === 'function') {
 					target.select();
-				} else if (output) {
-					output.value = value;
 				}
+				return true;
+			}
+
+			try {
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					await navigator.clipboard.writeText(value);
+					flashLabel(copiedLabel);
+					return;
+				}
+				if (document.execCommand && prepareSelection()) {
+					if (document.execCommand('copy')) {
+						flashLabel(copiedLabel);
+						return;
+					}
+				}
+				throw new Error('clipboard unavailable');
+			} catch (error) {
+				if (!prepareSelection()) {
+					const fallbackOutput = findOutputFor(button);
+					if (fallbackOutput) {
+						fallbackOutput.hidden = false;
+						fallbackOutput.value = value;
+					}
+				}
+				flashLabel(copyFailedLabel);
 			}
 		});
 	});

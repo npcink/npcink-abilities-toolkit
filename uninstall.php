@@ -25,6 +25,116 @@ function npcink_abilities_toolkit_uninstall_current_site() {
 	delete_option( 'npcink_abilities_toolkit_read_cache_version' );
 	delete_option( 'npcink_abilities_toolkit_media_backup_cleanup_cursor' );
 	delete_option( 'npcink_abilities_toolkit_media_backup_manual_cleanup_cursor' );
+	npcink_abilities_toolkit_uninstall_media_backup_artifacts();
+}
+
+/**
+ * Removes media replacement history meta and backup files owned by Toolkit.
+ *
+ * Two filters control what stays behind: hosts that keep their own media
+ * lineage evidence can set npcink_abilities_toolkit_uninstall_preserve_media_backups
+ * to keep the backup files, and npcink_abilities_toolkit_uninstall_preserve_media_history
+ * (which defaults to the backup setting) to keep the history meta. The history
+ * meta uses the shared legacy _npcink_ai_ prefix, so hosts integrating with a
+ * predecessor plugin usually want to preserve it.
+ *
+ * @return void
+ */
+function npcink_abilities_toolkit_uninstall_media_backup_artifacts() {
+	$preserve = false;
+	if ( function_exists( 'apply_filters' ) ) {
+		$preserve = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_backups', false );
+		$preserve_history = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_history', $preserve );
+	} else {
+		$preserve_history = false;
+	}
+
+	if ( ! $preserve_history ) {
+		foreach ( array( '_npcink_ai_media_file_replacement_history', '_npcink_ai_media_latest_file_replacement' ) as $npcink_abilities_toolkit_meta_key ) {
+			if ( function_exists( 'delete_post_meta_by_key' ) ) {
+				delete_post_meta_by_key( $npcink_abilities_toolkit_meta_key );
+			}
+		}
+	}
+
+	if ( $preserve ) {
+		return;
+	}
+
+	npcink_abilities_toolkit_uninstall_remove_backups_directory();
+}
+
+/**
+ * Removes the dedicated uploads backup directory tree.
+ *
+ * @return void
+ */
+function npcink_abilities_toolkit_uninstall_remove_backups_directory() {
+	if ( ! function_exists( 'wp_upload_dir' ) ) {
+		return;
+	}
+
+	$npcink_abilities_toolkit_uploads = wp_upload_dir();
+	$npcink_abilities_toolkit_basedir = isset( $npcink_abilities_toolkit_uploads['basedir'] ) && is_string( $npcink_abilities_toolkit_uploads['basedir'] )
+		? rtrim( $npcink_abilities_toolkit_uploads['basedir'], '/\\' )
+		: '';
+	if ( '' === $npcink_abilities_toolkit_basedir ) {
+		return;
+	}
+
+	$npcink_abilities_toolkit_backup_dir = $npcink_abilities_toolkit_basedir . '/npcink-abilities-toolkit-backups';
+	if ( is_link( $npcink_abilities_toolkit_backup_dir ) ) {
+		// Never descend through a symlinked backup directory; remove the link only.
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $npcink_abilities_toolkit_backup_dir );
+		} else {
+			@unlink( $npcink_abilities_toolkit_backup_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+		return;
+	}
+	if ( is_dir( $npcink_abilities_toolkit_backup_dir ) ) {
+		npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_backup_dir );
+	}
+}
+
+/**
+ * Recursively removes one directory and its files.
+ *
+ * @param string $directory Absolute directory path.
+ * @return void
+ */
+function npcink_abilities_toolkit_uninstall_rrmdir( $directory ) {
+	$npcink_abilities_toolkit_entries = is_dir( $directory ) ? scandir( $directory ) : false;
+	if ( ! is_array( $npcink_abilities_toolkit_entries ) ) {
+		return;
+	}
+
+	foreach ( $npcink_abilities_toolkit_entries as $npcink_abilities_toolkit_entry ) {
+		if ( '.' === $npcink_abilities_toolkit_entry || '..' === $npcink_abilities_toolkit_entry ) {
+			continue;
+		}
+		$npcink_abilities_toolkit_path = $directory . '/' . $npcink_abilities_toolkit_entry;
+		if ( is_link( $npcink_abilities_toolkit_path ) ) {
+			// Treat symlinks as files: unlink the link itself, never its target.
+			if ( function_exists( 'wp_delete_file' ) ) {
+				wp_delete_file( $npcink_abilities_toolkit_path );
+			} else {
+				@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+			continue;
+		}
+		if ( is_dir( $npcink_abilities_toolkit_path ) ) {
+			npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_path );
+			continue;
+		}
+		if ( is_file( $npcink_abilities_toolkit_path ) && function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $npcink_abilities_toolkit_path );
+		} elseif ( is_file( $npcink_abilities_toolkit_path ) ) {
+			@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+	}
+
+	@rmdir( $directory ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 }
 
 if ( is_multisite() && function_exists( 'get_sites' ) ) {

@@ -43,6 +43,13 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability is inert as a dry-r
 * The WordPress Abilities API REST routes must be available before third-party
   provider plugins or external clients can discover and run abilities.
 
+== Installation ==
+
+1. Install and activate the plugin through the Plugins screen, or upload the plugin folder to wp-content/plugins/ and activate it from there.
+2. Confirm the site runs WordPress 6.9 or later so the Abilities API registration functions and REST routes exist.
+3. Open Tools -> AI Ability Set (or Npcink AI -> AI Ability Set when a Npcink AI host menu is present) and check that the site ability status is working.
+4. To expose abilities from your own plugin, register them on plugins_loaded through the public helpers listed under Public API; see the Third-Party Integration Quickstart below.
+
 == Public API ==
 
 * `npcink_abilities_toolkit_register_category( $category_id, $args )`
@@ -88,7 +95,7 @@ catalog and does not run abilities.
 Full provider examples and REST client notes are maintained in the public
 repository:
 
-`https://github.com/muze-page/npcink-abilities-toolkit`
+`https://github.com/npcink/npcink-abilities-toolkit`
 
 If the `wp-abilities/v1` REST routes are missing, enable the WordPress
 Abilities API baseline or compatibility plugin before connecting third-party
@@ -98,7 +105,7 @@ providers or clients.
 
 After activation with a Npcink AI host plugin, open Npcink AI -> AI Ability Set in wp-admin. When this standalone package is installed without a Npcink AI host menu, open Tools -> AI Ability Set instead.
 
-The page is designed for site operators first: it shows site ability status, groups available abilities with plain labels and risk posture, and can run two official read-only checks: site info and bounded redacted diagnostics summary. The Checks tab explains what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. Developer Access keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities. The Tools -> AI Ability Set page remains the standalone surface when no Npcink AI host menu is active; host detection must not create approval, quota, audit, or workflow control-plane behavior in this plugin.
+The page is designed for site operators first: it shows site ability status, the ability package list with write safeguards, plain-language capability groups, and next actions. Under Developer Tools, the Checks view can run two official read-only checks: site info and bounded redacted diagnostics summary, explaining what each check proves and what it does not prove before it runs. Check results are shown as a plain summary table, with raw JSON kept behind a support disclosure. The Connection view keeps copyable REST endpoint values, raw discovery fetches, and ability ID export available for host/client setup. It does not run showcase workflows, model calls, write abilities, approval flows, or demo abilities. The Tools -> AI Ability Set page remains the standalone surface when no Npcink AI host menu is active; host detection must not create approval, quota, audit, or workflow control-plane behavior in this plugin.
 
 == Frequently Asked Questions ==
 
@@ -130,12 +137,18 @@ Open Tools -> AI Ability Set, or Npcink AI -> AI Ability Set when a Npcink AI ho
 
 The WordPress Abilities API routes must be available before clients can discover and run abilities. Enable the WordPress Abilities API baseline or compatibility plugin for the target site.
 
+= What does uninstalling remove? =
+
+Uninstalling deletes the plugin's stored options, the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the `npcink_abilities_toolkit_uninstall_preserve_media_history` and `npcink_abilities_toolkit_uninstall_preserve_media_backups` filters; the history filter defaults to the backup setting.
+
 == Screenshots ==
 
-1. Site ability status overview with available ability count, write safeguards, host detection, and next actions.
-2. Available Abilities catalog with filters, risk grouping, availability, and technical details for support.
-3. Safe Checks tab explaining what each check proves before showing summary results and raw response support details.
-4. Developer Access tab with copyable REST endpoint values, raw discovery fetches, and ability ID export.
+1. Overview tab: site ability status tiles, the ability package list with write safeguards, plain-language capability groups, and next actions.
+2. Ability Catalog view under Developer Tools: searchable catalog with filters, risk grouping, availability, and technical details for support.
+3. Checks view under Developer Tools: read-only checks explained before running, summary results, and raw responses kept behind a support disclosure.
+4. Connection view under Developer Tools: copyable REST endpoint values, raw discovery fetches, and ability ID export.
+
+Refresh the SVN screenshot assets before the next WordPress.org release whenever the admin page layout changes; the descriptions above describe the current Overview + Developer Tools structure.
 
 == Built-In Abilities ==
 
@@ -149,19 +162,7 @@ It also includes `npcink-abilities-toolkit/list-workflow-recipes` and `npcink-ab
 
 Core governance handoff docs include a catalog snapshot, permission matrix, and schema boundary audit for hosts that consume this plugin through `npcink-ai-core`.
 
-== Developer Verification ==
-
-For the default local source gate, run:
-
-`composer test:all`
-
-When the plugin is installed in a local WordPress site, run:
-
-`WP_PATH=/path/to/wordpress composer smoke:wp`
-
-For isolated bounded-chain performance validation, run:
-
-`composer perf:smoke`
+Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
 

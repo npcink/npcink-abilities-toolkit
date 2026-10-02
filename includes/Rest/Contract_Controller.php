@@ -23,6 +23,13 @@ final class Contract_Controller {
 	const ABILITY_CONTRACT_SOURCE = 'npcink_abilities_toolkit';
 
 	/**
+	 * Whether the not-modified serve filter was registered for this process.
+	 *
+	 * @var bool
+	 */
+	private static $serve_filter_registered = false;
+
+	/**
 	 * Registers REST routes.
 	 *
 	 * @return void
@@ -38,11 +45,192 @@ final class Contract_Controller {
 			array(
 				array(
 					'methods'             => 'GET',
-					'callback'            => array( $this, 'contract' ),
+					'callback'            => array( $this, 'serve_contract' ),
 					'permission_callback' => array( $this, 'can_read_contract' ),
 				),
 			)
 		);
+		if ( function_exists( 'add_filter' ) && ! self::$serve_filter_registered ) {
+			self::$serve_filter_registered = true;
+			add_filter( 'rest_pre_serve_request', array( $this, 'maybe_send_not_modified' ), 10, 4 );
+		}
+	}
+
+	/**
+	 * Returns the cache policy for the contract response.
+	 *
+	 * The default forces revalidation on every poll; the paired ETag makes
+	 * that revalidation an empty 304, so clients never hold a stale contract
+	 * just because a max-age window has not elapsed.
+	 *
+	 * @return string
+	 */
+	private function cache_control() {
+		$default = 'private, no-cache';
+
+		if ( ! function_exists( 'apply_filters' ) ) {
+			return $default;
+		}
+
+		/**
+		 * Filters the Cache-Control header for the runtime contract response.
+		 *
+		 * Hosts that accept a short staleness window can return for example
+		 * 'private, max-age=300'.
+		 *
+		 * @param string $default Default Cache-Control value.
+		 */
+		$value = apply_filters( 'npcink_abilities_toolkit_contract_cache_control', $default );
+		if ( is_string( $value ) && '' !== $value ) {
+			// Keep the first line only so a filter callback cannot smuggle headers.
+			$value = trim( (string) preg_replace( '/[\r\n\t].*/s', '', $value ) );
+		}
+
+		return is_string( $value ) && '' !== $value ? $value : $default;
+	}
+
+	/**
+	 * Serves the contract with cache validation headers.
+	 *
+	 * @return array<string,mixed>|\WP_REST_Response
+	 */
+	public function serve_contract() {
+		$data = $this->contract();
+		if ( ! class_exists( '\WP_REST_Response' ) ) {
+			return $data;
+		}
+
+		$response = new \WP_REST_Response( $data );
+		$response->set_headers(
+			array(
+				'ETag'          => $this->contract_etag( $data ),
+				'Cache-Control' => $this->cache_control(),
+			)
+		);
+
+		return $response;
+	}
+
+	/**
+	 * Answers If-None-Match with an empty 304 for the contract route.
+	 *
+	 * Clients that already hold the contract identified by its ETag avoid
+	 * re-downloading the full payload on every poll.
+	 *
+	 * @param mixed         $served Whether the request was already served.
+	 * @param mixed         $result Response result.
+	 * @param mixed         $request Request.
+	 * @param mixed         $server REST server.
+	 * @return bool
+	 */
+	public function maybe_send_not_modified( $served, $result, $request, $server ) {
+		unset( $server );
+
+		if ( $served ) {
+			return (bool) $served;
+		}
+		if ( ! is_object( $result ) || ! method_exists( $result, 'get_headers' ) ) {
+			return (bool) $served;
+		}
+		if ( ! is_object( $request ) || ! method_exists( $request, 'get_route' ) ) {
+			return (bool) $served;
+		}
+		if ( '/' . self::NAMESPACE . '/contract' !== (string) $request->get_route() ) {
+			return (bool) $served;
+		}
+
+		$headers = $result->get_headers();
+		$etag    = isset( $headers['ETag'] ) ? (string) $headers['ETag'] : '';
+		if ( '' === $etag ) {
+			return (bool) $served;
+		}
+
+		$if_none_match = isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			? trim( (string) ( function_exists( 'wp_unslash' ) ? wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) : $_SERVER['HTTP_IF_NONE_MATCH'] ) )
+			: '';
+		if ( '' === $if_none_match || ! $this->etag_matches( $etag, $if_none_match ) ) {
+			return (bool) $served;
+		}
+
+		if ( function_exists( 'status_header' ) ) {
+			status_header( 304 );
+		}
+		if ( function_exists( 'header' ) ) {
+			header( 'ETag: ' . $etag );
+			if ( isset( $headers['Cache-Control'] ) ) {
+				header( 'Cache-Control: ' . (string) $headers['Cache-Control'] );
+			}
+			/*
+			 * Keep cookie-auth nonce rotation alive on the empty 304 path,
+			 * mirroring the X-WP-Nonce header core emits on full responses.
+			 * Skip it under a publicly cacheable policy so shared caches can
+			 * never capture and replay a user-bound nonce.
+			 */
+			$cache_policy = isset( $headers['Cache-Control'] ) ? (string) $headers['Cache-Control'] : '';
+			$nonce_already_sent = false;
+			if ( function_exists( 'headers_list' ) ) {
+				foreach ( headers_list() as $sent_header ) {
+					if ( 0 === stripos( (string) $sent_header, 'X-WP-Nonce' ) ) {
+						$nonce_already_sent = true;
+						break;
+					}
+				}
+			}
+			if ( ! $nonce_already_sent && function_exists( 'wp_create_nonce' ) && false === stripos( $cache_policy, 'public' ) ) {
+				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns whether an If-None-Match header matches the contract ETag.
+	 *
+	 * @param string $etag Response ETag.
+	 * @param string $if_none_match Request If-None-Match value.
+	 * @return bool
+	 */
+	private function etag_matches( $etag, $if_none_match ) {
+		if ( '*' === $if_none_match ) {
+			return true;
+		}
+
+		foreach ( array_map( 'trim', explode( ',', $if_none_match ) ) as $candidate ) {
+			if ( 0 === strpos( $candidate, 'W/' ) ) {
+				$candidate = substr( $candidate, 2 );
+			}
+			if ( trim( $candidate, '"' ) === trim( $etag, '"' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns the quoted ETag for one contract payload.
+	 *
+	 * @param array<string,mixed> $data Contract payload.
+	 * @return string
+	 */
+	private function contract_etag( array $data ) {
+		return '"' . $this->sha256( $data ) . '"';
+	}
+
+	/**
+	 * Returns whether the WordPress Abilities API catalog route is live.
+	 *
+	 * @return bool
+	 */
+	private function ability_catalog_route_available() {
+		$routes = array();
+		if ( function_exists( 'rest_get_server' ) ) {
+			$server = rest_get_server();
+			$routes = is_object( $server ) && method_exists( $server, 'get_routes' ) ? $server->get_routes() : array();
+		}
+
+		return isset( $routes['/wp-abilities/v1/abilities'] );
 	}
 
 	/**
@@ -83,7 +271,7 @@ final class Contract_Controller {
 				'metadata_only'                   => true,
 				'admin_authenticated'             => true,
 				'wordpress_abilities_api_required' => true,
-				'ability_catalog_available'       => true,
+				'ability_catalog_available'       => $this->ability_catalog_route_available(),
 				'ability_schema_hashes_available' => true,
 				'workflow_recipe_hash_available'  => true,
 			),
