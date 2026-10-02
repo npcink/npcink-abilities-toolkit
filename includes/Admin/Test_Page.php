@@ -571,16 +571,26 @@ final class Test_Page {
 			'admin_test_page'       => __( 'Admin status page', 'npcink-abilities-toolkit' ),
 			'read_cache_hooks'      => __( 'Read cache refresh', 'npcink-abilities-toolkit' ),
 		);
+		/*
+		 * Keys come from the resolved enable map so filter-added packages still
+		 * appear; unknown slugs render under their own slug.
+		 */
+		$slugs = array_keys( $packages );
+		foreach ( array_keys( $labels ) as $known_slug ) {
+			if ( ! in_array( $known_slug, $slugs, true ) ) {
+				$slugs[] = $known_slug;
+			}
+		}
 		$write_like_enabled = ! empty( $packages['core_write'] ) || ! empty( $packages['core_destructive'] );
 		?>
 		<section class="npcink-abilities-toolkit-packages" aria-labelledby="npcink-abilities-toolkit-packages-title">
 			<h2 id="npcink-abilities-toolkit-packages-title"><?php echo esc_html__( 'Ability packages', 'npcink-abilities-toolkit' ); ?></h2>
 			<p class="description"><?php echo esc_html__( 'Built-in ability bundles currently registered by this plugin. A host product can turn individual bundles on or off.', 'npcink-abilities-toolkit' ); ?></p>
 			<ul class="npcink-abilities-toolkit-packages__list">
-				<?php foreach ( $labels as $slug => $label ) : ?>
+				<?php foreach ( $slugs as $slug ) : ?>
 					<?php $enabled = ! empty( $packages[ $slug ] ); ?>
 					<li class="npcink-abilities-toolkit-packages__item is-<?php echo esc_attr( $enabled ? 'on' : 'off' ); ?>">
-						<span class="npcink-abilities-toolkit-packages__label"><?php echo esc_html( $label ); ?></span>
+						<span class="npcink-abilities-toolkit-packages__label"><?php echo esc_html( isset( $labels[ $slug ] ) ? $labels[ $slug ] : (string) $slug ); ?></span>
 						<span class="npcink-abilities-toolkit-packages__state"><?php echo esc_html( $enabled ? __( 'On', 'npcink-abilities-toolkit' ) : __( 'Off', 'npcink-abilities-toolkit' ) ); ?></span>
 					</li>
 				<?php endforeach; ?>
@@ -1352,7 +1362,9 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function run_readonly_check() {
-		check_ajax_referer( self::ADMIN_REQUEST_ACTION, 'nonce' );
+		if ( ! check_ajax_referer( self::ADMIN_REQUEST_ACTION, 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => __( 'Your session has expired. Reload the page and try again.', 'npcink-abilities-toolkit' ) ), 403 );
+		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to run this check.', 'npcink-abilities-toolkit' ) ), 403 );

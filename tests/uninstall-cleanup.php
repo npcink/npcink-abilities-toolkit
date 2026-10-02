@@ -26,6 +26,7 @@ $npcink_uninstall_backups = $npcink_uninstall_uploads . '/npcink-abilities-toolk
 file_put_contents( $npcink_uninstall_backups . '/2026/01/backup.jpg', 'backup-bytes' );
 file_put_contents( $npcink_uninstall_backups . '/top.png', 'backup-bytes' );
 file_put_contents( $npcink_uninstall_uploads . '/unrelated/keep.txt', 'keep' );
+@symlink( $npcink_uninstall_uploads . '/unrelated', $npcink_uninstall_backups . '/linked-outside' );
 
 function wp_clear_scheduled_hook( $hook ) {
 	$GLOBALS['npcink_uninstall_cleared_hooks'][] = (string) $hook;
@@ -163,6 +164,25 @@ if ( ! is_file( $npcink_uninstall_uploads . '/unrelated/keep.txt' ) || is_dir( $
 	fwrite( STDERR, "Uninstall removed uploads content outside its backups directory.\n" );
 	exit( 1 );
 }
+if ( is_link( $npcink_uninstall_backups . '/linked-outside' ) ) {
+	fwrite( STDERR, "Uninstall left a symlinked backup entry behind.\n" );
+	exit( 1 );
+}
+
+$npcink_uninstall_linked_root = $npcink_uninstall_backups;
+@mkdir( $npcink_uninstall_uploads . '/linked-root-target', 0777, true );
+file_put_contents( $npcink_uninstall_uploads . '/linked-root-target/keep.txt', 'keep' );
+@symlink( $npcink_uninstall_uploads . '/linked-root-target', $npcink_uninstall_linked_root );
+npcink_abilities_toolkit_uninstall_remove_backups_directory();
+if ( is_link( $npcink_uninstall_linked_root ) ) {
+	fwrite( STDERR, "Uninstall did not remove a symlinked backups directory link.\n" );
+	exit( 1 );
+}
+if ( ! is_file( $npcink_uninstall_uploads . '/linked-root-target/keep.txt' ) ) {
+	fwrite( STDERR, "Uninstall descended through a symlinked backups directory.\n" );
+	exit( 1 );
+}
+npcink_abilities_toolkit_uninstall_rrmdir( $npcink_uninstall_uploads . '/linked-root-target' );
 
 $GLOBALS['npcink_uninstall_preserve_media_backups'] = true;
 @mkdir( $npcink_uninstall_backups . '/2026/01', 0777, true );

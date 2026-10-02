@@ -137,6 +137,7 @@ final class Health_Notices {
 		if ( function_exists( 'wp_safe_redirect' ) ) {
 			$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
 			wp_safe_redirect( '' !== $referer ? $referer : admin_url( 'plugins.php' ) );
+			exit;
 		}
 	}
 

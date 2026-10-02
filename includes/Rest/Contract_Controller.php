@@ -116,6 +116,9 @@ final class Contract_Controller {
 		}
 		if ( function_exists( 'header' ) ) {
 			header( 'ETag: ' . $etag );
+			if ( isset( $headers['Cache-Control'] ) ) {
+				header( 'Cache-Control: ' . (string) $headers['Cache-Control'] );
+			}
 		}
 
 		return true;
@@ -207,8 +210,8 @@ final class Contract_Controller {
 				'minimum_adapter_contract_version' => '1',
 				'metadata_only'                   => true,
 				'admin_authenticated'             => true,
-					'wordpress_abilities_api_required' => true,
-					'ability_catalog_available'       => $this->ability_catalog_route_available(),
+				'wordpress_abilities_api_required' => true,
+				'ability_catalog_available'       => $this->ability_catalog_route_available(),
 				'ability_schema_hashes_available' => true,
 				'workflow_recipe_hash_available'  => true,
 			),

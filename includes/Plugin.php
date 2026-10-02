@@ -100,6 +100,13 @@ final class Plugin {
 	private $booted = false;
 
 	/**
+	 * Whether the read-cache version was already bumped for post-meta this request.
+	 *
+	 * @var bool
+	 */
+	private $read_cache_version_bumped_for_meta = false;
+
+	/**
 	 * Returns the shared plugin instance.
 	 *
 	 * @return Plugin
@@ -435,6 +442,15 @@ final class Plugin {
 		if ( in_array( (string) $meta_key, array( '_edit_lock', '_edit_last' ), true ) ) {
 			return;
 		}
+
+		/*
+		 * One bump per request is enough to invalidate report transients; bulk
+		 * meta operations would otherwise repeat the option round-trip per key.
+		 */
+		if ( $this->read_cache_version_bumped_for_meta ) {
+			return;
+		}
+		$this->read_cache_version_bumped_for_meta = true;
 
 		$this->bump_read_cache_version();
 	}

@@ -1,5 +1,9 @@
 (function () {
-	const output = document.querySelector('[data-npcink-abilities-toolkit-output]');
+	function findOutput(context) {
+		return (context || document).querySelector('[data-npcink-abilities-toolkit-output]');
+	}
+
+	const output = findOutput();
 	const root = output ? output.closest('.npcink-abilities-toolkit-admin') : null;
 	const checkSummary = document.getElementById('npcink-abilities-toolkit-check-summary');
 	const checkSummaryBody = document.getElementById('npcink-abilities-toolkit-check-summary-body');
@@ -296,19 +300,29 @@
 		return rows;
 	}
 
+	function setButtonBusy(button, busy) {
+		if (!button) {
+			return;
+		}
+		button.disabled = busy;
+		if (busy) {
+			button.setAttribute('aria-busy', 'true');
+		} else {
+			button.removeAttribute('aria-busy');
+		}
+	}
+
 	async function runRequest(url, options) {
-		if (!output) {
+		options = options || {};
+		const button = options.button || null;
+		const targetOutput = (button && findOutput(button.closest('section'))) || output;
+		if (!targetOutput) {
 			return;
 		}
 
-		options = options || {};
-		const button = options.button || null;
-		if (button) {
-			button.disabled = true;
-			button.setAttribute('aria-busy', 'true');
-		}
-		output.hidden = false;
-		output.value = requestingLabel + ' ' + url + ' ...';
+		setButtonBusy(button, true);
+		targetOutput.hidden = false;
+		targetOutput.value = requestingLabel + ' ' + url + ' ...';
 		try {
 			const headers = {
 				'X-WP-Nonce': nonce,
@@ -329,14 +343,11 @@
 			try {
 				body = JSON.stringify(JSON.parse(text), null, 2);
 			} catch (error) {}
-			output.value = 'HTTP ' + response.status + '\n\n' + body;
+			targetOutput.value = 'HTTP ' + response.status + '\n\n' + body;
 		} catch (error) {
-			output.value = requestFailedLabel + ': ' + String(error && error.message ? error.message : error) + '\n\n' + url;
+			targetOutput.value = requestFailedLabel + ': ' + String(error && error.message ? error.message : error) + '\n\n' + url;
 		} finally {
-			if (button) {
-				button.disabled = false;
-				button.removeAttribute('aria-busy');
-			}
+			setButtonBusy(button, false);
 		}
 	}
 
@@ -347,16 +358,17 @@
 	});
 
 	async function runReadonlyCheck(check, checkLabel, button) {
-		if (!output || !adminAjaxUrl) {
+		if (!adminAjaxUrl) {
+			return;
+		}
+		const targetOutput = (button && findOutput(button.closest('section'))) || output;
+		if (!targetOutput) {
 			return;
 		}
 
-		if (button) {
-			button.disabled = true;
-			button.setAttribute('aria-busy', 'true');
-		}
-		output.hidden = false;
-		output.value = runningLabel + ' ' + check + ' ...';
+		setButtonBusy(button, true);
+		targetOutput.hidden = false;
+		targetOutput.value = runningLabel + ' ' + check + ' ...';
 		setCheckSummary([
 			{
 				item: summaryLabel('check', 'Check'),
@@ -385,11 +397,11 @@
 				payload = JSON.parse(text);
 			} catch (error) {}
 			if (payload && typeof payload === 'object' && 'status' in payload) {
-				output.value = 'REST ' + payload.status + '\n\n' + JSON.stringify(payload.body, null, 2);
+				targetOutput.value = 'REST ' + payload.status + '\n\n' + JSON.stringify(payload.body, null, 2);
 				setCheckSummary(summarizeReadonlyPayload(payload, checkLabel || check));
 				return;
 			}
-			output.value = requestFailedLabel + ': HTTP ' + response.status + '\n\n' + text;
+			targetOutput.value = requestFailedLabel + ': HTTP ' + response.status + '\n\n' + text;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -399,7 +411,7 @@
 			]);
 		} catch (error) {
 			const message = String(error && error.message ? error.message : error);
-			output.value = requestFailedLabel + ': ' + message;
+			targetOutput.value = requestFailedLabel + ': ' + message;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -408,10 +420,7 @@
 				}
 			]);
 		} finally {
-			if (button) {
-				button.disabled = false;
-				button.removeAttribute('aria-busy');
-			}
+			setButtonBusy(button, false);
 		}
 	}
 

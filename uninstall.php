@@ -74,6 +74,15 @@ function npcink_abilities_toolkit_uninstall_remove_backups_directory() {
 	}
 
 	$npcink_abilities_toolkit_backup_dir = $npcink_abilities_toolkit_basedir . '/npcink-abilities-toolkit-backups';
+	if ( is_link( $npcink_abilities_toolkit_backup_dir ) ) {
+		// Never descend through a symlinked backup directory; remove the link only.
+		if ( function_exists( 'wp_delete_file' ) ) {
+			wp_delete_file( $npcink_abilities_toolkit_backup_dir );
+		} else {
+			@unlink( $npcink_abilities_toolkit_backup_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+		return;
+	}
 	if ( is_dir( $npcink_abilities_toolkit_backup_dir ) ) {
 		npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_backup_dir );
 	}
@@ -96,6 +105,15 @@ function npcink_abilities_toolkit_uninstall_rrmdir( $directory ) {
 			continue;
 		}
 		$npcink_abilities_toolkit_path = $directory . '/' . $npcink_abilities_toolkit_entry;
+		if ( is_link( $npcink_abilities_toolkit_path ) ) {
+			// Treat symlinks as files: unlink the link itself, never its target.
+			if ( function_exists( 'wp_delete_file' ) ) {
+				wp_delete_file( $npcink_abilities_toolkit_path );
+			} else {
+				@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+			continue;
+		}
 		if ( is_dir( $npcink_abilities_toolkit_path ) ) {
 			npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_path );
 			continue;

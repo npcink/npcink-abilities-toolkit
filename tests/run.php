@@ -436,7 +436,7 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'No wo
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'data-request-failed-label' ) && false !== strpos( $admin_test_page, 'data-copy-failed-label' ), 'admin page passes translated failure labels to its script.' );
 npcink_abilities_toolkit_assert_true( substr_count( $admin_test_page, 'id="npcink-abilities-toolkit-admin-output"' ) <= 1 && false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-output' ), 'admin page keeps a unique output element id and marks outputs with a data attribute.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'restoreLabel' ) && false !== strpos( $admin_js, 'copyFailedLabel' ) && false !== strpos( $admin_js, 'requestFailedLabel' ), 'admin script restores copy labels, reports copy failures, and prefixes request failures.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'button.disabled = true' ) && false !== strpos( $admin_js, 'aria-busy' ), 'admin script disables request buttons while a request runs.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'button.disabled = busy' ) && false !== strpos( $admin_js, 'aria-busy' ) && false !== strpos( $admin_js, 'setButtonBusy' ), 'admin script disables request buttons while a request runs through one shared busy helper.' );
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'npcink_abilities_toolkit_nonce' ), 'admin diagnostic tab and filter URLs stay stable without one-time GET nonces.' );
 $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
@@ -1142,6 +1142,8 @@ $plugin->bump_read_cache_version_for_post_meta( 1, 42, '_yoast_wpseo_title', 'se
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'post-meta writes outside save_post bump the read-cache version' );
 $plugin->bump_read_cache_version_for_post_meta( 1, 42, '_edit_lock', 'lock' );
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'edit-lock meta churn does not invalidate the read cache' );
+$plugin->bump_read_cache_version_for_post_meta( 2, 42, '_yoast_wpseo_metadesc', 'desc' );
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'bulk meta writes bump the read-cache version once per request' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] );
 
 $health_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $registrar );
