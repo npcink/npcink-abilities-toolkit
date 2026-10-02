@@ -92,7 +92,7 @@ and read-only status indicators:
 - whether a Npcink AI host menu is detected
 - direct links to available abilities, safe checks, and developer connection information
 
-The Available Abilities and Checks tabs can:
+The Ability Catalog and Checks views under Developer Tools can:
 
 - filter abilities by name, description, category, risk, technical ID, and page size
 - show user-facing ability labels, descriptions, risk posture, availability, and technical details
@@ -100,7 +100,7 @@ The Available Abilities and Checks tabs can:
 - explain what each check proves and what it does not prove before it runs
 - show check results as a plain summary table, with raw JSON kept behind a support disclosure
 
-The Developer Access tab can:
+The Connection view under Developer Tools can:
 
 - copy endpoint values for external clients and host products
 - fetch `/wp-json/wp-abilities/v1/abilities` with the current logged-in user's REST nonce
@@ -121,74 +121,25 @@ apply-plan, cloud, decision, or trigger-queue wording return bounded context,
 request payloads, plans, or host-review artifacts only unless the documented
 host-governed write contract requires a separate approval envelope.
 
-- `npcink-abilities-toolkit/site-info`
-- `npcink-abilities-toolkit/list-post-types`
-- `npcink-abilities-toolkit/list-taxonomies`
-- `npcink-abilities-toolkit/count-posts`
-- `npcink-abilities-toolkit/list-pages-tree`
-- `npcink-abilities-toolkit/list-posts`
-- `npcink-abilities-toolkit/get-post`
-- `npcink-abilities-toolkit/resolve-url-to-post`
-- `npcink-abilities-toolkit/get-post-blocks`
-- `npcink-abilities-toolkit/list-post-revisions`
-- `npcink-abilities-toolkit/list-media`
-- `npcink-abilities-toolkit/resolve-media-attachment-by-url`
-- `npcink-abilities-toolkit/list-terms`
-- `npcink-abilities-toolkit/list-taxonomy-terms`
-- `npcink-abilities-toolkit/list-categories`
-- `npcink-abilities-toolkit/list-tags`
-- `npcink-abilities-toolkit/get-term`
-- `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
-- `npcink-abilities-toolkit/build-taxonomy-tag-review-set`
-- `npcink-abilities-toolkit/propose-post-taxonomy-terms`
-- `npcink-abilities-toolkit/propose-post-excerpt`
-- `npcink-abilities-toolkit/list-users`
-- `npcink-abilities-toolkit/list-comments`
-- `npcink-abilities-toolkit/build-comment-moderation-suggest`
-- `npcink-abilities-toolkit/compose-comment-moderation-result`
-- `npcink-abilities-toolkit/build-comment-mention-reply-suggest`
-- `npcink-abilities-toolkit/read-comment-trigger-queue`
-- `npcink-abilities-toolkit/get-comment-compliance-handoff`
-- `npcink-abilities-toolkit/compose-comment-mention-reply-result`
-- `npcink-abilities-toolkit/build-comment-moderation-batch-suggest`
-- `npcink-abilities-toolkit/compose-comment-moderation-batch-result`
-- `npcink-abilities-toolkit/list-menus`
-- `npcink-abilities-toolkit/get-menu`
-- `npcink-abilities-toolkit/search-posts`
-- `npcink-abilities-toolkit/search-post-meta`
-- `npcink-abilities-toolkit/resolve-post-metadata-plan`
-- `npcink-abilities-toolkit/resolve-internal-link-targets`
-- `npcink-abilities-toolkit/build-inline-image-blocks`
-- `npcink-abilities-toolkit/build-media-seo-assets`
-- `npcink-abilities-toolkit/geo-analyze`
-- `npcink-abilities-toolkit/optimize-media-metadata`
-- `npcink-abilities-toolkit/inspect-media-asset`
-- `npcink-abilities-toolkit/build-media-derivative-cloud-request`
-- `npcink-abilities-toolkit/build-media-optimization-plan`
-- `npcink-abilities-toolkit/build-image-candidate-review-artifact`
-- `npcink-abilities-toolkit/build-media-alt-caption-review-set`
-- `npcink-abilities-toolkit/build-media-alt-apply-plan`
-- `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
-- `npcink-abilities-toolkit/upload-media-from-url`
-- `npcink-abilities-toolkit/build-media-rename-plan`
-- `npcink-abilities-toolkit/position-inline-image-blocks`
-- `npcink-abilities-toolkit/build-article-optimization-report`
-- `npcink-abilities-toolkit/seo-report-context`
-- `npcink-abilities-toolkit/read-post-optimization-context`
-- `npcink-abilities-toolkit/build-article-single-optimization-suggest`
-- `npcink-abilities-toolkit/build-article-optimization-apply-plan`
-- `npcink-abilities-toolkit/build-content-metadata-apply-plan`
-- `npcink-abilities-toolkit/compose-article-optimization-apply-result`
-- `npcink-abilities-toolkit/get-article-publish-preflight-context`
-- `npcink-abilities-toolkit/get-old-article-refresh-context`
-- `npcink-abilities-toolkit/extract-reference-post-style`
-- `npcink-abilities-toolkit/extract-style-baseline`
-- `npcink-abilities-toolkit/build-article-production-fingerprint`
-- `npcink-abilities-toolkit/check-article-production-duplicate`
-- `npcink-abilities-toolkit/review-article-output-light`
-- `npcink-abilities-toolkit/compose-article-production-result`
-- `npcink-abilities-toolkit/compose-article-draft-result`
-- `npcink-abilities-toolkit/resolve-article-publication-decision`
+The canonical id list lives in
+[docs/first-party-ability-packs.md](docs/first-party-ability-packs.md); the
+Ability Catalog in wp-admin shows the same ids on a live site. Coverage by
+group:
+
+- Site and content reads: site info, post types, taxonomies, posts, pages,
+  page trees, revisions, blocks, comments, users, terms, categories, tags,
+  menus, metadata, and bounded search helpers.
+- Media helpers: media listing, URL resolution, asset inspection,
+  optimization plans, alt/caption review sets, derivative requests, and
+  rename or adoption plans.
+- Content production: article optimization reports, style extraction and
+  baselines, production fingerprints, duplicate checks, production and draft
+  results, and publication decisions.
+- Handoff and comment helpers: moderation suggestions and batch results,
+  mention replies, compliance handoffs, and bounded trigger-queue context.
+
+When this summary drifts from the canonical list, fix this summary instead of
+re-inlining ids here.
 
 `resolve-internal-link-targets` returns both generic internal-link target rows
 and an `internal_link_candidates.v1` artifact for editor or third-party review
@@ -205,13 +156,6 @@ defaults to a dry-run preview. A real upload requires a separate host approval
 envelope; the caller chooses the remote URL, and this package stores no provider
 credentials, remote-service configuration, model routing, or cloud execution
 truth for that operation.
-- `npcink-abilities-toolkit/build-article-style-profile`
-- `npcink-abilities-toolkit/get-post-stats`
-- `npcink-abilities-toolkit/list-revisions`
-- `npcink-abilities-toolkit/get-post-meta`
-- `npcink-abilities-toolkit/list-pages`
-- `npcink-abilities-toolkit/get-page`
-- `npcink-abilities-toolkit/inspect-page-structure`
 
 The `npcink-abilities-toolkit/*` ids are canonical under the Npcink Abilities Toolkit namespace. Built-in migrated ids may explicitly project into Npcink AI as thin `wp_ability` canonical rows; third-party provider abilities still do not project into Npcink AI by default.
 

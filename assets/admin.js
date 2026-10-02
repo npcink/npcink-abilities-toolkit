@@ -1,5 +1,5 @@
 (function () {
-	const output = document.getElementById('npcink-abilities-toolkit-admin-output');
+	const output = document.querySelector('[data-npcink-abilities-toolkit-output]');
 	const root = output ? output.closest('.npcink-abilities-toolkit-admin') : null;
 	const checkSummary = document.getElementById('npcink-abilities-toolkit-check-summary');
 	const checkSummaryBody = document.getElementById('npcink-abilities-toolkit-check-summary-body');
@@ -10,6 +10,8 @@
 	const copiedLabel = root ? root.getAttribute('data-copied-label') : 'Copied';
 	const requestingLabel = root ? root.getAttribute('data-requesting-label') : 'Requesting';
 	const runningLabel = root ? root.getAttribute('data-running-label') : 'Running';
+	const requestFailedLabel = root ? root.getAttribute('data-request-failed-label') : 'Request failed';
+	const copyFailedLabel = root ? root.getAttribute('data-copy-failed-label') : 'Copy failed';
 	const summaryLabels = parseSummaryLabels();
 
 	function parseSummaryLabels() {
@@ -300,6 +302,11 @@
 		}
 
 		options = options || {};
+		const button = options.button || null;
+		if (button) {
+			button.disabled = true;
+			button.setAttribute('aria-busy', 'true');
+		}
 		output.hidden = false;
 		output.value = requestingLabel + ' ' + url + ' ...';
 		try {
@@ -324,21 +331,30 @@
 			} catch (error) {}
 			output.value = 'HTTP ' + response.status + '\n\n' + body;
 		} catch (error) {
-			output.value = String(error && error.message ? error.message : error);
+			output.value = requestFailedLabel + ': ' + String(error && error.message ? error.message : error) + '\n\n' + url;
+		} finally {
+			if (button) {
+				button.disabled = false;
+				button.removeAttribute('aria-busy');
+			}
 		}
 	}
 
 	document.querySelectorAll('[data-npcink-abilities-toolkit-fetch]').forEach(function (button) {
 		button.addEventListener('click', function () {
-			runRequest(button.getAttribute('data-npcink-abilities-toolkit-fetch'));
+			runRequest(button.getAttribute('data-npcink-abilities-toolkit-fetch'), { button: button });
 		});
 	});
 
-	async function runReadonlyCheck(check, checkLabel) {
+	async function runReadonlyCheck(check, checkLabel, button) {
 		if (!output || !adminAjaxUrl) {
 			return;
 		}
 
+		if (button) {
+			button.disabled = true;
+			button.setAttribute('aria-busy', 'true');
+		}
 		output.hidden = false;
 		output.value = runningLabel + ' ' + check + ' ...';
 		setCheckSummary([
@@ -373,7 +389,7 @@
 				setCheckSummary(summarizeReadonlyPayload(payload, checkLabel || check));
 				return;
 			}
-			output.value = 'HTTP ' + response.status + '\n\n' + text;
+			output.value = requestFailedLabel + ': HTTP ' + response.status + '\n\n' + text;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -383,7 +399,7 @@
 			]);
 		} catch (error) {
 			const message = String(error && error.message ? error.message : error);
-			output.value = message;
+			output.value = requestFailedLabel + ': ' + message;
 			setCheckSummary([
 				{
 					item: summaryLabel('status', 'Status'),
@@ -391,12 +407,17 @@
 					details: message
 				}
 			]);
+		} finally {
+			if (button) {
+				button.disabled = false;
+				button.removeAttribute('aria-busy');
+			}
 		}
 	}
 
 	document.querySelectorAll('[data-npcink-abilities-toolkit-readonly-check]').forEach(function (button) {
 		button.addEventListener('click', function () {
-			runReadonlyCheck(button.getAttribute('data-npcink-abilities-toolkit-readonly-check'), button.textContent.trim());
+			runReadonlyCheck(button.getAttribute('data-npcink-abilities-toolkit-readonly-check'), button.textContent.trim(), button);
 		});
 	});
 
@@ -407,19 +428,48 @@
 				return;
 			}
 
+			const originalLabel = button.textContent;
 			const value = target.value || target.textContent || '';
-			try {
-				await navigator.clipboard.writeText(value);
-				button.textContent = copiedLabel;
-			} catch (error) {
-				if (typeof target.focus === 'function') {
-					target.focus();
+			let labelTimer = null;
+			function restoreLabel() {
+				if (labelTimer) {
+					window.clearTimeout(labelTimer);
+					labelTimer = null;
 				}
-				if (typeof target.select === 'function') {
+				button.textContent = originalLabel;
+			}
+			function flashLabel(label) {
+				button.textContent = label;
+				if (labelTimer) {
+					window.clearTimeout(labelTimer);
+				}
+				labelTimer = window.setTimeout(restoreLabel, 2000);
+			}
+
+			try {
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					await navigator.clipboard.writeText(value);
+					flashLabel(copiedLabel);
+					return;
+				}
+				if (typeof target.focus === 'function' && typeof target.select === 'function' && document.execCommand) {
+					target.focus();
+					target.select();
+					if (document.execCommand('copy')) {
+						flashLabel(copiedLabel);
+						return;
+					}
+				}
+				throw new Error('clipboard unavailable');
+			} catch (error) {
+				if (typeof target.focus === 'function' && typeof target.select === 'function') {
+					target.focus();
 					target.select();
 				} else if (output) {
+					output.hidden = false;
 					output.value = value;
 				}
+				flashLabel(copyFailedLabel);
 			}
 		});
 	});

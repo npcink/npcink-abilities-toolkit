@@ -430,7 +430,13 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'rende
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'function get_enabled_packages' ), 'plugin exposes the resolved package enable map for admin display.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "'Npcink Abilities Toolkit',\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers user-facing abilities page and submenu titles when attached' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'AI Ability Set', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers translated abilities page and menu titles when attached' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-status__detail' ) && false === strpos( $admin_test_page, 'role="listitem" title=' ), 'admin status tiles show their detail text visibly instead of hover-only titles.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'No workflow scenarios are published on this site yet' ), 'admin workflow scenario view renders an explicit empty state.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'data-request-failed-label' ) && false !== strpos( $admin_test_page, 'data-copy-failed-label' ), 'admin page passes translated failure labels to its script.' );
+npcink_abilities_toolkit_assert_true( substr_count( $admin_test_page, 'id="npcink-abilities-toolkit-admin-output"' ) <= 1 && false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-output' ), 'admin page keeps a unique output element id and marks outputs with a data attribute.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'restoreLabel' ) && false !== strpos( $admin_js, 'copyFailedLabel' ) && false !== strpos( $admin_js, 'requestFailedLabel' ), 'admin script restores copy labels, reports copy failures, and prefixes request failures.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'button.disabled = true' ) && false !== strpos( $admin_js, 'aria-busy' ), 'admin script disables request buttons while a request runs.' );
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'npcink_abilities_toolkit_nonce' ), 'admin diagnostic tab and filter URLs stay stable without one-time GET nonces.' );
 $old_admin_slug = 'npcink-abilities-toolkit-' . 'test';
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, $old_admin_slug ), 'admin test page no longer uses the old test admin slug' );
@@ -570,18 +576,23 @@ foreach (
 		'/wp-json/npcink-abilities-toolkit/v1/contract',
 		'does not replace the WordPress Abilities API',
 		'does not run abilities',
-		'https://github.com/muze-page/npcink-abilities-toolkit',
+		'https://github.com/npcink/npcink-abilities-toolkit',
 		'If the `wp-abilities/v1` REST routes are missing',
 		'Abilities API baseline or compatibility plugin',
+		'== Installation ==',
 		'Frequently Asked Questions',
 		'Does this plugin run AI models?',
 		'Will this plugin change my posts, media, terms, comments, or settings by itself?',
 		'What do the Safe Checks prove?',
+		'What does uninstalling remove?',
+		'npcink_abilities_toolkit_uninstall_preserve_media_backups',
 		'Screenshots',
-		'Site ability status overview',
-		'Available Abilities catalog with filters',
-		'Safe Checks tab explaining what each check proves',
-		'Developer Access tab with copyable REST endpoint values',
+		'Overview tab: site ability status tiles',
+		'Ability Catalog view under Developer Tools',
+		'Checks view under Developer Tools',
+		'Connection view under Developer Tools',
+		'Refresh the SVN screenshot assets',
+		'Source-level verification commands for contributors',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false !== strpos( $plugin_readme, $required ), 'packaged readme keeps third-party integration guidance: ' . $required );

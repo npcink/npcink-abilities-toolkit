@@ -123,7 +123,7 @@ final class Test_Page {
 		if ( $this->has_npcink_parent_menu() ) {
 			$this->hook_suffixes[] = add_submenu_page(
 				self::PARENT_MENU_SLUG,
-				'Npcink Abilities Toolkit',
+				__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 				__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 				'manage_options',
 				self::MENU_SLUG,
@@ -134,7 +134,7 @@ final class Test_Page {
 		}
 
 		$this->hook_suffixes[] = add_management_page(
-			'Npcink Abilities Toolkit',
+			__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 			__( 'AI Ability Set', 'npcink-abilities-toolkit' ),
 			'manage_options',
 			self::MENU_SLUG,
@@ -176,9 +176,10 @@ final class Test_Page {
 		$registered     = $this->abilities->all();
 		$active_tab     = $this->get_active_tab();
 		?>
-		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>" data-check-summary-labels="<?php echo esc_attr( wp_json_encode( $this->get_check_summary_labels() ) ); ?>">
+		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>" data-request-failed-label="<?php echo esc_attr__( 'Request failed', 'npcink-abilities-toolkit' ); ?>" data-copy-failed-label="<?php echo esc_attr__( 'Copy failed', 'npcink-abilities-toolkit' ); ?>" data-check-summary-labels="<?php echo esc_attr( wp_json_encode( $this->get_check_summary_labels() ) ); ?>">
 			<h1><?php echo esc_html( 'Npcink Abilities Toolkit' ); ?></h1>
-			<p class="description" title="<?php echo esc_attr__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
+			<p class="description"><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
+			<p class="description"><?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?></p>
 
 			<?php $this->render_tab_nav( $active_tab ); ?>
 
@@ -402,7 +403,6 @@ final class Test_Page {
 	 * @return void
 	 */
 	private function render_tab_nav( $active_tab ) {
-		$base_url = menu_page_url( self::MENU_SLUG, false );
 		?>
 		<nav class="npcink-ai-tabs npcink-abilities-toolkit-tabs" aria-label="<?php echo esc_attr__( 'Abilities page sections', 'npcink-abilities-toolkit' ); ?>">
 			<?php foreach ( $this->get_tabs() as $tab => $label ) : ?>
@@ -517,6 +517,12 @@ final class Test_Page {
 		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
 		if ( empty( $cases ) ) {
+			?>
+			<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
+				<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
+				<p class="description"><?php echo esc_html__( 'No workflow scenarios are published on this site yet. Scenarios appear here when the bundled recipe catalog provides them.', 'npcink-abilities-toolkit' ); ?></p>
+			</section>
+			<?php
 			return;
 		}
 		?>
@@ -655,9 +661,10 @@ final class Test_Page {
 	 */
 	private function render_status_tile( $label, $value, $state, $detail ) {
 		?>
-		<div class="npcink-abilities-toolkit-status is-<?php echo esc_attr( $state ); ?>" role="listitem" title="<?php echo esc_attr( $detail ); ?>">
+		<div class="npcink-abilities-toolkit-status is-<?php echo esc_attr( $state ); ?>" role="listitem">
 			<span class="npcink-abilities-toolkit-status__label"><?php echo esc_html( $label ); ?></span>
 			<span class="npcink-abilities-toolkit-status__value"><?php echo esc_html( $value ); ?></span>
+			<span class="npcink-abilities-toolkit-status__detail"><?php echo esc_html( $detail ); ?></span>
 		</div>
 		<?php
 	}
@@ -1133,7 +1140,7 @@ final class Test_Page {
 					</span>
 				</summary>
 					<div class="npcink-abilities-toolkit-disclosure__body">
-						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14" hidden></textarea>
+						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
 					</div>
 				</details>
 			</section>
@@ -1200,7 +1207,8 @@ final class Test_Page {
 	 */
 	private function render_developer_access( $abilities_url, $categories_url, $contract_url, array $registered ) {
 		?>
-		<h2 title="<?php echo esc_attr__( 'Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Developer Access', 'npcink-abilities-toolkit' ); ?></h2>
+		<h2><?php echo esc_html__( 'Developer Access', 'npcink-abilities-toolkit' ); ?></h2>
+		<p class="description"><?php echo esc_html__( 'Copy REST endpoints, inspect raw discovery responses, and export technical ability IDs. Most site users do not need this tab.', 'npcink-abilities-toolkit' ); ?></p>
 
 		<section id="npcink-abilities-toolkit-connection-values" class="npcink-abilities-toolkit-section">
 			<h3><?php echo esc_html__( 'Connection values', 'npcink-abilities-toolkit' ); ?></h3>
@@ -1245,7 +1253,8 @@ final class Test_Page {
 		</p>
 
 		<section id="npcink-abilities-toolkit-discovery-checks" class="npcink-abilities-toolkit-section">
-			<h3 title="<?php echo esc_attr__( 'These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication.', 'npcink-abilities-toolkit' ); ?>"><?php echo esc_html__( 'Raw discovery fetches', 'npcink-abilities-toolkit' ); ?></h3>
+			<h3><?php echo esc_html__( 'Raw discovery fetches', 'npcink-abilities-toolkit' ); ?></h3>
+			<p class="description"><?php echo esc_html__( 'These buttons use the current wp-admin session with an X-WP-Nonce header. External clients should use WordPress REST authentication.', 'npcink-abilities-toolkit' ); ?></p>
 			<p class="npcink-abilities-toolkit-actions">
 				<button type="button" class="button button-primary" data-npcink-abilities-toolkit-fetch="<?php echo esc_url( $abilities_url ); ?>">
 					<?php echo esc_html__( 'Fetch Abilities', 'npcink-abilities-toolkit' ); ?>
@@ -1255,7 +1264,7 @@ final class Test_Page {
 				</button>
 			</p>
 
-			<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" readonly rows="14" hidden></textarea>
+			<textarea id="npcink-abilities-toolkit-connection-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
 		</section>
 
 		<?php $this->render_advanced_checks( $registered ); ?>
@@ -1343,11 +1352,11 @@ final class Test_Page {
 	 * @return void
 	 */
 	public function run_readonly_check() {
+		check_ajax_referer( self::ADMIN_REQUEST_ACTION, 'nonce' );
+
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to run this check.', 'npcink-abilities-toolkit' ) ), 403 );
 		}
-
-		check_ajax_referer( self::ADMIN_REQUEST_ACTION, 'nonce' );
 
 		$check = isset( $_POST['check'] ) ? sanitize_key( wp_unslash( $_POST['check'] ) ) : '';
 		$allowed = array(
