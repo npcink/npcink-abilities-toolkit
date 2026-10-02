@@ -93,6 +93,8 @@ final class Health_Notices {
 			return;
 		}
 
+		$this->render_redirect_error();
+
 		$notices = $this->get_active_notices();
 		if ( empty( $notices ) ) {
 			return;
@@ -119,31 +121,76 @@ final class Health_Notices {
 			}
 			return;
 		}
-		if ( ! function_exists( 'check_admin_referer' ) || ! check_admin_referer( self::DISMISS_ACTION ) ) {
+		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? (string) wp_unslash( $_REQUEST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( '' === $dismiss_nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $dismiss_nonce, self::DISMISS_ACTION ) ) {
+			$this->redirect_back( 'nonce' );
 			return;
 		}
 
 		$notice_id = isset( $_REQUEST['notice'] ) ? sanitize_key( wp_unslash( $_REQUEST['notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $notice_id ) {
+			$this->redirect_back();
 			return;
 		}
 
 		$dismissed = $this->get_dismissed_notices();
 		if ( ! array_key_exists( $notice_id, $this->get_active_notices() ) ) {
+			$this->redirect_back();
 			return;
 		}
 		if ( ! function_exists( 'update_user_meta' ) || ! function_exists( 'get_current_user_id' ) ) {
-			// Persistence is impossible in this context; do not redirect as success.
+			// Persistence is impossible in this context; still send the user back.
+			$this->redirect_back();
 			return;
 		}
 		$dismissed[ $notice_id ] = $this->plugin_version();
 		update_user_meta( get_current_user_id(), self::USER_META_KEY, $dismissed );
 
-		if ( function_exists( 'wp_safe_redirect' ) ) {
-			$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
-			wp_safe_redirect( '' !== $referer ? $referer : admin_url( 'plugins.php' ) );
-			exit;
+		$this->redirect_back();
+	}
+
+	/**
+	 * Redirects the dismissal flow back to its referer so admin-post never
+	 * renders a blank dead-end page.
+	 *
+	 * @param string $error_code Optional machine error code surfaced after
+	 *                           the redirect.
+	 * @return void
+	 */
+	private function redirect_back( $error_code = '' ) {
+		if ( ! function_exists( 'wp_safe_redirect' ) ) {
+			return;
 		}
+
+		$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
+		$url     = '' !== $referer ? $referer : admin_url( 'plugins.php' );
+		if ( function_exists( 'remove_query_arg' ) ) {
+			$url = remove_query_arg( 'npcink_abilities_toolkit_notice_error', $url );
+		}
+		if ( '' !== $error_code && function_exists( 'add_query_arg' ) ) {
+			$url = add_query_arg( 'npcink_abilities_toolkit_notice_error', sanitize_key( $error_code ), $url );
+		}
+		wp_safe_redirect( $url );
+		exit;
+	}
+
+	/**
+	 * Renders the inline error for a failed dismissal redirect.
+	 *
+	 * @return void
+	 */
+	private function render_redirect_error() {
+		$error_code = isset( $_REQUEST['npcink_abilities_toolkit_notice_error'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			? sanitize_key( wp_unslash( $_REQUEST['npcink_abilities_toolkit_notice_error'] ) )
+			: '';
+		if ( 'nonce' !== $error_code ) {
+			return;
+		}
+		?>
+		<div class="notice notice-error inline npcink-abilities-toolkit-health-notice">
+			<p><?php echo esc_html__( 'The dismissal link expired. Reload the page and try again.', 'npcink-abilities-toolkit' ); ?></p>
+		</div>
+		<?php
 	}
 
 	/**

@@ -1171,15 +1171,16 @@ $empty_registrar    = new Ability_Registrar( $empty_categories, $contract_normal
 $empty_notices      = ( new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar ) )->get_active_notices();
 npcink_abilities_toolkit_assert_true( isset( $empty_notices['catalog_empty'] ), 'health notices fail loud when the ability catalog is empty' );
 
-if ( ! function_exists( 'check_admin_referer' ) ) {
+if ( ! function_exists( 'wp_verify_nonce' ) ) {
 	/**
 	 * Accepts only the well-known test nonce value for one action.
 	 *
+	 * @param string $nonce Nonce value.
 	 * @param string $action Nonce action.
 	 * @return bool
 	 */
-	function check_admin_referer( $action ) {
-		return isset( $_REQUEST['_wpnonce'] ) && '_valid_' . $action === (string) wp_unslash( $_REQUEST['_wpnonce'] );
+	function wp_verify_nonce( $nonce, $action = '' ) {
+		return '_valid_' . $action === (string) $nonce;
 	}
 }
 if ( ! function_exists( 'get_user_meta' ) ) {
@@ -1294,6 +1295,10 @@ $_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_dismiss_health_notice';
 $empty_health_notices->handle_dismiss_request();
 npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'health notice dismissal is rejected without manage_options' );
 $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+$_REQUEST['_wpnonce'] = 'expired-nonce';
+$empty_health_notices->handle_dismiss_request();
+npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'health notice dismissal with an invalid nonce never reaches the user-meta write' );
+$_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_dismiss_health_notice';
 $empty_health_notices->handle_dismiss_request();
 npcink_abilities_toolkit_assert_same( array( '7' => array( 'npcink_abilities_toolkit_health_notices_dismissed' => array( 'catalog_empty' => '0.1.0-test' ) ) ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'health notice dismissal persists per-user with the dismissing plugin version' );
 unset( $_REQUEST['_wpnonce'], $_REQUEST['notice'] );
