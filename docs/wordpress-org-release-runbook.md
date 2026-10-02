@@ -61,7 +61,12 @@ path is out of date. A stale working copy must be refreshed with
 this guard exists because a release was once staged onto a June-era checkout
 and the phantom scheduled adds would have failed the commit. When preparing
 manually, run `svn status -u` yourself and require zero `*` markers plus only
-the intended trunk update and the single new tag directory.
+the intended trunk update and the single new tag directory. The guard has one
+explicit escape hatch for maintainer-directed preparation during a
+WordPress.org outage: `ALLOW_SKIP_SVN_FRESHNESS=1`, mirroring
+`ALLOW_REPLACE_WPORG_TAG=1`. Never use it to publish from an unverified
+working copy; it only defers the freshness check, and the commit itself
+still requires the remote.
 
 Release packaging and SVN preparation require a clean, non-shallow Git
 worktree. If the requested version already has a Git tag, `HEAD` must match that

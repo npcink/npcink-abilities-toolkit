@@ -8,6 +8,11 @@ if [[ -z "$SVN_WC" || ! -d "$SVN_WC/.svn" ]]; then
 	exit 2
 fi
 
+if [[ "${ALLOW_SKIP_SVN_FRESHNESS:-}" == "1" ]]; then
+	echo "Skipping the WordPress.org SVN freshness check (ALLOW_SKIP_SVN_FRESHNESS=1)." >&2
+	exit 0
+fi
+
 svn_error_file="$(mktemp)"
 if ! remote_status="$(LC_ALL=C svn status -u --non-interactive "$SVN_WC" 2>"$svn_error_file")"; then
 	echo "svn status -u failed while verifying: $SVN_WC" >&2

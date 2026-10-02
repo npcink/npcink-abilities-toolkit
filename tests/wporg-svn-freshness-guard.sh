@@ -72,6 +72,11 @@ if PATH="$FAKE_BIN:$PATH" FAKE_SVN_MODE=network-error bash "$GUARD" "$FAKE_WC" >
 	exit 1
 fi
 
+if ! PATH="$FAKE_BIN:$PATH" FAKE_SVN_MODE=network-error ALLOW_SKIP_SVN_FRESHNESS=1 bash "$GUARD" "$FAKE_WC" >/dev/null 2>&1; then
+	echo "Freshness guard did not honor the explicit ALLOW_SKIP_SVN_FRESHNESS escape hatch." >&2
+	exit 1
+fi
+
 if bash "$GUARD" "$TMPDIR_ROOT/does-not-exist" >/dev/null 2>&1; then
 	echo "Freshness guard accepted a missing working copy path." >&2
 	exit 1
