@@ -123,8 +123,7 @@ final class Health_Notices {
 			return;
 		}
 
-		$notice_id = function_exists( 'filter_input' ) ? filter_input( INPUT_GET, 'notice', FILTER_UNSAFE_RAW ) : '';
-		$notice_id = is_string( $notice_id ) ? sanitize_key( $notice_id ) : '';
+		$notice_id = isset( $_REQUEST['notice'] ) ? sanitize_key( wp_unslash( $_REQUEST['notice'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $notice_id ) {
 			return;
 		}

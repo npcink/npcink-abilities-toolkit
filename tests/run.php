@@ -1165,6 +1165,134 @@ $empty_registrar    = new Ability_Registrar( $empty_categories, $contract_normal
 $empty_notices      = ( new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar ) )->get_active_notices();
 npcink_abilities_toolkit_assert_true( isset( $empty_notices['catalog_empty'] ), 'health notices fail loud when the ability catalog is empty' );
 
+if ( ! function_exists( 'check_admin_referer' ) ) {
+	/**
+	 * Accepts only the well-known test nonce value for one action.
+	 *
+	 * @param string $action Nonce action.
+	 * @return bool
+	 */
+	function check_admin_referer( $action ) {
+		return isset( $_REQUEST['_wpnonce'] ) && '_valid_' . $action === (string) wp_unslash( $_REQUEST['_wpnonce'] );
+	}
+}
+if ( ! function_exists( 'get_user_meta' ) ) {
+	/**
+	 * Reads unit user meta.
+	 *
+	 * @param int    $user_id User id.
+	 * @param string $key Meta key.
+	 * @return mixed
+	 */
+	function get_user_meta( $user_id, $key = '' ) {
+		return isset( $GLOBALS['npcink_abilities_toolkit_unit_user_meta'][ (int) $user_id ][ (string) $key ] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_user_meta'][ (int) $user_id ][ (string) $key ]
+			: '';
+	}
+}
+if ( ! function_exists( 'update_user_meta' ) ) {
+	/**
+	 * Writes unit user meta.
+	 *
+	 * @param int    $user_id User id.
+	 * @param string $key Meta key.
+	 * @param mixed  $value Meta value.
+	 * @return bool
+	 */
+	function update_user_meta( $user_id, $key, $value ) {
+		$GLOBALS['npcink_abilities_toolkit_unit_user_meta'][ (int) $user_id ][ (string) $key ] = $value;
+		return true;
+	}
+}
+if ( ! function_exists( 'get_current_screen' ) ) {
+	/**
+	 * Returns the plugins screen for notice rendering assertions.
+	 *
+	 * @return object
+	 */
+	function get_current_screen() {
+		return (object) array( 'id' => 'plugins' );
+	}
+}
+if ( ! function_exists( 'esc_attr' ) ) {
+	/**
+	 * Passes through attribute values.
+	 *
+	 * @param string $value Value.
+	 * @return string
+	 */
+	function esc_attr( $value ) {
+		return (string) $value;
+	}
+}
+if ( ! function_exists( 'esc_attr__' ) ) {
+	/**
+	 * Returns the raw attribute string.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function esc_attr__( $text ) {
+		return (string) $text;
+	}
+}
+if ( ! function_exists( 'esc_html__' ) ) {
+	/**
+	 * Returns the raw html string.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	function esc_html__( $text ) {
+		return (string) $text;
+	}
+}
+if ( ! function_exists( 'esc_url' ) ) {
+	/**
+	 * Passes through url values.
+	 *
+	 * @param string $value Value.
+	 * @return string
+	 */
+	function esc_url( $value ) {
+		return (string) $value;
+	}
+}
+if ( ! function_exists( 'admin_url' ) ) {
+	/**
+	 * Returns a unit admin URL.
+	 *
+	 * @param string $path Path.
+	 * @return string
+	 */
+	function admin_url( $path = '' ) {
+		return 'https://unit.test/wp-admin/' . ltrim( (string) $path, '/' );
+	}
+}
+$empty_health_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => false );
+$GLOBALS['npcink_abilities_toolkit_unit_user_meta'] = array();
+$_REQUEST['notice'] = 'catalog_empty';
+$_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_dismiss_health_notice';
+$empty_health_notices->handle_dismiss_request();
+npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'health notice dismissal is rejected without manage_options' );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+$empty_health_notices->handle_dismiss_request();
+npcink_abilities_toolkit_assert_same( array( '7' => array( 'npcink_abilities_toolkit_health_notices_dismissed' => array( 'catalog_empty' => '0.1.0-test' ) ) ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'health notice dismissal persists per-user with the dismissing plugin version' );
+unset( $_REQUEST['_wpnonce'], $_REQUEST['notice'] );
+ob_start();
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+$empty_health_notices->render_notices();
+$rendered_notices_html = (string) ob_get_clean();
+npcink_abilities_toolkit_assert_true( false === strpos( $rendered_notices_html, 'no abilities are registered on this site yet' ), 'dismissed health notices stay hidden on supported screens' );
+$stub_registrar_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $registrar );
+$GLOBALS['npcink_abilities_toolkit_unit_user_meta'] = array();
+ob_start();
+$stub_registrar_notices->render_notices();
+$rendered_stub_html = (string) ob_get_clean();
+npcink_abilities_toolkit_assert_true( false !== strpos( $rendered_stub_html, 'Abilities API registration functions are unavailable' ), 'undismissed health notices render on supported screens' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_user_meta'] );
+
 $enabled_packages = $plugin->get_enabled_packages();
 npcink_abilities_toolkit_assert_same( 7, count( $enabled_packages ), 'package enable map resolves the full built-in default map without host filters' );
 npcink_abilities_toolkit_assert_same( true, $enabled_packages['core_read'] ?? null, 'package enable map keeps the core read package enabled by default' );
@@ -1259,10 +1387,26 @@ $not_modified_request = new class() {
 		return '/npcink-abilities-toolkit/v1/contract';
 	}
 };
+
+if ( ! function_exists( 'status_header' ) ) {
+	/**
+	 * Records the last emitted status header.
+	 *
+	 * @param int $status HTTP status.
+	 * @return bool
+	 */
+	function status_header( $status ) {
+		$GLOBALS['npcink_abilities_toolkit_unit_status_header'] = (int) $status;
+		return true;
+	}
+}
 $_SERVER['HTTP_IF_NONE_MATCH'] = (string) ( $etag_headers['ETag'] ?? '' );
 npcink_abilities_toolkit_assert_same( true, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint answers a matching If-None-Match as served-not-modified' );
+npcink_abilities_toolkit_assert_same( 304, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? 0, 'contract endpoint emits a 304 status when If-None-Match matches' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_status_header'] );
 $_SERVER['HTTP_IF_NONE_MATCH'] = '"sha256:different"';
 npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint keeps serving the body when If-None-Match differs' );
+npcink_abilities_toolkit_assert_same( null, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? null, 'mismatched If-None-Match never emits a 304 status' );
 unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
 
 npcink_abilities_toolkit_assert_true(
