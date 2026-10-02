@@ -127,7 +127,7 @@ function npcink_abilities_toolkit_uninstall_rrmdir( $directory ) {
 			npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_path );
 			continue;
 		}
-		if ( function_exists( 'wp_delete_file' ) ) {
+		if ( is_file( $npcink_abilities_toolkit_path ) && function_exists( 'wp_delete_file' ) ) {
 			wp_delete_file( $npcink_abilities_toolkit_path );
 		} elseif ( is_file( $npcink_abilities_toolkit_path ) ) {
 			@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged

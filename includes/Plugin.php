@@ -107,6 +107,13 @@ final class Plugin {
 	private $read_cache_version_bumped_for_meta = false;
 
 	/**
+	 * Memoized watched post-meta keys for read-cache invalidation.
+	 *
+	 * @var array<int,string>|null
+	 */
+	private $watched_post_meta_keys = null;
+
+	/**
 	 * Returns the shared plugin instance.
 	 *
 	 * @return Plugin
@@ -439,6 +446,10 @@ final class Plugin {
 	 * @return bool
 	 */
 	private function is_watched_post_meta_key( $meta_key ) {
+		if ( null !== $this->watched_post_meta_keys ) {
+			return in_array( (string) $meta_key, $this->watched_post_meta_keys, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
+		}
+
 		$watched = array(
 			'_yoast_wpseo_title',
 			'_yoast_wpseo_metadesc',
@@ -461,9 +472,9 @@ final class Plugin {
 			 */
 			$watched = apply_filters( 'npcink_abilities_toolkit_read_cache_watched_meta_keys', $watched );
 		}
-		$watched = is_array( $watched ) ? $watched : array();
+		$this->watched_post_meta_keys = is_array( $watched ) ? array_values( array_map( 'strval', $watched ) ) : array();
 
-		return in_array( (string) $meta_key, $watched, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
+		return in_array( (string) $meta_key, $this->watched_post_meta_keys, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
 	}
 
 	/**

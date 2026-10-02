@@ -167,7 +167,16 @@ final class Contract_Controller {
 			 * never capture and replay a user-bound nonce.
 			 */
 			$cache_policy = isset( $headers['Cache-Control'] ) ? (string) $headers['Cache-Control'] : '';
-			if ( function_exists( 'wp_create_nonce' ) && false === stripos( $cache_policy, 'public' ) ) {
+			$nonce_already_sent = false;
+			if ( function_exists( 'headers_list' ) ) {
+				foreach ( headers_list() as $sent_header ) {
+					if ( 0 === stripos( (string) $sent_header, 'X-WP-Nonce' ) ) {
+						$nonce_already_sent = true;
+						break;
+					}
+				}
+			}
+			if ( ! $nonce_already_sent && function_exists( 'wp_create_nonce' ) && false === stripos( $cache_policy, 'public' ) ) {
 				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
 			}
 		}

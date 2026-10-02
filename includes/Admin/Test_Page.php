@@ -562,7 +562,7 @@ final class Test_Page {
 	 */
 	private function render_package_status() {
 		$packages = $this->get_enabled_packages();
-		if ( array() === $packages ) {
+		if ( null === $packages ) {
 			// Plugin map unavailable; render nothing rather than a misleading all-off list.
 			return;
 		}
@@ -610,9 +610,10 @@ final class Test_Page {
 	}
 
 	/**
-	 * Returns the resolved built-in package enable map.
+	 * Returns the resolved built-in package enable map, or null when the
+	 * Plugin accessor is unavailable.
 	 *
-	 * @return array<string,bool>
+	 * @return array<string,bool>|null
 	 */
 	private function get_enabled_packages() {
 		if ( class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) && method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
@@ -622,7 +623,7 @@ final class Test_Page {
 			}
 		}
 
-		return array();
+		return null;
 	}
 
 	/**

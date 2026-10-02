@@ -471,17 +471,19 @@
 			}
 
 			let selectionPrepared = false;
+			function selectionSupported() {
+				return typeof target.focus === 'function' && typeof target.select === 'function';
+			}
 			function prepareSelection() {
-				if (selectionPrepared) {
-					return;
+				if (!selectionSupported()) {
+					return false;
 				}
-				selectionPrepared = true;
-				if (typeof target.focus === 'function' && typeof target.select === 'function') {
+				if (!selectionPrepared) {
+					selectionPrepared = true;
 					target.focus();
 					target.select();
-					return true;
 				}
-				return false;
+				return true;
 			}
 
 			try {
