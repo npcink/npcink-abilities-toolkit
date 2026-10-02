@@ -489,9 +489,12 @@
 				if (typeof target.focus === 'function' && typeof target.select === 'function') {
 					target.focus();
 					target.select();
-				} else if (output) {
-					output.hidden = false;
-					output.value = value;
+				} else {
+					const fallbackOutput = findOutputFor(button);
+					if (fallbackOutput) {
+						fallbackOutput.hidden = false;
+						fallbackOutput.value = value;
+					}
 				}
 				flashLabel(copyFailedLabel);
 			}

@@ -217,11 +217,8 @@ final class Health_Notices {
 	 */
 	private function dismiss_url( $id ) {
 		$url = admin_url( 'admin-post.php?action=' . self::DISMISS_ACTION . '&notice=' . rawurlencode( $id ) );
-		if ( function_exists( 'wp_nonce_url' ) ) {
-			$url = (string) wp_nonce_url( $url, self::DISMISS_ACTION );
-		}
 
-		return $url;
+		return (string) wp_nonce_url( $url, self::DISMISS_ACTION );
 	}
 
 	/**

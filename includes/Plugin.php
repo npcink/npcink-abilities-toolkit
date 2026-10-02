@@ -429,11 +429,45 @@ final class Plugin {
 	}
 
 	/**
+	 * Returns whether one post-meta write should invalidate the read cache.
+	 *
+	 * The read-cache reports only consume the SEO provider keys and the
+	 * Toolkit's own media metadata, so unrelated high-frequency meta traffic
+	 * (order meta, view counters) does not thrash the cache.
+	 *
+	 * @param string $meta_key Meta key.
+	 * @return bool
+	 */
+	private function is_watched_post_meta_key( $meta_key ) {
+		$watched = array(
+			'_yoast_wpseo_title',
+			'_yoast_wpseo_metadesc',
+			'rank_math_title',
+			'rank_math_description',
+			'_aioseo_title',
+			'_aioseo_description',
+		);
+
+		if ( function_exists( 'apply_filters' ) ) {
+			/**
+			 * Filters the post-meta keys whose direct writes invalidate the
+			 * bounded read cache.
+			 *
+			 * @param array<int,string> $watched Watched meta keys.
+			 */
+			$watched = apply_filters( 'npcink_abilities_toolkit_read_cache_watched_meta_keys', $watched );
+		}
+		$watched = is_array( $watched ) ? $watched : array();
+
+		return in_array( (string) $meta_key, $watched, true ) || 0 === strpos( (string) $meta_key, '_npcink_toolbox_' );
+	}
+
+	/**
 	 * Bumps the read-cache version after direct post-meta writes such as
 	 * set-post-seo-meta or adopt-article-audio, which bypass save_post.
 	 *
-	 * High-frequency editing locks are skipped so heartbeat and autosave
-	 * traffic does not invalidate otherwise fresh report caches.
+	 * One bump per request is enough to invalidate report transients; bulk
+	 * meta operations would otherwise repeat the option round-trip per key.
 	 *
 	 * @param mixed  $meta_ids Meta ids.
 	 * @param int    $post_id Post id.
@@ -446,11 +480,10 @@ final class Plugin {
 		if ( in_array( (string) $meta_key, array( '_edit_lock', '_edit_last' ), true ) ) {
 			return;
 		}
+		if ( ! $this->is_watched_post_meta_key( $meta_key ) ) {
+			return;
+		}
 
-		/*
-		 * One bump per request is enough to invalidate report transients; bulk
-		 * meta operations would otherwise repeat the option round-trip per key.
-		 */
 		if ( $this->read_cache_version_bumped_for_meta ) {
 			return;
 		}

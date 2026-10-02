@@ -1138,12 +1138,16 @@ foreach ( array( 'execute_callback', 'permission_callback', 'Closure', '/Users/m
 remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
 
 $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] = 7;
+$plugin->bump_read_cache_version_for_post_meta( 9, 42, 'woocommerce_order_total', '99' );
+npcink_abilities_toolkit_assert_same( 7, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'unrelated high-frequency meta traffic stays outside the read-cache invalidation scope' );
 $plugin->bump_read_cache_version_for_post_meta( 1, 42, '_yoast_wpseo_title', 'seo' );
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'post-meta writes outside save_post bump the read-cache version' );
 $plugin->bump_read_cache_version_for_post_meta( 1, 42, '_edit_lock', 'lock' );
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'edit-lock meta churn does not invalidate the read cache' );
 $plugin->bump_read_cache_version_for_post_meta( 2, 42, '_yoast_wpseo_metadesc', 'desc' );
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'bulk meta writes bump the read-cache version once per request' );
+$plugin->bump_read_cache_version_for_post_meta( 3, 42, '_npcink_toolbox_article_audio_url', 'https://example.com/a.mp3' );
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'toolkit-owned media meta stays watched and stays debounced within one request' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] );
 
 $health_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $registrar );
@@ -1258,6 +1262,17 @@ if ( ! function_exists( 'esc_url' ) ) {
 	 */
 	function esc_url( $value ) {
 		return (string) $value;
+	}
+}
+if ( ! function_exists( 'wp_nonce_url' ) ) {
+	/**
+	 * Returns the unit nonce URL.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	function wp_nonce_url( $url ) {
+		return $url . '&_wpnonce=unit';
 	}
 }
 if ( ! function_exists( 'admin_url' ) ) {

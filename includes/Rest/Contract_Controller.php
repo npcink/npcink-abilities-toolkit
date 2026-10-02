@@ -156,6 +156,13 @@ final class Contract_Controller {
 			if ( isset( $headers['Cache-Control'] ) ) {
 				header( 'Cache-Control: ' . (string) $headers['Cache-Control'] );
 			}
+			/*
+			 * Keep cookie-auth nonce rotation alive on the empty 304 path,
+			 * mirroring the X-WP-Nonce header core emits on full responses.
+			 */
+			if ( function_exists( 'wp_create_nonce' ) ) {
+				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
+			}
 		}
 
 		return true;
