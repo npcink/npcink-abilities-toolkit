@@ -21,6 +21,8 @@ if [[ ! -d "$SVN_WC/.svn" ]]; then
 	exit 1
 fi
 
+bash "$ROOT_DIR/scripts/check-wporg-svn-freshness.sh" "$SVN_WC"
+
 source_commit="$(bash "$ROOT_DIR/scripts/check-release-source.sh" "$VERSION" "$ROOT_DIR")"
 
 plugin_version="$(php -r '$s=file_get_contents("npcink-abilities-toolkit.php"); if (preg_match("/^[ \t*]*Version:\s*([^\r\n]+)/mi", $s, $m)) { echo trim($m[1]); }')"
