@@ -228,6 +228,12 @@ Ranked candidates as measured on 2026-10-01:
 Adjacent analysis ceiling, decided 2026-09-30: PHPStan stays at level 3.
 Level 4 measured 726 findings; re-measure and ratchet only when the next level
 costs single-digit fixes (see the write-package closeout lesson on ratcheting).
+Incremental ratchet added 2026-10-03: `composer check:phpstan-ratchet`
+(reinforced in the PHP CI job) requires every analyzed PHP file a pull
+request touches to keep its level-4 error count at or below the base
+revision, so the 726-finding backlog neither blocks changes nor grows. Its
+first real catch was the `wp_get_ability()` array/object dead-code bug in
+ADR 0008's WordPress comparison (fixed in PR #184 before release).
 `Core_Destructive_Package` (1,473 lines) and `Core_Comment_Package` (1,188
 lines) carry no change pressure and are not candidates.
 
