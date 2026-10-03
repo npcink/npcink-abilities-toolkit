@@ -44,12 +44,17 @@ On the toolkit surface every normalized field participates in the comparison
 except the two callback bindings — capability, scopes, schemas, risk level,
 deprecation lineage, agent usage, and metadata all count as contract, because
 swapping any of them silently is the dangerous case. On the WordPress
-surface the comparison covers the fields WordPress itself stores
-(label, description, category, input schema, output schema, meta) and reads
-them through `wp_get_ability()` when available; when the registered
-definition cannot be read, the event reports `contract_comparison:
-unavailable` with a `warn` status instead of asserting a value that was
-never checked.
+surface `wp_get_ability()` returns a `WP_Ability` object whose public getters
+expose only the label, description, and meta; those fields are compared and
+the event carries `contract_comparison: partial` to say so. Category,
+schema, capability, and scope swaps are not detectable through the WordPress
+object API — an accepted limitation recorded here — and when the ability
+cannot be read at all, the event reports `contract_comparison: unavailable`
+with a `warn` status instead of asserting a value that was never checked.
+(The first implementation of this comparison treated `wp_get_ability()` as
+returning an array, which would have made the comparison dead code against
+real WordPress; a level-4 PHPStan run on the changed file caught it before
+any release shipped it.)
 
 Rationale:
 

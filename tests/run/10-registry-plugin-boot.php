@@ -757,6 +757,7 @@ $duplicate_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOB
 npcink_abilities_toolkit_assert_same( 1, count( $duplicate_events ), 'same-fingerprint re-registration emits one duplicate diagnostic' );
 npcink_abilities_toolkit_assert_same( 'toolkit_registry', $duplicate_events[0]['surface'] ?? '', 'duplicate diagnostic identifies the toolkit registry surface' );
 npcink_abilities_toolkit_assert_same( false, $duplicate_events[0]['contract_changed'] ?? null, 'identical re-registration reports an unchanged contract' );
+npcink_abilities_toolkit_assert_same( 'full', $duplicate_events[0]['contract_comparison'] ?? '', 'toolkit-surface duplicate diagnostics compare the full normalized contract' );
 npcink_abilities_toolkit_assert_same( 'ok', $duplicate_events[0]['status'] ?? '', 'identical re-registration diagnostic status is ok' );
 npcink_abilities_toolkit_assert_event_has_safe_event_id( $duplicate_events[0], 'duplicate_', 'duplicate registration event' );
 npcink_abilities_toolkit_assert_observability_event_is_metadata_only( $duplicate_events[0], 'duplicate registration event payload' );
@@ -767,6 +768,7 @@ $duplicate_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_definitio
 $duplicate_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
 npcink_abilities_toolkit_assert_same( 1, count( $duplicate_events ), 'changed-contract re-registration emits one duplicate diagnostic' );
 npcink_abilities_toolkit_assert_same( true, $duplicate_events[0]['contract_changed'] ?? null, 'changed-contract re-registration flags the silent swap risk' );
+npcink_abilities_toolkit_assert_same( 'full', $duplicate_events[0]['contract_comparison'] ?? '', 'changed-contract re-registration keeps the full comparison marker' );
 npcink_abilities_toolkit_assert_same( 'error', $duplicate_events[0]['status'] ?? '', 'changed-contract re-registration diagnostic status is error' );
 npcink_abilities_toolkit_assert_same( 'Registers twice with a changed contract.', $duplicate_registrar->all()['acme/duplicate-probe']['description'] ?? '', 'last-writer-wins overwrite semantics stay unchanged' );
 
@@ -806,7 +808,8 @@ $duplicate_wp_events = npcink_abilities_toolkit_observability_events_of_kind( $G
 npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_events ), 'a WordPress-owned ability id emits the wordpress_registry duplicate diagnostic' );
 npcink_abilities_toolkit_assert_same( 'wordpress_registry', $duplicate_wp_events[0]['surface'] ?? '', 'wordpress-level skip identifies the wordpress registry surface' );
 npcink_abilities_toolkit_assert_same( 'ok', $duplicate_wp_events[0]['status'] ?? '', 'wordpress-level skip with an unchanged contract stays a non-error diagnostic' );
-npcink_abilities_toolkit_assert_same( false, $duplicate_wp_events[0]['contract_changed'] ?? null, 'wordpress-level skip compares against the WordPress-registered contract' );
+npcink_abilities_toolkit_assert_same( false, $duplicate_wp_events[0]['contract_changed'] ?? null, 'wordpress-level skip compares the WordPress-exposed contract fields' );
+npcink_abilities_toolkit_assert_same( 'partial', $duplicate_wp_events[0]['contract_comparison'] ?? '', 'wordpress-level comparison is marked partial because WP_Ability exposes only some fields' );
 npcink_abilities_toolkit_assert_event_has_safe_event_id( $duplicate_wp_events[0], 'duplicate_', 'wordpress duplicate registration event' );
 
 // A registrar registering a genuinely different contract under an id that
@@ -822,3 +825,19 @@ $duplicate_wp_conflict_events = npcink_abilities_toolkit_observability_events_of
 npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_conflict_events ), 'a WordPress-owned conflict emits exactly one duplicate diagnostic' );
 npcink_abilities_toolkit_assert_same( true, $duplicate_wp_conflict_events[0]['contract_changed'] ?? null, 'a differing WordPress-owned contract is flagged as changed' );
 npcink_abilities_toolkit_assert_same( 'error', $duplicate_wp_conflict_events[0]['status'] ?? '', 'a differing WordPress-owned contract diagnostic status is error' );
+npcink_abilities_toolkit_assert_same( 'partial', $duplicate_wp_conflict_events[0]['contract_comparison'] ?? '', 'a differing WordPress-owned contract keeps the partial comparison marker' );
+
+// Honest limitation: a category-only change on the WordPress surface is not
+// detectable through the WP_Ability getter API, so the partial comparison
+// reports the exposed fields as unchanged.
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_wp_category_categories = new Category_Registrar();
+$duplicate_wp_category_registrar  = new Ability_Registrar( $duplicate_wp_category_categories, new Contract_Normalizer( new Schema_Normalizer() ) );
+$duplicate_wp_category_definition = $duplicate_definition;
+$duplicate_wp_category_definition['category'] = 'diagnostics';
+$duplicate_wp_category_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_wp_category_definition );
+$duplicate_wp_category_registrar->register_with_wordpress();
+$duplicate_wp_category_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
+npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_category_events ), 'a category-only WordPress conflict still emits one duplicate diagnostic' );
+npcink_abilities_toolkit_assert_same( false, $duplicate_wp_category_events[0]['contract_changed'] ?? null, 'a category-only WordPress conflict is honestly reported as not detected by the partial comparison' );
+npcink_abilities_toolkit_assert_same( 'partial', $duplicate_wp_category_events[0]['contract_comparison'] ?? '', 'the category-only case documents the WP_Ability getter limitation' );
