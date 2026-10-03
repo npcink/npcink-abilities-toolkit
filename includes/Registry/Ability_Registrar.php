@@ -291,18 +291,19 @@ final class Ability_Registrar {
 	 * @param bool   $contract_changed Whether contract-bearing fields changed.
 	 * @return void
 	 */
-	private function emit_duplicate_registration_event( $ability_id, $surface, $contract_changed ) {
+	private function emit_duplicate_registration_event( $ability_id, $surface, $contract_changed, $contract_comparison = 'full' ) {
 		$this->emit_observability_event(
 			'abilities.registration.duplicate',
 			array(
-				'plugin_slug'      => 'npcink-abilities-toolkit',
-				'status'           => $contract_changed ? 'error' : 'ok',
-				'event_kind'       => 'abilities.registration.duplicate',
-				'event_id'         => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|' . $surface . '|' . ( $contract_changed ? 'changed' : 'same' ) ), 0, 32 ),
-				'ability_id'       => $ability_id,
-				'surface'          => $surface,
-				'contract_changed' => $contract_changed,
-				'source'           => 'local',
+				'plugin_slug'         => 'npcink-abilities-toolkit',
+				'status'              => $contract_changed ? 'error' : 'ok',
+				'event_kind'          => 'abilities.registration.duplicate',
+				'event_id'            => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|' . $surface . '|' . ( $contract_changed ? 'changed' : 'same' ) ), 0, 32 ),
+				'ability_id'          => $ability_id,
+				'surface'             => $surface,
+				'contract_changed'    => $contract_changed,
+				'contract_comparison' => $contract_comparison,
+				'source'              => 'local',
 			)
 		);
 	}
@@ -310,22 +311,29 @@ final class Ability_Registrar {
 	/**
 	 * Emits the WordPress-owned duplicate diagnostic, comparing contracts when possible.
 	 *
-	 * When `wp_get_ability()` exposes the WordPress-registered definition, the
-	 * WordPress-known contract fields are compared and a genuine silent swap is
-	 * flagged with an error status. When the registered definition cannot be
-	 * read, the event honestly reports the comparison as unavailable instead
-	 * of asserting an unchecked value.
+	 * `wp_get_ability()` returns a `WP_Ability` object whose public getters
+	 * expose only the slug, label, description, and meta. When that surface is
+	 * available the exposed fields are compared (a partial comparison marked
+	 * on the event) and a genuine silent swap is flagged with an error status.
+	 * When the ability cannot be read, the event honestly reports the
+	 * comparison as unavailable instead of asserting a value that was never
+	 * checked.
 	 *
 	 * @param string              $ability_id Duplicate ability id.
 	 * @param array<string,mixed> $definition Normalized incoming definition.
 	 * @return void
 	 */
 	private function emit_wordpress_duplicate_registration_event( $ability_id, array $definition ) {
-		$wordpress_definition = function_exists( 'wp_get_ability' ) ? wp_get_ability( $ability_id ) : null;
+		$wordpress_ability = function_exists( 'wp_get_ability' ) ? wp_get_ability( $ability_id ) : null;
 
-		if ( is_array( $wordpress_definition ) ) {
-			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', $this->wordpress_contract_changed( $wordpress_definition, $definition ) );
-
+		if (
+			is_object( $wordpress_ability )
+			&& method_exists( $wordpress_ability, 'get_label' )
+			&& method_exists( $wordpress_ability, 'get_description' )
+			&& method_exists( $wordpress_ability, 'get_meta' )
+		) {
+			$changed = $this->wordpress_contract_changed( $wordpress_ability, $definition );
+			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', $changed, 'partial' );
 			return;
 		}
 
@@ -345,21 +353,26 @@ final class Ability_Registrar {
 	}
 
 	/**
-	 * Reports whether the WordPress-known contract fields differ between definitions.
+	 * Reports whether the WordPress-exposed contract fields differ.
 	 *
-	 * The comparison is limited to the fields WordPress stores on
-	 * registration; toolkit-side extension fields have no WordPress-side
-	 * counterpart to compare against.
+	 * The `WP_Ability` object API exposes only label, description, and meta;
+	 * category, schema, capability, and scope changes on the WordPress
+	 * surface are not detectable through it, which the callers mark as a
+	 * partial comparison.
 	 *
-	 * @param array<string,mixed> $wordpress_definition Definition reported by WordPress.
-	 * @param array<string,mixed> $definition           Normalized incoming definition.
+	 * @param object              $wordpress_ability Ability instance returned by WordPress.
+	 * @param array<string,mixed> $definition        Normalized incoming definition.
 	 * @return bool
 	 */
-	private function wordpress_contract_changed( array $wordpress_definition, array $definition ) {
-		foreach ( array( 'label', 'description', 'category', 'input_schema', 'output_schema', 'meta' ) as $contract_field ) {
-			if ( ( $wordpress_definition[ $contract_field ] ?? null ) !== ( $definition[ $contract_field ] ?? null ) ) {
-				return true;
-			}
+	private function wordpress_contract_changed( $wordpress_ability, array $definition ) {
+		if ( (string) $wordpress_ability->get_label() !== (string) ( $definition['label'] ?? '' ) ) {
+			return true;
+		}
+		if ( (string) $wordpress_ability->get_description() !== (string) ( $definition['description'] ?? '' ) ) {
+			return true;
+		}
+		if ( (array) $wordpress_ability->get_meta() !== (array) ( $definition['meta'] ?? array() ) ) {
+			return true;
 		}
 
 		return false;

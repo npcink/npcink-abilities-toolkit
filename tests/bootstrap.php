@@ -1103,15 +1103,47 @@ if ( ! function_exists( 'wp_has_ability' ) ) {
 	}
 }
 
+if ( ! class_exists( 'WP_Ability' ) ) {
+	class WP_Ability {
+		private $slug;
+		private $args;
+
+		public function __construct( $slug, array $args ) {
+			$this->slug = $slug;
+			$this->args = $args;
+		}
+
+		public function get_slug() {
+			return $this->slug;
+		}
+
+		public function get_label() {
+			return (string) ( $this->args['label'] ?? '' );
+		}
+
+		public function get_description() {
+			return (string) ( $this->args['description'] ?? '' );
+		}
+
+		public function get_meta() {
+			return is_array( $this->args['meta'] ?? null ) ? $this->args['meta'] : array();
+		}
+	}
+}
+
 if ( ! function_exists( 'wp_get_ability' ) ) {
 	function wp_get_ability( $ability_id ) {
 		$registered = isset( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] )
 			? $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']
 			: array();
 
-		return isset( $registered[ (string) $ability_id ] ) && is_array( $registered[ (string) $ability_id ] )
-			? $registered[ (string) $ability_id ]
-			: null;
+		if ( ! isset( $registered[ (string) $ability_id ] ) || ! is_array( $registered[ (string) $ability_id ] ) ) {
+			return null;
+		}
+
+		// Mirror core: wp_get_ability() returns a WP_Ability instance, whose
+		// public getters expose only slug, label, description, and meta.
+		return new WP_Ability( (string) $ability_id, $registered[ (string) $ability_id ] );
 	}
 }
 
