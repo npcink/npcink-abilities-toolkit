@@ -77,10 +77,20 @@ cohesive responsibility can move without changing its public contract.
    read/write definition arrays only when a concrete definition change is made
    harder by current ownership and callback ownership is already stable.
    Definitions must continue to bind to the same object callbacks and metadata.
-5. **Test suites — deferred pending test-maintenance pressure.** Split
-   `tests/run.php` by contract surface only when test changes show repeated
-   collision or isolation problems. Preserve a single default `composer test`
-   entrypoint and aggregate assertion result.
+5. **Test suites — resumed and completed 2026-10-03 on test-maintenance
+   evidence.** `tests/run.php` had grown from the 7,761-line baseline to
+   9,937 lines (surpassing `Core_Write_Package.php` as the repository's
+   largest PHP file), which met the repeated-collision resume condition. It
+   is now an ordered aggregator over eleven `tests/run/` part files cut along
+   the original execution order (registry/boot, package definitions, post
+   write flows, block-theme/comment flows, read planning, media file
+   operations, cloud media backups, media restore/alt plans, media
+   inventory/article plans, content intent routing, page patterns/closeout).
+   Because the suite shares fixtures through top-level variables and
+   `$GLOBALS` WordPress stubs, the include order is load-bearing and the
+   split deliberately regroups nothing; behavior preservation is proven by
+   the identical 16,657-assertion result. The single `composer test`
+   entrypoint and aggregate assertion result are unchanged.
 
 Do not execute the remaining sequence automatically. When evidence justifies a
 resume, open one focused pull request for the affected responsibility, verify
