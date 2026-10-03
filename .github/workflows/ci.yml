@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -45,6 +47,9 @@ jobs:
 
       - name: Run PHPStan
         run: composer analyse:phpstan
+
+      - name: PHPStan level-4 ratchet on changed files
+        run: composer check:phpstan-ratchet
 
   wordpress-smoke:
     name: wordpress-smoke (${{ matrix.name }})

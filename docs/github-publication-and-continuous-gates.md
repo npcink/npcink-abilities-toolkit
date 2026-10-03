@@ -96,6 +96,16 @@ The WordPress runtime matrix covers:
 PHPStan also analyzes against PHP `8.0`, matching `composer.json`'s
 `php >=8.0` requirement.
 
+Since 2026-10-03 the PHP CI job also runs `composer check:phpstan-ratchet`:
+for every analyzed PHP file a pull request touches, the PHPStan level-4
+error count must not exceed the count at the base revision. The gate skips
+when no analyzed file changed, when the base ref is unavailable, or when
+composer dependencies cannot be installed in the temporary base worktree.
+Existing level-4 debt never blocks a change; new level-4 debt does. The
+first application of a level-4 pass over changed code caught the
+`wp_get_ability()` array/object mix-up before any release shipped it (see
+ADR 0008).
+
 ## Verified Commands
 
 The following local checks passed after adding the dependency audit gate and
