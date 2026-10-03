@@ -53,6 +53,13 @@ permission, or final authorization contract changed.
 
 ## Environment Notes
 
+- The advisory AI review gate (`ocr review --from origin/master --to HEAD`)
+  reported exactly one finding across the release diff: a pt_BR
+  mistranslation rendering "Add more body content before publishing." as
+  "conteúdo corporal" (which reads as anatomical content). It was fixed to
+  "Adicione mais conteúdo ao corpo antes de publicar." and the locale
+  recompiled; the M4 evidence remains tied to the verified source commit
+  because a translation-string edit changes no PHP source.
 - The local Docker daemon was unavailable for this release's duplicate
   minimum/current smoke legs; the documented M4 remote evidence path
   (`composer smoke:wp-m4`) generated exact-revision evidence naming the

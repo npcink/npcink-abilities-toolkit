@@ -5024,7 +5024,7 @@ msgstr "O conteúdo do corpo tem texto suficiente para revisão."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:60
 msgid "Add more body content before publishing."
-msgstr "Adicione mais conteúdo corporal antes de publicar."
+msgstr "Adicione mais conteúdo ao corpo antes de publicar."
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Slug is set."
