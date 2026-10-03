@@ -38,8 +38,12 @@ BASE_COUNTS="$(mktemp "${TMPDIR:-/tmp}/npcink-ratchet-base.XXXXXX")"
 BASE_FILES=""
 BASE_WORKTREE=""
 cleanup() {
-	if [ -n "$BASE_WORKTREE" ] && [ -d "$BASE_WORKTREE" ] && git -C "$ROOT_DIR" worktree list --porcelain | grep -qF "worktree $BASE_WORKTREE"; then
+	# Remove unconditionally: on macOS the mktemp path (/var/folders/...) and
+	# the canonical porcelain path (/private/var/folders/...) differ, so a
+	# grep guard on the listed path silently skipped removal.
+	if [ -n "$BASE_WORKTREE" ] && [ -d "$BASE_WORKTREE" ]; then
 		git -C "$ROOT_DIR" worktree remove --force "$BASE_WORKTREE" >/dev/null 2>&1 || true
+		git -C "$ROOT_DIR" worktree prune >/dev/null 2>&1 || true
 	fi
 	rm -f -- "$CHANGED_LIST" "$HEAD_COUNTS" "$BASE_COUNTS"
 }
@@ -108,6 +112,8 @@ fi
 
 # Base counts in a detached worktree of the base revision.
 BASE_WORKTREE="$(mktemp -d "${TMPDIR:-/tmp}/npcink-toolkit-ratchet.XXXXXX")"
+# Canonicalize so later paths match git's porcelain output.
+BASE_WORKTREE="$(cd "$BASE_WORKTREE" && pwd -P)"
 git worktree add --detach --quiet "$BASE_WORKTREE" "$BASE^{commit}"
 
 if ( cd "$BASE_WORKTREE" && composer install --quiet --no-interaction --no-progress >/dev/null 2>&1 ); then
