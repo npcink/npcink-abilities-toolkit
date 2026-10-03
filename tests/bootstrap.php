@@ -1103,6 +1103,18 @@ if ( ! function_exists( 'wp_has_ability' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_get_ability' ) ) {
+	function wp_get_ability( $ability_id ) {
+		$registered = isset( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']
+			: array();
+
+		return isset( $registered[ (string) $ability_id ] ) && is_array( $registered[ (string) $ability_id ] )
+			? $registered[ (string) $ability_id ]
+			: null;
+	}
+}
+
 if ( ! function_exists( 'wp_register_ability' ) ) {
 	function wp_register_ability( $ability_id, array $args ) {
 		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] ) ) {

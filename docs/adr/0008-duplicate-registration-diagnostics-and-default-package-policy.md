@@ -38,9 +38,18 @@ instance keeps the existing last-writer-wins overwrite, and a registration
 that WordPress already owns keeps the existing skip. Both paths now emit an
 `abilities.registration.duplicate` observability event whose payload records
 the ability id, the registration surface (`toolkit_registry` or
-`wordpress_registry`), and whether the normalized contract fields
-(label, description, category, input schema, output schema, meta) changed
-between the previous and incoming definition.
+`wordpress_registry`), and whether the contract changed.
+
+On the toolkit surface every normalized field participates in the comparison
+except the two callback bindings — capability, scopes, schemas, risk level,
+deprecation lineage, agent usage, and metadata all count as contract, because
+swapping any of them silently is the dangerous case. On the WordPress
+surface the comparison covers the fields WordPress itself stores
+(label, description, category, input schema, output schema, meta) and reads
+them through `wp_get_ability()` when available; when the registered
+definition cannot be read, the event reports `contract_comparison:
+unavailable` with a `warn` status instead of asserting a value that was
+never checked.
 
 Rationale:
 
@@ -78,7 +87,9 @@ separate release, per the issue's acceptance criteria.
 - Tests assert the duplicate diagnostics: same-fingerprint
   re-registration reports `contract_changed: false`, changed-contract
   re-registration reports `contract_changed: true`, and the
-  WordPress-level skip emits the `wordpress_registry` variant.
+  WordPress-level skip emits the `wordpress_registry` variant with a
+  compared result — flagging a genuinely different contract under an id
+  WordPress already owns as the error-grade silent swap.
 - Tests assert the seven-package default boot map and that the package
   filter can disable `core_write` and `core_destructive`.
 - No upgrade or compatibility note is required because no default changed.

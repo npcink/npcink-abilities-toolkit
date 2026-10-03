@@ -805,5 +805,20 @@ $duplicate_wp_registrar->register_with_wordpress();
 $duplicate_wp_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
 npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_events ), 'a WordPress-owned ability id emits the wordpress_registry duplicate diagnostic' );
 npcink_abilities_toolkit_assert_same( 'wordpress_registry', $duplicate_wp_events[0]['surface'] ?? '', 'wordpress-level skip identifies the wordpress registry surface' );
-npcink_abilities_toolkit_assert_same( 'ok', $duplicate_wp_events[0]['status'] ?? '', 'wordpress-level skip stays a non-error diagnostic' );
+npcink_abilities_toolkit_assert_same( 'ok', $duplicate_wp_events[0]['status'] ?? '', 'wordpress-level skip with an unchanged contract stays a non-error diagnostic' );
+npcink_abilities_toolkit_assert_same( false, $duplicate_wp_events[0]['contract_changed'] ?? null, 'wordpress-level skip compares against the WordPress-registered contract' );
 npcink_abilities_toolkit_assert_event_has_safe_event_id( $duplicate_wp_events[0], 'duplicate_', 'wordpress duplicate registration event' );
+
+// A registrar registering a genuinely different contract under an id that
+// WordPress already owns is the silent-swap case: the diagnostic flags it.
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_wp_conflict_categories = new Category_Registrar();
+$duplicate_wp_conflict_registrar  = new Ability_Registrar( $duplicate_wp_conflict_categories, new Contract_Normalizer( new Schema_Normalizer() ) );
+$duplicate_wp_conflict_definition = $duplicate_definition;
+$duplicate_wp_conflict_definition['description'] = 'A different contract reusing an id WordPress already owns.';
+$duplicate_wp_conflict_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_wp_conflict_definition );
+$duplicate_wp_conflict_registrar->register_with_wordpress();
+$duplicate_wp_conflict_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
+npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_conflict_events ), 'a WordPress-owned conflict emits exactly one duplicate diagnostic' );
+npcink_abilities_toolkit_assert_same( true, $duplicate_wp_conflict_events[0]['contract_changed'] ?? null, 'a differing WordPress-owned contract is flagged as changed' );
+npcink_abilities_toolkit_assert_same( 'error', $duplicate_wp_conflict_events[0]['status'] ?? '', 'a differing WordPress-owned contract diagnostic status is error' );

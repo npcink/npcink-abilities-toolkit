@@ -266,22 +266,21 @@ final class Ability_Registrar {
 	/**
 	 * Reports whether the contract-bearing fields of two normalized definitions differ.
 	 *
-	 * Callback and permission callbacks are intentionally excluded: they are
-	 * closures that cannot be compared, and the dangerous silent swap is a
-	 * changed public contract, not a changed callback binding.
+	 * Every normalized field participates except the two callback bindings:
+	 * closures cannot be compared, and the dangerous silent swap is a changed
+	 * public contract (capability, scopes, schemas, deprecation lineage,
+	 * agent usage, and so on), not a changed callback identity.
 	 *
 	 * @param array<string,mixed> $existing Previously stored definition.
 	 * @param array<string,mixed> $incoming Newly normalized definition.
 	 * @return bool
 	 */
 	private function normalized_contract_changed( array $existing, array $incoming ) {
-		foreach ( array( 'label', 'description', 'category', 'input_schema', 'output_schema', 'meta' ) as $contract_field ) {
-			if ( ( $existing[ $contract_field ] ?? null ) !== ( $incoming[ $contract_field ] ?? null ) ) {
-				return true;
-			}
+		foreach ( array( 'execute_callback', 'permission_callback' ) as $callback_field ) {
+			unset( $existing[ $callback_field ], $incoming[ $callback_field ] );
 		}
 
-		return false;
+		return $existing !== $incoming;
 	}
 
 	/**
@@ -296,16 +295,74 @@ final class Ability_Registrar {
 		$this->emit_observability_event(
 			'abilities.registration.duplicate',
 			array(
-				'plugin_slug'     => 'npcink-abilities-toolkit',
-				'status'          => $contract_changed ? 'error' : 'ok',
-				'event_kind'      => 'abilities.registration.duplicate',
-				'event_id'        => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|' . $surface . '|' . ( $contract_changed ? 'changed' : 'same' ) ), 0, 32 ),
-				'ability_id'      => $ability_id,
-				'surface'         => $surface,
+				'plugin_slug'      => 'npcink-abilities-toolkit',
+				'status'           => $contract_changed ? 'error' : 'ok',
+				'event_kind'       => 'abilities.registration.duplicate',
+				'event_id'         => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|' . $surface . '|' . ( $contract_changed ? 'changed' : 'same' ) ), 0, 32 ),
+				'ability_id'       => $ability_id,
+				'surface'          => $surface,
 				'contract_changed' => $contract_changed,
-				'source'          => 'local',
+				'source'           => 'local',
 			)
 		);
+	}
+
+	/**
+	 * Emits the WordPress-owned duplicate diagnostic, comparing contracts when possible.
+	 *
+	 * When `wp_get_ability()` exposes the WordPress-registered definition, the
+	 * WordPress-known contract fields are compared and a genuine silent swap is
+	 * flagged with an error status. When the registered definition cannot be
+	 * read, the event honestly reports the comparison as unavailable instead
+	 * of asserting an unchecked value.
+	 *
+	 * @param string              $ability_id Duplicate ability id.
+	 * @param array<string,mixed> $definition Normalized incoming definition.
+	 * @return void
+	 */
+	private function emit_wordpress_duplicate_registration_event( $ability_id, array $definition ) {
+		$wordpress_definition = function_exists( 'wp_get_ability' ) ? wp_get_ability( $ability_id ) : null;
+
+		if ( is_array( $wordpress_definition ) ) {
+			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', $this->wordpress_contract_changed( $wordpress_definition, $definition ) );
+
+			return;
+		}
+
+		$this->emit_observability_event(
+			'abilities.registration.duplicate',
+			array(
+				'plugin_slug'         => 'npcink-abilities-toolkit',
+				'status'              => 'warn',
+				'event_kind'          => 'abilities.registration.duplicate',
+				'event_id'            => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|wordpress_registry|unavailable' ), 0, 32 ),
+				'ability_id'          => $ability_id,
+				'surface'             => 'wordpress_registry',
+				'contract_comparison' => 'unavailable',
+				'source'              => 'local',
+			)
+		);
+	}
+
+	/**
+	 * Reports whether the WordPress-known contract fields differ between definitions.
+	 *
+	 * The comparison is limited to the fields WordPress stores on
+	 * registration; toolkit-side extension fields have no WordPress-side
+	 * counterpart to compare against.
+	 *
+	 * @param array<string,mixed> $wordpress_definition Definition reported by WordPress.
+	 * @param array<string,mixed> $definition           Normalized incoming definition.
+	 * @return bool
+	 */
+	private function wordpress_contract_changed( array $wordpress_definition, array $definition ) {
+		foreach ( array( 'label', 'description', 'category', 'input_schema', 'output_schema', 'meta' ) as $contract_field ) {
+			if ( ( $wordpress_definition[ $contract_field ] ?? null ) !== ( $definition[ $contract_field ] ?? null ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -321,7 +378,7 @@ final class Ability_Registrar {
 		}
 
 		if ( function_exists( 'wp_has_ability' ) && wp_has_ability( $ability_id ) ) {
-			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', false );
+			$this->emit_wordpress_duplicate_registration_event( $ability_id, $definition );
 			return;
 		}
 
