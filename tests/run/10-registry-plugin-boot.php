@@ -738,3 +738,72 @@ npcink_abilities_toolkit_assert_true(
 $catalog = $bridge->filter_catalog( array(), array() );
 npcink_abilities_toolkit_assert_true( ! isset( $catalog['npcink-abilities-toolkit_official-summary'] ), 'catalog bridge does not project official mirrored abilities' );
 
+
+// ADR 0008: duplicate registration emits bounded diagnostics without
+// changing last-writer-wins or WordPress-level skip semantics.
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_registrar_categories = new Category_Registrar();
+$duplicate_registrar            = new Ability_Registrar( $duplicate_registrar_categories, new Contract_Normalizer( new Schema_Normalizer() ) );
+$duplicate_definition           = array(
+	'label'        => 'Duplicate Probe',
+	'description'  => 'Registers twice through the same registrar.',
+	'input_schema'  => array( 'type' => 'object' ),
+	'output_schema' => array( 'type' => 'object' ),
+	'category'      => 'content',
+);
+$duplicate_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_definition );
+$duplicate_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_definition );
+$duplicate_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
+npcink_abilities_toolkit_assert_same( 1, count( $duplicate_events ), 'same-fingerprint re-registration emits one duplicate diagnostic' );
+npcink_abilities_toolkit_assert_same( 'toolkit_registry', $duplicate_events[0]['surface'] ?? '', 'duplicate diagnostic identifies the toolkit registry surface' );
+npcink_abilities_toolkit_assert_same( false, $duplicate_events[0]['contract_changed'] ?? null, 'identical re-registration reports an unchanged contract' );
+npcink_abilities_toolkit_assert_same( 'ok', $duplicate_events[0]['status'] ?? '', 'identical re-registration diagnostic status is ok' );
+npcink_abilities_toolkit_assert_event_has_safe_event_id( $duplicate_events[0], 'duplicate_', 'duplicate registration event' );
+npcink_abilities_toolkit_assert_observability_event_is_metadata_only( $duplicate_events[0], 'duplicate registration event payload' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_definition['description'] = 'Registers twice with a changed contract.';
+$duplicate_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_definition );
+$duplicate_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
+npcink_abilities_toolkit_assert_same( 1, count( $duplicate_events ), 'changed-contract re-registration emits one duplicate diagnostic' );
+npcink_abilities_toolkit_assert_same( true, $duplicate_events[0]['contract_changed'] ?? null, 'changed-contract re-registration flags the silent swap risk' );
+npcink_abilities_toolkit_assert_same( 'error', $duplicate_events[0]['status'] ?? '', 'changed-contract re-registration diagnostic status is error' );
+npcink_abilities_toolkit_assert_same( 'Registers twice with a changed contract.', $duplicate_registrar->all()['acme/duplicate-probe']['description'] ?? '', 'last-writer-wins overwrite semantics stay unchanged' );
+
+// ADR 0008: the seven-package default boot map stays default-enabled,
+// including core_write and core_destructive, and the filter can still
+// disable write-like packages per site.
+$duplicate_plugin_defaults = Plugin::instance()->get_enabled_packages();
+foreach ( array( 'core_read', 'core_write', 'core_destructive', 'core_comment', 'npcink_catalog_bridge', 'admin_test_page', 'read_cache_hooks' ) as $duplicate_expected_package ) {
+	npcink_abilities_toolkit_assert_same( true, $duplicate_plugin_defaults[ $duplicate_expected_package ] ?? null, "package {$duplicate_expected_package} stays default-enabled per ADR 0008" );
+}
+add_filter(
+	'npcink_abilities_toolkit_enabled_packages',
+	static function ( $packages ) {
+		if ( is_array( $packages ) ) {
+			$packages['core_write']       = false;
+			$packages['core_destructive'] = false;
+		}
+		return $packages;
+	}
+);
+$duplicate_filtered_defaults = Plugin::instance()->get_enabled_packages();
+npcink_abilities_toolkit_assert_same( false, $duplicate_filtered_defaults['core_write'] ?? null, 'package boot filter can disable core_write per site' );
+npcink_abilities_toolkit_assert_same( false, $duplicate_filtered_defaults['core_destructive'] ?? null, 'package boot filter can disable core_destructive per site' );
+npcink_abilities_toolkit_assert_same( true, $duplicate_filtered_defaults['core_read'] ?? null, 'filtering write packages keeps read packages enabled' );
+remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
+
+// ADR 0008: a WordPress-level duplicate (ability id already owned by another
+// registrar) keeps the skip and emits the wordpress_registry diagnostic.
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_wp_categories = new Category_Registrar();
+$duplicate_wp_registrar  = new Ability_Registrar( $duplicate_wp_categories, new Contract_Normalizer( new Schema_Normalizer() ) );
+$duplicate_wp_registrar->add_readonly( 'acme/duplicate-probe', $duplicate_definition );
+$duplicate_wp_registrar->register_with_wordpress();
+$GLOBALS['npcink_abilities_toolkit_unit_observability_events'] = array();
+$duplicate_wp_registrar->register_with_wordpress();
+$duplicate_wp_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.registration.duplicate' );
+npcink_abilities_toolkit_assert_same( 1, count( $duplicate_wp_events ), 'a WordPress-owned ability id emits the wordpress_registry duplicate diagnostic' );
+npcink_abilities_toolkit_assert_same( 'wordpress_registry', $duplicate_wp_events[0]['surface'] ?? '', 'wordpress-level skip identifies the wordpress registry surface' );
+npcink_abilities_toolkit_assert_same( 'ok', $duplicate_wp_events[0]['status'] ?? '', 'wordpress-level skip stays a non-error diagnostic' );
+npcink_abilities_toolkit_assert_event_has_safe_event_id( $duplicate_wp_events[0], 'duplicate_', 'wordpress duplicate registration event' );

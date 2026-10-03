@@ -239,9 +239,16 @@ final class Ability_Registrar {
 			return false;
 		}
 
+		$is_duplicate_registration = isset( $this->abilities[ $ability_id ] );
+		$contract_changed          = $is_duplicate_registration && $this->normalized_contract_changed( $this->abilities[ $ability_id ], $normalized );
+
 		$this->abilities[ $ability_id ] = $normalized;
 		$this->catalog_fingerprint_dirty = true;
 		$this->catalog_snapshot_checked  = false;
+
+		if ( $is_duplicate_registration ) {
+			$this->emit_duplicate_registration_event( $ability_id, 'toolkit_registry', $contract_changed );
+		}
 
 		if (
 			function_exists( 'wp_register_ability' )
@@ -257,6 +264,51 @@ final class Ability_Registrar {
 	}
 
 	/**
+	 * Reports whether the contract-bearing fields of two normalized definitions differ.
+	 *
+	 * Callback and permission callbacks are intentionally excluded: they are
+	 * closures that cannot be compared, and the dangerous silent swap is a
+	 * changed public contract, not a changed callback binding.
+	 *
+	 * @param array<string,mixed> $existing Previously stored definition.
+	 * @param array<string,mixed> $incoming Newly normalized definition.
+	 * @return bool
+	 */
+	private function normalized_contract_changed( array $existing, array $incoming ) {
+		foreach ( array( 'label', 'description', 'category', 'input_schema', 'output_schema', 'meta' ) as $contract_field ) {
+			if ( ( $existing[ $contract_field ] ?? null ) !== ( $incoming[ $contract_field ] ?? null ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Emits the duplicate-registration diagnostic recorded by ADR 0008.
+	 *
+	 * @param string $ability_id       Duplicate ability id.
+	 * @param string $surface          Registration surface (`toolkit_registry` or `wordpress_registry`).
+	 * @param bool   $contract_changed Whether contract-bearing fields changed.
+	 * @return void
+	 */
+	private function emit_duplicate_registration_event( $ability_id, $surface, $contract_changed ) {
+		$this->emit_observability_event(
+			'abilities.registration.duplicate',
+			array(
+				'plugin_slug'     => 'npcink-abilities-toolkit',
+				'status'          => $contract_changed ? 'error' : 'ok',
+				'event_kind'      => 'abilities.registration.duplicate',
+				'event_id'        => 'duplicate_' . substr( hash( 'sha256', $ability_id . '|' . $surface . '|' . ( $contract_changed ? 'changed' : 'same' ) ), 0, 32 ),
+				'ability_id'      => $ability_id,
+				'surface'         => $surface,
+				'contract_changed' => $contract_changed,
+				'source'          => 'local',
+			)
+		);
+	}
+
+	/**
 	 * Registers one normalized ability with WordPress.
 	 *
 	 * @param string              $ability_id Ability id.
@@ -269,6 +321,7 @@ final class Ability_Registrar {
 		}
 
 		if ( function_exists( 'wp_has_ability' ) && wp_has_ability( $ability_id ) ) {
+			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', false );
 			return;
 		}
 
