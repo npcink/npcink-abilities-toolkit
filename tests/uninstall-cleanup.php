@@ -93,6 +93,18 @@ function wp_upload_dir() {
 }
 
 /**
+ * Deletes a file like WordPress core: void return, unlink under the hood.
+ *
+ * @param string $file Absolute file path.
+ * @return void
+ */
+function wp_delete_file( $file ) {
+	if ( is_file( $file ) || is_link( $file ) ) {
+		@unlink( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	}
+}
+
+/**
  * Records an option deletion.
  *
  * @param string $option Option name.

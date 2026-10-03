@@ -85,15 +85,27 @@ function npcink_abilities_toolkit_uninstall_remove_backups_directory() {
 	$npcink_abilities_toolkit_backup_dir = $npcink_abilities_toolkit_basedir . '/npcink-abilities-toolkit-backups';
 	if ( is_link( $npcink_abilities_toolkit_backup_dir ) ) {
 		// Never descend through a symlinked backup directory; remove the link only.
-		if ( function_exists( 'wp_delete_file' ) ) {
-			wp_delete_file( $npcink_abilities_toolkit_backup_dir );
-		} else {
-			@unlink( $npcink_abilities_toolkit_backup_dir ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		}
+		npcink_abilities_toolkit_uninstall_delete_file( $npcink_abilities_toolkit_backup_dir );
 		return;
 	}
 	if ( is_dir( $npcink_abilities_toolkit_backup_dir ) ) {
 		npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_backup_dir );
+	}
+}
+
+/**
+ * Deletes one file or symlink through the WordPress file API.
+ *
+ * Deletion is skipped when the WordPress file API is unavailable (standalone
+ * harness contexts) rather than falling back to raw unlink() calls, so the
+ * packaged plugin keeps using WordPress APIs only.
+ *
+ * @param string $path Absolute file path.
+ * @return void
+ */
+function npcink_abilities_toolkit_uninstall_delete_file( $path ) {
+	if ( function_exists( 'wp_delete_file' ) ) {
+		wp_delete_file( $path );
 	}
 }
 
@@ -115,26 +127,23 @@ function npcink_abilities_toolkit_uninstall_rrmdir( $directory ) {
 		}
 		$npcink_abilities_toolkit_path = $directory . '/' . $npcink_abilities_toolkit_entry;
 		if ( is_link( $npcink_abilities_toolkit_path ) ) {
-			// Treat symlinks as files: unlink the link itself, never its target.
-			if ( function_exists( 'wp_delete_file' ) ) {
-				wp_delete_file( $npcink_abilities_toolkit_path );
-			} else {
-				@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			}
+			// Treat symlinks as files: delete the link itself, never its target.
+			npcink_abilities_toolkit_uninstall_delete_file( $npcink_abilities_toolkit_path );
 			continue;
 		}
 		if ( is_dir( $npcink_abilities_toolkit_path ) ) {
 			npcink_abilities_toolkit_uninstall_rrmdir( $npcink_abilities_toolkit_path );
 			continue;
 		}
-		if ( is_file( $npcink_abilities_toolkit_path ) && function_exists( 'wp_delete_file' ) ) {
-			wp_delete_file( $npcink_abilities_toolkit_path );
-		} elseif ( is_file( $npcink_abilities_toolkit_path ) ) {
-			@unlink( $npcink_abilities_toolkit_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( is_file( $npcink_abilities_toolkit_path ) ) {
+			npcink_abilities_toolkit_uninstall_delete_file( $npcink_abilities_toolkit_path );
 		}
 	}
 
-	@rmdir( $directory ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+	// WordPress ships no directory-removal API; the Filesystem abstraction
+	// cannot be loaded from uninstall without wp-admin path assumptions, and
+	// this manual recursion is the symlink-safe implementation under test.
+	@rmdir( $directory ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 }
 
 if ( is_multisite() && function_exists( 'get_sites' ) ) {

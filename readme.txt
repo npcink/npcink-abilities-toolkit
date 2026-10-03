@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.6
+Stable tag: 0.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,6 +165,14 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.7 =
+
+* Shipped the user-experience hardening batch: direct post-meta write abilities now invalidate the bounded read cache instead of serving stale reports, admin health notices fail loud when ability registration is unavailable or the catalog is empty, and uninstall removes media replacement history and the plugin backups directory behind explicit preserve filters.
+* Hardened the runtime contract endpoint: `ability_catalog_available` now reflects the live Abilities API route, and the contract response serves a quoted sha256 ETag with a filterable `Cache-Control` (default `private, no-cache`) plus empty 304 responses for matching `If-None-Match` polls.
+* Improved the admin surface: a read-only ability packages overview section, explicit empty states, copy-button failure fallback, request buttons that disable while running, and translated page title registration.
+* Kept the packaged plugin error-free for Plugin Check by routing the uninstall backup-tree file deletion through the WordPress file API.
+* Backfilled the bundled locales de_DE, es_ES, fr_FR, ja, ko_KR, and pt_BR to full template parity and refreshed the translation template to 0.5.7.
 
 = 0.5.6 =
 
