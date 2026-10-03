@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Decided issue #116 through ADR 0008 and implemented its duplicate-registration half: re-registering an existing ability id in the same registrar (last-writer-wins overwrite) and registrations skipped because WordPress already owns the id now emit `abilities.registration.duplicate` observability events recording the surface (`toolkit_registry` / `wordpress_registry`) and whether the contract-bearing fields changed (status `error` flags the silent-contract-swap risk); the seven-package default boot map stays default-enabled — including `core_write` and `core_destructive` — now as an explicit product decision resting on dry-run defaults, the host approval contract, and the per-site package filter, with tests covering duplicate diagnostics and package defaults.
 - Split the `tests/run.php` regression suite (9,937 lines, the repository's largest PHP file) into an ordered aggregator over eleven `tests/run/` part files cut along the original execution order, recorded as the completed test-suite slice of the structural split plan; the suite keeps its single `composer test` entrypoint and aggregates the identical 16,657 assertions, with the load-bearing include order documented in the aggregator header.
 
 ## 0.5.7 - 2026-10-03
