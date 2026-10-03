@@ -43,15 +43,21 @@ permission, or final authorization contract changed.
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| `composer test:all` | Pass | All source, contract, package, lifecycle, cron, uninstall, performance, and syntax checks passed. |
+| `composer test:all` | Pass | All source, contract, package, lifecycle, cron, uninstall, performance, and syntax checks passed; 16,657 assertions. |
 | `composer analyse:phpstan` | Pass | PHPStan level 3 reported no errors. |
 | `composer check:boundary` | Pass | Project boundary guard passed. |
 | `composer check:wporg` | Pass | WordPress.org review rules guard passed, including the bundled locale po/mo pairing checks. |
-| `composer release:verify` (LocalWP) | Pending | Full lane with `WP_PATH="/Users/muze/Local Sites/magick-ai/app/public"` and the live site MySQL socket. |
+| `composer release:verify` (LocalWP) | Pass | Full lane passed with `WP_PATH="/Users/muze/Local Sites/magick-ai/app/public"` and the site MySQL socket: source gate, PHPStan, LocalWP smoke (58 assertions), packaged Plugin Check (zero errors), and evidence-verified minimum WordPress 6.9.4/PHP 8.0 plus current WordPress 7.0/PHP 8.5 smokes (478 assertions each) through the M4 remote Docker evidence at HEAD `e0b48b5`. |
+| Packaged Plugin Check | Pass | Zero errors. One release-blocking finding was fixed during verification: the uninstall backup-tree removal introduced raw `unlink()` fallbacks and an unannotated `rmdir()` that Plugin Check rejected; file deletion now goes through `wp_delete_file()` only (skipping deletion when the API is absent), the remaining `rmdir()` carries an explicit annotation, and the uninstall harness stubs `wp_delete_file` with core-faithful void semantics. The pre-existing translation-loading and bounded-database-query warnings remain unchanged from 0.5.6. |
 | `git diff --check` | Pass | No whitespace errors. |
 
 ## Environment Notes
 
+- The local Docker daemon was unavailable for this release's duplicate
+  minimum/current smoke legs; the documented M4 remote evidence path
+  (`composer smoke:wp-m4`) generated exact-revision evidence naming the
+  release commit, which `release:verify` accepted in place of the local
+  Docker legs. The LocalWP smoke and packaged Plugin Check still ran locally.
 - The bundled locale `.mo` files were recompiled from the backfilled `.po`
   files; `msgfmt --check --statistics` reports 1,070 translated messages for
   every locale.
