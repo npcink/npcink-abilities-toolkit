@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Split the `tests/run.php` regression suite (9,937 lines, the repository's largest PHP file) into an ordered aggregator over eleven `tests/run/` part files cut along the original execution order, recorded as the completed test-suite slice of the structural split plan; the suite keeps its single `composer test` entrypoint and aggregates the identical 16,657 assertions, with the load-bearing include order documented in the aggregator header.
+
 ## 0.5.7 - 2026-10-03
 
 - Kept the packaged plugin Plugin Check error-free: the uninstall backup-tree removal (added with the user-experience hardening batch) now deletes files and symlinks only through `wp_delete_file()` — skipping deletion when the WordPress file API is absent instead of falling back to raw `unlink()` — and its one remaining `rmdir()` carries an explicit checker annotation because WordPress ships no directory-removal API and the manual recursion is the symlink-safe implementation under test; the uninstall harness now stubs `wp_delete_file` with core-faithful void semantics.
