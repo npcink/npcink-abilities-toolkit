@@ -20,7 +20,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   canary:
@@ -33,12 +32,16 @@ jobs:
           fetch-depth: 2
 
       - name: Record runner image facts
+        shell: bash
         run: |
           cat /etc/os-release
           node --version || true
 
       - name: Run OpenCodeReview canary
-        uses: alibaba/open-code-review@v1.12.10
+        # alibaba/open-code-review v1.12.10 (tag object b465046, commit
+        # 579b931; the action receives the LLM auth token, so pin the
+        # exact commit rather than the movable tag).
+        uses: alibaba/open-code-review@579b9319151aa734f2d25df6e59efa59eec5a577
         with:
           llm_url: ${{ secrets.OCR_LLM_URL }}
           llm_auth_token: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
