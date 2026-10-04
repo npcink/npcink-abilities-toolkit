@@ -25,6 +25,11 @@ on:
 permissions:
   contents: read
   pull-requests: read
+  # The review action upserts a pull-request conversation comment even on a
+  # zero-findings docs-only range (observed in canary run 37222950038: the
+  # posting step 403'd without it), and it posts findings whenever the range
+  # contains reviewable files.
+  issues: write
 
 jobs:
   canary:
