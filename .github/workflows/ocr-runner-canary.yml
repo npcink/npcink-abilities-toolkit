@@ -4,9 +4,10 @@
 #
 # Purpose: revalidate the pinned review action on a runner image before
 # the ocr-review.yml template pin is bumped (for example on ubuntu-26.04,
-# ahead of the 2026-10-19 ubuntu-latest migration). Dispatch it right
-# after a docs-only merge so the reviewed HEAD~1..HEAD range selects no
-# LLM-reviewable files and the run costs no provider tokens.
+# ahead of the 2026-10-19 ubuntu-latest migration). Dispatch it with the
+# number of a freshly merged docs-only pull request: the reviewed range
+# (the merge commit and its first parent) then selects no LLM-reviewable
+# files, so the validation run costs no provider tokens and posts nothing.
 
 name: OCR runner canary
 
@@ -17,9 +18,13 @@ on:
         description: 'Runner image label to validate'
         required: true
         default: 'ubuntu-26.04'
+      pr_number:
+        description: 'Number of a freshly merged docs-only pull request; its squash range is reviewed'
+        required: true
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   canary:
@@ -37,6 +42,43 @@ jobs:
           cat /etc/os-release
           node --version || true
 
+      - name: Resolve reviewed range from the pull request
+        id: range
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // workflow_dispatch inputs live on the event payload, not in
+            // the step's own input context (core.getInput reads step inputs).
+            const rawNumber = context.payload.inputs.pr_number;
+            if (!/^\d+$/.test(rawNumber || '')) {
+              core.setFailed('pr_number must be a positive integer; got: ' + rawNumber);
+              return;
+            }
+            const prNumber = parseInt(rawNumber, 10);
+            const { data: pull } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+            if (!pull.merged || !pull.merge_commit_sha) {
+              core.setFailed(
+                'PR ' + prNumber + ' is not merged; the canary reviews a merged docs-only pull request squash range.'
+              );
+              return;
+            }
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pull.merge_commit_sha
+            });
+            const parent = commit.parents[0] && commit.parents[0].sha;
+            if (!parent) {
+              core.setFailed('Merge commit has no parent commit.');
+              return;
+            }
+            core.setOutput('base_ref', parent);
+            core.setOutput('head_sha', pull.merge_commit_sha);
+
       - name: Run OpenCodeReview canary
         # alibaba/open-code-review v1.12.10 (tag object b465046, commit
         # 579b931; the action receives the LLM auth token, so pin the
@@ -49,5 +91,6 @@ jobs:
           llm_use_anthropic: ${{ vars.OCR_LLM_USE_ANTHROPIC }}
           # Review-comment language; keep in sync with ocr-review.yml.
           language: English
-          base_ref: HEAD~1
-          head_sha: HEAD
+          pr_number: ${{ inputs.pr_number }}
+          base_ref: ${{ steps.range.outputs.base_ref }}
+          head_sha: ${{ steps.range.outputs.head_sha }}
