@@ -47,7 +47,14 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = parseInt(core.getInput('pr_number'), 10);
+            // workflow_dispatch inputs live on the event payload, not in
+            // the step's own input context (core.getInput reads step inputs).
+            const rawNumber = context.payload.inputs.pr_number;
+            if (!/^\d+$/.test(rawNumber || '')) {
+              core.setFailed('pr_number must be a positive integer; got: ' + rawNumber);
+              return;
+            }
+            const prNumber = parseInt(rawNumber, 10);
             const { data: pull } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
