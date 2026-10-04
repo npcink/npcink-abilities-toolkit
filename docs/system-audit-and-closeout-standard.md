@@ -327,6 +327,21 @@ At the 2026-07-30 closeout, strict `master` protection required:
 This list is live repository configuration, not a permanent constant. Verify it
 through GitHub before changing CI names or declaring the protection current.
 
+## Advisory Review Delivery
+
+The OpenCodeReview workflow is advisory and never a required check, so a
+failed run blocks nothing and delivers nothing. Before merging, confirm the
+pull request received at least one delivered review round: posted review
+comments on the pull request, not merely a green or absent check. A failed
+run posts a failure marker comment; retry it with a `/open-code-review`
+comment, or record in the pull request why the change merges unreviewed.
+A failed run's `ocr-review-result-*` artifact distinguishes a provider-side
+failure (`comments: 0`, "all N file review(s) failed") from findings that
+were computed but not posted. This rule follows AI Code Review Standard v1
+in `npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`;
+the incident that produced it (PR #185, diagnosed 2026-10-04) is recorded
+there.
+
 ## Worktree Cleanup Decision
 
 Classify every worktree before removal:
