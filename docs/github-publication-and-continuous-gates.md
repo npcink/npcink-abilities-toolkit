@@ -154,6 +154,13 @@ failure marker comment on the pull request (template update in
 Before merging, confirm at least one delivered review round; retry with a
 `/open-code-review` comment or record why the change merges unreviewed.
 
+**Runner-image changes are validated before the pin moves.** The review
+workflow pins `ubuntu-24.04` ahead of the 2026-10-19 `ubuntu-latest` ->
+Ubuntu 26.04 migration. Before bumping that pin, dispatch the manual
+`OCR runner canary` workflow (`.github/workflows/ocr-runner-canary.yml`)
+on the target image, right after a docs-only merge so the canary reviews
+a range with no LLM-reviewable files and costs no provider tokens.
+
 **End the advisory-review loop deliberately.** Every push can trigger one
 more round of low-severity findings. Fix real findings with code, but once a
 round only produces nits that keep regenerating, record why each finding is
