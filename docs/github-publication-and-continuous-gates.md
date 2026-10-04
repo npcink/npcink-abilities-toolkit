@@ -144,6 +144,16 @@ resolution blocks auto-merge while any thread is unresolved — even with
 every required check green. Diagnose with the PR's `reviewThreads` (GraphQL)
 before assuming CI is stuck.
 
+**A failed advisory review run is a silent gap (2026-10-04).** When the
+OpenCodeReview run itself fails — observed once, provider-side, on #185,
+where the run artifact recorded `comments: 0`, "all 3 file review(s)
+failed" — it posts no findings; the check is advisory, so nothing blocks
+and the pull request can merge unreviewed. The workflow now posts a
+failure marker comment on the pull request (template update in
+`npcink-workflow-toolbox` `docs/platform/ai-code-review-workflow.yml`).
+Before merging, confirm at least one delivered review round; retry with a
+`/open-code-review` comment or record why the change merges unreviewed.
+
 **End the advisory-review loop deliberately.** Every push can trigger one
 more round of low-severity findings. Fix real findings with code, but once a
 round only produces nits that keep regenerating, record why each finding is
