@@ -1,0 +1,53 @@
+# Manual runner-image canary for the advisory OpenCodeReview action
+# (AI Code Review Standard v1, npcink-workflow-toolbox
+# docs/platform/ai-code-review-standard-v1.md).
+#
+# Purpose: revalidate the pinned review action on a runner image before
+# the ocr-review.yml template pin is bumped (for example on ubuntu-26.04,
+# ahead of the 2026-10-19 ubuntu-latest migration). Dispatch it right
+# after a docs-only merge so the reviewed HEAD~1..HEAD range selects no
+# LLM-reviewable files and the run costs no provider tokens.
+
+name: OCR runner canary
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Runner image label to validate'
+        required: true
+        default: 'ubuntu-26.04'
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Record runner image facts
+        shell: bash
+        run: |
+          cat /etc/os-release
+          node --version || true
+
+      - name: Run OpenCodeReview canary
+        # alibaba/open-code-review v1.12.10 (tag object b465046, commit
+        # 579b931; the action receives the LLM auth token, so pin the
+        # exact commit rather than the movable tag).
+        uses: alibaba/open-code-review@579b9319151aa734f2d25df6e59efa59eec5a577
+        with:
+          llm_url: ${{ secrets.OCR_LLM_URL }}
+          llm_auth_token: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
+          llm_model: ${{ vars.OCR_LLM_MODEL }}
+          llm_use_anthropic: ${{ vars.OCR_LLM_USE_ANTHROPIC }}
+          # Review-comment language; keep in sync with ocr-review.yml.
+          language: English
+          base_ref: HEAD~1
+          head_sha: HEAD
