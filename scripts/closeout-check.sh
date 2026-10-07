@@ -62,8 +62,9 @@ fi
 
 # 4. Merged local topic branches. The current branch is excluded: a freshly
 # created topic branch without its own commits trivially counts as merged,
-# and a branch you are standing on cannot be deleted anyway.
-MERGED_LOCAL="$(git branch --merged master 2>/dev/null | sed 's/^[*+ ]*//' | grep -v '^master$' | grep -v "^${BRANCH:-__none__}$" || true)"
+# and a branch you are standing on cannot be deleted anyway. Fixed-string
+# matching keeps branch names with regex metacharacters literal.
+MERGED_LOCAL="$(git branch --merged master 2>/dev/null | sed 's/^[*+ ]*//' | grep -v -F -x 'master' | grep -v -F -x "${BRANCH:-__none__}" || true)"
 if [ -n "$MERGED_LOCAL" ]; then
 	fail "merged local branches remain (delete with git branch -d):"
 	while IFS= read -r merged_branch; do
@@ -71,24 +72,18 @@ if [ -n "$MERGED_LOCAL" ]; then
 	done <<< "$MERGED_LOCAL"
 fi
 
-# 5. Stale remote topic branches (no open pull request). The repository slug
-# is derived from the origin remote so forks and renames keep working; any
-# gh failure degrades to an informational note instead of a stale verdict,
-# because a wrong stale verdict recommends a destructive deletion.
+# 5. Stale remote topic branches (no open pull request). gh resolves the
+# repository from the origin remote itself, so forked URLs, ports, and
+# non-github.com hosts keep working without parsing the remote URL. One call
+# lists every open pull-request head; a gh failure degrades to an
+# informational note instead of a stale verdict, because a wrong stale
+# verdict recommends a destructive deletion.
 git fetch --quiet --prune origin 2>/dev/null || true
 REMOTE_TOPICS="$(git ls-remote --heads origin 2>/dev/null | awk '{ print $2 }' | sed 's|^refs/heads/||' | grep -E '^(codex|docs|dependabot)/' || true)"
 if [ -n "$REMOTE_TOPICS" ]; then
 	if command -v gh >/dev/null 2>&1; then
-		REMOTE_URL="$(git remote get-url origin 2>/dev/null || true)"
-		REMOTE_URL="${REMOTE_URL%.git}"
-		REMOTE_URL="${REMOTE_URL%/}"
-		REMOTE_URL="${REMOTE_URL##*:}"
-		SLUG_OWNER="${REMOTE_URL%/*}"
-		SLUG_OWNER="${SLUG_OWNER##*/}"
-		SLUG_REPO="${REMOTE_URL##*/}"
-		REPO_SLUG="${SLUG_OWNER}/${SLUG_REPO}"
-		if [ -z "$SLUG_OWNER" ] || [ -z "$SLUG_REPO" ] || [ "$REPO_SLUG" = "/" ]; then
-			info "cannot derive the repository slug from the origin remote; verifying remote topic branches manually."
+		if ! OPEN_HEADS="$(gh pr list --state open --limit 100 --json headRefName --jq '.[].headRefName' 2>/dev/null)"; then
+			info "gh could not list pull requests; verify remote topic branches manually."
 			REMOTE_TOPICS=""
 		fi
 	else
@@ -99,19 +94,17 @@ fi
 if [ -n "$REMOTE_TOPICS" ]; then
 	while IFS= read -r remote_branch; do
 		[ -n "$remote_branch" ] || continue
-		OPEN_PRS="$(gh pr list --repo "$REPO_SLUG" --head "$remote_branch" --state open --json number --jq 'length' 2>/dev/null || true)"
-		if [ -z "$OPEN_PRS" ]; then
-			info "cannot query pull requests for '${remote_branch}' (gh failed); verify it manually: git push origin --delete ${remote_branch}"
-		elif [ "$OPEN_PRS" -eq 0 ]; then
-			fail "remote branch '${remote_branch}' has no open pull request; delete it or open a PR preserving its commits: git push origin --delete ${remote_branch}"
-		else
+		if printf '%s\n' "$OPEN_HEADS" | grep -q -F -x "$remote_branch"; then
 			info "remote branch '${remote_branch}' still has an open pull request; leave it."
+		else
+			fail "remote branch '${remote_branch}' has no open pull request; delete it or open a PR preserving its commits: git push origin --delete ${remote_branch}"
 		fi
 	done <<< "$REMOTE_TOPICS"
 fi
 
 # Informational: auxiliary worktrees.
 WORKTREE_COUNT="$(git worktree list --porcelain 2>/dev/null | grep -c '^worktree ' || true)"
+WORKTREE_COUNT="${WORKTREE_COUNT:-0}"
 [ "$WORKTREE_COUNT" -gt 1 ] && info "$WORKTREE_COUNT worktrees registered; remove only clean auxiliary ones whose branches are fully merged."
 
 if [ "$FAILURES" -gt 0 ]; then
