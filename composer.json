@@ -76,6 +76,16 @@
     "release:prepare-wporg": "bash scripts/prepare-wporg-svn-release.sh",
     "release:zip": "bash scripts/build-release-zip.sh",
     "test": "@php tests/run.php",
+    "test:core": [
+      "@validate:composer",
+      "@audit:composer",
+      "@check:boundary",
+      "@check:contracts",
+      "@check:shapes",
+      "@check:structure-ratchet",
+      "@test",
+      "@lint:php"
+    ],
     "test:all": [
       "@validate:composer",
       "@audit:composer",

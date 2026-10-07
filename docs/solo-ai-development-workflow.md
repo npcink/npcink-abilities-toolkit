@@ -63,6 +63,14 @@ git switch -c codex/short-description
 Keep commits focused. Do not stage unrelated local edits. If unrelated changes
 exist, report them separately instead of folding them into the task.
 
+While iterating on a change, run the fast iteration tier (about 25 seconds;
+composer metadata, boundary, contracts, response shapes, the structure
+ratchet, the full behavioral suite, and lint):
+
+```bash
+composer test:core
+```
+
 Before opening a pull request for code, contracts, or release tooling, run:
 
 ```bash
