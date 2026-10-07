@@ -78,7 +78,7 @@ WP-CLI through the package check helper:
 
 ```sh
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
-WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 composer release:verify
 ```
 
@@ -109,7 +109,7 @@ compatibility evidence first and pass it to the same release gate:
 composer smoke:wp-m4
 NPCINK_TOOLKIT_WORDPRESS_SMOKE_EVIDENCE="$PWD/build/m4-wordpress-smoke-evidence.json" \
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
-WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 composer release:verify
 ```
 
@@ -372,6 +372,31 @@ docker run --rm -it \
 
 Prefer local `svn` on macOS once installed, because it gives the user a normal
 interactive password prompt and avoids transient container package mirrors.
+
+## Maintainer Takeover Notes
+
+This repository is maintained by one person working with AI agents. If the
+maintainer is unavailable, an agent or a second maintainer can carry the
+release up to the credential boundary, and this section says where that
+boundary is and how to resume safely from either side.
+
+- Everything before the SVN commit is agent-safe and reproducible: the
+  release branch, `composer release:verify`, and the verification note under
+  `docs/archive/` name every gate result and the exact environment used.
+- The credential boundary: WordPress.org SVN credentials live only in the
+  maintainer's terminal session or Keychain (`SVN_USERNAME` is typed or
+  exported by the maintainer; the password is prompted by `svn` itself).
+  No credential material is stored in this repository, in chat, or in CI.
+- The publish commands in each release verification note are the exact
+  remaining steps; they are safe to re-run up to the tag (do not retag an
+  existing release — see Do Not Do) and the SVN commit is idempotent to
+  inspect with `svn status -u` before running.
+- If a release is half-published (tag pushed, SVN not yet), resume from the
+  verification note's Remaining Maintainer Steps at the SVN step; the tag
+  commit is the verified source of truth.
+- Recovery anchor: the newest `docs/archive/release-X.Y.Z-verification.md`
+  records the last known-good release state, baseline values, and the
+  maintainer steps in order.
 
 ## Do Not Do
 
