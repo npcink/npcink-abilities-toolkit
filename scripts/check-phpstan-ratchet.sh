@@ -165,8 +165,11 @@ while IFS= read -r changed_file; do
 	BASE_TOTAL=$(( BASE_TOTAL + base_count ))
 
 	verdict="ok"
-	if [ -z "$base_raw" ]; then
-		# New at HEAD: guarded by the conservation rule below, not per-file.
+	# Newness is a property of the base revision, not of the base counts:
+	# an empty base_raw also happens when the base-side analysis could not
+	# run, and that must not silently disable the per-file check.
+	if ! git cat-file -e "$BASE:$changed_file" 2>/dev/null; then
+		# Newly added at HEAD: guarded by the conservation rule below, not per-file.
 		verdict="new (total-guarded)"
 	elif [ "$head_count" -gt "$base_count" ]; then
 		verdict="GREW"
