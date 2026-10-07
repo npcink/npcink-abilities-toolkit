@@ -253,7 +253,7 @@ User-facing contracts and guides:
 - Performance and caching rules: [docs/performance-and-caching.md](docs/performance-and-caching.md)
 - Security and governance gates: [docs/security-and-governance-gates.md](docs/security-and-governance-gates.md)
 - Official WordPress AI stack compatibility: [docs/official-wordpress-ai-stack-compatibility.md](docs/official-wordpress-ai-stack-compatibility.md)
-- 2026-07-08 Core/Adapter/Product reuse readiness observation: [docs/ability-contract-reuse-readiness-2026-07-08.md](docs/ability-contract-reuse-readiness-2026-07-08.md)
+- 2026-07-08 Core/Adapter/Product reuse readiness observation: [docs/ability-contract-reuse-readiness-2026-07-08.md](docs/archive/ability-contract-reuse-readiness-2026-07-08.md)
 - Release notes: [CHANGELOG.md](CHANGELOG.md); WordPress plugin directory metadata: [readme.txt](readme.txt)
 
 Bundled starter translations live in [languages](languages) and cover the admin connection/discovery surface, API ability labels/descriptions, and common runtime error messages for Simplified Chinese, Japanese, Korean, French, German, Spanish, and Brazilian Portuguese. The package only ships locale files that are intentionally maintained in this repository; incomplete bundled locale packs are removed until they can be maintained as a complete starter set. WordPress.org directory translations remain managed through translate.wordpress.org/GlotPress and are not a runtime authority owned by this plugin.

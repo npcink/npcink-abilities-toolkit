@@ -96,6 +96,25 @@ cheap, manual complement: it catches the questions the checklists never
 encoded. Record any gap it finds as an issue or a small follow-up PR instead
 of widening the current one.
 
+## Documentation Cadence And Meta-Work Budget
+
+Dated one-time records — closeouts, release verifications, post-publication
+notes, status snapshots — live in `docs/archive/`. Write new dated records
+directly there; `docs/` itself stays evergreen and is indexed by
+`docs/README.md`. Closeout records are written per milestone (a release, a
+multi-PR hardening stage, or a structural-slice series), not per pull request;
+per-PR evidence belongs in the PR body's Verification section. Release
+verifications remain per release.
+
+Process and CI work (gate plumbing, workflow tweaks, closeout bookkeeping) is
+real maintenance, but it competes with product work for the same solo
+bandwidth. Two rules keep it bounded:
+
+1. Batch meta-work into the post-release maintenance window instead of
+   interleaving it with feature work.
+2. Outside that window, keep meta-work at roughly one process pull request per
+   three product pull requests, unless a required gate is actively broken.
+
 ## Commit Scope Gate
 
 Before staging, inspect:
@@ -268,7 +287,7 @@ Release-facing work should update:
 - `NPCINK_ABILITIES_TOOLKIT_VERSION`;
 - `readme.txt`;
 - `CHANGELOG.md`;
-- a matching `docs/release-*-verification.md` note.
+- a matching `docs/archive/release-X.Y.Z-verification.md` note.
 
 Before WordPress.org publishing:
 

@@ -260,7 +260,7 @@ sizes on a one-way downward track:
 For the mechanics of any future slice — moved-method ownership assertions in
 `tests/run.php`, reconstruction and whitespace-only purity proofs, and the
 advisory-reviewer timeout on large new files — read
-[Write-Package Structural Slices Closeout - 2026-09-30](write-package-structural-slices-closeout-2026-09-30.md).
+[Write-Package Structural Slices Closeout - 2026-09-30](archive/write-package-structural-slices-closeout-2026-09-30.md).
 
 ## Gate Per Slice
 
