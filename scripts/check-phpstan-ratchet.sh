@@ -53,7 +53,7 @@ cleanup() {
 		git -C "$ROOT_DIR" worktree remove --force "$BASE_WORKTREE" >/dev/null 2>&1 || true
 		git -C "$ROOT_DIR" worktree prune >/dev/null 2>&1 || true
 	fi
-	rm -f -- "$CHANGED_LIST" "$HEAD_COUNTS" "$BASE_COUNTS"
+	rm -f -- "$CHANGED_LIST" "$DELETED_LIST" "$HEAD_COUNTS" "$BASE_COUNTS"
 }
 trap cleanup EXIT
 
@@ -61,9 +61,18 @@ while IFS= read -r changed_path; do
 	case "$changed_path" in
 		includes/*|npcink-abilities-toolkit.php) printf '%s\n' "$changed_path" >> "$CHANGED_LIST" ;;
 	esac
-done < <(git diff --name-only --diff-filter=ACMRT "$BASE"...HEAD -- '*.php')
+done < <(git diff --name-only --no-renames --diff-filter=ACMRT "$BASE"...HEAD -- '*.php')
 
-if [ ! -s "$CHANGED_LIST" ]; then
+# Deleted analyzed paths contribute their base counts to the conservation
+# total (see the verdict loop below).
+DELETED_LIST="$(mktemp "${TMPDIR:-/tmp}/npcink-ratchet-deleted.XXXXXX")"
+while IFS= read -r deleted_path; do
+	case "$deleted_path" in
+		includes/*|npcink-abilities-toolkit.php) printf '%s\n' "$deleted_path" >> "$DELETED_LIST" ;;
+	esac
+done < <(git diff --name-only --no-renames --diff-filter=D "$BASE"...HEAD -- '*.php')
+
+if [ ! -s "$CHANGED_LIST" ] && [ ! -s "$DELETED_LIST" ]; then
 	echo "[phpstan-ratchet] no analyzed PHP files changed against $BASE; skipping."
 	exit 0
 fi
@@ -130,6 +139,11 @@ if ( cd "$BASE_WORKTREE" && composer install --quiet --no-interaction --no-progr
 			BASE_FILES="$BASE_FILES ./$changed_file"
 		fi
 	done < "$CHANGED_LIST"
+	while IFS= read -r deleted_file; do
+		if git -C "$BASE_WORKTREE" cat-file -e "HEAD:$deleted_file" 2>/dev/null; then
+			BASE_FILES="$BASE_FILES ./$deleted_file"
+		fi
+	done < "$DELETED_LIST"
 	if [ -n "$BASE_FILES" ]; then
 		# shellcheck disable=SC2086
 		( cd "$BASE_WORKTREE" && write_counts "$BASE_COUNTS" $BASE_FILES ) || true
@@ -160,6 +174,17 @@ while IFS= read -r changed_file; do
 	fi
 	printf '  %-64s base=%-4s head=%-4s %s\n' "$changed_file" "$base_count" "$head_count" "$verdict"
 done < "$CHANGED_LIST"
+
+# Deleted analyzed paths release their base debt into the conservation
+# total: without them, a whole-file move that git reports as delete+add
+# instead of a rename would drop the old side's debt from BASE_TOTAL and
+# misread the relocation as net growth.
+while IFS= read -r deleted_file; do
+	deleted_base="$(awk -v f="$deleted_file" '$1 == f { print $2 }' "$BASE_COUNTS")"
+	deleted_base="${deleted_base:-0}"
+	BASE_TOTAL=$(( BASE_TOTAL + deleted_base ))
+	printf '  %-64s base=%-4s head=0   deleted (base-side counted)\n' "$deleted_file" "$deleted_base"
+done < "$DELETED_LIST"
 
 if [ "$HEAD_TOTAL" -gt "$BASE_TOTAL" ]; then
 	echo "[phpstan-ratchet] FAIL: changed-file level $NEXT_LEVEL total grew: head $HEAD_TOTAL > base $BASE_TOTAL." >&2
