@@ -138,6 +138,11 @@ Small local fixes can go straight to a branch and pull request.
 Use the tier that matches the moment; do not skip gates and do not run the
 release tier for ordinary iteration.
 
+Resync vendor tooling (`composer install`) before trusting a local PHPStan
+ratchet failure: the ratchet measures HEAD with the local vendor but the
+base in a fresh install, and a stale vendor produces cross-version false
+verdicts.
+
 Iteration tier (~25 seconds; run while iterating on any change):
 
 ```bash
