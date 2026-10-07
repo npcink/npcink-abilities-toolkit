@@ -9,6 +9,13 @@
 # base revision against the count at HEAD, and fails when any count grows.
 # Existing debt never blocks a change; new debt does.
 #
+# Files newly added at HEAD have no base count, so a mechanical move that
+# relocates existing findings into a new file would read as growth. For
+# those, the per-file check is skipped and a conservation rule applies
+# instead: the total count across all changed files must not exceed the
+# base total. A pure move preserves the total; genuinely new findings in a
+# new file still fail the conservation rule.
+#
 # Compatible with macOS bash 3.2: no mapfile, no associative arrays.
 #
 # Set PHPSTAN_RATCHET_BASE to override the comparison base (default
@@ -131,24 +138,36 @@ else
 fi
 
 FAILED=0
+BASE_TOTAL=0
+HEAD_TOTAL=0
 printf '[phpstan-ratchet] level %s counts against %s:\n' "$NEXT_LEVEL" "$BASE"
 while IFS= read -r changed_file; do
 	head_count="$(awk -v f="$changed_file" '$1 == f { print $2 }' "$HEAD_COUNTS")"
-	base_count="$(awk -v f="$changed_file" '$1 == f { print $2 }' "$BASE_COUNTS")"
+	base_raw="$(awk -v f="$changed_file" '$1 == f { print $2 }' "$BASE_COUNTS")"
 	head_count="${head_count:-0}"
-	base_count="${base_count:-0}"
+	base_count="${base_raw:-0}"
+	HEAD_TOTAL=$(( HEAD_TOTAL + head_count ))
+	BASE_TOTAL=$(( BASE_TOTAL + base_count ))
 
 	verdict="ok"
-	if [ "$head_count" -gt "$base_count" ]; then
+	if [ -z "$base_raw" ]; then
+		# New at HEAD: guarded by the conservation rule below, not per-file.
+		verdict="new (total-guarded)"
+	elif [ "$head_count" -gt "$base_count" ]; then
 		verdict="GREW"
 		FAILED=1
 	fi
 	printf '  %-64s base=%-4s head=%-4s %s\n' "$changed_file" "$base_count" "$head_count" "$verdict"
 done < "$CHANGED_LIST"
 
+if [ "$HEAD_TOTAL" -gt "$BASE_TOTAL" ]; then
+	echo "[phpstan-ratchet] FAIL: changed-file level $NEXT_LEVEL total grew: head $HEAD_TOTAL > base $BASE_TOTAL." >&2
+	FAILED=1
+fi
+
 if [ "$FAILED" -ne 0 ]; then
 	echo "[phpstan-ratchet] FAIL: level $NEXT_LEVEL error count grew in changed files." >&2
 	exit 1
 fi
 
-echo "[phpstan-ratchet] ok: no changed file increased its level $NEXT_LEVEL error count."
+echo "[phpstan-ratchet] ok: no changed file increased its level $NEXT_LEVEL error count (changed-file total $HEAD_TOTAL <= base $BASE_TOTAL)."
