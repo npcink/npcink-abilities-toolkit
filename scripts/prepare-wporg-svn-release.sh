@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PLUGIN_SLUG="${PLUGIN_SLUG:-npcink-abilities-toolkit}"
 VERSION="${1:-${VERSION:-}}"
 SVN_WC="${WPORG_SVN_WC:-$ROOT_DIR/build/wporg-svn-wc/$PLUGIN_SLUG}"
-ASSET_DIR="${WPORG_ASSET_DIR:-$ROOT_DIR/sj/exports/wordpress-org}"
+ASSET_DIR="${WPORG_ASSET_DIR:-$ROOT_DIR/marketing/exports/wordpress-org}"
 DISTIGNORE_FILE="$ROOT_DIR/.distignore"
 
 cd "$ROOT_DIR"

@@ -49,6 +49,7 @@
       "@php tests/uninstall-cleanup.php multisite"
     ],
     "pr:publish": "bash scripts/publish-pr.sh",
+    "closeout:check": "bash scripts/closeout-check.sh",
     "lint:php": "@php tests/lint.php",
     "analyse:phpstan": "phpstan --version | grep -F \"PHPStan - PHP Static Analysis Tool\" && phpstan analyse --memory-limit=4G --no-progress",
     "check:phpstan-ratchet": "bash scripts/check-phpstan-ratchet.sh",

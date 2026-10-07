@@ -6,8 +6,8 @@ These notes cover the WordPress.org listing assets for:
 
 - Plugin: Npcink Abilities Toolkit
 - Slug: `npcink-abilities-toolkit`
-- Asset folder: `sj/`
-- WordPress.org export folder: `sj/exports/wordpress-org/`
+- Asset folder: `marketing/`
+- WordPress.org export folder: `marketing/exports/wordpress-org/`
 
 ## Source Artwork
 
