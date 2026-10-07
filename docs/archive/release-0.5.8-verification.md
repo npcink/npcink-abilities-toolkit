@@ -74,18 +74,24 @@ they were not executed. Consequences for 0.5.8:
 
 ## Remaining Maintainer Steps
 
-The 0.5.8 publication operations stay in the maintainer's terminal where
-WordPress.org SVN credentials are typed:
+## Publication Record (2026-10-07)
 
-```bash
-git switch master && git pull --ff-only origin master
-git tag 0.5.7 9e9f9ea && git push origin 0.5.7   # optional backfill; skip if unwanted
-git tag 0.5.8 && git push origin 0.5.8
-VERSION=0.5.8 composer release:prepare-wporg
-SVN_USERNAME=muze233 COMMIT_MESSAGE="Release 0.5.8" build/commit-wporg-release.sh
-```
+Published at maintainer delegation through the Keychain-cached SVN
+credentials (the 0.5.6 delegated-commit precedent; no credential material
+passed through chat). Publication sequence and facts:
 
-After publication: record the SVN revision in the release issue if one is
-open, verify the WordPress.org page serves 0.5.8, and note in this file
-that publication completed (this closes the gap that hid the unpublished
-0.5.7).
+- Backfilled git tag `0.5.7` at `9e9f9ea` and tagged `0.5.8`; both pushed.
+- The first `release:prepare-wporg` staging scheduled the renamed
+  `marketing/` directory into `trunk/` and `tags/0.5.8/` (44 entries)
+  because `.distignore` still listed the old `sj` name — a missed blast
+  radius of the PR #199 rename. Fixed in PR #208 (`.distignore`: `sj` ->
+  `marketing`), staging reset and re-run clean (zero `marketing` entries).
+- The unpublished `0.5.8` tag was advanced from `bb22437` to `0618e41`
+  (the distignore fix commit) so the release is reproducible from its
+  exact tagged source, as the release-source guard requires. Moving an
+  unpublished tag is not retagging a historical release.
+- **SVN committed at revision 3732350** (trunk to 0.5.8 plus
+  `tags/0.5.8`); WordPress.org verified serving **stable 0.5.8**
+  (plugins API, updated 2026-10-07 10:22 GMT). WordPress.org users
+  upgrade from 0.5.6 directly to 0.5.8 and receive the 0.5.7 content
+  together.
