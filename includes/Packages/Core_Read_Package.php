@@ -40,6 +40,7 @@ final class Core_Read_Package {
 	use Media_Alt_Caption_Read_Methods;
 	use Media_Candidate_Adoption_Read_Methods;
 	use Media_Read_Methods;
+	use Media_Reference_Repair_Read_Methods;
 	use Page_Pattern_Read_Methods;
 	use Page_Read_Methods;
 	use Post_Primitives_Read_Methods;
