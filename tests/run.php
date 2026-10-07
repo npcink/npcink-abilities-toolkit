@@ -385,6 +385,31 @@ foreach ( $moved_media_candidate_adoption_methods as $moved_media_candidate_adop
 	npcink_abilities_toolkit_assert_true( false === strpos( $media_read_trait_source, 'function ' . $moved_media_candidate_adoption_method . '(' ), 'general media read trait does not duplicate moved candidate/adoption method: ' . $moved_media_candidate_adoption_method );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $media_candidate_adoption_trait_source, 'function ' . $moved_media_candidate_adoption_method . '(' ), 'media candidate adoption read trait owns moved method: ' . $moved_media_candidate_adoption_method );
 }
+npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'use Media_Reference_Repair_Read_Methods;' ), 'Core read package composes the media reference repair read trait' );
+$media_reference_repair_trait_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Reference_Repair_Read_Methods.php' );
+$moved_media_reference_repair_methods = array(
+	'media_reference_repair_replacement_context',
+	'media_reference_repair_candidate_posts',
+	'media_settings_reference_repair_candidates',
+	'media_settings_reference_names',
+	'media_settings_reference_option_names_from_db',
+	'media_settings_reference_repair_policy',
+	'media_settings_reference_keys',
+	'media_settings_reference_value_text',
+	'media_settings_reference_value_type',
+	'media_settings_reference_looks_serialized',
+	'media_reference_repair_ref_pairs',
+	'media_reference_repair_sized_variant_matches',
+	'media_reference_unique_strings',
+	'normalize_media_reference_relative',
+	'media_reference_upload_url',
+	'media_reference_url_path',
+	'media_reference_relative_from_url',
+);
+foreach ( $moved_media_reference_repair_methods as $moved_media_reference_repair_method ) {
+	npcink_abilities_toolkit_assert_true( false === strpos( $media_read_trait_source, 'function ' . $moved_media_reference_repair_method . '(' ), 'general media read trait does not duplicate moved reference-repair method: ' . $moved_media_reference_repair_method );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $media_reference_repair_trait_source, 'function ' . $moved_media_reference_repair_method . '(' ), 'media reference repair read trait owns moved method: ' . $moved_media_reference_repair_method );
+}
 $admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
 $admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
