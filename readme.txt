@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.7
+Stable tag: 0.5.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -165,6 +165,14 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.8 =
+
+* Maintenance and repository-health release: no ability contract, schema, or behavior changes; ability ids and response shapes are identical to 0.5.7.
+* Split the largest media read module into smaller trait files with byte-for-byte purity proofs and test-suite ownership assertions, keeping the class surface unchanged while making future media reads easier to review.
+* Added automated debt ratchets: file-size ceilings on source modules, a repository-wide static-analysis total that only moves downward at release time, and a conservation rule so relocated static-analysis findings are never misread as new debt.
+* Removed provably dead null-coalescing fallbacks in read paths (runtime-identical) while deliberately keeping the defensive fallbacks on filterable WordPress surfaces and partial-object inputs.
+* Streamlined the development workflow: a fast ~25-second iteration test tier, a mechanical post-merge steady-state check, an archived documentation library with an evergreen index, and Dependabot maintenance pull requests that are no longer blocked by the human-oriented PR body contract.
 
 = 0.5.7 =
 
