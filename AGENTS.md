@@ -161,17 +161,20 @@ composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 
-Advisory AI review gate (run before `composer pr:publish`):
+Advisory AI review (optional locally; the CI workflow is authoritative):
 
 ```bash
 ocr review --from origin/master --to HEAD
 ```
 
 Treat findings as a second opinion: fix real defects or record why they are
-acceptable. CI posts the same review on pull requests through the advisory
-OpenCodeReview workflow; it is never a required check. Follows
-AI Code Review Standard v1 in `npcink-workflow-toolbox`
-`docs/platform/ai-code-review-standard-v1.md`.
+acceptable. The authoritative review is the one the advisory OpenCodeReview
+workflow posts on the pull request — it is never a required check, and the
+local run must not block publishing: it is known to stall silently or time
+out on large changed files, in which case skip it and handle the findings
+on the pull request, where required conversation resolution makes them
+actionable anyway. Follows AI Code Review Standard v1 in
+`npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`.
 
 Release-facing gate:
 
