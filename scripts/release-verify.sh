@@ -18,6 +18,7 @@ cd "$ROOT_DIR"
 
 composer test:all
 composer analyse:phpstan
+composer check:phpstan-total
 git diff --check
 if [[ -n "${NPCINK_TOOLKIT_WORDPRESS_SMOKE_EVIDENCE:-}" ]]; then
 	php scripts/check-wordpress-smoke-evidence.php "$NPCINK_TOOLKIT_WORDPRESS_SMOKE_EVIDENCE"

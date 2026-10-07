@@ -237,6 +237,26 @@ ADR 0008's WordPress comparison (fixed in PR #184 before release).
 `Core_Destructive_Package` (1,473 lines) and `Core_Comment_Package` (1,188
 lines) carry no change pressure and are not candidates.
 
+Two debt ratchets were added on 2026-10-07 to keep the backlog and the file
+sizes on a one-way downward track:
+
+- `composer check:structure-ratchet` (runs inside `composer test:all`) fails
+  when any analyzed source file — everything under `includes/` plus the
+  bootstrap — grows beyond its recorded peak in
+  `tests/fixtures/structure-ratchet-baseline.json`, or when a new file exceeds
+  the 1,500-line new-file cap. Slice PRs regenerate the baseline with
+  `--update` so each shrink becomes the new ceiling. `tests/run.php` stays
+  outside this gate on purpose: its split trigger is observed collision or
+  isolation pain (item 5), not raw size.
+- `composer check:phpstan-total` (runs inside `composer release:verify`) locks
+  the repository-wide level-4 count at the baseline recorded in
+  `tests/fixtures/phpstan-level4-total-baseline.txt`. The level-4 total was
+  re-measured at 739 on 2026-10-07, up from 726 on 2026-10-01 — the
+  changed-files ratchet only compares within a single pull request, so drift
+  can still accumulate across merged pull requests and dependency updates;
+  the total gate now locks it at 739 as the floor burn-down slices reduce
+  from, and the baseline moves downward at release time only.
+
 For the mechanics of any future slice — moved-method ownership assertions in
 `tests/run.php`, reconstruction and whitespace-only purity proofs, and the
 advisory-reviewer timeout on large new files — read
