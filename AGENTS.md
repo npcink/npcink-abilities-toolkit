@@ -193,7 +193,7 @@ current release verification example.
 - Do not retag historical releases.
 - Release work should update the plugin header version,
   `NPCINK_ABILITIES_TOOLKIT_VERSION`, `readme.txt`, `CHANGELOG.md`, and a
-  release verification note.
+  release verification note at `docs/archive/release-X.Y.Z-verification.md`.
 - Use `composer check:boundary`, `composer check:wporg`, and
   `composer release:verify` before tagging or WordPress.org publishing.
 - Verify boundary-language drift across `AGENTS.md` and

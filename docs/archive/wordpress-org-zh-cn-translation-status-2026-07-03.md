@@ -31,7 +31,7 @@ The practical meaning is:
 ## Local Evidence
 
 The original submission is recorded in
-[`sj/listing-copy-zh.md`](../sj/listing-copy-zh.md):
+[`sj/listing-copy-zh.md`](../../sj/listing-copy-zh.md):
 
 - On 2026-06-22, `Stable Readme (latest release)` for `Chinese (China)` showed
   `Translated (0)` and `Untranslated (101)`.

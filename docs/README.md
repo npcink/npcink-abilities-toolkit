@@ -105,7 +105,7 @@ change, or deciding whether a development stage is complete.
 9. Use [Ability Metadata Reference Notes - 2026-07](ability-metadata-reference-notes-2026-07.md)
    before turning official WordPress AI or Abilities API inspiration into
    Toolkit contract changes.
-10. Use [Ability Contract Reuse Readiness - 2026-07-08](ability-contract-reuse-readiness-2026-07-08.md)
+10. Use [Ability Contract Reuse Readiness - 2026-07-08](archive/ability-contract-reuse-readiness-2026-07-08.md)
     before adding new ability functionality for the Core/Adapter/Product reuse
     chain.
 11. Use [WordPress Core Ability Convergence](wordpress-core-ability-convergence.md)
@@ -118,61 +118,34 @@ change, or deciding whether a development stage is complete.
 14. Use [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md)
     for the public repository handoff, CI baseline, and post-publication gate
     status.
-15. Read [Performance/Security Hardening Closeout](performance-security-hardening-closeout-2026-06-19.md)
-    for the PR #57 merged hardening scope, validation evidence, and no-release
-    decision.
-16. Use [WordPress.org 0.5.2 Post-Publication Closeout](wordpress-org-0.5.2-post-publication-closeout-2026-06-22.md)
-    for the admin-surface release, SVN publication, icon refresh, and Chinese
-    Stable Readme translation status.
-17. Use [WordPress.org zh_CN Translation Status](wordpress-org-zh-cn-translation-status-2026-07-03.md)
-    for the current submitted-but-waiting GlotPress state and the PTE request
-    handoff text.
-18. Use [PHPStan Dependency Upgrade And Closeout](phpstan-dependency-upgrade-and-closeout-2026-09-09.md)
-    when reviewing dependency upgrades that change static-analysis resource
-    requirements or closing a Dependabot analysis failure.
-19. Record release evidence in the relevant release verification document.
-20. Release and maintainer records indexed from the root README: the 0.3
-    stabilization surface ([Ability Acceptance Matrix](ability-acceptance-matrix.md),
-    [Agent Workflow Validation](agent-workflow-validation.md),
-    [Release 0.3 Scope](release-0.3-scope.md)), the 0.5 release verification
-    line ([0.5](release-0.5-verification.md),
-    [0.5.1](release-0.5.1-verification.md), [0.5.2](release-0.5.2-verification.md),
-    and the [ability contract readiness plan](ability-contract-readiness-0.5.md)),
-    the [freeze/observe proof phase closeout](freeze-observe-phase-closeout-2026-06-17.md),
-    and the [admin surface standard](admin-surface-standard.md).
-21. Read [Positioning Adjustment Closeout - 2026-09-29](positioning-adjustment-closeout-2026-09-29.md)
-    before adding workflow recipes, editing the host approval contract, or
-    reordering README boundary text; it records the durable entrypoint,
-    response-shape, and documentation rules learned while landing both recipe
-    batches and the contract adoption.
-22. Read [Admin Experience And Caller Contract Closeout - 2026-09-29](admin-experience-closeout-2026-09-29.md)
-    before changing admin surfaces or response shapes; it records the
-    three-persona walkthrough rationale, the shape registration rules, the
-    scope semantics, and the root causes these gates now cover.
-23. Read [Write-Package Structural Slices Closeout - 2026-09-30](write-package-structural-slices-closeout-2026-09-30.md)
-    before resuming the structural split plan or touching write-package media
-    paths; it records the slice evidence rules, the core-faithful stub lesson
-    behind the `wp_delete_file` fix, the reconstruction and whitespace-only
-    purity proofs for mechanical moves, and the superseded-branch disposal
-    procedure.
-24. Read [Release 0.5.6 And Acceptance Review Closeout - 2026-10-02](release-and-acceptance-review-closeout-2026-10-02.md)
-    before preparing any release or accepting an ability candidate; it records
-    why green CI is not release-ready, the local release-lane rule, the
-    `.distignore` guard for local tool artifacts, the stale git daemon socket
-    that breaks Docker smoke mounts, and the fact-check step for candidate
-    premises.
-25. Read [WordPress.org 0.5.6 Post-Publication Closeout - 2026-10-02](wordpress-org-0.5.6-post-publication-closeout-2026-10-02.md)
-    before the next WordPress.org SVN publication; it records the stale
-    working-copy incident, the `svn status -u` pre-commit check, the
-    `0.5.3` to `0.5.6` directory jump, and the delegated Keychain-credential
-    commit precedent.
-26. Read [User Experience Hardening Closeout - 2026-10-02](user-experience-hardening-closeout-2026-10-02.md)
-    before handling advisory code-review rounds, touching the contract
-    endpoint's cache headers, or widening cache invalidation hooks; it
-    records the converging review-loop protocol (batch a round, fetch
-    authoritative thread ids, fix-or-decline-with-rationale), the declined
-    findings with their reasoning, the watched-key invalidation scope, the
-    304 header-suppression rules, and the symlink-safe uninstall deletion.
+
+Release evidence lives in the per-release verification notes under
+[archive/](archive/) (`release-X.Y.Z-verification.md`).
+
+## Historical Records
+
+Dated one-time records — closeouts, release verifications, post-publication
+notes, and status snapshots — live in [archive/](archive/), not in this
+directory. Write new dated records directly into `archive/`. The records still
+cited for durable rules:
+
+- [User Experience Hardening Closeout - 2026-10-02](archive/user-experience-hardening-closeout-2026-10-02.md):
+  the advisory review-loop protocol, cache header and invalidation rules.
+- [Release 0.5.6 And Acceptance Review Closeout - 2026-10-02](archive/release-and-acceptance-review-closeout-2026-10-02.md):
+  why green CI is not release-ready, the local release lane, `.distignore`.
+- [WordPress.org 0.5.6 Post-Publication Closeout - 2026-10-02](archive/wordpress-org-0.5.6-post-publication-closeout-2026-10-02.md):
+  the stale SVN working-copy incident and `svn status -u` pre-commit check.
+- [Write-Package Structural Slices Closeout - 2026-09-30](archive/write-package-structural-slices-closeout-2026-09-30.md):
+  slice evidence rules and move purity proofs for mechanical extractions.
+- [Positioning Adjustment Closeout - 2026-09-29](archive/positioning-adjustment-closeout-2026-09-29.md):
+  entrypoint, response-shape, and documentation rules for recipes and the
+  approval contract.
+- [Admin Experience Closeout - 2026-09-29](archive/admin-experience-closeout-2026-09-29.md):
+  the three-persona walkthrough and shape registration rules.
+- [PHPStan Dependency Upgrade And Closeout - 2026-09-09](archive/phpstan-dependency-upgrade-and-closeout-2026-09-09.md):
+  dependency upgrades that change static-analysis resource requirements.
+- [WordPress.org zh_CN Translation Status - 2026-07-03](archive/wordpress-org-zh-cn-translation-status-2026-07-03.md):
+  GlotPress submission state and the PTE request handoff text.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

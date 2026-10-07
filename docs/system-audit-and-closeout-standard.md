@@ -29,6 +29,10 @@ Keep three kinds of information separate:
    `AGENTS.md`, `CONTRIBUTING.md`, this standard, or another active contract.
 2. **Historical evidence** records what passed for one exact revision. It must
    include a date, commit or pull request, commands, and known limitations.
+   Historical evidence lives under `docs/archive/` (dated closeouts, release
+   verifications, post-publication notes, status snapshots); new dated records
+   are written there directly, and `docs/README.md` links only the records
+   still cited for durable rules.
 3. **Live state** includes branches, worktrees, Local.app mounts, CI runs,
    protected-check settings, tags, and remote repositories. Recheck it before
    acting; do not copy an old snapshot forward as current truth.

@@ -24,7 +24,7 @@ host usage.
 - Adapter handoff issues found during proof work were fixed in Adapter, not by
   moving runtime or governance into Toolkit.
 - Toolkit's host proof ledger records both proofs and their validation commands
-  in [Host Proof Status](host-proof-status.md).
+  in [Host Proof Status](../host-proof-status.md).
 
 The completed proofs cover the main boundary this phase needed to validate:
 

@@ -18,7 +18,7 @@ continuous gate hardening after the `0.5.0` release.
 - Removed the old Gitee remote from the local checkout and made GitHub the
   local `origin`.
 - Documented the publication handoff and continuous gate baseline in
-  [GitHub Publication And Continuous Gates](github-publication-and-continuous-gates.md).
+  [GitHub Publication And Continuous Gates](../github-publication-and-continuous-gates.md).
 - Upgraded GitHub Actions checkout from `actions/checkout@v4` to
   `actions/checkout@v5` to avoid the Node 20 runner deprecation path.
 
