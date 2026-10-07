@@ -19,7 +19,7 @@ docs
 examples
 phpstan.neon.dist
 scripts
-sj
+marketing
 tests
 vendor
 *.log
