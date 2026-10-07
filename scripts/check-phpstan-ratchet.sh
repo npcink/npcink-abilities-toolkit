@@ -13,8 +13,9 @@
 # relocates existing findings into a new file would read as growth. For
 # those, the per-file check is skipped and a conservation rule applies
 # instead: the total count across all changed files must not exceed the
-# base total. A pure move preserves the total; genuinely new findings in a
-# new file still fail the conservation rule.
+# base total. A pure move preserves the total. New-file findings therefore
+# need equal or greater reductions in other changed files to pass; the
+# no-new-debt guarantee is net, not per-file, for new files.
 #
 # Compatible with macOS bash 3.2: no mapfile, no associative arrays.
 #
