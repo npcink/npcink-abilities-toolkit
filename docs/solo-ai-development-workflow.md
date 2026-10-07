@@ -224,7 +224,16 @@ gh pr checks PR_NUMBER --watch --interval 10
 
 ## Post-Merge Cleanup
 
-After useful code is merged:
+After useful code is merged, verify the steady state mechanically instead of
+from memory:
+
+```bash
+composer closeout:check
+```
+
+The check fails while the main worktree is dirty, off `master`, out of sync
+with `origin/master`, or while merged local branches and stale remote topic
+branches remain. Then, for anything it cannot decide:
 
 ```bash
 git fetch --prune origin

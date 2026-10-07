@@ -97,6 +97,6 @@ Those belong in product, provider, adapter, or host plugins.
 - `composer smoke:wp` result is recorded when a Local WordPress site is
   available.
 - `docs/wordpress-org-review-lessons.md` has been checked against any current
-  review email under `sj/q/`.
+  review email under `marketing/q/`.
 - `docs/ability-acceptance-matrix.md` remains the gate for any new ability.
 - `docs/core-governance-handoff-guide.md` remains accurate for Core consumers.

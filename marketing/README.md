@@ -29,7 +29,11 @@ directory are:
 - `exports/wordpress-org/screenshot-3.png`
 - `exports/wordpress-org/screenshot-4.png`
 
-Do not copy this whole `sj` folder into the plugin zip.
+Do not copy this whole `marketing` folder into the plugin zip.
+
+Renamed from `sj/` on 2026-10-07 for a self-describing name (maintainer
+decision; it supersedes the optional-churn decline recorded in the 2026-10-03
+maintenance closeout).
 
 ## Bilingual Release Notes
 

@@ -21,7 +21,7 @@ Recommended release flow:
 3. Generate a POT file before release if bundled translations are needed.
 4. Translate Chinese strings through the WordPress.org translation workflow or a
    project-owned `zh_CN` translation file.
-5. Keep `sj/` for listing copy, image prompts, and release artwork only.
+5. Keep `marketing/` for listing copy, image prompts, and release artwork only.
 
 ## Chinese
 
@@ -41,4 +41,4 @@ Npcink Abilities Toolkit 的 PHP 运行时字符串使用 `npcink-abilities-tool
 2. 所有运行时字符串继续使用 `npcink-abilities-toolkit` text domain。
 3. 如果需要内置翻译，在发布前生成 POT 文件。
 4. 中文翻译可以走 WordPress.org 翻译流程，也可以维护项目自己的 `zh_CN` 翻译文件。
-5. `sj/` 只用于上架文案、图片提示词和发布素材。
+5. `marketing/` 只用于上架文案、图片提示词和发布素材。

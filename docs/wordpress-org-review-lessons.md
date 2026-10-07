@@ -56,7 +56,7 @@ tests.
 
 ## Review-Email Feedback Loop
 
-Every WordPress.org email under `sj/q/` must be processed as follows:
+Every WordPress.org email under `marketing/q/` must be processed as follows:
 
 1. Decode the top-level current message, excluding quoted older threads.
 2. Extract every file and line example.
