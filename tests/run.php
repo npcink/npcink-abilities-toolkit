@@ -365,6 +365,26 @@ foreach ( $moved_media_alt_caption_methods as $moved_media_alt_caption_method ) 
 	npcink_abilities_toolkit_assert_true( false === strpos( $media_read_trait_source, 'function ' . $moved_media_alt_caption_method . '(' ), 'general media read trait does not duplicate moved ALT/caption method: ' . $moved_media_alt_caption_method );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $media_alt_caption_read_trait_source, 'function ' . $moved_media_alt_caption_method . '(' ), 'media ALT/caption read trait owns moved method: ' . $moved_media_alt_caption_method );
 }
+npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'use Media_Candidate_Adoption_Read_Methods;' ), 'Core read package composes the media candidate adoption read trait' );
+$media_candidate_adoption_trait_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/Packages/Read_Traits/Media_Candidate_Adoption_Read_Methods.php' );
+$moved_media_candidate_adoption_methods = array(
+	'build_image_candidate_review_artifact',
+	'build_image_candidate_adoption_plan',
+	'normalize_image_candidate_adoption_contract',
+	'build_image_candidate_recommendation_projections',
+	'normalize_image_candidate_license_review_status',
+	'image_candidate_first_non_empty_url',
+	'image_candidate_asset_persistence_policy',
+	'is_temporary_image_candidate_url',
+	'image_candidate_sanitize_string_list',
+	'image_candidate_sanitize_payload',
+	'image_candidate_bounded_text',
+	'build_media_adoption_enhancement_plan',
+);
+foreach ( $moved_media_candidate_adoption_methods as $moved_media_candidate_adoption_method ) {
+	npcink_abilities_toolkit_assert_true( false === strpos( $media_read_trait_source, 'function ' . $moved_media_candidate_adoption_method . '(' ), 'general media read trait does not duplicate moved candidate/adoption method: ' . $moved_media_candidate_adoption_method );
+	npcink_abilities_toolkit_assert_true( false !== strpos( $media_candidate_adoption_trait_source, 'function ' . $moved_media_candidate_adoption_method . '(' ), 'media candidate adoption read trait owns moved method: ' . $moved_media_candidate_adoption_method );
+}
 $admin_css = file_get_contents( __DIR__ . '/../assets/admin.css' );
 $admin_js = file_get_contents( __DIR__ . '/../assets/admin.js' );
 $plugin_source = file_get_contents( __DIR__ . '/../includes/Plugin.php' );
