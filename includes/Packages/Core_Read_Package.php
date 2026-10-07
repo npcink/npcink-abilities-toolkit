@@ -38,6 +38,7 @@ final class Core_Read_Package {
 	use Gutenberg_Recipe_Evaluation_Read_Methods;
 	use Internal_Link_Read_Methods;
 	use Media_Alt_Caption_Read_Methods;
+	use Media_Candidate_Adoption_Read_Methods;
 	use Media_Read_Methods;
 	use Page_Pattern_Read_Methods;
 	use Page_Read_Methods;
