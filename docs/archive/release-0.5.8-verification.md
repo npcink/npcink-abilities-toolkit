@@ -11,9 +11,25 @@ contract, schema, annotation, or callback behavior changes: the two media
 read structural slices preserve the `Core_Read_Package` class surface
 (byte-for-byte moves verified by reconstruction and pure-deletion proofs),
 and the dead null-coalescing removals are runtime-identical on
-non-filterable surfaces. Eleven pull requests since 0.5.7 (#196, #192, #193,
-#197-#204) are folded in, plus the previously unreleased quality work
-(#182-#185) that never shipped in a tagged release.
+non-filterable surfaces. Eleven pull requests since the 0.5.7 preparation
+(#196, #192, #193, #197-#204) are folded in, plus the previously unreleased
+quality work (#182-#185).
+
+## Publication Gap Discovered During This Verification
+
+**0.5.7 was never published.** The WordPress.org SVN `tags/` directory tops
+out at 0.5.6, and no `0.5.7` git tag exists on origin: the 2026-10-03
+closeout left tagging and SVN publication as maintainer-terminal steps and
+they were not executed. Consequences for 0.5.8:
+
+- WordPress.org users upgrade from **0.5.6** directly to 0.5.8 and receive
+  the 0.5.7 content (user-experience hardening, locale backfill) plus this
+  release together; `readme.txt` already carries both changelog sections,
+  so the WordPress.org changelog reads coherently.
+- Optionally backfill the `0.5.7` git tag at the verified 0.5.7 release
+  commit `9e9f9ea` (creating the never-existing tag is allowed; the
+  no-retag rule concerns moving existing tags). An SVN `tags/0.5.7`
+  directory is unnecessary.
 
 ## Baseline Actions In This Release
 
@@ -63,10 +79,13 @@ WordPress.org SVN credentials are typed:
 
 ```bash
 git switch master && git pull --ff-only origin master
+git tag 0.5.7 9e9f9ea && git push origin 0.5.7   # optional backfill; skip if unwanted
 git tag 0.5.8 && git push origin 0.5.8
 VERSION=0.5.8 composer release:prepare-wporg
 SVN_USERNAME=muze233 COMMIT_MESSAGE="Release 0.5.8" build/commit-wporg-release.sh
 ```
 
 After publication: record the SVN revision in the release issue if one is
-open, and verify the WordPress.org page serves 0.5.8.
+open, verify the WordPress.org page serves 0.5.8, and note in this file
+that publication completed (this closes the gap that hid the unpublished
+0.5.7).
