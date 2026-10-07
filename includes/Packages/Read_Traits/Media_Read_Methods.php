@@ -1931,7 +1931,7 @@ trait Media_Read_Methods {
 			$old_dir = '.' !== $old_dir ? trim( $old_dir, '/' ) : '';
 			foreach ( $sizes as $size ) {
 				$size = is_array( $size ) ? $size : array();
-				$file = $this->sanitize_file_name_value( (string) ( $size['file'] ) );
+				$file = $this->sanitize_file_name_value( (string) ( $size['file'] ?? '' ) );
 				if ( '' === $file ) {
 					continue;
 				}
