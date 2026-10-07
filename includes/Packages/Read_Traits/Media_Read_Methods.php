@@ -100,7 +100,7 @@ trait Media_Read_Methods {
 				continue;
 			}
 			$attachment = get_post( $post_id );
-			$parent_id = is_object( $attachment ) ? absint( $attachment->post_parent ?? 0 ) : 0;
+			$parent_id = is_object( $attachment ) ? absint( $attachment->post_parent ) : 0;
 			$items[] = array(
 				'id'        => $post_id,
 				'title'     => sanitize_text_field( (string) get_the_title( $post_id ) ),
@@ -578,12 +578,12 @@ trait Media_Read_Methods {
 					'vision_fallback_mode'         => $vision_fallback_mode,
 					'vision_fallback_target_available' => false,
 					'vision_fallback_target'       => array(),
-					'disclosure_ready_count'       => count( array_filter( $recommendations, static function ( array $asset ) { return in_array( sanitize_key( (string) ( $asset['disclosure_readiness'] ?? '' ) ), array( 'ready_with_attribution', 'ready_with_source_note' ), true ); } ) ),
-					'needs_review_count'           => count( array_filter( $recommendations, static function ( array $asset ) { return 'needs_review' === sanitize_key( (string) ( $asset['disclosure_readiness'] ?? '' ) ); } ) ),
+					'disclosure_ready_count'       => count( array_filter( $recommendations, static function ( array $asset ) { return in_array( sanitize_key( (string) ( $asset['disclosure_readiness'] ) ), array( 'ready_with_attribution', 'ready_with_source_note' ), true ); } ) ),
+					'needs_review_count'           => count( array_filter( $recommendations, static function ( array $asset ) { return 'needs_review' === sanitize_key( (string) ( $asset['disclosure_readiness'] ) ); } ) ),
 					'origin_breakdown'             => array(
-						'ai_generated'  => count( array_filter( $recommendations, static function ( array $asset ) { return 'ai_generated' === sanitize_key( (string) ( $asset['image_origin'] ?? '' ) ); } ) ),
-						'public_free'   => count( array_filter( $recommendations, static function ( array $asset ) { return 'public_free' === sanitize_key( (string) ( $asset['image_origin'] ?? '' ) ); } ) ),
-						'manual_upload' => count( array_filter( $recommendations, static function ( array $asset ) { return 'manual_upload' === sanitize_key( (string) ( $asset['image_origin'] ?? '' ) ); } ) ),
+						'ai_generated'  => count( array_filter( $recommendations, static function ( array $asset ) { return 'ai_generated' === sanitize_key( (string) ( $asset['image_origin'] ) ); } ) ),
+						'public_free'   => count( array_filter( $recommendations, static function ( array $asset ) { return 'public_free' === sanitize_key( (string) ( $asset['image_origin'] ) ); } ) ),
+						'manual_upload' => count( array_filter( $recommendations, static function ( array $asset ) { return 'manual_upload' === sanitize_key( (string) ( $asset['image_origin'] ) ); } ) ),
 					),
 					'attribution_persisted_count'  => count( array_filter( $recommendations, static function ( array $asset ) { return ! empty( $asset['attribution_persisted'] ); } ) ),
 				),
@@ -744,7 +744,7 @@ trait Media_Read_Methods {
 			$row = $this->build_media_inventory_health_row( $attachment_id );
 			$issues = is_array( $row['issues'] ?? null ) ? $row['issues'] : array();
 			$attached_to = get_post( $attachment_id );
-			if ( is_object( $attached_to ) && 0 === $this->absint_value( $attached_to->post_parent ?? 0 ) ) {
+			if ( is_object( $attached_to ) && 0 === $this->absint_value( $attached_to->post_parent ) ) {
 				$issues[] = 'possibly_unattached';
 			}
 			foreach ( $issues as $issue ) {
@@ -800,7 +800,7 @@ trait Media_Read_Methods {
 				return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 			}
 			$attachment = function_exists( 'get_post' ) ? get_post( $attachment_id ) : null;
-			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -984,7 +984,7 @@ trait Media_Read_Methods {
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
-		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -1025,7 +1025,7 @@ trait Media_Read_Methods {
 
 		$attachment_id = $this->absint_value( $input['attachment_id'] ?? 0 );
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
-		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_media_not_found', __( 'Attachment not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -1093,7 +1093,7 @@ trait Media_Read_Methods {
 			'source_media_type' => 'image',
 			'source_asset'    => array(
 				'attachment_id'     => $attachment_id,
-				'title'             => sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ),
+				'title'             => sanitize_text_field( (string) ( $attachment->post_title ) ),
 				'mime_type'         => sanitize_text_field( (string) ( $inspection['mime_type'] ?? '' ) ),
 				'source_format'     => sanitize_key( (string) ( $inspection['source_format'] ?? '' ) ),
 				'file_basename'     => $this->sanitize_file_name_value( (string) ( $inspection['file_basename'] ?? '' ) ),
@@ -1219,7 +1219,7 @@ trait Media_Read_Methods {
 		}
 		++$scanned_count;
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
-		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			$skipped[] = $this->build_media_derivative_batch_skip_row( $attachment_id, 'attachment_not_found', array() );
 			continue;
 		}
@@ -1399,7 +1399,7 @@ trait Media_Read_Methods {
 		}
 
 		$attachment = get_post( $attachment_id );
-		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -1489,7 +1489,7 @@ trait Media_Read_Methods {
 			),
 		);
 		$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
-		$content_reference_repairs = is_array( $derivative_preview['content_reference_repairs'] ?? null ) ? $derivative_preview['content_reference_repairs'] : array();
+		$content_reference_repairs = is_array( $derivative_preview['content_reference_repairs'] ) ? $derivative_preview['content_reference_repairs'] : array();
 		$derivative_input['expected_content_reference_post_ids'] = array_values(
 			array_map(
 				array( $this, 'absint_value' ),
@@ -1570,7 +1570,7 @@ trait Media_Read_Methods {
 			}
 
 			$attachment = get_post( $attachment_id );
-			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 			}
 			if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -1794,8 +1794,8 @@ trait Media_Read_Methods {
 				);
 				$operations = array();
 				foreach ( $post_pairs as $pair ) {
-					$old = (string) ( $pair['old'] ?? '' );
-					$new = (string) ( $pair['new'] ?? '' );
+					$old = (string) ( $pair['old'] );
+					$new = (string) ( $pair['new'] );
 					if ( '' === $old || '' === $new || $old === $new || false === strpos( $content, $old ) ) {
 						continue;
 					}
@@ -2168,7 +2168,7 @@ trait Media_Read_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment = get_post( $attachment_id );
-		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_attachment_not_found', __( 'Attachment was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -2685,7 +2685,7 @@ trait Media_Read_Methods {
 			$query = new \WP_Query( $args );
 			return array(
 				'attachment_ids' => is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array(),
-				'total'          => (int) ( $query->found_posts ?? 0 ),
+				'total'          => (int) ( $query->found_posts ),
 			);
 		}
 
@@ -2904,17 +2904,17 @@ trait Media_Read_Methods {
 				break;
 			}
 			$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
-			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
+			if ( ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) || ! current_user_can( 'edit_post', $attachment_id ) ) {
 				continue;
 			}
 
 			$row = $this->build_media_inventory_health_row( $attachment_id );
-			$parent_id = $this->absint_value( $attachment->post_parent ?? 0 );
+			$parent_id = $this->absint_value( $attachment->post_parent );
 			if ( 0 === $parent_id ) {
 				$row['issues'][] = 'possibly_unattached';
 			}
 			$parent = $parent_id > 0 ? get_post( $parent_id ) : null;
-			$parent_status = is_object( $parent ) ? sanitize_key( (string) ( $parent->post_status ?? '' ) ) : '';
+			$parent_status = is_object( $parent ) ? sanitize_key( (string) ( $parent->post_status ) ) : '';
 			if ( 'trash' === $parent_status ) {
 				$row['issues'][] = 'possibly_unattached';
 			}
@@ -2922,8 +2922,8 @@ trait Media_Read_Methods {
 			$row['issue_count'] = count( $row['issues'] );
 			$row['parent_post_id'] = $parent_id;
 			$row['parent_post_status'] = $parent_status;
-			$row['parent_post_title'] = is_object( $parent ) ? sanitize_text_field( (string) ( $parent->post_title ?? '' ) ) : '';
-			$row['post_name'] = sanitize_title( (string) ( $attachment->post_name ?? '' ) );
+			$row['parent_post_title'] = is_object( $parent ) ? sanitize_text_field( (string) ( $parent->post_title ) ) : '';
+			$row['post_name'] = sanitize_title( (string) ( $attachment->post_name ) );
 
 			$post_plan = $this->build_media_inventory_fix_plan_rows( $attachment_id, $row, $issue_types, $context, $max_actions - count( $actions ), $include_delete_candidates, $include_trash_parent_media, $include_unattached_nonproduction_media, $nonproduction_content_patterns );
 			foreach ( (array) ( $post_plan['issues'] ?? array() ) as $issue ) {
@@ -3023,8 +3023,8 @@ trait Media_Read_Methods {
 			$operations = array();
 			$matches = array();
 			foreach ( $ref_pairs as $pair ) {
-				$old_ref = (string) ( $pair['old'] ?? '' );
-				$new_ref = (string) ( $pair['new'] ?? '' );
+				$old_ref = (string) ( $pair['old'] );
+				$new_ref = (string) ( $pair['new'] );
 				if ( '' === $old_ref || '' === $new_ref || false === strpos( $content, $old_ref ) ) {
 					continue;
 				}
@@ -3165,8 +3165,8 @@ trait Media_Read_Methods {
 			$operations = array();
 			$matches = array();
 			foreach ( $ref_pairs as $pair ) {
-				$old_ref = (string) ( $pair['old'] ?? '' );
-				$new_ref = (string) ( $pair['new'] ?? '' );
+				$old_ref = (string) ( $pair['old'] );
+				$new_ref = (string) ( $pair['new'] );
 				if ( '' === $old_ref || '' === $new_ref || false === strpos( $haystack, $old_ref ) ) {
 					continue;
 				}
@@ -3286,7 +3286,7 @@ trait Media_Read_Methods {
 		$attachments = array();
 		if ( function_exists( 'get_attached_media' ) ) {
 			foreach ( (array) get_attached_media( '', $post_id ) as $attachment ) {
-				$attachment_id = is_object( $attachment ) ? $this->absint_value( $attachment->ID ?? 0 ) : $this->absint_value( $attachment );
+				$attachment_id = is_object( $attachment ) ? $this->absint_value( $attachment->ID ) : $this->absint_value( $attachment );
 				if ( $attachment_id <= 0 ) {
 					continue;
 				}
@@ -4056,8 +4056,8 @@ trait Media_Read_Methods {
 		);
 		$clean = array();
 		foreach ( $pairs as $pair ) {
-			$old_ref = trim( (string) ( $pair['old'] ?? '' ) );
-			$new_ref = trim( (string) ( $pair['new'] ?? '' ) );
+			$old_ref = trim( (string) ( $pair['old'] ) );
+			$new_ref = trim( (string) ( $pair['new'] ) );
 			if ( '' === $old_ref || '' === $new_ref ) {
 				continue;
 			}
@@ -4140,7 +4140,7 @@ trait Media_Read_Methods {
 			return '';
 		}
 		$upload_dir = wp_upload_dir();
-		$baseurl = is_array( $upload_dir ) ? $this->esc_url_value( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+		$baseurl = is_array( $upload_dir ) ? $this->esc_url_value( (string) ( $upload_dir['baseurl'] ) ) : '';
 		return '' !== $baseurl ? rtrim( $baseurl, '/' ) . '/' . $relative_file : '';
 	}
 
@@ -4167,7 +4167,7 @@ trait Media_Read_Methods {
 			return '';
 		}
 		$upload_dir = wp_upload_dir();
-		$baseurl = is_array( $upload_dir ) ? $this->esc_url_value( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+		$baseurl = is_array( $upload_dir ) ? $this->esc_url_value( (string) ( $upload_dir['baseurl'] ) ) : '';
 		$base_path = $this->media_reference_url_path( $baseurl );
 		if ( '' !== $base_path && 0 === strpos( $path, rtrim( $base_path, '/' ) . '/' ) ) {
 			return $this->normalize_media_reference_relative( substr( $path, strlen( rtrim( $base_path, '/' ) ) + 1 ) );
@@ -4433,7 +4433,7 @@ trait Media_Read_Methods {
 	private function build_media_attachment_url_resolution_candidate( $attachment_id, $requested_relative_file ) {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$attachment = get_post( $attachment_id );
-		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ?? '' ) ) ) {
+		if ( $attachment_id <= 0 || ! is_object( $attachment ) || 'attachment' !== sanitize_key( (string) ( $attachment->post_type ) ) ) {
 			return array();
 		}
 
@@ -4463,7 +4463,7 @@ trait Media_Read_Methods {
 		return array(
 			'attachment_id'         => $attachment_id,
 			'title'                 => sanitize_text_field( (string) get_the_title( $attachment_id ) ),
-			'mime_type'             => function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ),
+			'mime_type'             => function_exists( 'get_post_mime_type' ) ? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) ) : sanitize_text_field( (string) ( $attachment->post_mime_type ) ),
 			'url'                   => $current_url,
 			'relative_file'         => $current_relative,
 			'matched_relative_file' => $matched_relative,
@@ -4605,7 +4605,7 @@ trait Media_Read_Methods {
 			$query = new \WP_Query( $args );
 			return array(
 				'attachment_ids' => is_array( $query->posts ?? null ) ? array_values( array_map( array( $this, 'absint_value' ), $query->posts ) ) : array(),
-				'total'          => (int) ( $query->found_posts ?? 0 ),
+				'total'          => (int) ( $query->found_posts ),
 			);
 		}
 
@@ -4650,12 +4650,12 @@ trait Media_Read_Methods {
 	private function build_media_inventory_health_row( $attachment_id ) {
 		$attachment_id = $this->absint_value( $attachment_id );
 		$attachment = get_post( $attachment_id );
-		$title = is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '';
-		$caption = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ?? '' ) ) : '';
-		$description = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ?? '' ) ) : '';
+		$title = is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ) ) : '';
+		$caption = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ) ) : '';
+		$description = is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ) ) : '';
 		$mime_type = function_exists( 'get_post_mime_type' )
 			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
-			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
+			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ) ) : '' );
 		$alt = function_exists( 'get_post_meta' ) ? sanitize_text_field( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) : '';
 		$source_type = function_exists( 'get_post_meta' ) ? $this->normalize_media_source_type( get_post_meta( $attachment_id, '_npcink_ai_media_source_type', true ) ) : '';
 		$source_url = function_exists( 'get_post_meta' ) ? $this->esc_url_value( (string) get_post_meta( $attachment_id, '_npcink_ai_source_page_url', true ) ) : '';
@@ -4693,12 +4693,12 @@ trait Media_Read_Methods {
 			$issues[] = 'format_attention';
 		}
 
-		$modified_gmt = is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_modified_gmt ?? '' ) ) : '';
+		$modified_gmt = is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_modified_gmt ) ) : '';
 		$url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
 		$file_path = function_exists( 'get_attached_file' ) ? (string) get_attached_file( $attachment_id ) : '';
 		if ( '' !== $file_path && ! is_readable( $file_path ) && function_exists( 'wp_upload_dir' ) ) {
 			$upload_dir = wp_upload_dir();
-			$base_dir = (string) ( $upload_dir['basedir'] ?? '' );
+			$base_dir = (string) ( $upload_dir['basedir'] );
 			if ( '' !== $base_dir && 0 !== strpos( $file_path, '/' ) ) {
 				$file_path = rtrim( $base_dir, '/\\' ) . '/' . ltrim( $file_path, '/' );
 			}
@@ -4755,7 +4755,7 @@ trait Media_Read_Methods {
 		$attachment = $attachment_id > 0 ? get_post( $attachment_id ) : null;
 		$mime_type = function_exists( 'get_post_mime_type' )
 			? sanitize_text_field( (string) get_post_mime_type( $attachment_id ) )
-			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '' );
+			: ( is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ) ) : '' );
 		$url = function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '';
 		$metadata = function_exists( 'wp_get_attachment_metadata' ) ? wp_get_attachment_metadata( $attachment_id ) : array();
 		if ( ! is_array( $metadata ) && function_exists( 'get_post_meta' ) ) {
@@ -4810,7 +4810,7 @@ trait Media_Read_Methods {
 
 		return array(
 			'attachment_id'     => $attachment_id,
-			'title'             => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '',
+			'title'             => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ) ) : '',
 				'mime_type'         => $mime_type,
 				'source_format'     => $source_format,
 				'url'               => $url,
@@ -4902,7 +4902,7 @@ trait Media_Read_Methods {
 				return '';
 			}
 			$upload_dir = wp_upload_dir();
-			$basedir = is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ?? '' ) : '';
+			$basedir = is_array( $upload_dir ) ? (string) ( $upload_dir['basedir'] ) : '';
 			if ( '' === $basedir ) {
 				return '';
 			}
@@ -4973,7 +4973,7 @@ trait Media_Read_Methods {
 				return false;
 			}
 			$upload_dir = wp_upload_dir();
-			$baseurl    = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ?? '' ) ) : '';
+			$baseurl    = is_array( $upload_dir ) ? esc_url_raw( (string) ( $upload_dir['baseurl'] ) ) : '';
 			if ( '' === $baseurl ) {
 				return false;
 			}
@@ -5186,12 +5186,12 @@ trait Media_Read_Methods {
 		return array(
 			'id'          => $attachment_id,
 			'role'        => sanitize_key( (string) $role ),
-			'title'       => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ?? '' ) ) : '',
-			'mime_type'   => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ?? '' ) ) : '',
+			'title'       => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_title ) ) : '',
+			'mime_type'   => is_object( $attachment ) ? sanitize_text_field( (string) ( $attachment->post_mime_type ) ) : '',
 			'url'         => function_exists( 'wp_get_attachment_url' ) ? $this->esc_url_value( (string) wp_get_attachment_url( $attachment_id ) ) : '',
 			'alt'         => $alt,
-			'caption'     => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ?? '' ) ) : '',
-			'description' => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ?? '' ) ) : '',
+			'caption'     => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_excerpt ) ) : '',
+			'description' => is_object( $attachment ) ? $this->sanitize_metadata_text( (string) ( $attachment->post_content ) ) : '',
 		);
 	}
 
@@ -5239,11 +5239,11 @@ trait Media_Read_Methods {
 
 		if ( preg_match_all( '/<img[^>]*src=["\']([^"\']+)["\'][^>]*>/iu', (string) $article_content, $matches, PREG_SET_ORDER ) ) {
 			foreach ( $matches as $match ) {
-				$html = (string) ( $match[0] ?? '' );
-				$url = $this->esc_url_value( (string) ( $match[1] ?? '' ) );
+				$html = (string) ( $match[0] );
+				$url = $this->esc_url_value( (string) ( $match[1] ) );
 				$alt = '';
 				if ( preg_match( '/alt=["\']([^"\']*)["\']/iu', $html, $alt_match ) ) {
-					$alt = sanitize_text_field( (string) ( $alt_match[1] ?? '' ) );
+					$alt = sanitize_text_field( (string) ( $alt_match[1] ) );
 				}
 				if ( '' === $url ) {
 					continue;
@@ -5599,7 +5599,7 @@ trait Media_Read_Methods {
 		} else {
 			$inner_html = (string) ( $block['innerHTML'] ?? '' );
 			if ( '' !== $inner_html && preg_match( '/class="([^"]+)"/', $inner_html, $matches ) ) {
-				$class_name = (string) ( $matches[1] ?? '' );
+				$class_name = (string) ( $matches[1] );
 			}
 		}
 
