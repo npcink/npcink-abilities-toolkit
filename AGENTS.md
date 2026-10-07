@@ -135,15 +135,30 @@ Small local fixes can go straight to a branch and pull request.
 
 ## Verification
 
-Use the smallest relevant gate while iterating, then run the broader gate before
-handoff or merge.
+Use the tier that matches the moment; do not skip gates and do not run the
+release tier for ordinary iteration.
 
-Default source gate:
+Iteration tier (~25 seconds; run while iterating on any change):
+
+```bash
+composer test:core
+```
+
+Default source gate (run before opening a pull request):
 
 ```bash
 composer test:all
 composer analyse:phpstan
 git diff --check
+```
+
+Release-facing gate (unchanged; adds the PHPStan level-4 total ratchet
+through `composer release:verify`):
+
+```bash
+composer check:boundary
+composer check:wporg
+WP_PATH=/path/to/wordpress composer release:verify
 ```
 
 Advisory AI review gate (run before `composer pr:publish`):
