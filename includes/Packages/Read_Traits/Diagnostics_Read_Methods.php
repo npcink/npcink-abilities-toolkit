@@ -1328,12 +1328,12 @@ private function summarize_diagnostics_log_sources( array $entries ) {
 	usort(
 		$summary,
 		static function ( $left, $right ) {
-			$count_compare = (int) ( $right['count'] ?? 0 ) <=> (int) ( $left['count'] ?? 0 );
+			$count_compare = (int) ( $right['count'] ) <=> (int) ( $left['count'] );
 			if ( 0 !== $count_compare ) {
 				return $count_compare;
 			}
 
-			return strcmp( (string) ( $right['latest_at'] ?? '' ), (string) ( $left['latest_at'] ?? '' ) );
+			return strcmp( (string) ( $right['latest_at'] ), (string) ( $left['latest_at'] ) );
 		}
 	);
 
@@ -1395,12 +1395,12 @@ private function summarize_diagnostics_top_messages( array $entries ) {
 	usort(
 		$summary,
 		static function ( $left, $right ) {
-			$count_compare = (int) ( $right['count'] ?? 0 ) <=> (int) ( $left['count'] ?? 0 );
+			$count_compare = (int) ( $right['count'] ) <=> (int) ( $left['count'] );
 			if ( 0 !== $count_compare ) {
 				return $count_compare;
 			}
 
-			return strcmp( (string) ( $right['latest_at'] ?? '' ), (string) ( $left['latest_at'] ?? '' ) );
+			return strcmp( (string) ( $right['latest_at'] ), (string) ( $left['latest_at'] ) );
 		}
 	);
 
