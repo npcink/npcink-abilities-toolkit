@@ -104,7 +104,7 @@ final class Welcome_Notice {
 		?>
 		<div class="notice notice-success npcink-abilities-toolkit-welcome-notice">
 			<p>
-				<strong><?php echo esc_html( 'Npcink Abilities Toolkit' ); ?></strong>
+				<strong><?php echo esc_html__( 'Npcink Abilities Toolkit', 'npcink-abilities-toolkit' ); ?></strong>
 				<?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?>
 			</p>
 			<p>

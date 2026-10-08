@@ -574,6 +574,61 @@ foreach (
 }
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_scenario_cards, 'data-npcink-abilities-toolkit-run-recipe' ), 'admin workflow scenario overview stays read-only without recipe run affordances' );
 
+/*
+ * The scenario strings are rendered through esc_html__() dynamically, so
+ * extraction tooling cannot rediscover them: the pot entries are maintained by
+ * hand and a make-pot regeneration would silently drop them. This guard fails
+ * loudly when the template or a bundled locale loses the scenario catalog.
+ */
+$workflow_provider_source = file_get_contents( __DIR__ . '/../includes/Workflow/Workflow_Definition_Provider.php' );
+$scenario_title_msgids = array();
+if ( preg_match_all( "/^\s+'title'\s+=> '([^']+)'/m", (string) $workflow_provider_source, $scenario_title_matches ) ) {
+	$scenario_title_msgids = $scenario_title_matches[1];
+}
+$scenario_task_msgids = array();
+if ( preg_match_all( "/'natural_tasks'\s+=> array\((.*?)\),/s", (string) $workflow_provider_source, $scenario_task_blocks ) ) {
+	foreach ( $scenario_task_blocks[1] as $scenario_task_block ) {
+		preg_match_all( "/'([^']+)'/", $scenario_task_block, $block_tasks );
+		$scenario_task_msgids = array_merge( $scenario_task_msgids, $block_tasks[1] );
+	}
+}
+npcink_abilities_toolkit_assert_true( 12 === count( $scenario_title_msgids ) && 36 === count( $scenario_task_msgids ), 'workflow scenario localization guard tracks all 12 titles and 36 tasks from the recipe provider' );
+
+/**
+ * Returns the concatenated msgid strings of one gettext file, rejoining
+ * line-wrapped entries so wrapped msgids compare equal to their source form.
+ *
+ * @param string $gettext_path Absolute .pot/.po path.
+ * @return array<int,string>
+ */
+function npcink_abilities_toolkit_gettext_msgids( $gettext_path ) {
+	$gettext_source = (string) file_get_contents( $gettext_path );
+	$msgids         = array();
+	foreach ( explode( "\n\n", $gettext_source ) as $entry ) {
+		if ( 0 !== strpos( $entry, '#:' ) ) {
+			continue;
+		}
+		$id_part = explode( 'msgstr', $entry, 2 );
+		$joined  = '';
+		foreach ( explode( "\n", trim( (string) $id_part[0] ) ) as $id_line ) {
+			if ( preg_match_all( '/"((?:[^"\\\\]|\\\\.)*)"/', $id_line, $quoted ) ) {
+				$joined .= implode( '', $quoted[1] );
+			}
+		}
+		if ( '' !== $joined ) {
+			$msgids[] = stripcslashes( $joined );
+		}
+	}
+	return $msgids;
+}
+
+$pot_scenario_msgids = array_intersect( array_merge( $scenario_title_msgids, $scenario_task_msgids ), npcink_abilities_toolkit_gettext_msgids( __DIR__ . '/../languages/npcink-abilities-toolkit.pot' ) );
+npcink_abilities_toolkit_assert_true( 48 === count( $pot_scenario_msgids ), 'translation template keeps all 48 hand-maintained scenario msgids after any regeneration' );
+foreach ( array( 'zh_CN', 'de_DE', 'es_ES', 'fr_FR', 'ja', 'ko_KR', 'pt_BR' ) as $scenario_locale ) {
+	$locale_scenario_msgids = array_intersect( array_merge( $scenario_title_msgids, $scenario_task_msgids ), npcink_abilities_toolkit_gettext_msgids( __DIR__ . '/../languages/npcink-abilities-toolkit-' . $scenario_locale . '.po' ) );
+	npcink_abilities_toolkit_assert_true( 48 === count( $locale_scenario_msgids ), "bundled locale {$scenario_locale} keeps all 48 scenario msgids" );
+}
+
 foreach (
 	array(
 		'render_technical_tab',
@@ -595,9 +650,8 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'self:
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'The abilities and categories endpoints are public discovery values' ) && false !== strpos( $admin_test_page, 'requires a signed-in admin session' ), 'connection values explain which endpoints are public and which need an authenticated admin session.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, '.npcink-abilities-toolkit-filter select' ) && false !== strpos( $admin_js, 'select.form.submit()' ), 'admin script submits catalog filter selects on change while the Apply button stays as the no-JS fallback.' );
 
-$plugin_source_for_welcome = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
-$plugin_bootstrap_source   = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source_for_welcome, '( new Welcome_Notice() )->boot();' ), 'admin surface boot registers the post-activation welcome notice inside the admin status page package.' );
+$plugin_bootstrap_source = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Welcome_Notice() )->boot();' ), 'admin surface boot registers the post-activation welcome notice inside the admin status page package.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_bootstrap_source, 'Welcome_Notice::mark_pending_on_activation();' ), 'plugin activation marks the welcome notice pending for the activating admin.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_welcome_notice, 'Open AI Ability Set' ) && false !== strpos( $admin_welcome_notice, "esc_html__( 'Dismiss', 'npcink-abilities-toolkit' )" ), 'welcome notice links the ability status page with a dismiss action.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_welcome_notice, 'clear_pending_for_page' ) && false !== strpos( $admin_welcome_notice, 'maybe_clear_for_current_request' ), 'welcome notice clears itself once the status page has been visited.' );
