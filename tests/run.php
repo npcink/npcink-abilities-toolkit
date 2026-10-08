@@ -755,7 +755,7 @@ npcink_abilities_toolkit_assert_true( is_string( $block_theme_host_proof_runner 
 foreach (
 	array(
 		'Closed Proof State And Observation Queue',
-		'All three proof targets in the ledger are closed',
+		'All four proof targets in the ledger are closed',
 		'Keep Toolkit in freeze/observe mode and do not add first-party abilities',
 		'Real-host proof passed on 2026-07-11',
 		'No new Toolkit ability gap was found',
@@ -765,6 +765,7 @@ foreach (
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $host_proof_status ) && false !== strpos( $host_proof_status, $required ), 'host proof status keeps the closed proof state: ' . $required );
 }
+npcink_abilities_toolkit_assert_true( is_string( $host_proof_status ) && false !== strpos( $host_proof_status, 'npcink-abilities-toolkit/recipes/article-publish-preflight' ) && false !== strpos( $host_proof_status, 'npcink-ai-client-adapter pull request #92' ) && false !== strpos( $host_proof_status, 'no proposal, no write, no WordPress mutation before approval' ), 'host proof ledger records the article-publish-preflight closed-loop adapter proof with its no-mutation evidence' );
 
 $next_stage_standard = file_get_contents( __DIR__ . '/../docs/next-stage-operating-standard.md' );
 foreach (
