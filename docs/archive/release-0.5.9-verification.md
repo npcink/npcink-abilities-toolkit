@@ -101,3 +101,24 @@ the four screenshots with the next layout-level admin change.
    `/Users/muze/gitee/npcink-abilities-toolkit/build/commit-wporg-release.sh`
 5. Confirm WordPress.org serves stable 0.5.9 (plugins API updated
    timestamp), then append the publication record to this note.
+
+## Publication Record (2026-10-08)
+
+Published at maintainer delegation through the Keychain-cached SVN
+credentials (the 0.5.6 and 0.5.8 delegated-commit precedent; non-interactive
+`svn commit --username muze233`, no credential material passed through
+chat). Publication sequence and facts:
+
+- Release pull request #215 merged at `a5ef13a`; git tag `0.5.9` created at
+  the merge commit and pushed; `VERSION=0.5.9 composer release:prepare-wporg`
+  staged trunk plus a single new `tags/0.5.9` directory against release
+  source commit `a5ef13a`, with zero `marketing/`/`docs/`/`tests/`
+  contamination in the staged paths (checked explicitly after the 0.5.8
+  distignore incident).
+- Pre-commit freshness re-check: `svn status -u` against remote head
+  `r3733633` showed zero out-of-date markers.
+- **SVN committed at revision 3733635** (trunk to 0.5.9 plus `tags/0.5.9`).
+- WordPress.org verified serving **stable 0.5.9** (plugins API
+  `version: 0.5.9`, fetched 2026-10-08 11:45 GMT+8; plugin page HTTP 200).
+- Screenshot assets unchanged this release: the visible deltas are
+  copy-level only (see the Screenshots section above).
