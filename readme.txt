@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.8
+Stable tag: 0.5.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,15 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.9 =
+
+* User-experience localization and onboarding release: no ability contract, schema, or behavior changes; ability ids and response shapes are identical to 0.5.8.
+* Workflow scenario cards now follow the site language. Recipe titles and task examples are localized at render time while the discovery payloads stay untranslated contract data.
+* A one-time welcome notice after activation links to the ability status page and clears once the page has been visited or the notice dismissed.
+* The admin page heading now matches the "AI Ability Set" menu label, overview attention notes link troubleshooting guidance, connection values explain which endpoints need an authenticated admin session, and catalog filter selects apply immediately.
+* Uninstalling now also removes per-admin notice state (welcome and health notice dismissals).
+* Bundled locales gained the workflow scenario strings and two admin strings at full template parity; a guard test keeps the hand-maintained scenario template entries from being dropped by regeneration.
 
 = 0.5.8 =
 
