@@ -44,11 +44,8 @@ final class Welcome_Notice {
 	 * @return void
 	 */
 	public static function mark_pending_on_activation() {
-		if ( ! class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) || ! method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
-			return;
-		}
 		$packages = \Npcink_Abilities_Toolkit\Plugin::instance()->get_enabled_packages();
-		if ( ! is_array( $packages ) || empty( $packages['admin_test_page'] ) ) {
+		if ( empty( $packages['admin_test_page'] ) ) {
 			// Without the status page the notice has nowhere to point.
 			return;
 		}
@@ -178,9 +175,11 @@ final class Welcome_Notice {
 		}
 
 		$screen = get_current_screen();
-		$id     = is_object( $screen ) && isset( $screen->id ) ? (string) $screen->id : '';
+		if ( ! is_object( $screen ) ) {
+			return false;
+		}
 
-		return in_array( $id, array( 'plugins', 'dashboard' ), true );
+		return in_array( (string) $screen->id, array( 'plugins', 'dashboard' ), true );
 	}
 
 	/**
@@ -207,7 +206,7 @@ final class Welcome_Notice {
 	private function status_page_url() {
 		if ( function_exists( 'menu_page_url' ) ) {
 			$url = menu_page_url( Test_Page::MENU_SLUG, false );
-			if ( is_string( $url ) && '' !== $url ) {
+			if ( '' !== $url ) {
 				return $url;
 			}
 		}
