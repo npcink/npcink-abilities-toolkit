@@ -371,6 +371,18 @@
 		});
 	});
 
+	/*
+	 * Catalog filter selects submit on change; the visible Apply button stays
+	 * as the no-JS fallback and still works with scripting enabled.
+	 */
+	document.querySelectorAll('.npcink-abilities-toolkit-filter select').forEach(function (select) {
+		select.addEventListener('change', function () {
+			if (select.form) {
+				select.form.submit();
+			}
+		});
+	});
+
 	async function runReadonlyCheck(check, checkLabel, button) {
 		if (!adminAjaxUrl) {
 			return;

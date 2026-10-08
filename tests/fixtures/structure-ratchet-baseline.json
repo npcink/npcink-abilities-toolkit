@@ -2,7 +2,9 @@
     "new_file_cap": 1500,
     "files": {
         "includes/Admin/Health_Notices.php": 326,
-        "includes/Admin/Test_Page.php": 1452,
+        "includes/Admin/Scenario_Cards.php": 70,
+        "includes/Admin/Test_Page.php": 1409,
+        "includes/Admin/Welcome_Notice.php": 228,
         "includes/Autoloader.php": 70,
         "includes/Integration/Npcink_Catalog_Bridge.php": 131,
         "includes/Packages/Comment_Definitions/Core_Comment_Definitions.php": 380,

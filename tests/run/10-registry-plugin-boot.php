@@ -219,7 +219,7 @@ if ( ! function_exists( 'get_user_meta' ) ) {
 }
 if ( ! function_exists( 'update_user_meta' ) ) {
 	/**
-	 * Writes unit user meta.
+	 * Stores unit user meta.
 	 *
 	 * @param int    $user_id User id.
 	 * @param string $key Meta key.
@@ -228,6 +228,19 @@ if ( ! function_exists( 'update_user_meta' ) ) {
 	 */
 	function update_user_meta( $user_id, $key, $value ) {
 		$GLOBALS['npcink_abilities_toolkit_unit_user_meta'][ (int) $user_id ][ (string) $key ] = $value;
+		return true;
+	}
+}
+if ( ! function_exists( 'delete_user_meta' ) ) {
+	/**
+	 * Deletes unit user meta.
+	 *
+	 * @param int    $user_id User id.
+	 * @param string $key Meta key.
+	 * @return bool
+	 */
+	function delete_user_meta( $user_id, $key ) {
+		unset( $GLOBALS['npcink_abilities_toolkit_unit_user_meta'][ (int) $user_id ][ (string) $key ] );
 		return true;
 	}
 }
@@ -334,6 +347,52 @@ $stub_registrar_notices->render_notices();
 $rendered_stub_html = (string) ob_get_clean();
 npcink_abilities_toolkit_assert_true( false !== strpos( $rendered_stub_html, 'Abilities API registration functions are unavailable' ), 'undismissed health notices render on supported screens' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_user_meta'] );
+
+$welcome_notice = new Npcink_Abilities_Toolkit\Admin\Welcome_Notice();
+$welcome_notice->boot();
+$welcome_notice_actions = isset( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] )
+	? $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices']
+	: array();
+$has_welcome_notice_render = false;
+foreach ( $welcome_notice_actions as $welcome_notice_action ) {
+	if ( is_array( $welcome_notice_action ) && isset( $welcome_notice_action[0] ) && $welcome_notice_action[0] instanceof Npcink_Abilities_Toolkit\Admin\Welcome_Notice && 'render_notice' === $welcome_notice_action[1] ) {
+		$has_welcome_notice_render = true;
+		break;
+	}
+}
+npcink_abilities_toolkit_assert_true( $has_welcome_notice_render, 'welcome notice registers the admin_notices surface' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+$GLOBALS['npcink_abilities_toolkit_unit_user_meta'] = array();
+add_filter(
+	'npcink_abilities_toolkit_enabled_packages',
+	static function ( $packages ) {
+		$packages['admin_test_page'] = false;
+		return $packages;
+	}
+);
+Npcink_Abilities_Toolkit\Admin\Welcome_Notice::mark_pending_on_activation();
+npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'activation does not mark the welcome notice when the admin status page package is disabled' );
+remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
+Npcink_Abilities_Toolkit\Admin\Welcome_Notice::mark_pending_on_activation();
+npcink_abilities_toolkit_assert_same( array( '7' => array( 'npcink_abilities_toolkit_welcome_pending' => '1' ) ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'activation marks the welcome notice pending for the activating admin' );
+ob_start();
+$welcome_notice->render_notice();
+$rendered_welcome_html = (string) ob_get_clean();
+npcink_abilities_toolkit_assert_true( false !== strpos( $rendered_welcome_html, 'Open AI Ability Set' ) && false !== strpos( $rendered_welcome_html, 'tools.php?page=npcink-abilities-toolkit' ), 'pending welcome notice links the ability status page' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $rendered_welcome_html, 'Dismiss' ), 'pending welcome notice offers a dismiss action' );
+$welcome_notice->clear_pending_for_page( 'unrelated-page-slug' );
+npcink_abilities_toolkit_assert_same( array( '7' => array( 'npcink_abilities_toolkit_welcome_pending' => '1' ) ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'viewing an unrelated admin page keeps the welcome notice pending' );
+$welcome_notice->clear_pending_for_page( 'npcink-abilities-toolkit' );
+npcink_abilities_toolkit_assert_same( array( '7' => array() ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'viewing the status page clears the pending welcome notice' );
+ob_start();
+$welcome_notice->render_notice();
+npcink_abilities_toolkit_assert_same( '', (string) ob_get_clean(), 'cleared welcome notice renders nothing' );
+Npcink_Abilities_Toolkit\Admin\Welcome_Notice::mark_pending_on_activation();
+$_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_dismiss_welcome_notice';
+$welcome_notice->handle_dismiss_request();
+npcink_abilities_toolkit_assert_same( array( '7' => array() ), $GLOBALS['npcink_abilities_toolkit_unit_user_meta'], 'welcome notice dismissal with a valid nonce clears the pending flag' );
+unset( $_REQUEST['_wpnonce'], $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_user_meta'] );
 
 $enabled_packages = $plugin->get_enabled_packages();
 npcink_abilities_toolkit_assert_same( 7, count( $enabled_packages ), 'package enable map resolves the full built-in default map without host filters' );

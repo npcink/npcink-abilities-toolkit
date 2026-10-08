@@ -5288,3 +5288,236 @@ msgstr "派生処理の警告が無効です。"
 
 #~ msgid "Copy Client Values"
 #~ msgstr "クライアント値をコピー"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article draft handoff"
+msgstr "記事下書きのハンドオフ"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article publish preflight"
+msgstr "記事公開のプレフライト"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Existing article optimization"
+msgstr "既存記事の最適化"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Governed media optimization"
+msgstr "ガバナンス下のメディア最適化"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article media handoff"
+msgstr "記事メディアのハンドオフ"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Old article refresh discovery"
+msgstr "古い記事のリフレッシュ発見"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article production mainline"
+msgstr "記事制作のメインライン"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media alt and SEO enrichment"
+msgstr "メディアの代替テキストと SEO 強化"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Comment compliance handoff"
+msgstr "コメントコンプライアンスのハンドオフ"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media governance scan"
+msgstr "メディアガバナンススキャン"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Site operations scan"
+msgstr "サイト運用スキャン"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Diagnostics triage"
+msgstr "診断トリアージ"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed article draft plan."
+msgstr "レビュー済みの記事下書き計画を準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Compose article metadata, links, media SEO, and review signals before "
+"creating a draft."
+msgstr "下書きを作成する前に、記事のメタデータ、リンク、メディア SEO、レビューシグナルを構成する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a local article draft handoff without using cloud writing."
+msgstr "クラウド執筆を使わずに、ローカルな記事下書きハンドオフを構築する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Check whether this draft is ready to publish."
+msgstr "この下書きが公開可能かどうかを確認する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review the article before scheduling it."
+msgstr "公開予約の前に記事をレビューする。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find publication risks and calendar pressure for this post."
+msgstr "この投稿の公開リスクとカレンダーの逼迫状況を把握する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review this existing article for optimization opportunities."
+msgstr "この既存記事を最適化の機会についてレビューする。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare SEO, GEO, excerpt, and slug suggestions for a post."
+msgstr "投稿のために SEO、GEO、抜粋、スラッグの提案を準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a safe apply plan before asking a host to patch article content."
+msgstr "ホストに記事コンテンツの修正を依頼する前に、安全な適用計画を作成する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed media optimization plan for one attachment."
+msgstr "1 つの添付ファイルに対してレビュー済みのメディア最適化計画を準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build metadata and derivative adoption actions before asking Core for "
+"approval."
+msgstr "Core に承認を求める前に、メタデータと派生ファイル採用のアクションを構築する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Preview media replacement and content reference repairs without "
+"changing WordPress."
+msgstr "WordPress を変更せずに、メディア置き換えとコンテンツ参照の修復をプレビューする。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare media SEO assets for this article."
+msgstr "この記事のためにメディア SEO アセットを準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build inline image blocks and placement guidance before importing "
+"media."
+msgstr "メディアを取り込む前に、インライン画像ブロックと配置ガイダンスを構築する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Create a media handoff that a host can review before any upload or "
+"metadata write."
+msgstr "アップロードやメタデータ書き込みの前に、ホストがレビューできるメディアハンドオフを作成する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find old articles that need refreshing."
+msgstr "リフレッシュが必要な古い記事を見つける。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Discover SEO and GEO gaps across existing posts."
+msgstr "既存投稿全体の SEO と GEO のギャップを発見する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Choose candidate posts for an article refresh plan."
+msgstr "記事リフレッシュ計画の候補投稿を選定する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run the article production mainline with duplicate guard and quality "
+"review."
+msgstr "重複ガードと品質レビュー付きの記事制作メインラインを実行する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build the production fingerprint and check duplicate candidates before "
+"drafting continues."
+msgstr "下書きを続ける前に制作フィンガープリントを構築し、重複候補を確認する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Resolve the publication decision and stop before any host governed "
+"publish write."
+msgstr "公開判断を確定し、ホスト管理下の公開書き込みの前に停止する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find attachments with missing alt text in the media library."
+msgstr "メディアライブラリ内で代替テキストがない添付ファイルを見つける。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize media inventory health gaps for alt and caption enrichment."
+msgstr "代替テキストとキャプションの強化に向けたメディアインベントリの健康ギャップを要約する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Prepare deterministic title, alt, and caption suggestions for "
+"attachment metadata."
+msgstr "添付メタデータのために、決定論的なタイトル・代替テキスト・キャプションの提案を準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Triage comments waiting for moderation."
+msgstr "承認待ちのコメントをトリアージする。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare moderation suggestions without approving anything."
+msgstr "何も承認せずにモデレーション提案を準備する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a reply or moderation handoff for a selected comment."
+msgstr "選択したコメントに対して返信またはモデレーションのハンドオフを構築する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Find media library cleanup opportunities such as unused attachments and "
+"orphans."
+msgstr "未使用の添付ファイルや孤立ファイルなど、メディアライブラリのクリーンアップ機会を見つける。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Plan inventory fixes, renames, and derivative batch cleanup for "
+"governed media files."
+msgstr "ガバナンス下のメディアファイルについて、インベントリ修正、リネーム、派生ファイルの一括クリーンアップを計画する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Draft a media governance review without deleting or renaming anything "
+"yet."
+msgstr "まだ何も削除もリネームもせずに、メディアガバナンスレビューの草案を作成する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run a site operations scan across content, taxonomy, and page "
+"structure."
+msgstr "コンテンツ、タクソノミー、ページ構造にわたるサイト運用スキャンを実行する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Show site-wide attention areas from the operations dashboard."
+msgstr "運用ダッシュボードからサイト全体の要注意領域を表示する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Check operations readiness for content, taxonomy, and pages in one "
+"pass."
+msgstr "コンテンツ、タクソノミー、ページの運用準備を一括して確認する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Collect redacted WordPress diagnostics for a support ticket."
+msgstr "サポートチケットのために機密を除いた WordPress 診断情報を収集する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Run an environment triage before deeper agent work."
+msgstr "より深いエージェント作業の前に環境トリアージを実行する。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize runtime, plugin, and cache diagnostics for support triage."
+msgstr "サポートトリアージのためにランタイム、プラグイン、キャッシュの診断を要約する。"
+
+#: includes/Admin/Welcome_Notice.php
+msgid "Open AI Ability Set"
+msgstr "AI 能力セットを開く"
+
+#: includes/Admin/Test_Page.php
+msgid ""
+"The abilities and categories endpoints are public discovery values. The "
+"contract endpoint requires a signed-in admin session, so testing it in "
+"a private browser window returns an authentication error."
+msgstr ""
+"abilities と categories のエンドポイントは公開のディスカバリー値です。contract "
+"エンドポイントにはログイン済みの管理者セッションが必要なため、プライベートブラウジングのウィンドウでテストすると認証エラーが返ります。"

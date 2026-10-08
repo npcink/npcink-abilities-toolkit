@@ -14,6 +14,8 @@ Expose and inspect WordPress Abilities API capabilities for AI hosts and clients
 
 Npcink Abilities Toolkit helps a WordPress site expose, review, and safely inspect Abilities API capabilities for AI hosts and clients.
 
+After activation, open Tools -> AI Ability Set to see at a glance what AI clients can do on this site: which abilities are available, which are read-only, and which would require approval from a host product before anything changes.
+
 The admin page is built for site operators first. It shows whether the site's ability package is working, which abilities are available, which abilities are read-only, and which write-like abilities require host approval.
 
 For developers and host runtimes, the plugin also provides ability registration helpers, category helpers, schema normalization, annotation normalization, REST discovery values, and optional canonical projection for Npcink AI when Npcink AI is installed.
@@ -47,7 +49,7 @@ The `npcink-abilities-toolkit/upload-media-from-url` ability is inert as a dry-r
 
 1. Install and activate the plugin through the Plugins screen, or upload the plugin folder to wp-content/plugins/ and activate it from there.
 2. Confirm the site runs WordPress 6.9 or later so the Abilities API registration functions and REST routes exist.
-3. Open Tools -> AI Ability Set (or Npcink AI -> AI Ability Set when a Npcink AI host menu is present) and check that the site ability status is working.
+3. A one-time welcome notice on the Plugins screen links to the status page. Open Tools -> AI Ability Set (or Npcink AI -> AI Ability Set when a Npcink AI host menu is present) and check that the site ability status is working.
 4. To expose abilities from your own plugin, register them on plugins_loaded through the public helpers listed under Public API; see the Third-Party Integration Quickstart below.
 
 == Public API ==
@@ -139,7 +141,7 @@ The WordPress Abilities API routes must be available before clients can discover
 
 = What does uninstalling remove? =
 
-Uninstalling deletes the plugin's stored options, the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the `npcink_abilities_toolkit_uninstall_preserve_media_history` and `npcink_abilities_toolkit_uninstall_preserve_media_backups` filters; the history filter defaults to the backup setting.
+Uninstalling deletes the plugin's stored options, per-admin notice state (welcome and health notice dismissals), the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the `npcink_abilities_toolkit_uninstall_preserve_media_history` and `npcink_abilities_toolkit_uninstall_preserve_media_backups` filters; the history filter defaults to the backup setting.
 
 == Screenshots ==
 

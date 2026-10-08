@@ -17,6 +17,7 @@ $GLOBALS['npcink_uninstall_switched_sites'] = array();
 $GLOBALS['npcink_uninstall_restores'] = 0;
 $GLOBALS['npcink_uninstall_cleared_hooks'] = array();
 $GLOBALS['npcink_uninstall_deleted_meta_keys'] = array();
+$GLOBALS['npcink_uninstall_deleted_user_meta_keys'] = array();
 $GLOBALS['npcink_uninstall_preserve_media_backups'] = false;
 
 $npcink_uninstall_uploads = sys_get_temp_dir() . '/npcink-uninstall-test-' . getmypid();
@@ -80,6 +81,24 @@ function apply_filters( $tag, $value ) {
  */
 function delete_post_meta_by_key( $meta_key ) {
 	$GLOBALS['npcink_uninstall_deleted_meta_keys'][] = (string) $meta_key;
+	return true;
+}
+
+/**
+ * Records a bulk user meta key deletion.
+ *
+ * @param string $meta_type Meta type.
+ * @param int    $user_id User id (ignored on delete-all).
+ * @param string $meta_key Meta key.
+ * @param mixed  $meta_value Meta value (ignored on delete-all).
+ * @param bool   $delete_all Whether every entry is deleted.
+ * @return bool
+ */
+function delete_metadata( $meta_type, $user_id, $meta_key, $meta_value = '', $delete_all = false ) {
+	unset( $user_id, $meta_value, $delete_all );
+	if ( 'user' === (string) $meta_type ) {
+		$GLOBALS['npcink_uninstall_deleted_user_meta_keys'][] = (string) $meta_key;
+	}
 	return true;
 }
 
@@ -191,6 +210,12 @@ $expected_meta_keys = array( '_npcink_ai_media_file_replacement_history', '_npci
 $expected_meta_deletions = 'multisite' === $mode ? array_merge( $expected_meta_keys, $expected_meta_keys ) : $expected_meta_keys;
 if ( $expected_meta_deletions !== $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) {
 	fwrite( STDERR, 'Unexpected uninstall meta deletions: ' . json_encode( $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) . "\n" );
+	exit( 1 );
+}
+$expected_user_meta_keys = array( 'npcink_abilities_toolkit_welcome_pending', 'npcink_abilities_toolkit_health_notices_dismissed' );
+$expected_user_meta_deletions = 'multisite' === $mode ? array_merge( $expected_user_meta_keys, $expected_user_meta_keys ) : $expected_user_meta_keys;
+if ( $expected_user_meta_deletions !== $GLOBALS['npcink_uninstall_deleted_user_meta_keys'] ) {
+	fwrite( STDERR, 'Unexpected uninstall user meta deletions: ' . json_encode( $GLOBALS['npcink_uninstall_deleted_user_meta_keys'] ) . "\n" );
 	exit( 1 );
 }
 if ( is_dir( $npcink_uninstall_backups ) ) {

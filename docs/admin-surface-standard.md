@@ -79,10 +79,13 @@ GitHub. External links must:
 - use stable `blob/master` documentation URLs declared as class constants;
 - open in a new tab with `rel="noopener noreferrer"`;
 - stay limited to integration and contract guidance (REST client quickstart,
-  host approval contract) — never deep-link source code or internal tooling.
+  host approval contract, troubleshooting) — never deep-link source code or
+  internal tooling.
 
 The standalone host card should point host products to the Host Approval
-Contract so a site owner can hand the next step to an integrator.
+Contract so a site owner can hand the next step to an integrator. Overview
+attention notes may link the troubleshooting guide because every attention
+message describes a failure the troubleshooting doc explains how to resolve.
 
 ## Available Abilities
 
@@ -134,7 +137,23 @@ first section:
 The page should avoid looking like a general settings page. Plugin-list action
 links, page headings, and menu labels should use abilities language rather than
 Settings or Diagnostics language. Diagnostics remain a bounded check, not the
-page identity.
+page identity. The on-page heading must match the registered menu label
+("AI Ability Set") so the clicked destination is confirmed on arrival.
+
+Host products that want the `Npcink AI -> AI Ability Set` placement must
+register the shared `npcink-ai` top-level menu at an `admin_menu` priority
+lower than 40, because the Toolkit submenu attaches at priority 40 and falls
+back to Tools when the parent menu is not registered yet.
+
+A one-time post-activation welcome notice may point operators to the status
+page. It must be per-admin, must clear after the status page is visited or the
+notice is dismissed, must stay silent for activations without an admin session
+(CLI, network bulk activation), and must not become a recurring nag.
+
+Workflow scenario cards localize recipe titles and natural task examples at
+render time with the plugin text domain. The recipe payloads themselves
+(REST discovery, contract projection, replay fixtures) remain untranslated
+English contract data.
 
 Do not add demo/showcase execution buttons, model-call buttons, write buttons,
 or workflow-run buttons to this package surface. Real workflow execution belongs

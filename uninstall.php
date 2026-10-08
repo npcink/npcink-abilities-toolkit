@@ -25,7 +25,22 @@ function npcink_abilities_toolkit_uninstall_current_site() {
 	delete_option( 'npcink_abilities_toolkit_read_cache_version' );
 	delete_option( 'npcink_abilities_toolkit_media_backup_cleanup_cursor' );
 	delete_option( 'npcink_abilities_toolkit_media_backup_manual_cleanup_cursor' );
+	npcink_abilities_toolkit_uninstall_admin_user_meta();
 	npcink_abilities_toolkit_uninstall_media_backup_artifacts();
+}
+
+/**
+ * Removes per-admin notice state left behind by the admin surface.
+ *
+ * @return void
+ */
+function npcink_abilities_toolkit_uninstall_admin_user_meta() {
+	if ( ! function_exists( 'delete_metadata' ) ) {
+		return;
+	}
+
+	delete_metadata( 'user', 0, 'npcink_abilities_toolkit_welcome_pending', '', true );
+	delete_metadata( 'user', 0, 'npcink_abilities_toolkit_health_notices_dismissed', '', true );
 }
 
 /**
