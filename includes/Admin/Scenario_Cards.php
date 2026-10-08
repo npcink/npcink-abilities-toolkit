@@ -51,10 +51,10 @@ final class Scenario_Cards {
 				<?php foreach ( $cases as $case ) : ?>
 					<?php $case = is_array( $case ) ? $case : array(); ?>
 					<div class="npcink-abilities-toolkit-scenarios__item">
-						<h3><?php echo esc_html__( (string) ( $case['title'] ?? '' ), 'npcink-abilities-toolkit' ); ?></h3>
+						<h3><?php echo esc_html( Scenario_Translations::translate( (string) ( $case['title'] ?? '' ) ) ); ?></h3>
 						<ul>
 							<?php foreach ( array_slice( (array) ( $case['natural_tasks'] ?? array() ), 0, 3 ) as $task ) : ?>
-								<li><?php echo esc_html__( (string) $task, 'npcink-abilities-toolkit' ); ?></li>
+								<li><?php echo esc_html( Scenario_Translations::translate( (string) $task ) ); ?></li>
 							<?php endforeach; ?>
 						</ul>
 						<p class="description">

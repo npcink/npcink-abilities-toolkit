@@ -556,7 +556,7 @@ foreach (
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, $required ), 'scenario card renderer keeps the read-only scenario overview: ' . $required );
 }
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, "esc_html__( (string) ( \$case['title'] ?? '' ), 'npcink-abilities-toolkit' )" ) && false !== strpos( $admin_scenario_cards, "esc_html__( (string) \$task, 'npcink-abilities-toolkit' )" ), 'scenario cards localize recipe titles and tasks at render time while the recipe payloads stay untranslated contract data.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, "Scenario_Translations::translate( (string) ( \$case['title'] ?? '' ) )" ) && false !== strpos( $admin_scenario_cards, 'Scenario_Translations::translate( (string) $task )' ), 'scenario cards localize recipe titles and tasks through the literal translation map while the recipe payloads stay untranslated contract data.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Scenario_Cards() )->render();' ), 'admin test page delegates the scenario overview to the scenario card renderer.' );
 
 foreach (
@@ -593,6 +593,11 @@ if ( preg_match_all( "/'natural_tasks'\s+=> array\((.*?)\),/s", (string) $workfl
 	}
 }
 npcink_abilities_toolkit_assert_true( 12 === count( $scenario_title_msgids ) && 36 === count( $scenario_task_msgids ), 'workflow scenario localization guard tracks all 12 titles and 36 tasks from the recipe provider' );
+
+$admin_scenario_translations = file_get_contents( __DIR__ . '/../includes/Admin/Scenario_Translations.php' );
+foreach ( array_merge( $scenario_title_msgids, $scenario_task_msgids ) as $scenario_literal_msgid ) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_translations, "'{$scenario_literal_msgid}' => __( '{$scenario_literal_msgid}', 'npcink-abilities-toolkit' )" ), 'scenario translation map keeps a literal extractable msgid: ' . $scenario_literal_msgid );
+}
 
 /**
  * Returns the concatenated msgid strings of one gettext file, rejoining
