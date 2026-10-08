@@ -6068,3 +6068,291 @@ msgstr "Las advertencias de procesamiento del derivado no son válidas."
 
 #~ msgid "Copy Client Values"
 #~ msgstr "Copiar valores de cliente"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article draft handoff"
+msgstr "Entrega del borrador de artículo"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article publish preflight"
+msgstr "Verificación previa a la publicación del artículo"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Existing article optimization"
+msgstr "Optimización de artículos existentes"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Governed media optimization"
+msgstr "Optimización de medios gobernada"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article media handoff"
+msgstr "Entrega de medios del artículo"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Old article refresh discovery"
+msgstr "Detección de artículos antiguos para actualizar"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article production mainline"
+msgstr "Línea principal de producción de artículos"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media alt and SEO enrichment"
+msgstr "Enriquecimiento de medios con texto alternativo y SEO"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Comment compliance handoff"
+msgstr "Entrega de cumplimiento de comentarios"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media governance scan"
+msgstr "Escaneo de gobernanza de medios"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Site operations scan"
+msgstr "Escaneo de operaciones del sitio"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Diagnostics triage"
+msgstr "Clasificación de diagnóstico"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed article draft plan."
+msgstr "Preparar un plan de borrador de artículo revisado."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Compose article metadata, links, media SEO, and review signals before "
+"creating a draft."
+msgstr ""
+"Componer metadatos del artículo, enlaces, SEO de medios y señales de "
+"revisión antes de crear un borrador."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a local article draft handoff without using cloud writing."
+msgstr ""
+"Construir una entrega local de borrador de artículo sin usar escritura "
+"en la nube."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Check whether this draft is ready to publish."
+msgstr "Comprobar si este borrador está listo para publicar."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review the article before scheduling it."
+msgstr "Revisar el artículo antes de programarlo."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find publication risks and calendar pressure for this post."
+msgstr ""
+"Detectar riesgos de publicación y presión del calendario para esta "
+"entrada."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review this existing article for optimization opportunities."
+msgstr ""
+"Revisar este artículo existente en busca de oportunidades de "
+"optimización."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare SEO, GEO, excerpt, and slug suggestions for a post."
+msgstr "Preparar sugerencias de SEO, GEO, extracto y slug para una entrada."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a safe apply plan before asking a host to patch article content."
+msgstr ""
+"Construir un plan de aplicación seguro antes de pedir a un host que "
+"modifique el contenido del artículo."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed media optimization plan for one attachment."
+msgstr ""
+"Preparar un plan de optimización de medios revisado para un archivo "
+"adjunto."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build metadata and derivative adoption actions before asking Core for "
+"approval."
+msgstr ""
+"Construir acciones de metadatos y adopción de derivados antes de pedir "
+"aprobación a Core."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Preview media replacement and content reference repairs without "
+"changing WordPress."
+msgstr ""
+"Previsualizar el reemplazo de medios y las reparaciones de referencias "
+"de contenido sin cambiar WordPress."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare media SEO assets for this article."
+msgstr "Preparar recursos SEO de medios para este artículo."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build inline image blocks and placement guidance before importing "
+"media."
+msgstr ""
+"Construir bloques de imagen en línea y guía de ubicación antes de "
+"importar medios."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Create a media handoff that a host can review before any upload or "
+"metadata write."
+msgstr ""
+"Crear una entrega de medios que un host pueda revisar antes de "
+"cualquier subida o escritura de metadatos."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find old articles that need refreshing."
+msgstr "Encontrar artículos antiguos que necesitan actualizarse."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Discover SEO and GEO gaps across existing posts."
+msgstr "Detectar carencias de SEO y GEO en las entradas existentes."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Choose candidate posts for an article refresh plan."
+msgstr ""
+"Elegir entradas candidatas para un plan de actualización de artículos."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run the article production mainline with duplicate guard and quality "
+"review."
+msgstr ""
+"Ejecutar la línea principal de producción de artículos con protección "
+"contra duplicados y revisión de calidad."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build the production fingerprint and check duplicate candidates before "
+"drafting continues."
+msgstr ""
+"Construir la huella de producción y comprobar candidatos duplicados "
+"antes de continuar con el borrador."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Resolve the publication decision and stop before any host governed "
+"publish write."
+msgstr ""
+"Resolver la decisión de publicación y detenerse antes de cualquier "
+"escritura de publicación gobernada por el host."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find attachments with missing alt text in the media library."
+msgstr ""
+"Encontrar archivos adjuntos con texto alternativo ausente en la "
+"biblioteca de medios."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize media inventory health gaps for alt and caption enrichment."
+msgstr ""
+"Resumir las carencias de salud del inventario de medios para el "
+"enriquecimiento de texto alternativo y leyendas."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Prepare deterministic title, alt, and caption suggestions for "
+"attachment metadata."
+msgstr ""
+"Preparar sugerencias deterministas de título, texto alternativo y "
+"leyenda para los metadatos del adjunto."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Triage comments waiting for moderation."
+msgstr "Clasificar los comentarios en espera de moderación."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare moderation suggestions without approving anything."
+msgstr "Preparar sugerencias de moderación sin aprobar nada."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a reply or moderation handoff for a selected comment."
+msgstr ""
+"Construir una entrega de respuesta o moderación para un comentario "
+"seleccionado."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Find media library cleanup opportunities such as unused attachments and "
+"orphans."
+msgstr ""
+"Encontrar oportunidades de limpieza en la biblioteca de medios, como "
+"adjuntos sin uso y huérfanos."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Plan inventory fixes, renames, and derivative batch cleanup for "
+"governed media files."
+msgstr ""
+"Planificar correcciones de inventario, renombrados y limpieza por "
+"lotes de derivados para archivos de medios gobernados."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Draft a media governance review without deleting or renaming anything "
+"yet."
+msgstr ""
+"Redactar una revisión de gobernanza de medios sin eliminar ni "
+"renombrar nada todavía."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run a site operations scan across content, taxonomy, and page "
+"structure."
+msgstr ""
+"Ejecutar un escaneo de operaciones del sitio que abarque contenido, "
+"taxonomía y estructura de páginas."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Show site-wide attention areas from the operations dashboard."
+msgstr ""
+"Mostrar áreas de atención de todo el sitio desde el panel de "
+"operaciones."
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Check operations readiness for content, taxonomy, and pages in one "
+"pass."
+msgstr ""
+"Comprobar la preparación operativa de contenido, taxonomía y páginas "
+"en una sola pasada."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Collect redacted WordPress diagnostics for a support ticket."
+msgstr ""
+"Recopilar diagnósticos de WordPress redactados para un ticket de "
+"soporte."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Run an environment triage before deeper agent work."
+msgstr ""
+"Realizar una clasificación del entorno antes de un trabajo más "
+"profundo del agente."
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize runtime, plugin, and cache diagnostics for support triage."
+msgstr ""
+"Resumir diagnósticos de tiempo de ejecución, plugins y caché para la "
+"clasificación de soporte."
+
+#: includes/Admin/Welcome_Notice.php
+msgid "Open AI Ability Set"
+msgstr "Abrir el conjunto de capacidades de IA"
+
+#: includes/Admin/Test_Page.php
+msgid ""
+"The abilities and categories endpoints are public discovery values. The "
+"contract endpoint requires a signed-in admin session, so testing it in "
+"a private browser window returns an authentication error."
+msgstr ""
+"Los endpoints de abilities y categories son valores de descubrimiento "
+"públicos. El endpoint de contract requiere una sesión de "
+"administración iniciada, por lo que probarlo en una ventana privada "
+"del navegador devuelve un error de autenticación."

@@ -276,6 +276,8 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 }
 
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+$admin_scenario_cards = file_get_contents( __DIR__ . '/../includes/Admin/Scenario_Cards.php' );
+$admin_welcome_notice = file_get_contents( __DIR__ . '/../includes/Admin/Welcome_Notice.php' );
 $autoloader_source = file_get_contents( __DIR__ . '/../includes/Autoloader.php' );
 $core_write_source = file_get_contents( __DIR__ . '/../includes/Packages/Core_Write_Package.php' );
 $cloud_media_write_trait = file_get_contents( __DIR__ . '/../includes/Packages/Write_Traits/Cloud_Media_Write_Methods.php' );
@@ -477,7 +479,7 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_s
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'AI Ability Set', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers translated abilities page and menu titles when attached' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-status__detail' ) && false === strpos( $admin_test_page, 'role="listitem" title=' ), 'admin status tiles show their detail text visibly instead of hover-only titles.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'No workflow scenarios are published on this site yet' ), 'admin workflow scenario view renders an explicit empty state.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, 'No workflow scenarios are published on this site yet' ), 'admin workflow scenario view renders an explicit empty state.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'data-request-failed-label' ) && false !== strpos( $admin_test_page, 'data-copy-failed-label' ), 'admin page passes translated failure labels to its script.' );
 npcink_abilities_toolkit_assert_true( substr_count( $admin_test_page, 'id="npcink-abilities-toolkit-admin-output"' ) <= 1 && false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-output' ), 'admin page keeps a unique output element id and marks outputs with a data attribute.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, 'restoreLabel' ) && false !== strpos( $admin_js, 'copyFailedLabel' ) && false !== strpos( $admin_js, 'requestFailedLabel' ), 'admin script restores copy labels, reports copy failures, and prefixes request failures.' );
@@ -547,18 +549,85 @@ foreach (
 
 foreach (
 	array(
-		'render_workflow_scenarios',
 		'npcink-abilities-toolkit-scenarios',
+		'natural_tasks',
+		'entrypoint_ability_id',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, $required ), 'scenario card renderer keeps the read-only scenario overview: ' . $required );
+}
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, "esc_html__( (string) ( \$case['title'] ?? '' ), 'npcink-abilities-toolkit' )" ) && false !== strpos( $admin_scenario_cards, "esc_html__( (string) \$task, 'npcink-abilities-toolkit' )" ), 'scenario cards localize recipe titles and tasks at render time while the recipe payloads stay untranslated contract data.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Scenario_Cards() )->render();' ), 'admin test page delegates the scenario overview to the scenario card renderer.' );
+
+foreach (
+	array(
 		'DOCS_QUICKSTART_URL',
 		'DOCS_HOST_CONTRACT_URL',
+		'DOCS_TROUBLESHOOTING_URL',
 		'docs/rest-client-quickstart.md',
 		'docs/host-approval-contract.md',
+		'docs/troubleshooting.md',
 		'target="_blank" rel="noopener noreferrer"',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the workflow scenario overview and documentation links: ' . $required );
 }
-npcink_abilities_toolkit_assert_true( false === strpos( $admin_test_page, 'data-npcink-abilities-toolkit-run-recipe' ), 'admin workflow scenario overview stays read-only without recipe run affordances' );
+npcink_abilities_toolkit_assert_true( false === strpos( $admin_scenario_cards, 'data-npcink-abilities-toolkit-run-recipe' ), 'admin workflow scenario overview stays read-only without recipe run affordances' );
+
+/*
+ * The scenario strings are rendered through esc_html__() dynamically, so
+ * extraction tooling cannot rediscover them: the pot entries are maintained by
+ * hand and a make-pot regeneration would silently drop them. This guard fails
+ * loudly when the template or a bundled locale loses the scenario catalog.
+ */
+$workflow_provider_source = file_get_contents( __DIR__ . '/../includes/Workflow/Workflow_Definition_Provider.php' );
+$scenario_title_msgids = array();
+if ( preg_match_all( "/^\s+'title'\s+=> '([^']+)'/m", (string) $workflow_provider_source, $scenario_title_matches ) ) {
+	$scenario_title_msgids = $scenario_title_matches[1];
+}
+$scenario_task_msgids = array();
+if ( preg_match_all( "/'natural_tasks'\s+=> array\((.*?)\),/s", (string) $workflow_provider_source, $scenario_task_blocks ) ) {
+	foreach ( $scenario_task_blocks[1] as $scenario_task_block ) {
+		preg_match_all( "/'([^']+)'/", $scenario_task_block, $block_tasks );
+		$scenario_task_msgids = array_merge( $scenario_task_msgids, $block_tasks[1] );
+	}
+}
+npcink_abilities_toolkit_assert_true( 12 === count( $scenario_title_msgids ) && 36 === count( $scenario_task_msgids ), 'workflow scenario localization guard tracks all 12 titles and 36 tasks from the recipe provider' );
+
+/**
+ * Returns the concatenated msgid strings of one gettext file, rejoining
+ * line-wrapped entries so wrapped msgids compare equal to their source form.
+ *
+ * @param string $gettext_path Absolute .pot/.po path.
+ * @return array<int,string>
+ */
+function npcink_abilities_toolkit_gettext_msgids( $gettext_path ) {
+	$gettext_source = (string) file_get_contents( $gettext_path );
+	$msgids         = array();
+	foreach ( explode( "\n\n", $gettext_source ) as $entry ) {
+		if ( 0 !== strpos( $entry, '#:' ) ) {
+			continue;
+		}
+		$id_part = explode( 'msgstr', $entry, 2 );
+		$joined  = '';
+		foreach ( explode( "\n", trim( (string) $id_part[0] ) ) as $id_line ) {
+			if ( preg_match_all( '/"((?:[^"\\\\]|\\\\.)*)"/', $id_line, $quoted ) ) {
+				$joined .= implode( '', $quoted[1] );
+			}
+		}
+		if ( '' !== $joined ) {
+			$msgids[] = stripcslashes( $joined );
+		}
+	}
+	return $msgids;
+}
+
+$pot_scenario_msgids = array_intersect( array_merge( $scenario_title_msgids, $scenario_task_msgids ), npcink_abilities_toolkit_gettext_msgids( __DIR__ . '/../languages/npcink-abilities-toolkit.pot' ) );
+npcink_abilities_toolkit_assert_true( 48 === count( $pot_scenario_msgids ), 'translation template keeps all 48 hand-maintained scenario msgids after any regeneration' );
+foreach ( array( 'zh_CN', 'de_DE', 'es_ES', 'fr_FR', 'ja', 'ko_KR', 'pt_BR' ) as $scenario_locale ) {
+	$locale_scenario_msgids = array_intersect( array_merge( $scenario_title_msgids, $scenario_task_msgids ), npcink_abilities_toolkit_gettext_msgids( __DIR__ . '/../languages/npcink-abilities-toolkit-' . $scenario_locale . '.po' ) );
+	npcink_abilities_toolkit_assert_true( 48 === count( $locale_scenario_msgids ), "bundled locale {$scenario_locale} keeps all 48 scenario msgids" );
+}
 
 foreach (
 	array(
@@ -575,6 +644,18 @@ foreach (
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the two-audience structure: ' . $required );
 }
+
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "<h1><?php echo esc_html__( 'AI Ability Set', 'npcink-abilities-toolkit' ); ?></h1>" ), 'admin page heading matches the registered menu label so the clicked destination is confirmed on arrival.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'self::DOCS_TROUBLESHOOTING_URL ); ?>"' ) && false !== strpos( $admin_test_page, "esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' )" ), 'overview attention notes link the troubleshooting guidance.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'The abilities and categories endpoints are public discovery values' ) && false !== strpos( $admin_test_page, 'requires a signed-in admin session' ), 'connection values explain which endpoints are public and which need an authenticated admin session.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, '.npcink-abilities-toolkit-filter select' ) && false !== strpos( $admin_js, 'select.form.submit()' ), 'admin script submits catalog filter selects on change while the Apply button stays as the no-JS fallback.' );
+
+$plugin_bootstrap_source = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Welcome_Notice() )->boot();' ), 'admin surface boot registers the post-activation welcome notice inside the admin status page package.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_bootstrap_source, 'Welcome_Notice::mark_pending_on_activation();' ), 'plugin activation marks the welcome notice pending for the activating admin.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_welcome_notice, 'Open AI Ability Set' ) && false !== strpos( $admin_welcome_notice, "esc_html__( 'Dismiss', 'npcink-abilities-toolkit' )" ), 'welcome notice links the ability status page with a dismiss action.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_welcome_notice, 'clear_pending_for_page' ) && false !== strpos( $admin_welcome_notice, 'maybe_clear_for_current_request' ), 'welcome notice clears itself once the status page has been visited.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_welcome_notice, '$user_id <= 0' ), 'welcome notice is not marked for activations without an admin session such as CLI or network bulk activation.' );
 
 foreach (
 	array(

@@ -5127,3 +5127,236 @@ msgstr "派生处理警告无效。"
 
 #~ msgid "Media optimization plans require derivative_artifact evidence."
 #~ msgstr "媒体优化计划需要 derivative_artifact 证据。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article draft handoff"
+msgstr "文章草稿交接"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article publish preflight"
+msgstr "文章发布预检"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Existing article optimization"
+msgstr "现有文章优化"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Governed media optimization"
+msgstr "受治理的媒体优化"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article media handoff"
+msgstr "文章媒体交接"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Old article refresh discovery"
+msgstr "旧文章更新发现"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Article production mainline"
+msgstr "文章生产主线"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media alt and SEO enrichment"
+msgstr "媒体替代文本与 SEO 增强"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Comment compliance handoff"
+msgstr "评论合规交接"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Media governance scan"
+msgstr "媒体治理扫描"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Site operations scan"
+msgstr "站点运营扫描"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Diagnostics triage"
+msgstr "诊断分诊"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed article draft plan."
+msgstr "准备一份经过评审的文章草稿计划。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Compose article metadata, links, media SEO, and review signals before "
+"creating a draft."
+msgstr "在创建草稿前编排文章元数据、链接、媒体 SEO 与评审信号。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a local article draft handoff without using cloud writing."
+msgstr "不使用云端写作，构建本地的文章草稿交接。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Check whether this draft is ready to publish."
+msgstr "检查这份草稿是否已准备好发布。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review the article before scheduling it."
+msgstr "在排期发布前评审这篇文章。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find publication risks and calendar pressure for this post."
+msgstr "发现这篇文章的发布风险与日历排期压力。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Review this existing article for optimization opportunities."
+msgstr "评审这篇现有文章的优化机会。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare SEO, GEO, excerpt, and slug suggestions for a post."
+msgstr "为文章准备 SEO、GEO、摘要与别名建议。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a safe apply plan before asking a host to patch article content."
+msgstr "在请求宿主修补文章内容之前，构建一份安全的应用计划。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare a reviewed media optimization plan for one attachment."
+msgstr "为单个附件准备一份经过评审的媒体优化计划。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build metadata and derivative adoption actions before asking Core for "
+"approval."
+msgstr "在请求 Core 审批之前，构建元数据与衍生文件采用操作。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Preview media replacement and content reference repairs without "
+"changing WordPress."
+msgstr "预览媒体替换与内容引用修复，而不改动 WordPress。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare media SEO assets for this article."
+msgstr "为这篇文章准备媒体 SEO 资产。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build inline image blocks and placement guidance before importing "
+"media."
+msgstr "在导入媒体之前，构建内联图片区块与摆放指引。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Create a media handoff that a host can review before any upload or "
+"metadata write."
+msgstr "创建可由宿主评审的媒体交接，在任何上传或元数据写入之前。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find old articles that need refreshing."
+msgstr "找出需要更新的旧文章。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Discover SEO and GEO gaps across existing posts."
+msgstr "发现现有文章中的 SEO 与 GEO 间隙。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Choose candidate posts for an article refresh plan."
+msgstr "为文章更新计划挑选候选文章。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run the article production mainline with duplicate guard and quality "
+"review."
+msgstr "运行带查重防护与质量评审的文章生产主线。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Build the production fingerprint and check duplicate candidates before "
+"drafting continues."
+msgstr "在继续起草之前，构建生产指纹并检查重复候选。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Resolve the publication decision and stop before any host governed "
+"publish write."
+msgstr "定夺发布决策，并在任何宿主管控的发布写入之前停下。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Find attachments with missing alt text in the media library."
+msgstr "在媒体库中找出缺少替代文本的附件。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize media inventory health gaps for alt and caption enrichment."
+msgstr "汇总媒体库存健康间隙，用于替代文本与说明文字增强。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Prepare deterministic title, alt, and caption suggestions for "
+"attachment metadata."
+msgstr "为附件元数据准备确定性的标题、替代文本与说明文字建议。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Triage comments waiting for moderation."
+msgstr "分诊等待审核的评论。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Prepare moderation suggestions without approving anything."
+msgstr "准备审核建议，但不批准任何内容。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Build a reply or moderation handoff for a selected comment."
+msgstr "为选定的评论构建回复或审核交接。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Find media library cleanup opportunities such as unused attachments and "
+"orphans."
+msgstr "找出媒体库的清理机会，例如未使用的附件与孤立文件。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Plan inventory fixes, renames, and derivative batch cleanup for "
+"governed media files."
+msgstr "为受治理的媒体文件规划库存修复、重命名与衍生文件批量清理。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Draft a media governance review without deleting or renaming anything "
+"yet."
+msgstr "起草媒体治理评审，暂不删除或重命名任何内容。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Run a site operations scan across content, taxonomy, and page "
+"structure."
+msgstr "跨内容、分类法与页面结构运行站点运营扫描。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Show site-wide attention areas from the operations dashboard."
+msgstr "从运营仪表盘展示全站需要关注的区域。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid ""
+"Check operations readiness for content, taxonomy, and pages in one "
+"pass."
+msgstr "一次性检查内容、分类法与页面的运营就绪状态。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Collect redacted WordPress diagnostics for a support ticket."
+msgstr "为支持工单收集脱敏的 WordPress 诊断信息。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Run an environment triage before deeper agent work."
+msgstr "在更深入的 agent 工作之前运行环境分诊。"
+
+#: includes/Admin/Scenario_Cards.php
+msgid "Summarize runtime, plugin, and cache diagnostics for support triage."
+msgstr "汇总运行时、插件与缓存诊断，用于支持分诊。"
+
+#: includes/Admin/Welcome_Notice.php
+msgid "Open AI Ability Set"
+msgstr "打开 AI 能力集"
+
+#: includes/Admin/Test_Page.php
+msgid ""
+"The abilities and categories endpoints are public discovery values. The "
+"contract endpoint requires a signed-in admin session, so testing it in "
+"a private browser window returns an authentication error."
+msgstr ""
+"abilities 与 categories 端点是公开的发现值。contract "
+"端点需要已登录的管理员会话，因此在隐身浏览器窗口中测试它会返回身份验证错误。"

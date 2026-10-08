@@ -41,14 +41,14 @@ if ( function_exists( 'register_activation_hook' ) ) {
 			$plugin = Npcink_Abilities_Toolkit\Plugin::instance();
 			$plugin->boot();
 			$plugin->abilities()->emit_manual_catalog_refresh( 'activation' );
+			Npcink_Abilities_Toolkit\Admin\Welcome_Notice::mark_pending_on_activation();
 		}
 	);
 	register_deactivation_hook(
 		__FILE__,
 		static function () {
-			$hook = 'npcink_abilities_toolkit_cleanup_media_backups';
 			if ( function_exists( 'wp_clear_scheduled_hook' ) ) {
-				wp_clear_scheduled_hook( $hook );
+				wp_clear_scheduled_hook( 'npcink_abilities_toolkit_cleanup_media_backups' );
 			}
 		}
 	);

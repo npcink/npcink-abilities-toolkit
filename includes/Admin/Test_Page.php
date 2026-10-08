@@ -23,6 +23,7 @@ final class Test_Page {
 	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
 	const DOCS_QUICKSTART_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/rest-client-quickstart.md';
 	const DOCS_HOST_CONTRACT_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/host-approval-contract.md';
+	const DOCS_TROUBLESHOOTING_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/troubleshooting.md';
 
 	/**
 	 * Ability registrar.
@@ -65,6 +66,7 @@ final class Test_Page {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_ajax_npcink_abilities_toolkit_readonly_check', array( $this, 'run_readonly_check' ) );
+		( new Welcome_Notice() )->boot();
 	}
 
 	/**
@@ -177,7 +179,7 @@ final class Test_Page {
 		$active_tab     = $this->get_active_tab();
 		?>
 		<div class="wrap npcink-abilities-toolkit-admin" data-rest-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>" data-admin-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-admin-nonce="<?php echo esc_attr( wp_create_nonce( self::ADMIN_REQUEST_ACTION ) ); ?>" data-copied-label="<?php echo esc_attr__( 'Copied', 'npcink-abilities-toolkit' ); ?>" data-requesting-label="<?php echo esc_attr__( 'Requesting', 'npcink-abilities-toolkit' ); ?>" data-running-label="<?php echo esc_attr__( 'Running', 'npcink-abilities-toolkit' ); ?>" data-request-failed-label="<?php echo esc_attr__( 'Request failed', 'npcink-abilities-toolkit' ); ?>" data-copy-failed-label="<?php echo esc_attr__( 'Copy failed', 'npcink-abilities-toolkit' ); ?>" data-check-summary-labels="<?php echo esc_attr( wp_json_encode( $this->get_check_summary_labels() ) ); ?>">
-			<h1><?php echo esc_html( 'Npcink Abilities Toolkit' ); ?></h1>
+			<h1><?php echo esc_html__( 'AI Ability Set', 'npcink-abilities-toolkit' ); ?></h1>
 			<p class="description"><?php echo esc_html__( 'Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval.', 'npcink-abilities-toolkit' ); ?></p>
 			<p class="description"><?php echo esc_html__( 'This plugin exposes WordPress abilities. It does not run models, approve proposals, or execute AI workflows by itself.', 'npcink-abilities-toolkit' ); ?></p>
 
@@ -230,7 +232,7 @@ final class Test_Page {
 		} elseif ( 'checks' === $active_sub ) {
 			$this->render_site_checks( $registered );
 		} elseif ( 'scenarios' === $active_sub ) {
-			$this->render_workflow_scenarios();
+			( new Scenario_Cards() )->render();
 		} else {
 			$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
 		}
@@ -502,57 +504,6 @@ final class Test_Page {
 	}
 
 	/**
-	 * Renders the read-only workflow scenario overview from the static recipe definitions.
-	 *
-	 * The block only lists scenarios for review. Hosts own execution, approvals,
-	 * and final writes; this surface never runs a workflow step.
-	 *
-	 * @return void
-	 */
-	private function render_workflow_scenarios() {
-		if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
-			return;
-		}
-
-		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
-		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
-		if ( empty( $cases ) ) {
-			?>
-			<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
-				<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'No workflow scenarios are published on this site yet. Scenarios appear here when the bundled recipe catalog provides them.', 'npcink-abilities-toolkit' ); ?></p>
-			</section>
-			<?php
-			return;
-		}
-		?>
-		<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
-			<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
-			<p class="description">
-				<?php echo esc_html__( 'Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes.', 'npcink-abilities-toolkit' ); ?>
-			</p>
-			<div class="npcink-abilities-toolkit-scenarios__grid">
-				<?php foreach ( $cases as $case ) : ?>
-					<?php $case = is_array( $case ) ? $case : array(); ?>
-					<div class="npcink-abilities-toolkit-scenarios__item">
-						<h3><?php echo esc_html( (string) ( $case['title'] ?? '' ) ); ?></h3>
-						<ul>
-							<?php foreach ( array_slice( (array) ( $case['natural_tasks'] ?? array() ), 0, 3 ) as $task ) : ?>
-								<li><?php echo esc_html( (string) $task ); ?></li>
-							<?php endforeach; ?>
-						</ul>
-						<p class="description">
-							<?php echo esc_html__( 'Entry ability:', 'npcink-abilities-toolkit' ); ?>
-							<code><?php echo esc_html( (string) ( $case['entrypoint_ability_id'] ?? '' ) ); ?></code>
-						</p>
-					</div>
-				<?php endforeach; ?>
-			</div>
-		</section>
-		<?php
-	}
-
-	/**
 	 * Renders the built-in package enable map for operators.
 	 *
 	 * The map is read-only here; hosts change it with the
@@ -720,6 +671,9 @@ final class Test_Page {
 					<li><?php echo esc_html( $message ); ?></li>
 				<?php endforeach; ?>
 			</ul>
+			<p>
+				<a href="<?php echo esc_url( self::DOCS_TROUBLESHOOTING_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' ); ?></a>
+			</p>
 		</div>
 		<?php
 	}
@@ -1152,8 +1106,8 @@ final class Test_Page {
 						<strong><?php echo esc_html__( 'Raw response for support', 'npcink-abilities-toolkit' ); ?></strong>
 						<span class="npcink-abilities-toolkit-disclosure__meta">
 							<?php echo esc_html__( 'Full JSON is kept here for support and developer troubleshooting.', 'npcink-abilities-toolkit' ); ?>
-					</span>
-				</summary>
+						</span>
+					</summary>
 					<div class="npcink-abilities-toolkit-disclosure__body">
 						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
 					</div>
@@ -1247,18 +1201,21 @@ final class Test_Page {
 							</button>
 						</td>
 					</tr>
-					<tr>
-						<th scope="row"><?php echo esc_html__( 'Contract Endpoint', 'npcink-abilities-toolkit' ); ?></th>
-						<td><code id="npcink-abilities-toolkit-contract-endpoint"><?php echo esc_html( $contract_url ); ?></code></td>
-						<td>
-							<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-contract-endpoint">
-								<?php echo esc_html__( 'Copy Contract Endpoint', 'npcink-abilities-toolkit' ); ?>
-							</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</section>
+						<tr>
+							<th scope="row"><?php echo esc_html__( 'Contract Endpoint', 'npcink-abilities-toolkit' ); ?></th>
+							<td><code id="npcink-abilities-toolkit-contract-endpoint"><?php echo esc_html( $contract_url ); ?></code></td>
+							<td>
+								<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-contract-endpoint">
+									<?php echo esc_html__( 'Copy Contract Endpoint', 'npcink-abilities-toolkit' ); ?>
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<p class="description">
+					<?php echo esc_html__( 'The abilities and categories endpoints are public discovery values. The contract endpoint requires a signed-in admin session, so testing it in a private browser window returns an authentication error.', 'npcink-abilities-toolkit' ); ?>
+				</p>
+			</section>
 
 		<p class="description">
 			<?php echo esc_html__( 'Integration guides:', 'npcink-abilities-toolkit' ); ?>
