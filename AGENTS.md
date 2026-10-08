@@ -157,6 +157,11 @@ composer analyse:phpstan
 git diff --check
 ```
 
+The level-4 changed-file ratchet (`composer check:phpstan-ratchet`) is not part
+of `test:all` and normally runs only in CI. When a change adds files under
+`includes/`, run it locally first: new files fall under the conservation rule,
+and provably-true defensive guards count as new level-4 findings.
+
 Release-facing gate (unchanged; adds the PHPStan level-4 total ratchet
 through `composer release:verify`):
 
