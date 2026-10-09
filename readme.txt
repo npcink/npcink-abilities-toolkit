@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.9
+Stable tag: 0.5.10
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,13 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.10 =
+
+Documentation-follow-up release: records the article-publish-preflight
+closed-loop host proof, corrects the preflight proof failure attribution,
+and keeps the 0.5.9 code base unchanged so the conventional release tag
+can point at the current candidate head.
 
 = 0.5.9 =
 
