@@ -3150,11 +3150,14 @@ final class Core_Read_Package {
 		/**
 		 * Returns a 403 error when the callback's registration capability is missing.
 		 *
+		 * Composed for the Core_Read_Package read traits; the check fails closed
+		 * because current_user_can always exists in a WordPress request.
+		 *
 		 * @param string $capability Required capability.
 		 * @return \WP_Error|null
 		 */
-		private function callback_capability_error( $capability ) {
-			if ( function_exists( 'current_user_can' ) && ! current_user_can( $capability ) ) {
+		protected function callback_capability_error( $capability ) {
+			if ( ! current_user_can( $capability ) ) {
 				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to perform this request.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 			}
 			return null;
@@ -3684,7 +3687,7 @@ final class Core_Read_Package {
 	 * Gets one navigation menu.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error|\WP_Error
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function get_menu( $input ) {
 		$denied = $this->callback_capability_error( 'edit_theme_options' );
@@ -3785,7 +3788,6 @@ final class Core_Read_Package {
 		$issues = array();
 		$recommendations = array();
 		$evidence = array();
-
 		if ( $this->strlen_value( $content ) < 280 ) {
 			$issues[] = array(
 				'id'       => 'thin_answer_surface',
@@ -3794,7 +3796,6 @@ final class Core_Read_Package {
 				'detail'   => '建议补充直接回答型段落，覆盖"是什么 / 为什么 / 怎么做"。',
 			);
 		}
-
 		if ( '' === $excerpt ) {
 			$issues[] = array(
 				'id'       => 'excerpt_missing',
@@ -3803,7 +3804,6 @@ final class Core_Read_Package {
 				'detail'   => '建议补一个 1 到 2 句的直答摘要，方便 SERP 与 AI answer box 引用。',
 			);
 		}
-
 		if ( empty( $questions ) ) {
 			$issues[] = array(
 				'id'       => 'faq_gap',
