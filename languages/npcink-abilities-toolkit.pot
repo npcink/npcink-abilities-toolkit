@@ -4741,3 +4741,11 @@ msgid ""
 "contract endpoint requires a signed-in admin session, so testing it in "
 "a private browser window returns an authentication error."
 msgstr ""
+
+#: includes/Admin/Health_Notices.php:81
+msgid ""
+"A host integration allows every Toolkit write and destructive commit "
+"through the npcink_abilities_toolkit_write_commit_allowed filter. Scope "
+"it to recorded approvals for specific ability ids and idempotency keys, "
+"as the host approval contract describes."
+msgstr ""

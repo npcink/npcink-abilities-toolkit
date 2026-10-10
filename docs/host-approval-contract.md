@@ -64,6 +64,28 @@ both channels feed the same single decision, and a filter callback should keep
 returning `true` when it receives `$allowed === true` instead of vetoing
 another runtime's authorization.
 
+### Scoping the filter: never allow unconditionally
+
+The filter is a single switch across every built-in write and destructive
+ability. A callback that returns `true` without checking its arguments does not
+just approve one integration — it removes the approval gate for
+`delete-post-permanently`, `delete-media-permanently`, and every other governed
+operation at once. This is the single highest-leverage misuse of the contract.
+
+Required shape for a safe callback:
+
+- decide from **recorded approvals keyed by `ability_id` and `idempotency_key`**
+  (the worked example's `record_approval()`/`decide_commit()` pair), never from
+  the write request itself;
+- return `$allowed` unchanged when it is already `true`, so another runtime's
+  authorization is not vetoed;
+- return `false` for anything unrecognized, including empty input.
+
+The Toolkit probes this itself: health notices evaluate the filter once with a
+synthetic `npcink-abilities-toolkit/host-approval-probe` ability id and empty
+input, and warn the site operator when the probe comes back allowed — a
+well-scoped callback answers `false` to that probe by construction.
+
 ## 4. Required Host Evidence
 
 The `implementation_posture.v1` metadata (`required_host_evidence`) documents

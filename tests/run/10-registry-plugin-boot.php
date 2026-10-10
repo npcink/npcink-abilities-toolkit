@@ -190,6 +190,18 @@ npcink_abilities_toolkit_assert_true( $has_health_notice_render, 'health notices
 $populated_notices = $health_notices->get_active_notices();
 npcink_abilities_toolkit_assert_true( ! isset( $populated_notices['catalog_empty'] ), 'health notices stay silent about an empty catalog when the catalog is populated' );
 npcink_abilities_toolkit_assert_true( isset( $populated_notices['abilities_api_missing'] ), 'health notices fail loud when an Abilities API registration function is unavailable' );
+npcink_abilities_toolkit_assert_true( ! isset( $populated_notices['host_approval_unconditional'] ), 'health notices stay silent while no commit filter answers the probe' );
+add_filter(
+	'npcink_abilities_toolkit_write_commit_allowed',
+	static function ( $allowed ) {
+		return true;
+	},
+	10,
+	4
+);
+npcink_abilities_toolkit_assert_true( isset( $health_notices->get_active_notices()['host_approval_unconditional'] ), 'health notices warn when a host allows commits unconditionally' );
+remove_all_filters( 'npcink_abilities_toolkit_write_commit_allowed' );
+npcink_abilities_toolkit_assert_true( ! isset( $health_notices->get_active_notices()['host_approval_unconditional'] ), 'health notices clear the warning once the commit filter is scoped again' );
 $empty_categories   = new Category_Registrar();
 $empty_registrar    = new Ability_Registrar( $empty_categories, $contract_normalizer );
 $empty_notices      = ( new Npcink_Abilities_Toolkit\Admin\Health_Notices( $empty_registrar ) )->get_active_notices();

@@ -50,7 +50,6 @@ final class Health_Notices {
 		if ( ! function_exists( 'add_action' ) ) {
 			return;
 		}
-
 		add_action( 'admin_notices', array( $this, 'render_notices' ) );
 		add_action( 'admin_post_' . self::DISMISS_ACTION, array( $this, 'handle_dismiss_request' ) );
 	}
@@ -62,7 +61,6 @@ final class Health_Notices {
 	 */
 	public function get_active_notices() {
 		$notices = array();
-
 		if ( ! function_exists( 'wp_register_ability' ) || ! function_exists( 'wp_register_ability_category' ) ) {
 			$notices['abilities_api_missing'] = array(
 				'type'    => 'error',
@@ -77,6 +75,12 @@ final class Health_Notices {
 			);
 		}
 
+		if ( function_exists( 'apply_filters' ) && apply_filters( 'npcink_abilities_toolkit_write_commit_allowed', false, 'npcink-abilities-toolkit/host-approval-probe', array(), array() ) ) {
+			$notices['host_approval_unconditional'] = array(
+				'type'    => 'warning',
+				'message' => __( 'A host integration allows every Toolkit write and destructive commit through the npcink_abilities_toolkit_write_commit_allowed filter. Scope it to recorded approvals for specific ability ids and idempotency keys, as the host approval contract describes.', 'npcink-abilities-toolkit' ),
+			);
+		}
 		return $notices;
 	}
 
@@ -94,12 +98,10 @@ final class Health_Notices {
 		}
 
 		$this->render_redirect_error();
-
 		$notices = $this->get_active_notices();
 		if ( empty( $notices ) ) {
 			return;
 		}
-
 		$dismissed = $this->get_dismissed_notices();
 		foreach ( $notices as $id => $notice ) {
 			if ( $this->is_dismissed( $dismissed, (string) $id ) ) {
@@ -132,7 +134,6 @@ final class Health_Notices {
 			$this->redirect_back();
 			return;
 		}
-
 		$dismissed = $this->get_dismissed_notices();
 		if ( ! array_key_exists( $notice_id, $this->get_active_notices() ) ) {
 			$this->redirect_back();
@@ -161,7 +162,6 @@ final class Health_Notices {
 		if ( ! function_exists( 'wp_safe_redirect' ) ) {
 			return;
 		}
-
 		$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
 		$url     = '' !== $referer ? $referer : admin_url( 'plugins.php' );
 		if ( function_exists( 'remove_query_arg' ) ) {
