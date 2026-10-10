@@ -995,3 +995,9 @@ $published_target_article_block_plan = $core_read_package->build_article_block_p
 );
 npcink_abilities_toolkit_assert_true( is_wp_error( $published_target_article_block_plan ) && 'npcink_abilities_toolkit_article_block_target_status_invalid' === $published_target_article_block_plan->get_error_code(), 'build-article-block-plan rejects published target posts for replacement proposals' );
 
+
+$media_relative_file_normalizer = new ReflectionMethod( Core_Read_Package::class, 'normalize_media_relative_file' );
+$media_relative_file_normalizer->setAccessible( true );
+npcink_abilities_toolkit_assert_same( '', $media_relative_file_normalizer->invoke( $core_read_package, '../../wp-config.php' ), 'media relative file normalization rejects traversal segments' );
+npcink_abilities_toolkit_assert_same( '', $media_relative_file_normalizer->invoke( $core_read_package, '..' ), 'media relative file normalization rejects a bare parent segment' );
+npcink_abilities_toolkit_assert_same( '2026/10/foo.webp', $media_relative_file_normalizer->invoke( $core_read_package, '/2026//10/foo.webp' ), 'media relative file normalization keeps contained paths and collapses duplicate separators' );

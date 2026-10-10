@@ -164,6 +164,34 @@ $article_duplicate_check = $core_read_package->check_article_production_duplicat
 npcink_abilities_toolkit_assert_same( true, $article_duplicate_check['success'] ?? null, 'check-article-production-duplicate returns a success envelope' );
 npcink_abilities_toolkit_assert_same( false, $article_duplicate_check['data']['duplicate_found'] ?? null, 'check-article-production-duplicate stays readonly when no WordPress lookup is available' );
 npcink_abilities_toolkit_assert_same( false, $article_duplicate_check['data']['skip_recommended'] ?? null, 'check-article-production-duplicate does not recommend skipping without a duplicate' );
+$GLOBALS['npcink_abilities_toolkit_unit_style_posts'][911] = (object) array(
+	'ID'           => 911,
+	'post_title'   => 'Fingerprint Duplicate Post',
+	'post_status'  => 'draft',
+	'post_type'    => 'post',
+	'post_excerpt' => '',
+	'post_content' => 'Duplicate guard fixture content.',
+	'post_name'    => 'fingerprint-duplicate-post',
+	'post_author'  => 7,
+);
+$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][911]['_mai_article_production_fingerprint'] = (string) ( $article_production_fingerprint['data']['production_fingerprint'] ?? '' );
+$article_duplicate_found = $core_read_package->check_article_production_duplicate(
+	array(
+		'production_fingerprint' => (string) ( $article_production_fingerprint['data']['production_fingerprint'] ?? '' ),
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $article_duplicate_found['data']['duplicate_found'] ?? null, 'check-article-production-duplicate finds an editable fingerprint duplicate' );
+npcink_abilities_toolkit_assert_same( 911, $article_duplicate_found['data']['duplicate_candidate']['post_id'] ?? null, 'check-article-production-duplicate reports the matched editable post id' );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'edit_post' => false );
+$article_duplicate_denied = $core_read_package->check_article_production_duplicate(
+	array(
+		'production_fingerprint' => (string) ( $article_production_fingerprint['data']['production_fingerprint'] ?? '' ),
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] );
+npcink_abilities_toolkit_assert_same( false, $article_duplicate_denied['data']['duplicate_found'] ?? null, 'check-article-production-duplicate hides duplicates the caller cannot edit' );
+npcink_abilities_toolkit_assert_true( ! isset( $article_duplicate_denied['data']['duplicate_candidate']['post_id'] ), 'check-article-production-duplicate leaks no metadata for uneditable duplicates' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][911], $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][911] );
 $article_review_light = $core_read_package->review_article_output_light(
 	array(
 		'article' => array(

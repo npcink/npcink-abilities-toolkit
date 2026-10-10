@@ -29,7 +29,6 @@ trait Media_Read_Methods {
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
-
 		$args = array(
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
@@ -45,7 +44,6 @@ trait Media_Read_Methods {
 		if ( '' !== $search ) {
 			$args['s'] = $search;
 		}
-
 		$date_from = sanitize_text_field( (string) ( $input['date_from'] ?? '' ) );
 		$date_to = sanitize_text_field( (string) ( $input['date_to'] ?? '' ) );
 		if ( '' !== $date_from || '' !== $date_to ) {
@@ -91,7 +89,6 @@ trait Media_Read_Methods {
 				),
 			);
 		}
-
 		$query = new \WP_Query( $args );
 		$items = array();
 		foreach ( $query->posts as $post_id ) {
@@ -116,7 +113,6 @@ trait Media_Read_Methods {
 				'edit_link' => get_edit_post_link( $post_id, 'raw' ),
 			);
 		}
-
 		return array(
 			'total'    => (int) $query->found_posts,
 			'page'     => $page,
@@ -136,14 +132,12 @@ trait Media_Read_Methods {
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to resolve media attachments.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
-
 		$raw_url = trim( (string) ( $input['url'] ?? '' ) );
 		$max_candidates = max( 1, min( 20, $this->absint_value( $input['max_candidates'] ?? 10 ) ) );
 		$normalized = $this->normalize_media_attachment_resolution_url( $raw_url );
 		if ( is_wp_error( $normalized ) ) {
 			return $normalized;
 		}
-
 		$relative_file = (string) ( $normalized['requested_relative_file'] ?? '' );
 		$candidates = $this->find_media_attachment_url_resolution_candidates( $relative_file, $max_candidates );
 		$strong_matches = array_values(
@@ -3818,6 +3812,9 @@ trait Media_Read_Methods {
 	 */
 	private function normalize_media_relative_file( $file ) {
 		$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
+		if ( '' === $file || false !== strpos( $file, '../' ) || '..' === $file || 0 === strpos( $file, '/' ) ) {
+			return '';
+		}
 		return preg_replace( '#/+#', '/', $file );
 	}
 

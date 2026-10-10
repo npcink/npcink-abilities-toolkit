@@ -124,7 +124,7 @@ trait Article_Production_Read_Methods {
 				)
 			);
 			$post_id = $this->absint_value( is_array( $posts ) ? ( $posts[0] ?? 0 ) : 0 );
-			if ( $post_id > 0 ) {
+			if ( $post_id > 0 && current_user_can( 'edit_post', $post_id ) ) {
 				$duplicate = array(
 					'post_id'      => $post_id,
 					'title'        => function_exists( 'get_the_title' ) ? sanitize_text_field( (string) get_the_title( $post_id ) ) : '',
