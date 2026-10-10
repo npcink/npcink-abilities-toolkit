@@ -81,9 +81,7 @@ final class Ability_Registrar {
 		add_action( 'wp_abilities_api_init', array( $this, 'register_with_wordpress' ), 10 );
 		add_action(
 			'npcink_abilities_toolkit_refresh_catalog_observability',
-			function ( $reason = 'manual_refresh' ) {
-				$this->emit_manual_catalog_refresh( $reason );
-			},
+			function ( $reason = 'manual_refresh' ) { $this->emit_manual_catalog_refresh( $reason ); },
 			10,
 			1
 		);
@@ -161,7 +159,6 @@ final class Ability_Registrar {
 		if ( ! $this->catalog_fingerprint_dirty && '' !== $this->catalog_fingerprint_cache ) {
 			return $this->catalog_fingerprint_cache;
 		}
-
 		$snapshot = array();
 		$abilities = $this->abilities;
 		ksort( $abilities, SORT_STRING );
@@ -183,10 +180,7 @@ final class Ability_Registrar {
 	 * @return bool
 	 */
 	public function emit_manual_catalog_refresh( $reason = 'manual_refresh' ) {
-		$reason = sanitize_key( (string) $reason );
-		if ( '' === $reason ) {
-			$reason = 'manual_refresh';
-		}
+		$reason = sanitize_key( (string) $reason ) ?: 'manual_refresh';
 
 		return $this->emit_catalog_changed_if_needed( $reason, true );
 	}
@@ -200,7 +194,6 @@ final class Ability_Registrar {
 		if ( $this->catalog_snapshot_checked ) {
 			return false;
 		}
-
 		$this->catalog_snapshot_checked = true;
 		return $this->emit_catalog_changed_if_needed( 'catalog_changed', false );
 	}
@@ -218,7 +211,6 @@ final class Ability_Registrar {
 		foreach ( $this->abilities as $ability_id => $definition ) {
 			$this->register_single_with_wordpress( $ability_id, $definition );
 		}
-
 		$this->emit_catalog_changed_if_needed( 'bootstrap', false );
 		$this->catalog_snapshot_checked = true;
 	}
@@ -238,7 +230,6 @@ final class Ability_Registrar {
 		if ( '' === $ability_id || false === strpos( $ability_id, '/' ) ) {
 			return false;
 		}
-
 		$is_duplicate_registration = isset( $this->abilities[ $ability_id ] );
 		$contract_changed          = $is_duplicate_registration && $this->normalized_contract_changed( $this->abilities[ $ability_id ], $normalized );
 
@@ -279,7 +270,6 @@ final class Ability_Registrar {
 		foreach ( array( 'execute_callback', 'permission_callback' ) as $callback_field ) {
 			unset( $existing[ $callback_field ], $incoming[ $callback_field ] );
 		}
-
 		return $existing !== $incoming;
 	}
 
@@ -325,7 +315,6 @@ final class Ability_Registrar {
 	 */
 	private function emit_wordpress_duplicate_registration_event( $ability_id, array $definition ) {
 		$wordpress_ability = function_exists( 'wp_get_ability' ) ? wp_get_ability( $ability_id ) : null;
-
 		if (
 			is_object( $wordpress_ability )
 			&& method_exists( $wordpress_ability, 'get_label' )
@@ -374,7 +363,6 @@ final class Ability_Registrar {
 		if ( (array) $wordpress_ability->get_meta() !== (array) ( $definition['meta'] ?? array() ) ) {
 			return true;
 		}
-
 		return false;
 	}
 
@@ -389,7 +377,6 @@ final class Ability_Registrar {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
-
 		if ( function_exists( 'wp_has_ability' ) && wp_has_ability( $ability_id ) ) {
 			$this->emit_wordpress_duplicate_registration_event( $ability_id, $definition );
 			return;
@@ -432,7 +419,9 @@ final class Ability_Registrar {
 		if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 			return false;
 		}
-
+		if ( ! $force && ! $this->catalog_emission_context_active() ) {
+			return false;
+		}
 		$catalog_hash = $this->catalog_fingerprint();
 		$state        = function_exists( 'get_option' ) ? get_option( self::CATALOG_STATE_OPTION, array() ) : array();
 		$state        = is_array( $state ) ? $state : array();
@@ -513,7 +502,6 @@ final class Ability_Registrar {
 			'project_to_npcink_catalog' => ! empty( $definition['project_to_npcink_catalog'] ),
 			'implementation_posture'    => is_array( $definition['implementation_posture'] ?? null ) ? $definition['implementation_posture'] : array(),
 		);
-
 		return $this->stable_normalize_value( $stable );
 	}
 
@@ -527,11 +515,9 @@ final class Ability_Registrar {
 		if ( is_object( $value ) ) {
 			return null;
 		}
-
 		if ( ! is_array( $value ) ) {
 			return $value;
 		}
-
 		if ( ! $this->is_list_array( $value ) ) {
 			ksort( $value, SORT_STRING );
 		}
@@ -572,7 +558,6 @@ final class Ability_Registrar {
 			}
 			++$index;
 		}
-
 		return true;
 	}
 
@@ -693,6 +678,22 @@ final class Ability_Registrar {
 	}
 
 	/**
+	 * Returns whether this request context observes catalog snapshot changes.
+	 *
+	 * Anonymous frontend pageviews skip the fingerprint work and state read;
+	 * admin, REST, cron, and CLI requests re-check and catch up.
+	 *
+	 * @return bool
+	 */
+	private function catalog_emission_context_active() {
+		if ( ! function_exists( 'is_admin' ) ) {
+			return true;
+		}
+		return is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'WP_CLI' ) && WP_CLI )
+			|| ( function_exists( 'wp_doing_cron' ) && wp_doing_cron() );
+	}
+
+	/**
 	 * Builds a stable, metadata-only event id for callback events.
 	 *
 	 * @param string $event_kind Event kind.
@@ -729,7 +730,6 @@ final class Ability_Registrar {
 		if ( method_exists( $error, 'get_error_code' ) ) {
 			return sanitize_key( (string) $error->get_error_code() );
 		}
-
 		return 'wp_error';
 	}
 
