@@ -6397,3 +6397,7 @@ msgstr ""
 "aux approbations enregistrées pour des ids de capacité et des clés "
 "d'idempotence précises, comme le décrit le contrat d'approbation de "
 "l'hôte."
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "Vous n'êtes pas autorisé à effectuer cette requête."

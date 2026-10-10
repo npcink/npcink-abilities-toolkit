@@ -4749,3 +4749,7 @@ msgid ""
 "it to recorded approvals for specific ability ids and idempotency keys, "
 "as the host approval contract describes."
 msgstr ""
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr ""
