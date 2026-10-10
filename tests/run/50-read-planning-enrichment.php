@@ -775,6 +775,33 @@ $publish_risk = $core_read_package->get_post_publish_risk_report(
 npcink_abilities_toolkit_assert_same( true, $publish_risk['success'] ?? null, 'get-post-publish-risk-report returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 77, $publish_risk['data']['post']['post_id'] ?? null, 'get-post-publish-risk-report keeps post id' );
 npcink_abilities_toolkit_assert_true( (int) ( $publish_risk['data']['risk_score'] ?? 0 ) > 0, 'get-post-publish-risk-report returns a positive risk score for incomplete drafts' );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'edit_post' => false );
+$denied_risk_report = $core_read_package->get_post_publish_risk_report(
+	array(
+		'post_id' => 77,
+	)
+);
+npcink_abilities_toolkit_assert_true( is_wp_error( $denied_risk_report ), 'get-post-publish-risk-report denies posts the caller cannot edit' );
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_permission_denied', is_wp_error( $denied_risk_report ) ? $denied_risk_report->get_error_code() : '', 'get-post-publish-risk-report uses the stable permission-denied error code' );
+$calendar_filtered = $core_read_package->get_publishing_calendar_context(
+	array(
+		'post_type' => 'post',
+	)
+);
+npcink_abilities_toolkit_assert_same( true, $calendar_filtered['success'] ?? null, 'get-publishing-calendar-context still succeeds without per-post edit caps' );
+npcink_abilities_toolkit_assert_same( array(), $calendar_filtered['data']['draft_backlog'] ?? null, 'get-publishing-calendar-context filters backlog rows for posts the caller cannot edit' );
+npcink_abilities_toolkit_assert_same( array(), $calendar_filtered['data']['scheduled'] ?? null, 'get-publishing-calendar-context filters scheduled rows for posts the caller cannot edit' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] );
+$calendar_full = $core_read_package->get_publishing_calendar_context(
+	array(
+		'post_type' => 'post',
+	)
+);
+npcink_abilities_toolkit_assert_true( count( $calendar_full['data']['draft_backlog'] ?? array() ) >= 1, 'get-publishing-calendar-context includes rows for posts the caller can edit' );
+npcink_abilities_toolkit_assert_true(
+	in_array( 77, array_map( static fn( $row ) => (int) ( $row['post_id'] ?? 0 ), (array) ( $calendar_full['data']['draft_backlog'] ?? array() ) ), true ),
+	'get-publishing-calendar-context restores the editable post row after the capability denial block'
+);
 $article_publish_preflight = $core_read_package->get_article_publish_preflight_context(
 	array(
 		'post_id'       => 77,

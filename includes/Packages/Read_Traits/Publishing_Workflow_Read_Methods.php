@@ -77,8 +77,7 @@ trait Publishing_Workflow_Read_Methods {
 			$this->append_publishing_check( $checks, 'schedule_date', false !== $future_date && $future_date > time(), 'fail', __( 'Scheduled publish date is in the future.', 'npcink-abilities-toolkit' ), __( 'Set a future publish date before scheduling.', 'npcink-abilities-toolkit' ) );
 		}
 
-		$missing = array();
-		$warnings = array();
+		$missing = $warnings = array();
 		foreach ( $checks as $check ) {
 			$key = sanitize_key( (string) ( $check['key'] ?? '' ) );
 			$status = sanitize_key( (string) ( $check['status'] ?? '' ) );
@@ -146,9 +145,7 @@ trait Publishing_Workflow_Read_Methods {
 		}
 
 		$items = array();
-		$ready_count = 0;
-		$blocked_count = 0;
-		$warning_count = 0;
+		$ready_count = $blocked_count = $warning_count = 0;
 		$issue_counts = array();
 
 		foreach ( $post_ids as $post_id ) {
@@ -338,6 +335,9 @@ trait Publishing_Workflow_Read_Methods {
 		$post = get_post( $post_id );
 		if ( ! is_object( $post ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read this post.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
 		$target_status = sanitize_key( (string) ( $input['target_status'] ?? 'publish' ) );
@@ -664,7 +664,7 @@ trait Publishing_Workflow_Read_Methods {
 		foreach ( (array) ( $future['post_ids'] ?? array() ) as $post_id ) {
 			$post_id = $this->absint_value( $post_id );
 			$post = $post_id > 0 ? get_post( $post_id ) : null;
-			if ( ! is_object( $post ) ) {
+			if ( ! is_object( $post ) || ! current_user_can( 'edit_post', $post_id ) ) {
 				continue;
 			}
 			$post_time = strtotime( (string) ( $post->post_date ?? '' ) );
@@ -729,7 +729,7 @@ trait Publishing_Workflow_Read_Methods {
 		foreach ( $post_ids as $post_id ) {
 			$post_id = $this->absint_value( $post_id );
 			$post = $post_id > 0 ? get_post( $post_id ) : null;
-			if ( is_object( $post ) ) {
+			if ( is_object( $post ) && current_user_can( 'edit_post', $post_id ) ) {
 				$rows[] = $this->build_calendar_post_row( $post_id, $post );
 			}
 		}
