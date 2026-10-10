@@ -100,11 +100,11 @@ final class Plugin {
 	private $booted = false;
 
 	/**
-	 * Whether the read-cache version was already bumped for post-meta this request.
+	 * Whether the read-cache version was already bumped this request.
 	 *
 	 * @var bool
 	 */
-	private $read_cache_version_bumped_for_meta = false;
+	private $read_cache_version_bumped = false;
 
 	/**
 	 * Memoized watched post-meta keys for read-cache invalidation.
@@ -498,25 +498,23 @@ final class Plugin {
 		if ( ! $this->is_watched_post_meta_key( $meta_key ) ) {
 			return;
 		}
-
-		if ( $this->read_cache_version_bumped_for_meta ) {
-			return;
-		}
-		$this->read_cache_version_bumped_for_meta = true;
-
 		$this->bump_read_cache_version();
 	}
 
 	/**
 	 * Bumps the read-cache version for bounded read-only report transients.
 	 *
+	 * Every invalidation hook shares one bump per request: a single save
+	 * fires save_post and transition_post_status, and attachment saves fire
+	 * further hooks, so repeated fires skip the option round-trip entirely.
+	 *
 	 * @return void
 	 */
 	public function bump_read_cache_version() {
-		if ( ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
+		if ( $this->read_cache_version_bumped || ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
 			return;
 		}
-
+		$this->read_cache_version_bumped = true;
 		$current = max( 1, (int) get_option( 'npcink_abilities_toolkit_read_cache_version', 1 ) );
 		update_option( 'npcink_abilities_toolkit_read_cache_version', $current + 1, false );
 	}

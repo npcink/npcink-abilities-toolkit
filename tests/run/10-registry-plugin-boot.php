@@ -168,6 +168,10 @@ $plugin->bump_read_cache_version_for_post_meta( 2, 42, '_yoast_wpseo_metadesc', 
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'bulk meta writes bump the read-cache version once per request' );
 $plugin->bump_read_cache_version_for_post_meta( 3, 42, '_npcink_toolbox_article_audio_url', 'https://example.com/a.mp3' );
 npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'toolkit-owned media meta stays watched and stays debounced within one request' );
+$plugin->bump_read_cache_version();
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'save_post hooks share the once-per-request bump already paid by the meta path' );
+$plugin->bump_read_cache_version();
+npcink_abilities_toolkit_assert_same( 8, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'], 'transition_post_status fires after save_post without a second option round-trip' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_cache_version'] );
 
 $health_notices = new Npcink_Abilities_Toolkit\Admin\Health_Notices( $registrar );
