@@ -270,22 +270,17 @@ trait Page_Read_Methods {
 					'menu_order' => 'ASC',
 					'title'      => 'ASC',
 				),
-				'fields'         => 'ids',
 				'no_found_rows'  => true,
 			)
 		);
 
-		$page_ids = is_array( $query->posts ?? null ) ? $query->posts : array();
 		$pages = array();
-		foreach ( $page_ids as $page_id ) {
-			$page_id = absint( $page_id );
+		foreach ( ( is_array( $query->posts ?? null ) ? $query->posts : array() ) as $page ) {
+			$page_id = absint( $page->ID ?? 0 );
 			if ( $page_id <= 0 || ! current_user_can( 'edit_post', $page_id ) ) {
 				continue;
 			}
-			$page = get_post( $page_id );
-			if ( $page ) {
-				$pages[ $page_id ] = $page;
-			}
+			$pages[ $page_id ] = $page;
 		}
 
 		$items = array();
