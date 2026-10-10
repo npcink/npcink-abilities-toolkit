@@ -162,14 +162,11 @@ final class Ability_Registrar {
 		$snapshot = array();
 		$abilities = $this->abilities;
 		ksort( $abilities, SORT_STRING );
-
 		foreach ( $abilities as $ability_id => $definition ) {
 			$snapshot[ $ability_id ] = $this->stable_catalog_definition( $ability_id, $definition );
 		}
-
 		$this->catalog_fingerprint_cache = hash( 'sha256', $this->stable_json_encode( $snapshot ) );
 		$this->catalog_fingerprint_dirty = false;
-
 		return $this->catalog_fingerprint_cache;
 	}
 
@@ -181,7 +178,6 @@ final class Ability_Registrar {
 	 */
 	public function emit_manual_catalog_refresh( $reason = 'manual_refresh' ) {
 		$reason = sanitize_key( (string) $reason ) ?: 'manual_refresh';
-
 		return $this->emit_catalog_changed_if_needed( $reason, true );
 	}
 
@@ -207,7 +203,6 @@ final class Ability_Registrar {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
-
 		foreach ( $this->abilities as $ability_id => $definition ) {
 			$this->register_single_with_wordpress( $ability_id, $definition );
 		}
@@ -226,13 +221,11 @@ final class Ability_Registrar {
 	private function add( $ability_id, array $definition, $mode ) {
 		$normalized = $this->contract_normalizer->normalize( $ability_id, $definition, $mode );
 		$ability_id = $normalized['ability_id'];
-
 		if ( '' === $ability_id || false === strpos( $ability_id, '/' ) ) {
 			return false;
 		}
 		$is_duplicate_registration = isset( $this->abilities[ $ability_id ] );
 		$contract_changed          = $is_duplicate_registration && $this->normalized_contract_changed( $this->abilities[ $ability_id ], $normalized );
-
 		$this->abilities[ $ability_id ] = $normalized;
 		$this->catalog_fingerprint_dirty = true;
 		$this->catalog_snapshot_checked  = false;
@@ -419,7 +412,7 @@ final class Ability_Registrar {
 		if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 			return false;
 		}
-		if ( ! $force && ! $this->catalog_emission_context_active() ) {
+		if ( ! $force && ! $this->runtime_context_active() ) {
 			return false;
 		}
 		$catalog_hash = $this->catalog_fingerprint();
@@ -678,19 +671,26 @@ final class Ability_Registrar {
 	}
 
 	/**
-	 * Returns whether this request context observes catalog snapshot changes.
+	 * Returns whether this request context registers or consumes the ability catalog.
 	 *
-	 * Anonymous frontend pageviews skip the fingerprint work and state read;
-	 * admin, REST, cron, and CLI requests re-check and catch up.
+	 * Anonymous frontend pageviews skip fingerprint work and built-in package
+	 * registration; admin, REST, cron, and CLI contexts register and re-check.
+	 * REST_REQUEST is defined only after init on REST requests, so the URI-based
+	 * wp_is_rest_endpoint() covers init-time boot decisions.
 	 *
 	 * @return bool
 	 */
-	private function catalog_emission_context_active() {
+	public function runtime_context_active() {
 		if ( ! function_exists( 'is_admin' ) ) {
 			return true;
 		}
-		return is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'WP_CLI' ) && WP_CLI )
-			|| ( function_exists( 'wp_doing_cron' ) && wp_doing_cron() );
+		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return true;
+		}
+		if ( function_exists( 'wp_is_rest_endpoint' ) && wp_is_rest_endpoint() ) {
+			return true;
+		}
+		return ( defined( 'WP_CLI' ) && WP_CLI ) || ( function_exists( 'wp_doing_cron' ) && wp_doing_cron() );
 	}
 
 	/**

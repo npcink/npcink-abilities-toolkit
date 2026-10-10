@@ -743,6 +743,70 @@ $catalog_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBAL
 npcink_abilities_toolkit_assert_same( 5, count( $catalog_events ), 'forced catalog refresh bypasses the frontend context skip' );
 $GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
 
+npcink_abilities_toolkit_assert_same( true, $registrar->runtime_context_active(), 'runtime context is active for admin requests' );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
+npcink_abilities_toolkit_assert_same( false, $registrar->runtime_context_active(), 'runtime context is inactive for anonymous frontend requests' );
+$plugin_reflection = new ReflectionClass( Plugin::class );
+$plugin_instance_property = $plugin_reflection->getProperty( 'instance' );
+$plugin_instance_property->setAccessible( true );
+$original_plugin = $plugin_instance_property->getValue();
+$plugin_instance_property->setValue( null, null );
+$frontend_plugin = Plugin::instance();
+$frontend_plugin->boot();
+npcink_abilities_toolkit_assert_same( array(), $frontend_plugin->abilities()->all(), 'anonymous frontend requests skip built-in ability package registration' );
+add_filter(
+	'npcink_abilities_toolkit_register_frontend_contexts',
+	static function () {
+		return true;
+	}
+);
+$plugin_instance_property->setValue( null, null );
+$frontend_optin_plugin = Plugin::instance();
+$frontend_optin_plugin->boot();
+npcink_abilities_toolkit_assert_true( count( $frontend_optin_plugin->abilities()->all() ) > 100, 'the frontend registration filter restores built-in package registration for hosts that need it' );
+remove_all_filters( 'npcink_abilities_toolkit_register_frontend_contexts' );
+$plugin_instance_property->setValue( null, $original_plugin );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
+
+if ( ! function_exists( 'wp_is_rest_endpoint' ) ) {
+	function wp_is_rest_endpoint() {
+		return ! empty( $GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] );
+	}
+}
+if ( ! function_exists( 'wp_next_scheduled' ) ) {
+	function wp_next_scheduled( $hook, $args = array() ) {
+		return ! empty( $GLOBALS['npcink_abilities_toolkit_unit_scheduled_events'][ $hook ] ) ? 1 : false;
+	}
+}
+if ( ! function_exists( 'wp_schedule_event' ) ) {
+	function wp_schedule_event( $timestamp, $recurrence, $hook, $args = array() ) {
+		$GLOBALS['npcink_abilities_toolkit_unit_scheduled_events'][ $hook ] = true;
+		return true;
+	}
+}
+if ( ! function_exists( 'wp_clear_scheduled_hook' ) ) {
+	function wp_clear_scheduled_hook( $hook, $args = array() ) {
+		$GLOBALS['npcink_abilities_toolkit_unit_cleared_hooks'][ $hook ] = ( $GLOBALS['npcink_abilities_toolkit_unit_cleared_hooks'][ $hook ] ?? 0 ) + 1;
+		return true;
+	}
+}
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
+$GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] = true;
+npcink_abilities_toolkit_assert_same( true, $registrar->runtime_context_active(), 'runtime context is active for REST requests detected at init time' );
+$plugin_instance_property->setValue( null, null );
+$rest_plugin = Plugin::instance();
+$rest_plugin->boot();
+npcink_abilities_toolkit_assert_true( count( $rest_plugin->abilities()->all() ) > 100, 'REST requests register the built-in ability packages even before REST_REQUEST is defined' );
+$GLOBALS['npcink_abilities_toolkit_unit_scheduled_events']['npcink_abilities_toolkit_cleanup_media_backups'] = true;
+$GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] = false;
+$plugin_instance_property->setValue( null, null );
+$cron_guard_plugin = Plugin::instance();
+$cron_guard_plugin->boot();
+npcink_abilities_toolkit_assert_true( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_cleared_hooks']['npcink_abilities_toolkit_cleanup_media_backups'] ), 'frontend requests keep the media backup cleanup cron scheduled while core_write stays enabled' );
+$plugin_instance_property->setValue( null, $original_plugin );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_scheduled_events'], $GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'], $GLOBALS['npcink_abilities_toolkit_unit_cleared_hooks'] );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
+
 $callback = $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']['acme/observable-summary']['execute_callback'] ?? null;
 npcink_abilities_toolkit_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
 $callback_result = call_user_func( $callback, array( 'raw_callback_input' => 'super-secret-callback-input' ) );
