@@ -1878,7 +1878,6 @@ final class Core_Write_Package {
 		if ( $this->should_dry_run( $input ) ) {
 			return $this->dry_run_payload( $payload );
 		}
-
 		$allowed = $this->assert_commit_allowed( 'npcink-abilities-toolkit/patch-setting-value', $input );
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
@@ -4908,14 +4907,15 @@ final class Core_Write_Package {
 		if ( $path !== $base_dir && 0 !== strpos( $path, $base_dir . '/' ) ) {
 			return false;
 		}
-
 		$base_real = realpath( $base_dir );
 		$path_dir  = is_dir( $path ) ? $path : dirname( $path );
 		$dir_real  = realpath( $path_dir );
-		if ( false === $base_real || false === $dir_real ) {
-			return true;
+		if ( false === $base_real ) {
+			return false; // An unreadable base cannot anchor containment.
 		}
-
+		if ( false === $dir_real ) {
+			return true; // A not-yet-created target keeps the prefix verdict.
+		}
 		$base_real = $this->normalize_filesystem_path( $base_real );
 		$dir_real  = $this->normalize_filesystem_path( $dir_real );
 		return $dir_real === $base_real || 0 === strpos( $dir_real, $base_real . '/' );

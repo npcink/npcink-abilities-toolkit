@@ -49,7 +49,7 @@ final class Autoloader {
 		}
 
 		$relative = substr( (string) $class, strlen( $prefix ) );
-		if ( false === $relative || '' === $relative ) {
+		if ( false === $relative || '' === $relative || false !== strpos( $relative, '.' ) ) {
 			return;
 		}
 

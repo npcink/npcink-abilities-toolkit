@@ -49,9 +49,9 @@ function npcink_abilities_toolkit_uninstall_admin_user_meta() {
  * Two filters control what stays behind: hosts that keep their own media
  * lineage evidence can set npcink_abilities_toolkit_uninstall_preserve_media_backups
  * to keep the backup files, and npcink_abilities_toolkit_uninstall_preserve_media_history
- * (which defaults to the backup setting) to keep the history meta. The history
+ * (which now defaults to preserving) to keep the history meta. The history
  * meta uses the shared legacy _npcink_ai_ prefix, so hosts integrating with a
- * predecessor plugin usually want to preserve it.
+ * predecessor plugin keep it unless they explicitly opt out.
  *
  * @return void
  */
@@ -59,9 +59,9 @@ function npcink_abilities_toolkit_uninstall_media_backup_artifacts() {
 	$preserve = false;
 	if ( function_exists( 'apply_filters' ) ) {
 		$preserve = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_backups', false );
-		$preserve_history = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_history', $preserve );
+		$preserve_history = (bool) apply_filters( 'npcink_abilities_toolkit_uninstall_preserve_media_history', true );
 	} else {
-		$preserve_history = false;
+		$preserve_history = true;
 	}
 
 	if ( ! $preserve_history ) {

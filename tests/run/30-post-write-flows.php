@@ -467,3 +467,50 @@ $too_deep_blocks = $core_write_package->update_post_blocks(
 npcink_abilities_toolkit_assert_true( is_wp_error( $too_deep_blocks ), 'update-post-blocks rejects excessively deep block trees' );
 npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_blocks_invalid', $too_deep_blocks->code ?? '', 'update-post-blocks deep block tree fails with stable code' );
 
+
+$GLOBALS['npcink_abilities_toolkit_unit_terms_map'] = array(
+	301 => (object) array( 'term_id' => 301, 'name' => 'Merge Target', 'taxonomy' => 'category' ),
+	302 => (object) array( 'term_id' => 302, 'name' => 'Merge Source', 'taxonomy' => 'category' ),
+);
+$GLOBALS['npcink_abilities_toolkit_unit_term_objects'] = array( 302 => array( 77, 78 ) );
+$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] = array();
+$GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array(
+	'approval_commit_authorized' => true,
+	'approval_id'                => 'approval-merge-terms',
+);
+$merge_result = $core_destructive_package->merge_terms(
+	array(
+		'taxonomy'        => 'category',
+		'target_term_id'  => 301,
+		'source_term_ids' => array( 302 ),
+		'commit'          => true,
+	)
+);
+unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+npcink_abilities_toolkit_assert_true( is_array( $merge_result ), 'merge-terms commits an authorized merge over editable objects' );
+npcink_abilities_toolkit_assert_same( array( 302 ), $merge_result['removed_term_ids'] ?? null, 'merge-terms removes the fully merged source term' );
+npcink_abilities_toolkit_assert_same( 2, count( $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] ?? array() ), 'merge-terms reassigns every object of the merged source term' );
+npcink_abilities_toolkit_assert_same( array( 302 ), $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] ?? null, 'merge-terms deletes the merged source term' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'edit_post' => false );
+$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
+$GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] = array();
+$GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array(
+	'approval_commit_authorized' => true,
+	'approval_id'                => 'approval-merge-terms-blocked',
+);
+$blocked_merge = $core_destructive_package->merge_terms(
+	array(
+		'taxonomy'        => 'category',
+		'target_term_id'  => 301,
+		'source_term_ids' => array( 302 ),
+		'commit'          => true,
+	)
+);
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+npcink_abilities_toolkit_assert_true( is_array( $blocked_merge ), 'merge-terms still returns a payload when its objects are not editable' );
+npcink_abilities_toolkit_assert_same( array(), $blocked_merge['removed_term_ids'] ?? null, 'merge-terms keeps the source term when the caller cannot edit its objects' );
+npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] ?? null, 'merge-terms reassigns no object the caller cannot edit' );
+npcink_abilities_toolkit_assert_same( array(), $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] ?? null, 'merge-terms never deletes a source term blocked by object permissions' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_terms_map'], $GLOBALS['npcink_abilities_toolkit_unit_term_objects'], $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'], $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] );
