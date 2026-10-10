@@ -514,7 +514,7 @@ npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->maybe_
 npcink_abilities_toolkit_assert_same( null, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? null, 'mismatched If-None-Match never emits a 304 status' );
 unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
 
-$contract_cache_key = 'npcink_abilities_toolkit_contract_v1_' . ( defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '' ) . '_' . count( npcink_abilities_toolkit_get_registered() );
+$contract_cache_key = $catalog_honesty_controller->contract_cache_key();
 npcink_abilities_toolkit_assert_true( isset( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ]['etag'] ), 'serve_contract persists the projection and ETag in a bounded transient' );
 npcink_abilities_toolkit_assert_same( (string) ( $etag_headers['ETag'] ?? '' ), (string) ( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ]['etag'] ?? '' ), 'cached contract ETag matches the served ETag' );
 $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] = array(
@@ -524,6 +524,12 @@ $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] = ar
 $cached_contract_response = $catalog_honesty_controller->serve_contract();
 npcink_abilities_toolkit_assert_same( '"cache-hit-etag"', $cached_contract_response instanceof WP_REST_Response ? (string) ( $cached_contract_response->get_headers()['ETag'] ?? '' ) : '', 'serve_contract serves the cached ETag on cache hits' );
 npcink_abilities_toolkit_assert_same( true, $cached_contract_response instanceof WP_REST_Response ? ( $cached_contract_response->data['cache_hit_marker'] ?? null ) : null, 'serve_contract returns the cached payload without rebuilding the projection' );
+$GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] = array(
+	'data' => 'not-an-array',
+	'etag' => '"malformed-etag"',
+);
+$malformed_cache_response = $catalog_honesty_controller->serve_contract();
+npcink_abilities_toolkit_assert_same( 'npcink_abilities_toolkit_contract.v1', $malformed_cache_response instanceof WP_REST_Response ? (string) ( $malformed_cache_response->data['schema_version'] ?? '' ) : '', 'serve_contract rebuilds instead of serving a malformed cached payload' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] );
 
 npcink_abilities_toolkit_assert_true(

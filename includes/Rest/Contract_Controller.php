@@ -39,7 +39,6 @@ final class Contract_Controller {
 		if ( ! function_exists( 'register_rest_route' ) ) {
 			return;
 		}
-
 		register_rest_route(
 			self::NAMESPACE,
 			'/contract',
@@ -68,7 +67,6 @@ final class Contract_Controller {
 	 */
 	private function cache_control() {
 		$default = 'private, no-cache';
-
 		if ( ! function_exists( 'apply_filters' ) ) {
 			return $default;
 		}
@@ -93,19 +91,16 @@ final class Contract_Controller {
 	 * Serves the contract with cache validation headers.
 	 *
 	 * The projection and ETag are cached in a bounded transient keyed by
-	 * plugin version and ability count, so poll hits and the 304 path skip
-	 * the per-ability hash rebuilds; count-preserving registry swaps delay
-	 * detection only until the TTL expires.
+	 * plugin version and the registered ability id set, so poll hits and
+	 * the 304 path skip the per-ability hash rebuilds; metadata-only
+	 * registry swaps delay detection only until the TTL expires.
 	 *
 	 * @return array<string,mixed>|\WP_REST_Response
 	 */
 	public function serve_contract() {
-		$version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
-		$registered = function_exists( 'npcink_abilities_toolkit_get_registered' ) ? npcink_abilities_toolkit_get_registered() : array();
-		$count = count( (array) $registered );
-		$cache_key = 'npcink_abilities_toolkit_contract_v1_' . $version . '_' . $count;
+		$cache_key = $this->contract_cache_key();
 		$cached = function_exists( 'get_transient' ) ? get_transient( $cache_key ) : null;
-		$cached = is_array( $cached ) && is_string( $cached['etag'] ?? null ) && isset( $cached['data'] ) ? $cached : null;
+		$cached = is_array( $cached ) && is_string( $cached['etag'] ?? null ) && is_array( $cached['data'] ?? null ) ? $cached : null;
 		if ( null === $cached ) {
 			$data = $this->contract();
 			$cached = array(
@@ -122,6 +117,17 @@ final class Contract_Controller {
 		$response = new \WP_REST_Response( $cached['data'] );
 		$response->set_headers( array( 'ETag' => $cached['etag'], 'Cache-Control' => $this->cache_control() ) );
 		return $response;
+	}
+
+	/**
+	 * Returns the contract cache key for the current registry state.
+	 *
+	 * @return string
+	 */
+	public function contract_cache_key() {
+		$version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
+		$ids = function_exists( 'npcink_abilities_toolkit_get_registered' ) ? array_keys( (array) npcink_abilities_toolkit_get_registered() ) : array();
+		return 'npcink_abilities_toolkit_contract_v1_' . $version . '_' . md5( (string) wp_json_encode( $ids ) );
 	}
 
 	/**
@@ -155,7 +161,6 @@ final class Contract_Controller {
 		if ( '' === $etag ) {
 			return (bool) $served;
 		}
-
 		$if_none_match = isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			? trim( (string) ( function_exists( 'wp_unslash' ) ? wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) : $_SERVER['HTTP_IF_NONE_MATCH'] ) )
 			: '';
@@ -191,7 +196,6 @@ final class Contract_Controller {
 				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
 			}
 		}
-
 		return true;
 	}
 
@@ -206,7 +210,6 @@ final class Contract_Controller {
 		if ( '*' === $if_none_match ) {
 			return true;
 		}
-
 		foreach ( array_map( 'trim', explode( ',', $if_none_match ) ) as $candidate ) {
 			if ( 0 === strpos( $candidate, 'W/' ) ) {
 				$candidate = substr( $candidate, 2 );
@@ -239,7 +242,6 @@ final class Contract_Controller {
 			$server = rest_get_server();
 			$routes = is_object( $server ) && method_exists( $server, 'get_routes' ) ? $server->get_routes() : array();
 		}
-
 		return isset( $routes['/wp-abilities/v1/abilities'] );
 	}
 
@@ -264,7 +266,6 @@ final class Contract_Controller {
 		$ability_projection = $this->ability_contract_projection( $abilities );
 		$risk_counts        = $this->ability_risk_counts( $abilities );
 		sort( $ability_ids, SORT_STRING );
-
 		$workflow_recipes = function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ? npcink_abilities_toolkit_get_workflow_definitions() : array();
 		$workflow_recipes = is_array( $workflow_recipes ) ? $workflow_recipes : array();
 		return array(
@@ -433,7 +434,6 @@ final class Contract_Controller {
 				++$counts['other'];
 			}
 		}
-
 		return $counts;
 	}
 
