@@ -656,6 +656,59 @@ npcink_abilities_toolkit_assert_same( $changed_hash, $catalog_events[2]['catalog
 npcink_abilities_toolkit_assert_true( ! isset( $catalog_events[2]['previous_catalog_hash'] ), 'version-change same-hash catalog event omits previous hash' );
 npcink_abilities_toolkit_assert_same( NPCINK_ABILITIES_TOOLKIT_VERSION, $GLOBALS['npcink_abilities_toolkit_unit_options'][ Ability_Registrar::CATALOG_STATE_OPTION ]['plugin_version'] ?? '', 'version-change emit updates catalog state version' );
 
+if ( ! function_exists( 'is_admin' ) ) {
+	function is_admin() {
+		return ! empty( $GLOBALS['npcink_abilities_toolkit_unit_is_admin'] );
+	}
+}
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
+npcink_abilities_toolkit_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/frontend-skipped-ability',
+		array(
+			'label'            => 'Frontend Skipped Ability',
+			'description'      => 'Changes the catalog during an anonymous frontend request.',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'execute_callback' => static function () {
+				return array();
+			},
+		)
+	),
+	'frontend skip registrar accepts catalog-changing ability'
+);
+$GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.catalog.changed' );
+npcink_abilities_toolkit_assert_same( 3, count( $catalog_events ), 'anonymous frontend requests skip the catalog snapshot fingerprint check' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
+$GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'] = array();
+$observability_registrar->register_with_wordpress();
+$catalog_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.catalog.changed' );
+npcink_abilities_toolkit_assert_same( 4, count( $catalog_events ), 'admin-context requests catch up and emit the frontend-deferred catalog change' );
+
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
+npcink_abilities_toolkit_assert_true(
+	$observability_registrar->add_readonly(
+		'acme/force-refresh-ability',
+		array(
+			'label'            => 'Force Refresh Ability',
+			'description'      => 'Changes the catalog again to probe the forced refresh path.',
+			'input_schema'     => array( 'type' => 'object' ),
+			'output_schema'    => array( 'type' => 'object' ),
+			'execute_callback' => static function () {
+				return array();
+			},
+		)
+	),
+	'frontend skip registrar accepts force-refresh probe ability'
+);
+npcink_abilities_toolkit_assert_true( $observability_registrar->emit_manual_catalog_refresh( 'audit_probe' ), 'manual refresh still emits on anonymous frontend requests' );
+$catalog_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.catalog.changed' );
+npcink_abilities_toolkit_assert_same( 5, count( $catalog_events ), 'forced catalog refresh bypasses the frontend context skip' );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
+
 $callback = $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']['acme/observable-summary']['execute_callback'] ?? null;
 npcink_abilities_toolkit_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
 $callback_result = call_user_func( $callback, array( 'raw_callback_input' => 'super-secret-callback-input' ) );
