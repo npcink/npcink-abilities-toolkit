@@ -102,7 +102,7 @@ final class Contract_Controller {
 	public function serve_contract() {
 		$version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
 		$registered = function_exists( 'npcink_abilities_toolkit_get_registered' ) ? npcink_abilities_toolkit_get_registered() : array();
-		$count = is_array( $registered ) ? count( $registered ) : 0;
+		$count = count( (array) $registered );
 		$cache_key = 'npcink_abilities_toolkit_contract_v1_' . $version . '_' . $count;
 		$cached = function_exists( 'get_transient' ) ? get_transient( $cache_key ) : null;
 		$cached = is_array( $cached ) && is_string( $cached['etag'] ?? null ) && isset( $cached['data'] ) ? $cached : null;
