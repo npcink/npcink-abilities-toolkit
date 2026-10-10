@@ -168,6 +168,24 @@ VERSION=X.Y.Z composer release:prepare-wporg
 SVN_USERNAME=muze233 COMMIT_MESSAGE="Release X.Y.Z" build/commit-wporg-release.sh
 ```
 
+## Keychain Non-Interactive Commit
+
+When macOS keychain-cached credentials for `muze233` at
+`plugins.svn.wordpress.org` already exist (from a prior interactive
+commit), the commit can run without any prompt:
+
+```sh
+cd build/wporg-svn-wc/npcink-abilities-toolkit
+svn commit --username muze233 --non-interactive -m "Release X.Y.Z"
+```
+
+The non-interactive form uses only the keychain cache — no password is
+typed anywhere, so it also suits agent-assisted releases; if the cache
+is absent or expired it fails cleanly instead of prompting. Verify the
+cached identity before relying on it (`~/.subversion/auth/svn.simple/`,
+passtype `keychain`), and require zero `*` markers from `svn status -u`
+first.
+
 ## Expected SVN State
 
 Before a release commit, these commands should work:
