@@ -21,6 +21,7 @@ final class Contract_Controller {
 	const WORKFLOW_RECIPES_VERSION  = '1';
 	const RUNTIME_CONTRACT_ENDPOINT_VERSION = '1';
 	const ABILITY_CONTRACT_SOURCE = 'npcink_abilities_toolkit';
+	const CONTRACT_CACHE_TTL = 600;
 
 	/**
 	 * Whether the not-modified serve filter was registered for this process.
@@ -38,7 +39,6 @@ final class Contract_Controller {
 		if ( ! function_exists( 'register_rest_route' ) ) {
 			return;
 		}
-
 		register_rest_route(
 			self::NAMESPACE,
 			'/contract',
@@ -67,7 +67,6 @@ final class Contract_Controller {
 	 */
 	private function cache_control() {
 		$default = 'private, no-cache';
-
 		if ( ! function_exists( 'apply_filters' ) ) {
 			return $default;
 		}
@@ -85,30 +84,50 @@ final class Contract_Controller {
 			// Keep the first line only so a filter callback cannot smuggle headers.
 			$value = trim( (string) preg_replace( '/[\r\n\t].*/s', '', $value ) );
 		}
-
 		return is_string( $value ) && '' !== $value ? $value : $default;
 	}
 
 	/**
 	 * Serves the contract with cache validation headers.
 	 *
+	 * The projection and ETag are cached in a bounded transient keyed by
+	 * plugin version and the registered ability id set, so poll hits and
+	 * the 304 path skip the per-ability hash rebuilds; metadata-only
+	 * registry swaps delay detection only until the TTL expires.
+	 *
 	 * @return array<string,mixed>|\WP_REST_Response
 	 */
 	public function serve_contract() {
-		$data = $this->contract();
-		if ( ! class_exists( '\WP_REST_Response' ) ) {
-			return $data;
+		$cache_key = $this->contract_cache_key();
+		$cached = function_exists( 'get_transient' ) ? get_transient( $cache_key ) : null;
+		$cached = is_array( $cached ) && is_string( $cached['etag'] ?? null ) && is_array( $cached['data'] ?? null ) ? $cached : null;
+		if ( null === $cached ) {
+			$data = $this->contract();
+			$cached = array(
+				'data' => $data,
+				'etag' => $this->contract_etag( $data ),
+			);
+			if ( function_exists( 'set_transient' ) ) {
+				set_transient( $cache_key, $cached, self::CONTRACT_CACHE_TTL );
+			}
 		}
-
-		$response = new \WP_REST_Response( $data );
-		$response->set_headers(
-			array(
-				'ETag'          => $this->contract_etag( $data ),
-				'Cache-Control' => $this->cache_control(),
-			)
-		);
-
+		if ( ! class_exists( '\WP_REST_Response' ) ) {
+			return $cached['data'];
+		}
+		$response = new \WP_REST_Response( $cached['data'] );
+		$response->set_headers( array( 'ETag' => $cached['etag'], 'Cache-Control' => $this->cache_control() ) );
 		return $response;
+	}
+
+	/**
+	 * Returns the contract cache key for the current registry state.
+	 *
+	 * @return string
+	 */
+	public function contract_cache_key() {
+		$version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
+		$ids = function_exists( 'npcink_abilities_toolkit_get_registered' ) ? array_keys( (array) npcink_abilities_toolkit_get_registered() ) : array();
+		return 'npcink_abilities_toolkit_contract_v1_' . $version . '_' . md5( (string) wp_json_encode( $ids ) );
 	}
 
 	/**
@@ -125,7 +144,6 @@ final class Contract_Controller {
 	 */
 	public function maybe_send_not_modified( $served, $result, $request, $server ) {
 		unset( $server );
-
 		if ( $served ) {
 			return (bool) $served;
 		}
@@ -138,20 +156,17 @@ final class Contract_Controller {
 		if ( '/' . self::NAMESPACE . '/contract' !== (string) $request->get_route() ) {
 			return (bool) $served;
 		}
-
 		$headers = $result->get_headers();
 		$etag    = isset( $headers['ETag'] ) ? (string) $headers['ETag'] : '';
 		if ( '' === $etag ) {
 			return (bool) $served;
 		}
-
 		$if_none_match = isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			? trim( (string) ( function_exists( 'wp_unslash' ) ? wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) : $_SERVER['HTTP_IF_NONE_MATCH'] ) )
 			: '';
 		if ( '' === $if_none_match || ! $this->etag_matches( $etag, $if_none_match ) ) {
 			return (bool) $served;
 		}
-
 		if ( function_exists( 'status_header' ) ) {
 			status_header( 304 );
 		}
@@ -181,7 +196,6 @@ final class Contract_Controller {
 				header( 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ) );
 			}
 		}
-
 		return true;
 	}
 
@@ -196,7 +210,6 @@ final class Contract_Controller {
 		if ( '*' === $if_none_match ) {
 			return true;
 		}
-
 		foreach ( array_map( 'trim', explode( ',', $if_none_match ) ) as $candidate ) {
 			if ( 0 === strpos( $candidate, 'W/' ) ) {
 				$candidate = substr( $candidate, 2 );
@@ -205,7 +218,6 @@ final class Contract_Controller {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -230,7 +242,6 @@ final class Contract_Controller {
 			$server = rest_get_server();
 			$routes = is_object( $server ) && method_exists( $server, 'get_routes' ) ? $server->get_routes() : array();
 		}
-
 		return isset( $routes['/wp-abilities/v1/abilities'] );
 	}
 
@@ -255,10 +266,8 @@ final class Contract_Controller {
 		$ability_projection = $this->ability_contract_projection( $abilities );
 		$risk_counts        = $this->ability_risk_counts( $abilities );
 		sort( $ability_ids, SORT_STRING );
-
 		$workflow_recipes = function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ? npcink_abilities_toolkit_get_workflow_definitions() : array();
 		$workflow_recipes = is_array( $workflow_recipes ) ? $workflow_recipes : array();
-
 		return array(
 			'schema_version'              => 'npcink_abilities_toolkit_contract.v1',
 			'toolkit_contract_version'    => self::TOOLKIT_CONTRACT_VERSION,
@@ -343,7 +352,6 @@ final class Contract_Controller {
 	 */
 	private function ability_contract_projection( array $abilities ) {
 		$projection = array();
-
 		foreach ( $abilities as $ability_id => $ability ) {
 			if ( ! is_array( $ability ) ) {
 				continue;
@@ -376,7 +384,6 @@ final class Contract_Controller {
 			$projection[ (string) $ability_id ]['write_posture'] = (string) ( $implementation_posture['write_posture'] ?? ( 'read' === $projection[ (string) $ability_id ]['risk_level'] ? 'read_only' : 'host_governed_dry_run_first' ) );
 			$projection[ (string) $ability_id ]['verification_state'] = 'registered';
 		}
-
 		ksort( $projection, SORT_STRING );
 		return $projection;
 	}
@@ -390,7 +397,6 @@ final class Contract_Controller {
 	private function meta_contract_projection( array $meta ) {
 		$npcink = is_array( $meta['npcink'] ?? null ) ? $meta['npcink'] : array();
 		$mcp    = is_array( $meta['mcp'] ?? null ) ? $meta['mcp'] : array();
-
 		return array(
 			'show_in_rest' => (bool) ( $meta['show_in_rest'] ?? false ),
 			'npcink'       => array(
@@ -420,7 +426,6 @@ final class Contract_Controller {
 			'destructive' => 0,
 			'other'       => 0,
 		);
-
 		foreach ( $abilities as $ability ) {
 			$risk = is_array( $ability ) ? (string) ( $ability['risk_level'] ?? '' ) : '';
 			if ( isset( $counts[ $risk ] ) ) {
@@ -429,7 +434,6 @@ final class Contract_Controller {
 				++$counts['other'];
 			}
 		}
-
 		return $counts;
 	}
 
@@ -444,7 +448,6 @@ final class Contract_Controller {
 		$json       = function_exists( 'wp_json_encode' )
 			? wp_json_encode( $normalized )
 			: json_encode( $normalized );
-
 		return 'sha256:' . hash( 'sha256', (string) $json );
 	}
 
@@ -458,16 +461,13 @@ final class Contract_Controller {
 		if ( ! is_array( $value ) ) {
 			return $value;
 		}
-
 		$normalized = array();
 		foreach ( $value as $key => $child ) {
 			$normalized[ $key ] = $this->normalize_for_hash( $child );
 		}
-
 		if ( $this->is_assoc( $normalized ) ) {
 			ksort( $normalized, SORT_STRING );
 		}
-
 		return $normalized;
 	}
 
@@ -481,7 +481,6 @@ final class Contract_Controller {
 		if ( array() === $value ) {
 			return false;
 		}
-
 		return array_keys( $value ) !== range( 0, count( $value ) - 1 );
 	}
 }
