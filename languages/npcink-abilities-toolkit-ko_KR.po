@@ -5523,3 +5523,7 @@ msgstr ""
 "호스트 통합이 npcink_abilities_toolkit_write_commit_allowed 필터를 통해 Toolkit의 "
 "모든 쓰기 및 파괴 커밋을 허용하고 있습니다. 호스트 승인 계약에 설명된 대로 특정 "
 "어빌리티 ID와 멱등 키에 대해 기록된 승인으로 필터를 한정하세요."
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "이 요청을 수행할 권한이 없습니다."

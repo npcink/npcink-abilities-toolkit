@@ -830,6 +830,31 @@ npcink_abilities_toolkit_assert_true(
 	in_array( 77, array_map( static fn( $row ) => (int) ( $row['post_id'] ?? 0 ), (array) ( $calendar_full['data']['draft_backlog'] ?? array() ) ), true ),
 	'get-publishing-calendar-context restores the editable post row after the capability denial block'
 );
+$callback_gate_matrix = array(
+	array( 'manage_options', 'site_info', array() ),
+	array( 'manage_options', 'wp_diagnostics_summary', array() ),
+	array( 'manage_options', 'wp_ops_diagnostics_detail', array() ),
+	array( 'manage_options', 'list_workflow_recipes', array() ),
+	array( 'manage_options', 'get_workflow_recipe', array( 'recipe_id' => 'article-production' ) ),
+	array( 'manage_options', 'geo_analyze', array( 'title' => 'Gate probe', 'content' => 'Gate probe content.' ) ),
+	array( 'edit_posts', 'count_posts', array() ),
+	array( 'list_users', 'list_users', array() ),
+	array( 'edit_theme_options', 'list_menus', array() ),
+	array( 'edit_theme_options', 'get_menu', array( 'menu_id' => 1 ) ),
+	array( 'moderate_comments', 'list_comments', array() ),
+);
+foreach ( $callback_gate_matrix as $gate_probe ) {
+	$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( $gate_probe[0] => false );
+	npcink_abilities_toolkit_assert_same( false, current_user_can( $gate_probe[0] ), 'capability stub is in effect for the ' . $gate_probe[1] . ' denial probe' );
+	$gated = call_user_func( array( $core_read_package, $gate_probe[1] ), $gate_probe[2] );
+	npcink_abilities_toolkit_assert_true(
+		is_wp_error( $gated ) && 'npcink_abilities_toolkit_permission_denied' === $gated->get_error_code(),
+		$gate_probe[1] . ' re-checks its registration capability inside the callback'
+	);
+}
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] );
+$restored_recipes = $core_read_package->list_workflow_recipes();
+npcink_abilities_toolkit_assert_true( isset( $restored_recipes['schema_version'], $restored_recipes['cases'] ), 'workflow recipes still serve once the capability is restored' );
 $article_publish_preflight = $core_read_package->get_article_publish_preflight_context(
 	array(
 		'post_id'       => 77,

@@ -6369,3 +6369,7 @@ msgstr ""
 "npcink_abilities_toolkit_write_commit_allowed. Limite el filtro a "
 "aprobaciones registradas para ids de capacidad y claves de idempotencia "
 "concretas, como describe el contrato de aprobación del host."
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "No tiene permiso para realizar esta solicitud."

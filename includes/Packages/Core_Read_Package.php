@@ -107,7 +107,6 @@ final class Core_Read_Package {
 					'description' => __( 'Read-only workflow recipe definitions for host-side ability composition.', 'npcink-abilities-toolkit' ),
 				)
 			);
-
 		foreach ( $this->definitions() as $ability_id => $definition ) {
 			$pack = $this->read_pack_for( $ability_id );
 			if ( ! $this->should_register_read_ability( $pack, $ability_id, $definition ) ) {
@@ -3130,7 +3129,6 @@ final class Core_Read_Package {
 				'execute_callback' => array( $this, 'get_revision_change_risk_report' ),
 			),
 		);
-
 		$definitions = array_merge(
 			Core_WordPress_Read_Definitions::definitions( $this ),
 			WordPress_Diagnostics_Definitions::definitions( $this ),
@@ -3138,7 +3136,6 @@ final class Core_Read_Package {
 			$definitions
 		);
 		$definitions = Agent_Usage_Metadata::apply( $definitions );
-
 		$ordered = array();
 		foreach ( array_keys( Core_Read_Pack_Classifier::known_pack_map() ) as $ability_id ) {
 			if ( isset( $definitions[ $ability_id ] ) ) {
@@ -3151,11 +3148,31 @@ final class Core_Read_Package {
 		}
 
 		/**
+		 * Returns a 403 error when the callback's registration capability is missing.
+		 *
+		 * Composed for the Core_Read_Package read traits; the check fails closed
+		 * because current_user_can always exists in a WordPress request.
+		 *
+		 * @param string $capability Required capability.
+		 * @return \WP_Error|null
+		 */
+		protected function callback_capability_error( $capability ) {
+			if ( ! current_user_can( $capability ) ) {
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to perform this request.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
+			return null;
+		}
+
+		/**
 		 * Returns read-only workflow recipe definitions.
 		 *
-		 * @return array<string,mixed>
+		 * @return array<string,mixed>|\WP_Error
 		 */
 		public function list_workflow_recipes() {
+			$denied = $this->callback_capability_error( 'manage_options' );
+			if ( $denied ) {
+				return $denied;
+			}
 			return Workflow_Definition_Provider::manifest();
 		}
 
@@ -3166,6 +3183,10 @@ final class Core_Read_Package {
 		 * @return array<string,mixed>|\WP_Error
 		 */
 		public function get_workflow_recipe( $input ) {
+			$denied = $this->callback_capability_error( 'manage_options' );
+			if ( $denied ) {
+				return $denied;
+			}
 			$input     = is_array( $input ) ? $input : array();
 			$recipe_id = isset( $input['recipe_id'] ) ? sanitize_text_field( (string) $input['recipe_id'] ) : '';
 			$recipe    = Workflow_Definition_Provider::get( $recipe_id );
@@ -3179,16 +3200,19 @@ final class Core_Read_Package {
 		/**
 		 * Returns site information.
 		 *
-		 * @return array<string,mixed>
+		 * @return array<string,mixed>|\WP_Error
 		 */
 	public function site_info() {
+		$denied = $this->callback_capability_error( 'manage_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$theme = wp_get_theme();
 		$timezone = get_option( 'timezone_string' );
 		if ( '' === $timezone ) {
 			$offset = get_option( 'gmt_offset' );
 			$timezone = 'UTC' . ( $offset ? sprintf( '%+g', $offset ) : '' );
 		}
-
 		return array(
 			'name'        => get_bloginfo( 'name' ),
 			'description' => get_bloginfo( 'description' ),
@@ -3205,9 +3229,13 @@ final class Core_Read_Package {
 	 * Returns a redacted WordPress-only diagnostics summary.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function wp_diagnostics_summary( $input = array() ) {
+		$denied = $this->callback_capability_error( 'manage_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$include_plugins = ! array_key_exists( 'include_plugins', $input ) || ! empty( $input['include_plugins'] );
 		$include_theme = ! array_key_exists( 'include_theme', $input ) || ! empty( $input['include_theme'] );
@@ -3217,7 +3245,6 @@ final class Core_Read_Package {
 		$include_object_cache = ! array_key_exists( 'include_object_cache', $input ) || ! empty( $input['include_object_cache'] );
 		$include_rewrite = ! array_key_exists( 'include_rewrite', $input ) || ! empty( $input['include_rewrite'] );
 		$include_https = ! array_key_exists( 'include_https', $input ) || ! empty( $input['include_https'] );
-
 		return array(
 			'summary_version' => 'v1',
 			'generated_at'    => gmdate( 'Y-m-d\TH:i:s\Z' ),
@@ -3252,9 +3279,13 @@ final class Core_Read_Package {
 	 * Returns bounded operations diagnostics without leaking raw secrets or paths.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function wp_ops_diagnostics_detail( $input = array() ) {
+		$denied = $this->callback_capability_error( 'manage_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$profile = sanitize_key( (string) ( $input['profile'] ?? 'summary' ) );
 		if ( ! in_array( $profile, array( 'summary', 'detail', 'forensics' ), true ) ) {
@@ -3293,7 +3324,6 @@ final class Core_Read_Package {
 		$since_minutes = isset( $input['since_minutes'] ) ? absint( $input['since_minutes'] ) : 0;
 		$since_minutes = min( 10080, $since_minutes );
 		$severity_filter = $this->normalize_diagnostics_log_severity_filter( $input['severity'] ?? array() );
-
 		$plugins = $include_plugins ? $this->build_plugin_diagnostics_summary(
 			array(
 				'include_active'      => $include_active_plugins,
@@ -3311,7 +3341,6 @@ final class Core_Read_Package {
 		$https = $include_https ? $this->build_https_diagnostics_summary() : array( 'included' => false );
 		$updates = $this->build_updates_diagnostics_summary();
 		$cron_summary = $this->build_cron_diagnostics_summary();
-
 		return array(
 			'detail_version' => 'v1',
 			'profile'        => $profile,
@@ -3381,11 +3410,9 @@ final class Core_Read_Package {
 			'include_integrations'   => false,
 			'include_summaries'      => true,
 		);
-
 		if ( 'summary' === $profile ) {
 			return $summary;
 		}
-
 		$detail = array_merge(
 			$summary,
 			array(
@@ -3404,11 +3431,9 @@ final class Core_Read_Package {
 				'include_integrations'   => true,
 			)
 		);
-
 		if ( 'detail' === $profile ) {
 			return $detail;
 		}
-
 		return array_merge(
 			$detail,
 			array(
@@ -3439,14 +3464,16 @@ final class Core_Read_Package {
 	 * @return array<string,int>|\WP_Error
 	 */
 	public function count_posts( $input ) {
+		$denied = $this->callback_capability_error( 'edit_posts' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
-
 		if ( ! post_type_exists( $post_type ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_post_type_invalid', __( 'Post type does not exist.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-
 		$query = new \WP_Query(
 			array(
 				'post_type'      => $post_type,
@@ -3455,7 +3482,6 @@ final class Core_Read_Package {
 				'fields'         => 'ids',
 			)
 		);
-
 		return array(
 			'total' => (int) $query->found_posts,
 		);
@@ -3474,17 +3500,14 @@ final class Core_Read_Package {
 		if ( '' === $content ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_excerpt_content_required', __( 'Content is required to generate an excerpt proposal.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-
 		$style = sanitize_key( (string) ( $input['style'] ?? 'neutral' ) );
 		if ( ! in_array( $style, array( 'concise', 'neutral', 'seo' ), true ) ) {
 			$style = 'neutral';
 		}
-
 		$max_chars = max( 40, min( 240, absint( $input['max_chars'] ?? 160 ) ) );
 		if ( 'concise' === $style ) {
 			$max_chars = min( $max_chars, 90 );
 		}
-
 		return array(
 			'proposal_text' => $this->truncate_text( $content, $max_chars ),
 			'explain'       => __( 'Local read-only excerpt proposal generated from explicit content input.', 'npcink-abilities-toolkit' ),
@@ -3506,10 +3529,8 @@ final class Core_Read_Package {
 		$input = is_array( $input ) ? $input : array();
 		$post_metadata_plan = is_array( $input['post_metadata_plan'] ?? null ) ? $input['post_metadata_plan'] : array();
 		$taxonomy_plan = is_array( $input['taxonomy_plan'] ?? null ) ? $input['taxonomy_plan'] : array();
-
 		$excerpt_mode = $this->normalize_metadata_plan_mode( $post_metadata_plan['excerpt_mode'] ?? 'auto' );
 		$slug_mode = $this->normalize_metadata_plan_mode( $post_metadata_plan['slug_mode'] ?? 'auto' );
-
 		$generated_excerpt = $this->sanitize_metadata_text(
 			(string) (
 				$input['generated_excerpt']
@@ -3518,7 +3539,6 @@ final class Core_Read_Package {
 			)
 		);
 		$generated_slug = $this->sanitize_metadata_slug( (string) ( $input['generated_slug'] ?? '' ) );
-
 		$excerpt = $this->resolve_optional_metadata_text(
 			$post_metadata_plan['excerpt'] ?? '',
 			$excerpt_mode,
@@ -3530,7 +3550,6 @@ final class Core_Read_Package {
 			$generated_slug
 		);
 		$slug = '' !== $slug ? $this->sanitize_metadata_slug( $slug ) : '';
-
 		return array(
 			'success' => true,
 			'data'    => array(
@@ -3555,15 +3574,18 @@ final class Core_Read_Package {
 	 * Lists users.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function list_users( $input ) {
+		$denied = $this->callback_capability_error( 'list_users' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$role = sanitize_key( (string) ( $input['role'] ?? '' ) );
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
-
 		$args = array(
 			'number' => $per_page,
 			'paged'  => $page,
@@ -3575,7 +3597,6 @@ final class Core_Read_Package {
 			$args['search'] = '*' . $search . '*';
 			$args['search_columns'] = array( 'user_login', 'display_name' );
 		}
-
 		$query = new \WP_User_Query( $args );
 		$items = array();
 		foreach ( $query->get_results() as $user ) {
@@ -3598,7 +3619,6 @@ final class Core_Read_Package {
 				),
 			);
 		}
-
 		return array(
 			'total'    => (int) $query->get_total(),
 			'page'     => $page,
@@ -3618,7 +3638,6 @@ final class Core_Read_Package {
 		if ( $user_id <= 0 || ! function_exists( 'count_user_posts' ) ) {
 			return array();
 		}
-
 		$post_types = function_exists( 'get_post_types' ) ? get_post_types( array( 'public' => true ), 'names' ) : array( 'post' );
 		$post_types = is_array( $post_types ) ? array_values( $post_types ) : array( 'post' );
 		$counts = array();
@@ -3628,7 +3647,6 @@ final class Core_Read_Package {
 				$counts[ $post_type ] = absint( count_user_posts( $user_id, $post_type, true ) );
 			}
 		}
-
 		return $counts;
 	}
 
@@ -3636,16 +3654,19 @@ final class Core_Read_Package {
 	 * Lists navigation menus.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function list_menus( $input ) {
+		$denied = $this->callback_capability_error( 'edit_theme_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$include_locations = ! array_key_exists( 'include_locations', $input ) || ! empty( $input['include_locations'] );
 		$menus = function_exists( 'wp_get_nav_menus' ) ? wp_get_nav_menus() : array();
 		$menus = is_array( $menus ) ? $menus : array();
 		$location_map = $include_locations && function_exists( 'get_nav_menu_locations' ) ? (array) get_nav_menu_locations() : array();
 		$items = array();
-
 		foreach ( $menus as $menu ) {
 			if ( ! is_object( $menu ) ) {
 				continue;
@@ -3672,7 +3693,6 @@ final class Core_Read_Package {
 				'locations' => $locations,
 			);
 		}
-
 		return array(
 			'total' => count( $items ),
 			'items' => $items,
@@ -3686,11 +3706,14 @@ final class Core_Read_Package {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function get_menu( $input ) {
+		$denied = $this->callback_capability_error( 'edit_theme_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$menu_id = absint( $input['menu_id'] ?? 0 );
 		$menu_slug = sanitize_title( (string) ( $input['menu_slug'] ?? '' ) );
 		$include_items = ! array_key_exists( 'include_items', $input ) || ! empty( $input['include_items'] );
-
 		$menu = null;
 		if ( $menu_id > 0 && function_exists( 'wp_get_nav_menu_object' ) ) {
 			$menu = wp_get_nav_menu_object( $menu_id );
@@ -3701,7 +3724,6 @@ final class Core_Read_Package {
 		if ( ! $menu || ! is_object( $menu ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_menu_not_found', __( 'Menu was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
-
 		$items = array();
 		if ( $include_items && function_exists( 'wp_get_nav_menu_items' ) ) {
 			$menu_items = wp_get_nav_menu_items( absint( $menu->term_id ?? 0 ), array( 'post_status' => 'any' ) );
@@ -3721,7 +3743,6 @@ final class Core_Read_Package {
 				);
 			}
 		}
-
 		return array(
 			'menu'  => array(
 				'menu_id'     => absint( $menu->term_id ?? 0 ),
@@ -3752,7 +3773,6 @@ final class Core_Read_Package {
 			$item['children'] = array();
 			$nodes[ $id ] = $item;
 		}
-
 		$tree = array();
 		foreach ( $nodes as $id => &$node ) {
 			$parent_id = absint( $node['parent_id'] ?? 0 );
@@ -3763,7 +3783,6 @@ final class Core_Read_Package {
 			}
 		}
 		unset( $node );
-
 		return array_values( $tree );
 	}
 
@@ -3771,9 +3790,13 @@ final class Core_Read_Package {
 	 * Builds local GEO / AI visibility analysis.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function geo_analyze( $input ) {
+		$denied = $this->callback_capability_error( 'manage_options' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
 		$content = $this->normalize_analysis_plain_text( $input['content'] ?? '' );
@@ -3785,7 +3808,6 @@ final class Core_Read_Package {
 		$issues = array();
 		$recommendations = array();
 		$evidence = array();
-
 		if ( $this->strlen_value( $content ) < 280 ) {
 			$issues[] = array(
 				'id'       => 'thin_answer_surface',
@@ -3794,7 +3816,6 @@ final class Core_Read_Package {
 				'detail'   => '建议补充直接回答型段落，覆盖"是什么 / 为什么 / 怎么做"。',
 			);
 		}
-
 		if ( '' === $excerpt ) {
 			$issues[] = array(
 				'id'       => 'excerpt_missing',
@@ -3803,7 +3824,6 @@ final class Core_Read_Package {
 				'detail'   => '建议补一个 1 到 2 句的直答摘要，方便 SERP 与 AI answer box 引用。',
 			);
 		}
-
 		if ( empty( $questions ) ) {
 			$issues[] = array(
 				'id'       => 'faq_gap',
@@ -3812,7 +3832,6 @@ final class Core_Read_Package {
 				'detail'   => '建议新增 FAQ 或小标题问答块，提高 GEO / AI answerability。',
 			);
 		}
-
 		foreach ( $questions as $question ) {
 			$recommendations[] = array(
 				'type'     => 'faq_candidate',
@@ -3821,7 +3840,6 @@ final class Core_Read_Package {
 				'detail'   => sanitize_textarea_field( (string) ( $question['answer_hint'] ?? '' ) ),
 			);
 		}
-
 		foreach ( array_slice( $entities, 0, 5 ) as $entity ) {
 			$evidence[] = array(
 				'type'    => 'entity',
@@ -3829,7 +3847,6 @@ final class Core_Read_Package {
 				'support' => sprintf( '标题/焦点词已覆盖"%s"。', $entity ),
 			);
 		}
-
 		$score = max( 0, min( 100, 84 - count( $issues ) * 12 + count( $questions ) * 4 ) );
 		return $this->build_analysis_success_response(
 			array(
@@ -3882,7 +3899,6 @@ final class Core_Read_Package {
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
 		);
-
 		if ( class_exists( '\WP_Query' ) ) {
 			$query = new \WP_Query( $args );
 			return array(
@@ -3890,7 +3906,6 @@ final class Core_Read_Package {
 				'total'    => (int) ( $query->found_posts ?? 0 ),
 			);
 		}
-
 		$posts = function_exists( 'get_posts' ) ? get_posts( $args ) : array();
 		$post_ids = array();
 		foreach ( ( is_array( $posts ) ? $posts : array() ) as $post ) {
@@ -3899,7 +3914,6 @@ final class Core_Read_Package {
 				$post_ids[] = $post_id;
 			}
 		}
-
 		return array(
 			'post_ids' => $post_ids,
 			'total'    => count( $post_ids ),
@@ -3950,7 +3964,6 @@ final class Core_Read_Package {
 		if ( function_exists( 'wp_trim_words' ) ) {
 			return wp_trim_words( (string) $text, (int) $word_count );
 		}
-
 		$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) ?? '' );
 		if ( '' === $text ) {
 			return '';
@@ -3960,7 +3973,6 @@ final class Core_Read_Package {
 		if ( count( $words ) <= $word_count ) {
 			return $text;
 		}
-
 		return implode( ' ', array_slice( $words, 0, max( 1, (int) $word_count ) ) ) . '...';
 	}
 
@@ -3975,7 +3987,6 @@ final class Core_Read_Package {
 		$text = (string) $text;
 		$max_chars = max( 1, (int) $max_chars );
 		$trim_chars = " \t\n\r\0\x0B,.;:!?";
-
 		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_substr' ) ) {
 			if ( mb_strlen( $text ) <= $max_chars ) {
 				return $text;
@@ -3983,11 +3994,9 @@ final class Core_Read_Package {
 
 			return rtrim( mb_substr( $text, 0, max( 0, $max_chars - 3 ) ), $trim_chars ) . '...';
 		}
-
 		if ( strlen( $text ) <= $max_chars ) {
 			return $text;
 		}
-
 		return rtrim( substr( $text, 0, max( 0, $max_chars - 3 ) ), $trim_chars ) . '...';
 	}
 
@@ -4006,7 +4015,6 @@ final class Core_Read_Package {
 		if ( '' === $taxonomy || $term_id <= 0 ) {
 			return array();
 		}
-
 		$query = new \WP_Query(
 			array(
 				'post_type'      => 'any',
@@ -4025,7 +4033,6 @@ final class Core_Read_Package {
 				),
 			)
 		);
-
 		$posts = array();
 		foreach ( (array) $query->posts as $post_id ) {
 			$post_id = absint( $post_id );
@@ -4044,7 +4051,6 @@ final class Core_Read_Package {
 				'date'      => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
 			);
 		}
-
 		return $posts;
 	}
 
@@ -4071,11 +4077,9 @@ final class Core_Read_Package {
 		if ( 'skip' === $mode ) {
 			return '';
 		}
-
 		$resolved = 'explicit' === $mode
 			? $this->sanitize_metadata_text( (string) $value )
 			: (string) $fallback;
-
 		return trim( $resolved );
 	}
 
@@ -4089,7 +4093,6 @@ final class Core_Read_Package {
 		if ( function_exists( 'sanitize_textarea_field' ) ) {
 			return sanitize_textarea_field( (string) $value );
 		}
-
 		return sanitize_text_field( (string) $value );
 	}
 
@@ -4180,7 +4183,6 @@ final class Core_Read_Package {
 				$terms[] = $keyword;
 			}
 		}
-
 		return array_slice( array_values( array_unique( array_filter( $terms ) ) ), 0, 8 );
 	}
 
@@ -4224,7 +4226,6 @@ final class Core_Read_Package {
 				);
 			}
 		}
-
 		return array_slice( $questions, 0, 3 );
 	}
 
@@ -4265,7 +4266,6 @@ final class Core_Read_Package {
 			),
 			$meta
 		);
-
 		return array(
 			'success' => true,
 			'data'    => $data,

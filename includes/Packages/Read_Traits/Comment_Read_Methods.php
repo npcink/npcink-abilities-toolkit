@@ -19,16 +19,19 @@ trait Comment_Read_Methods {
 	 * Lists comments.
 	 *
 	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|\WP_Error
 	 */
 	public function list_comments( $input ) {
+		$denied = $this->callback_capability_error( 'moderate_comments' );
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$status = sanitize_key( (string) ( $input['status'] ?? 'approve' ) );
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
 		$offset = ( $page - 1 ) * $per_page;
-
 		$args = array(
 			'status' => '' !== $status ? $status : 'approve',
 			'number' => $per_page,
@@ -37,7 +40,6 @@ trait Comment_Read_Methods {
 		if ( $post_id > 0 ) {
 			$args['post_id'] = $post_id;
 		}
-
 		$comments = get_comments( $args );
 		$count_args = $args;
 		$count_args['count'] = true;
@@ -67,7 +69,6 @@ trait Comment_Read_Methods {
 				'excerpt'    => wp_trim_words( wp_strip_all_tags( (string) ( $comment->comment_content ?? '' ) ), 20 ),
 			);
 		}
-
 		return array(
 			'total'    => $total,
 			'page'     => $page,
@@ -101,7 +102,6 @@ trait Comment_Read_Methods {
 		if ( is_array( $count ) ) {
 			return count( $count );
 		}
-
 		return 0;
 	}
 }

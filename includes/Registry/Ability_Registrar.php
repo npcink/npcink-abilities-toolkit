@@ -229,11 +229,9 @@ final class Ability_Registrar {
 		$this->abilities[ $ability_id ] = $normalized;
 		$this->catalog_fingerprint_dirty = true;
 		$this->catalog_snapshot_checked  = false;
-
 		if ( $is_duplicate_registration ) {
 			$this->emit_duplicate_registration_event( $ability_id, 'toolkit_registry', $contract_changed );
 		}
-
 		if (
 			function_exists( 'wp_register_ability' )
 			&& (
@@ -243,7 +241,6 @@ final class Ability_Registrar {
 		) {
 			$this->register_single_with_wordpress( $ability_id, $normalized );
 		}
-
 		return true;
 	}
 
@@ -318,7 +315,6 @@ final class Ability_Registrar {
 			$this->emit_duplicate_registration_event( $ability_id, 'wordpress_registry', $changed, 'partial' );
 			return;
 		}
-
 		$this->emit_observability_event(
 			'abilities.registration.duplicate',
 			array(
@@ -374,7 +370,6 @@ final class Ability_Registrar {
 			$this->emit_wordpress_duplicate_registration_event( $ability_id, $definition );
 			return;
 		}
-
 		$category = isset( $definition['category'] ) ? sanitize_key( (string) $definition['category'] ) : '';
 		if ( '' !== $category && ! isset( $this->categories->all()[ $category ] ) ) {
 			$this->categories->add(
@@ -385,7 +380,6 @@ final class Ability_Registrar {
 				)
 			);
 		}
-
 		wp_register_ability(
 			$ability_id,
 			array(
@@ -422,16 +416,13 @@ final class Ability_Registrar {
 		$previous_version = isset( $state['plugin_version'] ) ? (string) $state['plugin_version'] : '';
 		$current_version = defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? (string) NPCINK_ABILITIES_TOOLKIT_VERSION : '';
 		$version_changed = '' !== $previous_version && '' !== $current_version && $previous_version !== $current_version;
-
 		if ( ! $force && ! $version_changed && $previous_hash === $catalog_hash ) {
 			return false;
 		}
-
 		$rate_limit_key = self::CATALOG_RATE_LIMIT_PREFIX . substr( hash( 'sha256', $catalog_hash . '|' . $current_version ), 0, 40 );
 		if ( ! $version_changed && function_exists( 'get_transient' ) && false !== get_transient( $rate_limit_key ) ) {
 			return false;
 		}
-
 		$emitted_at = gmdate( 'c' );
 		$payload    = array(
 			'plugin_slug'  => 'npcink-abilities-toolkit',
@@ -443,13 +434,10 @@ final class Ability_Registrar {
 			'source'       => 'local',
 			'reason'       => sanitize_key( (string) $reason ),
 		);
-
 		if ( '' !== $previous_hash && $previous_hash !== $catalog_hash ) {
 			$payload['previous_catalog_hash'] = $previous_hash;
 		}
-
 		$this->emit_observability_event( 'abilities.catalog.changed', $payload );
-
 		$new_state = array(
 			'catalog_hash'   => $catalog_hash,
 			'emitted_at'     => $emitted_at,
@@ -562,10 +550,22 @@ final class Ability_Registrar {
 	 * @return callable
 	 */
 	private function observed_execute_callback( $ability_id, array $definition ) {
-		$callback = $definition['execute_callback'];
-		$mode     = (string) ( $definition['mode'] ?? '' );
+		$callback   = $definition['execute_callback'];
+		$mode       = (string) ( $definition['mode'] ?? '' );
+		$capability = sanitize_key( (string) ( $definition['capability'] ?? '' ) );
 
-		return function ( ...$args ) use ( $ability_id, $callback, $mode ) {
+		return function ( ...$args ) use ( $ability_id, $callback, $mode, $capability ) {
+			if ( '' !== $capability && ! current_user_can( $capability ) ) {
+				$this->emit_observability_event(
+					'abilities.callback.denied',
+					array(
+						'ability_id' => $ability_id,
+						'mode'       => $mode,
+						'status'     => 'error',
+					)
+				);
+				return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to perform this request.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
+			}
 			$started    = microtime( true );
 			$started_id = $this->started_event_component( $started );
 

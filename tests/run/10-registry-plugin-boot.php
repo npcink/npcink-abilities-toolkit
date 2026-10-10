@@ -811,6 +811,11 @@ $callback = $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']['acme
 npcink_abilities_toolkit_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
 $callback_result = call_user_func( $callback, array( 'raw_callback_input' => 'super-secret-callback-input' ) );
 npcink_abilities_toolkit_assert_same( array( 'ok' => true ), $callback_result, 'observed callback returns original result' );
+$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => false );
+$denied_callback = call_user_func( $callback, array() );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] );
+npcink_abilities_toolkit_assert_true( is_wp_error( $denied_callback ) && 'npcink_abilities_toolkit_permission_denied' === $denied_callback->get_error_code(), 'observed dispatch re-checks the registered capability before invoking any callback' );
+npcink_abilities_toolkit_assert_true( 0 < count( npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.callback.denied' ) ), 'denied dispatch emits a metadata-only denial event' );
 $callback_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBALS['npcink_abilities_toolkit_unit_observability_events'], 'abilities.callback.completed' );
 npcink_abilities_toolkit_assert_same( 1, count( $callback_events ), 'callback execution still emits behavior observability event' );
 npcink_abilities_toolkit_assert_same( 'acme/observable-summary', $callback_events[0]['ability_id'] ?? '', 'callback event carries ability id' );

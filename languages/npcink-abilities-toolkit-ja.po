@@ -5532,3 +5532,7 @@ msgstr ""
 "ホスト連携が npcink_abilities_toolkit_write_commit_allowed フィルターを通じて "
 "Toolkit のすべての書き込みおよび破壊的コミットを許可しています。ホスト承認規約の"
 "とおり、特定のアビリティ ID と冪等キーに対して記録された承認に限定してください。"
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "このリクエストを実行する権限がありません。"

@@ -6358,3 +6358,7 @@ msgstr ""
 "Zerstörungs-Commit des Toolkits zu. Begrenzen Sie den Filter auf "
 "erfasste Freigaben für bestimmte Ability-IDs und Idempotenz-Schlüssel, "
 "wie es der Host-Freigabe-Vertrag beschreibt."
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "Sie sind nicht berechtigt, diese Anfrage auszuführen."

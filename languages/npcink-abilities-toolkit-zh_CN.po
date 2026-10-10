@@ -5371,3 +5371,7 @@ msgstr ""
 "一个 host 集成正在通过 npcink_abilities_toolkit_write_commit_allowed 过滤器放行所有 "
 "Toolkit 写入与销毁提交。请将过滤器收窄到针对具体能力 id 和幂等键的已记录审批，"
 "遵循宿主审批合同的描述。"
+
+#: includes/Packages/Core_Read_Package.php:3158
+msgid "You do not have permission to perform this request."
+msgstr "你没有权限执行此请求。"
