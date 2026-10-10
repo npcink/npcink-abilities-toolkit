@@ -108,7 +108,6 @@ final class Core_Write_Package {
 				'description' => __( 'Host-governed WordPress write abilities with dry-run previews and external approval.', 'npcink-abilities-toolkit' ),
 			)
 		);
-
 		foreach ( $this->definitions() as $ability_id => $definition ) {
 			$definition['source']                    = 'official';
 			$definition['project_to_npcink_catalog'] = true;
@@ -134,7 +133,6 @@ final class Core_Write_Package {
 			'maxItems' => Gutenberg_Block_Document::MAX_BLOCKS,
 			'items'    => array( 'type' => 'object', 'additionalProperties' => true ),
 		);
-
 		return array(
 			'npcink-abilities-toolkit/create-draft'       => array(
 				'label'           => __( 'Create Draft', 'npcink-abilities-toolkit' ),
@@ -4838,8 +4836,10 @@ final class Core_Write_Package {
 	 */
 	private function normalize_media_relative_file( $relative_file ) {
 		$relative_file = ltrim( str_replace( '\\', '/', sanitize_text_field( (string) $relative_file ) ), '/' );
-		if ( '' === $relative_file || false !== strpos( $relative_file, '../' ) || '..' === $relative_file || 0 === strpos( $relative_file, '/' ) ) {
-			return '';
+		foreach ( explode( '/', $relative_file ) as $segment ) {
+			if ( '..' === $segment || '.' === $segment ) {
+				return '';
+			}
 		}
 		return $relative_file;
 	}
