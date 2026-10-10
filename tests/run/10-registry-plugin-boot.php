@@ -743,6 +743,31 @@ $catalog_events = npcink_abilities_toolkit_observability_events_of_kind( $GLOBAL
 npcink_abilities_toolkit_assert_same( 5, count( $catalog_events ), 'forced catalog refresh bypasses the frontend context skip' );
 $GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
 
+npcink_abilities_toolkit_assert_same( true, $registrar->runtime_context_active(), 'runtime context is active for admin requests' );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
+npcink_abilities_toolkit_assert_same( false, $registrar->runtime_context_active(), 'runtime context is inactive for anonymous frontend requests' );
+$plugin_reflection = new ReflectionClass( Plugin::class );
+$plugin_instance_property = $plugin_reflection->getProperty( 'instance' );
+$plugin_instance_property->setAccessible( true );
+$original_plugin = $plugin_instance_property->getValue();
+$plugin_instance_property->setValue( null, null );
+$frontend_plugin = Plugin::instance();
+$frontend_plugin->boot();
+npcink_abilities_toolkit_assert_same( array(), $frontend_plugin->abilities()->all(), 'anonymous frontend requests skip built-in ability package registration' );
+add_filter(
+	'npcink_abilities_toolkit_register_frontend_contexts',
+	static function () {
+		return true;
+	}
+);
+$plugin_instance_property->setValue( null, null );
+$frontend_optin_plugin = Plugin::instance();
+$frontend_optin_plugin->boot();
+npcink_abilities_toolkit_assert_true( count( $frontend_optin_plugin->abilities()->all() ) > 100, 'the frontend registration filter restores built-in package registration for hosts that need it' );
+remove_all_filters( 'npcink_abilities_toolkit_register_frontend_contexts' );
+$plugin_instance_property->setValue( null, $original_plugin );
+$GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = true;
+
 $callback = $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities']['acme/observable-summary']['execute_callback'] ?? null;
 npcink_abilities_toolkit_assert_true( is_callable( $callback ), 'registered ability keeps callable observed execute callback' );
 $callback_result = call_user_func( $callback, array( 'raw_callback_input' => 'super-secret-callback-input' ) );

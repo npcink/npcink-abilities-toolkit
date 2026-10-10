@@ -419,7 +419,7 @@ final class Ability_Registrar {
 		if ( ! function_exists( 'npcink_abilities_toolkit_emit_observability_event' ) ) {
 			return false;
 		}
-		if ( ! $force && ! $this->catalog_emission_context_active() ) {
+		if ( ! $force && ! $this->runtime_context_active() ) {
 			return false;
 		}
 		$catalog_hash = $this->catalog_fingerprint();
@@ -678,14 +678,14 @@ final class Ability_Registrar {
 	}
 
 	/**
-	 * Returns whether this request context observes catalog snapshot changes.
+	 * Returns whether this request context registers or consumes the ability catalog.
 	 *
-	 * Anonymous frontend pageviews skip the fingerprint work and state read;
-	 * admin, REST, cron, and CLI requests re-check and catch up.
+	 * Anonymous frontend pageviews skip fingerprint work and built-in package
+	 * registration; admin, REST, cron, and CLI contexts register and re-check.
 	 *
 	 * @return bool
 	 */
-	private function catalog_emission_context_active() {
+	public function runtime_context_active() {
 		if ( ! function_exists( 'is_admin' ) ) {
 			return true;
 		}

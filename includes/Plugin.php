@@ -122,7 +122,6 @@ final class Plugin {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
-
 		return self::$instance;
 	}
 
@@ -132,7 +131,6 @@ final class Plugin {
 	private function __construct() {
 		$schema_normalizer   = new Schema_Normalizer();
 		$contract_normalizer = new Contract_Normalizer( $schema_normalizer, new Annotation_Normalizer() );
-
 		$this->categories               = new Category_Registrar();
 		$this->abilities                = new Ability_Registrar( $this->categories, $contract_normalizer );
 		$this->catalog_bridge           = new Npcink_Catalog_Bridge( $this->abilities );
@@ -152,7 +150,6 @@ final class Plugin {
 		if ( $this->booted ) {
 			return;
 		}
-
 		$this->booted = true;
 		$this->load_textdomain();
 		if ( function_exists( 'add_action' ) ) {
@@ -165,19 +162,32 @@ final class Plugin {
 		 * even when a host disables the admin status page package.
 		 */
 		( new Health_Notices( $this->abilities ) )->boot();
-		if ( $this->is_package_enabled( 'core_read' ) ) {
+		$register_packages = $this->abilities->runtime_context_active();
+		if ( function_exists( 'apply_filters' ) ) {
+			/**
+			 * Filters whether built-in ability packages register on anonymous frontend contexts.
+			 *
+			 * Abilities never run on frontend pageviews, so registration is skipped
+			 * there; hosts that run abilities programmatically on frontend requests
+			 * return true to restore registration everywhere.
+			 *
+			 * @param bool $register_packages Whether frontend contexts register built-in abilities.
+			 */
+			$register_packages = (bool) apply_filters( 'npcink_abilities_toolkit_register_frontend_contexts', $register_packages );
+		}
+		if ( $register_packages && $this->is_package_enabled( 'core_read' ) ) {
 			$this->core_read_package()->boot();
 		}
-		if ( $this->is_package_enabled( 'core_write' ) ) {
+		if ( $register_packages && $this->is_package_enabled( 'core_write' ) ) {
 			$this->core_write_package()->boot();
 			$this->schedule_media_backup_cleanup();
 		} else {
 			$this->clear_media_backup_cleanup_schedule();
 		}
-		if ( $this->is_package_enabled( 'core_destructive' ) ) {
+		if ( $register_packages && $this->is_package_enabled( 'core_destructive' ) ) {
 			$this->core_destructive_package()->boot();
 		}
-		if ( $this->is_package_enabled( 'core_comment' ) ) {
+		if ( $register_packages && $this->is_package_enabled( 'core_comment' ) ) {
 			$this->core_comment_package()->boot();
 		}
 		if ( $this->is_package_enabled( 'npcink_catalog_bridge' ) ) {
@@ -223,7 +233,6 @@ final class Plugin {
 		if ( ! $this->core_read_package instanceof Core_Read_Package ) {
 			$this->core_read_package = new Core_Read_Package( $this->categories, $this->abilities );
 		}
-
 		return $this->core_read_package;
 	}
 
@@ -236,7 +245,6 @@ final class Plugin {
 		if ( ! $this->core_write_package instanceof Core_Write_Package ) {
 			$this->core_write_package = new Core_Write_Package( $this->categories, $this->abilities );
 		}
-
 		return $this->core_write_package;
 	}
 
@@ -249,7 +257,6 @@ final class Plugin {
 		if ( ! $this->core_destructive_package instanceof Core_Destructive_Package ) {
 			$this->core_destructive_package = new Core_Destructive_Package( $this->categories, $this->abilities );
 		}
-
 		return $this->core_destructive_package;
 	}
 
@@ -262,7 +269,6 @@ final class Plugin {
 		if ( ! $this->core_comment_package instanceof Core_Comment_Package ) {
 			$this->core_comment_package = new Core_Comment_Package( $this->categories, $this->abilities );
 		}
-
 		return $this->core_comment_package;
 	}
 
@@ -275,7 +281,6 @@ final class Plugin {
 		if ( ! $this->test_page instanceof Test_Page ) {
 			$this->test_page = new Test_Page( $this->abilities, $this->categories );
 		}
-
 		return $this->test_page;
 	}
 
@@ -311,7 +316,6 @@ final class Plugin {
 				esc_html__( 'View Abilities', 'npcink-abilities-toolkit' )
 			)
 		);
-
 		return $links;
 	}
 
@@ -327,7 +331,6 @@ final class Plugin {
 				return $url;
 			}
 		}
-
 		return admin_url( $this->has_npcink_parent_menu() ? 'admin.php?page=npcink-abilities-toolkit' : 'tools.php?page=npcink-abilities-toolkit' );
 	}
 
@@ -344,7 +347,6 @@ final class Plugin {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
