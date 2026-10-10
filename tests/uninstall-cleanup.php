@@ -207,9 +207,8 @@ if ( 'multisite' === $mode ) {
 }
 
 $expected_meta_keys = array( '_npcink_ai_media_file_replacement_history', '_npcink_ai_media_latest_file_replacement' );
-$expected_meta_deletions = 'multisite' === $mode ? array_merge( $expected_meta_keys, $expected_meta_keys ) : $expected_meta_keys;
-if ( $expected_meta_deletions !== $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) {
-	fwrite( STDERR, 'Unexpected uninstall meta deletions: ' . json_encode( $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) . "\n" );
+if ( array() !== $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) {
+	fwrite( STDERR, 'Default uninstall must preserve the shared legacy media history meta: ' . json_encode( $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) . "\n" );
 	exit( 1 );
 }
 $expected_user_meta_keys = array( 'npcink_abilities_toolkit_welcome_pending', 'npcink_abilities_toolkit_health_notices_dismissed' );
@@ -274,6 +273,14 @@ if ( is_file( $npcink_uninstall_backups . '/2026/01/backup.jpg' ) || is_dir( $np
 }
 if ( $GLOBALS['npcink_uninstall_deleted_meta_keys'] !== $npcink_uninstall_deleted_meta_keys_backup ) {
 	fwrite( STDERR, "History-only preservation still deleted the media history meta.\n" );
+	exit( 1 );
+}
+
+$GLOBALS['npcink_uninstall_preserve_media_history'] = false;
+$npcink_uninstall_deleted_meta_keys_optout = $GLOBALS['npcink_uninstall_deleted_meta_keys'];
+npcink_abilities_toolkit_uninstall_media_backup_artifacts();
+if ( array_merge( $npcink_uninstall_deleted_meta_keys_optout, $expected_meta_keys ) !== $GLOBALS['npcink_uninstall_deleted_meta_keys'] ) {
+	fwrite( STDERR, "Explicit history opt-out must delete the shared legacy media history meta.\n" );
 	exit( 1 );
 }
 unset( $GLOBALS['npcink_uninstall_preserve_media_backups'], $GLOBALS['npcink_uninstall_preserve_media_history'] );

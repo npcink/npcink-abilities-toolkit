@@ -369,7 +369,6 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $cap_check ) ) {
 			return $cap_check;
 		}
-
 		$payload = array(
 			'taxonomy' => $taxonomy,
 			'term_id'  => $term_id,
@@ -388,7 +387,6 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
-
 		$deleted = wp_delete_term( $term_id, $taxonomy );
 		if ( is_wp_error( $deleted ) ) {
 			return $deleted;
@@ -396,7 +394,6 @@ final class Core_Destructive_Package {
 		if ( false === $deleted ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_term_delete_failed', __( 'Term deletion failed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
 		}
-
 		$payload['deleted'] = true;
 		$payload['dry_run'] = false;
 		unset( $payload['preview'] );
@@ -428,7 +425,6 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $cap_check ) ) {
 			return $cap_check;
 		}
-
 		$source_term_ids = is_array( $input['source_term_ids'] ?? null ) ? $input['source_term_ids'] : array();
 		$source_term_ids = array_values( array_unique( array_filter( array_map( 'absint', $source_term_ids ) ) ) );
 		$source_term_ids = array_values(
@@ -442,7 +438,6 @@ final class Core_Destructive_Package {
 		if ( empty( $source_term_ids ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_source_terms_required', __( 'At least one source term is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-
 		$valid_source_ids = array();
 		foreach ( $source_term_ids as $source_term_id ) {
 			if ( ! is_wp_error( $this->get_term_object( $source_term_id, $taxonomy ) ) ) {
@@ -453,7 +448,6 @@ final class Core_Destructive_Package {
 		if ( empty( $valid_source_ids ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_source_terms_not_found', __( 'Source terms were not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
 		}
-
 		$payload = array(
 			'taxonomy'         => $taxonomy,
 			'target_term_id'   => $target_term_id,
@@ -474,14 +468,19 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $allowed ) ) {
 			return $allowed;
 		}
-
 		$removed_term_ids = array();
+		$merged_object_count = 0;
 		foreach ( $valid_source_ids as $source_term_id ) {
 			$object_ids = get_objects_in_term( $source_term_id, $taxonomy );
 			$object_ids = is_array( $object_ids ) ? $object_ids : array();
+			$source_blocked = false;
 			foreach ( $object_ids as $object_id ) {
 				$object_id = absint( $object_id );
 				if ( $object_id <= 0 ) {
+					continue;
+				}
+				if ( $merged_object_count >= 200 || ! current_user_can( 'edit_post', $object_id ) ) {
+					$source_blocked = true;
 					continue;
 				}
 				$current_term_ids = wp_get_object_terms( $object_id, $taxonomy, array( 'fields' => 'ids' ) );
@@ -491,15 +490,19 @@ final class Core_Destructive_Package {
 				$current_term_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) $current_term_ids ) ) ) );
 				$next_term_ids    = array_values( array_unique( array_merge( array_diff( $current_term_ids, array( $source_term_id ) ), array( $target_term_id ) ) ) );
 				wp_set_object_terms( $object_id, $next_term_ids, $taxonomy, false );
+				++$merged_object_count;
 			}
 
+			if ( $source_blocked ) {
+				// Blocked sources keep their objects and are not deleted.
+				continue;
+			}
 			$deleted = wp_delete_term( $source_term_id, $taxonomy );
 			if ( is_wp_error( $deleted ) || false === $deleted ) {
 				continue;
 			}
 			$removed_term_ids[] = $source_term_id;
 		}
-
 		$payload['merged']           = ! empty( $removed_term_ids );
 		$payload['merged_count']     = count( $removed_term_ids );
 		$payload['removed_term_ids'] = $removed_term_ids;
@@ -520,7 +523,6 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $validated ) ) {
 			return $validated;
 		}
-
 		$taxonomy = (string) $validated['taxonomy'];
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_taxonomy_invalid', __( 'Taxonomy is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -529,7 +531,6 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $cap_check ) ) {
 			return $cap_check;
 		}
-
 		$resolve_result = $this->resolve_term_ids_for_assignment(
 			$taxonomy,
 			is_array( $validated['term_ids'] ?? null ) ? $validated['term_ids'] : array(),
@@ -546,7 +547,6 @@ final class Core_Destructive_Package {
 		if ( empty( $resolved_term_ids ) && 'replace' !== $operation ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-
 		$query = new \WP_Query( $this->bulk_post_terms_query_args( $validated ) );
 		$post_ids = is_array( $query->posts ) ? $query->posts : array();
 		$matched_count = count( $post_ids );

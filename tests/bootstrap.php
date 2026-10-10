@@ -540,6 +540,83 @@ if ( ! function_exists( 'wp_set_post_terms' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_taxonomy' ) ) {
+	function get_taxonomy( $taxonomy ) {
+		unset( $taxonomy );
+		return null;
+	}
+}
+
+if ( ! function_exists( 'get_term' ) ) {
+	function get_term( $term_id, $taxonomy = '' ) {
+		$terms = isset( $GLOBALS['npcink_abilities_toolkit_unit_terms_map'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_terms_map'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_terms_map']
+			: array();
+		if ( isset( $terms[ (int) $term_id ] ) ) {
+			return $terms[ (int) $term_id ];
+		}
+		return (object) array(
+			'term_id'  => (int) $term_id,
+			'name'     => 'Term ' . (int) $term_id,
+			'taxonomy' => sanitize_key( (string) $taxonomy ),
+		);
+	}
+}
+
+if ( ! function_exists( 'get_objects_in_term' ) ) {
+	function get_objects_in_term( $term_ids, $taxonomy, $args = array() ) {
+		unset( $taxonomy, $args );
+		$map = isset( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_term_objects']
+			: array();
+		$object_ids = array();
+		foreach ( (array) $term_ids as $term_id ) {
+			foreach ( (array) ( $map[ (int) $term_id ] ?? array() ) as $object_id ) {
+				$object_ids[] = (int) $object_id;
+			}
+		}
+		return array_values( array_unique( $object_ids ) );
+	}
+}
+
+if ( ! function_exists( 'wp_get_object_terms' ) ) {
+	function wp_get_object_terms( $object_id, $taxonomy, $args = array() ) {
+		unset( $taxonomy );
+		$map = isset( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] )
+			? $GLOBALS['npcink_abilities_toolkit_unit_term_objects']
+			: array();
+		$term_ids = array();
+		foreach ( $map as $term_id => $object_ids ) {
+			if ( in_array( (int) $object_id, array_map( 'intval', (array) $object_ids ), true ) ) {
+				$term_ids[] = (int) $term_id;
+			}
+		}
+		return 'ids' === (string) ( $args['fields'] ?? 'all' ) ? $term_ids : array();
+	}
+}
+
+if ( ! function_exists( 'wp_set_object_terms' ) ) {
+	function wp_set_object_terms( $object_id, $terms, $taxonomy, $append = false ) {
+		unset( $taxonomy, $append );
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
+		}
+		$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'][] = array( (int) $object_id, array_map( 'intval', (array) $terms ) );
+		return array();
+	}
+}
+
+if ( ! function_exists( 'wp_delete_term' ) ) {
+	function wp_delete_term( $term_id, $taxonomy ) {
+		unset( $taxonomy );
+		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] ) ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] = array();
+		}
+		$GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'][] = (int) $term_id;
+		return true;
+	}
+}
+
 if ( ! function_exists( 'maybe_serialize' ) ) {
 	function maybe_serialize( $value ) {
 		return is_array( $value ) || is_object( $value ) ? serialize( $value ) : $value;
