@@ -3812,8 +3812,10 @@ trait Media_Read_Methods {
 	 */
 	private function normalize_media_relative_file( $file ) {
 		$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
-		if ( '' === $file || false !== strpos( $file, '../' ) || '..' === $file || 0 === strpos( $file, '/' ) ) {
-			return '';
+		foreach ( explode( '/', $file ) as $segment ) {
+			if ( '..' === $segment || '.' === $segment ) {
+				return '';
+			}
 		}
 		return preg_replace( '#/+#', '/', $file );
 	}
