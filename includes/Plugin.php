@@ -181,7 +181,7 @@ final class Plugin {
 		if ( $register_packages && $this->is_package_enabled( 'core_write' ) ) {
 			$this->core_write_package()->boot();
 			$this->schedule_media_backup_cleanup();
-		} else {
+		} elseif ( ! $this->is_package_enabled( 'core_write' ) ) {
 			$this->clear_media_backup_cleanup_schedule();
 		}
 		if ( $register_packages && $this->is_package_enabled( 'core_destructive' ) ) {
