@@ -514,6 +514,18 @@ npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->maybe_
 npcink_abilities_toolkit_assert_same( null, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? null, 'mismatched If-None-Match never emits a 304 status' );
 unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
 
+$contract_cache_key = 'npcink_abilities_toolkit_contract_v1_' . ( defined( 'NPCINK_ABILITIES_TOOLKIT_VERSION' ) ? NPCINK_ABILITIES_TOOLKIT_VERSION : '' ) . '_' . count( npcink_abilities_toolkit_get_registered() );
+npcink_abilities_toolkit_assert_true( isset( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ]['etag'] ), 'serve_contract persists the projection and ETag in a bounded transient' );
+npcink_abilities_toolkit_assert_same( (string) ( $etag_headers['ETag'] ?? '' ), (string) ( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ]['etag'] ?? '' ), 'cached contract ETag matches the served ETag' );
+$GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] = array(
+	'data' => array( 'schema_version' => 'npcink_abilities_toolkit_contract.v1', 'cache_hit_marker' => true ),
+	'etag' => '"cache-hit-etag"',
+);
+$cached_contract_response = $catalog_honesty_controller->serve_contract();
+npcink_abilities_toolkit_assert_same( '"cache-hit-etag"', $cached_contract_response instanceof WP_REST_Response ? (string) ( $cached_contract_response->get_headers()['ETag'] ?? '' ) : '', 'serve_contract serves the cached ETag on cache hits' );
+npcink_abilities_toolkit_assert_same( true, $cached_contract_response instanceof WP_REST_Response ? ( $cached_contract_response->data['cache_hit_marker'] ?? null ) : null, 'serve_contract returns the cached payload without rebuilding the projection' );
+unset( $GLOBALS['npcink_abilities_toolkit_unit_transients'][ $contract_cache_key ] );
+
 npcink_abilities_toolkit_assert_true(
 	$registrar->add_write_host_governed(
 		'acme/host-write',
