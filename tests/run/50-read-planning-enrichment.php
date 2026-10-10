@@ -845,6 +845,7 @@ $callback_gate_matrix = array(
 );
 foreach ( $callback_gate_matrix as $gate_probe ) {
 	$GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( $gate_probe[0] => false );
+	npcink_abilities_toolkit_assert_same( false, current_user_can( $gate_probe[0] ), 'capability stub is in effect for the ' . $gate_probe[1] . ' denial probe' );
 	$gated = call_user_func( array( $core_read_package, $gate_probe[1] ), $gate_probe[2] );
 	npcink_abilities_toolkit_assert_true(
 		is_wp_error( $gated ) && 'npcink_abilities_toolkit_permission_denied' === $gated->get_error_code(),

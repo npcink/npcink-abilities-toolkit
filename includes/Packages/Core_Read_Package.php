@@ -3170,7 +3170,9 @@ final class Core_Read_Package {
 		 */
 		public function list_workflow_recipes() {
 			$denied = $this->callback_capability_error( 'manage_options' );
-			if ( $denied ) { return $denied; }
+			if ( $denied ) {
+				return $denied;
+			}
 			return Workflow_Definition_Provider::manifest();
 		}
 
@@ -3182,7 +3184,9 @@ final class Core_Read_Package {
 		 */
 		public function get_workflow_recipe( $input ) {
 			$denied = $this->callback_capability_error( 'manage_options' );
-			if ( $denied ) { return $denied; }
+			if ( $denied ) {
+				return $denied;
+			}
 			$input     = is_array( $input ) ? $input : array();
 			$recipe_id = isset( $input['recipe_id'] ) ? sanitize_text_field( (string) $input['recipe_id'] ) : '';
 			$recipe    = Workflow_Definition_Provider::get( $recipe_id );
@@ -3200,7 +3204,9 @@ final class Core_Read_Package {
 		 */
 	public function site_info() {
 		$denied = $this->callback_capability_error( 'manage_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$theme = wp_get_theme();
 		$timezone = get_option( 'timezone_string' );
 		if ( '' === $timezone ) {
@@ -3227,7 +3233,9 @@ final class Core_Read_Package {
 	 */
 	public function wp_diagnostics_summary( $input = array() ) {
 		$denied = $this->callback_capability_error( 'manage_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$include_plugins = ! array_key_exists( 'include_plugins', $input ) || ! empty( $input['include_plugins'] );
 		$include_theme = ! array_key_exists( 'include_theme', $input ) || ! empty( $input['include_theme'] );
@@ -3275,7 +3283,9 @@ final class Core_Read_Package {
 	 */
 	public function wp_ops_diagnostics_detail( $input = array() ) {
 		$denied = $this->callback_capability_error( 'manage_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$profile = sanitize_key( (string) ( $input['profile'] ?? 'summary' ) );
 		if ( ! in_array( $profile, array( 'summary', 'detail', 'forensics' ), true ) ) {
@@ -3455,7 +3465,9 @@ final class Core_Read_Package {
 	 */
 	public function count_posts( $input ) {
 		$denied = $this->callback_capability_error( 'edit_posts' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$post_type = sanitize_key( (string) ( $input['post_type'] ?? 'post' ) );
 		$status = sanitize_key( (string) ( $input['status'] ?? 'publish' ) );
@@ -3566,7 +3578,9 @@ final class Core_Read_Package {
 	 */
 	public function list_users( $input ) {
 		$denied = $this->callback_capability_error( 'list_users' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$role = sanitize_key( (string) ( $input['role'] ?? '' ) );
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
@@ -3644,7 +3658,9 @@ final class Core_Read_Package {
 	 */
 	public function list_menus( $input ) {
 		$denied = $this->callback_capability_error( 'edit_theme_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$include_locations = ! array_key_exists( 'include_locations', $input ) || ! empty( $input['include_locations'] );
 		$menus = function_exists( 'wp_get_nav_menus' ) ? wp_get_nav_menus() : array();
@@ -3691,7 +3707,9 @@ final class Core_Read_Package {
 	 */
 	public function get_menu( $input ) {
 		$denied = $this->callback_capability_error( 'edit_theme_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$menu_id = absint( $input['menu_id'] ?? 0 );
 		$menu_slug = sanitize_title( (string) ( $input['menu_slug'] ?? '' ) );
@@ -3776,7 +3794,9 @@ final class Core_Read_Package {
 	 */
 	public function geo_analyze( $input ) {
 		$denied = $this->callback_capability_error( 'manage_options' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$title = sanitize_text_field( (string) ( $input['title'] ?? '' ) );
 		$content = $this->normalize_analysis_plain_text( $input['content'] ?? '' );
@@ -3812,7 +3832,6 @@ final class Core_Read_Package {
 				'detail'   => '建议新增 FAQ 或小标题问答块，提高 GEO / AI answerability。',
 			);
 		}
-
 		foreach ( $questions as $question ) {
 			$recommendations[] = array(
 				'type'     => 'faq_candidate',
@@ -3821,7 +3840,6 @@ final class Core_Read_Package {
 				'detail'   => sanitize_textarea_field( (string) ( $question['answer_hint'] ?? '' ) ),
 			);
 		}
-
 		foreach ( array_slice( $entities, 0, 5 ) as $entity ) {
 			$evidence[] = array(
 				'type'    => 'entity',
@@ -3829,7 +3847,6 @@ final class Core_Read_Package {
 				'support' => sprintf( '标题/焦点词已覆盖"%s"。', $entity ),
 			);
 		}
-
 		$score = max( 0, min( 100, 84 - count( $issues ) * 12 + count( $questions ) * 4 ) );
 		return $this->build_analysis_success_response(
 			array(
@@ -3882,7 +3899,6 @@ final class Core_Read_Package {
 			'update_post_meta_cache' => false,
 			'update_post_term_cache' => false,
 		);
-
 		if ( class_exists( '\WP_Query' ) ) {
 			$query = new \WP_Query( $args );
 			return array(
@@ -3890,7 +3906,6 @@ final class Core_Read_Package {
 				'total'    => (int) ( $query->found_posts ?? 0 ),
 			);
 		}
-
 		$posts = function_exists( 'get_posts' ) ? get_posts( $args ) : array();
 		$post_ids = array();
 		foreach ( ( is_array( $posts ) ? $posts : array() ) as $post ) {
@@ -3899,7 +3914,6 @@ final class Core_Read_Package {
 				$post_ids[] = $post_id;
 			}
 		}
-
 		return array(
 			'post_ids' => $post_ids,
 			'total'    => count( $post_ids ),
@@ -3950,7 +3964,6 @@ final class Core_Read_Package {
 		if ( function_exists( 'wp_trim_words' ) ) {
 			return wp_trim_words( (string) $text, (int) $word_count );
 		}
-
 		$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) ?? '' );
 		if ( '' === $text ) {
 			return '';
@@ -3960,7 +3973,6 @@ final class Core_Read_Package {
 		if ( count( $words ) <= $word_count ) {
 			return $text;
 		}
-
 		return implode( ' ', array_slice( $words, 0, max( 1, (int) $word_count ) ) ) . '...';
 	}
 
@@ -3975,7 +3987,6 @@ final class Core_Read_Package {
 		$text = (string) $text;
 		$max_chars = max( 1, (int) $max_chars );
 		$trim_chars = " \t\n\r\0\x0B,.;:!?";
-
 		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_substr' ) ) {
 			if ( mb_strlen( $text ) <= $max_chars ) {
 				return $text;
@@ -3983,11 +3994,9 @@ final class Core_Read_Package {
 
 			return rtrim( mb_substr( $text, 0, max( 0, $max_chars - 3 ) ), $trim_chars ) . '...';
 		}
-
 		if ( strlen( $text ) <= $max_chars ) {
 			return $text;
 		}
-
 		return rtrim( substr( $text, 0, max( 0, $max_chars - 3 ) ), $trim_chars ) . '...';
 	}
 
@@ -4006,7 +4015,6 @@ final class Core_Read_Package {
 		if ( '' === $taxonomy || $term_id <= 0 ) {
 			return array();
 		}
-
 		$query = new \WP_Query(
 			array(
 				'post_type'      => 'any',
@@ -4025,7 +4033,6 @@ final class Core_Read_Package {
 				),
 			)
 		);
-
 		$posts = array();
 		foreach ( (array) $query->posts as $post_id ) {
 			$post_id = absint( $post_id );
@@ -4044,7 +4051,6 @@ final class Core_Read_Package {
 				'date'      => sanitize_text_field( (string) ( $post->post_date ?? '' ) ),
 			);
 		}
-
 		return $posts;
 	}
 
@@ -4071,11 +4077,9 @@ final class Core_Read_Package {
 		if ( 'skip' === $mode ) {
 			return '';
 		}
-
 		$resolved = 'explicit' === $mode
 			? $this->sanitize_metadata_text( (string) $value )
 			: (string) $fallback;
-
 		return trim( $resolved );
 	}
 
@@ -4089,7 +4093,6 @@ final class Core_Read_Package {
 		if ( function_exists( 'sanitize_textarea_field' ) ) {
 			return sanitize_textarea_field( (string) $value );
 		}
-
 		return sanitize_text_field( (string) $value );
 	}
 
@@ -4180,7 +4183,6 @@ final class Core_Read_Package {
 				$terms[] = $keyword;
 			}
 		}
-
 		return array_slice( array_values( array_unique( array_filter( $terms ) ) ), 0, 8 );
 	}
 
@@ -4224,7 +4226,6 @@ final class Core_Read_Package {
 				);
 			}
 		}
-
 		return array_slice( $questions, 0, 3 );
 	}
 
@@ -4265,7 +4266,6 @@ final class Core_Read_Package {
 			),
 			$meta
 		);
-
 		return array(
 			'success' => true,
 			'data'    => $data,

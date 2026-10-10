@@ -23,7 +23,9 @@ trait Comment_Read_Methods {
 	 */
 	public function list_comments( $input ) {
 		$denied = $this->callback_capability_error( 'moderate_comments' );
-		if ( $denied ) { return $denied; }
+		if ( $denied ) {
+			return $denied;
+		}
 		$input = is_array( $input ) ? $input : array();
 		$post_id = absint( $input['post_id'] ?? 0 );
 		$status = sanitize_key( (string) ( $input['status'] ?? 'approve' ) );
@@ -67,7 +69,6 @@ trait Comment_Read_Methods {
 				'excerpt'    => wp_trim_words( wp_strip_all_tags( (string) ( $comment->comment_content ?? '' ) ), 20 ),
 			);
 		}
-
 		return array(
 			'total'    => $total,
 			'page'     => $page,
@@ -101,7 +102,6 @@ trait Comment_Read_Methods {
 		if ( is_array( $count ) ) {
 			return count( $count );
 		}
-
 		return 0;
 	}
 }
