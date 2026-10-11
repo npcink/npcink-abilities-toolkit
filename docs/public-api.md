@@ -20,7 +20,9 @@ how a final write is authorized.
 
 The default plugin boot keeps all built-in packages enabled for compatibility.
 Hosts that only need the generic Abilities API surface can narrow the local
-registration set with filters:
+registration set with filters. Separately, the operator-facing read-only mode
+(ADR 0009) narrows `core_write` and `core_destructive` after this filter — a
+site-owner choice that a host filter cannot widen:
 
 - `npcink_abilities_toolkit_enabled_packages`: package-level boot map. Supported
   slugs are `core_read`, `core_write`, `core_destructive`, `core_comment`,

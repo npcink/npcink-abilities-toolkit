@@ -673,6 +673,23 @@ npcink_abilities_toolkit_assert_true(
 	'ability package list links operator guidance for turning packages on or off.'
 );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'A disabled check means its ability is not registered on this site' ), 'disabled safe checks explain why the button is unavailable.' );
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, '( new Read_Only_Mode() )->render();' )
+	&& false !== strpos( $admin_test_page, '( new Read_Only_Mode() )->boot();' ),
+	'overview ability package section renders the ADR 0009 read-only toggle and boots its admin-post handler.'
+);
+$admin_read_only_mode = file_get_contents( __DIR__ . '/../includes/Admin/Read_Only_Mode.php' );
+foreach (
+	array(
+		'npcink_abilities_toolkit_read_only_mode',
+		'narrow_packages',
+		'core_write',
+		'core_destructive',
+		"esc_html__( 'Read-only mode', 'npcink-abilities-toolkit' )",
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_read_only_mode, $required ), 'read-only mode keeps the ADR 0009 narrowing contract: ' . $required );
+}
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, '.npcink-abilities-toolkit-filter select' ) && false !== strpos( $admin_js, 'select.form.submit()' ), 'admin script submits catalog filter selects on change while the Apply button stays as the no-JS fallback.' );
 
 $plugin_bootstrap_source = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );

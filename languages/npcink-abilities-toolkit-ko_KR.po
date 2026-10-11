@@ -5544,3 +5544,22 @@ msgstr "응답 복사"
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
 msgstr "능력 패키지를 켜고 끄는 방법 보기"
+
+#: includes/Admin/Read_Only_Mode.php:82
+msgid "Read-only mode"
+msgstr "읽기 전용 모드"
+
+#: includes/Admin/Read_Only_Mode.php:84
+msgid ""
+"Stop registering write and destructive abilities on this site. Read "
+"abilities, comment helpers, and this status page keep working. Host products "
+"cannot widen past this choice, and it takes effect on the next request."
+msgstr ""
+"이 사이트에서 쓰기 및 파괴적 능력 등록을 중지합니다. 읽기 능력, 댓글 도우미, 이 상태 페이지는 계속 작동합니다. 호스트 제품은 이 "
+"선택을 넓힐 수 없으며 다음 요청부터 적용됩니다."
+
+#: includes/Admin/Read_Only_Mode.php:86
+msgid ""
+"Read-only mode is on: the write and destructive packages above show Off "
+"because of this choice."
+msgstr "읽기 전용 모드가 켜져 있습니다. 그래서 위의 쓰기 및 파괴적 패키지가 꺼짐으로 표시됩니다."

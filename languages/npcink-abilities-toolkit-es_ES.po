@@ -6391,3 +6391,26 @@ msgstr "Copiar respuesta"
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
 msgstr "Vea cómo activar o desactivar los paquetes de capacidades"
+
+#: includes/Admin/Read_Only_Mode.php:82
+msgid "Read-only mode"
+msgstr "Modo de solo lectura"
+
+#: includes/Admin/Read_Only_Mode.php:84
+msgid ""
+"Stop registering write and destructive abilities on this site. Read "
+"abilities, comment helpers, and this status page keep working. Host products "
+"cannot widen past this choice, and it takes effect on the next request."
+msgstr ""
+"Deja de registrar capacidades de escritura y destructivas en este sitio. Las "
+"capacidades de lectura, los ayudantes de comentarios y esta página de estado "
+"siguen funcionando. Los productos host no pueden ampliar esta elección, que "
+"surte efecto en la siguiente solicitud."
+
+#: includes/Admin/Read_Only_Mode.php:86
+msgid ""
+"Read-only mode is on: the write and destructive packages above show Off "
+"because of this choice."
+msgstr ""
+"El modo de solo lectura está activado: por eso los paquetes de escritura y "
+"destructivos de arriba aparecen desactivados."
