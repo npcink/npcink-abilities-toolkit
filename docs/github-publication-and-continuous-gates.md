@@ -186,6 +186,31 @@ direct REST calls recovered). When the `gh` CLI hangs, `curl` against
 parse API JSON with `strict=False` because review bodies can contain raw
 control characters.
 
+## Gitee Read-Only Mirror
+
+`master` and release tags mirror to
+`gitee.com/npcink/npcink-abilities-toolkit` through the opt-in
+`gitee-mirror` workflow so repository documentation stays reachable for
+readers on networks where GitHub is unreliable. The plugin's admin help
+links still default to GitHub; sites and hosts repoint them with the
+`npcink_abilities_toolkit_docs_base_url` filter (see
+`docs/public-api.md`).
+
+Setup, in order:
+
+1. Create the empty repository `gitee.com/npcink/npcink-abilities-toolkit`.
+2. Add a read/write deploy SSH key there (needed for force-free pushes of
+   `master` and tags) and store it as the GitHub repository secret
+   `GITEE_MIRROR_SSH_KEY`.
+3. Set the GitHub repository variable `GITEE_MIRROR_ENABLED=true`.
+
+Until step 3 the job skips silently, so the mirror can be staged at any
+time without red builds. Issues and pull requests stay on GitHub; the
+mirror serves browsing only and is never a second source of truth. Once
+the mirror is verified reachable, a small follow-up change can make
+`Support\Docs_Links` prefer it automatically for `zh_CN` sites; the
+default for every other locale stays GitHub.
+
 ## Future Release Follow-Up
 
 Before the next public patch release after `0.5.6`:

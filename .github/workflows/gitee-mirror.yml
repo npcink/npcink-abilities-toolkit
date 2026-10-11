@@ -1,0 +1,79 @@
+name: Gitee Mirror
+
+# Read-only mirror of master and release tags to gitee.com so documentation
+# links stay reachable for readers on networks where GitHub is unreliable.
+# The plugin's admin help links still default to GitHub; sites repoint them
+# with the npcink_abilities_toolkit_docs_base_url filter. This job is inert
+# until the maintainer opts in:
+#   1. create the empty repo gitee.com/npcink/npcink-abilities-toolkit
+#   2. add a deploy SSH key there and store it as the GITEE_MIRROR_SSH_KEY
+#      repository secret
+#   3. set the GITEE_MIRROR_ENABLED repository variable to "true"
+# Issues and pull requests stay on GitHub; the mirror serves browsing only.
+# The mirror is disposable: pushes are forced so any divergence on the Gitee
+# side self-heals on the next master push or tag push.
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+
+# The job authenticates to gitee.com over SSH only and never calls the
+# GitHub API, so the workflow token gets no permissions at all.
+permissions: {}
+
+concurrency:
+  group: gitee-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    if: ${{ vars.GITEE_MIRROR_ENABLED == 'true' && github.repository == 'npcink/npcink-abilities-toolkit' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Push to the Gitee mirror
+        shell: bash
+        env:
+          GITEE_MIRROR_SSH_KEY: ${{ secrets.GITEE_MIRROR_SSH_KEY }}
+        run: |
+          if [ -z "$GITEE_MIRROR_SSH_KEY" ]; then
+            echo "::error::GITEE_MIRROR_SSH_KEY is empty. Add the secret, or unset GITEE_MIRROR_ENABLED to skip the mirror."
+            exit 1
+          fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$GITEE_MIRROR_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          touch ~/.ssh/known_hosts
+          if ! ssh-keyscan -t rsa,ecdsa,ed25519 gitee.com >> ~/.ssh/known_hosts; then
+            echo "::error::ssh-keyscan for gitee.com failed; check runner network access."
+            exit 1
+          fi
+          # gitee.com host key fingerprints, recorded 2026-10-11 against the
+          # keys Gitee publishes. The observed set must match exactly: this
+          # fails closed on unexpected keys, on missing keys, and on a vacuous
+          # empty scan alike. Refresh the list from Gitee's published keys
+          # when Gitee rotates host keys.
+          observed="$(ssh-keygen -lf ~/.ssh/known_hosts | sed 's/SHA256://' | awk '{print $2}' | sort -u)"
+          expected="$(printf '%s\n' \
+            meTsVSCgOas8fBnJyx8EPlUJr6iQ96riFmCFPfUkDtU \
+            '+ULzij2u99B9eWYFTw1Q4ErYG/aepHLbu96PAUCoV88' \
+            'FQGC9Kn/eye1W8icdBgrQp+KkGYoFgbVr17bmjey0Wc' | sort -u)"
+          if [ "$observed" != "$expected" ]; then
+            echo "::error::gitee.com host keys do not match the pinned fingerprints; refusing to trust the connection."
+            echo "observed: $observed"
+            exit 1
+          fi
+          git remote add mirror git@gitee.com:npcink/npcink-abilities-toolkit.git
+          if [ "$GITHUB_REF" = "refs/heads/master" ]; then
+            git push --force mirror HEAD:refs/heads/master
+          else
+            git push --force mirror "$GITHUB_REF:refs/tags/$GITHUB_REF_NAME"
+          fi
