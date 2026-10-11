@@ -54,6 +54,12 @@ composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 
+Refresh the SVN screenshot assets before the next WordPress.org release
+whenever the admin page layout changes, and keep the `readme.txt` Screenshots
+descriptions aligned with the current Overview + Developer Tools structure.
+The packaged `readme.txt` itself must stay operator-facing; maintainer
+process notes belong in this runbook, not in the storefront text.
+
 `composer release:prepare-wporg` verifies the SVN working copy against the
 remote with `scripts/check-wporg-svn-freshness.sh` and fails closed when any
 path is out of date. A stale working copy must be refreshed with
