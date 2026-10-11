@@ -64,7 +64,7 @@ final class Test_Page {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_ajax_npcink_abilities_toolkit_readonly_check', array( $this, 'run_readonly_check' ) );
-		( new Read_Only_Mode() )->boot();
+		Read_Only_Mode::boot();
 		( new Welcome_Notice() )->boot();
 	}
 
@@ -532,7 +532,7 @@ final class Test_Page {
 					</li>
 				<?php endforeach; ?>
 			</ul>
-			<?php ( new Read_Only_Mode() )->render(); ?>
+			<?php Read_Only_Mode::render(); ?>
 			<?php if ( $write_like_enabled ) : ?>
 				<p class="description npcink-abilities-toolkit-packages__write-note">
 					<?php echo esc_html__( 'Write and destructive abilities are registered. They stay dry-run by default and only change content after a host product approves the commit.', 'npcink-abilities-toolkit' ); ?>

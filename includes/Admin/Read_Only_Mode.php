@@ -15,9 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * One narrowing-only operator choice over the built-in package map.
  *
  * When read-only mode is on, the write and destructive packages never
- * register, regardless of the host package filter, and nothing can be
- * enabled through it. Host products surface their own conflict messaging;
- * this class never widens a package the filter disabled.
+ * register, regardless of the host package filter; hosts surface their
+ * own conflict messaging.
  */
 final class Read_Only_Mode {
 	const OPTION_KEY    = 'npcink_abilities_toolkit_read_only_mode';
@@ -54,28 +53,24 @@ final class Read_Only_Mode {
 	}
 
 	/**
-	 * Registers the admin-post handler for the Overview toggle.
-	 *
 	 * @return void
 	 */
-	public function boot() {
-		if ( ! function_exists( 'add_action' ) ) {
-			return;
+	public static function boot() {
+		if ( function_exists( 'add_action' ) ) {
+			add_action( 'admin_post_' . self::TOGGLE_ACTION, array( self::class, 'handle_toggle' ) );
 		}
-
-		add_action( 'admin_post_' . self::TOGGLE_ACTION, array( $this, 'handle_toggle' ) );
 	}
 
 	/**
-	 * Renders the read-only mode checkbox inside the Overview packages section.
-	 *
-	 * @return void
+	 * Renders the read-only checkbox; the redirect_to field carries this
+	 * page's own URL so the toggle returns to the real placement.
 	 */
-	public function render() {
+	public static function render() {
 		$enabled = self::is_enabled();
 		?>
 		<form class="npcink-abilities-toolkit-readonly-mode" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="<?php echo esc_attr( self::TOGGLE_ACTION ); ?>" />
+			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( menu_page_url( Test_Page::MENU_SLUG, false ) ); ?>" />
 			<?php echo wp_nonce_field( self::TOGGLE_ACTION, '_wpnonce', true, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<label for="npcink-abilities-toolkit-readonly-mode">
 				<input id="npcink-abilities-toolkit-readonly-mode" type="checkbox" name="read_only_mode" value="1" <?php checked( $enabled ); ?> />
@@ -93,21 +88,19 @@ final class Read_Only_Mode {
 	}
 
 	/**
-	 * Persists the operator's read-only choice and returns to the Overview.
-	 *
 	 * @return void
 	 */
-	public function handle_toggle() {
+	public static function handle_toggle() {
+		$nonce = isset( $_POST['_wpnonce'] ) ? (string) wp_unslash( $_POST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( '' === $nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $nonce, self::TOGGLE_ACTION ) ) {
+			self::redirect_back();
+			return;
+		}
+
 		if ( ! function_exists( 'current_user_can' ) || ! current_user_can( 'manage_options' ) ) {
 			if ( function_exists( 'wp_die' ) ) {
 				wp_die( esc_html__( 'You do not have permission to do that.', 'npcink-abilities-toolkit' ) );
 			}
-			return;
-		}
-
-		$nonce = isset( $_REQUEST['_wpnonce'] ) ? (string) wp_unslash( $_REQUEST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( '' === $nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $nonce, self::TOGGLE_ACTION ) ) {
-			$this->redirect_back();
 			return;
 		}
 
@@ -118,21 +111,27 @@ final class Read_Only_Mode {
 			delete_option( self::OPTION_KEY );
 		}
 
-		$this->redirect_back();
+		$target = '';
+		if ( isset( $_POST['redirect_to'] ) && function_exists( 'wp_validate_redirect' ) ) {
+			// Same-site admin URLs only; anything else falls back to the referer.
+			$target = wp_validate_redirect( (string) wp_unslash( $_POST['redirect_to'] ), '' );
+		}
+		self::redirect_back( $target );
 	}
 
 	/**
 	 * Returns the admin to the ability status page.
 	 *
+	 * @param string $target Validated redirect target from the form, if any.
 	 * @return void
 	 */
-	private function redirect_back() {
+	private static function redirect_back( $target = '' ) {
 		if ( ! function_exists( 'wp_safe_redirect' ) ) {
 			return;
 		}
 
 		$referer = function_exists( 'wp_get_referer' ) ? (string) wp_get_referer() : '';
-		$url     = '' !== $referer ? $referer : admin_url( 'tools.php?page=' . Test_Page::MENU_SLUG );
+		$url     = '' !== $target ? $target : ( '' !== $referer ? $referer : admin_url( 'tools.php?page=' . Test_Page::MENU_SLUG ) );
 		wp_safe_redirect( $url );
 		exit;
 	}
