@@ -5390,3 +5390,20 @@ msgstr "复制响应"
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
 msgstr "了解如何开启或关闭能力包"
+
+#: includes/Admin/Read_Only_Mode.php:82
+msgid "Read-only mode"
+msgstr "只读模式"
+
+#: includes/Admin/Read_Only_Mode.php:84
+msgid ""
+"Stop registering write and destructive abilities on this site. Read "
+"abilities, comment helpers, and this status page keep working. Host products "
+"cannot widen past this choice, and it takes effect on the next request."
+msgstr "停止在此站点注册写入与破坏性能力。读取能力、评论辅助和此状态页将继续工作。宿主产品无法放宽此选择，更改将在下一次请求时生效。"
+
+#: includes/Admin/Read_Only_Mode.php:86
+msgid ""
+"Read-only mode is on: the write and destructive packages above show Off "
+"because of this choice."
+msgstr "只读模式已开启：上方的写入与破坏性能力包因此显示为关闭。"

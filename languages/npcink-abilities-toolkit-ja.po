@@ -5551,3 +5551,20 @@ msgstr "応答をコピーする"
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
 msgstr "能力パッケージのオンとオフの方法を見る"
+
+#: includes/Admin/Read_Only_Mode.php:82
+msgid "Read-only mode"
+msgstr "読み取り専用モード"
+
+#: includes/Admin/Read_Only_Mode.php:84
+msgid ""
+"Stop registering write and destructive abilities on this site. Read "
+"abilities, comment helpers, and this status page keep working. Host products "
+"cannot widen past this choice, and it takes effect on the next request."
+msgstr "このサイトでの書き込み能力と破壊的能力の登録を停止します。読み取り能力、コメントヘルパー、このステータスページは引き続き動作します。ホスト製品はこの選択を広げることはできず、次のリクエストから有効になります。"
+
+#: includes/Admin/Read_Only_Mode.php:86
+msgid ""
+"Read-only mode is on: the write and destructive packages above show Off "
+"because of this choice."
+msgstr "読み取り専用モードが有効です。そのため、上の書き込みパッケージと破壊的パッケージはオフと表示されています。"

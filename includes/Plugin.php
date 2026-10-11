@@ -8,6 +8,7 @@
 namespace Npcink_Abilities_Toolkit;
 
 use Npcink_Abilities_Toolkit\Admin\Health_Notices;
+use Npcink_Abilities_Toolkit\Admin\Read_Only_Mode;
 use Npcink_Abilities_Toolkit\Admin\Test_Page;
 use Npcink_Abilities_Toolkit\Integration\Npcink_Catalog_Bridge;
 use Npcink_Abilities_Toolkit\Packages\Core_Comment_Package;
@@ -165,11 +166,10 @@ final class Plugin {
 		$register_packages = $this->abilities->runtime_context_active();
 		if ( function_exists( 'apply_filters' ) ) {
 			/**
-			 * Filters whether built-in ability packages register on anonymous frontend contexts.
-			 *
-			 * Abilities never run on frontend pageviews, so registration is skipped
-			 * there; hosts that run abilities programmatically on frontend requests
-			 * return true to restore registration everywhere.
+			 * Filters whether built-in ability packages register on anonymous
+			 * frontend contexts, where abilities never run; hosts that run
+			 * abilities programmatically on frontend requests return true to
+			 * restore registration everywhere.
 			 *
 			 * @param bool $register_packages Whether frontend contexts register built-in abilities.
 			 */
@@ -401,16 +401,16 @@ final class Plugin {
 		);
 
 		/**
-		 * Filters the built-in package boot map.
-		 *
-		 * The default keeps the plugin's existing behavior. Hosts can disable
-		 * optional packages when they only need the generic Abilities API surface.
+		 * Filters the built-in package boot map. The default keeps existing
+		 * behavior; hosts disable packages they do not need. The operator
+		 * read-only mode (ADR 0009) narrows write-like packages after this
+		 * filter and can never widen one.
 		 *
 		 * @param array<string,bool> $defaults Package enable map.
 		 */
 		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_packages', $defaults );
 
-		return is_array( $enabled ) ? $enabled : $defaults;
+		return Read_Only_Mode::narrow_packages( is_array( $enabled ) ? $enabled : $defaults );
 	}
 
 	/**

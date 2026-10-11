@@ -64,6 +64,7 @@ final class Test_Page {
 		add_action( 'admin_menu', array( $this, 'register_menu' ), 40 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_ajax_npcink_abilities_toolkit_readonly_check', array( $this, 'run_readonly_check' ) );
+		( new Read_Only_Mode() )->boot();
 		( new Welcome_Notice() )->boot();
 	}
 
@@ -98,11 +99,8 @@ final class Test_Page {
 	}
 
 	/**
-	 * Returns a cache-busting version for one bundled asset.
-	 *
-	 * The plugin version only changes at release time, so styling and script
-	 * changes between releases would otherwise stay pinned to a stale browser
-	 * cache. The file modification time busts the cache on every real change.
+	 * Returns a cache-busting version for one bundled asset: the file
+	 * modification time busts stale browser caches between releases.
 	 *
 	 * @param string $relative_path Path relative to the plugin root.
 	 * @param string $fallback_version Fallback when the file is unreadable.
@@ -237,11 +235,9 @@ final class Test_Page {
 	}
 
 	/**
-	 * Renders the plain-language capability summary for site operators.
-	 *
-	 * Answers "what can AI do on this site" by grouping registered abilities
-	 * by category with counts and risk posture. Technical detail stays in the
-	 * Developer Tools tab.
+	 * Renders the plain-language capability summary for site operators,
+	 * answering "what can AI do on this site" by grouping abilities by
+	 * category with counts and risk posture.
 	 *
 	 * @param array<string,mixed> $registered Registered abilities.
 	 * @return void
@@ -536,6 +532,7 @@ final class Test_Page {
 					</li>
 				<?php endforeach; ?>
 			</ul>
+			<?php ( new Read_Only_Mode() )->render(); ?>
 			<?php if ( $write_like_enabled ) : ?>
 				<p class="description npcink-abilities-toolkit-packages__write-note">
 					<?php echo esc_html__( 'Write and destructive abilities are registered. They stay dry-run by default and only change content after a host product approves the commit.', 'npcink-abilities-toolkit' ); ?>

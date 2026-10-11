@@ -6380,3 +6380,26 @@ msgstr "Antwort kopieren"
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
 msgstr "Sehen Sie, wie Sie Fähigkeits-Pakete ein- und ausschalten"
+
+#: includes/Admin/Read_Only_Mode.php:82
+msgid "Read-only mode"
+msgstr "Schreibgeschützter Modus"
+
+#: includes/Admin/Read_Only_Mode.php:84
+msgid ""
+"Stop registering write and destructive abilities on this site. Read "
+"abilities, comment helpers, and this status page keep working. Host products "
+"cannot widen past this choice, and it takes effect on the next request."
+msgstr ""
+"Registriert die Schreib- und destruktiven Fähigkeiten dieser Website nicht "
+"mehr. Lese-Fähigkeiten, Kommentar-Helfer und diese Statusseite funktionieren "
+"weiter. Host-Produkte können diese Auswahl nicht aufweiten; sie greift ab "
+"der nächsten Anfrage."
+
+#: includes/Admin/Read_Only_Mode.php:86
+msgid ""
+"Read-only mode is on: the write and destructive packages above show Off "
+"because of this choice."
+msgstr ""
+"Der schreibgeschützte Modus ist aktiv: Die Schreib- und destruktiven Pakete "
+"oben zeigen deshalb Aus."

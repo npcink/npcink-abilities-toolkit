@@ -181,6 +181,7 @@ require dirname( __DIR__ ) . '/uninstall.php';
 $expected_options = array(
 	'npcink_abilities_toolkit_catalog_observability_state',
 	'npcink_abilities_toolkit_read_cache_version',
+	'npcink_abilities_toolkit_read_only_mode',
 	'npcink_abilities_toolkit_media_backup_cleanup_cursor',
 	'npcink_abilities_toolkit_media_backup_manual_cleanup_cursor',
 );
