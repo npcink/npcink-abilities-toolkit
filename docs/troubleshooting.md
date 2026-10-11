@@ -3,7 +3,76 @@
 Use this guide when another plugin, host product, or REST client cannot discover
 or run abilities from `npcink-abilities-toolkit`.
 
-## Quick Checks
+## Start Here (No Command Line)
+
+These steps use only wp-admin and are the right first pass for site operators:
+
+1. Open Tools -> AI Ability Set (or Npcink AI -> AI Ability Set when a host
+   menu is present).
+2. Read the Site ability status tiles. A tile saying "needs attention" means
+   one of the attention notes below the tiles explains the problem.
+3. If WordPress is older than 6.9, update WordPress first; the Abilities API
+   this plugin needs ships with WordPress 6.9.
+4. Open Developer Tools -> Checks and run the two safe checks. They never
+   write content, call models, or contact external services.
+5. If a check fails, open "Raw response for support", use the Copy response
+   button, and paste that JSON into your support ticket or host product
+   support channel.
+6. If a health notice on the Plugins or Dashboard screen brought you here,
+   follow its "Review ability status" button first; the notice text names the
+   exact failure mode.
+
+## Turn Ability Packages On Or Off
+
+The Overview page lists the built-in ability bundles and whether each is
+registered. Turning a bundle off is a one-filter change; a small must-use
+plugin is the simplest way to keep it out of your theme:
+
+```php
+<?php
+/**
+ * Plugin Name: Npcink Abilities Toolkit – Read-Only Mode
+ */
+add_filter(
+	'npcink_abilities_toolkit_enabled_packages',
+	function ( $packages ) {
+		$packages['core_write']       = false;
+		$packages['core_destructive'] = false;
+		return $packages;
+	}
+);
+```
+
+Save it as `wp-content/mu-plugins/npcink-abilities-read-only.php`. Write and
+destructive abilities stop being registered on the site; read abilities,
+comment helpers, and the admin status page keep working. Host products read
+the same filter, so a host that needs its own profile should apply its
+filter from the host side instead of editing yours. Supported slugs are
+`core_read`, `core_write`, `core_destructive`, `core_comment`,
+`npcink_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`; see
+[Public API](public-api.md) for the full list of package controls.
+
+## Documentation Mirror For Restricted Networks
+
+Admin help links point at the public GitHub repository by default. If that
+host is not reachable from your network, repoint every help link at a
+mirror you maintain with one filter:
+
+```php
+add_filter(
+	'npcink_abilities_toolkit_docs_base_url',
+	function () {
+		return 'https://mirror.example.test/npcink-abilities-toolkit/blob/master';
+	}
+);
+```
+
+The value is a URL prefix without a trailing slash; the plugin appends the
+document path. A trailing slash is tolerated and trimmed.
+
+## Developer And WP-CLI Checks
+
+Run these checks before debugging deeper:
 
 Run these checks before debugging deeper:
 
