@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.12 - 2026-10-11
+
+User-experience and operator-guidance release from the 2026-10 end-user audit: no ability contract, schema, response-shape, or behavior changes to abilities; ability ids and payloads are identical to 0.5.11.
+
+- Operator-first troubleshooting guide (#236): `docs/troubleshooting.md` now opens with "Start Here (No Command Line)" — wp-admin-only triage steps for site operators, with the WP-CLI and composer material moved under a developer section — and gains "Turn Ability Packages On Or Off" with a copy-paste mu-plugin snippet for read-only sites plus a "Documentation Mirror For Restricted Networks" section; the admin Overview ability-package list links to the package guidance so a standalone site owner is one click from turning write-like packages off.
+- All admin help links route through the new `Support\Docs_Links` builder with a single `npcink_abilities_toolkit_docs_base_url` filter (#236): sites and hosts whose network makes GitHub unreliable can repoint every help link at a mirror they maintain; the default stays the public GitHub repository and the filter is documented in `docs/public-api.md` beside the other package controls.
+- Safe-check clarity and support handoff (#236): a disabled Site Info or Redacted Diagnostics button now explains that its ability is not registered on this site (a host product or site filter may have turned the package off) instead of greying out silently, and the raw check response and raw discovery outputs each gained a Copy response button reusing the existing copy affordance.
+- Storefront and internal docs (#236): the readme.txt Description leads with what the plugin gives a site owner before boundary language, and the internal screenshot-refresh reminder moved from the packaged Screenshots section into the release runbook's Pre-Commit Verification list. All four WordPress.org screenshots are refreshed for the current Overview + Developer Tools structure (the previous set still showed the pre-0.5.9 four-tab layout in Chinese) and now show the new Checks and Connection affordances in English on the standalone Tools placement.
+- Three new admin strings (the disabled-check reason, Copy response, and the package-guidance link label) ship in the translation template and all seven bundled locales at full parity, with the `.mo` files recompiled.
+- Repository follow-ups recorded outside the package (#237): ADR 0009 accepts the operator read-only package opt-out design (one narrowing-only option whose precedence is an AND with the host package filter) with implementation deferred to the 0.6 line, and an opt-in `gitee-mirror` workflow can mirror `master` and tags to gitee.com for documentation reachability once the maintainer creates the mirror, secret, and enable variable. Neither ships in the WordPress.org package.
+
 ## 0.5.11 - 2026-10-11
 
 Security and performance hardening release from the 2026-10 audit: no ability contract, schema, or response-shape changes; the pull requests since 0.5.10 (#222-#232) land per-post authorization gates, per-request hot-path savings, defense-in-depth closures, and one user-visible uninstall default change.

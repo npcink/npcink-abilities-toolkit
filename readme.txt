@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.11
+Stable tag: 0.5.12
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.12 =
+
+User-experience and operator-guidance release from the 2026-10 end-user audit: no ability contract, schema, response-shape, or behavior changes to abilities. The bundled troubleshooting guide now opens with a no-command-line section for site operators and documents how to turn ability packages on or off with a copy-paste snippet, and the admin ability package list links to that guidance. A disabled safe-check button now explains that its ability is not registered instead of greying out silently, and the raw check response and raw discovery outputs gained Copy response buttons for support handoff. All admin help links share one filterable documentation base (npcink_abilities_toolkit_docs_base_url) so sites with unreliable GitHub access can point them at a mirror they maintain. Three new admin strings ship in all seven bundled locales, and this readme's description now leads with what the plugin gives you before boundary language.
 
 = 0.5.11 =
 
