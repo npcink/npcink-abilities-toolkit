@@ -5527,3 +5527,20 @@ msgstr ""
 #: includes/Packages/Core_Read_Package.php:3158
 msgid "You do not have permission to perform this request."
 msgstr "이 요청을 수행할 권한이 없습니다."
+
+#: includes/Admin/Test_Page.php:1069
+msgid ""
+"A disabled check means its ability is not registered on this site. A host "
+"product or site filter may have turned that package off."
+msgstr ""
+"비활성화된 검사는 해당 기능이 이 사이트에 등록되어 있지 않다는 뜻입니다. 호스트 제품이나 사이트 필터가 해당 패키지를 꺼 놓았을 수 "
+"있습니다."
+
+#: includes/Admin/Test_Page.php:1103
+#: includes/Admin/Test_Page.php:1233
+msgid "Copy response"
+msgstr "응답 복사"
+
+#: includes/Admin/Test_Page.php:529
+msgid "See how to turn ability packages on or off"
+msgstr "기능 패키지를 켜고 끄는 방법 보기"

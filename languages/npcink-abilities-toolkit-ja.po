@@ -5536,3 +5536,18 @@ msgstr ""
 #: includes/Packages/Core_Read_Package.php:3158
 msgid "You do not have permission to perform this request."
 msgstr "このリクエストを実行する権限がありません。"
+
+#: includes/Admin/Test_Page.php:1069
+msgid ""
+"A disabled check means its ability is not registered on this site. A host "
+"product or site filter may have turned that package off."
+msgstr "無効なチェックは、その能力がこのサイトに登録されていないことを意味します。ホスト製品またはサイトフィルターによってそのパッケージがオフにされている可能性があります。"
+
+#: includes/Admin/Test_Page.php:1103
+#: includes/Admin/Test_Page.php:1233
+msgid "Copy response"
+msgstr "応答をコピー"
+
+#: includes/Admin/Test_Page.php:529
+msgid "See how to turn ability packages on or off"
+msgstr "能力パッケージのオンとオフの方法を見る"
