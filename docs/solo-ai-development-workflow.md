@@ -137,9 +137,13 @@ unstaged. Do not use `git add -A` in a mixed worktree. If one file contains both
 current-task and unrelated hunks, stage only the intended hunk with `git add -p`
 or `git apply --cached`.
 
-Before committing, verify:
+Before committing, verify the branch first, then the staged scope — a
+session that polls CI with `git checkout master` in between can otherwise
+land the commit on `master` (observed twice on 2026-10-11 and recovered each
+time with the `git reset --mixed HEAD~1` step below before any push):
 
 ```bash
+git branch --show-current
 git diff --cached --stat
 git diff --cached --name-only
 ```

@@ -179,6 +179,22 @@ are not ancestors of the squash commit. Verify the content landed with an
 empty `git diff <branch> master` for the PR's files, then delete with
 `git branch -D`.
 
+**Resolving threads is only half the recovery (2026-10-11).** While any
+advisory-review thread is unresolved, GitHub also cancels the queued
+auto-merge request itself — `autoMergeRequest` reads as null and `gh pr
+merge --squash` only says "the base branch policy prohibits the merge".
+After replying and resolving every thread (REST reply with `in_reply_to`,
+then GraphQL `resolveReviewThread`), explicitly re-request the merge with
+`gh pr merge <n> --squash --auto`; it does not come back on its own.
+
+**Advisory runs can also fail on provider quota.** The 0.5.12 release PR
+(#238) got "You have reached your Codex usage limits for code reviews"
+instead of a review. That is the documented failed-run gap, not a finding:
+record the accept reason — #238's is in
+`docs/archive/release-0.5.12-verification.md` — and, when the diff is
+mostly binaries plus a few text lines, note that the same code was fully
+reviewed in its feature pull requests.
+
 **Local tool hangs are transient.** During this session `gh`, `curl`, and
 one `composer` script run each stalled once (no code defect; retries and
 direct REST calls recovered). When the `gh` CLI hangs, `curl` against
