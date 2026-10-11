@@ -60,6 +60,30 @@ descriptions aligned with the current Overview + Developer Tools structure.
 The packaged `readme.txt` itself must stay operator-facing; maintainer
 process notes belong in this runbook, not in the storefront text.
 
+### Screenshot Capture Procedure (used for 0.5.12)
+
+The publishable screenshots live in `marketing/exports/wordpress-org/` and
+`composer release:prepare-wporg` carries them into the SVN `assets/`
+directory. The 0.5.12 refresh procedure, reusable next time:
+
+1. Deploy the release-candidate source over the local verification site's
+   plugin directory (`rsync -a --delete --exclude-from=.distignore ./ <site
+   plugin dir>/`); the `magick-ai` Local site (WordPress 7.1.1) is the
+   established target and its MySQL socket is passed with
+   `php -d mysqli.default_socket=<socket> /opt/homebrew/bin/wp --path=...`.
+2. Create a throwaway administrator (`wp user create ... --user_pass=<rand>`),
+   set `--locale=en_US` and `show_admin_bar_front` to `off`, deactivate the
+   Npcink host plugins so the page renders on the standalone
+   `Tools -> AI Ability Set` placement, and log in through the browser at
+   1366x920.
+3. Capture from DOM-verified positions: measure the y-coordinates of the
+   section you want in frame (purpose table, result rows, disclosure, copy
+   buttons) and scroll so every caption claim is inside the viewport before
+   screenshotting. Run a safe check and a raw discovery fetch first so the
+   result table and response area show real content.
+4. Restore the site: reactivate the host plugins and delete the throwaway
+   admin user.
+
 `composer release:prepare-wporg` verifies the SVN working copy against the
 remote with `scripts/check-wporg-svn-freshness.sh` and fails closed when any
 path is out of date. A stale working copy must be refreshed with
