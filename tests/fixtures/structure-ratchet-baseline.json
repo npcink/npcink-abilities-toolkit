@@ -3,7 +3,7 @@
     "files": {
         "includes/Admin/Health_Notices.php": 326,
         "includes/Admin/Scenario_Cards.php": 70,
-        "includes/Admin/Test_Page.php": 1409,
+        "includes/Admin/Test_Page.php": 1404,
         "includes/Admin/Welcome_Notice.php": 228,
         "includes/Autoloader.php": 70,
         "includes/Integration/Npcink_Catalog_Bridge.php": 131,
@@ -56,6 +56,7 @@
         "includes/Rest/Contract_Controller.php": 487,
         "includes/Security/Permission_Callbacks.php": 34,
         "includes/Support/Cloud_Derivative_Artifact.php": 839,
+        "includes/Support/Docs_Links.php": 78,
         "includes/Support/Gutenberg_Block_Document.php": 381,
         "includes/Workflow/Workflow_Definition_Provider.php": 564,
         "includes/functions.php": 158,
