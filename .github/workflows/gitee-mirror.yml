@@ -39,7 +39,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push master and tags to the Gitee mirror
+      - name: Push to the Gitee mirror
+        shell: bash
         env:
           GITEE_MIRROR_SSH_KEY: ${{ secrets.GITEE_MIRROR_SSH_KEY }}
         run: |
@@ -56,25 +57,23 @@ jobs:
             exit 1
           fi
           # gitee.com host key fingerprints, recorded 2026-10-11 against the
-          # keys Gitee publishes. When Gitee rotates host keys this check
-          # fails closed; refresh the list from Gitee's published keys then.
-          pinned=' meTsVSCgOas8fBnJyx8EPlUJr6iQ96riFmCFPfUkDtU +ULzij2u99B9eWYFTw1Q4ErYG/aepHLbu96PAUCoV88 FQGC9Kn/eye1W8icdBgrQp+KkGYoFgbVr17bmjey0Wc '
-          while read -r _bits fingerprint _rest; do
-            if [ -z "$fingerprint" ]; then
-              continue
-            fi
-            case "$pinned" in
-              *" $fingerprint "*) ;;
-              *)
-                echo "::error::Unexpected gitee.com host key fingerprint $fingerprint; refusing to trust the connection."
-                exit 1
-                ;;
-            esac
-          done < <(ssh-keygen -lf ~/.ssh/known_hosts | sed 's/SHA256://')
+          # keys Gitee publishes. The observed set must match exactly: this
+          # fails closed on unexpected keys, on missing keys, and on a vacuous
+          # empty scan alike. Refresh the list from Gitee's published keys
+          # when Gitee rotates host keys.
+          observed="$(ssh-keygen -lf ~/.ssh/known_hosts | sed 's/SHA256://' | awk '{print $2}' | sort -u)"
+          expected="$(printf '%s\n' \
+            meTsVSCgOas8fBnJyx8EPlUJr6iQ96riFmCFPfUkDtU \
+            '+ULzij2u99B9eWYFTw1Q4ErYG/aepHLbu96PAUCoV88' \
+            'FQGC9Kn/eye1W8icdBgrQp+KkGYoFgbVr17bmjey0Wc' | sort -u)"
+          if [ "$observed" != "$expected" ]; then
+            echo "::error::gitee.com host keys do not match the pinned fingerprints; refusing to trust the connection."
+            echo "observed: $observed"
+            exit 1
+          fi
           git remote add mirror git@gitee.com:npcink/npcink-abilities-toolkit.git
           if [ "$GITHUB_REF" = "refs/heads/master" ]; then
             git push --force mirror HEAD:refs/heads/master
-            git push --force mirror --tags
           else
             git push --force mirror "$GITHUB_REF:refs/tags/$GITHUB_REF_NAME"
           fi
