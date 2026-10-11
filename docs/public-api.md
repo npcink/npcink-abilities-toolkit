@@ -44,6 +44,11 @@ registration set with filters:
 - `npcink_abilities_toolkit_is_sensitive_post_meta_key`: marks a post-meta key
   as non-exportable. Built-in credential-like key names are blocked by default;
   hosts can mark additional site-specific keys as sensitive.
+- `npcink_abilities_toolkit_docs_base_url`: repoints the base URL behind every
+  admin help link. The default is the public GitHub repository; sites or hosts
+  that keep a reachable mirror (for example where GitHub is unreliable from the
+  site's network) can point all help links at it with one filter instead of
+  patching each screen.
 
 These filters are host composition controls, not new public ability-definition
 APIs. They prevent this package from becoming a forced Npcink AI catalog bundle

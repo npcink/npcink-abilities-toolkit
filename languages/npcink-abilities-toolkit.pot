@@ -4753,3 +4753,18 @@ msgstr ""
 #: includes/Packages/Core_Read_Package.php:3158
 msgid "You do not have permission to perform this request."
 msgstr ""
+
+#: includes/Admin/Test_Page.php:1069
+msgid ""
+"A disabled check means its ability is not registered on this site. A host "
+"product or site filter may have turned that package off."
+msgstr ""
+
+#: includes/Admin/Test_Page.php:1103
+#: includes/Admin/Test_Page.php:1233
+msgid "Copy response"
+msgstr ""
+
+#: includes/Admin/Test_Page.php:529
+msgid "See how to turn ability packages on or off"
+msgstr ""

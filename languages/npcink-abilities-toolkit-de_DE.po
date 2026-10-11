@@ -6362,3 +6362,21 @@ msgstr ""
 #: includes/Packages/Core_Read_Package.php:3158
 msgid "You do not have permission to perform this request."
 msgstr "Sie sind nicht berechtigt, diese Anfrage auszuführen."
+
+#: includes/Admin/Test_Page.php:1069
+msgid ""
+"A disabled check means its ability is not registered on this site. A host "
+"product or site filter may have turned that package off."
+msgstr ""
+"Eine deaktivierte Prüfung bedeutet, dass ihre Fähigkeit auf dieser Website "
+"nicht registriert ist. Ein Host-Produkt oder ein Website-Filter hat dieses "
+"Paket möglicherweise deaktiviert."
+
+#: includes/Admin/Test_Page.php:1103
+#: includes/Admin/Test_Page.php:1233
+msgid "Copy response"
+msgstr "Antwort kopieren"
+
+#: includes/Admin/Test_Page.php:529
+msgid "See how to turn ability packages on or off"
+msgstr "Sehen Sie, wie Sie Fähigkeitspakete ein- und ausschalten"

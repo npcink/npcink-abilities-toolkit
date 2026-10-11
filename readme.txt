@@ -12,21 +12,19 @@ Expose and inspect WordPress Abilities API capabilities for AI hosts and clients
 
 == Description ==
 
-Npcink Abilities Toolkit helps a WordPress site expose, review, and safely inspect Abilities API capabilities for AI hosts and clients.
+Npcink Abilities Toolkit gives your WordPress site a safe toolbox for AI clients: an AI assistant or host product can read articles, media, comments, menus, and site diagnostics, and prepare reviewed suggestions for tags, excerpts, and media metadata.
 
-After activation, open Tools -> AI Ability Set to see at a glance what AI clients can do on this site: which abilities are available, which are read-only, and which would require approval from a host product before anything changes.
+Every write-like ability is a preview by default. A real change only happens after your host product approves the commit, and the approval decision and the audit trail stay with the host, never with this plugin.
 
-The admin page is built for site operators first. It shows whether the site's ability package is working, which abilities are available, which abilities are read-only, and which write-like abilities require host approval.
+After activation, open Tools -> AI Ability Set to see at a glance what AI clients can do on this site: which abilities are available, which are read-only, and which would require approval from a host product before anything changes. The page is built for site operators first.
 
 For developers and host runtimes, the plugin also provides ability registration helpers, category helpers, schema normalization, annotation normalization, REST discovery values, and optional canonical projection for Npcink AI when Npcink AI is installed.
 
 It can be used by any WordPress plugin or client that consumes the WordPress Abilities API. Npcink AI is one optional consumer, not the owner of this plugin.
 
-It does not run AI models, execute workflows, route prompts, contact model providers, manage billing or quotas, own MCP governance, or approve final WordPress writes.
+The plugin does not run AI models, execute workflows, route prompts, contact model providers, manage billing or quotas, own MCP governance, or approve final WordPress writes.
 
-Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry.
-
-Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership.
+Read-only host composition recipe metadata may document how hosts can compose abilities, but those records do not run queues, schedule jobs, execute workflows, or create a second registry. Host composition recipe metadata is available through read-only helpers and Abilities API discovery abilities for hosts that need catalog discovery without execution ownership.
 
 Bundled starter locale files are limited to translations intentionally maintained in this repository. Incomplete bundled locale packs are removed until they can be maintained as complete starter translations. WordPress.org directory translations are managed separately through translate.wordpress.org/GlotPress and are not runtime authority owned by this plugin.
 
@@ -149,8 +147,6 @@ Uninstalling deletes the plugin's stored options, per-admin notice state (welcom
 2. Ability Catalog view under Developer Tools: searchable catalog with filters, risk grouping, availability, and technical details for support.
 3. Checks view under Developer Tools: read-only checks explained before running, summary results, and raw responses kept behind a support disclosure.
 4. Connection view under Developer Tools: copyable REST endpoint values, raw discovery fetches, and ability ID export.
-
-Refresh the SVN screenshot assets before the next WordPress.org release whenever the admin page layout changes; the descriptions above describe the current Overview + Developer Tools structure.
 
 == Built-In Abilities ==
 

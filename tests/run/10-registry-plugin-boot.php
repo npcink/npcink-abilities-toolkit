@@ -364,6 +364,24 @@ $rendered_stub_html = (string) ob_get_clean();
 npcink_abilities_toolkit_assert_true( false !== strpos( $rendered_stub_html, 'Abilities API registration functions are unavailable' ), 'undismissed health notices render on supported screens' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_user_meta'] );
 
+npcink_abilities_toolkit_assert_same(
+	'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/troubleshooting.md',
+	Npcink_Abilities_Toolkit\Support\Docs_Links::troubleshooting(),
+	'documentation links default to the public GitHub repository'
+);
+add_filter(
+	'npcink_abilities_toolkit_docs_base_url',
+	static function () {
+		return 'https://mirror.example.test/toolkit/blob/master/';
+	}
+);
+npcink_abilities_toolkit_assert_same(
+	'https://mirror.example.test/toolkit/blob/master/docs/troubleshooting.md',
+	Npcink_Abilities_Toolkit\Support\Docs_Links::troubleshooting(),
+	'documentation links follow the docs base filter with trailing-slash trimming'
+);
+remove_all_filters( 'npcink_abilities_toolkit_docs_base_url' );
+
 $welcome_notice = new Npcink_Abilities_Toolkit\Admin\Welcome_Notice();
 $welcome_notice->boot();
 $welcome_notice_actions = isset( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] ) && is_array( $GLOBALS['npcink_abilities_toolkit_unit_actions']['admin_notices'] )

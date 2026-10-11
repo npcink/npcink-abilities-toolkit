@@ -561,16 +561,24 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new
 
 foreach (
 	array(
-		'DOCS_QUICKSTART_URL',
-		'DOCS_HOST_CONTRACT_URL',
-		'DOCS_TROUBLESHOOTING_URL',
-		'docs/rest-client-quickstart.md',
-		'docs/host-approval-contract.md',
-		'docs/troubleshooting.md',
+		'Docs_Links::quickstart()',
+		'Docs_Links::host_contract()',
+		'Docs_Links::troubleshooting()',
 		'target="_blank" rel="noopener noreferrer"',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the workflow scenario overview and documentation links: ' . $required );
+}
+$admin_docs_links = file_get_contents( __DIR__ . '/../includes/Support/Docs_Links.php' );
+foreach (
+	array(
+		'docs/rest-client-quickstart.md',
+		'docs/host-approval-contract.md',
+		'docs/troubleshooting.md',
+		'npcink_abilities_toolkit_docs_base_url',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_docs_links, $required ), 'documentation links keep one filterable repository base: ' . $required );
 }
 npcink_abilities_toolkit_assert_true( false === strpos( $admin_scenario_cards, 'data-npcink-abilities-toolkit-run-recipe' ), 'admin workflow scenario overview stays read-only without recipe run affordances' );
 
@@ -651,8 +659,20 @@ foreach (
 }
 
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "<h1><?php echo esc_html__( 'AI Ability Set', 'npcink-abilities-toolkit' ); ?></h1>" ), 'admin page heading matches the registered menu label so the clicked destination is confirmed on arrival.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'self::DOCS_TROUBLESHOOTING_URL ); ?>"' ) && false !== strpos( $admin_test_page, "esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' )" ), 'overview attention notes link the troubleshooting guidance.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Docs_Links::troubleshooting() ); ?>"' ) && false !== strpos( $admin_test_page, "esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' )" ), 'overview attention notes link the troubleshooting guidance.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'The abilities and categories endpoints are public discovery values' ) && false !== strpos( $admin_test_page, 'requires a signed-in admin session' ), 'connection values explain which endpoints are public and which need an authenticated admin session.' );
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-admin-output"' )
+	&& false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-connection-output"' )
+	&& false !== strpos( $admin_test_page, "esc_html__( 'Copy response', 'npcink-abilities-toolkit' )" ),
+	'raw response surfaces offer a copy action for support handoff.'
+);
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, '/docs/troubleshooting.md#turn-ability-packages-on-or-off' )
+	&& false !== strpos( $admin_test_page, "esc_html__( 'See how to turn ability packages on or off', 'npcink-abilities-toolkit' )" ),
+	'ability package list links operator guidance for turning packages on or off.'
+);
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'A disabled check means its ability is not registered on this site' ), 'disabled safe checks explain why the button is unavailable.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_js, '.npcink-abilities-toolkit-filter select' ) && false !== strpos( $admin_js, 'select.form.submit()' ), 'admin script submits catalog filter selects on change while the Apply button stays as the no-JS fallback.' );
 
 $plugin_bootstrap_source = file_get_contents( __DIR__ . '/../npcink-abilities-toolkit.php' );
@@ -722,11 +742,25 @@ foreach (
 		'Ability Catalog view under Developer Tools',
 		'Checks view under Developer Tools',
 		'Connection view under Developer Tools',
-		'Refresh the SVN screenshot assets',
 		'Source-level verification commands for contributors',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false !== strpos( $plugin_readme, $required ), 'packaged readme keeps third-party integration guidance: ' . $required );
+}
+npcink_abilities_toolkit_assert_true( is_string( $plugin_readme ) && false === strpos( $plugin_readme, 'Refresh the SVN screenshot assets' ), 'packaged readme keeps maintainer process notes out of the storefront text.' );
+$release_runbook = file_get_contents( __DIR__ . '/../docs/wordpress-org-release-runbook.md' );
+npcink_abilities_toolkit_assert_true( is_string( $release_runbook ) && false !== strpos( $release_runbook, 'Refresh the SVN screenshot assets' ), 'screenshot refresh reminder stays in the release runbook.' );
+$troubleshooting_doc = file_get_contents( __DIR__ . '/../docs/troubleshooting.md' );
+foreach (
+	array(
+		'## Start Here (No Command Line)',
+		'## Turn Ability Packages On Or Off',
+		'npcink_abilities_toolkit_enabled_packages',
+		'## Documentation Mirror For Restricted Networks',
+		'npcink_abilities_toolkit_docs_base_url',
+	) as $required
+) {
+	npcink_abilities_toolkit_assert_true( false !== strpos( $troubleshooting_doc, $required ), 'troubleshooting guide keeps the operator-first sections: ' . $required );
 }
 
 $host_proof_status = file_get_contents( __DIR__ . '/../docs/host-proof-status.md' );
