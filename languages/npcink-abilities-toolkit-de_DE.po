@@ -6379,4 +6379,4 @@ msgstr "Antwort kopieren"
 
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
-msgstr "Sehen Sie, wie Sie Fähigkeitspakete ein- und ausschalten"
+msgstr "Sehen Sie, wie Sie Fähigkeits-Pakete ein- und ausschalten"

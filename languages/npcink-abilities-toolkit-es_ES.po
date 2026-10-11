@@ -6380,7 +6380,7 @@ msgid ""
 "product or site filter may have turned that package off."
 msgstr ""
 "Una comprobación deshabilitada significa que su capacidad no está registrada "
-"en este sitio. Un producto anfitrión o un filtro del sitio pueden haber "
+"en este sitio. Un producto host o un filtro del sitio pueden haber "
 "desactivado ese paquete."
 
 #: includes/Admin/Test_Page.php:1103

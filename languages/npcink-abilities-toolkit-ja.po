@@ -5546,7 +5546,7 @@ msgstr "無効なチェックは、その能力がこのサイトに登録され
 #: includes/Admin/Test_Page.php:1103
 #: includes/Admin/Test_Page.php:1233
 msgid "Copy response"
-msgstr "応答をコピー"
+msgstr "応答をコピーする"
 
 #: includes/Admin/Test_Page.php:529
 msgid "See how to turn ability packages on or off"
