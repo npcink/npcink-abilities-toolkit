@@ -8,6 +8,7 @@
 namespace Npcink_Abilities_Toolkit\Admin;
 
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
+use Npcink_Abilities_Toolkit\Support\Docs_Links;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,7 +24,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Health_Notices {
 	const DISMISS_ACTION = 'npcink_abilities_toolkit_dismiss_health_notice';
 	const USER_META_KEY  = 'npcink_abilities_toolkit_health_notices_dismissed';
-	const DOCS_TROUBLESHOOTING_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/troubleshooting.md';
 
 	/**
 	 * Ability registrar.
@@ -312,7 +312,7 @@ final class Health_Notices {
 	 * @return string
 	 */
 	private function troubleshooting_url() {
-		return self::DOCS_TROUBLESHOOTING_URL;
+		return Docs_Links::troubleshooting();
 	}
 
 	/**

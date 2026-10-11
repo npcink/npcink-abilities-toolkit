@@ -9,6 +9,7 @@ namespace Npcink_Abilities_Toolkit\Admin;
 
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
+use Npcink_Abilities_Toolkit\Support\Docs_Links;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,9 +22,6 @@ final class Test_Page {
 	const PARENT_MENU_SLUG    = 'npcink-ai';
 	const MENU_SLUG           = 'npcink-abilities-toolkit';
 	const ADMIN_REQUEST_ACTION = 'npcink_abilities_admin_request';
-	const DOCS_QUICKSTART_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/rest-client-quickstart.md';
-	const DOCS_HOST_CONTRACT_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/host-approval-contract.md';
-	const DOCS_TROUBLESHOOTING_URL = 'https://github.com/npcink/npcink-abilities-toolkit/blob/master/docs/troubleshooting.md';
 
 	/**
 	 * Ability registrar.
@@ -371,19 +369,7 @@ final class Test_Page {
 	 * @return string
 	 */
 	private function get_technical_url( $sub, $fragment = '' ) {
-		$url = add_query_arg(
-			array(
-				'npcink_abilities_toolkit_tab' => 'technical',
-				'npcink_abilities_toolkit_sub' => $sub,
-			),
-			menu_page_url( self::MENU_SLUG, false )
-		);
-
-		if ( '' !== $fragment ) {
-			$url .= '#' . rawurlencode( $fragment );
-		}
-
-		return $url;
+		return $this->get_tab_url( 'technical', $fragment, array( 'npcink_abilities_toolkit_sub' => $sub ) );
 	}
 
 	/**
@@ -420,23 +406,23 @@ final class Test_Page {
 	/**
 	 * Returns an admin URL for one page tab.
 	 *
-	 * @param string $tab Tab key.
+	 * @param string               $tab Tab key.
+	 * @param string               $fragment Optional element fragment.
+	 * @param array<string,string> $extra_query Extra query args for sub-sections.
 	 * @return string
 	 */
-	private function get_tab_url( $tab, $fragment = '' ) {
+	private function get_tab_url( $tab, $fragment = '', array $extra_query = array() ) {
 		$base_url = menu_page_url( self::MENU_SLUG, false );
 
-		if ( 'overview' === $tab ) {
-			$url = $base_url;
-		} else {
-			$url = add_query_arg( 'npcink_abilities_toolkit_tab', $tab, $base_url );
+		if ( 'overview' !== $tab || ! empty( $extra_query ) ) {
+			$base_url = add_query_arg( array_merge( array( 'npcink_abilities_toolkit_tab' => $tab ), $extra_query ), $base_url );
 		}
 
 		if ( '' !== $fragment ) {
-			$url .= '#' . rawurlencode( $fragment );
+			$base_url .= '#' . rawurlencode( $fragment );
 		}
 
-		return $url;
+		return $base_url;
 	}
 
 	/**
@@ -540,7 +526,7 @@ final class Test_Page {
 		?>
 		<section class="npcink-abilities-toolkit-packages" aria-labelledby="npcink-abilities-toolkit-packages-title">
 			<h2 id="npcink-abilities-toolkit-packages-title"><?php echo esc_html__( 'Ability packages', 'npcink-abilities-toolkit' ); ?></h2>
-			<p class="description"><?php echo esc_html__( 'Built-in ability bundles currently registered by this plugin. A host product can turn individual bundles on or off.', 'npcink-abilities-toolkit' ); ?></p>
+			<p class="description"><?php echo esc_html__( 'Built-in ability bundles currently registered by this plugin. A host product can turn individual bundles on or off.', 'npcink-abilities-toolkit' ); ?> <a href="<?php echo esc_url( Docs_Links::url( '/docs/troubleshooting.md#turn-ability-packages-on-or-off' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'See how to turn ability packages on or off', 'npcink-abilities-toolkit' ); ?></a></p>
 			<ul class="npcink-abilities-toolkit-packages__list">
 				<?php foreach ( $slugs as $slug ) : ?>
 					<?php $enabled = ! empty( $packages[ $slug ] ); ?>
@@ -553,7 +539,7 @@ final class Test_Page {
 			<?php if ( $write_like_enabled ) : ?>
 				<p class="description npcink-abilities-toolkit-packages__write-note">
 					<?php echo esc_html__( 'Write and destructive abilities are registered. They stay dry-run by default and only change content after a host product approves the commit.', 'npcink-abilities-toolkit' ); ?>
-					<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the host approval contract', 'npcink-abilities-toolkit' ); ?></a>
+					<a href="<?php echo esc_url( Docs_Links::host_contract() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Read the host approval contract', 'npcink-abilities-toolkit' ); ?></a>
 				</p>
 			<?php endif; ?>
 		</section>
@@ -672,7 +658,7 @@ final class Test_Page {
 				<?php endforeach; ?>
 			</ul>
 			<p>
-				<a href="<?php echo esc_url( self::DOCS_TROUBLESHOOTING_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' ); ?></a>
+				<a href="<?php echo esc_url( Docs_Links::troubleshooting() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' ); ?></a>
 			</p>
 		</div>
 		<?php
@@ -1079,6 +1065,9 @@ final class Test_Page {
 					<?php echo esc_html__( 'Run Redacted Diagnostics', 'npcink-abilities-toolkit' ); ?>
 				</button>
 			</p>
+			<?php if ( ! $site_info_available || ! $diagnostics_available ) : ?>
+				<p class="description"><?php echo esc_html__( 'A disabled check means its ability is not registered on this site. A host product or site filter may have turned that package off.', 'npcink-abilities-toolkit' ); ?></p>
+			<?php endif; ?>
 		</section>
 
 		<section class="npcink-abilities-toolkit-section">
@@ -1101,20 +1090,23 @@ final class Test_Page {
 					<tbody id="npcink-abilities-toolkit-check-summary-body"></tbody>
 				</table>
 			</div>
-				<details class="npcink-abilities-toolkit-disclosure npcink-abilities-toolkit-raw-response">
-					<summary>
-						<strong><?php echo esc_html__( 'Raw response for support', 'npcink-abilities-toolkit' ); ?></strong>
-						<span class="npcink-abilities-toolkit-disclosure__meta">
-							<?php echo esc_html__( 'Full JSON is kept here for support and developer troubleshooting.', 'npcink-abilities-toolkit' ); ?>
-						</span>
-					</summary>
-					<div class="npcink-abilities-toolkit-disclosure__body">
-						<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
-					</div>
-				</details>
-			</section>
-			<?php
-		}
+			<details class="npcink-abilities-toolkit-disclosure npcink-abilities-toolkit-raw-response">
+				<summary>
+					<strong><?php echo esc_html__( 'Raw response for support', 'npcink-abilities-toolkit' ); ?></strong>
+					<span class="npcink-abilities-toolkit-disclosure__meta">
+						<?php echo esc_html__( 'Full JSON is kept here for support and developer troubleshooting.', 'npcink-abilities-toolkit' ); ?>
+					</span>
+				</summary>
+				<div class="npcink-abilities-toolkit-disclosure__body">
+					<textarea id="npcink-abilities-toolkit-admin-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
+					<p class="npcink-abilities-toolkit-actions">
+						<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-admin-output"><?php echo esc_html__( 'Copy response', 'npcink-abilities-toolkit' ); ?></button>
+					</p>
+				</div>
+			</details>
+		</section>
+		<?php
+	}
 
 	/**
 	 * Returns translated labels for JavaScript-rendered check summaries.
@@ -1219,9 +1211,9 @@ final class Test_Page {
 
 		<p class="description">
 			<?php echo esc_html__( 'Integration guides:', 'npcink-abilities-toolkit' ); ?>
-			<a href="<?php echo esc_url( self::DOCS_QUICKSTART_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'REST client quickstart', 'npcink-abilities-toolkit' ); ?></a>
+			<a href="<?php echo esc_url( Docs_Links::quickstart() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'REST client quickstart', 'npcink-abilities-toolkit' ); ?></a>
 			<span aria-hidden="true"> | </span>
-			<a href="<?php echo esc_url( self::DOCS_HOST_CONTRACT_URL ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host Approval Contract', 'npcink-abilities-toolkit' ); ?></a>
+			<a href="<?php echo esc_url( Docs_Links::host_contract() ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html__( 'Host Approval Contract', 'npcink-abilities-toolkit' ); ?></a>
 		</p>
 
 		<section id="npcink-abilities-toolkit-discovery-checks" class="npcink-abilities-toolkit-section">
@@ -1237,6 +1229,9 @@ final class Test_Page {
 			</p>
 
 			<textarea id="npcink-abilities-toolkit-connection-output" class="npcink-abilities-toolkit-output" data-npcink-abilities-toolkit-output readonly rows="14" hidden></textarea>
+			<p class="npcink-abilities-toolkit-actions">
+				<button type="button" class="button" data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-connection-output"><?php echo esc_html__( 'Copy response', 'npcink-abilities-toolkit' ); ?></button>
+			</p>
 		</section>
 
 		<?php $this->render_advanced_checks( $registered ); ?>
