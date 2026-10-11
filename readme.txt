@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.10
+Stable tag: 0.5.11
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -167,6 +167,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.5.11 =
+
+Security and performance hardening release from the 2026-10 audit: no ability contract, schema, or response-shape changes. Publishing reports enforce per-post edit permission, anonymous frontend pageviews skip built-in ability registration and catalog fingerprinting (faster pageviews, no behavior change on admin, REST, cron, or CLI), the runtime contract endpoint serves from a bounded cache, media file paths are validated segment-by-segment on both read and write sides, every registered ability re-checks its capability before its callback runs, and site operators get a health warning when a host integration allows commits unconditionally. Uninstall now keeps the shared legacy media replacement history by default; set the npcink_abilities_toolkit_uninstall_preserve_media_history filter to false to restore the old delete behavior.
 
 = 0.5.10 =
 
