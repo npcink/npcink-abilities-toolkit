@@ -16,6 +16,10 @@ on:
     branches:
       - master
 
+# The job authenticates to gitee.com over SSH only and never calls the
+# GitHub API, so the workflow token gets no permissions at all.
+permissions: {}
+
 concurrency:
   group: gitee-mirror
   cancel-in-progress: false
@@ -24,6 +28,7 @@ jobs:
   mirror:
     if: ${{ vars.GITEE_MIRROR_ENABLED == 'true' && github.repository == 'npcink/npcink-abilities-toolkit' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout full history
         uses: actions/checkout@v5
@@ -34,10 +39,17 @@ jobs:
         env:
           GITEE_MIRROR_SSH_KEY: ${{ secrets.GITEE_MIRROR_SSH_KEY }}
         run: |
+          if [ -z "$GITEE_MIRROR_SSH_KEY" ]; then
+            echo "::error::GITEE_MIRROR_SSH_KEY is empty. Add the secret, or unset GITEE_MIRROR_ENABLED to skip the mirror."
+            exit 1
+          fi
           mkdir -p ~/.ssh
           printf '%s\n' "$GITEE_MIRROR_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts 2>/dev/null
+          if ! ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts; then
+            echo "::error::ssh-keyscan for gitee.com failed; check runner network access before trusting known_hosts."
+            exit 1
+          fi
           git remote add mirror git@gitee.com:npcink/npcink-abilities-toolkit.git
           git push mirror HEAD:refs/heads/master
           git push mirror --tags
