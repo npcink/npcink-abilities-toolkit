@@ -1,0 +1,43 @@
+name: Gitee Mirror
+
+# Read-only mirror of master and release tags to gitee.com so documentation
+# links stay reachable for readers on networks where GitHub is unreliable.
+# The plugin's admin help links still default to GitHub; sites repoint them
+# with the npcink_abilities_toolkit_docs_base_url filter. This job is inert
+# until the maintainer opts in:
+#   1. create the empty repo gitee.com/npcink/npcink-abilities-toolkit
+#   2. add a deploy SSH key there and store it as the GITEE_MIRROR_SSH_KEY
+#      repository secret
+#   3. set the GITEE_MIRROR_ENABLED repository variable to "true"
+# Issues and pull requests stay on GitHub; the mirror serves browsing only.
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: gitee-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    if: ${{ vars.GITEE_MIRROR_ENABLED == 'true' && github.repository == 'npcink/npcink-abilities-toolkit' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Push master and tags to the Gitee mirror
+        env:
+          GITEE_MIRROR_SSH_KEY: ${{ secrets.GITEE_MIRROR_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$GITEE_MIRROR_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts 2>/dev/null
+          git remote add mirror git@gitee.com:npcink/npcink-abilities-toolkit.git
+          git push mirror HEAD:refs/heads/master
+          git push mirror --tags
