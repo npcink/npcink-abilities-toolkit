@@ -67,8 +67,8 @@ final class Docs_Links {
 			 *
 			 * @param string $base Default documentation base URL.
 			 */
-			$filtered = apply_filters( 'npcink_abilities_toolkit_docs_base_url', $base );
-			if ( is_string( $filtered ) && '' !== $filtered ) {
+			$filtered = (string) apply_filters( 'npcink_abilities_toolkit_docs_base_url', $base );
+			if ( '' !== $filtered ) {
 				$base = rtrim( $filtered, '/' );
 			}
 		}
