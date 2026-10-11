@@ -674,8 +674,8 @@ npcink_abilities_toolkit_assert_true(
 );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'A disabled check means its ability is not registered on this site' ), 'disabled safe checks explain why the button is unavailable.' );
 npcink_abilities_toolkit_assert_true(
-	false !== strpos( $admin_test_page, '( new Read_Only_Mode() )->render();' )
-	&& false !== strpos( $admin_test_page, '( new Read_Only_Mode() )->boot();' ),
+	false !== strpos( $admin_test_page, 'Read_Only_Mode::render();' )
+	&& false !== strpos( $admin_test_page, 'Read_Only_Mode::boot();' ),
 	'overview ability package section renders the ADR 0009 read-only toggle and boots its admin-post handler.'
 );
 $admin_read_only_mode = file_get_contents( __DIR__ . '/../includes/Admin/Read_Only_Mode.php' );

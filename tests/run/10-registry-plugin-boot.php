@@ -1055,23 +1055,23 @@ npcink_abilities_toolkit_assert_same( false, $read_only_filtered_packages['core_
 npcink_abilities_toolkit_assert_same( false, $read_only_filtered_packages['core_destructive'] ?? null, 'read-only mode narrows a host filter that re-enables the destructive package' );
 npcink_abilities_toolkit_assert_same( false, $read_only_filtered_packages['core_comment'] ?? null, 'read-only mode never widens a package the host filter disabled' );
 remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
-$read_only_toggle = new Npcink_Abilities_Toolkit\Admin\Read_Only_Mode();
+$read_only_toggle = 'Npcink_Abilities_Toolkit\Admin\Read_Only_Mode';
 $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => false );
-$_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
-$read_only_toggle->handle_toggle();
-npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle rejects callers without manage_options' );
+$_POST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
+$read_only_toggle::handle_toggle();
+npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle rejects callers without manage_options after the CSRF gate' );
 $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
-$_REQUEST['_wpnonce'] = 'expired-nonce';
-$read_only_toggle->handle_toggle();
-npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle with an invalid nonce never reaches the option write' );
-$_REQUEST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
+$_POST['_wpnonce'] = 'expired-nonce';
+$read_only_toggle::handle_toggle();
+npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle with an invalid POST nonce never reaches the option write' );
+$_POST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
 $_POST['read_only_mode'] = '1';
-$read_only_toggle->handle_toggle();
+$read_only_toggle::handle_toggle();
 npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'a valid toggle-on persists the option' );
 unset( $_POST['read_only_mode'] );
-$read_only_toggle->handle_toggle();
+$read_only_toggle::handle_toggle();
 npcink_abilities_toolkit_assert_same( null, $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'submitting without the checkbox deletes the option' );
-unset( $_REQUEST['_wpnonce'], $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] );
+unset( $_POST['_wpnonce'], $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'], $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] );
 npcink_abilities_toolkit_assert_same( false, Npcink_Abilities_Toolkit\Admin\Read_Only_Mode::is_enabled(), 'read-only mode is off again after the option is deleted' );
 
 // ADR 0008: a WordPress-level duplicate (ability id already owned by another
