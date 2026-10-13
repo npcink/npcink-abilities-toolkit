@@ -809,12 +809,42 @@ if ( ! function_exists( 'wp_clear_scheduled_hook' ) ) {
 	}
 }
 $GLOBALS['npcink_abilities_toolkit_unit_is_admin'] = false;
-$GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] = true;
-npcink_abilities_toolkit_assert_same( true, $registrar->runtime_context_active(), 'runtime context is active for REST requests detected at init time' );
+$GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] = false;
+$saved_rest_actions = $GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'];
+$GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] = array();
 $plugin_instance_property->setValue( null, null );
 $rest_plugin = Plugin::instance();
 $rest_plugin->boot();
-npcink_abilities_toolkit_assert_true( count( $rest_plugin->abilities()->all() ) > 100, 'REST requests register the built-in ability packages even before REST_REQUEST is defined' );
+npcink_abilities_toolkit_assert_same( array(), $rest_plugin->abilities()->all(), 'REST requests remain indistinguishable from frontend requests at init' );
+do_action( 'rest_api_init' );
+$rest_abilities = $rest_plugin->abilities()->all();
+npcink_abilities_toolkit_assert_true( isset( $rest_abilities['npcink-abilities-toolkit/site-info'], $rest_abilities['npcink-abilities-toolkit/create-draft'] ), 'rest_api_init registers read and write packages before REST dispatch' );
+$registered_after_rest = $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'];
+do_action( 'rest_api_init' );
+npcink_abilities_toolkit_assert_same( $registered_after_rest, $GLOBALS['npcink_abilities_toolkit_unit_registered_abilities'], 'repeated REST initialization does not re-register callbacks' );
+$GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] = array();
+add_filter( 'npcink_abilities_toolkit_enabled_packages', static function ( $packages ) {
+	$packages['core_write'] = false;
+	return $packages;
+} );
+$plugin_instance_property->setValue( null, null );
+$restricted_rest_plugin = Plugin::instance();
+$restricted_rest_plugin->boot();
+do_action( 'rest_api_init' );
+$restricted_rest_abilities = $restricted_rest_plugin->abilities()->all();
+npcink_abilities_toolkit_assert_true( isset( $restricted_rest_abilities['npcink-abilities-toolkit/site-info'] ) && ! isset( $restricted_rest_abilities['npcink-abilities-toolkit/create-draft'] ), 'deferred REST registration preserves disabled packages' );
+remove_all_filters( 'npcink_abilities_toolkit_enabled_packages' );
+$GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] = array();
+update_option( 'npcink_abilities_toolkit_read_only_mode', '1' );
+$plugin_instance_property->setValue( null, null );
+$readonly_rest_plugin = Plugin::instance();
+$readonly_rest_plugin->boot();
+do_action( 'rest_api_init' );
+$readonly_rest_abilities = $readonly_rest_plugin->abilities()->all();
+npcink_abilities_toolkit_assert_true( isset( $readonly_rest_abilities['npcink-abilities-toolkit/site-info'] ) && ! isset( $readonly_rest_abilities['npcink-abilities-toolkit/create-draft'] ) && ! isset( $readonly_rest_abilities['npcink-abilities-toolkit/delete-post-permanently'] ), 'deferred REST registration honors operator read-only mode' );
+delete_option( 'npcink_abilities_toolkit_read_only_mode' );
+$GLOBALS['npcink_abilities_toolkit_unit_actions']['rest_api_init'] = $saved_rest_actions;
+unset( $GLOBALS['npcink_abilities_toolkit_unit_cleared_hooks'] );
 $GLOBALS['npcink_abilities_toolkit_unit_scheduled_events']['npcink_abilities_toolkit_cleanup_media_backups'] = true;
 $GLOBALS['npcink_abilities_toolkit_unit_is_rest_endpoint'] = false;
 $plugin_instance_property->setValue( null, null );

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed built-in ability packages missing from real REST requests: defer registration to `rest_api_init` when `init` has no runtime context, with one-time boot protection and existing package/read-only restrictions preserved.
+
 ## 0.6.0 - 2026-10-13
 
 User-visible operator read-only mode release. The setting narrows registration at the package boundary and does not change ability ids, schemas, dry-run defaults, host approval, or final write authorization.

@@ -1,9 +1,8 @@
 # 0.6.0 Release Verification
 
-Status: release candidate gate passed on protected merge commit `9d94274`.
-The source is ready for tag `0.6.0` and WordPress.org publication after
-maintainer action. PR #249 subsequently removed the unit-fixture warning
-recorded during the release gate.
+Status: released from protected merge commit `9d94274`.
+Git tag `0.6.0` and WordPress.org SVN publication are complete. PR #249
+subsequently removed the unit-fixture warning recorded during the release gate.
 
 ## Scope
 
@@ -55,7 +54,7 @@ exact-revision M4 evidence with `composer smoke:wp-m4` and pass it to
 
 - Release commit: `9d94274` (`release: prepare 0.6.0`, PR #248)
 - Git tag: `0.6.0` (create only from the protected release commit)
-- WordPress.org SVN revision: pending publication
+- WordPress.org SVN revision: `3742960`
 - Default Local smoke assertions: 479
 - Light Local smoke assertions: 58
 - Minimum WordPress/PHP smoke assertions: 478 (WordPress 6.9.4/PHP 8.0)
