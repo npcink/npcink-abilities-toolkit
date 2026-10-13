@@ -79,7 +79,7 @@ trait Flagged_Media_Restore_Write_Methods {
 				$post = (array) $manifest['post'];
 				$post['post_status'] = 'inherit';
 				$inserted = wp_insert_attachment( wp_slash( $post ), '', (int) ( $post['post_parent'] ?? 0 ), true );
-				if ( is_wp_error( $inserted ) || ! $inserted ) { $failure = 'restore_insert_failed'; } else { $new_id = (int) $inserted; }
+				if ( is_wp_error( $inserted ) ) { $failure = 'restore_insert_failed'; } else { $new_id = (int) $inserted; }
 			}
 			if ( '' === $failure ) {
 				foreach ( array( '_wp_attached_file' => $manifest['relative_file'], '_wp_attachment_metadata' => $manifest['metadata'], '_wp_attachment_backup_sizes' => $manifest['backup_sizes'], '_wp_attachment_image_alt' => $manifest['alt'] ) as $key => $value ) {

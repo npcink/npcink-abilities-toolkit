@@ -56,7 +56,7 @@ final class Flagged_Media_Backup {
 	public static function path( string $relative ): string {
 		if ( '' === $relative || false !== strpos( $relative, '\\' ) || '/' === $relative[0] || preg_match( '~(^|/)(\.|\.\.)(/|$)|[\x00-\x1f:]~', $relative ) ) { return ''; }
 		$upload = wp_upload_dir();
-		$base = realpath( (string) ( $upload['basedir'] ?? '' ) );
+		$base = realpath( (string) $upload['basedir'] );
 		if ( false === $base || ! empty( $upload['error'] ) ) { return ''; }
 		$path = $base;
 		foreach ( explode( '/', $relative ) as $part ) {
@@ -93,7 +93,8 @@ final class Flagged_Media_Backup {
 		$dir = dirname( $main );
 		$dir = '.' === $dir ? '' : $dir . '/';
 		foreach ( (array) ( $metadata['sizes'] ?? array() ) as $size ) {
-			if ( is_array( $size ) && ! empty( $size['file'] ) ) { $files[] = $dir . $size['file']; }
+			$size = (array) $size;
+			if ( ! empty( $size['file'] ) ) { $files[] = $dir . $size['file']; }
 		}
 		if ( ! empty( $metadata['original_image'] ) ) { $files[] = $dir . $metadata['original_image']; }
 		foreach ( (array) get_post_meta( $id, '_wp_attachment_backup_sizes', true ) as $size ) {
