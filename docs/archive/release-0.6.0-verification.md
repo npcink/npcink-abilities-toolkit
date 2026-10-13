@@ -1,8 +1,8 @@
 # 0.6.0 Release Verification
 
-Status: release candidate prepared on `codex/release-0.6.0`; the final
-verification must run against the merged release commit before tagging or
-publishing to WordPress.org.
+Status: candidate gate passed on commit `6f7c2c9`; repeat the exact-revision
+M4 evidence check after this record is committed, then merge and tag from the
+protected release commit before publishing to WordPress.org.
 
 ## Scope
 
@@ -36,11 +36,22 @@ exact-revision M4 evidence with `composer smoke:wp-m4` and pass it to
 `release:verify` using `NPCINK_TOOLKIT_WORDPRESS_SMOKE_EVIDENCE` as described in
 `docs/wordpress-org-release-runbook.md`.
 
+## Verification Result (candidate commit `6f7c2c9`)
+
+- `composer release:verify` passed with exact-revision M4 evidence.
+- Default Local smoke: 479 assertions; light profile: 58 assertions.
+- M4 WordPress 6.9.4/PHP 8.0: 478 assertions; WordPress 7.0/PHP 8.5: 478 assertions.
+- Packaged Plugin Check passed with no errors; the existing accepted warning set remains.
+- Known non-blocking test warning: the media test fixture omits
+  `post_modified_gmt` at `includes/Packages/Read_Traits/Media_Read_Methods.php:4203`.
+- Advisory review has no release-blocking requirement; #247's required checks passed,
+  while its OpenCodeReview provider returned HTTP 400 with zero findings.
+
 ## Release Records To Fill After Verification
 
-- Release commit:
-- Git tag: `0.6.0`
-- WordPress.org SVN revision:
+- Release commit: protected merge commit (to be recorded after PR merge)
+- Git tag: `0.6.0` (create only from the protected release commit)
+- WordPress.org SVN revision: pending publication
 - Default Local smoke assertions:
 - Light Local smoke assertions:
 - Minimum WordPress/PHP smoke assertions:
