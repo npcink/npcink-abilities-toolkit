@@ -242,9 +242,9 @@ the mirror is verified reachable, a small follow-up change can make
 `Support\Docs_Links` prefer it automatically for `zh_CN` sites; the
 default for every other locale stays GitHub.
 
-## Future Release Follow-Up
+## Release Gate Follow-Up
 
-Before the next public release (0.6.0 for the operator read-only mode):
+For each release after 0.6.0, including the next public release:
 
 1. Run the release gate from a clean, verified source checkout:
 
