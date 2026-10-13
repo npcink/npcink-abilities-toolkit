@@ -1,6 +1,6 @@
 # 0.7.0 Release Verification
 
-Status: preparing; no 0.7.0 tag or WordPress.org publication claimed.
+Status: candidate verified; protected merge and publication pending.
 Date: 2026-10-13.
 
 ## Change Envelope
@@ -44,7 +44,7 @@ Completed on the candidate worktree:
 - `composer test:all`: passed, 17,128 main assertions and 40 flagged-media
   behavioral checks; 118 PHP files linted.
 - `composer analyse:phpstan`: passed with PHPStan 2.3.1.
-- `composer check:phpstan-total`: 670 level-4 findings, within baseline 675.
+- `composer check:phpstan-total`: 669 level-4 findings, within baseline 675.
 - Packaged Plugin Check: zero errors and 15 existing warnings. They concern
   translation loading, static nonce/input analysis and bounded database query
   analysis; no new broad suppressions were added.
@@ -53,9 +53,34 @@ Completed on the candidate worktree:
   restore implementation from `6dbc2c6` and passes on this candidate. A host
   refusal to delete keeps its manifest and retained bytes recoverable.
 
-Committed changed-file ratchet, revision-bound M4 compatibility, Local candidate
-smoke, complete release verification and the current central matrix still need
-recording. Earlier 0.6.0 results do not verify this candidate.
+Release verification completed against source
+`08576aa6ce8789b4a77b1ada8552b192275453bd`:
+
+- Changed-file level-4 ratchet: 0 findings against 0 at `origin/master`.
+- M4 exact-revision smoke: WordPress 6.9.4/PHP 8.0 and WordPress 7.0/PHP 8.5,
+  478 assertions each, Docker 29.7.2. Archive SHA-256:
+  `92f8f18d3b51174257691b1643dcfa05a5f98fc7eb09c06a1ed0f86c6ce31b63`.
+- Local WordPress 7.1.1 candidate smoke: 479 default and 58 light assertions;
+  26 real flagged-media checks. Candidate version was asserted before the gate;
+  the original development symlink was restored afterward.
+- Full `composer release:verify`: passed, including the source gates, PHPStan,
+  revision-bound compatibility evidence, Local smoke and packaged Plugin Check.
+- Central contract matrix: clean Toolkit/Core/Adapter source gates passed.
+  Full status also detects unrelated active edits in Toolbox and Cloud Addon;
+  this is not a claim that the whole platform is ready for release.
+- Deterministic 0.7.0 package SHA-256:
+  `7b946a3b13c1f79c62b89e2f58d858b5d5e97e5041990b8ed1faa5a631748009`.
+
+Review checked correctness and failure retention, readability, ownership,
+path/authorization security, and bounded file operations. No new dependency,
+public authorization bypass or expanded Toolkit ownership was introduced.
+POT regeneration changes source references; all seven locales still cover
+1,138 messages. Listing PO separately covers 145 current strings, preserves
+86 waiting suggestions and has matching HTML/placeholder checks.
+
+The final protected merge must receive fresh revision-bound M4 evidence and
+release verification before tagging. Documentation and marketing are excluded
+from the deterministic package; recheck the checksum after merge.
 
 ## Host Evidence
 
