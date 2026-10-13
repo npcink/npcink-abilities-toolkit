@@ -100,7 +100,7 @@ trait Flagged_Media_Restore_Write_Methods {
 				if ( $new_id > 0 ) { wp_delete_attachment( $new_id, true ); }
 				$rolled_back = $new_id <= 0 || ! get_post( $new_id );
 				foreach ( $created as $path ) {
-					if ( is_file( $path ) ) { wp_delete_file( $path ); if ( is_file( $path ) ) { $rolled_back = false; } }
+					if ( is_file( $path ) ) { wp_delete_file( $path ); } clearstatcache( true, $path ); if ( file_exists( $path ) ) { $rolled_back = false; }
 				}
 				if ( $rolled_back ) {
 					unset( $manifest['state'], $manifest['restored_attachment_id'] );

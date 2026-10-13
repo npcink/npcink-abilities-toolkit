@@ -156,7 +156,7 @@ final class Flagged_Media_Backup {
 		foreach ( array_keys( $entries ) as $index ) {
 			$path = self::path( self::PREFIX . $id . '/' . $index . '.bin' );
 			if ( '' === $path ) { $ok = false; continue; }
-			if ( is_file( $path ) ) { wp_delete_file( $path ); if ( is_file( $path ) ) { $ok = false; } }
+			if ( is_file( $path ) ) { wp_delete_file( $path ); } clearstatcache( true, $path ); if ( file_exists( $path ) ) { $ok = false; }
 		}
 		$directory = self::path( self::PREFIX . $id );
 		if ( $ok && '' !== $directory && is_dir( $directory ) ) { $ok = rmdir( $directory ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- removes only the uploads-contained backup directory after verified file deletion.

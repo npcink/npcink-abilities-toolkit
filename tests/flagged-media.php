@@ -6,10 +6,10 @@ function update_option( $name, $value, $autoload = null ) {
 	return true;
 }
 function wp_slash( $value ) { return $value; }
-/** Match Core's void deletion API, including a host filter that refuses removal. */
+/** Match Core's deletion API, including a host filter that refuses removal. */
 function wp_delete_file( $file ) {
 	$file = apply_filters( 'wp_delete_file', $file );
-	if ( $file && is_file( $file ) ) { unlink( $file ); }
+	return $file && is_file( $file ) ? unlink( $file ) : false;
 }
 function wp_delete_attachment( $id, $force = false ) {
 	if ( ! empty( $GLOBALS['flagged_delete_fault'] ) ) { return false; }
