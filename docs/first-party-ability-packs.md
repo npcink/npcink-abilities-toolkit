@@ -57,6 +57,7 @@ already scanned ID range instead of shifting page boundaries.
 - `npcink-abilities-toolkit/build-media-optimization-plan`
 - `npcink-abilities-toolkit/build-image-candidate-adoption-plan`
 - `npcink-abilities-toolkit/build-media-rename-plan`
+- `npcink-abilities-toolkit/build-flagged-media-removal-plan`
 - `npcink-abilities-toolkit/get-media-cleanup-opportunities`
 - `npcink-abilities-toolkit/build-media-inventory-fix-plan`
 - `npcink-abilities-toolkit/get-taxonomy-inventory-health`
@@ -214,8 +215,21 @@ Representative destructive abilities:
 - `npcink-abilities-toolkit/merge-terms`
 - `npcink-abilities-toolkit/bulk-update-post-terms`
 - `npcink-abilities-toolkit/delete-media-permanently`
+- `npcink-abilities-toolkit/delete-attachment`
 - `npcink-abilities-toolkit/trash-post`
 - `npcink-abilities-toolkit/delete-post-permanently`
+
+`build-flagged-media-removal-plan` prepares one manually reviewed attachment
+deletion plus optional exact reference patches. It returns a Core-ready
+`flagged_media_removal_plan.v1` without creating or approving proposals.
+`delete-attachment` implements the operator-selected no-backup or governed-backup
+branch after host approval; `delete-media-permanently` keeps its existing plain
+force-delete granularity. Governed backup manifests let `restore-media-backup`
+recreate a deleted attachment with a new id, administrator/upload permissions,
+hash verification, and occupied-path refusal. Old-id references, featured-image
+relationships and arbitrary plugin metadata require separate review. See the
+[implemented contract](ability-candidates/delete-attachment-ability-candidate.md)
+for the file, retention, idempotency and recovery bounds.
 
 ## Comment Compliance Pack
 

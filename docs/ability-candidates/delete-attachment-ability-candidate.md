@@ -1,8 +1,9 @@
 # Delete Attachment Ability Candidate
 
-Status: revised per the 2026-10-02 acceptance review; contract vehicle decided
-(new id, see below); accepted for implementation, gated on the acceptance
-checklist at the end.
+Status: implemented in PR #251, merged on 2026-10-13. The signed HTTPS
+deletion/restore and actual browser administrator approval passed in Adapter;
+public release verification remains a separate evidence requirement. The
+candidate and review sections below preserve the contract decision history.
 
 ## Host Workflow Proof
 
@@ -129,8 +130,18 @@ Before this candidate becomes an implemented ability:
 - [x] audit integration records deletion descriptions without content
       retention;
 - [x] restore coverage exists only for `governed_with_backup`;
-- [ ] the cross-repo boundary matrix and Core governance catalog record the
+- [x] the cross-repo boundary matrix and Core governance catalog record the
       new ability id.
+
+Closeout evidence (2026-10-13): Toolkit PR #251 updates the governance catalog
+and consumer fixtures; Toolbox PR #266 records the plan, deletion and restore
+ownership in its boundary matrix. Adapter's
+[real HTTPS acceptance record](https://github.com/npcink/npcink-ai-client-adapter/blob/master/docs/archive/2026-10-13-flagged-media-https-acceptance.md)
+proves both deletion branches, refusal before approval, signed execution,
+duplicate refusal, governed restore, and fixture cleanup. Its administrator
+step uses a test context; the separate
+[actual browser approval record](https://github.com/npcink/npcink-ai-client-adapter/blob/master/docs/archive/2026-10-13-local-acceptance-release-readiness.md)
+documents operator approval and the subsequent signed governed deletion.
 
 ## Acceptance Review (2026-10-02)
 
@@ -228,8 +239,9 @@ original retained backup is kept until expiry after successful restoration.
 reference helpers. Its `scan_complete=false` and explicit scan limits prevent
 an empty result from claiming there are no references. Evidence contains
 identities and settings names, never post bodies or setting values. The plan
-builder is registered; cross-repo signed execution acceptance remains a separate
-gate.
+builder is registered. Cross-repo signed execution acceptance passed on
+2026-10-13; rerun the affected acceptance when these contracts or the signed
+host handoff change.
 
 Regression evidence: `tests/flagged-media.php` covers public callbacks and
 injected persistence/metadata failures; `tests/flagged-media-wp.php` executes

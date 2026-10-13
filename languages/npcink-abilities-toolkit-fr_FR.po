@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.5.7\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
-"PO-Revision-Date: 2026-10-03 20:22+0800\n"
+"PO-Revision-Date: 2026-10-13 21:33+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: French\n"
 "Language: fr_FR\n"
@@ -6442,3 +6442,43 @@ msgid ""
 msgstr ""
 "Le mode lecture seule est activé : les packages d’écriture et destructifs "
 "ci-dessus s’affichent donc comme désactivés."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:11
+msgid "Build Flagged Media Removal Plan"
+msgstr "Créer un plan de retrait des médias signalés"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:15
+msgid "Delete Attachment"
+msgstr "Supprimer la pièce jointe"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:110
+msgid "Deleted attachment restoration failed."
+msgstr "La restauration de la pièce jointe supprimée a échoué."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:16
+msgid "Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore."
+msgstr "Supprime une pièce jointe multimédia via le contrat soumis à gouvernance à deux branches, avec preuves de références, motif de l’opérateur et restauration facultative depuis une sauvegarde conservée."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:55
+msgid "Flagged media deletion requires a valid branch, bounded reason, and idempotency key."
+msgstr "La suppression de médias signalés nécessite une branche valide, un motif de longueur limitée et une clé d’idempotence."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:57
+msgid "Flagged media deletion requires administrator, upload and attachment deletion permissions."
+msgstr "La suppression de médias signalés nécessite les droits d’administration, de téléversement et de suppression des pièces jointes."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:12
+msgid "Prepares one manual-only flagged attachment deletion with branch evidence and explicitly reviewed exact URL removal patches. Does not delete, back up, approve or execute."
+msgstr "Prépare la suppression d’une pièce jointe signalée soumise uniquement à une approbation manuelle, avec preuves de branche et correctifs explicitement examinés pour retirer des URL exactes. Ne supprime, ne sauvegarde, n’approuve et n’exécute rien."
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:23
+msgid "Recreating a deleted attachment requires administrator and upload permissions."
+msgstr "Recréer une pièce jointe supprimée nécessite les droits d’administration et de téléversement."
+
+#: includes/Support/Flagged_Media_Backup.php:20
+msgid "The flagged-media backup operation could not be verified."
+msgstr "L’opération de sauvegarde des médias signalés n’a pas pu être vérifiée."
+
+#: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
+msgid "You do not have permission to review flagged media references."
+msgstr "Vous n’avez pas le droit d’examiner les références des médias signalés."

@@ -8,23 +8,21 @@
 
 `https://translate.wordpress.org/projects/wp-plugins/npcink-abilities-toolkit/stable-readme/zh-cn/default/`
 
-当前状态记录：
+当前状态（2026-10-13）：
 
-- 2026-06-22 检查时，`Stable Readme (latest release)` 的 Chinese (China)
-  显示 `Translated (0)`、`Untranslated (101)`。
-- 2026-06-22 已使用 WordPress.org 账号通过 GlotPress PO 导入提交 101 条中文
-  translation suggestions。页面返回 `101 translations were added`。
-- 提交后状态为 `Waiting (101)`、`Untranslated (0)`、`Warnings (0)`。
-- 当前账号没有显示 approve/bulk approve 控件，所以这些翻译还需要 Chinese
-  (China) locale editor 或有权限的 project translation editor 审核。审核通过
-  后，WordPress.org 中文插件目录页才会显示中文。
+- GlotPress 当前有 145 条源文案：已批准 0 条、待审核 86 条、未翻译 59 条。
+- 2026-06-22 曾提交 101 条建议；后续源文案变化后，不能再用旧数量判断覆盖率。
+- [当前 PO](translation/stable-readme-zh_CN.po) 已覆盖这 145 条，保留线上
+  86 条待审核建议并补齐 59 条；另准备了 0.7.0 的两条源文案。
+- 本次补齐尚未导入 GlotPress，尚未获得审核批准。插件内的运行时语言包
+  已补齐，与目录页翻译是两个独立事项。
+- [当前状态与操作说明](../docs/archive/wordpress-org-zh-cn-translation-status-2026-10-13.md)
+  记录导入、审核和缓存刷新步骤；
+  [PTE 申请草稿](translation/pte-request-zh_CN.md) 尚未发送。
 
-后续审核流程：
-
-1. 打开上面的 Stable Readme 中文项目地址。
-2. 切换到 `Waiting (101)`。
-3. 由有权限的 reviewer 审核并 approve。
-4. 审核通过后等待 WordPress.org 插件目录缓存刷新。
+后续流程：先导入当前 PO，记录实际新增/更新数量，再由有权限的中文
+审校者审核。0.7.0 上线后重新导出源文案核对覆盖率，审核通过后检查中文
+插件目录页。下面是早期中文文案参考，当前可导入内容以 PO 为准。
 
 ## 标题
 

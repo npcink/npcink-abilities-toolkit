@@ -73,6 +73,10 @@ another host runtime.
 
 ### Deleted flagged-media restore
 
+`build-flagged-media-removal-plan` requires `manage_options` and the
+`media.read`, `site.read`, and `post.read` scopes. Its reference summary
+includes only bounded identities; it does not grant write permission.
+
 `delete-attachment` requires administrator, upload and per-attachment deletion
 permissions. The `flagged_delete_*` variant of `restore-media-backup` requires
 `manage_options` plus `upload_files`; an `edit_post` check against a deleted id

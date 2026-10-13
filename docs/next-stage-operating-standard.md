@@ -71,6 +71,10 @@ Current stage update:
 - There is no active proof target. Rerun the affected proof when a host,
   WordPress, or public ability contract changes, and reopen Toolkit work only
   when the failure identifies a small reusable contract gap owned here.
+- The specific flagged-media deletion gap is implemented in #251. Adapter's
+  real signed HTTPS proof passed both deletion branches and governed restore
+  on 2026-10-13. The subsequent actual browser approval acceptance also passed;
+  this completed contract addition does not reopen the broader ability catalog.
 - Keep third-party integration improvements on packaged discovery surfaces:
   `readme.txt`, the admin discovery page, and REST/contract endpoint values.
   Do not ship the repository `docs/`, `examples/`, or scripts in the release

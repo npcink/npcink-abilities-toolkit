@@ -14,6 +14,14 @@ uses to validate proposal governance.
 - `npcink-abilities-toolkit/approve-comment`
 - `npcink-abilities-toolkit/list-workflow-recipes`
 - `npcink-abilities-toolkit/get-workflow-recipe`
+- `npcink-abilities-toolkit/delete-attachment`
+- `npcink-abilities-toolkit/restore-media-backup`
+- `npcink-abilities-toolkit/build-flagged-media-removal-plan`
+
+The flagged-media entries were added in PR #251. The corresponding consumer
+acceptance fixture also records the plan, delete and restore contracts. The
+cross-repository owner matrix is maintained by `npcink-workflow-toolbox`, not
+duplicated in this repository.
 
 ## Locked Fields
 

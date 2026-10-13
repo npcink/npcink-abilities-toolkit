@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.5.7\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
-"PO-Revision-Date: 2026-10-03 20:20+0800\n"
+"PO-Revision-Date: 2026-10-13 21:33+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
@@ -5568,3 +5568,43 @@ msgid ""
 "Read-only mode is on: the write and destructive packages above show Off "
 "because of this choice."
 msgstr "読み取り専用モードが有効です。そのため、上の書き込みパッケージと破壊的パッケージはオフと表示されています。"
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:11
+msgid "Build Flagged Media Removal Plan"
+msgstr "フラグ付きメディアの削除計画を作成"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:15
+msgid "Delete Attachment"
+msgstr "添付ファイルを削除"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:110
+msgid "Deleted attachment restoration failed."
+msgstr "削除済み添付ファイルの復元に失敗しました。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:16
+msgid "Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore."
+msgstr "2つのポリシー分岐を持つガバナンス契約に従い、参照の証拠、操作者の理由、保持したバックアップからの任意の復元とともに、1件のメディア添付ファイルを削除します。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:55
+msgid "Flagged media deletion requires a valid branch, bounded reason, and idempotency key."
+msgstr "フラグ付きメディアの削除には、有効な分岐、長さ制限内の理由、冪等性キーが必要です。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:57
+msgid "Flagged media deletion requires administrator, upload and attachment deletion permissions."
+msgstr "フラグ付きメディアの削除には、管理者、アップロード、添付ファイル削除の権限が必要です。"
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:12
+msgid "Prepares one manual-only flagged attachment deletion with branch evidence and explicitly reviewed exact URL removal patches. Does not delete, back up, approve or execute."
+msgstr "手動承認のみを許可するフラグ付き添付ファイル1件の削除計画を、分岐の証拠と明示的にレビューされた正確な URL 削除パッチとともに準備します。削除、バックアップ、承認、実行は行いません。"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:23
+msgid "Recreating a deleted attachment requires administrator and upload permissions."
+msgstr "削除済み添付ファイルの再作成には、管理者とアップロードの権限が必要です。"
+
+#: includes/Support/Flagged_Media_Backup.php:20
+msgid "The flagged-media backup operation could not be verified."
+msgstr "フラグ付きメディアのバックアップ操作を検証できませんでした。"
+
+#: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
+msgid "You do not have permission to review flagged media references."
+msgstr "フラグ付きメディアの参照をレビューする権限がありません。"

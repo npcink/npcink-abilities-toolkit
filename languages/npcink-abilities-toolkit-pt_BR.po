@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.5.7\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
-"PO-Revision-Date: 2026-10-03 20:25+0800\n"
+"PO-Revision-Date: 2026-10-13 21:33+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Portuguese (Brazil)\n"
 "Language: pt_BR\n"
@@ -6327,3 +6327,43 @@ msgid ""
 msgstr ""
 "O modo somente leitura está ativado: por isso os pacotes de escrita e "
 "destrutivos acima aparecem desativados."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:11
+msgid "Build Flagged Media Removal Plan"
+msgstr "Criar plano de remoção de mídia sinalizada"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:15
+msgid "Delete Attachment"
+msgstr "Excluir anexo"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:110
+msgid "Deleted attachment restoration failed."
+msgstr "Falha ao restaurar o anexo excluído."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:16
+msgid "Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore."
+msgstr "Exclui um anexo de mídia pelo contrato sujeito à governança com duas ramificações de política, evidências de referências, motivo do operador e restauração opcional de um backup retido."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:55
+msgid "Flagged media deletion requires a valid branch, bounded reason, and idempotency key."
+msgstr "A exclusão de mídia sinalizada exige uma ramificação válida, um motivo com comprimento limitado e uma chave de idempotência."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:57
+msgid "Flagged media deletion requires administrator, upload and attachment deletion permissions."
+msgstr "A exclusão de mídia sinalizada exige permissões de administrador, envio e exclusão de anexos."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:12
+msgid "Prepares one manual-only flagged attachment deletion with branch evidence and explicitly reviewed exact URL removal patches. Does not delete, back up, approve or execute."
+msgstr "Prepara a exclusão de um anexo sinalizado que exige aprovação manual, com evidências da ramificação e patches explicitamente revisados para remover URLs exatas. Não exclui, cria backups, aprova nem executa."
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:23
+msgid "Recreating a deleted attachment requires administrator and upload permissions."
+msgstr "Recriar um anexo excluído exige permissões de administrador e envio."
+
+#: includes/Support/Flagged_Media_Backup.php:20
+msgid "The flagged-media backup operation could not be verified."
+msgstr "Não foi possível verificar a operação de backup da mídia sinalizada."
+
+#: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
+msgid "You do not have permission to review flagged media references."
+msgstr "Você não tem permissão para revisar referências de mídia sinalizada."
