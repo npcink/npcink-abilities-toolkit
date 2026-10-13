@@ -1,8 +1,18 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 - 2026-10-13
+
+Additive governed-media contract release. Existing ability ids and final host
+authorization remain unchanged; the new deletion contract is separate from
+`delete-media-permanently`.
 
 - Fixed built-in ability packages missing from real REST requests: defer registration to `rest_api_init` when `init` has no runtime context, with one-time boot protection and existing package/read-only restrictions preserved.
+- Added `build-flagged-media-removal-plan`, an administrator-only read ability that prepares one manually reviewed attachment deletion and optional exact reference patches without creating a proposal or mutating WordPress.
+- Added `delete-attachment` with operator-selected `illegal_content_no_backup` and `governed_with_backup` branches, a bounded reason, idempotency key, reference evidence, dry-run defaults, and host-authorized commits. The no-backup branch retains no content backup; the governed branch records a verified, uploads-contained backup before deletion.
+- Extended `restore-media-backup` to recreate a deleted attachment from a Toolkit `flagged_delete_*` manifest with a new attachment id. Restore requires administrator and upload permissions, verifies retained file hashes, refuses occupied paths, and does not automatically repair old-id relationships or arbitrary plugin metadata.
+- Made flagged-media backup cleanup and restore compensation use WordPress file deletion with verified postconditions. Local file-handle exceptions retain atomic exclusive creation and process-scoped locking while passing packaged Plugin Check.
+- Updated the ability acceptance and host-proof records with the passed real signed HTTPS deletion/restore and separate actual browser administrator approval evidence.
+- Refreshed the translation template and all seven bundled locales for the ten new media labels, descriptions, and errors.
 
 ## 0.6.0 - 2026-10-13
 

@@ -6,6 +6,11 @@ function update_option( $name, $value, $autoload = null ) {
 	return true;
 }
 function wp_slash( $value ) { return $value; }
+/** Match Core's void deletion API, including a host filter that refuses removal. */
+function wp_delete_file( $file ) {
+	$file = apply_filters( 'wp_delete_file', $file );
+	if ( $file && is_file( $file ) ) { unlink( $file ); }
+}
 function wp_delete_attachment( $id, $force = false ) {
 	if ( ! empty( $GLOBALS['flagged_delete_fault'] ) ) { return false; }
 	$post = get_post( $id );
@@ -142,6 +147,11 @@ try {
 	check_flagged( is_wp_error( $write->restore_media_backup( $restore ) ), 'expired backups refuse restore before cleanup runs' );
 	$cleanup = $write->cleanup_expired_media_backups( false );
 	check_flagged( $cleanup['expired'] >= 1 && is_file( $copy_path ), 'existing cleanup preview includes retained deletion backups' );
+	add_filter( 'wp_delete_file', static function ( $file ) use ( $copy_path ) { return $file === $copy_path ? '' : $file; } );
+	$blocked_cleanup = $write->cleanup_expired_media_backups();
+	check_flagged( 'failed' === $blocked_cleanup['flagged_media_cleanup']['status'] && 'backup_files_cleanup_failed' === $blocked_cleanup['flagged_media_cleanup']['error_code'], 'cleanup reports refused WordPress file deletion' );
+	check_flagged( isset( Backup::records()[ $backup_id ] ) && is_file( $copy_path ), 'refused file deletion retains manifest and bytes for recovery' );
+	remove_all_filters( 'wp_delete_file' );
 	$cleanup = $write->cleanup_expired_media_backups();
 	check_flagged( $cleanup['removed'] >= 1 && empty( Backup::records() ) && ! is_file( $copy_path ), 'existing maintenance expires files and manifests' );
 	check_flagged( is_file( $base . '/2026/10/first.jpg' ), 'cleanup never removes restored current media' );

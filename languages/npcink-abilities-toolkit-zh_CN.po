@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.5.7\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
-"PO-Revision-Date: 2026-10-03 20:20+0800\n"
+"PO-Revision-Date: 2026-10-13 21:33+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh_CN\n"
@@ -5407,3 +5407,43 @@ msgid ""
 "Read-only mode is on: the write and destructive packages above show Off "
 "because of this choice."
 msgstr "只读模式已开启：上方的写入与破坏性能力包因此显示为关闭。"
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:11
+msgid "Build Flagged Media Removal Plan"
+msgstr "构建已标记媒体移除计划"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:15
+msgid "Delete Attachment"
+msgstr "删除附件"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:110
+msgid "Deleted attachment restoration failed."
+msgstr "已删除附件恢复失败。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:16
+msgid "Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore."
+msgstr "通过具有两个策略分支的受治理契约删除一个媒体附件，提供引用证据、操作人员说明及可选的保留备份恢复。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:55
+msgid "Flagged media deletion requires a valid branch, bounded reason, and idempotency key."
+msgstr "删除已标记媒体需要有效的策略分支、长度受限的说明和幂等键。"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:57
+msgid "Flagged media deletion requires administrator, upload and attachment deletion permissions."
+msgstr "删除已标记媒体需要管理员、上传和附件删除权限。"
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:12
+msgid "Prepares one manual-only flagged attachment deletion with branch evidence and explicitly reviewed exact URL removal patches. Does not delete, back up, approve or execute."
+msgstr "准备一个仅限人工审批的已标记附件删除计划，包含策略分支证据和明确审阅过的精确 URL 移除补丁。不执行删除、备份、审批或操作。"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:23
+msgid "Recreating a deleted attachment requires administrator and upload permissions."
+msgstr "重新创建已删除的附件需要管理员和上传权限。"
+
+#: includes/Support/Flagged_Media_Backup.php:20
+msgid "The flagged-media backup operation could not be verified."
+msgstr "无法验证已标记媒体的备份操作。"
+
+#: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
+msgid "You do not have permission to review flagged media references."
+msgstr "您没有审阅已标记媒体引用的权限。"

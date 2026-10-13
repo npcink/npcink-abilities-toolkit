@@ -7,7 +7,6 @@
 namespace Npcink_Abilities_Toolkit\Support;
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-
 /** Shares file verification and manifest persistence between deletion and restore. */
 final class Flagged_Media_Backup {
 	public const OPTION = 'npcink_abilities_toolkit_flagged_media_deletion_backups';
@@ -19,15 +18,12 @@ final class Flagged_Media_Backup {
 	public static function error( string $detail, int $status = 409 ) {
 		return new \WP_Error( 'npcink_abilities_toolkit_flagged_media_backup_failed', __( 'The flagged-media backup operation could not be verified.', 'npcink-abilities-toolkit' ), array( 'status' => $status, 'detail' => $detail ) );
 	}
-
 	public static function valid_id( string $id ): bool {
 		return 1 === preg_match( '/^flagged_delete_[a-f0-9]{24}$/', $id );
 	}
-
 	public static function id( int $attachment_id, string $key ): string {
 		return 'flagged_delete_' . substr( hash( 'sha256', $attachment_id . '|' . $key ), 0, 24 );
 	}
-
 	public static function retention_days(): int {
 		return max( 1, min( 365, (int) apply_filters( 'npcink_abilities_toolkit_media_backup_retention_days', 30 ) ) );
 	}
@@ -73,10 +69,10 @@ final class Flagged_Media_Backup {
 		$dir = self::path( rtrim( self::PREFIX, '/' ) );
 		if ( '' === $dir || ! wp_mkdir_p( $dir ) || '' === self::path( rtrim( self::PREFIX, '/' ) ) ) { return self::error( 'backup_directory_unavailable', 500 ); }
 		$lock_path = self::path( self::PREFIX . '.lock' );
-		$lock = '' !== $lock_path ? fopen( $lock_path, 'c+b' ) : false;
+		$lock = '' !== $lock_path ? fopen( $lock_path, 'c+b' ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- flock needs a local handle; WP_Filesystem cannot preserve process-scoped locking.
 		if ( false === $lock ) { return self::error( 'backup_lock_unavailable', 500 ); }
-		if ( ! flock( $lock, LOCK_EX | LOCK_NB ) ) { fclose( $lock ); return self::error( 'backup_operation_in_progress' ); }
-		try { return $callback(); } finally { flock( $lock, LOCK_UN ); fclose( $lock ); }
+		if ( ! flock( $lock, LOCK_EX | LOCK_NB ) ) { fclose( $lock ); return self::error( 'backup_operation_in_progress' ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closes the rejected local lock handle.
+		try { return $callback(); } finally { flock( $lock, LOCK_UN ); fclose( $lock ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- releases the process-scoped local lock handle.
 	}
 	/** @return array<int,string>|\WP_Error */
 	public static function attachment_files( int $id, bool $require_existing = true ) {
@@ -108,14 +104,14 @@ final class Flagged_Media_Backup {
 	public static function copy_exclusive( string $source, string $target, string $hash ): bool {
 		if ( ! is_file( $source ) || is_link( $source ) || hash_file( 'sha256', $source ) !== $hash || file_exists( $target ) || is_link( $target ) ) { return false; }
 		if ( ! wp_mkdir_p( dirname( $target ) ) ) { return false; }
-		$out = fopen( $target, 'x+b' );
+		$out = fopen( $target, 'x+b' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- WP_Filesystem cannot guarantee atomic exclusive creation; conflicts fail closed.
 		if ( false === $out ) { return false; }
-		$in = fopen( $source, 'rb' );
+		$in = fopen( $source, 'rb' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- paired local handles stream into the exclusively owned destination.
 		$copied = false !== $in && false !== stream_copy_to_stream( $in, $out );
-		if ( false !== $in ) { fclose( $in ); }
+		if ( false !== $in ) { fclose( $in ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closes the paired source after streaming.
 		$flushed = fflush( $out );
-		fclose( $out );
-		if ( ! $copied || ! $flushed || hash_file( 'sha256', $target ) !== $hash ) { unlink( $target ); return false; }
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closes the exclusive destination after flushing.
+		if ( ! $copied || ! $flushed || hash_file( 'sha256', $target ) !== $hash ) { wp_delete_file( $target ); return false; }
 		return true;
 	}
 	/** @param object $attachment @return array<string,mixed>|\WP_Error */
@@ -160,10 +156,10 @@ final class Flagged_Media_Backup {
 		foreach ( array_keys( $entries ) as $index ) {
 			$path = self::path( self::PREFIX . $id . '/' . $index . '.bin' );
 			if ( '' === $path ) { $ok = false; continue; }
-			if ( is_file( $path ) && ! unlink( $path ) ) { $ok = false; }
+			if ( is_file( $path ) ) { wp_delete_file( $path ); if ( is_file( $path ) ) { $ok = false; } }
 		}
 		$directory = self::path( self::PREFIX . $id );
-		if ( $ok && '' !== $directory && is_dir( $directory ) ) { $ok = rmdir( $directory ); }
+		if ( $ok && '' !== $directory && is_dir( $directory ) ) { $ok = rmdir( $directory ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- removes only the uploads-contained backup directory after verified file deletion.
 		return $ok;
 	}
 	/** @param array<string,mixed> $result @return array<string,mixed> */

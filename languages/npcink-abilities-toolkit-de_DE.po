@@ -2,10 +2,10 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.5.7\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
-"PO-Revision-Date: 2026-10-03 20:25+0800\n"
+"PO-Revision-Date: 2026-10-13 21:33+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -6403,3 +6403,43 @@ msgid ""
 msgstr ""
 "Der schreibgeschützte Modus ist aktiv: Die Schreib- und destruktiven Pakete "
 "oben zeigen deshalb Aus."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:11
+msgid "Build Flagged Media Removal Plan"
+msgstr "Entfernungsplan für markierte Medien erstellen"
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:15
+msgid "Delete Attachment"
+msgstr "Anhang löschen"
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:110
+msgid "Deleted attachment restoration failed."
+msgstr "Die Wiederherstellung des gelöschten Anhangs ist fehlgeschlagen."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:16
+msgid "Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore."
+msgstr "Löscht einen Medienanhang über den gesteuerten Vertrag mit zwei Richtlinienzweigen, Referenznachweisen, einer Begründung des Bedieners und optionaler Wiederherstellung aus einer aufbewahrten Sicherung."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:55
+msgid "Flagged media deletion requires a valid branch, bounded reason, and idempotency key."
+msgstr "Das Löschen markierter Medien erfordert einen gültigen Richtlinienzweig, eine längenbegrenzte Begründung und einen Idempotenzschlüssel."
+
+#: includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php:57
+msgid "Flagged media deletion requires administrator, upload and attachment deletion permissions."
+msgstr "Das Löschen markierter Medien erfordert Administrator-, Upload- und Anhanglöschberechtigungen."
+
+#: includes/Packages/Read_Definitions/Flagged_Media_Read_Definitions.php:12
+msgid "Prepares one manual-only flagged attachment deletion with branch evidence and explicitly reviewed exact URL removal patches. Does not delete, back up, approve or execute."
+msgstr "Bereitet die ausschließlich manuell zu genehmigende Löschung eines markierten Anhangs mit Zweignachweisen und ausdrücklich geprüften Patches zur Entfernung exakter URLs vor. Löscht nicht, sichert nicht, genehmigt nicht und führt nichts aus."
+
+#: includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php:23
+msgid "Recreating a deleted attachment requires administrator and upload permissions."
+msgstr "Das erneute Erstellen eines gelöschten Anhangs erfordert Administrator- und Upload-Berechtigungen."
+
+#: includes/Support/Flagged_Media_Backup.php:20
+msgid "The flagged-media backup operation could not be verified."
+msgstr "Die Sicherung der markierten Medien konnte nicht verifiziert werden."
+
+#: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
+msgid "You do not have permission to review flagged media references."
+msgstr "Du hast keine Berechtigung, Referenzen markierter Medien zu prüfen."

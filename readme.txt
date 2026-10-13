@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,7 +139,7 @@ The WordPress Abilities API routes must be available before clients can discover
 
 = What does uninstalling remove? =
 
-Uninstalling deletes the plugin's stored options, per-admin notice state (welcome and health notice dismissals), the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the `npcink_abilities_toolkit_uninstall_preserve_media_history` and `npcink_abilities_toolkit_uninstall_preserve_media_backups` filters; the history filter defaults to the backup setting.
+Uninstalling removes the plugin's stored options, per-admin notice state (welcome and health notice dismissals), the media backup cleanup schedule, and backup files and deletion manifests stored by this plugin. Shared legacy media replacement history is preserved by default. Expiring transients are left to their normal lifecycle. Hosts can preserve backup files and their deletion manifests with `npcink_abilities_toolkit_uninstall_preserve_media_backups`, or explicitly remove shared history with `npcink_abilities_toolkit_uninstall_preserve_media_history` set to false.
 
 == Screenshots ==
 
@@ -163,6 +163,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.7.0 =
+
+Restores ability discovery on real REST requests while preserving the light anonymous frontend and operator read-only mode. Adds a read-only flagged-media removal plan and a separate governed attachment deletion ability with explicit no-backup or retained-backup branches. Host approval is required for every deletion or restore. Toolkit backups can recreate a deleted attachment with a new id; old references and plugin-specific relationships require separate review. Ten new runtime strings ship in all seven bundled locales.
 
 = 0.6.0 =
 

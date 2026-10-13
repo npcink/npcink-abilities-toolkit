@@ -1,7 +1,7 @@
 # Host Proof Status
 
 Status: active tracking note.
-Date: 2026-07-11.
+Last reviewed: 2026-10-13.
 
 This note records the current host-proof ledger for the freeze/observe period.
 It is intentionally a status document, not an ability backlog. A new Toolkit
@@ -54,7 +54,9 @@ A valid host proof should:
 
 ## Closed Proof State And Observation Queue
 
-All four proof targets in the ledger are closed. Continue in this order:
+All four proof targets in the ledger are closed. The additional flagged-media
+signed lifecycle and actual browser approval acceptance passed. Continue in
+this order:
 
 1. Keep Toolkit in freeze/observe mode and do not add first-party abilities.
 2. Keep the explicit real-host proof commands green and rerun the affected proof
@@ -97,10 +99,34 @@ The generated evidence file is intentionally ignored under
 proof command plus this ledger entry, not a committed snapshot of one local
 site.
 
-The Block theme / Gutenberg proof does not block basic third-party provider
-onboarding. Provider plugins that register read-only abilities or
-write-proposal abilities through the public helpers can proceed while that
-host-side proof remains open.
+The completed Block theme / Gutenberg proof does not block basic third-party provider
+onboarding. Provider plugins may register read-only abilities or write-proposal
+abilities through the public helpers without waiting for a new host proof.
+
+### Flagged Media Signed Lifecycle Proof — 2026-10-13
+
+The real Local.app HTTPS acceptance discovered
+`build-flagged-media-removal-plan`, `delete-attachment` and
+`restore-media-backup` through Core's live catalog and executed through Adapter.
+Toolkit #251, Core's delete-first preflight fix and Adapter #113 form the
+recorded dependency baseline. Adapter
+`MAA_ADAPTER_FIXTURE_ALLOW_COMMIT=1 composer accept:local-ai-client-flagged-media`
+passed both operator-selected branches on run-owned attachments:
+
+- pending proposals, client self-approval and pre-approval execution refused;
+- approved signed deletion, Core preflight/result evidence and duplicate refusal;
+- verified backup and second-proposal restore for `governed_with_backup`;
+- no backup manifest or backup directory for `illegal_content_no_backup`;
+- run-owned originals, restored media, files and backup records cleaned.
+
+No WordPress mutation occurred before approval. The original administrator step
+was a test-context simulation. The later
+[actual browser approval record](https://github.com/npcink/npcink-ai-client-adapter/blob/master/docs/archive/2026-10-13-local-acceptance-release-readiness.md)
+records operator approval, signed deletion, retained backup verification,
+duplicate refusal and fixture cleanup for one governed attachment. This closes
+the separately requested browser acceptance. There is no remaining Toolkit
+ability gap from this proof. The repeatable command is maintained in the
+[Adapter acceptance record](https://github.com/npcink/npcink-ai-client-adapter/blob/master/docs/archive/2026-10-13-flagged-media-https-acceptance.md).
 
 ## Adapter Pull Request Disposition
 
@@ -199,12 +225,12 @@ Use this classification before creating Toolkit work:
 
 ## Release Posture
 
-The `0.5.3` release is complete. This status note does not open another release.
-A maintenance release is reasonable only if new proof work stays limited to
-documentation, replay fixtures, contract snapshots, CI checks, or
-existing-ability hardening.
+The `0.6.0` release is published. The `0.7.0` candidate packages the focused
+REST lifecycle fix and the independently justified flagged-media contracts.
+Candidate source gates, packaged verification, human acceptance and public
+publication are separate evidence levels; consult the current
+[release verification note](archive/release-0.7.0-verification.md).
 
-Do not treat the current state as `0.6.0` material unless a real host proof
-fails and identifies one to three small, reusable, WordPress-only gaps that
-cannot be fixed in host routing, Core governance, Adapter handoff, Toolbox UX,
-Cloud runtime, or prompt design.
+Keep observing after this focused release. Resume ability expansion only when
+a real host proof identifies a small reusable WordPress contract gap that
+cannot be fixed by host composition, routing, governance, handoff or product UX.
