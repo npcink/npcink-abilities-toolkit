@@ -1,22 +1,22 @@
 # Session Handoff: 0.5.12 Release And Read-Only Mode Closeout
 
-Operational update (2026-10-13): Gitee enablement and the locale-default
-branch are deferred. Dependencies #245/#246 are merged; ADR and Local smoke
-guidance are refreshed. The next release is 0.6.0 for read-only mode. The
-dated snapshot below remains historical; use current operations docs for
-live state.
+Operational update (2026-10-13): 0.6.0 is released (WordPress.org SVN
+revision 3742960; release PR #253), and the governed flagged-media deletion
+ability is merged in PR #251. Gitee enablement and the locale-default branch
+remain deferred. The dated snapshot below is historical; use `AGENTS.md` and
+the current operating docs for live state.
 
-Status: active handoff note for the next AI session.
+Status: historical handoff note; it is no longer an active work queue.
 Written: 2026-10-12. Covers the 2026-10-11/12 session arc from the end-user
 experience audit through the 0.5.12 WordPress.org release, the read-only mode
 implementation, and everything still open.
 
 ## Read This First
 
-The next session should start from `AGENTS.md` and this file. Everything in
-this handoff was merged to `master` through reviewed pull requests; the
-working tree at handoff time is clean at `ad57703` with one deliberately
-local-only branch (`codex/zh-cn-docs-mirror-default`, see Open Items).
+The next session should start from `AGENTS.md` and the current operating
+documents. This file records the state observed on 2026-10-12; all claims
+about the active branch, release, or work queue must be checked against the
+current repository and GitHub state.
 
 Session pull requests, in order:
 
@@ -33,12 +33,12 @@ Session pull requests, in order:
 
 WordPress.org publication: **r3739502**, release tag `0.5.12` at `7be527b`.
 Verified live: trunk Stable tag 0.5.12, `tags/0.5.12` present. #242/#243
-landed after the release and ship with the next one.
+later shipped in 0.6.0, recorded at SVN revision 3742960.
 
 ## What The Next Session Inherits (Open Items)
 
-Ordered by value; Gitee items 1-2 are intentionally deferred, item 3 is
-complete, and item 4 is the next release.
+Ordered by value; Gitee items 1-2 are intentionally deferred, and item 3 is
+complete. The 0.6.0 release in item 4 is complete.
 
 ### 1. Gitee mirror enablement (deferred)
 
@@ -78,14 +78,12 @@ findings. Optional future polish, explicitly NOT committed to: a host-side
 conflict notice when a host needs write abilities while read-only mode is on
 (host products own that UX per the ADR).
 
-### 4. Next release (0.5.13 or 0.6.0) when the maintainer decides
+### 4. 0.6.0 release: complete
 
-Unreleased since 0.5.12 (r3739502): #241 (l10n alignment), #242 + #243
-(read-only mode; CHANGELOG Unreleased section already written). Release prep
-follows `docs/wordpress-org-release-runbook.md`; the 0.5.12 run is the
-freshest precedent including the screenshot procedure. Decision point for
-the maintainer: read-only mode is a user-facing feature — consider whether
-that makes it 0.6.0 instead of a patch.
+The 0.6.0 release shipped the read-only mode, localization alignment, and the
+release documentation. It is recorded at WordPress.org SVN revision 3742960
+and tag `0.6.0`; future releases should follow the current runbook and create
+a new release verification note.
 
 ### 5. Deferred / rejected items (do not re-litigate without new signal)
 
@@ -137,8 +135,8 @@ that makes it 0.6.0 instead of a patch.
 - `.github/workflows/gitee-mirror.yml` — inert until enabled (item 1).
 - `docs/troubleshooting.md` — operator-first sections (Start Here / packages
   on-off / doc mirror).
-- CHANGELOG `Unreleased` section — the #241/#242/#243 pre-written release
-  notes for the next release.
+- `CHANGELOG.md` and `docs/archive/release-0.6.0-verification.md` — the
+  release notes and evidence for 0.6.0.
 
 ## Machine Memory Cross-Reference
 
