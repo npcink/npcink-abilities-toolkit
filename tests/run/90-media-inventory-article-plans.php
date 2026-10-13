@@ -223,6 +223,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][96] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/png',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $media_parentless_test_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
@@ -246,6 +247,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][97] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/png',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][98] = (object) array(
 	'ID'           => 98,
@@ -279,6 +281,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][99] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/png',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $parentless_production_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
@@ -311,6 +314,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][92] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 91,
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $eligible_media_delete_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
@@ -334,6 +338,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][93] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 91,
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $blocked_media_title_plan = $core_read_package->build_media_inventory_fix_plan(
 	array(
@@ -356,6 +361,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][94] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 91,
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][95] = (object) array(
 	'ID'           => 95,

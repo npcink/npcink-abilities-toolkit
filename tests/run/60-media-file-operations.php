@@ -794,6 +794,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	790,
@@ -915,6 +916,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][84] = (object) array(
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
 	'post_date'      => '2026-04-12 10:00:00',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	84,
@@ -939,6 +941,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][85] = (object) array(
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/png',
 	'post_date'      => '2026-04-18 09:00:00',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	85,
@@ -963,6 +966,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][86] = (object) array(
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
 	'post_date'      => '2026-05-02 10:00:00',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	86,
