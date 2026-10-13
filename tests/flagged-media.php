@@ -81,6 +81,17 @@ try {
 	$result = $delete->delete_attachment( $input );
 	check_flagged( is_wp_error( $result ) && get_post( 987 ) && is_file( $base . '/2026/10/first.jpg' ), 'manifest failure preserves original attachment and file' );
 	unset( $GLOBALS['flagged_option_fault'] );
+	$partial_id = Backup::id( 987, $input['idempotency_key'] );
+	$partial = Backup::create( get_post( 987 ), $partial_id, $input['idempotency_key'], $input['reason'] );
+	$records = Backup::records(); $records[ $partial_id ]['state'] = 'backing_up'; Backup::persist( $records );
+	unlink( Backup::path( Backup::PREFIX . $partial_id . '/1.bin' ) );
+	$retried = Backup::create( get_post( 987 ), $partial_id, $input['idempotency_key'], $input['reason'] );
+	check_flagged( ! is_wp_error( $retried ) && 'ready' === $retried['state'] && is_file( Backup::path( Backup::PREFIX . $partial_id . '/1.bin' ) ), 'interrupted backup intent safely replaces partial copies on retry' );
+	$original_metadata = wp_get_attachment_metadata( 987 );
+	$changed_metadata = $original_metadata; $changed_metadata['sizes']['extra'] = array( 'file' => 'first-extra.jpg' );
+	file_put_contents( $base . '/2026/10/first-extra.jpg', 'new derivative' ); update_post_meta( 987, '_wp_attachment_metadata', $changed_metadata );
+	check_flagged( is_wp_error( $delete->delete_attachment( $input ) ) && get_post( 987 ) && is_file( $base . '/2026/10/first-extra.jpg' ), 'retry rejects newly declared files absent from the retained snapshot' );
+	update_post_meta( 987, '_wp_attachment_metadata', $original_metadata ); unlink( $base . '/2026/10/first-extra.jpg' );
 	$result = $delete->delete_attachment( $input );
 	check_flagged( ! is_wp_error( $result ) && $result['deleted'] && ! get_post( 987 ), 'governed commit actually deletes attachment' );
 	$backup_id = $result['backup_id'];
@@ -136,6 +147,8 @@ try {
 	check_flagged( is_file( $base . '/2026/10/first.jpg' ), 'cleanup never removes restored current media' );
 	$lock = fopen( Backup::path( Backup::PREFIX . '.lock' ), 'c+b' ); flock( $lock, LOCK_EX );
 	check_flagged( is_wp_error( Backup::locked( static function () { return true; } ) ), 'concurrent backup operation fails closed' );
+	$skipped = $write->cleanup_media_backups( array( 'dry_run' => false, 'commit' => true ) );
+	check_flagged( ! is_wp_error( $skipped ) && 'skipped' === $skipped['flagged_media_cleanup']['status'], 'public cleanup exposes lock contention instead of silent success' );
 	flock( $lock, LOCK_UN ); fclose( $lock );
 	echo "OK: {$checks} flagged-media behavioral checks\n";
 } finally { remove_flagged_fixture_tree( $base ); }

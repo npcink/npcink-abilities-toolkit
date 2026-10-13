@@ -1053,6 +1053,7 @@ final class Core_Write_Package {
 						'expired'        => array( 'type' => 'integer' ),
 						'removed'        => array( 'type' => 'integer' ),
 						'processed_attachments' => array( 'type' => 'integer' ),
+					'flagged_media_cleanup' => array( 'type' => 'object', 'properties' => array( 'expired' => array( 'type' => 'integer' ), 'removed' => array( 'type' => 'integer' ), 'status' => array( 'type' => 'string', 'enum' => array( 'completed', 'failed', 'skipped' ) ), 'error_code' => array( 'type' => 'string' ) ), 'required' => array( 'expired', 'removed', 'status' ), 'additionalProperties' => false ),
 						'has_more'       => array( 'type' => 'boolean' ),
 						'preview'        => array( 'type' => 'object', 'additionalProperties' => true ),
 						'dry_run'        => array( 'type' => 'boolean' ),

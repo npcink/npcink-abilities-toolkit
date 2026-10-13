@@ -257,3 +257,12 @@ choices from its bounded discovery summary. The actual Core validator accepts
 both branch outputs in the mapped-worktree WordPress fixture. The new plan,
 delete and restore contracts are recorded in the governance catalog snapshot
 and consumer harvest fixture.
+
+Backup intent is durable before file copies. An interrupted copy can be retried
+under the same request key, and expired partial copies use the existing cleanup
+path. A retry refuses attachment fields, metadata, file-list or byte drift from
+a completed snapshot. `cleanup-media-backups` reports bounded
+`flagged_media_cleanup` counts and a `completed`, `failed`, or `skipped` status,
+with an error code on failure or lock contention. Uninstall removes the manifest
+with the backup files; the existing preserve-media-backups filter retains both
+so the restore evidence remains usable after reinstall.

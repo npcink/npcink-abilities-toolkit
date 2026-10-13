@@ -80,6 +80,12 @@ trait Flagged_Media_Deletion_Methods {
 			if ( 'governed_with_backup' === $branch ) {
 				$backup = Flagged_Media_Backup::create( $attachment, $backup_id, $key, $reason );
 				if ( is_wp_error( $backup ) ) { return $backup; }
+				$current_files = Flagged_Media_Backup::attachment_files( $attachment_id );
+				$current_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
+				$current_sizes = is_array( $current_sizes ) ? $current_sizes : array();
+				if ( is_wp_error( $current_files ) || array_column( (array) $backup['files'], 'relative_file' ) !== $current_files || (array) wp_get_attachment_metadata( $attachment_id ) !== $backup['metadata'] || $current_sizes !== $backup['backup_sizes'] || (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) !== $backup['alt'] ) { return Flagged_Media_Backup::error( 'predelete_metadata_drift' ); }
+				$current_attachment = get_post( $attachment_id );
+				foreach ( (array) $backup['post'] as $field => $value ) { if ( ! $current_attachment || ( $current_attachment->$field ?? '' ) !== $value ) { return Flagged_Media_Backup::error( 'predelete_post_drift' ); } }
 				foreach ( (array) $backup['files'] as $index => $file ) {
 					$source = Flagged_Media_Backup::path( (string) $file['relative_file'] );
 					$copy = Flagged_Media_Backup::path( Flagged_Media_Backup::PREFIX . $backup_id . '/' . $index . '.bin' );

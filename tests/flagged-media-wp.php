@@ -11,7 +11,7 @@ $builder = wp_get_ability( 'npcink-abilities-toolkit/build-flagged-media-removal
 if ( ! $delete || ! $restore || ! $builder ) { throw new RuntimeException( 'Flagged-media abilities are not registered.' ); }
 $checks = 0;
 $check = static function ( $condition, $message ) use ( &$checks ) { ++$checks; if ( ! $condition ) { throw new RuntimeException( $message ); } };
-$ids = array(); $paths = array(); $backup_ids = array();
+$ids = array(); $paths = array(); $backup_ids = array(); $option_names = array();
 $run = 'npcink-flagged-smoke-' . bin2hex( random_bytes( 6 ) );
 $upload = wp_upload_dir();
 $dir = $upload['basedir'] . '/' . $run; wp_mkdir_p( $dir );
@@ -26,6 +26,8 @@ try {
 		wp_update_attachment_metadata( $id, $metadata ); update_post_meta( $id, '_wp_attachment_image_alt', 'Fixture \\ ALT' );
 		$alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
 		$input = array( 'attachment_id' => $id, 'deletion_policy_branch' => $branch, 'reason' => 'Reviewed smoke fixture only', 'idempotency_key' => $run . '-' . $branch );
+		$option_name = sanitize_key( $run . '-' . $branch ); $option_names[] = $option_name;
+		update_option( $option_name, array( 'image' => wp_get_attachment_url( $id ) ), false );
 		$before = Backup::records();
 		$plan_input = $input;
 		$plan_input['deletion_request_key'] = $plan_input['idempotency_key']; unset( $plan_input['idempotency_key'] );
@@ -38,6 +40,7 @@ try {
 		}
 
 		$preview = $delete->execute( $input );
+		$check( ! is_wp_error( $preview ) && in_array( array( 'target_type' => 'option', 'target_name' => $option_name ), $preview['preview']['referenced_by']['settings'], true ), 'production database reference scan discovers matching option without returning its value' );
 		$check( ! is_wp_error( $preview ) && $preview['dry_run'] && ! $preview['deleted'], 'registered delete ability defaults to preview' );
 		$check( $before === Backup::records() && is_file( $upload['basedir'] . '/' . $main ), 'preview preserves original and backup state' );
 		$GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array( 'approval_commit_authorized' => true );
@@ -63,6 +66,7 @@ try {
 	}
 } finally {
 	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+	foreach ( $option_names as $option_name ) { delete_option( $option_name ); }
 	foreach ( $ids as $id ) { if ( get_post( $id ) ) { wp_delete_attachment( $id, true ); } }
 	foreach ( $paths as $path ) { if ( is_file( $path ) ) { unlink( $path ); } }
 	Backup::locked( static function () use ( $backup_ids ) { $records = Backup::records(); foreach ( $backup_ids as $id ) { if ( isset( $records[ $id ] ) ) { Backup::remove_files( $id, $records[ $id ]['files'] ); unset( $records[ $id ] ); } } Backup::persist( $records ); } );
