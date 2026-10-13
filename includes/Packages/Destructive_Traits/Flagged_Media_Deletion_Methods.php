@@ -23,8 +23,8 @@ trait Flagged_Media_Deletion_Methods {
 					array(
 						'attachment_id' => array( 'type' => 'integer', 'minimum' => 1 ),
 						'deletion_policy_branch' => array( 'type' => 'string', 'enum' => array( 'illegal_content_no_backup', 'governed_with_backup' ) ),
-						'reason' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 512 ),
-						'idempotency_key' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 191 ),
+						'reason' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 500 ),
+						'idempotency_key' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 190 ),
 					),
 					array( 'attachment_id', 'deletion_policy_branch', 'reason', 'idempotency_key' )
 				),
@@ -51,7 +51,7 @@ trait Flagged_Media_Deletion_Methods {
 		$branch = (string) ( $input['deletion_policy_branch'] ?? '' );
 		$reason = is_string( $input['reason'] ?? null ) ? trim( $input['reason'] ) : '';
 		$key = is_string( $input['idempotency_key'] ?? null ) ? trim( $input['idempotency_key'] ) : '';
-		if ( ! in_array( $branch, array( 'illegal_content_no_backup', 'governed_with_backup' ), true ) || '' === $reason || strlen( $reason ) > 512 || '' === $key || strlen( $key ) > 191 ) {
+		if ( ! in_array( $branch, array( 'illegal_content_no_backup', 'governed_with_backup' ), true ) || '' === $reason || strlen( $reason ) > 500 || '' === $key || strlen( $key ) > 190 ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_flagged_media_input_invalid', __( 'Flagged media deletion requires a valid branch, bounded reason, and idempotency key.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		if ( ! current_user_can( 'delete_post', $attachment_id ) || ! current_user_can( 'upload_files' ) || ! current_user_can( 'manage_options' ) ) { return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'Flagged media deletion requires administrator, upload and attachment deletion permissions.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) ); }

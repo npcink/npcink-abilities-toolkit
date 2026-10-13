@@ -133,6 +133,7 @@ final class Core_Read_Pack_Classifier {
 				'npcink-abilities-toolkit/get-media-cleanup-opportunities'         => 'media_governance',
 				'npcink-abilities-toolkit/list-media-backups'                      => 'media_governance',
 				'npcink-abilities-toolkit/build-media-inventory-fix-plan'          => 'media_governance',
+			'npcink-abilities-toolkit/build-flagged-media-removal-plan' => 'media_governance',
 			'npcink-abilities-toolkit/get-taxonomy-consolidation-suggestions'  => 'taxonomy_governance',
 			'npcink-abilities-toolkit/propose-post-taxonomy-terms'             => 'taxonomy_governance',
 			'npcink-abilities-toolkit/get-page-structure-health'               => 'page_governance',

@@ -20,6 +20,7 @@ function wp_delete_attachment( $id, $force = false ) {
 require __DIR__ . '/bootstrap.php';
 use Npcink_Abilities_Toolkit\Packages\Core_Write_Package;
 use Npcink_Abilities_Toolkit\Packages\Core_Destructive_Package;
+use Npcink_Abilities_Toolkit\Packages\Core_Read_Package;
 use Npcink_Abilities_Toolkit\Registry\Ability_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Category_Registrar;
 use Npcink_Abilities_Toolkit\Registry\Contract_Normalizer;
@@ -50,12 +51,30 @@ $categories = new Category_Registrar();
 $registrar = new Ability_Registrar( $categories, new Contract_Normalizer( new Schema_Normalizer() ) );
 $write = new Core_Write_Package( $categories, $registrar );
 $delete = new Core_Destructive_Package( $categories, $registrar );
+$read = new Core_Read_Package( $categories, $registrar );
 try {
 	$input = flagged_fixture( 987, 'first' );
 	$preview = $delete->delete_attachment( array_merge( $input, array( 'dry_run' => true, 'commit' => false ) ) );
 	check_flagged( ! is_wp_error( $preview ) && false === $preview['deleted'], 'delete preview is read-only' );
 	check_flagged( empty( Backup::records() ) && ! is_dir( $base . '/' . Backup::PREFIX ), 'preview creates no backup artifacts' );
 	check_flagged( false === $preview['preview']['referenced_by']['scan_complete'], 'bounded reference scan cannot claim exhaustive discovery' );
+	$plan_input = array( 'attachment_id' => 987, 'deletion_policy_branch' => 'governed_with_backup', 'reason' => 'Operator reviewed fixture', 'deletion_request_key' => 'plan-fixture' );
+	$plan = $read->build_flagged_media_removal_plan( $plan_input );
+	check_flagged( ! is_wp_error( $plan ) && 'flagged_media_removal_plan.v1' === $plan['data']['contract_version'] && $plan['data']['batch_approval'], 'planning entry emits the Core batch contract' );
+	check_flagged( empty( Backup::records() ) && get_post( 987 ) && 1 === count( $plan['data']['write_actions'] ), 'planning emits one preview delete without backup or mutation' );
+	$illegal_plan_input = array_merge( $plan_input, array( 'deletion_policy_branch' => 'illegal_content_no_backup' ) );
+	check_flagged( is_wp_error( $read->build_flagged_media_removal_plan( $illegal_plan_input ) ), 'illegal planning requires explicit operator confirmation' );
+	$illegal_plan = $read->build_flagged_media_removal_plan( array_merge( $illegal_plan_input, array( 'no_backup_confirmed' => true ) ) );
+	check_flagged( ! is_wp_error( $illegal_plan ) && isset( $illegal_plan['data']['flagged_media_removal']['no_backup_attestation'] ) && ! isset( $illegal_plan['data']['flagged_media_removal']['backup_evidence'] ), 'illegal planning carries only the no-backup branch evidence' );
+	$url = wp_get_attachment_url( 987 );
+	wp_insert_post( array( 'ID' => 990, 'post_type' => 'post', 'post_status' => 'draft', 'post_content' => 'Reference ' . $url ) );
+	$patch = array( 'target_ability_id' => 'npcink-abilities-toolkit/patch-post-content', 'post_id' => 990, 'operations' => array( array( 'op' => 'replace', 'find' => $url, 'replace' => '' ) ) );
+	$patched_plan = $read->build_flagged_media_removal_plan( array_merge( $plan_input, array( 'reference_patches' => array( $patch ) ) ) );
+	check_flagged( ! is_wp_error( $patched_plan ) && 2 === count( $patched_plan['data']['write_actions'] ) && 'delete_attachment' === $patched_plan['data']['write_actions'][1]['action_id'] && 'Reference ' . $url === get_post( 990 )->post_content, 'reviewed patches precede deletion and planning never mutates content' );
+	$patch['operations'][0]['find'] = 'https://unrelated.example/image.jpg';
+	check_flagged( is_wp_error( $read->build_flagged_media_removal_plan( array_merge( $plan_input, array( 'reference_patches' => array( $patch ) ) ) ) ), 'planning rejects unrelated URL removal' );
+	check_flagged( is_wp_error( $read->build_flagged_media_removal_plan( array_merge( $plan_input, array( 'reference_patches' => array_fill( 0, 11, $patch ) ) ) ) ), 'planning bounds reference actions at ten' );
+
 	check_flagged( is_wp_error( $delete->delete_attachment( $input ) ), 'delete commit requires host authority' );
 	$GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] = array( 'approval_commit_authorized' => true );
 	$GLOBALS['flagged_option_fault'] = static function ( $name, $value ) { return Backup::OPTION === $name; };

@@ -228,10 +228,32 @@ original retained backup is kept until expiry after successful restoration.
 reference helpers. Its `scan_complete=false` and explicit scan limits prevent
 an empty result from claiming there are no references. Evidence contains
 identities and settings names, never post bodies or setting values. The plan
-builder and cross-repo handoff acceptance remain a separate incomplete gate.
+builder is registered; cross-repo signed execution acceptance remains a separate
+gate.
 
 Regression evidence: `tests/flagged-media.php` covers public callbacks and
 injected persistence/metadata failures; `tests/flagged-media-wp.php` executes
 the registered abilities and checks WordPress deletion of all metadata-declared
 files, escaped text preservation, full reconstruction, conflict refusal and
 restore replay. It runs in the default `smoke:wp` profile.
+
+### Plan Builder
+
+`build-flagged-media-removal-plan` is a read-risk, administrator-only entry
+requiring `media.read`, `site.read`, and `post.read` scopes. Its
+`deletion_request_key` becomes the delete action's `idempotency_key`; the read
+ability itself exposes no write controls. The reason is bounded to 500 bytes
+(the current Core intake bound). The illegal branch requires literal
+`no_backup_confirmed=true`. Optional `reference_patches` carry reviewed targets
+and exact URL removal operations; at most 10 patch actions and 20 operations
+per action are accepted. Each URL must belong to this attachment's main or
+metadata-declared local files. Existing write callbacks validate permissions
+and preview the patches without mutation. Patches precede deletion; the batch
+is not a transaction and each write still requires Core/Adapter governance.
+
+The builder emits `flagged_media_removal_plan.v1`, `batch_approval=true`,
+`proposal_mode=batch`, and exactly one delete action. It never guesses patch
+choices from its bounded discovery summary. The actual Core validator accepts
+both branch outputs in the mapped-worktree WordPress fixture. The new plan,
+delete and restore contracts are recorded in the governance catalog snapshot
+and consumer harvest fixture.

@@ -7,7 +7,8 @@ if ( empty( $admins ) ) { throw new RuntimeException( 'An administrator fixture 
 wp_set_current_user( (int) $admins[0] );
 $delete = wp_get_ability( 'npcink-abilities-toolkit/delete-attachment' );
 $restore = wp_get_ability( 'npcink-abilities-toolkit/restore-media-backup' );
-if ( ! $delete || ! $restore ) { throw new RuntimeException( 'Flagged-media abilities are not registered.' ); }
+$builder = wp_get_ability( 'npcink-abilities-toolkit/build-flagged-media-removal-plan' );
+if ( ! $delete || ! $restore || ! $builder ) { throw new RuntimeException( 'Flagged-media abilities are not registered.' ); }
 $checks = 0;
 $check = static function ( $condition, $message ) use ( &$checks ) { ++$checks; if ( ! $condition ) { throw new RuntimeException( $message ); } };
 $ids = array(); $paths = array(); $backup_ids = array();
@@ -26,6 +27,16 @@ try {
 		$alt = get_post_meta( $id, '_wp_attachment_image_alt', true );
 		$input = array( 'attachment_id' => $id, 'deletion_policy_branch' => $branch, 'reason' => 'Reviewed smoke fixture only', 'idempotency_key' => $run . '-' . $branch );
 		$before = Backup::records();
+		$plan_input = $input;
+		$plan_input['deletion_request_key'] = $plan_input['idempotency_key']; unset( $plan_input['idempotency_key'] );
+		$plan_input['no_backup_confirmed'] = 'illegal_content_no_backup' === $branch;
+		$plan = $builder->execute( $plan_input );
+		$check( ! is_wp_error( $plan ) && $plan['data']['batch_approval'] && $plan['data']['dry_run'], 'registered builder produces manual batch without mutation' );
+		if ( class_exists( '\Npcink\GovernanceCore\Governance\Plan_Contract_Validator' ) ) {
+			$validator = new \Npcink\GovernanceCore\Governance\Plan_Contract_Validator();
+			$check( true === $validator->validate( 'npcink-abilities-toolkit/build-flagged-media-removal-plan', $plan['data'] ), 'actual Core validator accepts Toolkit branch plan' );
+		}
+
 		$preview = $delete->execute( $input );
 		$check( ! is_wp_error( $preview ) && $preview['dry_run'] && ! $preview['deleted'], 'registered delete ability defaults to preview' );
 		$check( $before === Backup::records() && is_file( $upload['basedir'] . '/' . $main ), 'preview preserves original and backup state' );

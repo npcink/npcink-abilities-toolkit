@@ -852,11 +852,12 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 		'npcink-abilities-toolkit/build-media-adoption-preflight-summary',
 		'npcink-abilities-toolkit/build-media-rename-plan',
 		'npcink-abilities-toolkit/build-media-derivative-batch-plan',
+		'npcink-abilities-toolkit/build-flagged-media-removal-plan',
 	);
 	$media_governance_definitions = Media_Governance_Read_Definitions::definitions( $core_read_package );
-	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 23 definitions in stable source order' );
-	npcink_abilities_toolkit_assert_same( 116, count( $core_read_definition_ids ), 'core read package preserves the 116-definition public surface after media provider split' );
-	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 116-definition public order' );
+	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 24 definitions in stable source order' );
+	npcink_abilities_toolkit_assert_same( 117, count( $core_read_definition_ids ), 'core read package preserves the 117-definition public surface after media provider split' );
+	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 117-definition public order' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'Media_Governance_Read_Definitions::definitions( $this )' ), 'core read package composes media governance definitions through the dedicated provider' );
 	foreach ( $media_governance_definition_ids as $media_ability_id ) {
 		$inline_definition_pattern = "/'" . preg_quote( $media_ability_id, '/' ) . "'\\s*=>\\s*array\\s*\\(/";

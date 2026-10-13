@@ -140,6 +140,16 @@
             "family": "success_envelope",
             "runtime_verified": false
         },
+        "npcink-abilities-toolkit/build-flagged-media-removal-plan": {
+            "keys": [
+                "success",
+                "data",
+                "meta",
+                "message"
+            ],
+            "family": "success_envelope",
+            "runtime_verified": false
+        },
         "npcink-abilities-toolkit/build-image-candidate-adoption-plan": {
             "keys": [
                 "success",

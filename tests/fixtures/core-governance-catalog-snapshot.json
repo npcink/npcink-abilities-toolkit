@@ -376,6 +376,341 @@
         "mcp_server": "npcink-abilities-toolkit-read",
         "mcp_risk": "read"
       }
+    },
+    "npcink-abilities-toolkit/delete-attachment": {
+      "category": "npcink-abilities-toolkit-write",
+      "risk_level": "destructive",
+      "requires_confirm": true,
+      "requires_approval": true,
+      "capability": "delete_posts",
+      "required_scope": "",
+      "required_scopes": [
+        "media.write"
+      ],
+      "input": {
+        "required": [
+          "attachment_id",
+          "deletion_policy_branch",
+          "reason",
+          "idempotency_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "attachment_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "deletion_policy_branch": {
+            "type": "string",
+            "enum": [
+              "illegal_content_no_backup",
+              "governed_with_backup"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": true
+          },
+          "commit": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "attachment_id",
+          "deletion_policy_branch",
+          "deleted",
+          "dry_run"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "attachment_id": {
+            "type": "integer"
+          },
+          "deletion_policy_branch": {
+            "type": "string"
+          },
+          "deleted": {
+            "type": "boolean"
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "backup_id": {
+            "type": "string"
+          },
+          "backup_evidence": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "host_governed": {
+            "type": "boolean"
+          },
+          "commit_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": false,
+        "mcp_server": "npcink-abilities-toolkit-write",
+        "mcp_risk": "destructive"
+      }
+    },
+    "npcink-abilities-toolkit/restore-media-backup": {
+      "category": "npcink-abilities-toolkit-write",
+      "risk_level": "write",
+      "requires_confirm": true,
+      "requires_approval": true,
+      "capability": "upload_files",
+      "required_scope": "",
+      "required_scopes": [
+        "media.write"
+      ],
+      "input": {
+        "required": [
+          "attachment_id",
+          "backup_id"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "attachment_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "backup_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_current_relative_file": {
+            "type": "string"
+          },
+          "expected_current_mime_type": {
+            "type": "string"
+          },
+          "expected_current_media_fingerprint": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 71
+          },
+          "expected_storage_provider": {
+            "type": "string"
+          },
+          "expected_storage_adapter": {
+            "type": "string"
+          },
+          "storage_preflight": {
+            "type": "object",
+            "additionalProperties": false
+          },
+          "target_conflict_mode": {
+            "type": "string",
+            "enum": [
+              "fail",
+              "overwrite"
+            ],
+            "default": "fail"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": true
+          },
+          "commit": {
+            "type": "boolean",
+            "default": false
+          },
+          "idempotency_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "attachment_id",
+          "backup_id",
+          "restored",
+          "rolled_back",
+          "original_preserved",
+          "dry_run"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "attachment_id": {
+            "type": "integer"
+          },
+          "backup_id": {
+            "type": "string"
+          },
+          "recreated": {
+            "type": "boolean"
+          },
+          "idempotent_replay": {
+            "type": "boolean"
+          },
+          "replacement_id": {
+            "type": "string"
+          },
+          "restored": {
+            "type": "boolean"
+          },
+          "rolled_back": {
+            "type": "boolean"
+          },
+          "original_preserved": {
+            "type": "boolean"
+          },
+          "before": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "after": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "backup": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "current_backup": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "content_reference_repairs": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "history": {
+            "type": "array"
+          },
+          "edit_link": {
+            "type": "string"
+          },
+          "preview": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "dry_run": {
+            "type": "boolean"
+          },
+          "host_governed": {
+            "type": "boolean"
+          },
+          "commit_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": true,
+        "mcp_server": "npcink-abilities-toolkit-write",
+        "mcp_risk": "write"
+      }
+    },
+    "npcink-abilities-toolkit/build-flagged-media-removal-plan": {
+      "category": "npcink-abilities-toolkit-data",
+      "risk_level": "read",
+      "requires_confirm": false,
+      "requires_approval": false,
+      "capability": "manage_options",
+      "required_scope": "",
+      "required_scopes": [
+        "media.read",
+        "site.read",
+        "post.read"
+      ],
+      "input": {
+        "required": [
+          "attachment_id",
+          "deletion_policy_branch",
+          "reason",
+          "deletion_request_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "attachment_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "deletion_policy_branch": {
+            "type": "string",
+            "enum": [
+              "governed_with_backup",
+              "illegal_content_no_backup"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "deletion_request_key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 190
+          },
+          "no_backup_confirmed": {
+            "type": "boolean",
+            "default": false
+          },
+          "reference_patches": {
+            "type": "array",
+            "maxItems": 10
+          }
+        }
+      },
+      "output": {
+        "required": [
+          "success",
+          "data"
+        ],
+        "additionalProperties": null,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "meta": {
+        "show_in_rest": true,
+        "mcp_public": false,
+        "mcp_server": "npcink-abilities-toolkit-read",
+        "mcp_risk": "read"
+      }
     }
   }
 }
