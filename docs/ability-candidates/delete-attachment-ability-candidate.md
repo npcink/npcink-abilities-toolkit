@@ -120,15 +120,15 @@ The dry-run preview must return, without changing anything:
 
 Before this candidate becomes an implemented ability:
 
-- [ ] schema and dry-run preview registered through the standard Toolkit
+- [x] schema and dry-run preview registered through the standard Toolkit
       registration helpers;
-- [ ] `governed_with_backup` dry-run carries the backup evidence fields Core
+- [x] `governed_with_backup` dry-run carries the backup evidence fields Core
       preflight will require;
-- [ ] `illegal_content_no_backup` dry-run carries the no-backup attestation
+- [x] `illegal_content_no_backup` dry-run carries the no-backup attestation
       field and the callback path provably creates no backup artifacts;
-- [ ] audit integration records deletion descriptions without content
+- [x] audit integration records deletion descriptions without content
       retention;
-- [ ] restore coverage exists only for `governed_with_backup`;
+- [x] restore coverage exists only for `governed_with_backup`;
 - [ ] the cross-repo boundary matrix and Core governance catalog record the
       new ability id.
 

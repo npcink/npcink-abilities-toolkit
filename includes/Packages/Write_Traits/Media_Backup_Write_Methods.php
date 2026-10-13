@@ -231,6 +231,8 @@ trait Media_Backup_Write_Methods {
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
 		$attachment = $this->get_media_attachment( $attachment_id );
 		if ( is_wp_error( $attachment ) ) {
+			$deleted_restore = $this->restore_flagged_media_deletion_backup( $input, $attachment_id );
+			if ( null !== $deleted_restore ) { return $deleted_restore; }
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {

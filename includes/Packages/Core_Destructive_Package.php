@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers destructive WordPress abilities migrated from the Npcink AI plugin.
  */
 final class Core_Destructive_Package {
+	use Destructive_Traits\Flagged_Media_Deletion_Methods;
 	/**
 	 * Category registrar.
 	 *
@@ -74,6 +75,7 @@ final class Core_Destructive_Package {
 		$term_id    = array( 'type' => 'integer', 'minimum' => 1 );
 		$post_id    = array( 'type' => 'integer', 'minimum' => 1 );
 		$comment_id = array( 'type' => 'integer', 'minimum' => 1 );
+		$attachment_id = array( 'type' => 'integer', 'minimum' => 1 );
 
 		return array(
 			'npcink-abilities-toolkit/delete-term'              => array(
@@ -296,6 +298,35 @@ final class Core_Destructive_Package {
 					array( 'attachment_id', 'deleted', 'parent_post_id', 'dry_run' )
 				),
 				'execute_callback' => array( $this, 'delete_media_permanently' ),
+			),
+			'npcink-abilities-toolkit/delete-attachment' => array(
+				'label'           => __( 'Delete Attachment', 'npcink-abilities-toolkit' ),
+				'description'     => __( 'Deletes one media attachment through the dual-branch governed contract, with reference evidence, operator reason, and optional retained backup restore.', 'npcink-abilities-toolkit' ),
+				'category'        => 'npcink-abilities-toolkit-write',
+				'capability'      => 'delete_posts',
+				'required_scopes' => array( 'media.write' ),
+				'channels'        => array( 'agent', 'mcp' ),
+				'meta'            => $this->destructive_meta( false ),
+				'input_schema'    => $this->schema(
+					array(
+						'attachment_id' => $attachment_id,
+						'deletion_policy_branch' => array( 'type' => 'string', 'enum' => array( 'illegal_content_no_backup', 'governed_with_backup' ) ),
+						'reason' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 512 ),
+						'idempotency_key' => array( 'type' => 'string', 'minLength' => 1, 'maxLength' => 191 ),
+					),
+					array( 'attachment_id', 'deletion_policy_branch', 'reason', 'idempotency_key' )
+				),
+				'output_schema'   => $this->schema(
+					array(
+						'attachment_id' => array( 'type' => 'integer' ),
+						'deletion_policy_branch' => array( 'type' => 'string' ),
+						'deleted' => array( 'type' => 'boolean' ),
+						'dry_run' => array( 'type' => 'boolean' ),
+						'preview' => array( 'type' => 'object' ),
+					),
+					array( 'attachment_id', 'deletion_policy_branch', 'deleted', 'dry_run' )
+				),
+				'execute_callback' => array( $this, 'delete_attachment' ),
 			),
 			'npcink-abilities-toolkit/trash-post'               => array(
 				'label'           => __( 'Trash Post', 'npcink-abilities-toolkit' ),
@@ -908,19 +939,19 @@ final class Core_Destructive_Package {
 	 * @return array<string,mixed>
 	 */
 	private function with_agent_usage_metadata( $ability_id, array $definition ) {
-		if ( 'npcink-abilities-toolkit/delete-media-permanently' !== $ability_id ) {
+		if ( ! in_array( $ability_id, array( 'npcink-abilities-toolkit/delete-media-permanently', 'npcink-abilities-toolkit/delete-attachment' ), true ) ) {
 			return $definition;
 		}
 
 		$definition['agent_usage'] = array(
 			'when_to_use'     => array(
-				'Prepare or commit permanent deletion of one media attachment after explicit review.',
+				'Prepare or commit deletion of one media attachment after explicit review.',
 			),
 			'not_for'         => array(
 				'Do not use this for cleanup discovery, reversible trash actions, or bulk deletion.',
 			),
 			'best_for'        => array(
-				'Executing one approved destructive media cleanup action with a known attachment id.',
+				'Executing one approved destructive media cleanup action with a known attachment id and policy branch.',
 			),
 			'stopping_points' => array(
 				'Default to dry_run; final permanent deletion requires host approval context and idempotency protection.',

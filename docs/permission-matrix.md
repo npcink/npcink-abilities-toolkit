@@ -61,6 +61,7 @@ Abilities declare authorization surfaces through `required_scope` /
 | `npcink-abilities-toolkit/spam-comment` | `destructive` | `moderate_comments` | `comments.manage` |
 | `npcink-abilities-toolkit/trash-comment` | `destructive` | `moderate_comments` | `comments.manage` |
 | `npcink-abilities-toolkit/delete-media-permanently` | `destructive` | `delete_posts` | `media.write` |
+| `npcink-abilities-toolkit/delete-attachment` | `destructive` | `delete_posts` | `media.write` |
 | `npcink-abilities-toolkit/trash-post` | `destructive` | `delete_posts` | `post.delete` |
 | `npcink-abilities-toolkit/delete-post-permanently` | `destructive` | `delete_posts` | `post.delete` |
 
