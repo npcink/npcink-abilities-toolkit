@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-13
+
+User-visible operator read-only mode release. The setting narrows registration at the package boundary and does not change ability ids, schemas, dry-run defaults, host approval, or final write authorization.
+
 - Added the operator read-only mode accepted in ADR 0009 (#242): a single checkbox in the Overview ability-package section stops registering the write and destructive packages on this site. The choice is narrowing-only — effective enablement is the host `npcink_abilities_toolkit_enabled_packages` filter AND the operator's read-only choice, so a host filter can never widen past it and the option can never enable anything. Read abilities, comment helpers, the catalog bridge, the admin status page, and cache refresh are untouched; the option is per-site with autoload off, applies on the next request, and is removed on uninstall. The three new admin strings ship in the template and all seven bundled locales.
 
 ## 0.5.12 - 2026-10-11
