@@ -1,6 +1,6 @@
 # 0.7.0 Release Verification
 
-Status: candidate verified; protected merge and publication pending.
+Status: published; SVN and the public directory API both report 0.7.0.
 Date: 2026-10-13.
 
 ## Change Envelope
@@ -78,9 +78,32 @@ POT regeneration changes source references; all seven locales still cover
 1,138 messages. Listing PO separately covers 145 current strings, preserves
 86 waiting suggestions and has matching HTML/placeholder checks.
 
-The final protected merge must receive fresh revision-bound M4 evidence and
-release verification before tagging. Documentation and marketing are excluded
-from the deterministic package; recheck the checksum after merge.
+## Protected Release And Publication
+
+- Protected release PR: [#256](https://github.com/npcink/npcink-abilities-toolkit/pull/256).
+- Release commit and Git tag `0.7.0`:
+  `46c1405422ae0ac1f8ea6820b391b48d09326a14`.
+- All five required CI checks passed; no required gate was bypassed.
+- Exact merged revision M4 smoke passed both 478-assertion profiles. The official
+  WordPress download stalled; a temporary runner reused ZIP caches after archive
+  integrity and embedded version checks, without changing tracked gate code.
+  Source archive SHA-256: `35bb983fbc0229b0cfdfd6d2fb7f094068ea93001732f64d6104bac9e709f31e`.
+- Full merged-source `release:verify` passed again: 479/58 Local assertions,
+  26 flagged-media checks, PHPStan level-4 total 669 and Plugin Check zero errors.
+- Final deterministic ZIP checksum matches the candidate checksum above.
+- WordPress.org SVN revision: **3744229**. Before commit, freshness/scope were
+  checked and trunk plus the new tag matched all 88 ZIP files byte for byte.
+  Existing `muze233` Keychain credentials were used non-interactively; no
+  credential was read or copied into evidence.
+- Remote SVN tag export matches all 88 verified package files. After initial
+  cache delay, the public directory API reports 0.7.0 and its versioned download.
+  The public download ZIP also matches all 88 verified package files.
+
+Advisory review delivered no verdict: Codex reported review quota exhaustion;
+OpenCodeReview attempts 1 and 2 failed at the provider layer (HTTP 400). The
+standard publisher's protected auto-merge completed before advisory delivery.
+The service exception and independent local review basis are recorded in #256;
+these failures are not reported as zero-findings reviews.
 
 ## Host Evidence
 
@@ -92,12 +115,14 @@ operator browser approval and signed execution for one governed deletion.
 
 ## Remaining Maintainer Steps
 
-1. Pass the source and release gates and review the complete release diff.
-2. Publish through a protected pull request and verify the merged source.
-3. Create a new `0.7.0` tag from the verified release commit.
-4. Prepare and inspect the fresh WordPress.org SVN working copy, publish using
-   the runbook's terminal/Keychain credential path, then verify remote state.
-5. Record publication evidence and perform non-destructive branch closeout.
+1. Import the prepared WordPress.org zh_CN listing translations and obtain
+   editor approval. The PTE draft is unsent; see the current translation note.
+2. Complete branch closeout within `AGENTS.md`'s safe deletion rule. Historical
+   squash-merged branches have verified PR head records and a recovery bundle;
+   `git branch -d` refuses their ancestry, so they remain until an explicit
+   maintainer exception authorizes force deletion.
 
 Gitee remains deferred. Structural debt, file hashing and Core convergence
-remain evidence-triggered maintenance work.
+remain evidence-triggered maintenance work. Current all-platform acceptance is
+not claimed: the full matrix retains dirty Toolbox/Cloud Addon rows and the
+Cloud Addon settings file exceeds its line ceiling by one line.

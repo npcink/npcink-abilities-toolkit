@@ -78,7 +78,7 @@ a `manage_options` REST caller for plugin version, contract versions, catalog
 hashes, workflow hash, and the host-governed write boundary.
 
 - [Release 0.6.0 Verification](archive/release-0.6.0-verification.md): published operator read-only mode evidence.
-- [Release 0.7.0 Verification](archive/release-0.7.0-verification.md): candidate verification and publication status for REST discovery and governed flagged-media contracts.
+- [Release 0.7.0 Verification](archive/release-0.7.0-verification.md): published verification for REST discovery and governed flagged-media contracts.
 
 ## Maintainers
 
