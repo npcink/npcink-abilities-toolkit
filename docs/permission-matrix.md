@@ -70,3 +70,12 @@ Abilities declare authorization surfaces through `required_scope` /
 This plugin does not issue app keys, approve proposals, rate-limit callers, or
 store governance audit trails. Those decisions belong to `npcink-ai-core` or
 another host runtime.
+
+### Deleted flagged-media restore
+
+`delete-attachment` requires administrator, upload and per-attachment deletion
+permissions. The `flagged_delete_*` variant of `restore-media-backup` requires
+`manage_options` plus `upload_files`; an `edit_post` check against a deleted id
+cannot authorize recreating it. Both commits still require host authorization.
+Existing media-file replacement and restore of surviving attachments keep their
+original permission checks.

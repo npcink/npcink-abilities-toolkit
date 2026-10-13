@@ -82,7 +82,7 @@ The dry-run preview must return, without changing anything:
   actions into one proposal;
 - for `governed_with_backup`: the concrete backup plan evidence fields that
   Core preflight will require (backup location, retention window, restore
-  token contract);
+  ability contract);
 - for `illegal_content_no_backup`: an explicit no-backup attestation field the
   operator must confirm, stating no backup, local copy, or Cloud artifact
   retention will be created.
@@ -189,3 +189,49 @@ The candidate is accepted for implementation. Implementation must satisfy
 every checklist item and register through the standard helpers; the
 cross-repo matrix and Core governance catalog updates are part of that
 checklist, not of this document revision.
+
+## Deleted-Attachment Restore Extension
+
+The existing `restore-media-backup` ability also accepts a `flagged_delete_*`
+backup id plus the original (now deleted) `attachment_id`. This variant requires
+`manage_options` and `upload_files` as well as host commit authorization. It
+recreates an attachment with a **new id**; it does not restore references to the
+old id, featured-image relationships, custom plugin metadata, or arbitrary
+Cloud/offloaded files. Operators review those relationships separately.
+
+The governed backup snapshots the local main file, metadata-declared sizes,
+original image, edited-image backup sizes, standard attachment fields and ALT.
+All source paths must be contained in uploads without symlinks, and all declared
+files must exist. Bounds: 64 files and 256 MiB per attachment, 100 retained
+manifests per site. Backup records live outside attachment metadata, with
+verified option persistence and exclusive file creation. A shared nonblocking
+filesystem lock serializes backup, restore and cleanup mutations; it is not
+an approval store or a task runtime. Multi-node deployments require a shared
+uploads filesystem with working file locks.
+
+Dry runs create no backup files or records. Successful deletion returns
+`backup_id` and `backup_evidence`, including the restore ability id. Retention
+uses the existing 1–365 day backup-retention filter (30 days by default), captured
+at backup creation. Existing backup maintenance removes expired retained files
+and manifests; restore rejects expired evidence even before cleanup runs.
+
+Deleted-attachment restore always fails on an occupied target path, including
+when `target_conflict_mode=overwrite` is supplied. It checks every retained
+file's SHA-256, persists mutation intent before copying, compensates failed
+writes, and verifies durable result evidence before reporting success. Replays
+return the new attachment id only while the recreated attachment and every
+restored file still match. An interrupted restore stays blocked for explicit
+operator recovery; it never creates another attachment automatically. The
+original retained backup is kept until expiry after successful restoration.
+
+`referenced_by` uses existing bounded content/featured-image and settings
+reference helpers. Its `scan_complete=false` and explicit scan limits prevent
+an empty result from claiming there are no references. Evidence contains
+identities and settings names, never post bodies or setting values. The plan
+builder and cross-repo handoff acceptance remain a separate incomplete gate.
+
+Regression evidence: `tests/flagged-media.php` covers public callbacks and
+injected persistence/metadata failures; `tests/flagged-media-wp.php` executes
+the registered abilities and checks WordPress deletion of all metadata-declared
+files, escaped text preservation, full reconstruction, conflict refusal and
+restore replay. It runs in the default `smoke:wp` profile.

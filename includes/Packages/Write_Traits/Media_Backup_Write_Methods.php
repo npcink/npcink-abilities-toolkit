@@ -102,7 +102,7 @@ trait Media_Backup_Write_Methods {
 			}
 		}
 
-		return array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor );
+		return \Npcink_Abilities_Toolkit\Support\Flagged_Media_Backup::add_cleanup_counts( array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor ), $execute );
 	}
 
 	/**
@@ -231,8 +231,6 @@ trait Media_Backup_Write_Methods {
 		$attachment_id = absint( $input['attachment_id'] ?? 0 );
 		$attachment = $this->get_media_attachment( $attachment_id );
 		if ( is_wp_error( $attachment ) ) {
-			$deleted_restore = $this->restore_flagged_media_deletion_backup( $input, $attachment_id );
-			if ( null !== $deleted_restore ) { return $deleted_restore; }
 			return $attachment;
 		}
 		if ( ! current_user_can( 'edit_post', $attachment_id ) ) {
@@ -303,7 +301,7 @@ trait Media_Backup_Write_Methods {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function restore_media_backup( $input ) {
+	private function restore_existing_media_backup( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to restore media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
