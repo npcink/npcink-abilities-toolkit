@@ -675,8 +675,8 @@ final class Ability_Registrar {
 	 *
 	 * Anonymous frontend pageviews skip fingerprint work and built-in package
 	 * registration; admin, REST, cron, and CLI contexts register and re-check.
-	 * REST_REQUEST is defined only after init on REST requests, so the URI-based
-	 * wp_is_rest_endpoint() covers init-time boot decisions.
+	 * REST_REQUEST is defined after init. The rest_api_init hook also covers
+	 * internal REST server initialization before dispatch.
 	 *
 	 * @return bool
 	 */
@@ -687,7 +687,7 @@ final class Ability_Registrar {
 		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return true;
 		}
-		if ( function_exists( 'wp_is_rest_endpoint' ) && wp_is_rest_endpoint() ) {
+		if ( ( function_exists( 'doing_action' ) && doing_action( 'rest_api_init' ) ) || ( function_exists( 'wp_is_rest_endpoint' ) && wp_is_rest_endpoint() ) ) {
 			return true;
 		}
 		return ( defined( 'WP_CLI' ) && WP_CLI ) || ( function_exists( 'wp_doing_cron' ) && wp_doing_cron() );

@@ -30,6 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Wires the public API to WordPress hooks.
  */
 final class Plugin {
+	use Runtime_Packages;
+
 	/**
 	 * Singleton instance.
 	 *
@@ -154,6 +156,7 @@ final class Plugin {
 		$this->booted = true;
 		$this->load_textdomain();
 		if ( function_exists( 'add_action' ) ) {
+			add_action( 'rest_api_init', array( $this, 'boot_runtime_packages' ), 0 );
 			add_action( 'rest_api_init', array( new Contract_Controller(), 'register_routes' ) );
 		}
 		$this->categories->boot();
@@ -163,33 +166,7 @@ final class Plugin {
 		 * even when a host disables the admin status page package.
 		 */
 		( new Health_Notices( $this->abilities ) )->boot();
-		$register_packages = $this->abilities->runtime_context_active();
-		if ( function_exists( 'apply_filters' ) ) {
-			/**
-			 * Filters whether built-in ability packages register on anonymous
-			 * frontend contexts, where abilities never run; hosts that run
-			 * abilities programmatically on frontend requests return true to
-			 * restore registration everywhere.
-			 *
-			 * @param bool $register_packages Whether frontend contexts register built-in abilities.
-			 */
-			$register_packages = (bool) apply_filters( 'npcink_abilities_toolkit_register_frontend_contexts', $register_packages );
-		}
-		if ( $register_packages && $this->is_package_enabled( 'core_read' ) ) {
-			$this->core_read_package()->boot();
-		}
-		if ( $register_packages && $this->is_package_enabled( 'core_write' ) ) {
-			$this->core_write_package()->boot();
-			$this->schedule_media_backup_cleanup();
-		} elseif ( ! $this->is_package_enabled( 'core_write' ) ) {
-			$this->clear_media_backup_cleanup_schedule();
-		}
-		if ( $register_packages && $this->is_package_enabled( 'core_destructive' ) ) {
-			$this->core_destructive_package()->boot();
-		}
-		if ( $register_packages && $this->is_package_enabled( 'core_comment' ) ) {
-			$this->core_comment_package()->boot();
-		}
+		$this->boot_runtime_packages();
 		if ( $this->is_package_enabled( 'npcink_catalog_bridge' ) ) {
 			$this->catalog_bridge->boot();
 		}
@@ -201,26 +178,6 @@ final class Plugin {
 		}
 		if ( $this->is_package_enabled( 'read_cache_hooks' ) ) {
 			$this->register_cache_invalidation_hooks();
-		}
-	}
-
-	private function schedule_media_backup_cleanup() {
-		if ( ! function_exists( 'wp_next_scheduled' ) || ! function_exists( 'wp_schedule_event' ) ) {
-			return;
-		}
-		$hook = 'npcink_abilities_toolkit_cleanup_media_backups';
-		if ( ! wp_next_scheduled( $hook ) ) {
-			wp_schedule_event( time() + ( defined( 'HOUR_IN_SECONDS' ) ? HOUR_IN_SECONDS : 3600 ), 'daily', $hook );
-		}
-	}
-
-	private function clear_media_backup_cleanup_schedule() {
-		if ( ! function_exists( 'wp_next_scheduled' ) || ! function_exists( 'wp_clear_scheduled_hook' ) ) {
-			return;
-		}
-		$hook = 'npcink_abilities_toolkit_cleanup_media_backups';
-		if ( wp_next_scheduled( $hook ) ) {
-			wp_clear_scheduled_hook( $hook );
 		}
 	}
 
