@@ -8,7 +8,7 @@ Use this shared Local site for repeatable manual and smoke verification:
 
 - Site URL: `https://magick-ai.local`
 - WordPress path: `/Users/muze/Local Sites/magick-ai/app/public`
-- Local MySQL socket: `/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock`
+- Local MySQL socket: `/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock`
 - WP-CLI command: `/opt/homebrew/bin/wp`
 - PHP binary: `/opt/homebrew/bin/php`
 - Test admin username: `1`
@@ -19,10 +19,10 @@ Use this shared Local site for repeatable manual and smoke verification:
 - Standalone fallback admin page:
   `https://magick-ai.local/wp-admin/tools.php?page=npcink-abilities-toolkit`
 
-Current verification as of 2026-07-10:
+Current verification as of 2026-10-13 (master `09c6352`, WordPress 7.1.1):
 
-- `composer smoke:wp` passed with `Smoke OK: 435 assertions` for the full
-  profile and `Smoke OK: 56 assertions` for the light profile.
+- `composer smoke:wp` passed with `Smoke OK: 479 assertions` for the full
+  profile and `Smoke OK: 58 assertions` for the light profile.
 - Run the socket-aware command below with the globally installed `wp` command.
 
 Historical verification notes:
@@ -132,13 +132,17 @@ WP_PATH="/path/to/site/app/public" composer smoke:wp
 
 Local can set `DB_HOST` to `localhost`, while the system PHP used by WP-CLI looks for a different default MySQL socket. In that case, pass the Local site socket through `WP_CLI_PHP_ARGS`.
 
+The socket hash changes when Local restarts a site. Locate the live socket
+and confirm the returned `siteurl` before running smoke; do not treat the
+example hash as permanent (see the release runbook).
+
 For the `https://magick-ai.local/` test site:
 
 ```bash
 WP_CLI=/opt/homebrew/bin/wp \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
-WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:wp
 ```
@@ -158,8 +162,8 @@ selection, or reading settings change.
 Expected result:
 
 ```text
-Smoke OK: 435 assertions
-Smoke OK: 56 assertions
+Smoke OK: 479 assertions
+Smoke OK: 58 assertions
 ```
 
 The default smoke profile verifies Abilities API availability, authenticated

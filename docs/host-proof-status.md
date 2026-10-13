@@ -87,7 +87,7 @@ Run the proof with:
 ```bash
 WP_CLI=/opt/homebrew/bin/wp \
 WP_CLI_PHP=/opt/homebrew/bin/php \
-WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:block-theme-host-proof
 ```
@@ -161,7 +161,7 @@ The article optimization host proof was locally validated with:
 composer test:all
 WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP="$HOME/Library/Application Support/Local/lightning-services/php-8.5.3+1/bin/darwin-arm64/bin/php" \
-WP_CLI_MYSQL_SOCKET="$HOME/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="$HOME/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 composer smoke:wp
 git diff --check
 ```
@@ -174,7 +174,7 @@ git diff --check
 composer test:all
 WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP="$HOME/Library/Application Support/Local/lightning-services/php-8.5.3+1/bin/darwin-arm64/bin/php" \
-WP_CLI_MYSQL_SOCKET="$HOME/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="$HOME/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 composer smoke:wp
 ```
 

@@ -2,8 +2,8 @@
 
 Date: 2026-10-11
 
-Status: accepted, implementation deferred to the 0.6 line (or the first
-real demand signal, whichever comes first).
+Status: accepted and implemented in pull requests #242 and #243; pending the
+0.6.0 release.
 
 ## Context
 
@@ -27,7 +27,7 @@ must not change retroactively.
 
 ## Decision
 
-When implemented, add exactly one operator-facing setting, "read-only mode",
+Add exactly one operator-facing setting, "read-only mode",
 with narrowing-only semantics:
 
 1. **One option, one direction.** A single site option
@@ -67,6 +67,6 @@ with narrowing-only semantics:
   ability contracts, dry-run semantics, host approval, idempotency, or any
   runtime governance; those remain exactly as the host approval contract
   defines.
-- Deferring the implementation keeps the 0.5.x line unchanged while locking
-  the semantics now, so the eventual implementation is mechanical review
-  rather than a design discussion.
+- Implementation landed after the 0.5.12 release in #242/#243. The next
+  release is 0.6.0 because the switch adds a user-visible registration control;
+  ability ids, schemas, dry-run semantics, and host authorization stay stable.
