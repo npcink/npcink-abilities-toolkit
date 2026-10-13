@@ -263,6 +263,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790] = (object) array(
 	'post_type'      => 'attachment',
 	'post_status'    => 'inherit',
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	790,
@@ -510,6 +511,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][713] = (object) array(
 	'post_excerpt'   => '',
 	'post_mime_type' => 'image/jpeg',
 	'guid'           => 'https://example.test/wp-content/uploads/workflow-dashboard.jpg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][713]['_wp_attachment_image_alt'] = '';
 $media_alt_apply_plan_input = array(
