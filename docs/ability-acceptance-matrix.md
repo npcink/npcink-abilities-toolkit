@@ -1,7 +1,7 @@
 # Ability Acceptance Matrix
 
 Status: active freeze/observe acceptance matrix; additive media contracts are
-included in the 0.7.0 release candidate.
+included in the published 0.7.0 release.
 
 This matrix translates the first-party ability packs into real agent tasks. It
 is intentionally task-oriented: adding another ability only helps when it closes

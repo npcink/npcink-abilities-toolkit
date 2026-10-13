@@ -225,7 +225,7 @@ Use this classification before creating Toolkit work:
 
 ## Release Posture
 
-The `0.6.0` release is published. The `0.7.0` candidate packages the focused
+The `0.7.0` release is published to WordPress.org SVN and packages the focused
 REST lifecycle fix and the independently justified flagged-media contracts.
 Candidate source gates, packaged verification, human acceptance and public
 publication are separate evidence levels; consult the current
