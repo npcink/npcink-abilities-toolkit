@@ -18,7 +18,7 @@ trait Flagged_Media_Read_Methods {
 		$url = (string) wp_get_attachment_url( $attachment_id );
 		$settings = array();
 		if ( '' !== $url ) {
-			foreach ( $this->media_settings_reference_repair_candidates( array(), 50 ) as $candidate ) {
+			foreach ( $this->media_settings_reference_repair_candidates( array( 'old_url' => $url ), 50 ) as $candidate ) {
 				if ( false !== strpos( $this->media_settings_reference_value_text( $candidate['value'] ?? null ), $url ) ) {
 					$settings[] = array( 'target_type' => $candidate['target_type'], 'target_name' => $candidate['target_name'] );
 				}
@@ -67,9 +67,9 @@ trait Flagged_Media_Read_Methods {
 				$result = $write->patch_setting_value( $patch_input );
 			} else { return \Npcink_Abilities_Toolkit\Support\Flagged_Media_Backup::error( 'reference_target_not_allowed', 400 ); }
 			if ( is_wp_error( $result ) ) { return $result; }
-			$actions[] = array( 'action_id' => 'remove_reference_' . $index, 'target_ability_id' => $ability, 'input' => $patch_input );
+			$actions[] = array( 'action_id' => 'remove_reference_' . $index, 'target_ability_id' => $ability, 'requires_approval' => true, 'commit_execution' => false, 'input' => $patch_input );
 		}
-		$actions[] = array( 'action_id' => 'delete_attachment', 'target_ability_id' => 'npcink-abilities-toolkit/delete-attachment', 'input' => $delete_input );
+		$actions[] = array( 'action_id' => 'delete_attachment', 'target_ability_id' => 'npcink-abilities-toolkit/delete-attachment', 'requires_approval' => true, 'commit_execution' => false, 'input' => $delete_input );
 		$context = $delete_input;
 		unset( $context['dry_run'], $context['commit'] );
 		foreach ( array( 'backup_evidence', 'no_backup_attestation' ) as $field ) { if ( isset( $preview['preview'][ $field ] ) ) { $context[ $field ] = $preview['preview'][ $field ]; } }

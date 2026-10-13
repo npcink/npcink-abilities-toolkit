@@ -185,6 +185,7 @@ $expected_options = array(
 	'npcink_abilities_toolkit_media_backup_cleanup_cursor',
 	'npcink_abilities_toolkit_media_backup_manual_cleanup_cursor',
 );
+$expected_options[] = 'npcink_abilities_toolkit_flagged_media_deletion_backups';
 $expected_deleted = 'multisite' === $mode ? array_merge( $expected_options, $expected_options ) : $expected_options;
 if ( $expected_deleted !== $GLOBALS['npcink_uninstall_deleted_options'] ) {
 	fwrite( STDERR, 'Unexpected uninstall deletions: ' . json_encode( $GLOBALS['npcink_uninstall_deleted_options'] ) . "\n" );
@@ -255,7 +256,9 @@ $GLOBALS['npcink_uninstall_preserve_media_history'] = true;
 @mkdir( $npcink_uninstall_backups . '/2026/01', 0777, true );
 file_put_contents( $npcink_uninstall_backups . '/2026/01/backup.jpg', 'backup-bytes' );
 $npcink_uninstall_deleted_meta_keys_backup = $GLOBALS['npcink_uninstall_deleted_meta_keys'];
+$preserved_options = $GLOBALS['npcink_uninstall_deleted_options'];
 npcink_abilities_toolkit_uninstall_media_backup_artifacts();
+if ( $preserved_options !== $GLOBALS['npcink_uninstall_deleted_options'] ) { throw new RuntimeException( 'Preserved backups must retain the deleted-attachment manifest.' ); }
 if ( ! is_file( $npcink_uninstall_backups . '/2026/01/backup.jpg' ) ) {
 	fwrite( STDERR, "Preserve filters did not keep host-owned media backups and history.\n" );
 	exit( 1 );

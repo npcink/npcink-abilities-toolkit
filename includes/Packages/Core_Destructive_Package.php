@@ -75,7 +75,6 @@ final class Core_Destructive_Package {
 		$term_id    = array( 'type' => 'integer', 'minimum' => 1 );
 		$post_id    = array( 'type' => 'integer', 'minimum' => 1 );
 		$comment_id = array( 'type' => 'integer', 'minimum' => 1 );
-		$attachment_id = array( 'type' => 'integer', 'minimum' => 1 );
 
 		return array(
 			'npcink-abilities-toolkit/delete-term'              => array(

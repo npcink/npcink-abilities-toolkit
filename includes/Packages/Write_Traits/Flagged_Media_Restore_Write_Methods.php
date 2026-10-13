@@ -29,6 +29,7 @@ trait Flagged_Media_Restore_Write_Methods {
 			if ( $attachment_id <= 0 || $attachment_id !== (int) ( $manifest['attachment_id'] ?? 0 ) || $backup_id !== ( $manifest['backup_id'] ?? '' ) || 'governed_with_backup' !== ( $manifest['branch'] ?? '' ) ) { return Flagged_Media_Backup::error( 'backup_attachment_mismatch' ); }
 			if ( (int) ( $manifest['expires_at'] ?? 0 ) <= time() ) { return Flagged_Media_Backup::error( 'backup_expired', 410 ); }
 			$files = (array) ( $manifest['files'] ?? array() );
+			if ( 'backing_up' === ( $manifest['state'] ?? '' ) ) { return Flagged_Media_Backup::error( 'backup_incomplete' ); }
 			if ( empty( $files ) || count( $files ) > Flagged_Media_Backup::MAX_FILES ) { return Flagged_Media_Backup::error( 'backup_files_invalid' ); }
 			foreach ( $files as $index => $file ) {
 				$source = Flagged_Media_Backup::path( Flagged_Media_Backup::PREFIX . $backup_id . '/' . $index . '.bin' );
@@ -83,6 +84,7 @@ trait Flagged_Media_Restore_Write_Methods {
 			}
 			if ( '' === $failure ) {
 				foreach ( array( '_wp_attached_file' => $manifest['relative_file'], '_wp_attachment_metadata' => $manifest['metadata'], '_wp_attachment_backup_sizes' => $manifest['backup_sizes'], '_wp_attachment_image_alt' => $manifest['alt'] ) as $key => $value ) {
+					if ( empty( $value ) && in_array( $key, array( '_wp_attachment_metadata', '_wp_attachment_backup_sizes' ), true ) ) { continue; }
 					update_post_meta( $new_id, $key, wp_slash( $value ) );
 					if ( get_post_meta( $new_id, $key, true ) !== $value ) { $failure = 'restore_metadata_failed'; break; }
 				}
