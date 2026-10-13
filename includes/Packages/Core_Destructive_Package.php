@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers destructive WordPress abilities migrated from the Npcink AI plugin.
  */
 final class Core_Destructive_Package {
+	use Destructive_Traits\Flagged_Media_Deletion_Methods;
 	/**
 	 * Category registrar.
 	 *
@@ -297,6 +298,7 @@ final class Core_Destructive_Package {
 				),
 				'execute_callback' => array( $this, 'delete_media_permanently' ),
 			),
+			'npcink-abilities-toolkit/delete-attachment' => $this->flagged_media_definition(),
 			'npcink-abilities-toolkit/trash-post'               => array(
 				'label'           => __( 'Trash Post', 'npcink-abilities-toolkit' ),
 				'description'     => __( 'Moves one post to trash after host approval, or returns a dry-run preview by default.', 'npcink-abilities-toolkit' ),
@@ -908,19 +910,19 @@ final class Core_Destructive_Package {
 	 * @return array<string,mixed>
 	 */
 	private function with_agent_usage_metadata( $ability_id, array $definition ) {
-		if ( 'npcink-abilities-toolkit/delete-media-permanently' !== $ability_id ) {
+		if ( ! in_array( $ability_id, array( 'npcink-abilities-toolkit/delete-media-permanently', 'npcink-abilities-toolkit/delete-attachment' ), true ) ) {
 			return $definition;
 		}
 
 		$definition['agent_usage'] = array(
 			'when_to_use'     => array(
-				'Prepare or commit permanent deletion of one media attachment after explicit review.',
+				'Prepare or commit deletion of one media attachment after explicit review.',
 			),
 			'not_for'         => array(
 				'Do not use this for cleanup discovery, reversible trash actions, or bulk deletion.',
 			),
 			'best_for'        => array(
-				'Executing one approved destructive media cleanup action with a known attachment id.',
+				'npcink-abilities-toolkit/delete-attachment' === $ability_id ? 'Executing one approved destructive media cleanup action with a known attachment id and policy branch.' : 'Executing one approved destructive media cleanup action with a known attachment id.',
 			),
 			'stopping_points' => array(
 				'Default to dry_run; final permanent deletion requires host approval context and idempotency protection.',

@@ -21,7 +21,7 @@ trait Media_Backup_Write_Methods {
 	 *
 	 * @param bool $execute Whether to remove files and persist expiry markers. False returns a read-only preview.
 	 * @param bool $include_manual Whether a confirmed maintenance run may process manual-confirmation records.
-	 * @return array<string,int|bool>
+	 * @return array<string,mixed>
 	 */
 	public function cleanup_expired_media_backups( bool $execute = true, bool $include_manual = false ): array {
 		$retention_days = (int) apply_filters( 'npcink_abilities_toolkit_media_backup_retention_days', self::MEDIA_BACKUP_RETENTION_DAYS );
@@ -102,7 +102,7 @@ trait Media_Backup_Write_Methods {
 			}
 		}
 
-		return array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor );
+		return \Npcink_Abilities_Toolkit\Support\Flagged_Media_Backup::add_cleanup_counts( array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor ), $execute );
 	}
 
 	/**
@@ -185,6 +185,7 @@ trait Media_Backup_Write_Methods {
 			'retention_days' => absint( $preview['retention_days'] ?? 30 ),
 			'expired'        => absint( $preview['expired'] ?? 0 ),
 			'removed'        => 0,
+			'flagged_media_cleanup' => $preview['flagged_media_cleanup'],
 			'processed_attachments' => absint( $preview['processed_attachments'] ?? 0 ),
 			'has_more'       => ! empty( $preview['has_more'] ),
 			'preview'        => array(
@@ -209,6 +210,7 @@ trait Media_Backup_Write_Methods {
 			'retention_days' => absint( $result['retention_days'] ?? $payload['retention_days'] ),
 			'expired'        => absint( $result['expired'] ?? 0 ),
 			'removed'        => absint( $result['removed'] ?? 0 ),
+			'flagged_media_cleanup' => $result['flagged_media_cleanup'],
 			'processed_attachments' => absint( $result['processed_attachments'] ?? 0 ),
 			'has_more'       => ! empty( $result['has_more'] ),
 			'dry_run'        => false,
@@ -301,7 +303,7 @@ trait Media_Backup_Write_Methods {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	public function restore_media_backup( $input ) {
+	private function restore_existing_media_backup( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		if ( ! current_user_can( 'upload_files' ) ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to restore media backups.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );

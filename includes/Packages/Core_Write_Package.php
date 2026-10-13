@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Core_Write_Package {
 	use Cloud_Media_Write_Methods;
 	use Media_Backup_Write_Methods;
+	use Flagged_Media_Restore_Write_Methods;
 	use Media_Reference_Discovery_Write_Methods;
 	use Post_Attribute_Write_Methods;
 	use Site_Editor_Write_Methods;
@@ -1016,6 +1017,8 @@ final class Core_Write_Package {
 					array(
 						'attachment_id'      => array( 'type' => 'integer' ),
 						'backup_id'          => array( 'type' => 'string' ),
+						'recreated'          => array( 'type' => 'boolean' ),
+						'idempotent_replay'  => array( 'type' => 'boolean' ),
 						'replacement_id'     => array( 'type' => 'string' ),
 						'restored'           => array( 'type' => 'boolean' ),
 						'rolled_back'        => array( 'type' => 'boolean' ),
@@ -1050,6 +1053,7 @@ final class Core_Write_Package {
 						'expired'        => array( 'type' => 'integer' ),
 						'removed'        => array( 'type' => 'integer' ),
 						'processed_attachments' => array( 'type' => 'integer' ),
+					'flagged_media_cleanup' => array( 'type' => 'object', 'properties' => array( 'expired' => array( 'type' => 'integer' ), 'removed' => array( 'type' => 'integer' ), 'status' => array( 'type' => 'string', 'enum' => array( 'completed', 'failed', 'skipped' ) ), 'error_code' => array( 'type' => 'string' ) ), 'required' => array( 'expired', 'removed', 'status' ), 'additionalProperties' => false ),
 						'has_more'       => array( 'type' => 'boolean' ),
 						'preview'        => array( 'type' => 'object', 'additionalProperties' => true ),
 						'dry_run'        => array( 'type' => 'boolean' ),

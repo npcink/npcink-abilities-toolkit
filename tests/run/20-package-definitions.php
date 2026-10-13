@@ -205,6 +205,7 @@ $migrated_destructive_ability_ids = array(
 	'npcink-abilities-toolkit/spam-comment',
 	'npcink-abilities-toolkit/trash-comment',
 	'npcink-abilities-toolkit/delete-media-permanently',
+	'npcink-abilities-toolkit/delete-attachment',
 	'npcink-abilities-toolkit/trash-post',
 	'npcink-abilities-toolkit/delete-post-permanently',
 );
@@ -666,6 +667,14 @@ npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'backup_id' ), $pa
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['input_schema']['properties']['expected_storage_adapter'] ), 'restore-media-backup accepts storage adapter drift guards' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['output_schema']['properties']['content_reference_repairs'] ), 'restore-media-backup exposes post content reference repair evidence' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/restore-media-backup']['output_schema']['properties']['verification'] ), 'restore-media-backup exposes execution verification summary' );
+npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/delete-attachment'] ), 'delete-attachment is registered as a governed destructive ability' );
+npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'deletion_policy_branch', 'reason', 'idempotency_key' ), $package_abilities['npcink-abilities-toolkit/delete-attachment']['input_schema']['required'] ?? array(), 'delete-attachment requires the dual-branch governance inputs' );
+npcink_abilities_toolkit_assert_same( array( 'illegal_content_no_backup', 'governed_with_backup' ), $package_abilities['npcink-abilities-toolkit/delete-attachment']['input_schema']['properties']['deletion_policy_branch']['enum'] ?? array(), 'delete-attachment exposes bounded deletion policy branches' );
+$flagged_delete_source = (string) file_get_contents( dirname( __DIR__, 2 ) . '/includes/Packages/Destructive_Traits/Flagged_Media_Deletion_Methods.php' );
+$flagged_restore_source = (string) file_get_contents( dirname( __DIR__, 2 ) . '/includes/Packages/Write_Traits/Flagged_Media_Restore_Write_Methods.php' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $flagged_delete_source, 'function delete_attachment' ) && false !== strpos( $flagged_delete_source, 'governed_with_backup' ), 'delete-attachment callback owns the governed deletion branches' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $flagged_delete_source, 'Flagged_Media_Backup::create' ) && false !== strpos( (string) file_get_contents( dirname( __DIR__, 2 ) . '/includes/Support/Flagged_Media_Backup.php' ), 'npcink_abilities_toolkit_flagged_media_deletion_backups' ), 'governed deletion persists a post-deletion manifest outside attachment metadata' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $flagged_restore_source, 'restore_deleted_attachment' ) && false !== strpos( $flagged_restore_source, 'wp_insert_attachment' ), 'restore-media-backup can recreate an attachment from a governed deletion manifest' );
 npcink_abilities_toolkit_assert_true( isset( $package_abilities['npcink-abilities-toolkit/rename-media-file'] ), 'rename-media-file is registered as a local write ability' );
 npcink_abilities_toolkit_assert_same( array( 'attachment_id', 'target_file_name' ), $package_abilities['npcink-abilities-toolkit/rename-media-file']['input_schema']['required'] ?? array(), 'rename-media-file requires attachment and target filename' );
 npcink_abilities_toolkit_assert_same( array( 'fail', 'unique' ), $package_abilities['npcink-abilities-toolkit/rename-media-file']['input_schema']['properties']['conflict_mode']['enum'] ?? array(), 'rename-media-file exposes bounded conflict modes' );
@@ -843,11 +852,12 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 		'npcink-abilities-toolkit/build-media-adoption-preflight-summary',
 		'npcink-abilities-toolkit/build-media-rename-plan',
 		'npcink-abilities-toolkit/build-media-derivative-batch-plan',
+		'npcink-abilities-toolkit/build-flagged-media-removal-plan',
 	);
 	$media_governance_definitions = Media_Governance_Read_Definitions::definitions( $core_read_package );
-	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 23 definitions in stable source order' );
-	npcink_abilities_toolkit_assert_same( 116, count( $core_read_definition_ids ), 'core read package preserves the 116-definition public surface after media provider split' );
-	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 116-definition public order' );
+	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 24 definitions in stable source order' );
+	npcink_abilities_toolkit_assert_same( 117, count( $core_read_definition_ids ), 'core read package preserves the 117-definition public surface after media provider split' );
+	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 117-definition public order' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'Media_Governance_Read_Definitions::definitions( $this )' ), 'core read package composes media governance definitions through the dedicated provider' );
 	foreach ( $media_governance_definition_ids as $media_ability_id ) {
 		$inline_definition_pattern = "/'" . preg_quote( $media_ability_id, '/' ) . "'\\s*=>\\s*array\\s*\\(/";

@@ -72,7 +72,7 @@ run_case() {
 	[[ "$(find "$mu_dir" -type f | wc -l | tr -d ' ')" == "1" ]]
 	[[ "$(grep -c '^plugin activate ' "$log_file" || true)" == "$expected_activation_count" ]]
 	[[ "$(grep -c '^plugin deactivate ' "$log_file" || true)" == "$expected_deactivation_count" ]]
-	[[ "$(grep -c '^eval-file ' "$log_file" || true)" == "2" ]]
+	[[ "$(grep -c '^eval-file ' "$log_file" || true)" == "3" ]]
 }
 
 run_case inactive 1 1

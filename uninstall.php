@@ -77,6 +77,8 @@ function npcink_abilities_toolkit_uninstall_media_backup_artifacts() {
 		return;
 	}
 
+	// Deleted-attachment recovery needs the manifest for as long as files are retained.
+	delete_option( 'npcink_abilities_toolkit_flagged_media_deletion_backups' );
 	npcink_abilities_toolkit_uninstall_remove_backups_directory();
 }
 

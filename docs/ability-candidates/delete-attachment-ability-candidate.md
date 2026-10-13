@@ -82,7 +82,7 @@ The dry-run preview must return, without changing anything:
   actions into one proposal;
 - for `governed_with_backup`: the concrete backup plan evidence fields that
   Core preflight will require (backup location, retention window, restore
-  token contract);
+  ability contract);
 - for `illegal_content_no_backup`: an explicit no-backup attestation field the
   operator must confirm, stating no backup, local copy, or Cloud artifact
   retention will be created.
@@ -120,15 +120,15 @@ The dry-run preview must return, without changing anything:
 
 Before this candidate becomes an implemented ability:
 
-- [ ] schema and dry-run preview registered through the standard Toolkit
+- [x] schema and dry-run preview registered through the standard Toolkit
       registration helpers;
-- [ ] `governed_with_backup` dry-run carries the backup evidence fields Core
+- [x] `governed_with_backup` dry-run carries the backup evidence fields Core
       preflight will require;
-- [ ] `illegal_content_no_backup` dry-run carries the no-backup attestation
+- [x] `illegal_content_no_backup` dry-run carries the no-backup attestation
       field and the callback path provably creates no backup artifacts;
-- [ ] audit integration records deletion descriptions without content
+- [x] audit integration records deletion descriptions without content
       retention;
-- [ ] restore coverage exists only for `governed_with_backup`;
+- [x] restore coverage exists only for `governed_with_backup`;
 - [ ] the cross-repo boundary matrix and Core governance catalog record the
       new ability id.
 
@@ -189,3 +189,80 @@ The candidate is accepted for implementation. Implementation must satisfy
 every checklist item and register through the standard helpers; the
 cross-repo matrix and Core governance catalog updates are part of that
 checklist, not of this document revision.
+
+## Deleted-Attachment Restore Extension
+
+The existing `restore-media-backup` ability also accepts a `flagged_delete_*`
+backup id plus the original (now deleted) `attachment_id`. This variant requires
+`manage_options` and `upload_files` as well as host commit authorization. It
+recreates an attachment with a **new id**; it does not restore references to the
+old id, featured-image relationships, custom plugin metadata, or arbitrary
+Cloud/offloaded files. Operators review those relationships separately.
+
+The governed backup snapshots the local main file, metadata-declared sizes,
+original image, edited-image backup sizes, standard attachment fields and ALT.
+All source paths must be contained in uploads without symlinks, and all declared
+files must exist. Bounds: 64 files and 256 MiB per attachment, 100 retained
+manifests per site. Backup records live outside attachment metadata, with
+verified option persistence and exclusive file creation. A shared nonblocking
+filesystem lock serializes backup, restore and cleanup mutations; it is not
+an approval store or a task runtime. Multi-node deployments require a shared
+uploads filesystem with working file locks.
+
+Dry runs create no backup files or records. Successful deletion returns
+`backup_id` and `backup_evidence`, including the restore ability id. Retention
+uses the existing 1–365 day backup-retention filter (30 days by default), captured
+at backup creation. Existing backup maintenance removes expired retained files
+and manifests; restore rejects expired evidence even before cleanup runs.
+
+Deleted-attachment restore always fails on an occupied target path, including
+when `target_conflict_mode=overwrite` is supplied. It checks every retained
+file's SHA-256, persists mutation intent before copying, compensates failed
+writes, and verifies durable result evidence before reporting success. Replays
+return the new attachment id only while the recreated attachment and every
+restored file still match. An interrupted restore stays blocked for explicit
+operator recovery; it never creates another attachment automatically. The
+original retained backup is kept until expiry after successful restoration.
+
+`referenced_by` uses existing bounded content/featured-image and settings
+reference helpers. Its `scan_complete=false` and explicit scan limits prevent
+an empty result from claiming there are no references. Evidence contains
+identities and settings names, never post bodies or setting values. The plan
+builder is registered; cross-repo signed execution acceptance remains a separate
+gate.
+
+Regression evidence: `tests/flagged-media.php` covers public callbacks and
+injected persistence/metadata failures; `tests/flagged-media-wp.php` executes
+the registered abilities and checks WordPress deletion of all metadata-declared
+files, escaped text preservation, full reconstruction, conflict refusal and
+restore replay. It runs in the default `smoke:wp` profile.
+
+### Plan Builder
+
+`build-flagged-media-removal-plan` is a read-risk, administrator-only entry
+requiring `media.read`, `site.read`, and `post.read` scopes. Its
+`deletion_request_key` becomes the delete action's `idempotency_key`; the read
+ability itself exposes no write controls. The reason is bounded to 500 bytes
+(the current Core intake bound). The illegal branch requires literal
+`no_backup_confirmed=true`. Optional `reference_patches` carry reviewed targets
+and exact URL removal operations; at most 10 patch actions and 20 operations
+per action are accepted. Each URL must belong to this attachment's main or
+metadata-declared local files. Existing write callbacks validate permissions
+and preview the patches without mutation. Patches precede deletion; the batch
+is not a transaction and each write still requires Core/Adapter governance.
+
+The builder emits `flagged_media_removal_plan.v1`, `batch_approval=true`,
+`proposal_mode=batch`, and exactly one delete action. It never guesses patch
+choices from its bounded discovery summary. The actual Core validator accepts
+both branch outputs in the mapped-worktree WordPress fixture. The new plan,
+delete and restore contracts are recorded in the governance catalog snapshot
+and consumer harvest fixture.
+
+Backup intent is durable before file copies. An interrupted copy can be retried
+under the same request key, and expired partial copies use the existing cleanup
+path. A retry refuses attachment fields, metadata, file-list or byte drift from
+a completed snapshot. `cleanup-media-backups` reports bounded
+`flagged_media_cleanup` counts and a `completed`, `failed`, or `skipped` status,
+with an error code on failure or lock contention. Uninstall removes the manifest
+with the backup files; the existing preserve-media-backups filter retains both
+so the restore evidence remains usable after reinstall.

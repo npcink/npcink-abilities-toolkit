@@ -24,7 +24,7 @@ final class Media_Governance_Read_Definitions {
 	 * @return array<string,array<string,mixed>>
 	 */
 	public static function definitions( $callbacks ) {
-		return array(
+		return array_merge( array(
 				'npcink-abilities-toolkit/list-media'      => array(
 				'label'            => __( 'List Media', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated list of media library attachments.', 'npcink-abilities-toolkit' ),
@@ -1066,6 +1066,6 @@ final class Media_Governance_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'build_media_derivative_batch_plan' ),
 			),
-		);
+		), Flagged_Media_Read_Definitions::definitions( $callbacks ) );
 	}
 }
