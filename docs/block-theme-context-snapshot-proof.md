@@ -178,7 +178,7 @@ The Local.app WordPress smoke was rerun against the documented local site:
 WP_CLI=/tmp/wp-cli.phar \
 WP_CLI_PHP=/opt/homebrew/bin/php \
 WP_CLI_ERROR_REPORTING=8191 \
-WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/NPb24Zg9g/mysql/mysqld.sock" \
+WP_CLI_MYSQL_SOCKET="/Users/muze/Library/Application Support/Local/run/s63K4c8XP/mysql/mysqld.sock" \
 WP_PATH="/Users/muze/Local Sites/magick-ai/app/public" \
 composer smoke:wp
 ```

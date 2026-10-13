@@ -579,6 +579,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][87] = (object) array(
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
 	'post_date'      => '2026-06-02 10:00:00',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $rename_media_path = $GLOBALS['npcink_abilities_toolkit_unit_upload_basedir'] . '/2026/06/rename-media-fixture.jpg';
 if ( ! is_dir( dirname( $rename_media_path ) ) ) {

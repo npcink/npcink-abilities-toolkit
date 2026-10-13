@@ -912,6 +912,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][79] = (object) array(
 	'post_author'    => 7,
 	'post_parent'    => 0,
 	'post_mime_type' => 'image/jpeg',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 update_post_meta(
 	79,

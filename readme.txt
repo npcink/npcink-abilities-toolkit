@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.5.12
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.6.0 =
+
+User-visible operator read-only mode release: site owners can turn off the write and destructive ability packages from the AI Ability Set Overview while keeping read abilities available. The narrowing-only setting composes with the host package filter, applies on the next request, is removed on uninstall, and leaves dry-run defaults and host-governed approval unchanged. The release also includes the 0.5.12 locale terminology alignment and the completed read-only implementation from #242/#243.
 
 = 0.5.12 =
 

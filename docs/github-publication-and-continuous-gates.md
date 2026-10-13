@@ -1,7 +1,7 @@
 # GitHub Publication And Continuous Gates
 
 Status: active operations note.
-Last verified: 2026-10-02.
+Last verified: 2026-10-13.
 
 This note records the public GitHub handoff and the current continuous
 performance and security gates for `npcink-abilities-toolkit`.
@@ -14,15 +14,16 @@ The canonical public source repository is:
 https://github.com/npcink/npcink-abilities-toolkit
 ```
 
-GitHub repository state verified on 2026-10-02:
+GitHub repository state verified on 2026-10-13:
 
 - owner/name: `npcink/npcink-abilities-toolkit`;
 - visibility: public;
 - default branch: `master`;
 - published branch: `master`;
 - published release tags: `0.2.0`, `0.4.0`, `0.5.0`, `0.5.1`, `0.5.2`,
-  `0.5.3`, `0.5.4`, `0.5.5`, and `0.5.6` (`0.5.4` and `0.5.5` were
-  Git-only releases; `0.5.6` is the current WordPress.org stable tag);
+  `0.5.3` through `0.5.12`;
+- current WordPress.org stable tag: `0.5.12`, published in SVN revision
+  `r3739502` (see [release evidence](archive/release-0.5.12-verification.md));
 - maintenance marker: `pre-refactor-2026-07-14`.
 
 ## Master Branch Protection
@@ -202,9 +203,23 @@ direct REST calls recovered). When the `gh` CLI hangs, `curl` against
 parse API JSON with `strict=False` because review bodies can contain raw
 control characters.
 
+**Dependency maintenance on 2026-10-13.** #245 upgraded PHPStan to 2.3.1
+with all required checks and a delivered advisory review passing. #246
+upgraded the pinned OpenCodeReview action to 1.12.13; after rebasing onto
+#245, all required checks passed and protected auto-merge completed. Its
+advisory review did not deliver findings: the provider returned HTTP 400
+(zero tokens and comments), and retry uploads also hit a same-name artifact
+409. The upgrade changes only four pinned action SHAs in two workflows; a
+manual diff review found no contract, permission, or runtime change. This is
+an accepted missing advisory-review round, not a passing AI review.
+
 ## Gitee Read-Only Mirror
 
-`master` and release tags mirror to
+Enablement is deferred by the maintainer as of 2026-10-13. Keep the workflow
+disabled and the local `codex/zh-cn-docs-mirror-default` branch unpublished.
+This optional documentation-access path does not block maintenance or release.
+
+When enabled, `master` and release tags mirror to
 `gitee.com/npcink/npcink-abilities-toolkit` through the opt-in
 `gitee-mirror` workflow so repository documentation stays reachable for
 readers on networks where GitHub is unreliable. The plugin's admin help
@@ -229,7 +244,7 @@ default for every other locale stays GitHub.
 
 ## Future Release Follow-Up
 
-Before the next public patch release after `0.5.6`:
+Before the next public release (0.6.0 for the operator read-only mode):
 
 1. Run the release gate from a clean, verified source checkout:
 
@@ -242,5 +257,5 @@ For Local.app sites that require a MySQL socket, include
 
 2. Record the smoke and Plugin Check result in the next release verification
    note.
-3. Tag a new patch release from the verified `master` commit instead of
+3. Tag a new release from the verified `master` commit instead of
    retagging a historical release.

@@ -1121,6 +1121,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][777] = (object) array(
 	'post_type' => 'attachment',
 	'post_status' => 'inherit',
 	'post_title' => 'Cleanup fixture',
+	'post_modified_gmt' => '0000-00-00 00:00:00',
 );
 $cleanup_history = array(
 	array(

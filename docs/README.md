@@ -77,6 +77,8 @@ catalog can also read `GET /wp-json/npcink-abilities-toolkit/v1/contract` with
 a `manage_options` REST caller for plugin version, contract versions, catalog
 hashes, workflow hash, and the host-governed write boundary.
 
+- [Release 0.6.0 Verification](archive/release-0.6.0-verification.md): release-candidate evidence for the operator read-only mode (updated before WordPress.org publication).
+
 ## Maintainers
 
 Use this path when changing this package.

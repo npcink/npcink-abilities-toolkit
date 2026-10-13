@@ -1,5 +1,11 @@
 # Session Handoff: 0.5.12 Release And Read-Only Mode Closeout
 
+Operational update (2026-10-13): Gitee enablement and the locale-default
+branch are deferred. Dependencies #245/#246 are merged; ADR and Local smoke
+guidance are refreshed. The next release is 0.6.0 for read-only mode. The
+dated snapshot below remains historical; use current operations docs for
+live state.
+
 Status: active handoff note for the next AI session.
 Written: 2026-10-12. Covers the 2026-10-11/12 session arc from the end-user
 experience audit through the 0.5.12 WordPress.org release, the read-only mode
@@ -17,7 +23,7 @@ Session pull requests, in order:
 | PR | Content | State |
 | --- | --- | --- |
 | #236 | UX batch: operator-first troubleshooting docs, package on/off snippet, `Support\Docs_Links` + `npcink_abilities_toolkit_docs_base_url` filter, disabled-check reason, Copy response buttons, readme storefront rewrite, 3 strings x 7 locales | merged |
-| #237 | Opt-in `gitee-mirror` workflow + ADR 0009 (read-only opt-out, accepted, implementation deferred) | merged after 3 review rounds, all findings fixed |
+| #237 | Opt-in `gitee-mirror` workflow + ADR 0009 (read-only opt-out) | merged after 3 review rounds, all findings fixed |
 | #238 | `release: prepare 0.5.12` + all four WP.org screenshots refreshed | merged |
 | #239 | `docs/archive/release-0.5.12-verification.md` publication record | merged |
 | #240 | Session lessons folded into operating docs (branch-check-before-commit, auto-merge re-request after thread resolution, quota-failure triage, screenshot capture procedure) | merged |
@@ -31,13 +37,15 @@ landed after the release and ship with the next one.
 
 ## What The Next Session Inherits (Open Items)
 
-Ordered by value; items 1-3 are user-side enablement already built, item 4 is
-the next release.
+Ordered by value; Gitee items 1-2 are intentionally deferred, item 3 is
+complete, and item 4 is the next release.
 
-### 1. Gitee mirror enablement (user action, then a branch to publish)
+### 1. Gitee mirror enablement (deferred)
 
-The `gitee-mirror` workflow is merged but inert. The maintainer must, in
-order:
+The `gitee-mirror` workflow is merged but intentionally inert. Do not create
+the repository, secret, or variable until there is a concrete mainland-China
+documentation access need. This path is optional and does not block maintenance
+or release. If that need returns, the maintainer must, in order:
 
 1. Create the empty repository `gitee.com/npcink/npcink-abilities-toolkit`.
 2. Add a deploy SSH key there; store the private key as the GitHub repository
@@ -50,10 +58,10 @@ three fingerprints recorded there and dated 2026-10-11). Full setup notes:
 `docs/github-publication-and-continuous-gates.md` section "Gitee Read-Only
 Mirror".
 
-### 2. Publish `codex/zh-cn-docs-mirror-default` after the mirror is live
+### 2. Publish `codex/zh-cn-docs-mirror-default` after the mirror is live (deferred)
 
-Local-only branch at `aee42ea`: zh_ locale sites default their admin help
-links to the Gitee mirror, everyone else keeps GitHub, the
+Keep the local-only branch at `aee42ea` unpublished while the mirror is deferred:
+zh_ locale sites default their admin help links to the Gitee mirror, everyone else keeps GitHub, the
 `npcink_abilities_toolkit_docs_base_url` filter overrides both. Tests cover
 all three paths. **Why it is not pushed**: gitee.com/npcink does not exist
 yet; merging now would point Chinese-locale sites at a 404. Before
