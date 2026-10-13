@@ -2,8 +2,8 @@
 
 Date: 2026-10-11
 
-Status: accepted and implemented in pull requests #242 and #243; pending the
-0.6.0 release.
+Status: accepted and implemented in pull requests #242 and #243; released in
+0.6.0 (WordPress.org SVN revision 3742960, release PR #253).
 
 ## Context
 
