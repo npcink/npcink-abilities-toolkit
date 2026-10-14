@@ -1,8 +1,13 @@
-# PTE request draft — not sent
+# PTE request — published
 
-Confirm the live counts immediately before posting. This draft records the
-2026-10-14 snapshot; do not describe the locally prepared translations as
-already submitted.
+Published on 2026-10-14 after confirming the live counts. The public request
+is available at:
+
+https://make.wordpress.org/polyglots/2026/10/14/pte-request-for-npcink-abilities-toolkit/
+
+The request is now waiting for the zh_CN Polyglots team to review. Keep this
+file as the wording record; future requests should refresh the live counts
+before posting.
 
 ```text
 PTE Request for Npcink Abilities Toolkit

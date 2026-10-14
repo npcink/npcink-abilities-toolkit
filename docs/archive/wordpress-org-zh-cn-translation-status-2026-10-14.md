@@ -27,17 +27,21 @@ installation sections, and links the project back to GlotPress. The generic
 `zh-cn.wordpress.org` host currently redirects to the WordPress.org home page;
 the active Chinese directory host is `cn.wordpress.org`.
 
-The [PTE request draft](../../marketing/translation/pte-request-zh_CN.md) names
-`muze233` and zh_CN and remains unsent.
+The [PTE request record](../../marketing/translation/pte-request-zh_CN.md)
+was published on 2026-10-14 under `@muze233` and `#zh_CN`:
+
+<https://make.wordpress.org/polyglots/2026/10/14/pte-request-for-npcink-abilities-toolkit/>
+
+The request is visible in the Polyglots `#editor-requests` stream and awaits
+the zh_CN team’s review.
 
 ## Completion path
 
-1. Keep the PTE request as an unsent handoff draft until the maintainer
-   explicitly authorizes contacting Polyglots.
+1. Monitor the published PTE request for a zh_CN team response or access grant.
 2. Recheck the GlotPress counts and Chinese directory after the next Stable
    Readme source change or plugin release.
-3. Send the PTE request only with the maintainer's explicit authorization to
-   contact Polyglots, or have the maintainer post the prepared draft.
+3. Once PTE access is granted, use the same project page to maintain future
+   zh_CN Stable Readme updates.
 
 Bundled `languages/*.po` and `.mo` are runtime starter translations. They do
 not approve or publish the WordPress.org listing.
