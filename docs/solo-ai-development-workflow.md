@@ -1,7 +1,7 @@
 # Solo AI Development Workflow
 
 Status: active operating standard.
-Last updated: 2026-07-30.
+Last updated: 2026-10-14.
 
 This document summarizes the current solo-maintainer plus AI-agent workflow for
 `npcink-abilities-toolkit`. It turns the recurring chat decisions into a
@@ -244,8 +244,13 @@ composer closeout:check
 ```
 
 The check fails while the main worktree is dirty, off `master`, out of sync
-with `origin/master`, or while merged local branches and stale remote topic
-branches remain. Then, for anything it cannot decide:
+with `origin/master`, or while ancestry-merged local branches and detected
+stale remote topic branches remain. Its local ancestry check does not detect
+squash-merged topic heads. Inventory all local refs and match preserved heads
+to merged PRs before claiming complete cleanup. See the
+[audit standard](system-audit-and-closeout-standard.md#step-10-close-the-loop)
+for the recovery ledger and safe deletion exception. Then, for anything the
+check cannot decide:
 
 ```bash
 git fetch --prune origin

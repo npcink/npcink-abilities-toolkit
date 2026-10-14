@@ -1,7 +1,7 @@
 # WordPress.org Release Runbook
 
 Status: active release operations note.
-Last updated: 2026-06-06.
+Last updated: 2026-10-14.
 
 This document records the `0.5.0` WordPress.org SVN publishing flow and the
 local Homebrew/Subversion recovery steps used on macOS. It is written for
@@ -177,6 +177,35 @@ reason in `readme.txt`, `CHANGELOG.md`, or the release verification note.
 known-incomplete locale packs such as `zh_TW`, and fails when a `.po` file does
 not have the matching `.mo` file or vice versa. Keep that guard aligned with
 the files that are actually intended to ship in `languages/`.
+
+## Directory Translation Verification
+
+Treat source coverage, import, approval and public visibility as separate steps:
+
+1. Export the current Stable Readme source set after publication. Reconcile PO
+   `msgid` values against that export, remove obsolete entries, and verify
+   complete translations with `msgfmt --check` and HTML/placeholder checks.
+   An old string count is not proof of current coverage.
+2. Before asking Polyglots for access, search prior requests (including merged
+   multi-plugin posts and their replies) and check the project's live
+   Translation Editors list. An unsent local draft does not prove no request
+   was previously completed. Ask only for access actually missing.
+3. Import through the authenticated project page. Record the import receipt,
+   then verify `current` status and translated, waiting, untranslated, fuzzy
+   and warning counts. An import receipt alone does not prove approval.
+4. Open the actual localized plugin directory and check translated text and
+   the published version/download. Verify the locale host instead of deriving
+   it from a locale code: the Chinese directory is `cn.wordpress.org`; the
+   tested `zh-cn.wordpress.org` host redirected to the WordPress.org homepage.
+5. Keep the date, source count, project URL, permission evidence and visibility
+   result in the existing translation status record. If a request is sent,
+   preserve the actual submitted wording and public receipt, not an old draft.
+
+Bundled runtime PO/MO files do not complete these directory steps. Repeat the
+affected checks after source changes; preserve prior dated release evidence and
+append a dated correction when a later audit finds a mistaken pending claim.
+The [October 14 record](archive/wordpress-org-zh-cn-translation-status-2026-10-14.md)
+documents the approved 146-string set and the prior completed editor grant.
 
 ## Commit Command
 

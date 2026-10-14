@@ -115,6 +115,13 @@ operator browser approval and signed execution for one governed deletion.
 
 ## Remaining Maintainer Steps
 
+The following is the October 13 snapshot. October 14 update: listing import,
+approval and Chinese directory visibility are complete, and editor access was
+already granted in July. See the
+[translation status](wordpress-org-zh-cn-translation-status-2026-10-14.md) and
+[session closeout](session-closeout-2026-10-14.md) for the corrected permission
+evidence, current branch preservation ledger and later matrix inventory.
+
 1. Import the prepared WordPress.org zh_CN listing translations and obtain
    editor approval. The PTE draft is unsent; see the current translation note.
 2. Complete branch closeout within `AGENTS.md`'s safe deletion rule. Historical
