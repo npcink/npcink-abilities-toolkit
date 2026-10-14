@@ -32,16 +32,21 @@ was published on 2026-10-14 under `@muze233` and `#zh_CN`:
 
 <https://make.wordpress.org/polyglots/2026/10/14/pte-request-for-npcink-abilities-toolkit/>
 
-The request is visible in the Polyglots `#editor-requests` stream and awaits
-the zh_CN team’s review.
+The closeout audit subsequently found that this duplicated the
+[July multi-plugin request](https://make.wordpress.org/polyglots/2026/07/03/pte-request-for-npcink-workflow-toolbox/),
+which already included Toolkit and received
+[`#zh_CN done.` on July 7](https://make.wordpress.org/polyglots/2026/07/03/pte-request-for-npcink-workflow-toolbox/#comment-305520).
+The [live Toolkit project editor list](https://translate.wordpress.org/locale/zh-cn/default/wp-plugins/npcink-abilities-toolkit/)
+names `muze233`. The earlier claim that first-time access was still pending was
+incorrect; maintaining future translations does not require a new grant.
 
 ## Completion path
 
-1. Monitor the published PTE request for a zh_CN team response or access grant.
-2. Recheck the GlotPress counts and Chinese directory after the next Stable
+1. Recheck the GlotPress counts and Chinese directory after the next Stable
    Readme source change or plugin release.
-3. Once PTE access is granted, use the same project page to maintain future
-   zh_CN Stable Readme updates.
+2. Use the existing project editor access to maintain future zh_CN Stable
+   Readme updates; search completed requests and verify permissions before
+   requesting access again.
 
 Bundled `languages/*.po` and `.mo` are runtime starter translations. They do
 not approve or publish the WordPress.org listing.
@@ -52,3 +57,8 @@ The central quality matrix was rerun on 2026-10-14 after all configured
 checkouts reported clean status. Toolkit, Core, Adapter, Workflow Toolbox,
 Cloud Addon, Eval Lab, and AI Cloud all passed their configured gates. The
 matrix did not change any sibling checkout or switch its branch.
+
+That passing run is historical gate evidence. The later
+[session closeout inventory](session-closeout-2026-10-14.md) found new active
+Core and AI Cloud edits in a status-only matrix; it does not claim the whole
+platform is currently clean.

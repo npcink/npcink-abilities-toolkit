@@ -1,7 +1,7 @@
 # System Audit And Closeout Standard
 
 Status: active operating standard.
-Last updated: 2026-07-30.
+Last updated: 2026-10-14.
 
 This document turns the 2026-07-30 system audit and closeout into a reusable
 development standard for `npcink-abilities-toolkit`. It records both the
@@ -300,6 +300,29 @@ Resolve Local WordPress symlinks before removal. Use `git worktree prune` only
 for confirmed stale registrations. Delete merged branches with `git branch -d`;
 do not force-delete a branch merely because a squash merge makes ancestry less
 obvious.
+
+Squash merges require a separate evidence ledger: inventory all local topic
+refs, match each exact head SHA to a merged PR, and verify that its squash merge
+commit is on `origin/master`. Back up retained heads in a Git bundle, verify
+the bundle, and record the branch/head/PR/merge mapping. Preserve unpublished
+experiments separately with the reason they are not being shipped.
+
+`git branch --merged` and the local-branch leg of `composer closeout:check`
+only inspect Git ancestry. A green check does not establish that squash-merged
+branches are gone. If `git branch -d` rejects a verified squash-merged head,
+report it as a cleanup exception. Under `AGENTS.md`, force deletion needs an
+explicit maintainer exception; neither a PR receipt nor a backup changes that
+rule. Do not rewrite refs or ancestry to circumvent the safe deletion check.
+
+Close the delivered stage without pretending that deferred work was completed:
+identify remaining issues, their triggers, preserved experiments and cleanup
+exceptions. Do not close durable maintenance issues merely to empty a list.
+For milestone cross-repo inventory, distinguish the status-only matrix from a
+gate-running matrix, timestamp both, and preserve other sessions' edits. An
+earlier clean matrix is not a claim about the current sibling checkouts.
+
+The [October 14 closeout](archive/session-closeout-2026-10-14.md) records the
+translation permission correction and the verified branch preservation ledger.
 
 ## Evidence Matrix By Change Type
 
