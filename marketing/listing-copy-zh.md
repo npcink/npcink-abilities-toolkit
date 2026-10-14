@@ -18,7 +18,8 @@
   已补齐，与目录页翻译是两个独立事项。
 - [当前状态与操作说明](../docs/archive/wordpress-org-zh-cn-translation-status-2026-10-14.md)
   记录导入、审核和缓存刷新步骤；
-  [PTE 申请草稿](translation/pte-request-zh_CN.md) 尚未发送。
+  [PTE 申请记录](translation/pte-request-zh_CN.md) 已发布，等待 zh_CN
+  Polyglots 团队审核。
 
 后续流程：由有权限的中文审校者审核，并在缓存刷新后检查中文
 插件目录页。0.7.0 上线后重新导出源文案核对覆盖率，审核通过后检查中文
