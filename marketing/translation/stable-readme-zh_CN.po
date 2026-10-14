@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Npcink Abilities Toolkit Stable Readme\n"
-"PO-Revision-Date: 2026-10-13 20:00+0800\n"
+"PO-Revision-Date: 2026-10-14 12:22+0800\n"
 "Last-Translator: Npcink <support@npc.ink>\n"
 "Language-Team: Chinese (China)\n"
 "Language: zh_CN\n"
@@ -42,9 +42,6 @@ msgstr "插件页面的一次性欢迎通知会链接到状态页面。打开工
 msgid "After activation, open Tools -&gt; AI Ability Set to see at a glance what AI clients can do on this site: which abilities are available, which are read-only, and which would require approval from a host product before anything changes. The page is built for site operators first."
 msgstr "启用后，打开工具 -&gt; AI 能力集，即可查看 AI 客户端在此站点能做什么：哪些能力可用、哪些只读，以及哪些操作在发生变更前需要宿主产品批准。页面优先面向站点管理人员设计。"
 
-#. Found in faq paragraph.
-msgid "Uninstalling deletes the plugin's stored options, per-admin notice state (welcome and health notice dismissals), the media backup cleanup schedule, media file replacement history meta, and backup files stored under uploads/npcink-abilities-toolkit-backups. Expiring transients are left to their normal lifecycle. Hosts that keep their own media lineage evidence can preserve the history meta and backup files with the <code>npcink_abilities_toolkit_uninstall_preserve_media_history</code> and <code>npcink_abilities_toolkit_uninstall_preserve_media_backups</code> filters; the history filter defaults to the backup setting."
-msgstr "卸载会删除插件保存的选项、每位管理员的通知状态（欢迎通知和健康通知的关闭状态）、媒体备份清理计划、媒体文件替换历史元数据，以及 uploads/npcink-abilities-toolkit-backups 下的备份文件。临时缓存仍按正常生命周期过期。维护自身媒体沿袭证据的宿主可以通过 <code>npcink_abilities_toolkit_uninstall_preserve_media_history</code> 和 <code>npcink_abilities_toolkit_uninstall_preserve_media_backups</code> 过滤器保留历史元数据和备份文件；历史保留过滤器默认沿用备份保留设置。"
 
 #. Found in faq header.
 msgid "What does uninstalling remove?"

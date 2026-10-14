@@ -8,15 +8,15 @@
 
 `https://translate.wordpress.org/projects/wp-plugins/npcink-abilities-toolkit/stable-readme/zh-cn/default/`
 
-当前状态（2026-10-13）：
+当前状态（2026-10-14）：
 
-- GlotPress 当前有 145 条源文案：已批准 0 条、待审核 86 条、未翻译 59 条。
+- GlotPress 当前有 146 条源文案：已批准 0 条、待审核 86 条、未翻译 60 条。
 - 2026-06-22 曾提交 101 条建议；后续源文案变化后，不能再用旧数量判断覆盖率。
-- [当前 PO](translation/stable-readme-zh_CN.po) 已覆盖这 145 条，保留线上
-  86 条待审核建议并补齐 59 条；另准备了 0.7.0 的两条源文案。
+- [当前 PO](translation/stable-readme-zh_CN.po) 已按最新导出的 146 条源文案
+  对齐，保留线上 86 条待审核建议并补齐 60 条未翻译文案。
 - 本次补齐尚未导入 GlotPress，尚未获得审核批准。插件内的运行时语言包
   已补齐，与目录页翻译是两个独立事项。
-- [当前状态与操作说明](../docs/archive/wordpress-org-zh-cn-translation-status-2026-10-13.md)
+- [当前状态与操作说明](../docs/archive/wordpress-org-zh-cn-translation-status-2026-10-14.md)
   记录导入、审核和缓存刷新步骤；
   [PTE 申请草稿](translation/pte-request-zh_CN.md) 尚未发送。
 

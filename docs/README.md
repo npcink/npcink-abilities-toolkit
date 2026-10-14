@@ -149,6 +149,8 @@ cited for durable rules:
   dependency upgrades that change static-analysis resource requirements.
 - [WordPress.org zh_CN Translation Status - 2026-07-03](archive/wordpress-org-zh-cn-translation-status-2026-07-03.md):
   GlotPress submission state and the PTE request handoff text.
+- [WordPress.org zh_CN Translation Status - 2026-10-14](archive/wordpress-org-zh-cn-translation-status-2026-10-14.md):
+  current 0.7.0 source reconciliation, import path, and matrix baseline.
 
 Prefer adding focused docs to this guide instead of expanding the root README
 with every workflow detail.

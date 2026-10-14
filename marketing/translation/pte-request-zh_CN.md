@@ -1,7 +1,7 @@
 # PTE request draft — not sent
 
 Confirm the live counts immediately before posting. This draft records the
-2026-10-13 snapshot; do not describe the 59 locally prepared translations as
+2026-10-14 snapshot; do not describe the locally prepared translations as
 already submitted.
 
 ```text
@@ -13,7 +13,7 @@ I maintain Npcink Abilities Toolkit:
 https://wordpress.org/plugins/npcink-abilities-toolkit/
 
 The Chinese (China) Stable Readme currently has 86 suggestions waiting for
-review and 59 untranslated strings. I have prepared the remaining translations
+review and 60 untranslated strings. I have prepared the remaining translations
 locally and would like to maintain the translations as the plugin evolves.
 
 Could you review the existing suggestions and grant Project Translation Editor
