@@ -354,6 +354,24 @@ it can combine bounded local published-post search with host-supplied related
 content evidence and returns `internal_link_candidates.v1` for review surfaces.
 It does not own provider search, vector indexing, link insertion, or
 post-content patching.
+
+Hosts may supply `related_content_evidence[].anchor_or_context` as an optional
+plain-text phrase (up to 80 characters), plus top-level `content_blocks`
+(up to 80 current editor blocks) and `candidate_source`. The existing bounded
+`candidate_relevance` label is declared on each evidence item. A hint becomes
+source evidence only when found in a current non-heading block using the
+existing 4–80 character matching rule. Existing block traversal and
+author-selection-first phrase order within each block are preserved;
+missing, invalid or unmatched hints retain the title fallback. Provider-supplied
+source positions are not trusted. Returned block id, offset and expected text
+remain inputs to the host's stale-state, URL, heading/code, inline-markup,
+duplicate-link and generic-anchor checks.
+
+This fixes evidence consumption and schema exposure without changing target
+scores, graph boosts, ordering, candidate limits or either frozen host ranking
+version (`internal_links.v1`, `related_content.v1`). Apply/Undo affect visible
+editor state only; normal author Save/Update remains the persistence owner.
+
 - `npcink-abilities-toolkit/optimize-media-metadata`
 - `npcink-abilities-toolkit/position-inline-image-blocks`
 - `npcink-abilities-toolkit/build-article-optimization-report`

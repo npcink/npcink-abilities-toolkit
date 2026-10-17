@@ -7,6 +7,8 @@
 
 namespace Npcink_Abilities_Toolkit\Packages;
 
+use Npcink_Abilities_Toolkit\Support\Internal_Link_Source_Matcher;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -115,7 +117,7 @@ trait Internal_Link_Read_Methods {
 			$target_post_id = $this->absint_value( $target['post_id'] ?? 0 );
 			$link_graph_issues = is_array( $target['link_graph_issues'] ?? null ) ? $target['link_graph_issues'] : array();
 			$shared_terms = is_array( $target['shared_terms'] ?? null ) ? $target['shared_terms'] : array();
-			$source_match = $this->internal_link_source_match( $content_blocks, $selected_text, $anchor_text, (string) ( $target['title'] ?? '' ) );
+			$source_match = Internal_Link_Source_Matcher::find( $content_blocks, $selected_text, $anchor_text, (string) ( $target['title'] ?? '' ), (string) ( $target['anchor_or_context'] ?? '' ) );
 			if ( ! empty( $source_match['matched_text'] ) ) {
 				$anchor_text = (string) $source_match['matched_text'];
 			}
@@ -216,39 +218,6 @@ trait Internal_Link_Read_Methods {
 		return $normalized;
 	}
 
-	private function internal_link_source_match( array $blocks, $selected_text, $anchor_text, $title ) {
-		$phrases = array_filter( array_unique( array_map( 'trim', array( $selected_text, $anchor_text, $title ) ) ) );
-		foreach ( $blocks as $block ) {
-			if ( $this->internal_link_is_heading_block( $block['block_name'] ?? '' ) ) {
-				continue;
-			}
-			foreach ( $phrases as $phrase ) {
-				$phrase_length = $this->internal_link_text_length( $phrase );
-				$is_explicit_selection = $phrase === trim( (string) $selected_text );
-				if ( ( ! $is_explicit_selection && $phrase_length < 4 ) || $phrase_length > 80 ) {
-					continue;
-				}
-				$offset = function_exists( 'mb_stripos' ) ? mb_stripos( $block['text'], $phrase ) : stripos( $block['text'], $phrase );
-				if ( false !== $offset ) {
-					return array(
-						'block_client_id' => $block['client_id'],
-						'block_name'      => $block['block_name'],
-						'matched_text'    => $phrase,
-						'text_offset'     => (int) $offset,
-						'expected_text'   => $block['text'],
-						'match_basis'     => $phrase === trim( (string) $selected_text ) ? 'editor_selection' : 'existing_article_phrase',
-					);
-				}
-			}
-		}
-		return array();
-	}
-
-	private function internal_link_is_heading_block( $block_name ) {
-		$name = sanitize_key( str_replace( '/', '-', (string) $block_name ) );
-		return in_array( $name, array( 'core-heading', 'core-post-title', 'core-query-title' ), true );
-	}
-
 	private function internal_link_text_length( $value ) {
 		return function_exists( 'mb_strlen' ) ? mb_strlen( (string) $value ) : strlen( (string) $value );
 	}
@@ -277,6 +246,7 @@ trait Internal_Link_Read_Methods {
 			}
 
 			$title = sanitize_text_field( (string) ( $item['title'] ?? $item['name'] ?? '' ) );
+			$anchor_hint = Internal_Link_Source_Matcher::normalize_hint( $item['anchor_or_context'] ?? null );
 			$url = esc_url_raw( (string) ( $item['url'] ?? ( $item['permalink'] ?? ( $item['link'] ?? ( $item['source_url'] ?? '' ) ) ) ) );
 			if ( '' === $title && '' === $url ) {
 				continue;
@@ -298,6 +268,7 @@ trait Internal_Link_Read_Methods {
 				'title'           => $title,
 				'url'             => $url,
 				'anchor_text'     => $this->internal_link_anchor_from_title( $title ),
+				'anchor_or_context' => $anchor_hint,
 				'reason'          => $this->sanitize_metadata_text( (string) ( $item['reason'] ?? $item['excerpt'] ?? $item['snippet'] ?? '' ) ),
 				'relevance_score' => $score,
 				'priority_score'  => $priority_score,
