@@ -39,7 +39,7 @@ final class Internal_Link_Source_Matcher {
 		// A host hint is only a phrase to locate in current editor text, never a trusted position.
 		$phrases = array_filter( array_unique( array_map( 'trim', array( $selected_text, $anchor_hint, $anchor_text, $title ) ) ) );
 		foreach ( $blocks as $block ) {
-			if ( self::is_heading_block( $block['block_name'] ?? '' ) ) {
+			if ( self::is_heading_block( $block['block_name'] ) ) {
 				continue;
 			}
 			foreach ( $phrases as $phrase ) {
