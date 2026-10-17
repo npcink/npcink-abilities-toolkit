@@ -766,6 +766,51 @@ $generic_phrase_result = $core_read_package->resolve_internal_link_targets(
 	)
 );
 npcink_abilities_toolkit_assert_true( empty( $generic_phrase_result['data']['internal_link_candidates']['items'][0]['source_match'] ?? array() ), 'resolve-internal-link-targets rejects an unselected generic two-character anchor' );
+// Host hints affect source matching only; target ranking and write ownership stay frozen.
+$anchor_hint_input = array(
+	'current_post_id' => 77,
+	'title' => 'A source article with different target titles',
+	'candidate_limit' => 8,
+	'content_blocks' => array(
+		array( 'client_id' => 'hint-heading', 'block_name' => 'core/heading', 'text' => '插件兼容性检查' ),
+		array( 'client_id' => 'hint-body', 'block_name' => 'core/paragraph', 'text' => '先完成插件兼容性检查，再采用分阶段升级策略。' ),
+	),
+	'related_content_evidence' => array(
+		array( 'post_id' => 501, 'title' => 'A separate target guide', 'url' => 'https://example.test/guide', 'score' => 0.72, 'link_graph_issues' => array( 'orphan_post' ), 'shared_terms' => array( 'compatibility' ) ),
+		array( 'post_id' => 502, 'title' => 'Another target guide', 'url' => 'https://example.test/other', 'score' => 0.9 ),
+	),
+);
+$before_hint = $core_read_package->resolve_internal_link_targets( $anchor_hint_input );
+$anchor_hint_input['related_content_evidence'][0]['anchor_or_context'] = '插件兼容性检查';
+$after_hint = $core_read_package->resolve_internal_link_targets( $anchor_hint_input );
+foreach ( array( 'post_id', 'relevance_score', 'priority_score' ) as $unchanged_column ) {
+	npcink_abilities_toolkit_assert_same( array_column( $before_hint['data']['targets'], $unchanged_column ), array_column( $after_hint['data']['targets'], $unchanged_column ), 'host hint preserves target order and ranking column ' . $unchanged_column );
+}
+$hint_candidate = $after_hint['data']['internal_link_candidates']['items'][0];
+npcink_abilities_toolkit_assert_same( '插件兼容性检查', $hint_candidate['suggested_anchor_text'], 'host hint is consumed when the target title is absent from the article' );
+npcink_abilities_toolkit_assert_same( 'hint-body', $hint_candidate['source_match']['block_client_id'] ?? '', 'host hint is verified against a current non-heading source block' );
+npcink_abilities_toolkit_assert_same( '先完成插件兼容性检查，再采用分阶段升级策略。', $hint_candidate['source_match']['expected_text'] ?? '', 'host hint emits current source text for stale-edit checks' );
+npcink_abilities_toolkit_assert_same( function_exists( 'mb_stripos' ) ? 3 : 9, $hint_candidate['source_match']['text_offset'] ?? -1, 'host hint retains the Unicode source offset' );
+npcink_abilities_toolkit_assert_true( empty( $before_hint['data']['internal_link_candidates']['items'][0]['source_match'] ), 'legacy payload without a source phrase stays review-only' );
+foreach ( array( '主题', str_repeat( '站', 81 ), array( 'not a string' ), 'A phrase absent from this article' ) as $invalid_hint ) {
+	$invalid_hint_input = $anchor_hint_input;
+	$invalid_hint_input['related_content_evidence'][0]['anchor_or_context'] = $invalid_hint;
+	$invalid_hint_result = $core_read_package->resolve_internal_link_targets( $invalid_hint_input );
+	npcink_abilities_toolkit_assert_true( empty( $invalid_hint_result['data']['internal_link_candidates']['items'][0]['source_match'] ), 'invalid or unmatched host hints cannot manufacture a source position' );
+}
+$title_fallback_input = $anchor_hint_input;
+$title_fallback_input['related_content_evidence'][0]['title'] = '插件兼容性检查';
+$title_fallback_input['related_content_evidence'][0]['anchor_or_context'] = 'An unmatched hint';
+$title_fallback = $core_read_package->resolve_internal_link_targets( $title_fallback_input );
+npcink_abilities_toolkit_assert_same( '插件兼容性检查', $title_fallback['data']['internal_link_candidates']['items'][0]['source_match']['matched_text'] ?? '', 'an unmatched hint retains the title fallback' );
+$selection_input = $anchor_hint_input;
+$selection_input['selected_text'] = '分阶段升级策略';
+$selection_result = $core_read_package->resolve_internal_link_targets( $selection_input );
+npcink_abilities_toolkit_assert_same( '分阶段升级策略', $selection_result['data']['internal_link_candidates']['items'][0]['suggested_anchor_text'], 'author selection keeps precedence over the host hint' );
+$heading_only_input = $anchor_hint_input;
+$heading_only_input['content_blocks'] = array( $anchor_hint_input['content_blocks'][0] );
+$heading_only = $core_read_package->resolve_internal_link_targets( $heading_only_input );
+npcink_abilities_toolkit_assert_true( empty( $heading_only['data']['internal_link_candidates']['items'][0]['source_match'] ), 'a host hint present only in a heading stays review-only' );
 $GLOBALS['npcink_abilities_toolkit_unit_comments'][21] = (object) array(
 	'comment_ID'       => 21,
 	'comment_post_ID'  => 77,
