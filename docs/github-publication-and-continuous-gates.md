@@ -215,9 +215,22 @@ an accepted missing advisory-review round, not a passing AI review.
 
 ## Gitee Read-Only Mirror
 
-Enablement is deferred by the maintainer as of 2026-10-13. Keep the workflow
-disabled and the local `codex/zh-cn-docs-mirror-default` branch unpublished.
+Enablement remains deferred. Keep the workflow disabled and the automatic
+`zh_` documentation-link experiment unpublished and unimplemented on `master`.
 This optional documentation-access path does not block maintenance or release.
+
+The 2026-10-26 preservation decision replaces the requirement to retain a live
+local `codex/zh-cn-docs-mirror-default` branch. Its exact source commit is
+`aee42eaeb7ee57825ad740bbc51a032cd203d5f4`; after this documentation change merges,
+separate checked retirement will preserve it at
+`refs/archive/local-branches/20261026/codex/zh-cn-docs-mirror-default` and in the
+existing verified complete bundle recorded by the private recovery index
+`toolkit-zh-docs-mirror-aee42ea-readonly-disposition-20261026` (see the
+[handoff preservation details](session-handoff-2026-10-12.md#2-automatic-zh_-documentation-links-deferred-preservation-updated-2026-10-26)).
+The original local branch stays until that retirement; neither an archive ref
+nor a recovery bundle counts as delivery. The existing docs-base filter shipped
+in #236 remains a separate delivered capability. Future work must restore the
+exact source commit and obtain fresh mirror-readiness and candidate acceptance.
 
 When enabled, `master` and release tags mirror to
 `gitee.com/npcink/npcink-abilities-toolkit` through the opt-in

@@ -58,18 +58,45 @@ three fingerprints recorded there and dated 2026-10-11). Full setup notes:
 `docs/github-publication-and-continuous-gates.md` section "Gitee Read-Only
 Mirror".
 
-### 2. Publish `codex/zh-cn-docs-mirror-default` after the mirror is live (deferred)
+### 2. Automatic zh_ documentation links (deferred; preservation updated 2026-10-26)
 
-Keep the local-only branch at `aee42ea` unpublished while the mirror is deferred:
-zh_ locale sites default their admin help links to the Gitee mirror, everyone else keeps GitHub, the
-`npcink_abilities_toolkit_docs_base_url` filter overrides both. Tests cover
-all three paths. **Why it is not pushed**: gitee.com/npcink does not exist
-yet; merging now would point Chinese-locale sites at a 404. Before
-publishing: verify the mirror serves blobs (fetch a doc URL through it),
-rebase onto master — it will conflict in `tests/run/10-registry-plugin-boot.php`
-against the #242/#243 read-only assertions; keep both sides' blocks (the
-branch's edits are far below the read-only block, git may auto-resolve; if
-not, both hunks belong in the final file).
+The experiment at `aee42eaeb7ee57825ad740bbc51a032cd203d5f4` makes `zh_` locale
+sites default their admin help links to Gitee, keeps GitHub for other locales,
+and lets `npcink_abilities_toolkit_docs_base_url` override both. Its locale tests
+and structure baseline belong to that experiment. This automatic routing has
+not shipped on `master`; it remains deferred, unpublished, and disabled. The
+filter itself shipped separately in #236. This is not a full-repository
+translation proposal, and preservation is not delivery.
+
+The 2026-10-26 decision accepts a dated archive ref plus the existing verified
+complete bundle in place of indefinite live-local-branch retention. After this
+documentation change merges, a separate checked retirement will move the
+preservation responsibility from `codex/zh-cn-docs-mirror-default` to:
+
+- `refs/archive/local-branches/20261026/codex/zh-cn-docs-mirror-default`, pointing
+  exactly to `aee42eaeb7ee57825ad740bbc51a032cd203d5f4`;
+- the private recovery index
+  `toolkit-zh-docs-mirror-aee42ea-readonly-disposition-20261026`, which binds the
+  existing `related-six-repo-unique-work-preservation/npcink-abilities-toolkit/selected-tips.bundle`
+  and its prior independent recovery verification. The bundle SHA-256 is
+  `3d8d463d16fdedfa3f97d40696189dc87d28a3df5ae40480ed2466c81250cf02`;
+  its preserved ref is `refs/heads/preserved/docs-mirror` at that exact commit.
+
+The original local branch remains until the separate retirement confirms the
+archive target and bundle binding. Do not infer that the archive ref already
+exists from this decision. The private index is a recovery locator, not a
+public repository link or an additional publication requirement. Historical
+closeouts describing the former live-branch hold remain unchanged.
+
+Only revisit this optional path for an actual documentation-access need. Restore
+exact commit `aee42eaeb7ee57825ad740bbc51a032cd203d5f4` from the archive ref, or
+import `refs/heads/preserved/docs-mirror` from the indexed bundle into an isolated
+checkout. Recheck the commit and tree
+`6964a6b4bfbb2feffa66ebc43211216eab884359` before editing. Mirror enablement still
+requires the setup in item 1 and verification that a documentation blob URL is
+reachable; then rebase onto current `master`, retain both the locale tests and
+current read-only assertions, and run fresh candidate gates and acceptance.
+Neither preservation nor old test evidence authorizes publishing or enabling it.
 
 ### 3. Read-only mode: nothing further required
 
