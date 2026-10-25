@@ -85,10 +85,12 @@ jobs:
             core.setOutput('head_sha', pull.merge_commit_sha);
 
       - name: Run OpenCodeReview canary
-        # alibaba/open-code-review v1.12.13 (tag object f33ea58, commit
-        # fabbdb2; the action receives the LLM auth token, so pin the
-        # exact commit rather than the movable tag).
-        uses: alibaba/open-code-review@fabbdb296b0d97e2140ada8d54ca7d6d6d1d7ad4
+        # alibaba/open-code-review v1.13.0: annotated tag object
+        # 152cdab52ebfe72034bbce7b27329330e28ffc8a peels to commit
+        # 1672852136fc87748249d22bce0819f33419ea79. Pin the commit SHA
+        # because the action receives the LLM auth token; bump deliberately
+        # and record the new tag-to-commit pair.
+        uses: alibaba/open-code-review@1672852136fc87748249d22bce0819f33419ea79
         with:
           llm_url: ${{ secrets.OCR_LLM_URL }}
           llm_auth_token: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
