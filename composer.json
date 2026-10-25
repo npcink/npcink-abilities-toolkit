@@ -48,6 +48,7 @@
       "@php tests/uninstall-cleanup.php single",
       "@php tests/uninstall-cleanup.php multisite"
     ],
+    "test:publisher-commit-message": "python3 tests/publisher-commit-message-behavior.py",
     "pr:publish": "bash scripts/publish-pr.sh",
     "closeout:check": "bash scripts/closeout-check.sh",
     "lint:php": "@php tests/lint.php",
@@ -104,6 +105,7 @@
       "@check:catalog",
       "@check:structure-ratchet",
       "@check:wporg",
+      "@test:publisher-commit-message",
       "@test:release-source-guard",
       "@test:wporg-svn-freshness-guard",
       "@test:smoke-lifecycle",
