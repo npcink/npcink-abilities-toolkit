@@ -38,3 +38,10 @@ translation registration, one read-only error flag, one mutation-record field,
 three transaction statements, and one bounded cleanup query. New findings must
 be investigated against their current source and runtime; this table is not a
 blanket exception for similar-looking code.
+
+The [2026-11-02 database experiment](media-backup-query-benchmark.md) measures
+100k/1m synthetic postmeta datasets across distributions and cursor positions.
+It retains the current query: the EXISTS alternative regresses on dense data.
+An initial empty-result plan still visited 500k rows, confirming that the
+result cap is not a scan or latency guarantee. Plans and repeat timings are
+recorded separately from this retained Plugin Check exception.

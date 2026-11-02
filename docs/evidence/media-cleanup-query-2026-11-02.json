@@ -1,0 +1,5210 @@
+{
+  "date": "2026-11-02",
+  "source_commit": "420dba45d489be099360c7f001505da3e5cea03a",
+  "server": {
+    "version": "11.8.9-MariaDB-ubu2404",
+    "image": "sha256:c4124d1afa875e47f2892edf26b482fa54f796e2f342d3717a04ca091a22a9bd",
+    "cpus": 2,
+    "memory_mib": 1024,
+    "innodb_buffer_mib": 256,
+    "fixture_sha256": "161a5b0e2428ec1bb3dae0fa568693f16905715b1ab7ae45763a577b416b05ba"
+  },
+  "raw_sha256": "ee788df14a23da06e04d272981cabdd81371d51893e16634201b9c364dc20130",
+  "case_count": 100,
+  "all_ids_verified": true,
+  "cases": [
+    {
+      "result_count": 100,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 0,
+      "first_ms": 0.347352354,
+      "warm_median_ms": 0.161275202,
+      "warm_p95_ms": 0.168986733,
+      "times_ms": [
+        0.347352354,
+        0.141433642,
+        0.136389884,
+        0.166902535,
+        0.164151395,
+        0.161275202,
+        0.147060975,
+        0.168986733
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 100,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 100,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 0,
+      "first_ms": 0.288494617,
+      "warm_median_ms": 0.197790342,
+      "warm_p95_ms": 0.225635221,
+      "times_ms": [
+        0.288494617,
+        0.206794075,
+        0.225635221,
+        0.205126717,
+        0.197790342,
+        0.192204693,
+        0.1859521,
+        0.192371429
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 100,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 50,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 5000,
+      "first_ms": 0.273863551,
+      "warm_median_ms": 0.123717963,
+      "warm_p95_ms": 0.143476155,
+      "times_ms": [
+        0.273863551,
+        0.123717963,
+        0.1160898,
+        0.132805064,
+        0.111587934,
+        0.143476155,
+        0.120383247,
+        0.130929287
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 50
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 50,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 50,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 5000,
+      "first_ms": 0.297581718,
+      "warm_median_ms": 0.140433227,
+      "warm_p95_ms": 0.147352763,
+      "times_ms": [
+        0.297581718,
+        0.147352763,
+        0.145685405,
+        0.143684575,
+        0.140433227,
+        0.133513691,
+        0.130387395,
+        0.125135218
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 50
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 50,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 10,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 9000,
+      "first_ms": 0.217673586,
+      "warm_median_ms": 0.101333682,
+      "warm_p95_ms": 0.11629822,
+      "times_ms": [
+        0.217673586,
+        0.087619663,
+        0.11629822,
+        0.108961845,
+        0.080324971,
+        0.101500418,
+        0.101333682,
+        0.08653588
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 10
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 10,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 9000,
+      "first_ms": 0.190245547,
+      "warm_median_ms": 0.100208215,
+      "warm_p95_ms": 0.117173583,
+      "times_ms": [
+        0.190245547,
+        0.110795939,
+        0.085910621,
+        0.100208215,
+        0.101333682,
+        0.072988596,
+        0.117173583,
+        0.095331193
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 100,
+          "r_rows": 100,
+          "r_loops": 1,
+          "r_filtered": 10
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 10000,
+      "first_ms": 0.010754459,
+      "warm_median_ms": 0.003209664,
+      "warm_p95_ms": 0.005502281,
+      "times_ms": [
+        0.010754459,
+        0.005043758,
+        0.005418913,
+        0.003209664,
+        0.002667773,
+        0.005502281,
+        0.003042928,
+        0.002167565
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 10000,
+      "first_ms": 0.008795313,
+      "warm_median_ms": 0.002751141,
+      "warm_p95_ms": 0.004585234,
+      "times_ms": [
+        0.008795313,
+        0.002667773,
+        0.002167565,
+        0.004543551,
+        0.004585234,
+        0.004460183,
+        0.002459353,
+        0.002751141
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 10001,
+      "first_ms": 0.009670676,
+      "warm_median_ms": 0.002250933,
+      "warm_p95_ms": 0.003042928,
+      "times_ms": [
+        0.009670676,
+        0.003042928,
+        0.002626089,
+        0.001959146,
+        0.002334301,
+        0.002250933,
+        0.002167565,
+        0.002084197
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "sparse",
+      "cursor": 10001,
+      "first_ms": 0.011087931,
+      "warm_median_ms": 0.003084612,
+      "warm_p95_ms": 0.006044173,
+      "times_ms": [
+        0.011087931,
+        0.003084612,
+        0.002626089,
+        0.002459353,
+        0.005502281,
+        0.00316798,
+        0.003042928,
+        0.006044173
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "first_ms": 2.329757642,
+      "warm_median_ms": 2.065356348,
+      "warm_p95_ms": 2.182446564,
+      "times_ms": [
+        2.329757642,
+        2.15360127,
+        2.182446564,
+        2.125464604,
+        2.065356348,
+        2.033009603,
+        2.013918354,
+        1.974276918
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "index",
+          "key": "post_id",
+          "rows": 99120,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 20.01596488
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1003,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "first_ms": 11.31477472,
+      "warm_median_ms": 8.928160172,
+      "warm_p95_ms": 10.27067515,
+      "times_ms": [
+        11.31477472,
+        10.27067515,
+        9.583265128,
+        9.118530771,
+        8.928160172,
+        8.374972473,
+        8.513988446,
+        8.435747672
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 10030,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ALL",
+          "rows": 99120,
+          "r_rows": 100000,
+          "r_loops": 1,
+          "r_filtered": 20
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 5000,
+      "first_ms": 13.29088573,
+      "warm_median_ms": 10.20748228,
+      "warm_p95_ms": 12.04257649,
+      "times_ms": [
+        13.29088573,
+        12.01139689,
+        12.04257649,
+        10.59710216,
+        9.804815322,
+        10.0921011,
+        10.12002935,
+        10.20748228
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "meta_key",
+          "rows": 40650,
+          "r_rows": 20000,
+          "r_loops": 1,
+          "r_filtered": 50
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 5000,
+      "first_ms": 11.02482117,
+      "warm_median_ms": 8.832078667,
+      "warm_p95_ms": 10.14333068,
+      "times_ms": [
+        11.02482117,
+        10.14333068,
+        9.549376077,
+        9.085683818,
+        8.832078667,
+        8.645876463,
+        8.751962116,
+        8.754838308
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 10030,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ALL",
+          "rows": 99120,
+          "r_rows": 100000,
+          "r_loops": 1,
+          "r_filtered": 20
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 9000,
+      "first_ms": 2.027674058,
+      "warm_median_ms": 1.855561029,
+      "warm_p95_ms": 1.969108108,
+      "times_ms": [
+        2.027674058,
+        1.955018933,
+        1.969108108,
+        1.933093175,
+        1.855561029,
+        1.841972061,
+        1.837261775,
+        1.813293503
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 502,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 10,
+          "r_rows": 9.982071713,
+          "r_loops": 502,
+          "r_filtered": 20.01596488
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 9000,
+      "first_ms": 1.938637141,
+      "warm_median_ms": 1.75110105,
+      "warm_p95_ms": 1.814335602,
+      "times_ms": [
+        1.938637141,
+        1.779988028,
+        1.814335602,
+        1.774277326,
+        1.75110105,
+        1.703456296,
+        1.690575955,
+        1.662189185
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 10,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 10000,
+      "first_ms": 0.01150477,
+      "warm_median_ms": 0.004126711,
+      "warm_p95_ms": 0.005919121,
+      "times_ms": [
+        0.01150477,
+        0.003334716,
+        0.005669017,
+        0.005919121,
+        0.005669017,
+        0.004126711,
+        0.003084612,
+        0.002876193
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 10000,
+      "first_ms": 0.010379304,
+      "warm_median_ms": 0.003042928,
+      "warm_p95_ms": 0.005585649,
+      "times_ms": [
+        0.010379304,
+        0.003501452,
+        0.003042928,
+        0.002334301,
+        0.002459353,
+        0.005585649,
+        0.003334716,
+        0.002542721
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 10001,
+      "first_ms": 0.010212568,
+      "warm_median_ms": 0.00358482,
+      "warm_p95_ms": 0.013047076,
+      "times_ms": [
+        0.010212568,
+        0.003084612,
+        0.005752385,
+        0.0033764,
+        0.002501037,
+        0.006044173,
+        0.00358482,
+        0.013047076
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "dense_duplicates",
+      "cursor": 10001,
+      "first_ms": 0.01129635,
+      "warm_median_ms": 0.0033764,
+      "warm_p95_ms": 0.005835753,
+      "times_ms": [
+        0.01129635,
+        0.0033764,
+        0.002709457,
+        0.002667773,
+        0.005835753,
+        0.003418084,
+        0.002834509,
+        0.005293862
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 0,
+      "first_ms": 2.330299534,
+      "warm_median_ms": 2.048932872,
+      "warm_p95_ms": 2.160937645,
+      "times_ms": [
+        2.330299534,
+        2.160937645,
+        2.127465434,
+        2.127465434,
+        2.048932872,
+        2.014835401,
+        2.0125011,
+        1.97240114
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "index",
+          "key": "post_id",
+          "rows": 99120,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 10.01796049
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 502,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 0,
+      "first_ms": 1.341264455,
+      "warm_median_ms": 1.087117413,
+      "warm_p95_ms": 1.496162013,
+      "times_ms": [
+        1.341264455,
+        1.087117413,
+        1.136929733,
+        1.496162013,
+        1.426674868,
+        1.010502313,
+        0.97290339,
+        0.967234373
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 10030,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 7156,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 5000,
+      "first_ms": 0.634763189,
+      "warm_median_ms": 0.50391727,
+      "warm_p95_ms": 0.543350287,
+      "times_ms": [
+        0.634763189,
+        0.530469946,
+        0.543350287,
+        0.50708525,
+        0.494496697,
+        0.496039004,
+        0.493287863,
+        0.50391727
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 5000,
+      "first_ms": 0.597122582,
+      "warm_median_ms": 0.478031537,
+      "warm_p95_ms": 0.517131082,
+      "times_ms": [
+        0.597122582,
+        0.517131082,
+        0.50412569,
+        0.496247423,
+        0.459899019,
+        0.478031537,
+        0.470403374,
+        0.469528011
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 9000,
+      "first_ms": 0.654521381,
+      "warm_median_ms": 0.518173181,
+      "warm_p95_ms": 0.549352775,
+      "times_ms": [
+        0.654521381,
+        0.527760489,
+        0.53864,
+        0.549352775,
+        0.518173181,
+        0.517881393,
+        0.498665092,
+        0.517839709
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 9000,
+      "first_ms": 0.592704083,
+      "warm_median_ms": 0.475238713,
+      "warm_p95_ms": 0.516839294,
+      "times_ms": [
+        0.592704083,
+        0.506168203,
+        0.482825191,
+        0.516839294,
+        0.475238713,
+        0.457147878,
+        0.468527597,
+        0.461024486
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 10000,
+      "first_ms": 0.010045832,
+      "warm_median_ms": 0.003543136,
+      "warm_p95_ms": 0.005960805,
+      "times_ms": [
+        0.010045832,
+        0.003251348,
+        0.005585649,
+        0.005960805,
+        0.003543136,
+        0.003793239,
+        0.002792825,
+        0.002751141
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 10000,
+      "first_ms": 0.010379304,
+      "warm_median_ms": 0.003334716,
+      "warm_p95_ms": 0.005960805,
+      "times_ms": [
+        0.010379304,
+        0.003334716,
+        0.002667773,
+        0.002501037,
+        0.002501037,
+        0.005752385,
+        0.005960805,
+        0.003334716
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 10001,
+      "first_ms": 0.008836997,
+      "warm_median_ms": 0.0033764,
+      "warm_p95_ms": 0.005543965,
+      "times_ms": [
+        0.008836997,
+        0.005543965,
+        0.005502281,
+        0.005335546,
+        0.0033764,
+        0.003084612,
+        0.002375985,
+        0.002417669
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "prefix",
+      "cursor": 10001,
+      "first_ms": 0.011004563,
+      "warm_median_ms": 0.00316798,
+      "warm_p95_ms": 0.005252178,
+      "times_ms": [
+        0.011004563,
+        0.00316798,
+        0.005127126,
+        0.00316798,
+        0.002709457,
+        0.005252178,
+        0.003209664,
+        0.002542721
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 0,
+      "first_ms": 0.953978877,
+      "warm_median_ms": 0.872361703,
+      "warm_p95_ms": 0.945975558,
+      "times_ms": [
+        0.953978877,
+        0.891411268,
+        0.945975558,
+        0.894579248,
+        0.814212593,
+        0.865650587,
+        0.806709482,
+        0.872361703
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 2000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 0,
+      "first_ms": 1.204290996,
+      "warm_median_ms": 1.033636905,
+      "warm_p95_ms": 1.119547526,
+      "times_ms": [
+        1.204290996,
+        1.119547526,
+        1.055812766,
+        1.035887838,
+        1.024633172,
+        1.033636905,
+        1.030885764,
+        1.033178382
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 5000,
+      "first_ms": 1.29541211,
+      "warm_median_ms": 1.120381205,
+      "warm_p95_ms": 1.179405678,
+      "times_ms": [
+        1.29541211,
+        1.175278967,
+        1.171652463,
+        1.120381205,
+        1.076404638,
+        1.179405678,
+        1.105208247,
+        1.074612228
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 5000,
+      "first_ms": 1.230885356,
+      "warm_median_ms": 1.038138772,
+      "warm_p95_ms": 1.154061836,
+      "times_ms": [
+        1.230885356,
+        1.154061836,
+        1.070443833,
+        1.038138772,
+        1.030010401,
+        1.016046278,
+        1.04772608,
+        1.035512683
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 9000,
+      "first_ms": 1.273611404,
+      "warm_median_ms": 1.065275023,
+      "warm_p95_ms": 1.093953581,
+      "times_ms": [
+        1.273611404,
+        1.093953581,
+        1.090910652,
+        1.079530934,
+        1.065275023,
+        1.052186263,
+        1.040473073,
+        1.015421019
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 9000,
+      "first_ms": 1.224841183,
+      "warm_median_ms": 1.0513109,
+      "warm_p95_ms": 1.135679214,
+      "times_ms": [
+        1.224841183,
+        1.135679214,
+        1.063399245,
+        1.053353413,
+        1.038930767,
+        1.022298871,
+        1.038138772,
+        1.0513109
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 10000,
+      "first_ms": 0.008878681,
+      "warm_median_ms": 0.002125881,
+      "warm_p95_ms": 0.004877022,
+      "times_ms": [
+        0.008878681,
+        0.001875778,
+        0.004501867,
+        0.002125881,
+        0.002501037,
+        0.002084197,
+        0.001667358,
+        0.004877022
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 10000,
+      "first_ms": 0.009795728,
+      "warm_median_ms": 0.003543136,
+      "warm_p95_ms": 0.005919121,
+      "times_ms": [
+        0.009795728,
+        0.00316798,
+        0.005877437,
+        0.005877437,
+        0.005919121,
+        0.003501452,
+        0.003543136,
+        0.002917876
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 10001,
+      "first_ms": 0.009545625,
+      "warm_median_ms": 0.002792825,
+      "warm_p95_ms": 0.005460597,
+      "times_ms": [
+        0.009545625,
+        0.002792825,
+        0.004835338,
+        0.005043758,
+        0.005460597,
+        0.002709457,
+        0.002501037,
+        0.002167565
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "suffix",
+      "cursor": 10001,
+      "first_ms": 0.008503526,
+      "warm_median_ms": 0.002459353,
+      "warm_p95_ms": 0.005627333,
+      "times_ms": [
+        0.008503526,
+        0.00295956,
+        0.002667773,
+        0.00200083,
+        0.002459353,
+        0.001917462,
+        0.002417669,
+        0.005627333
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 0,
+      "first_ms": 0.064234967,
+      "warm_median_ms": 0.058399214,
+      "warm_p95_ms": 0.12663584,
+      "times_ms": [
+        0.064234967,
+        0.052646829,
+        0.073697223,
+        0.12663584,
+        0.0563567,
+        0.058399214,
+        0.048811905,
+        0.068570098
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 0,
+      "first_ms": 0.014464331,
+      "warm_median_ms": 0.00537723,
+      "warm_p95_ms": 0.008586894,
+      "times_ms": [
+        0.014464331,
+        0.008503526,
+        0.00537723,
+        0.004126711,
+        0.008003318,
+        0.00496039,
+        0.008586894,
+        0.005085442
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 5000,
+      "first_ms": 0.018424306,
+      "warm_median_ms": 0.003834923,
+      "warm_p95_ms": 0.009420573,
+      "times_ms": [
+        0.018424306,
+        0.00496039,
+        0.004001659,
+        0.003626504,
+        0.009420573,
+        0.003834923,
+        0.003084612,
+        0.003418084
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 5000,
+      "first_ms": 0.013797387,
+      "warm_median_ms": 0.003709872,
+      "warm_p95_ms": 0.008753629,
+      "times_ms": [
+        0.013797387,
+        0.004418499,
+        0.003668188,
+        0.008753629,
+        0.005043758,
+        0.003709872,
+        0.003293032,
+        0.003251348
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 9000,
+      "first_ms": 0.015423061,
+      "warm_median_ms": 0.005627333,
+      "warm_p95_ms": 0.009628992,
+      "times_ms": [
+        0.015423061,
+        0.00537723,
+        0.004418499,
+        0.009628992,
+        0.005627333,
+        0.004501867,
+        0.009045417,
+        0.005752385
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 9000,
+      "first_ms": 0.012130029,
+      "warm_median_ms": 0.003834923,
+      "warm_p95_ms": 0.006586064,
+      "times_ms": [
+        0.012130029,
+        0.006586064,
+        0.003834923,
+        0.002917876,
+        0.004168395,
+        0.002834509,
+        0.002751141,
+        0.006002489
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 10000,
+      "first_ms": 0.010295936,
+      "warm_median_ms": 0.002334301,
+      "warm_p95_ms": 0.005669017,
+      "times_ms": [
+        0.010295936,
+        0.002876193,
+        0.002334301,
+        0.005669017,
+        0.002334301,
+        0.002209249,
+        0.002167565,
+        0.005335546
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 10000,
+      "first_ms": 0.010462671,
+      "warm_median_ms": 0.003293032,
+      "warm_p95_ms": 0.006002489,
+      "times_ms": [
+        0.010462671,
+        0.003293032,
+        0.006002489,
+        0.005127126,
+        0.003042928,
+        0.003001244,
+        0.002584405,
+        0.003626504
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 10001,
+      "first_ms": 0.010587723,
+      "warm_median_ms": 0.002584405,
+      "warm_p95_ms": 0.005252178,
+      "times_ms": [
+        0.010587723,
+        0.00295956,
+        0.002584405,
+        0.002375985,
+        0.002292617,
+        0.002375985,
+        0.005252178,
+        0.003334716
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 100000,
+      "posts": 10000,
+      "pattern": "none",
+      "cursor": 10001,
+      "first_ms": 0.009754044,
+      "warm_median_ms": 0.003334716,
+      "warm_p95_ms": 0.006210909,
+      "times_ms": [
+        0.009754044,
+        0.003251348,
+        0.004877022,
+        0.006210909,
+        0.003334716,
+        0.005919121,
+        0.003042928,
+        0.002917876
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 0,
+      "first_ms": 13.70684987,
+      "warm_median_ms": 1.382781669,
+      "warm_p95_ms": 1.590576159,
+      "times_ms": [
+        13.70684987,
+        1.590576159,
+        1.502372921,
+        1.413377688,
+        1.34522443,
+        1.382781669,
+        1.297829779,
+        1.332677561
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 0,
+      "first_ms": 2.668439735,
+      "warm_median_ms": 1.414919995,
+      "warm_p95_ms": 1.588283542,
+      "times_ms": [
+        2.668439735,
+        1.588283542,
+        1.414919995,
+        1.447350108,
+        1.426466449,
+        1.366733348,
+        1.356812568,
+        1.328884322
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 500,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 50000,
+      "first_ms": 2.08732379,
+      "warm_median_ms": 1.008376431,
+      "warm_p95_ms": 1.127967684,
+      "times_ms": [
+        2.08732379,
+        1.113461669,
+        1.127967684,
+        1.100164489,
+        0.986450674,
+        1.003416041,
+        1.008376431,
+        0.961148516
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 50
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 500,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 500,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 50000,
+      "first_ms": 2.727714312,
+      "warm_median_ms": 1.354895107,
+      "warm_p95_ms": 1.526591296,
+      "times_ms": [
+        2.727714312,
+        1.526591296,
+        1.357687931,
+        1.36231485,
+        1.354895107,
+        1.287992367,
+        1.256604353,
+        1.3138781
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 50
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 500,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 10,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 99000,
+      "first_ms": 1.585574085,
+      "warm_median_ms": 0.761023873,
+      "warm_p95_ms": 0.823924953,
+      "times_ms": [
+        1.585574085,
+        0.823924953,
+        0.803166346,
+        0.761023873,
+        0.735680031,
+        0.767359833,
+        0.753979285,
+        0.694121133
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 1
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 10,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 99000,
+      "first_ms": 1.534302827,
+      "warm_median_ms": 0.702874763,
+      "warm_p95_ms": 0.811794924,
+      "times_ms": [
+        1.534302827,
+        0.811794924,
+        0.706126111,
+        0.709877666,
+        0.702874763,
+        0.666693094,
+        0.688118645,
+        0.671111593
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 1
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 100000,
+      "first_ms": 0.009212153,
+      "warm_median_ms": 0.002792825,
+      "warm_p95_ms": 0.006919536,
+      "times_ms": [
+        0.009212153,
+        0.003126296,
+        0.002542721,
+        0.002626089,
+        0.006919536,
+        0.003418084,
+        0.002792825,
+        0.002626089
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 100000,
+      "first_ms": 0.010087516,
+      "warm_median_ms": 0.003334716,
+      "warm_p95_ms": 0.00516881,
+      "times_ms": [
+        0.010087516,
+        0.0033764,
+        0.002584405,
+        0.00516881,
+        0.002375985,
+        0.005127126,
+        0.002501037,
+        0.003334716
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 100001,
+      "first_ms": 0.011129615,
+      "warm_median_ms": 0.002334301,
+      "warm_p95_ms": 0.005627333,
+      "times_ms": [
+        0.011129615,
+        0.002917876,
+        0.002626089,
+        0.002292617,
+        0.005627333,
+        0.002250933,
+        0.002334301,
+        0.002042514
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "sparse",
+      "cursor": 100001,
+      "first_ms": 0.009670676,
+      "warm_median_ms": 0.003042928,
+      "warm_p95_ms": 0.006002489,
+      "times_ms": [
+        0.009670676,
+        0.003042928,
+        0.002626089,
+        0.002417669,
+        0.006002489,
+        0.005919121,
+        0.002459353,
+        0.003209664
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "first_ms": 2.392408619,
+      "warm_median_ms": 2.113001103,
+      "warm_p95_ms": 2.217085926,
+      "times_ms": [
+        2.392408619,
+        2.217085926,
+        2.215710356,
+        2.153059379,
+        2.113001103,
+        2.066481815,
+        2.00057949,
+        2.004706201
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "index",
+          "key": "post_id",
+          "rows": 990675,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 20.01596488
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1003,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "first_ms": 97.36953851,
+      "warm_median_ms": 92.79322439,
+      "warm_p95_ms": 98.91713852,
+      "times_ms": [
+        97.36953851,
+        92.90635463,
+        92.3542924,
+        90.98034773,
+        91.4551696,
+        92.79322439,
+        98.91713852,
+        93.82419352
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 99238,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ALL",
+          "rows": 990675,
+          "r_rows": 1000000,
+          "r_loops": 1,
+          "r_filtered": 20
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 50000,
+      "first_ms": 2.644012941,
+      "warm_median_ms": 2.30007867,
+      "warm_p95_ms": 2.49995321,
+      "times_ms": [
+        2.644012941,
+        2.49995321,
+        2.457685685,
+        2.30007867,
+        2.320753909,
+        2.255685264,
+        2.209416079,
+        2.196619107
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 990675,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 20.01596488
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1003,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 50000,
+      "first_ms": 92.63299129,
+      "warm_median_ms": 92.00218807,
+      "warm_p95_ms": 96.16395531,
+      "times_ms": [
+        92.63299129,
+        92.00218807,
+        91.52011319,
+        91.18409887,
+        93.94828664,
+        96.16395531,
+        91.97680255,
+        93.73403114
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 99238,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ALL",
+          "rows": 990675,
+          "r_rows": 1000000,
+          "r_loops": 1,
+          "r_filtered": 20
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 99000,
+      "first_ms": 1.858020382,
+      "warm_median_ms": 1.825631953,
+      "warm_p95_ms": 1.874110386,
+      "times_ms": [
+        1.858020382,
+        1.800079691,
+        1.846765715,
+        1.825631953,
+        1.834135478,
+        1.818420629,
+        1.795619509,
+        1.874110386
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 502,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 9.982071713,
+          "r_loops": 502,
+          "r_filtered": 20.01596488
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 99000,
+      "first_ms": 2.119712219,
+      "warm_median_ms": 1.901288322,
+      "warm_p95_ms": 2.012959623,
+      "times_ms": [
+        2.119712219,
+        2.012959623,
+        1.951225694,
+        1.924422914,
+        1.901288322,
+        1.848349705,
+        1.838345557,
+        1.773652067
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 100000,
+      "first_ms": 0.010796143,
+      "warm_median_ms": 0.002542721,
+      "warm_p95_ms": 0.006002489,
+      "times_ms": [
+        0.010796143,
+        0.003126296,
+        0.002542721,
+        0.002084197,
+        0.00179241,
+        0.006002489,
+        0.003501452,
+        0.002375985
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 100000,
+      "first_ms": 0.009754044,
+      "warm_median_ms": 0.002876193,
+      "warm_p95_ms": 0.005585649,
+      "times_ms": [
+        0.009754044,
+        0.003334716,
+        0.002876193,
+        0.005585649,
+        0.003543136,
+        0.002751141,
+        0.002417669,
+        0.002375985
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 100001,
+      "first_ms": 0.008461842,
+      "warm_median_ms": 0.002626089,
+      "warm_p95_ms": 0.005752385,
+      "times_ms": [
+        0.008461842,
+        0.002917876,
+        0.002626089,
+        0.002501037,
+        0.002459353,
+        0.005752385,
+        0.0033764,
+        0.002626089
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 100001,
+      "first_ms": 0.010420987,
+      "warm_median_ms": 0.003084612,
+      "warm_p95_ms": 0.005794069,
+      "times_ms": [
+        0.010420987,
+        0.003084612,
+        0.002584405,
+        0.002542721,
+        0.005794069,
+        0.003334716,
+        0.002125881,
+        0.00537723
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 0,
+      "first_ms": 2.377777553,
+      "warm_median_ms": 2.0924926,
+      "warm_p95_ms": 2.229382691,
+      "times_ms": [
+        2.377777553,
+        2.229382691,
+        2.205456104,
+        2.16731529,
+        2.0924926,
+        2.091200397,
+        2.065981608,
+        1.991909229
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "index",
+          "key": "post_id",
+          "rows": 990675,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 10.01796049
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 502,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 0,
+      "first_ms": 6.954008306,
+      "warm_median_ms": 5.169435044,
+      "warm_p95_ms": 5.993318313,
+      "times_ms": [
+        6.954008306,
+        5.993318313,
+        5.598904779,
+        5.380189094,
+        5.169435044,
+        5.013370335,
+        4.989610484,
+        4.822749633
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 21036,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 50000,
+      "first_ms": 6.53604334,
+      "warm_median_ms": 5.135337573,
+      "warm_p95_ms": 5.886107194,
+      "times_ms": [
+        6.53604334,
+        5.269684943,
+        5.135337573,
+        4.841424042,
+        5.886107194,
+        5.335212112,
+        4.408869694,
+        4.357556752
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 21036,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 50000,
+      "first_ms": 6.145089574,
+      "warm_median_ms": 4.312079563,
+      "warm_p95_ms": 4.992403309,
+      "times_ms": [
+        6.145089574,
+        4.992403309,
+        4.732087042,
+        4.507785707,
+        4.312079563,
+        4.168936879,
+        4.089737374,
+        4.002617919
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 21036,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 99000,
+      "first_ms": 4.955804801,
+      "warm_median_ms": 4.164268276,
+      "warm_p95_ms": 4.670061324,
+      "times_ms": [
+        4.955804801,
+        4.670061324,
+        4.517873223,
+        4.247844596,
+        4.164268276,
+        4.076857034,
+        3.930754789,
+        3.868103813
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 10,
+          "r_loops": 1000,
+          "r_filtered": 0
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 99000,
+      "first_ms": 4.783316616,
+      "warm_median_ms": 4.143759773,
+      "warm_p95_ms": 4.57873179,
+      "times_ms": [
+        4.783316616,
+        4.57873179,
+        4.402408682,
+        4.18594393,
+        4.143759773,
+        3.989112319,
+        3.912122064,
+        3.813122683
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 1000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 10,
+          "r_loops": 1000,
+          "r_filtered": 0
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 100000,
+      "first_ms": 0.009337205,
+      "warm_median_ms": 0.002292617,
+      "warm_p95_ms": 0.004918706,
+      "times_ms": [
+        0.009337205,
+        0.002834509,
+        0.002292617,
+        0.002292617,
+        0.001709042,
+        0.004877022,
+        0.002292617,
+        0.004918706
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 100000,
+      "first_ms": 0.011629822,
+      "warm_median_ms": 0.003418084,
+      "warm_p95_ms": 0.019799876,
+      "times_ms": [
+        0.011629822,
+        0.00316798,
+        0.002626089,
+        0.019799876,
+        0.002459353,
+        0.005960805,
+        0.003418084,
+        0.005502281
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 100001,
+      "first_ms": 0.009754044,
+      "warm_median_ms": 0.003334716,
+      "warm_p95_ms": 0.005502281,
+      "times_ms": [
+        0.009754044,
+        0.003209664,
+        0.005502281,
+        0.005002074,
+        0.003126296,
+        0.005460597,
+        0.003334716,
+        0.002709457
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 100001,
+      "first_ms": 0.010671091,
+      "warm_median_ms": 0.003459768,
+      "warm_p95_ms": 0.005919121,
+      "times_ms": [
+        0.010671091,
+        0.002834509,
+        0.002459353,
+        0.005877437,
+        0.002417669,
+        0.005460597,
+        0.003459768,
+        0.005919121
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 0,
+      "first_ms": 13.57804646,
+      "warm_median_ms": 10.27705279,
+      "warm_p95_ms": 11.34645452,
+      "times_ms": [
+        13.57804646,
+        11.34645452,
+        10.54949909,
+        10.86342091,
+        10.27705279,
+        9.841997405,
+        9.353294777,
+        8.801899488
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 40888,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 0,
+      "first_ms": 7.175099976,
+      "warm_median_ms": 5.530918257,
+      "warm_p95_ms": 6.376310444,
+      "times_ms": [
+        7.175099976,
+        6.376310444,
+        5.941296743,
+        5.71995497,
+        5.530918257,
+        5.344757737,
+        5.392402492,
+        5.134087054
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 20130,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 50000,
+      "first_ms": 12.75983221,
+      "warm_median_ms": 9.115446159,
+      "warm_p95_ms": 10.9133166,
+      "times_ms": [
+        12.75983221,
+        10.9133166,
+        10.19197585,
+        9.580972511,
+        9.115446159,
+        8.995146279,
+        9.006984521,
+        8.980056689
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 20130,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 10000,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 50000,
+      "first_ms": 7.390897784,
+      "warm_median_ms": 5.610784705,
+      "warm_p95_ms": 6.447589999,
+      "times_ms": [
+        7.390897784,
+        6.447589999,
+        6.146173357,
+        5.829333654,
+        5.610784705,
+        5.463640362,
+        5.389984822,
+        5.34742551
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 20130,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 99000,
+      "first_ms": 2.643804521,
+      "warm_median_ms": 2.291616828,
+      "warm_p95_ms": 2.366606254,
+      "times_ms": [
+        2.643804521,
+        2.366606254,
+        2.345305756,
+        2.291616828,
+        2.293909446,
+        2.227882069,
+        2.194159753,
+        2.20203802
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 502,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 9.982071713,
+          "r_loops": 502,
+          "r_filtered": 10.01796049
+        }
+      ]
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 99000,
+      "first_ms": 1.665982425,
+      "warm_median_ms": 1.562522861,
+      "warm_p95_ms": 1.573819211,
+      "times_ms": [
+        1.665982425,
+        1.573819211,
+        1.572860481,
+        1.566607888,
+        1.562522861,
+        1.503248284,
+        1.463440112,
+        1.447225056
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 1000,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "post_id",
+          "rows": 9,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 100000,
+      "first_ms": 0.009420573,
+      "warm_median_ms": 0.002876193,
+      "warm_p95_ms": 0.005627333,
+      "times_ms": [
+        0.009420573,
+        0.002876193,
+        0.002250933,
+        0.002250933,
+        0.005627333,
+        0.00316798,
+        0.002834509,
+        0.005502281
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 100000,
+      "first_ms": 0.01171319,
+      "warm_median_ms": 0.003293032,
+      "warm_p95_ms": 0.005627333,
+      "times_ms": [
+        0.01171319,
+        0.00295956,
+        0.005543965,
+        0.003251348,
+        0.002459353,
+        0.005627333,
+        0.003293032,
+        0.005252178
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 100001,
+      "first_ms": 0.010379304,
+      "warm_median_ms": 0.00316798,
+      "warm_p95_ms": 0.005835753,
+      "times_ms": [
+        0.010379304,
+        0.002751141,
+        0.002501037,
+        0.005835753,
+        0.003501452,
+        0.002792825,
+        0.005752385,
+        0.00316798
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "suffix",
+      "cursor": 100001,
+      "first_ms": 0.009587308,
+      "warm_median_ms": 0.002375985,
+      "warm_p95_ms": 0.005210494,
+      "times_ms": [
+        0.009587308,
+        0.002876193,
+        0.002375985,
+        0.002167565,
+        0.005210494,
+        0.002250933,
+        0.003126296,
+        0.002250933
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 0,
+      "first_ms": 0.016715264,
+      "warm_median_ms": 0.004376815,
+      "warm_p95_ms": 0.008003318,
+      "times_ms": [
+        0.016715264,
+        0.004918706,
+        0.004376815,
+        0.003959975,
+        0.003084612,
+        0.008003318,
+        0.00475197,
+        0.003418084
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 0,
+      "first_ms": 0.014797802,
+      "warm_median_ms": 0.004710286,
+      "warm_p95_ms": 0.009003733,
+      "times_ms": [
+        0.014797802,
+        0.004710286,
+        0.009003733,
+        0.008378474,
+        0.006169225,
+        0.004210079,
+        0.003918291,
+        0.004626918
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 50000,
+      "first_ms": 0.017340523,
+      "warm_median_ms": 0.005835753,
+      "warm_p95_ms": 0.009170469,
+      "times_ms": [
+        0.017340523,
+        0.005835753,
+        0.00496039,
+        0.009170469,
+        0.008962049,
+        0.005627333,
+        0.006377644,
+        0.004793654
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 50000,
+      "first_ms": 0.014756118,
+      "warm_median_ms": 0.005043758,
+      "warm_p95_ms": 0.008878681,
+      "times_ms": [
+        0.014756118,
+        0.005043758,
+        0.00812837,
+        0.004293447,
+        0.005293862,
+        0.004043343,
+        0.003459768,
+        0.008878681
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 99000,
+      "first_ms": 0.016965368,
+      "warm_median_ms": 0.005835753,
+      "warm_p95_ms": 0.010045832,
+      "times_ms": [
+        0.016965368,
+        0.005210494,
+        0.010045832,
+        0.005835753,
+        0.004877022,
+        0.009253837,
+        0.005835753,
+        0.00475197
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 99000,
+      "first_ms": 0.015881585,
+      "warm_median_ms": 0.004585234,
+      "warm_p95_ms": 0.008836997,
+      "times_ms": [
+        0.015881585,
+        0.004585234,
+        0.004043343,
+        0.008836997,
+        0.005460597,
+        0.004418499,
+        0.003876607,
+        0.008836997
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 100000,
+      "first_ms": 0.009503941,
+      "warm_median_ms": 0.003001244,
+      "warm_p95_ms": 0.005585649,
+      "times_ms": [
+        0.009503941,
+        0.00295956,
+        0.005002074,
+        0.003001244,
+        0.002501037,
+        0.005585649,
+        0.003209664,
+        0.002792825
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 100000,
+      "first_ms": 0.011421402,
+      "warm_median_ms": 0.002876193,
+      "warm_p95_ms": 0.006127541,
+      "times_ms": [
+        0.011421402,
+        0.003543136,
+        0.002834509,
+        0.002751141,
+        0.005502281,
+        0.002876193,
+        0.006127541,
+        0.002876193
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 100001,
+      "first_ms": 0.008836997,
+      "warm_median_ms": 0.002125881,
+      "warm_p95_ms": 0.004126711,
+      "times_ms": [
+        0.008836997,
+        0.001959146,
+        0.004126711,
+        0.002876193,
+        0.004126711,
+        0.00179241,
+        0.001959146,
+        0.002125881
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "none",
+      "cursor": 100001,
+      "first_ms": 0.021467234,
+      "warm_median_ms": 0.003626504,
+      "warm_p95_ms": 0.005877437,
+      "times_ms": [
+        0.021467234,
+        0.005877437,
+        0.003334716,
+        0.002834509,
+        0.005585649,
+        0.005502281,
+        0.003209664,
+        0.003626504
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 1,
+          "r_rows": 0,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ]
+    }
+  ],
+  "representative_plans": [
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "sql": "SELECT wp_posts.ID FROM wp_posts INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id ) WHERE 1=1 AND ( wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' ) AND wp_posts.post_type = 'attachment' AND ((wp_posts.post_status = 'inherit')) GROUP BY wp_posts.ID ORDER BY wp_posts.ID ASC LIMIT 0, 501",
+      "first_ms": 2.392408619,
+      "warm_median_ms": 2.113001103,
+      "warm_p95_ms": 2.217085926,
+      "times_ms": [
+        2.392408619,
+        2.217085926,
+        2.215710356,
+        2.153059379,
+        2.113001103,
+        2.066481815,
+        2.00057949,
+        2.004706201
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "index",
+          "key": "post_id",
+          "rows": 990675,
+          "r_rows": 5011,
+          "r_loops": 1,
+          "r_filtered": 20.01596488
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 1003,
+          "r_filtered": 100
+        }
+      ],
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost": 846.2235408,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_postmeta",
+                "access_type": "index",
+                "possible_keys": [
+                  "post_id",
+                  "meta_key"
+                ],
+                "key": "post_id",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "loops": 1,
+                "rows": 10392,
+                "cost": 169.5704494,
+                "filtered": 100,
+                "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'"
+              }
+            },
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "ref": [
+                  "toolkit_bench.wp_postmeta.post_id"
+                ],
+                "loops": 429844,
+                "rows": 1,
+                "cost": 385.1782754,
+                "filtered": 100,
+                "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'"
+              }
+            }
+          ]
+        }
+      },
+      "analyze": {
+        "query_optimization": {
+          "r_total_time_ms": 0.066652636
+        },
+        "query_block": {
+          "select_id": 1,
+          "cost": 846.2235408,
+          "r_loops": 1,
+          "r_total_time_ms": 2.217085926,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_postmeta",
+                "access_type": "index",
+                "possible_keys": [
+                  "post_id",
+                  "meta_key"
+                ],
+                "key": "post_id",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "loops": 1,
+                "r_loops": 1,
+                "rows": 990675,
+                "r_rows": 5011,
+                "cost": 169.5704494,
+                "r_table_time_ms": 1.774444062,
+                "r_other_time_ms": 0.197331819,
+                "r_engine_stats": {
+                  "pages_accessed": 15093
+                },
+                "filtered": 43.38900375,
+                "r_total_filtered": 20.01596488,
+                "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'",
+                "r_filtered": 20.01596488
+              }
+            },
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "ref": [
+                  "toolkit_bench.wp_postmeta.post_id"
+                ],
+                "loops": 429844,
+                "r_loops": 1003,
+                "r_table_loops": 502,
+                "rows": 1,
+                "r_rows": 1,
+                "cost": 385.1782754,
+                "r_table_time_ms": 0.199957908,
+                "r_other_time_ms": 0.044351723,
+                "r_engine_stats": {
+                  "pages_accessed": 1036
+                },
+                "filtered": 100,
+                "r_total_filtered": 100,
+                "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'",
+                "r_filtered": 100
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "result_count": 501,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "dense_duplicates",
+      "cursor": 0,
+      "sql": "SELECT wp_posts.ID FROM wp_posts WHERE wp_posts.post_type='attachment' AND wp_posts.post_status='inherit' AND wp_posts.ID>0 AND EXISTS (SELECT 1 FROM wp_postmeta WHERE wp_postmeta.post_id=wp_posts.ID AND wp_postmeta.meta_key='_npcink_ai_media_file_replacement_history') ORDER BY wp_posts.ID ASC LIMIT 501",
+      "first_ms": 97.36953851,
+      "warm_median_ms": 92.79322439,
+      "warm_p95_ms": 98.91713852,
+      "times_ms": [
+        97.36953851,
+        92.90635463,
+        92.3542924,
+        90.98034773,
+        91.4551696,
+        92.79322439,
+        98.91713852,
+        93.82419352
+      ],
+      "scans": [
+        {
+          "table_name": "wp_posts",
+          "access_type": "range",
+          "key": "PRIMARY",
+          "rows": 99238,
+          "r_rows": 501,
+          "r_loops": 1,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "<subquery2>",
+          "access_type": "eq_ref",
+          "key": "distinct_key",
+          "rows": 1,
+          "r_rows": 1,
+          "r_loops": 501,
+          "r_filtered": 100
+        },
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ALL",
+          "rows": 990675,
+          "r_rows": 1000000,
+          "r_loops": 1,
+          "r_filtered": 20
+        }
+      ],
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost": 274.9581371,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "range",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "loops": 1,
+                "rows": 99238,
+                "cost": 15.78586475,
+                "filtered": 100,
+                "attached_condition": "wp_posts.post_type <=> 'attachment' and wp_posts.post_status <=> 'inherit' and wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit' and wp_posts.`ID` > 0"
+              }
+            },
+            {
+              "table": {
+                "table_name": "<subquery2>",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "distinct_key"
+                ],
+                "key": "distinct_key",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "ref": [
+                  "func"
+                ],
+                "rows": 1,
+                "filtered": 100,
+                "materialized": {
+                  "unique": 1,
+                  "query_block": {
+                    "select_id": 2,
+                    "nested_loop": [
+                      {
+                        "table": {
+                          "table_name": "wp_postmeta",
+                          "access_type": "ALL",
+                          "possible_keys": [
+                            "post_id",
+                            "meta_key"
+                          ],
+                          "loops": 1,
+                          "rows": 990675,
+                          "cost": 169.5704494,
+                          "filtered": 43.38900375,
+                          "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "analyze": {
+        "query_optimization": {
+          "r_total_time_ms": 0.089412072
+        },
+        "query_block": {
+          "select_id": 1,
+          "cost": 274.9581371,
+          "r_loops": 1,
+          "r_total_time_ms": 92.90635463,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "range",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "loops": 1,
+                "r_loops": 1,
+                "rows": 99238,
+                "r_rows": 501,
+                "cost": 15.78586475,
+                "r_table_time_ms": 0.039724804,
+                "r_other_time_ms": 0.056064913,
+                "r_engine_stats": {
+                  "pages_accessed": 54
+                },
+                "filtered": 100,
+                "r_total_filtered": 100,
+                "attached_condition": "wp_posts.post_type <=> 'attachment' and wp_posts.post_status <=> 'inherit' and wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit' and wp_posts.`ID` > 0",
+                "r_filtered": 100
+              }
+            },
+            {
+              "table": {
+                "table_name": "<subquery2>",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "distinct_key"
+                ],
+                "key": "distinct_key",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "ref": [
+                  "func"
+                ],
+                "r_loops": 501,
+                "r_table_loops": 200501,
+                "rows": 1,
+                "r_rows": 1,
+                "r_table_time_ms": 12.09488984,
+                "r_other_time_ms": 1.067859428,
+                "filtered": 100,
+                "r_total_filtered": 100,
+                "r_filtered": 100,
+                "materialized": {
+                  "unique": 1,
+                  "query_block": {
+                    "select_id": 2,
+                    "nested_loop": [
+                      {
+                        "table": {
+                          "table_name": "wp_postmeta",
+                          "access_type": "ALL",
+                          "possible_keys": [
+                            "post_id",
+                            "meta_key"
+                          ],
+                          "loops": 1,
+                          "r_loops": 1,
+                          "rows": 990675,
+                          "r_rows": 1000000,
+                          "cost": 169.5704494,
+                          "r_table_time_ms": 53.03282207,
+                          "r_other_time_ms": 26.61353464,
+                          "r_engine_stats": {
+                            "pages_accessed": 9468
+                          },
+                          "filtered": 43.38900375,
+                          "r_total_filtered": 20,
+                          "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'",
+                          "r_filtered": 20
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "baseline",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 50000,
+      "sql": "SELECT wp_posts.ID FROM wp_posts INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id ) WHERE 1=1 AND ( wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' ) AND wp_posts.post_type = 'attachment' AND ((wp_posts.post_status = 'inherit')) AND wp_posts.ID > 50000 GROUP BY wp_posts.ID ORDER BY wp_posts.ID ASC LIMIT 0, 501",
+      "first_ms": 6.53604334,
+      "warm_median_ms": 5.135337573,
+      "warm_p95_ms": 5.886107194,
+      "times_ms": [
+        6.53604334,
+        5.269684943,
+        5.135337573,
+        4.841424042,
+        5.886107194,
+        5.335212112,
+        4.408869694,
+        4.357556752
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 21036,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ],
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost": 63.30583799,
+          "filesort": {
+            "sort_key": "wp_posts.`ID`",
+            "temporary_table": {
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "wp_postmeta",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "post_id",
+                      "meta_key"
+                    ],
+                    "key": "meta_key",
+                    "key_length": "767",
+                    "used_key_parts": [
+                      "meta_key"
+                    ],
+                    "ref": [
+                      "const"
+                    ],
+                    "loops": 1,
+                    "rows": 21036,
+                    "cost": 29.76504496,
+                    "filtered": 100,
+                    "attached_condition": "wp_postmeta.meta_key <=> '_npcink_ai_media_file_replacement_history' and wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000"
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "wp_posts",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY",
+                      "type_status_date",
+                      "type_status_author"
+                    ],
+                    "key": "PRIMARY",
+                    "key_length": "8",
+                    "used_key_parts": [
+                      "ID"
+                    ],
+                    "ref": [
+                      "toolkit_bench.wp_postmeta.post_id"
+                    ],
+                    "loops": 21036,
+                    "rows": 1,
+                    "cost": 19.52404784,
+                    "filtered": 100,
+                    "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "analyze": {
+        "query_optimization": {
+          "r_total_time_ms": 0.03989154
+        },
+        "query_block": {
+          "select_id": 1,
+          "cost": 63.30583799,
+          "r_loops": 1,
+          "r_total_time_ms": 5.269684943,
+          "filesort": {
+            "sort_key": "wp_posts.`ID`",
+            "r_loops": 1,
+            "r_total_time_ms": 0.001917462,
+            "r_limit": 501,
+            "r_used_priority_queue": true,
+            "r_output_rows": 0,
+            "r_sort_mode": "sort_key,rowid",
+            "temporary_table": {
+              "nested_loop": [
+                {
+                  "table": {
+                    "table_name": "wp_postmeta",
+                    "access_type": "ref",
+                    "possible_keys": [
+                      "post_id",
+                      "meta_key"
+                    ],
+                    "key": "meta_key",
+                    "key_length": "767",
+                    "used_key_parts": [
+                      "meta_key"
+                    ],
+                    "ref": [
+                      "const"
+                    ],
+                    "loops": 1,
+                    "r_loops": 1,
+                    "rows": 21036,
+                    "r_rows": 10000,
+                    "cost": 29.76504496,
+                    "r_table_time_ms": 4.085819083,
+                    "r_other_time_ms": 1.178446947,
+                    "r_engine_stats": {
+                      "pages_accessed": 30067
+                    },
+                    "filtered": 100,
+                    "r_total_filtered": 0,
+                    "attached_condition": "wp_postmeta.meta_key <=> '_npcink_ai_media_file_replacement_history' and wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000",
+                    "r_filtered": 0
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "wp_posts",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY",
+                      "type_status_date",
+                      "type_status_author"
+                    ],
+                    "key": "PRIMARY",
+                    "key_length": "8",
+                    "used_key_parts": [
+                      "ID"
+                    ],
+                    "ref": [
+                      "toolkit_bench.wp_postmeta.post_id"
+                    ],
+                    "loops": 21036,
+                    "r_loops": 0,
+                    "rows": 1,
+                    "r_rows": null,
+                    "cost": 19.52404784,
+                    "r_engine_stats": {
+                      "pages_accessed": 36
+                    },
+                    "filtered": 100,
+                    "r_total_filtered": null,
+                    "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'",
+                    "r_filtered": null
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "result_count": 0,
+      "ids_verified": true,
+      "variant": "exists",
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 50000,
+      "sql": "SELECT wp_posts.ID FROM wp_posts WHERE wp_posts.post_type='attachment' AND wp_posts.post_status='inherit' AND wp_posts.ID>50000 AND EXISTS (SELECT 1 FROM wp_postmeta WHERE wp_postmeta.post_id=wp_posts.ID AND wp_postmeta.meta_key='_npcink_ai_media_file_replacement_history') ORDER BY wp_posts.ID ASC LIMIT 501",
+      "first_ms": 6.145089574,
+      "warm_median_ms": 4.312079563,
+      "warm_p95_ms": 4.992403309,
+      "times_ms": [
+        6.145089574,
+        4.992403309,
+        4.732087042,
+        4.507785707,
+        4.312079563,
+        4.168936879,
+        4.089737374,
+        4.002617919
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "ref",
+          "key": "meta_key",
+          "rows": 21036,
+          "r_rows": 10000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ],
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost": 52.70104888,
+          "nested_loop": [
+            {
+              "duplicates_removal": [
+                {
+                  "read_sorted_file": {
+                    "filesort": {
+                      "sort_key": "wp_posts.`ID`",
+                      "table": {
+                        "table_name": "wp_postmeta",
+                        "access_type": "ref",
+                        "possible_keys": [
+                          "post_id",
+                          "meta_key"
+                        ],
+                        "key": "meta_key",
+                        "key_length": "767",
+                        "used_key_parts": [
+                          "meta_key"
+                        ],
+                        "ref": [
+                          "const"
+                        ],
+                        "loops": 1,
+                        "rows": 21036,
+                        "cost": 29.76504496,
+                        "filtered": 100,
+                        "attached_condition": "wp_postmeta.meta_key <=> '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000 and wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'"
+                      }
+                    }
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "wp_posts",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY",
+                      "type_status_date",
+                      "type_status_author"
+                    ],
+                    "key": "PRIMARY",
+                    "key_length": "8",
+                    "used_key_parts": [
+                      "ID"
+                    ],
+                    "ref": [
+                      "toolkit_bench.wp_postmeta.post_id"
+                    ],
+                    "loops": 21036,
+                    "rows": 1,
+                    "cost": 19.52404784,
+                    "filtered": 0.004753755,
+                    "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "analyze": {
+        "query_optimization": {
+          "r_total_time_ms": 0.045602241
+        },
+        "query_block": {
+          "select_id": 1,
+          "cost": 52.70104888,
+          "r_loops": 1,
+          "r_total_time_ms": 4.992403309,
+          "nested_loop": [
+            {
+              "duplicates_removal": [
+                {
+                  "read_sorted_file": {
+                    "r_rows": 0,
+                    "filesort": {
+                      "sort_key": "wp_posts.`ID`",
+                      "r_loops": 1,
+                      "r_total_time_ms": 4.988359965,
+                      "r_used_priority_queue": false,
+                      "r_output_rows": 0,
+                      "r_buffer_size": "2047KiB",
+                      "r_sort_mode": "sort_key,rowid",
+                      "table": {
+                        "table_name": "wp_postmeta",
+                        "access_type": "ref",
+                        "possible_keys": [
+                          "post_id",
+                          "meta_key"
+                        ],
+                        "key": "meta_key",
+                        "key_length": "767",
+                        "used_key_parts": [
+                          "meta_key"
+                        ],
+                        "ref": [
+                          "const"
+                        ],
+                        "loops": 1,
+                        "r_loops": 1,
+                        "rows": 21036,
+                        "r_rows": 10000,
+                        "cost": 29.76504496,
+                        "r_table_time_ms": 4.276356418,
+                        "r_other_time_ms": 0.709877666,
+                        "r_engine_stats": {
+                          "pages_accessed": 30067
+                        },
+                        "filtered": 100,
+                        "r_total_filtered": 0,
+                        "attached_condition": "wp_postmeta.meta_key <=> '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000 and wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history'",
+                        "r_filtered": 0
+                      }
+                    }
+                  }
+                },
+                {
+                  "table": {
+                    "table_name": "wp_posts",
+                    "access_type": "eq_ref",
+                    "possible_keys": [
+                      "PRIMARY",
+                      "type_status_date",
+                      "type_status_author"
+                    ],
+                    "key": "PRIMARY",
+                    "key_length": "8",
+                    "used_key_parts": [
+                      "ID"
+                    ],
+                    "ref": [
+                      "toolkit_bench.wp_postmeta.post_id"
+                    ],
+                    "loops": 21036,
+                    "r_loops": 0,
+                    "rows": 1,
+                    "r_rows": null,
+                    "cost": 19.52404784,
+                    "r_engine_stats": {
+                      "pages_accessed": 36
+                    },
+                    "filtered": 0.004753755,
+                    "r_total_filtered": null,
+                    "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'",
+                    "r_filtered": null
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "initial_plan_variation": [
+    {
+      "postmeta_rows": 1000000,
+      "posts": 100000,
+      "pattern": "prefix",
+      "cursor": 50000,
+      "sql": "SELECT wp_posts.ID FROM wp_posts INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id ) WHERE 1=1 AND ( wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' ) AND wp_posts.post_type = 'attachment' AND ((wp_posts.post_status = 'inherit')) AND wp_posts.ID > 50000 GROUP BY wp_posts.ID ORDER BY wp_posts.ID ASC LIMIT 0, 501",
+      "first_ms": 178.8659779,
+      "warm_median_ms": 5.325269642,
+      "warm_p95_ms": 187.5205734,
+      "times_ms": [
+        178.8659779,
+        187.5205734,
+        5.830251389,
+        5.491942398,
+        5.325269642,
+        4.89248773,
+        3.954473812,
+        3.974995082
+      ],
+      "scans": [
+        {
+          "table_name": "wp_postmeta",
+          "access_type": "range",
+          "key": "post_id",
+          "rows": 990675,
+          "r_rows": 500000,
+          "r_loops": 1,
+          "r_filtered": 0
+        },
+        {
+          "table_name": "wp_posts",
+          "access_type": "eq_ref",
+          "key": "PRIMARY",
+          "rows": 1,
+          "r_rows": null,
+          "r_loops": 0,
+          "r_filtered": null
+        }
+      ],
+      "explain": {
+        "query_block": {
+          "select_id": 1,
+          "cost": 846.2235408,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_postmeta",
+                "access_type": "range",
+                "possible_keys": [
+                  "post_id",
+                  "meta_key"
+                ],
+                "key": "post_id",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "loops": 1,
+                "rows": 990675,
+                "cost": 169.5704494,
+                "filtered": 43.38900375,
+                "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000"
+              }
+            },
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "ref": [
+                  "toolkit_bench.wp_postmeta.post_id"
+                ],
+                "loops": 429844,
+                "rows": 1,
+                "cost": 385.1782754,
+                "filtered": 100,
+                "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'"
+              }
+            }
+          ]
+        }
+      },
+      "analyze": {
+        "query_optimization": {
+          "r_total_time_ms": 0.088383276
+        },
+        "query_block": {
+          "select_id": 1,
+          "cost": 606.3378562,
+          "r_loops": 1,
+          "r_total_time_ms": 187.5205734,
+          "nested_loop": [
+            {
+              "table": {
+                "table_name": "wp_postmeta",
+                "access_type": "range",
+                "possible_keys": [
+                  "post_id",
+                  "meta_key"
+                ],
+                "key": "post_id",
+                "key_length": "8",
+                "used_key_parts": [
+                  "post_id"
+                ],
+                "loops": 1,
+                "r_loops": 1,
+                "rows": 990675,
+                "r_rows": 500000,
+                "cost": 169.5704494,
+                "r_table_time_ms": 176.5465739,
+                "r_other_time_ms": 10.9720809,
+                "r_engine_stats": {
+                  "pages_accessed": 1500740
+                },
+                "filtered": 28.02109718,
+                "r_total_filtered": 0,
+                "attached_condition": "wp_postmeta.meta_key = '_npcink_ai_media_file_replacement_history' and wp_postmeta.post_id > 50000",
+                "r_filtered": 0
+              }
+            },
+            {
+              "table": {
+                "table_name": "wp_posts",
+                "access_type": "eq_ref",
+                "possible_keys": [
+                  "PRIMARY",
+                  "type_status_date",
+                  "type_status_author"
+                ],
+                "key": "PRIMARY",
+                "key_length": "8",
+                "used_key_parts": [
+                  "ID"
+                ],
+                "ref": [
+                  "toolkit_bench.wp_postmeta.post_id"
+                ],
+                "loops": 277598,
+                "r_loops": 0,
+                "rows": 1,
+                "r_rows": null,
+                "cost": 249.0033631,
+                "r_engine_stats": {
+                  "pages_accessed": 36
+                },
+                "filtered": 100,
+                "r_total_filtered": null,
+                "attached_condition": "wp_posts.post_type = 'attachment' and wp_posts.post_status = 'inherit'",
+                "r_filtered": null
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
