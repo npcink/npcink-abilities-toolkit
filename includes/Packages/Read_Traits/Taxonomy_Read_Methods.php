@@ -287,7 +287,7 @@ trait Taxonomy_Read_Methods {
 			array_filter(
 				$candidates,
 				static function ( array $item ): bool {
-					return 'category' === (string) ( $item['taxonomy'] ?? '' );
+					return 'category' === (string) $item['taxonomy'];
 				}
 			)
 		);
@@ -295,7 +295,7 @@ trait Taxonomy_Read_Methods {
 			array_filter(
 				$candidates,
 				static function ( array $item ): bool {
-					return 'post_tag' === (string) ( $item['taxonomy'] ?? '' );
+					return 'post_tag' === (string) $item['taxonomy'];
 				}
 			)
 		);

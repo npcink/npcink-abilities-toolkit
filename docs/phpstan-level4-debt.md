@@ -99,3 +99,20 @@ not authorization to delete all remaining defensive code or raise the baseline.
 [Machine-readable classification](evidence/phpstan-level4-debt-2026-11-02.json)
 records before/after totals and ownership. Full reports remain local under
 `/tmp/toolkit-level4-before-full.json` and `/tmp/toolkit-level4-after.json`.
+
+## Follow-up batch: locally constructed taxonomy candidates
+
+`suggest_post_taxonomy_terms` initializes its own candidate list and creates
+every row with a non-null string `taxonomy` key. Its category/tag filters run
+immediately after sorting; no filter, cache read or external callback can
+replace those rows between construction and use. Access that required key
+directly in the two filters. Retain the guards on queried term objects,
+related evidence and match-profile values.
+
+The first-batch table/JSON above remains the 659-to-653 classification snapshot.
+This follow-up removes two `nullCoalesce.offset` diagnostics in one file:
+Taxonomy_Read_Methods goes from 27 to 25 findings, the complete inventory from
+653 to 651, and the numeric ceiling from 653 to 651. It changes no public
+schema, candidate ranking, permissions or write posture and adds no ignore,
+type override or cast. Existing taxonomy suggestion and review-set behavior
+checks cover the affected path; no implementation-mirroring test was added.
