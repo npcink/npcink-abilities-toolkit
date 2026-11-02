@@ -60,6 +60,12 @@ descriptions aligned with the current Overview + Developer Tools structure.
 The packaged `readme.txt` itself must stay operator-facing; maintainer
 process notes belong in this runbook, not in the storefront text.
 
+The post-0.8.0 Quiet admin refresh uses the same four 1366x920 views. A
+session-scoped fixture may narrow active plugins for the throwaway capture
+user so the standalone Tools placement is visible without persisting changes
+to the site's active-plugin option. Verify both bundled locale rendering and
+the final capture assets, then remove the fixture user, sessions and MU loader.
+
 ### Screenshot Capture Procedure (used for 0.5.12)
 
 The publishable screenshots live in `marketing/exports/wordpress-org/` and

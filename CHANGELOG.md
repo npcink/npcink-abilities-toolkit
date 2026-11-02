@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Complete the current admin/error-message template and all seven bundled starter locales; use plural-aware ability/ID counts and refresh the four WordPress.org screenshots for the Quiet Overview and Developer Tools layout.
+
 ## 0.8.0 - 2026-11-02
 
 Integration-profile and contract-hardening release. The compatible full catalog
