@@ -41,7 +41,7 @@ if ( ! function_exists( 'sanitize_key' ) ) {
 
 if ( ! function_exists( 'sanitize_text_field' ) ) {
 	function sanitize_text_field( $value ) {
-		return trim( preg_replace( '/[\r\n\t]+/', ' ', (string) $value ) );
+		return is_array( $value ) || is_object( $value ) ? '' : trim( preg_replace( '/[\r\n\t]+/', ' ', (string) $value ) );
 	}
 }
 

@@ -74,6 +74,9 @@ so both declared WordPress/PHP endpoints exercise actual persistence behavior.
 `tests/release-source-guard.sh` builds the same commit twice with additional
 ignored executable/editor files between builds and checks identical ZIP hashes.
 
+Plugin Check decisions and the narrow retained exceptions are documented in
+[Plugin Check Decisions](plugin-check-decisions.md).
+
 ## Release And Packaging Gates
 
 `composer test:all` is not the complete WordPress.org publishing gate. Before

@@ -1161,7 +1161,7 @@ trait Cloud_Media_Write_Methods {
 		$mutations[ $mutation_id ] = array(
 			'kind'     => 'meta',
 			'post_id'  => $post_id,
-			'meta_key' => $meta_key,
+			'meta_key' => $meta_key, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- In-memory mutation evidence, not a database query.
 			'before'   => ! empty( $existing_mutation ) ? $existing_mutation['before'] : $before,
 			'after'    => $after_snapshot,
 		);
@@ -1222,7 +1222,7 @@ trait Cloud_Media_Write_Methods {
 
 		$this->cloud_media_transaction_active = true;
 		try {
-			if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- the attachment lock serializes local Cloud batches.
+			if ( false === $wpdb->query( 'START TRANSACTION' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control cannot be cached; the attachment lock serializes local Cloud batches.
 				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'transaction_start_failed' );
 			}
 			$parent_sql = $wpdb->prepare(
@@ -1263,7 +1263,7 @@ trait Cloud_Media_Write_Methods {
 				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'wordpress_meta_identity_drift' );
 			}
 
-			if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- commit closes the bounded attachment/meta lock transaction.
+			if ( false === $wpdb->query( 'COMMIT' ) ) { // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control cannot be cached; commit closes the bounded attachment/meta lock transaction.
 				return $this->cloud_media_rollback_locked_post_meta_mutation( $post_id, $meta_key, 'transaction_commit_failed' );
 			}
 			$this->cloud_media_clean_post_meta_cache( $post_id );
@@ -1310,7 +1310,7 @@ trait Cloud_Media_Write_Methods {
 		global $wpdb;
 		$rolled_back = false;
 		try {
-			$rolled_back = is_object( $wpdb ) && method_exists( $wpdb, 'query' ) && false !== $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- rollback is mandatory transaction compensation.
+			$rolled_back = is_object( $wpdb ) && method_exists( $wpdb, 'query' ) && false !== $wpdb->query( 'ROLLBACK' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Transaction control cannot be cached; rollback is mandatory transaction compensation.
 		} catch ( \Throwable $exception ) {
 			unset( $exception );
 		}
