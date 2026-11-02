@@ -14,7 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Keeps overview rendering in the owning page context.
+ * Overview rendering used only by Test_Page.
+ *
+ * The page supplies get_callback_issue_count(), count_abilities_by_risk(),
+ * render_capability_summary(), render_package_status(), and get_technical_url().
+ * These remain private page implementation details, not a reusable view API.
+ *
+ * @mixin Test_Page
  */
 trait Overview_Sections {
 	/**

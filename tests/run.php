@@ -275,6 +275,7 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 	);
 }
 
+// Source assertions below cover the composed page; the structure ratchet checks each file separately.
 $admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' )
 	. file_get_contents( __DIR__ . '/../includes/Admin/Overview_Sections.php' );
 $admin_scenario_cards = file_get_contents( __DIR__ . '/../includes/Admin/Scenario_Cards.php' );
