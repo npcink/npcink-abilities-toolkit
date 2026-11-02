@@ -5498,4 +5498,3 @@ msgstr "查看本站向 AI 客户端开放的 WordPress 能力，包括哪些操
 
 msgid "WordPress %s"
 msgstr "WordPress %s"
-
