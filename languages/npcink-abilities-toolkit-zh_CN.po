@@ -753,7 +753,7 @@ msgstr "宿主批准契约"
 
 #: includes/Admin/Test_Page.php:1271
 msgid "Raw discovery fetches"
-msgstr "原始发现请求"
+msgstr "发现请求"
 
 #: includes/Admin/Test_Page.php:1272
 msgid ""
@@ -771,7 +771,13 @@ msgstr "获取分类"
 
 #: includes/Admin/Test_Page.php:1298
 msgid "Catalog export"
-msgstr "目录导出"
+msgstr "导出"
+
+msgid "Discovery response"
+msgstr "响应"
+
+msgid "Copy filtered ability metadata for reviews, tickets, or client wiring."
+msgstr "复制筛选后的能力元数据，用于评审、工单或客户端接线。"
 
 #: includes/Admin/Test_Page.php:1302
 msgid "Ability ID export"
@@ -5447,3 +5453,49 @@ msgstr "无法验证已标记媒体的备份操作。"
 #: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
 msgid "You do not have permission to review flagged media references."
 msgstr "您没有审阅已标记媒体引用的权限。"
+
+msgid "+%d more"
+msgid_plural "+%d more"
+msgstr[0] "+%d 项"
+
+msgid "%1$s · WordPress %2$s"
+msgstr "%1$s · WordPress %2$s"
+
+msgid "%d scenario"
+msgid_plural "%d scenarios"
+msgstr[0] "%d 个场景"
+
+msgid "Check details"
+msgstr "检查说明"
+
+msgid "%d package enabled"
+msgid_plural "%d packages enabled"
+msgstr[0] "已启用 %d 个能力包"
+
+msgid "%d IDs"
+msgstr "%d 个 ID"
+
+msgid "%d abilities"
+msgstr "%d 项能力"
+
+msgid "More filters"
+msgstr "更多筛选"
+
+msgid "Apply filters"
+msgstr "应用筛选"
+
+msgid "Host detected"
+msgstr "已检测到 Host"
+
+msgid "Host standalone"
+msgstr "独立运行（无 Host）"
+
+msgid "Write abilities stay dry-run until host approval"
+msgstr "写入能力在获得 host 审批前保持 dry-run"
+
+msgid "Review the WordPress abilities this site exposes to AI clients, including which actions are read-only and which require host approval. This plugin exposes WordPress abilities; it does not run models, approve proposals, or execute AI workflows by itself."
+msgstr "查看本站向 AI 客户端开放的 WordPress 能力，包括哪些操作为只读、哪些需要 host 审批。本插件只暴露 WordPress 能力，本身不运行模型、不审批提案、也不执行 AI 工作流。"
+
+msgid "WordPress %s"
+msgstr "WordPress %s"
+

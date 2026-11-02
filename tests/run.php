@@ -473,12 +473,17 @@ npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '$hook
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Next actions' ), 'admin overview provides a clear post-install next action area.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'View Abilities' ) && false !== strpos( $admin_test_page, 'Open Checks' ) && false !== strpos( $admin_test_page, 'View Connection Info' ), 'admin overview links post-install users to distinct ability tasks; the card containers and duplicate card headings were removed in favor of a single button row whose labels carry the same task semantics.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'get_callback_issue_count' ), 'admin overview summarizes callback readiness before catalog inspection.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'render_package_status' ) && false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-packages__write-note' ), 'admin overview shows the read-only ability package map with a visible write-safeguard note.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'render_package_status' ) && false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-packages__write-note' ), 'admin overview shows the read-only ability package map with a folded write-safeguard note.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $plugin_source, 'function get_enabled_packages' ), 'plugin exposes the resolved package enable map for admin display.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_submenu_page' ), 'admin test page can attach to the shared Npcink AI menu' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'add_management_page' ), 'admin test page keeps the standalone Tools fallback' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "__( 'AI Ability Set', 'npcink-abilities-toolkit' ),\n\t\t\t\t__( 'AI Ability Set', 'npcink-abilities-toolkit' )," ), 'admin test page registers translated abilities page and menu titles when attached' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-status__detail' ) && false === strpos( $admin_test_page, 'role="listitem" title=' ), 'admin status tiles show their detail text visibly instead of hover-only titles.' );
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-status__detail screen-reader-text' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-metric__value' )
+	&& false !== strpos( $admin_test_page, "'' !== \$detail ? ' title=\"" ),
+	'admin status metrics keep detail text for assistive tech and expose it on hover via title, not as competing body copy.'
+);
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, 'No workflow scenarios are published on this site yet' ), 'admin workflow scenario view renders an explicit empty state.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'data-request-failed-label' ) && false !== strpos( $admin_test_page, 'data-copy-failed-label' ), 'admin page passes translated failure labels to its script.' );
 npcink_abilities_toolkit_assert_true( substr_count( $admin_test_page, 'id="npcink-abilities-toolkit-admin-output"' ) <= 1 && false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-output' ), 'admin page keeps a unique output element id and marks outputs with a data attribute.' );
@@ -658,7 +663,7 @@ foreach (
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, $required ), 'admin test page keeps the two-audience structure: ' . $required );
 }
 
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "<h1><?php echo esc_html__( 'AI Ability Set', 'npcink-abilities-toolkit' ); ?></h1>" ), 'admin page heading matches the registered menu label so the clicked destination is confirmed on arrival.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, "esc_html__( 'AI Ability Set', 'npcink-abilities-toolkit' ); ?></h1>" ), 'admin page heading matches the registered menu label so the clicked destination is confirmed on arrival.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'Docs_Links::troubleshooting() ); ?>"' ) && false !== strpos( $admin_test_page, "esc_html__( 'Troubleshooting docs', 'npcink-abilities-toolkit' )" ), 'overview attention notes link the troubleshooting guidance.' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, 'The abilities and categories endpoints are public discovery values' ) && false !== strpos( $admin_test_page, 'requires a signed-in admin session' ), 'connection values explain which endpoints are public and which need an authenticated admin session.' );
 npcink_abilities_toolkit_assert_true(
@@ -666,6 +671,38 @@ npcink_abilities_toolkit_assert_true(
 	&& false !== strpos( $admin_test_page, 'data-npcink-abilities-toolkit-copy="npcink-abilities-toolkit-connection-output"' )
 	&& false !== strpos( $admin_test_page, "esc_html__( 'Copy response', 'npcink-abilities-toolkit' )" ),
 	'raw response surfaces offer a copy action for support handoff.'
+);
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, 'Quiet toolbar' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-filter__more' )
+	&& false !== strpos( $admin_test_page, "esc_html__( 'More filters', 'npcink-abilities-toolkit' )" )
+	&& false !== strpos( $admin_test_page, "\$filters['risk']" )
+	&& false !== strpos( $admin_test_page, 'npcink_abilities_toolkit_risk' ),
+	'catalog Quiet toolbar keeps risk under More filters and auto-opens when secondary filters are set.'
+);
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, "esc_html__( 'Discovery response', 'npcink-abilities-toolkit' )" )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-discovery-response' )
+	&& false !== strpos( $admin_js, 'function revealOutput' )
+	&& false !== strpos( $admin_js, 'disclosure.open = true' ),
+	'discovery response stays folded until a fetch reveals and opens its disclosure.'
+);
+
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__docs' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-title' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-actions' )
+	&& false !== strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-folds' )
+	&& strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__docs' ) < strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops' )
+	&& strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-title' ) < strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-actions' )
+	&& strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-actions' ) < strpos( $admin_test_page, 'npcink-abilities-toolkit-connection-card__ops-folds' ),
+	'Connection keeps docs band above a separate discovery ops band (title → actions → folds).'
+);
+npcink_abilities_toolkit_assert_true(
+	false !== strpos( $admin_test_page, 'button button-primary" data-npcink-abilities-toolkit-readonly-check="site-info"' )
+	&& false === strpos( $admin_test_page, 'button button-primary" data-npcink-abilities-toolkit-readonly-check="diagnostics-summary"' ),
+	'Checks keeps a single solid primary on Run Site Info.'
 );
 npcink_abilities_toolkit_assert_true(
 	false !== strpos( $admin_test_page, '/docs/troubleshooting.md#turn-ability-packages-on-or-off' )
@@ -729,6 +766,11 @@ foreach (
 		'WordPress site timezone',
 		'Y-m-d H:i:s',
 		'Keep those output field names and semantics stable',
+		'Overview Information Architecture',
+		'Developer Tools Information Architecture',
+		'Positioning decides what stays visible',
+		'More filters',
+		'Discovery response textarea and Copy response',
 	) as $required
 ) {
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_surface_standard, $required ), 'admin surface standard documents ability page boundary: ' . $required );

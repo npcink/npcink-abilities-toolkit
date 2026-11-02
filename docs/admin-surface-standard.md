@@ -53,6 +53,61 @@ The default page should show:
   workflow scenarios, and using a host product, rendered as one compact
   button row.
 
+The concrete always-visible vs foldable split for Overview is locked in
+[Overview Information Architecture](#overview-information-architecture).
+
+## Overview Information Architecture
+
+The Overview tab is the site-operator status and review screen for **AI Ability
+Set**. In one pass it must make clear: what the site exposes to AI clients,
+write / host-approval posture, whether a host product is present, how ability
+packages and read-only mode shape that surface, and where to go next for audit,
+checks, scenarios, or connection values.
+
+Quiet density is welcome. **Positioning decides what stays visible; do not
+delete positioning facts only to look simpler.** Important facts stay
+always-on. Long tutorials, full contracts, and developer-side detail may fold,
+use a quiet `ⓘ` / `title` affordance, or link out. User-visible chrome and
+copy must remain localized through the plugin text domain (including
+Simplified Chinese).
+
+### Always visible
+
+These blocks must remain on the Overview first screen. Do not hide them behind
+disclosures in the name of decluttering:
+
+- **Four status metrics:** Status, Available abilities, Write safeguards, and
+  Host. WordPress runtime version may appear as one quiet meta line under the
+  metrics, not as a competing tile or a disclosure stack.
+- **Category composition:** a plain-language capability summary grouped by
+  category, with counts and host-approval marks for abilities that can change
+  content (no technical ability ids on Overview).
+- **Ability packages:** the full On/Off map for built-in packages; a visible
+  dry-run / host-approval note when write or destructive packages are enabled;
+  and the read-only mode control that can force write-like packages Off.
+- **Next actions (four entries in one compact button row):** View Abilities,
+  Open Checks, View N Workflow Scenarios (when scenarios exist), and View
+  Connection Info. Keep a single entry per target (see Navigation discipline
+  above).
+
+### May fold, use ⓘ, or link out
+
+These must not compete with the always-visible facts on first paint:
+
+- page-header long orientation copy (title / screen-reader text is enough);
+- package “how to turn bundles on or off” tutorial detail (`ⓘ` or docs link);
+- the full Host Approval Contract body (external docs link only);
+- Developer Tools check purpose tables, raw JSON support disclosures, and
+  deep environment / REST detail that already live outside Overview.
+
+### Density rule
+
+Collapse secondary tutorial and contract material; never collapse the
+operator facts listed under Always visible. A quieter style (muted meta,
+inline `ⓘ`, compact chips) is fine; an empty or numbers-only Overview that
+omits host posture, package state, category write marks, or next-action
+entries is not.
+
 ## Workflow Scenario Overview
 
 The full workflow scenario catalog renders at the end of the Developer Tools
@@ -95,7 +150,8 @@ first. Developer-only technical details should not appear in this
 customer-facing list.
 
 - show matching abilities in one flat table by default;
-- use search, risk, category, and page-size filters to narrow the table;
+- use a Quiet catalog toolbar: primary search (+ reset), with risk, category,
+  and page-size under **More filters** (auto-open when those params are set);
 - show label, description, risk, and availability;
 - keep ability ids searchable, but do not render schema or callback signals in
   the main list;
@@ -112,7 +168,8 @@ from developer REST fetches:
 - check copy must say that the checks do not write content, call models, or
   contact external services;
 - the Checks section should explain what each check proves and what it does
-  not prove before the operator runs it;
+  not prove before the operator runs it (purpose table may sit behind Check
+  details per Developer Tools Information Architecture);
 - check results should default to a plain summary table that answers what
   worked and what needs attention;
 - raw JSON response details may be kept behind an explicit support disclosure
@@ -131,6 +188,58 @@ first section:
 - ability technical catalog with ID, category, risk, schema availability, and
   callback status;
 - compatibility projection notes for Npcink AI consumers.
+
+## Developer Tools Information Architecture
+
+Developer Tools is the integrator surface: endpoints, the ability catalog, and
+read-only checks. Quiet density is welcome. **Positioning decides what stays
+visible** — ops and key connection values stay always-on; long copy, raw JSON,
+purpose tables, and environment footnotes fold or use `ⓘ` / `title`.
+User-visible chrome stays localized (including Simplified Chinese). Each
+Developer Tools sub-view keeps **at most one solid primary button**.
+
+### Always visible
+
+**Connection**
+
+- One page heading only: **Connection values** (subnav already says Connection —
+  do not repeat a visible Connection h2);
+- Connection values table (Abilities / Categories / Contract endpoints + Copy);
+- one faint docs-only link row under the table (REST client quickstart · Host
+  Approval Contract) — never share a visual band with discovery actions;
+- a separate ops band: small **Raw discovery fetches** title, then Fetch
+  Abilities · Fetch Categories, then folded Discovery response / Catalog export
+  as compact text disclosures (not empty gray cards).
+
+**Ability Catalog**
+
+- Quiet toolbar primary row: search + Reset (Apply remains screen-reader /
+  Enter fallback; selects still submit on change);
+- matching ability table (label, description, risk, availability);
+- result meta and pagination.
+
+**Checks**
+
+- safe-check actions with a single solid primary (**Run Site Info**); secondary
+  **Run Redacted Diagnostics**;
+- check results summary area (empty state until a run).
+
+### May fold, use ⓘ, or live under More filters
+
+- long orientation copy on Connection / Catalog / Checks (title / SR / ⓘ);
+- Risk, Category, and Per page under **More filters** (force-open when set);
+- Check details purpose table ("what it proves" / "what it does not prove");
+- Discovery response textarea and Copy response;
+- Catalog export (Ability ID export + technical catalog) and raw JSON support
+  disclosures after checks;
+- auth / environment footnotes on discovery fetches.
+
+### Density rule
+
+Collapse secondary tutorial, raw payloads, and purpose tables; never collapse
+endpoint values, discovery fetch actions, catalog search, or the one primary
+check action. A quieter style is fine; a Connection screen that hides endpoints
+or a Catalog that buries search is not.
 
 ## AI Ability Set
 
