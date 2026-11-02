@@ -72,7 +72,8 @@ run_case() {
 	[[ "$(find "$mu_dir" -type f | wc -l | tr -d ' ')" == "1" ]]
 	[[ "$(grep -c '^plugin activate ' "$log_file" || true)" == "$expected_activation_count" ]]
 	[[ "$(grep -c '^plugin deactivate ' "$log_file" || true)" == "$expected_deactivation_count" ]]
-	[[ "$(grep -c '^eval-file ' "$log_file" || true)" == "3" ]]
+	[[ "$(grep -c '^eval-file ' "$log_file" || true)" == "4" ]]
+	grep -Fq "eval-file $ROOT_DIR/tests/audit-wordpress.php" "$log_file"
 }
 
 run_case inactive 1 1

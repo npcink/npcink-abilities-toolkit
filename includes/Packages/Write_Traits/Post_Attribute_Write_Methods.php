@@ -61,7 +61,7 @@ trait Post_Attribute_Write_Methods {
 			return $allowed;
 		}
 
-		$updated = wp_update_post( array( 'ID' => $post_id, 'post_name' => $next_slug ), true );
+		$updated = wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_name' => $next_slug ) ), true );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
@@ -116,7 +116,7 @@ trait Post_Attribute_Write_Methods {
 			return $allowed;
 		}
 
-		$updated = wp_update_post( array( 'ID' => $post_id, 'post_author' => $author_id ), true );
+		$updated = wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_author' => $author_id ) ), true );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}

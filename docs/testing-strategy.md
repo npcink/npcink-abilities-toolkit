@@ -48,6 +48,29 @@ Use `composer smoke:wp` only when a real WordPress site is available. Use
 `composer e2e:official-stack` when changing assumptions about the official
 Abilities API, AI plugin, or MCP Adapter stack.
 
+## Focused Failure Regressions
+
+`composer test` runs the main fixture suite plus isolated processes:
+
+- `tests/taxonomy-failures.php`: denied approvals create no terms; enumeration,
+  relation reads/writes and silent no-op writes cannot delete a merge source.
+- `tests/media-rename-failures.php`: real temporary files with injected MIME,
+  pointer, metadata and history failures; compensation failure retains backup
+  evidence; an interleaved destination owner is never overwritten.
+- `tests/audit-regressions.php`: the production query seams for the 51st-row
+  scan sentinel and SQL revision paging, hidden reference details, exact schema
+  keys, WordPress-style unslashing, DST parsing, and write/read/write caching.
+
+The post API doubles unslash their inputs like WordPress; a success-shaped
+return alone cannot establish a content round trip. `tests/audit-wordpress.php`
+runs under `composer smoke:wp` against actual WordPress APIs, verifies byte-exact
+content plus approval and time behavior, and deletes only its own temporary
+post/term in `finally`. These checks do not establish host approval UI or
+external runtime acceptance.
+
+`tests/release-source-guard.sh` builds the same commit twice with additional
+ignored executable/editor files between builds and checks identical ZIP hashes.
+
 ## Release And Packaging Gates
 
 `composer test:all` is not the complete WordPress.org publishing gate. Before

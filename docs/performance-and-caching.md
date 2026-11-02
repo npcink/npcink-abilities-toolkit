@@ -47,7 +47,9 @@ cache key includes:
 - current user id;
 - `npcink_abilities_toolkit_read_cache_version`.
 
-The version is bumped from plugin hooks for post, term, and attachment changes.
+The version is bumped on every watched post, term, attachment, or metadata
+mutation. Invalidations are not debounced across an entire request: a
+write → report read → write sequence must invalidate the intermediate report.
 This keeps stale read-only reports bounded without making cache entries a
 canonical truth source.
 
@@ -58,6 +60,10 @@ Do not cache:
 - data that depends on secrets, runtime credentials, quota, audit, or model
   routing;
 - unbounded scans.
+
+Revision list abilities page in SQL with `posts_per_page` and `paged`, retaining
+`found_posts` totals without loading every revision body. Revision risk reports
+request at most their bounded `max_revisions` before examining content.
 
 ## Performance Smoke
 

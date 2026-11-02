@@ -1006,7 +1006,7 @@ trait Media_Backup_Write_Methods {
 		$normalized_mime_type = sanitize_text_field( (string) $mime_type );
 		$updated = is_object( $batch_manifest )
 			? $this->cloud_media_cas_update_attachment_mime( $batch_manifest, $attachment_id, $normalized_mime_type )
-			: wp_update_post( array( 'ID' => $attachment_id, 'post_mime_type' => $normalized_mime_type ), true );
+			: wp_update_post( wp_slash( array( 'ID' => $attachment_id, 'post_mime_type' => $normalized_mime_type ) ), true );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}

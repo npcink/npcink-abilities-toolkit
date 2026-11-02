@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Keep taxonomy creation behind final host approval and retain source terms on any failed or unverifiable merge assignment; report individual merge failures.
+- Redact authorization credentials, quoted secret fields, query tokens, and Windows/UNC paths in diagnostics logs.
+- Record and verify media rename recovery, compensate pointer/history failures, and exclusively create rename destinations; reject non-attachment ids in permanent media deletion.
+- Block cleanup candidates when bounded reference scans are incomplete and filter referenced/parent post details by per-post read permissions.
+- Preserve literal backslashes at WordPress post write boundaries; strictly parse scheduling timestamps in the selected timezone with explicit DST ambiguity handling.
+- Preserve exact JSON Schema property names, page revisions in SQL, and invalidate reports for successive mutations within one request.
+- Build release ZIP contents from the verified Git commit so ignored local files cannot contaminate published packages. Add isolated fault regressions and real WordPress checks.
+
 ## 0.7.0 - 2026-10-13
 
 Additive governed-media contract release. Existing ability ids and final host

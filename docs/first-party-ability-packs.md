@@ -200,6 +200,41 @@ configuration, or purge CDN caches.
 `npcink-abilities-toolkit/update-media-details` updates metadata only and must not physically
 rename existing attachment files.
 
+Media rename commits persist recovery evidence before moving the file. A failed
+pointer, MIME, metadata, or history update triggers compensation to the original
+file and attachment metadata. Error data includes `rolled_back`,
+`recovery_required`, `recovery_recorded`, `replacement_id`, and the uploads-relative
+`backup` when compensation runs. `recovery_required=true` requires host/operator
+recovery; do not treat the failure as an unchanged attachment or retry blindly.
+History uses `active`, `rolled_back`, and `recovery_required` states and updates
+the latest-record pointer. Destination creation is exclusive: an occupied target
+fails without overwriting another operation's file.
+
+Media usage evidence scans at most 50 eligible post bodies and fetches one extra
+row to detect truncation. `content_reference_scan_complete=false` blocks legacy
+cleanup deletion candidates with `reference_scan_incomplete` when no reference
+was found. Completion describes that bounded post query only, not widgets,
+settings, custom tables, excluded post types, or all possible URL encodings.
+Reference counts retain hidden hits to block unsafe candidates, but post ids,
+titles, types and statuses are emitted only when `read_post` permits the caller;
+parent details in media lists obey the same check. Candidate evidence never
+replaces host approval or a complete dependency review.
+
+Post-writing abilities accept ordinary unslashed strings. Callers must not add
+WordPress database escaping. Toolkit applies `wp_slash()` at the WordPress
+insert/update boundary, preserving literal backslashes in HTML, paths and JSON
+through create, patch, template and media-reference updates.
+
+`schedule-post.publish_at` accepts future timestamps in exactly
+`Y-m-d H:i:s` or RFC3339 seconds with `Z`/an explicit offset (up to ±14:00).
+For the first form, `timezone=site` uses `wp_timezone()` and `timezone=utc` uses
+UTC. An explicit offset takes precedence over `timezone`. For example, on an
+Asia/Shanghai site, `2030-01-02 09:00:00` with `site` yields
+`publish_at_gmt=2030-01-02 01:00:00`. Relative dates, invalid calendar dates,
+nonexistent DST wall times, and repeated DST wall times without an explicit
+offset return `npcink_abilities_toolkit_publish_at_invalid`; past instants return
+`npcink_abilities_toolkit_publish_at_past`. Fractional seconds are unsupported.
+
 Representative read-only publishing support abilities:
 
 - `npcink-abilities-toolkit/get-content-publishing-checklist`

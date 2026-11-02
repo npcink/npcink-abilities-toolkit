@@ -16,6 +16,11 @@ does not make commit helpers a third-party public API. External provider
 plugins should expose proposals and let the consuming host decide whether and
 how a final write is authorized.
 
+JSON Schema property names are preserved exactly during normalization, including
+case, dots, Unicode, and the empty string. Shorthand property schemas are
+normalized recursively; property names are not passed through `sanitize_key()`,
+so `displayName` and `displayname` remain distinct and `required` stays aligned.
+
 ## Built-In Package Controls
 
 The default plugin boot keeps all built-in packages enabled for compatibility.

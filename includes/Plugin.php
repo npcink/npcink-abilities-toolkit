@@ -103,13 +103,6 @@ final class Plugin {
 	private $booted = false;
 
 	/**
-	 * Whether the read-cache version was already bumped this request.
-	 *
-	 * @var bool
-	 */
-	private $read_cache_version_bumped = false;
-
-	/**
 	 * Memoized watched post-meta keys for read-cache invalidation.
 	 *
 	 * @var array<int,string>|null
@@ -440,8 +433,8 @@ final class Plugin {
 	 * Bumps the read-cache version after direct post-meta writes such as
 	 * set-post-seo-meta or adopt-article-audio, which bypass save_post.
 	 *
-	 * One bump per request is enough to invalidate report transients; bulk
-	 * meta operations would otherwise repeat the option round-trip per key.
+	 * Every watched mutation invalidates report transients, including writes
+	 * interleaved with report reads in the same request.
 	 *
 	 * @param mixed  $meta_ids Meta ids.
 	 * @param int    $post_id Post id.
@@ -463,17 +456,15 @@ final class Plugin {
 	/**
 	 * Bumps the read-cache version for bounded read-only report transients.
 	 *
-	 * Every invalidation hook shares one bump per request: a single save
-	 * fires save_post and transition_post_status, and attachment saves fire
-	 * further hooks, so repeated fires skip the option round-trip entirely.
+	 * Each mutation gets a new generation. Request-wide debouncing is unsafe
+	 * because a report can be cached between two independent writes.
 	 *
 	 * @return void
 	 */
 	public function bump_read_cache_version() {
-		if ( $this->read_cache_version_bumped || ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
+		if ( ! function_exists( 'get_option' ) || ! function_exists( 'update_option' ) ) {
 			return;
 		}
-		$this->read_cache_version_bumped = true;
 		$current = max( 1, (int) get_option( 'npcink_abilities_toolkit_read_cache_version', 1 ) );
 		update_option( 'npcink_abilities_toolkit_read_cache_version', $current + 1, false );
 	}

@@ -76,7 +76,7 @@
     "release:verify": "bash scripts/release-verify.sh",
     "release:prepare-wporg": "bash scripts/prepare-wporg-svn-release.sh",
     "release:zip": "bash scripts/build-release-zip.sh",
-    "test": ["@php tests/run.php", "@php tests/flagged-media.php", "@php tests/taxonomy-failures.php"],
+    "test": ["@php tests/run.php", "@php tests/flagged-media.php", "@php tests/taxonomy-failures.php", "@php tests/audit-regressions.php", "@php tests/media-rename-failures.php"],
     "test:core": [
       "@validate:composer",
       "@audit:composer",

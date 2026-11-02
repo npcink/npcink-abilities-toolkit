@@ -23,6 +23,7 @@ final class Core_Write_Package {
 	use Taxonomy_Assignment_Write_Methods;
 	use Cloud_Media_Write_Methods;
 	use Media_Backup_Write_Methods;
+	use Media_Rename_Write_Methods;
 	use Flagged_Media_Restore_Write_Methods;
 	use Media_Reference_Discovery_Write_Methods;
 	use Post_Attribute_Write_Methods;
@@ -1418,14 +1419,14 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 
-		$post_id = wp_insert_post(
+		$post_id = wp_insert_post( wp_slash(
 			array(
 				'post_type'    => $post_type,
 				'post_status'  => 'draft',
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_excerpt' => $excerpt,
-			),
+			) ),
 			true
 		);
 		if ( is_wp_error( $post_id ) ) {
@@ -1535,7 +1536,7 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 
-		$result = wp_update_post( $update, true );
+		$result = wp_update_post( wp_slash( $update ), true );
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -1814,7 +1815,7 @@ final class Core_Write_Package {
 		}
 
 		if ( $updated ) {
-			$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+			$result = wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_content' => $after_content ) ), true );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -2268,7 +2269,7 @@ final class Core_Write_Package {
 			$update_args['post_content'] = $next['description'];
 		}
 		if ( count( $update_args ) > 1 ) {
-			$updated = wp_update_post( $update_args, true );
+			$updated = wp_update_post( wp_slash( $update_args ), true );
 			if ( is_wp_error( $updated ) ) {
 				return $updated;
 			}
@@ -2382,7 +2383,7 @@ final class Core_Write_Package {
 			$update_args['post_content'] = $description;
 		}
 		if ( count( $update_args ) > 1 ) {
-			$updated = wp_update_post( $update_args, true );
+			$updated = wp_update_post( wp_slash( $update_args ), true );
 			if ( is_wp_error( $updated ) ) {
 				return $updated;
 			}
@@ -2640,25 +2641,12 @@ final class Core_Write_Package {
 		if ( '' === $publish_at_raw ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_publish_at_required', __( 'publish_at is required.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
-		$timestamp = strtotime( $publish_at_raw );
-		if ( false === $timestamp ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_publish_at_invalid', __( 'publish_at is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
+		$times = \Npcink_Abilities_Toolkit\Support\Publish_Time::parse( $publish_at_raw, (string) ( $input['timezone'] ?? 'site' ) );
+		if ( is_wp_error( $times ) ) {
+			return $times;
 		}
-		if ( $timestamp <= time() ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_publish_at_past', __( 'publish_at must be in the future.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-
-		$timezone_mode = sanitize_key( (string) ( $input['timezone'] ?? 'site' ) );
-		if ( ! in_array( $timezone_mode, array( 'site', 'utc' ), true ) ) {
-			$timezone_mode = 'site';
-		}
-		if ( 'utc' === $timezone_mode ) {
-			$publish_at_gmt = gmdate( 'Y-m-d H:i:s', $timestamp );
-			$publish_at     = function_exists( 'get_date_from_gmt' ) ? get_date_from_gmt( $publish_at_gmt ) : $publish_at_gmt;
-		} else {
-			$publish_at     = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d H:i:s', $timestamp ) : gmdate( 'Y-m-d H:i:s', $timestamp );
-			$publish_at_gmt = function_exists( 'get_gmt_from_date' ) ? get_gmt_from_date( $publish_at ) : gmdate( 'Y-m-d H:i:s', $timestamp );
-		}
+		$publish_at = $times['local'];
+		$publish_at_gmt = $times['gmt'];
 
 		$payload = array(
 			'post_id'        => $post_id,
@@ -2681,13 +2669,13 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 
-		$updated = wp_update_post(
+		$updated = wp_update_post( wp_slash(
 			array(
 				'ID'            => $post_id,
 				'post_status'   => 'future',
 				'post_date'     => $publish_at,
 				'post_date_gmt' => $publish_at_gmt,
-			),
+			) ),
 			true
 		);
 		if ( is_wp_error( $updated ) ) {
@@ -2734,11 +2722,11 @@ final class Core_Write_Package {
 			return $allowed;
 		}
 
-		$updated = wp_update_post(
+		$updated = wp_update_post( wp_slash(
 			array(
 				'ID'          => $post_id,
 				'post_status' => 'publish',
-			),
+			) ),
 			true
 		);
 		if ( is_wp_error( $updated ) ) {
@@ -3605,14 +3593,14 @@ final class Core_Write_Package {
 			$attachment_title = sanitize_text_field( (string) $attachment_title );
 		}
 
-		$attachment_id = wp_insert_attachment(
+		$attachment_id = wp_insert_attachment( wp_slash(
 			array(
 				'post_mime_type' => $detected_type,
 				'post_title'     => $attachment_title,
 				'post_content'   => '',
 				'post_status'    => 'inherit',
 				'guid'           => $file_url,
-			),
+			) ),
 			$file_path,
 			max( 0, absint( $attach_to_post_id ) ),
 			true
@@ -4425,97 +4413,6 @@ final class Core_Write_Package {
 		);
 	}
 
-		/**
-		 * Executes an approved main media file rename.
-		 *
-		 * @param int                 $attachment_id Attachment id.
-		 * @param array<string,mixed> $plan Rename plan.
-		 * @return array<string,mixed>|\WP_Error
-		 */
-	private function execute_media_file_rename( $attachment_id, array $plan ) {
-		$attachment_id = absint( $attachment_id );
-		$current = is_array( $plan['_current'] ?? null ) ? $plan['_current'] : array();
-		$storage_ready = $this->validate_media_storage_commit_ready( $current );
-		if ( is_wp_error( $storage_ready ) ) {
-			return $storage_ready;
-		}
-		$current_path = (string) ( $current['file_path'] ?? '' );
-		$target_relative = $this->normalize_media_relative_file( (string) ( $plan['_target_relative_file'] ?? '' ) );
-		$target_path = (string) ( $plan['_target_path'] ?? '' );
-		$backup_relative = $this->normalize_media_relative_file( (string) ( $plan['_backup_relative_file'] ?? '' ) );
-		$backup_path = $this->media_uploads_path_for_relative_file( $backup_relative );
-		if ( '' === $current_path || ! is_readable( $current_path ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_current_media_file_unavailable', __( 'The current attachment file is unavailable for rename.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-		}
-		if ( '' === $target_relative || '' === $target_path ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_target_file_name_invalid', __( 'Target media file path is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		if ( file_exists( $target_path ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_target_file_exists', __( 'Target media file already exists.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
-		}
-		if (
-			'' === $backup_path ||
-			! $this->ensure_media_directory( dirname( $backup_path ) ) ||
-			! $this->copy_media_file(
-				$current_path,
-				$backup_path,
-				array(
-					'operation'     => 'rename_media_file',
-					'step'          => 'backup_current',
-					'attachment_id' => $attachment_id,
-					'relative_file' => $backup_relative,
-				)
-			)
-		) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
-		}
-		if (
-			! $this->ensure_media_directory( dirname( $target_path ) ) ||
-			! $this->move_media_file(
-				$current_path,
-				$target_path,
-				array(
-					'operation'     => 'rename_media_file',
-					'step'          => 'move_current',
-					'attachment_id' => $attachment_id,
-					'relative_file' => $target_relative,
-				)
-			)
-		) {
-			return new \WP_Error( 'npcink_abilities_toolkit_media_rename_failed', __( 'The current attachment file could not be renamed.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
-		}
-
-		$after = is_array( $plan['after'] ?? null ) ? $plan['after'] : array();
-		$after['filesize_bytes'] = absint( filesize( $target_path ) );
-		$after['media_fingerprint'] = $this->normalize_media_sha256( (string) hash_file( 'sha256', $target_path ) );
-		$backup = is_array( $plan['backup'] ?? null ) ? $plan['backup'] : array();
-		$backup['filesize_bytes'] = absint( filesize( $backup_path ) );
-		$pointer_state = $after;
-		$pointer_state['_metadata'] = $this->renamed_media_metadata( is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array(), $target_relative, $after );
-		$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $pointer_state );
-		if ( is_wp_error( $updated ) ) {
-			return $updated;
-		}
-		$this->append_media_file_replacement_history(
-			$attachment_id,
-			array(
-				'replacement_id'     => (string) ( $plan['rename_id'] ?? '' ),
-				'operation'          => 'rename_media_file',
-				'status'             => 'active',
-				'replaced_at_gmt'    => gmdate( 'c' ),
-				'rolled_back_at_gmt' => '',
-				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
-				'after'              => $after,
-				'backup'             => $backup,
-			)
-		);
-
-		return array(
-			'renamed' => true,
-			'after'   => $after,
-			'backup'  => $backup,
-		);
-	}
 
 	/**
 	 * Validates optional optimistic preflight fields.
@@ -5044,33 +4941,6 @@ final class Core_Write_Package {
 		return copy( $source_path, $target_path );
 	}
 
-	/**
-	 * Moves a media file using WordPress filesystem-safe deletion semantics.
-	 *
-	 * @param string $source_path Source path.
-	 * @param string $target_path Target path.
-	 * @param array<string,mixed> $context Operation context.
-	 * @return bool
-	 */
-	private function move_media_file( $source_path, $target_path, array $context = array() ) {
-		$source_path = (string) $source_path;
-		$target_path = (string) $target_path;
-		if ( ! $this->is_media_uploads_path_allowed( $source_path ) || ! $this->is_media_uploads_path_allowed( $target_path ) ) {
-			return false;
-		}
-		if ( '' === $source_path || '' === $target_path || ! is_readable( $source_path ) || file_exists( $target_path ) ) {
-			return false;
-		}
-		if ( ! $this->copy_media_file( $source_path, $target_path, $context ) ) {
-			return false;
-		}
-		if ( function_exists( 'wp_delete_file' ) ) {
-			wp_delete_file( $source_path );
-			return ! file_exists( $source_path ) && is_readable( $target_path );
-		}
-		wp_delete_file( $target_path );
-		return false;
-	}
 
 	/**
 	 * Returns a MIME type for an optimized format.
@@ -6054,7 +5924,7 @@ final class Core_Write_Package {
 			if ( $changed ) {
 				$result = is_object( $batch_manifest )
 					? $this->cloud_media_cas_update_post_content( $batch_manifest, $post_id, (string) ( $post->post_content ?? '' ), $after_content )
-					: wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+					: wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_content' => $after_content ) ), true );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}

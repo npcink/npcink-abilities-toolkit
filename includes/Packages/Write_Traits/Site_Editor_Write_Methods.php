@@ -111,7 +111,7 @@ trait Site_Editor_Write_Methods {
 		}
 
 		if ( $updated ) {
-			$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+			$result = wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_content' => $after_content ) ), true );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -241,12 +241,12 @@ trait Site_Editor_Write_Methods {
 
 		if ( $existing_post_id > 0 ) {
 			if ( $updated ) {
-				$result = wp_update_post(
+				$result = wp_update_post( wp_slash(
 					array(
 						'ID'           => $existing_post_id,
 						'post_title'   => $title,
 						'post_content' => $after_content,
-					),
+					) ),
 					true
 				);
 				if ( is_wp_error( $result ) ) {
@@ -255,14 +255,14 @@ trait Site_Editor_Write_Methods {
 			}
 			$post_id = $existing_post_id;
 		} else {
-			$post_id = wp_insert_post(
+			$post_id = wp_insert_post( wp_slash(
 				array(
 					'post_type'    => 'wp_template',
 					'post_status'  => 'publish',
 					'post_title'   => $title,
 					'post_name'    => $slug,
 					'post_content' => $after_content,
-				),
+				) ),
 				true
 			);
 			if ( is_wp_error( $post_id ) ) {
@@ -388,7 +388,7 @@ trait Site_Editor_Write_Methods {
 		}
 
 		if ( $updated ) {
-			$result = wp_update_post( array( 'ID' => $post_id, 'post_content' => $after_content ), true );
+			$result = wp_update_post( wp_slash( array( 'ID' => $post_id, 'post_content' => $after_content ) ), true );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}

@@ -90,6 +90,7 @@ if ! run_wp plugin is-active "$PLUGIN_SLUG" >/dev/null 2>&1; then
 fi
 NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=default run_wp eval-file "$ROOT_DIR/tests/smoke-wp.php"
 run_wp eval-file "$ROOT_DIR/tests/flagged-media-wp.php"
+run_wp eval-file "$ROOT_DIR/tests/audit-wordpress.php"
 
 mu_plugin_dir="$(run_wp eval 'echo WPMU_PLUGIN_DIR;' 2>/dev/null | grep '^/' | tail -n 1 || true)"
 if [[ -z "$mu_plugin_dir" ]]; then

@@ -5,7 +5,6 @@ function update_option( $name, $value, $autoload = null ) {
 	$GLOBALS['npcink_abilities_toolkit_unit_options'][ $name ] = $value;
 	return true;
 }
-function wp_slash( $value ) { return $value; }
 /** Match Core's deletion API, including a host filter that refuses removal. */
 function wp_delete_file( $file ) {
 	$file = apply_filters( 'wp_delete_file', $file );
