@@ -91,8 +91,8 @@ final class Read_Only_Mode {
 	 * @return void
 	 */
 	public static function handle_toggle() {
-		$nonce = isset( $_POST['_wpnonce'] ) ? (string) wp_unslash( $_POST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		if ( '' === $nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $nonce, self::TOGGLE_ACTION ) ) {
+		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( '' === $nonce || ( isset( $_POST['read_only_mode'] ) && ! is_string( $_POST['read_only_mode'] ) ) || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $nonce, self::TOGGLE_ACTION ) ) {
 			self::redirect_back();
 			return;
 		}
@@ -104,7 +104,7 @@ final class Read_Only_Mode {
 			return;
 		}
 
-		$turn_on = isset( $_POST['read_only_mode'] ) && '1' === (string) wp_unslash( $_POST['read_only_mode'] );
+		$turn_on = isset( $_POST['read_only_mode'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['read_only_mode'] ) );
 		if ( $turn_on && function_exists( 'update_option' ) ) {
 			update_option( self::OPTION_KEY, '1', false );
 		} elseif ( ! $turn_on && function_exists( 'delete_option' ) ) {
@@ -112,9 +112,9 @@ final class Read_Only_Mode {
 		}
 
 		$target = '';
-		if ( isset( $_POST['redirect_to'] ) && function_exists( 'wp_validate_redirect' ) ) {
+		if ( isset( $_POST['redirect_to'] ) && is_string( $_POST['redirect_to'] ) && function_exists( 'wp_validate_redirect' ) ) {
 			// Same-site admin URLs only; anything else falls back to the referer.
-			$target = wp_validate_redirect( (string) wp_unslash( $_POST['redirect_to'] ), '' );
+			$target = wp_validate_redirect( esc_url_raw( wp_unslash( $_POST['redirect_to'] ) ), '' );
 		}
 		self::redirect_back( $target );
 	}

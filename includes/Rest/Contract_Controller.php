@@ -161,8 +161,8 @@ final class Contract_Controller {
 		if ( '' === $etag ) {
 			return (bool) $served;
 		}
-		$if_none_match = isset( $_SERVER['HTTP_IF_NONE_MATCH'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			? trim( (string) ( function_exists( 'wp_unslash' ) ? wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) : $_SERVER['HTTP_IF_NONE_MATCH'] ) )
+		$if_none_match = method_exists( $request, 'get_header' )
+			? trim( (string) $request->get_header( 'if-none-match' ) )
 			: '';
 		if ( '' === $if_none_match || ! $this->etag_matches( $etag, $if_none_match ) ) {
 			return (bool) $served;

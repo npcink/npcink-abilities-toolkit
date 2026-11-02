@@ -71,8 +71,15 @@ external runtime acceptance.
 The minimum/current Docker runner also executes `tests/audit-wordpress.php`,
 so both declared WordPress/PHP endpoints exercise actual persistence behavior.
 
+`tests/closeout-local-branches.sh` uses actual temporary Git repositories with
+a fake GitHub CLI to cover exact-head squash receipts, mismatched heads/bases/
+repositories, pagination, malformed JSON, network failure and unchanged refs.
+
 `tests/release-source-guard.sh` builds the same commit twice with additional
 ignored executable/editor files between builds and checks identical ZIP hashes.
+
+Plugin Check decisions and the narrow retained exceptions are documented in
+[Plugin Check Decisions](plugin-check-decisions.md).
 
 ## Release And Packaging Gates
 

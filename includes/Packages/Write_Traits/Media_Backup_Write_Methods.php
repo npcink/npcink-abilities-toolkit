@@ -143,7 +143,7 @@ trait Media_Backup_Write_Methods {
 					'suppress_filters'       => false,
 					'update_post_meta_cache' => true,
 					'update_post_term_cache' => false,
-					'meta_key'               => '_npcink_ai_media_file_replacement_history',
+					'meta_key'               => '_npcink_ai_media_file_replacement_history', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Cursor-paged attachment IDs, capped at MAX_MEDIA_BACKUP_CLEANUP_ATTACHMENTS + one sentinel.
 					'npcink_abilities_toolkit_cleanup_after_id' => $after_id,
 				)
 			);

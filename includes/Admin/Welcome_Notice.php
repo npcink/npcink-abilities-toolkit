@@ -128,7 +128,7 @@ final class Welcome_Notice {
 			return;
 		}
 
-		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? (string) wp_unslash( $_REQUEST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $dismiss_nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $dismiss_nonce, self::DISMISS_ACTION ) ) {
 			$this->redirect_back();
 			return;

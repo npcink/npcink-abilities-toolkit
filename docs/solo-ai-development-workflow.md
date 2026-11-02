@@ -244,10 +244,11 @@ composer closeout:check
 ```
 
 The check fails while the main worktree is dirty, off `master`, out of sync
-with `origin/master`, or while ancestry-merged local branches and detected
-stale remote topic branches remain. Its local ancestry check does not detect
-squash-merged topic heads. Inventory all local refs and match preserved heads
-to merged PRs before claiming complete cleanup. See the
+with `origin/master`, or while ancestry-merged / exact-head PR-verified merged local branches and
+detected stale remote topic branches remain. Non-ancestry heads are checked
+against associated PRs, matching the exact head, target repository and master
+base, with the merge commit verified on `origin/master`. Receipt lookup or
+malformed API data fails closed. A branch name alone is insufficient. See the
 [audit standard](system-audit-and-closeout-standard.md#step-10-close-the-loop)
 for the recovery ledger and safe deletion exception. Then, for anything the
 check cannot decide:

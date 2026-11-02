@@ -21,6 +21,13 @@ $approval = static function ( $allowed, $id ) { return in_array( $id, array( 'np
 $deny = static function () { return false; };
 $zone = static function () { return 'Asia/Shanghai'; };
 try {
+	$controller = new Npcink_Abilities_Toolkit\Rest\Contract_Controller();
+	$request = new WP_REST_Request( 'GET', '/npcink-abilities-toolkit/v1/contract' );
+	$response = new WP_REST_Response( array(), 200, array( 'ETag' => '"maintenance-etag"' ) );
+	$request->set_header( 'If-None-Match', '"maintenance-etag"' );
+	$check( $controller->maybe_send_not_modified( false, $response, $request, null ), 'real REST request header produces a matching 304' );
+	$request->set_header( 'If-None-Match', '"different-etag"' );
+	$check( ! $controller->maybe_send_not_modified( false, $response, $request, null ), 'real mismatched REST header preserves the response body' );
 	add_filter( 'npcink_abilities_toolkit_write_commit_allowed', $approval, PHP_INT_MAX, 2 );
 	$content = '<p>C:\tmp\file {"value":"a\\b"}</p>';
 	$created = $w->create_draft( array( 'title' => $run, 'content' => $content, 'content_format' => 'html', 'commit' => true ) );

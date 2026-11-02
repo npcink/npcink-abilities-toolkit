@@ -244,7 +244,7 @@ final class Plugin {
 			return;
 		}
 
-		load_plugin_textdomain(
+		load_plugin_textdomain( // phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Register bundled fallback for Git/manual installs; WordPress.org language packs retain precedence.
 			'npcink-abilities-toolkit',
 			false,
 			dirname( plugin_basename( (string) constant( 'NPCINK_ABILITIES_TOOLKIT_FILE' ) ) ) . '/languages'
