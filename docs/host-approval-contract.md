@@ -47,12 +47,15 @@ The gate runs after input validation and before any WordPress mutation:
 
 1. The Toolkit reads `$GLOBALS['npcink_ai_runtime_wp_ability_context']['context']`.
    This is the runtime channel of the first host implementation, Npcink AI.
-   The only consumed value is `approval_commit_authorized` (boolean).
+   The only consumed value is `approval_commit_authorized` (boolean). Only
+   the literal boolean `true` authorizes this channel; strings, integers,
+   arrays and error objects fail closed.
 2. The Toolkit applies the filter
    `npcink_abilities_toolkit_write_commit_allowed` with
    `($allowed, $ability_id, $input, $runtime_context)`. The filter receives the
    current decision — `true` when the global channel already authorized the
-   call — and returns the final decision for that call.
+   call — and returns the final boolean decision for that call. Only `true`
+   authorizes; a truthy error object or the string `"false"` is not approval.
 3. If the final decision is not authorized, the Toolkit fails closed with a
    `WP_Error` `npcink_abilities_toolkit_host_approval_required` (HTTP 403,
    `host_governed: true`). No mutation happens.
@@ -74,9 +77,10 @@ operation at once. This is the single highest-leverage misuse of the contract.
 
 Required shape for a safe callback:
 
-- decide from **recorded approvals keyed by `ability_id` and `idempotency_key`**
-  (the worked example's `record_approval()`/`decide_commit()` pair), never from
-  the write request itself;
+- decide from **recorded approvals bound to `ability_id`, `idempotency_key`,
+  the exact reviewed input, caller and expiry**, never from the write request
+  itself; the worked example's `record_approval()`/`decide_commit()` pair binds
+  those values and consumes a decision once;
 - return `$allowed` unchanged when it is already `true`, so another runtime's
   authorization is not vetoed;
 - return `false` for anything unrecognized, including empty input.
@@ -106,8 +110,18 @@ what a host must be able to show before requesting a commit:
 - an `idempotency_key` for replay protection.
 
 The gate itself only consumes an authorization decision. Recording approvals,
-verifying caller identity, and keeping the audit trail remain host
-responsibilities.
+checking scope and caller identity, binding the reviewed payload, validating
+expiry, and atomic replay protection remain host responsibilities. Toolkit
+cannot establish approval truth from an envelope supplied by the same caller.
+Do not pass approval records or credentials through the ability input schema.
+
+The reference host stores an exact input snapshot in memory, excluding only
+`dry_run` and `commit`, and allows top-level input key reordering. Nested value
+and type changes fail closed. Its decision is consumed at the gate, so a later
+execution failure needs a new host review. This is a reference for one request,
+not durable idempotency or a production approval store. A production host must
+bind its own persisted proposal/preflight evidence and atomically refuse
+cross-request replay; existing Core/Adapter governance stays authoritative.
 
 ## 5. Ownership Boundary
 
@@ -121,7 +135,8 @@ credentials, and it is not the final write authority.
 
 - [examples/third-party-host-approval.php](../examples/third-party-host-approval.php)
   shows a fail-closed third-party host: dry-run preview first, its own recorded
-  approval keyed by ability id and idempotency key, then the filter decision.
+  approval bound to ability, key, exact input, caller and expiry, then the
+  single-use filter decision.
   It never performs a final write itself.
 - Verify the example against this contract with:
 

@@ -2,6 +2,45 @@
 
 Any WordPress plugin can use this toolkit to provide Abilities API capability packages. Npcink AI is an optional consumer; other clients can discover and run the same abilities through the standard WordPress Abilities API.
 
+## Verify An Independent Integration
+
+Start with `examples/demo-plugin/npcink-abilities-toolkit-demo.php` for provider
+registration and `examples/third-party-host-approval.php` for host commit
+decisions. Neither requires Npcink AI, Core or Adapter. Choose a built-in
+[registration profile](host-profiles.md) separately; profiles do not change
+your provider's own registrations or permissions.
+
+From this repository, run against a disposable WordPress 6.9+ test site with
+an administrator account:
+
+```bash
+TOOLKIT_PATH="$PWD"
+WP_PATH=/path/to/wordpress
+for profile in full read_only core_read; do
+    NPCINK_TOOLKIT_PROOF_PROFILE="$profile" wp --path="$WP_PATH" \
+        --skip-plugins --skip-themes \
+        --require="$TOOLKIT_PATH/tests/third-party-preload.php" \
+        eval-file "$TOOLKIT_PATH/tests/third-party-wordpress.php"
+done
+```
+
+The preloader isolates the candidate checkout and reference provider/host in
+a temporary MU directory without changing site activation or Toolkit options.
+It requires `WPMU_PLUGIN_DIR` to be unset before WordPress boot. Each profile
+runs in a fresh process. The proof discovers the provider's read and proposal
+abilities through real WordPress REST handlers, verifies anonymous and
+subscriber denial, and checks that the proposal creates no post. In `full`,
+it also checks Toolkit dry-run, approval refusal, exact-input host approval,
+real draft persistence and replay refusal. Narrow profiles remove built-in
+writes from discovery and execution while retaining the independent provider.
+Run-owned drafts and the temporary subscriber are removed in `finally`.
+
+This is repeatable reference-integration evidence. It does not establish
+external plugin adoption, HTTP authentication, an operator approval UI, or
+cross-request approval persistence. Production hosts still own identity,
+scope, approval records, audit and atomic replay protection; see the
+[Host Approval Contract](host-approval-contract.md).
+
 ## Detect The Toolkit
 
 Register provider abilities after plugins are loaded and check for the public

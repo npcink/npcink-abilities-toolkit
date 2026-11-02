@@ -3394,9 +3394,9 @@ final class Core_Write_Package {
 		$runtime_context = isset( $GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] ) && is_array( $GLOBALS['npcink_ai_runtime_wp_ability_context']['context'] )
 			? $GLOBALS['npcink_ai_runtime_wp_ability_context']['context']
 			: array();
-		$allowed = ! empty( $runtime_context['approval_commit_authorized'] );
+		$allowed = true === ( $runtime_context['approval_commit_authorized'] ?? false );
 		if ( function_exists( 'apply_filters' ) ) {
-			$allowed = (bool) apply_filters( 'npcink_abilities_toolkit_write_commit_allowed', $allowed, $ability_id, $input, $runtime_context );
+			$allowed = true === apply_filters( 'npcink_abilities_toolkit_write_commit_allowed', $allowed, $ability_id, $input, $runtime_context );
 		}
 		if ( $allowed ) {
 			return true;

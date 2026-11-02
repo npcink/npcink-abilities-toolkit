@@ -122,24 +122,60 @@ npcink_abilities_toolkit_host_approval_assert( 0 === (int) ( $default_preview['p
  * commit input succeeds through the Toolkit gate without any Npcink AI global.
  */
 $approved_key = 'host-approval-check-approved-001';
-Npcink_Abilities_Toolkit_Example_Host_Runtime::record_approval( $ability_id, $approved_key );
+$reviewed_input = array(
+	'title'           => 'Host approval contract check - approved',
+	'content'         => '<p>Authorized through the third-party host filter.</p>',
+	'dry_run'         => true,
+	'commit'          => false,
+	'idempotency_key' => $approved_key,
+);
+$commit_input = array_replace( $reviewed_input, array( 'dry_run' => false, 'commit' => true ) );
+$host = 'Npcink_Abilities_Toolkit_Example_Host_Runtime';
+$host::record_approval( $ability_id, $reviewed_input, get_current_user_id(), time() + 300 );
+$before = count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ?? array() );
+foreach ( array( 'title', 'content', 'idempotency_key' ) as $field ) {
+	$changed = array_replace( $commit_input, array( $field => 'unreviewed replacement' ) );
+	$result  = call_user_func( $callback, $changed );
+	npcink_abilities_toolkit_host_approval_assert( is_wp_error( $result ), "changed {$field} cannot inherit approval" );
+}
+npcink_abilities_toolkit_host_approval_assert( false === $host::decide_commit( false, 'other/ability', $commit_input, array() ), 'approval cannot cross ability ids' );
+npcink_abilities_toolkit_host_approval_assert( $before === count( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ?? array() ), 'rejected changed inputs create no posts' );
 
-$approved_commit = is_callable( $callback )
-	? call_user_func(
-		$callback,
-		array(
-			'title'           => 'Host approval contract check - approved',
-			'content'         => '<p>Authorized through the third-party host filter.</p>',
-			'commit'          => true,
-			'dry_run'         => false,
-			'idempotency_key' => $approved_key,
-		)
-	)
-	: null;
+$approved_commit = call_user_func( $callback, $commit_input );
 
 npcink_abilities_toolkit_host_approval_assert( is_array( $approved_commit ) && ! is_wp_error( $approved_commit ), 'approved commit attempt passes the gate' );
 npcink_abilities_toolkit_host_approval_assert( false === (bool) ( $approved_commit['dry_run'] ?? true ), 'approved commit returns a committed payload' );
 npcink_abilities_toolkit_host_approval_assert( 0 < (int) ( $approved_commit['post_id'] ?? 0 ), 'approved commit creates the draft post' );
+
+$replayed = call_user_func( $callback, $commit_input );
+npcink_abilities_toolkit_host_approval_assert( is_wp_error( $replayed ), 'consumed approval cannot create a second draft' );
+$host::record_approval( $ability_id, $reviewed_input, get_current_user_id() + 1, time() + 300 );
+npcink_abilities_toolkit_host_approval_assert( is_wp_error( call_user_func( $callback, $commit_input ) ), 'another caller cannot use approval' );
+$host::record_approval( $ability_id, $reviewed_input, get_current_user_id(), time() + 1 );
+usleep( 1100000 );
+npcink_abilities_toolkit_host_approval_assert( is_wp_error( call_user_func( $callback, $commit_input ) ), 'expired approval cannot authorize a commit' );
+
+/* Non-boolean host decisions must never authorize write or destructive calls. */
+$trash = $abilities['npcink-abilities-toolkit/trash-post']['execute_callback'];
+$trash_input = array( 'post_id' => $approved_commit['post_id'], 'dry_run' => false, 'commit' => true );
+foreach ( array( 'false', 'true', 1, array( 'allowed' => true ), new WP_Error( 'host_failed' ) ) as $invalid_decision ) {
+	$invalid_filter = static function () use ( $invalid_decision ) { return $invalid_decision; };
+	add_filter( 'npcink_abilities_toolkit_write_commit_allowed', $invalid_filter, 20 );
+	foreach ( array( array( $callback, $commit_input ), array( $trash, $trash_input ) ) as $case ) {
+		$result = call_user_func( $case[0], $case[1] );
+		npcink_abilities_toolkit_host_approval_assert( is_wp_error( $result ) && 'npcink_abilities_toolkit_host_approval_required' === $result->code, 'non-boolean filter decision reaches the approval gate and fails closed for writes and destruction' );
+	}
+	remove_all_filters( 'npcink_abilities_toolkit_write_commit_allowed' );
+	$host::boot();
+	$GLOBALS['npcink_ai_runtime_wp_ability_context'] = array( 'context' => array( 'approval_commit_authorized' => $invalid_decision ) );
+	foreach ( array( array( $callback, $commit_input ), array( $trash, $trash_input ) ) as $case ) {
+		$result = call_user_func( $case[0], $case[1] );
+		npcink_abilities_toolkit_host_approval_assert( is_wp_error( $result ) && 'npcink_abilities_toolkit_host_approval_required' === $result->code, 'non-boolean runtime decision reaches the approval gate and fails closed for writes and destruction' );
+	}
+	unset( $GLOBALS['npcink_ai_runtime_wp_ability_context'] );
+}
+npcink_abilities_toolkit_host_approval_assert( 'draft' === get_post( $approved_commit['post_id'] )->post_status, 'rejected destructive calls leave the approved draft intact' );
+npcink_abilities_toolkit_host_approval_assert( true === $host::decide_commit( true, 'other/ability', array(), array() ), 'example preserves another host boolean approval' );
 
 $other_key_commit = is_callable( $callback )
 	? call_user_func(

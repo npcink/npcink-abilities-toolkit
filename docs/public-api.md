@@ -29,6 +29,11 @@ registration set with filters. Separately, the operator-facing read-only mode
 (ADR 0009) narrows `core_write` and `core_destructive` after this filter — a
 site-owner choice that a host filter cannot widen:
 
+- `npcink_abilities_toolkit_registration_profile`: optional built-in
+  registration breadth: `core_read`, `read_only`, or `full` (default).
+  Invalid values narrow to `core_read`. Select before `plugins_loaded`;
+  existing filters and the operator option may narrow, never widen it. See
+  [Host Profiles](host-profiles.md). Provider registrations are unaffected.
 - `npcink_abilities_toolkit_enabled_packages`: package-level boot map. Supported
   slugs are `core_read`, `core_write`, `core_destructive`, `core_comment`,
   `npcink_catalog_bridge`, `admin_test_page`, and `read_cache_hooks`.

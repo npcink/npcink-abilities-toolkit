@@ -37,6 +37,8 @@ composer check:workflow-consumer
 composer check:official-stack
 composer check:mcp-exposure
 composer check:provider-demo
+composer check:host-approval
+composer test:profiles
 composer check:catalog
 composer check:wporg
 composer perf:bootstrap
@@ -70,6 +72,22 @@ external runtime acceptance.
 
 The minimum/current Docker runner also executes `tests/audit-wordpress.php`,
 so both declared WordPress/PHP endpoints exercise actual persistence behavior.
+
+`composer check:host-approval` exercises strict boolean decisions and the
+reference host's input, caller, ability, key, expiry and single-use binding.
+`composer test:profiles` boots each named profile and invalid selection in
+separate processes, including host/operator narrowing and provider independence.
+Both are included in `composer test:all`.
+
+The minimum/current Docker runner additionally boots the candidate checkout
+with only the reference provider and host for each of `full`, `read_only` and
+`core_read`. `tests/third-party-wordpress.php` exercises real REST handlers,
+anonymous/subscriber refusal, proposal no-write behavior, host-gated draft
+persistence and replay refusal. It cleans its own drafts and subscriber and
+leaves site activation and Toolkit options alone. Run it independently with
+the commands in the [Provider Plugin Guide](third-party-plugin-guide.md).
+This proof uses in-process REST requests; HTTP authentication, production
+approval storage and operator approval UI need their host's own acceptance.
 
 `tests/closeout-local-branches.sh` uses actual temporary Git repositories with
 a fake GitHub CLI to cover exact-head squash receipts, mismatched heads/bases/
@@ -148,6 +166,8 @@ move with each kind of change.
 | Workflow definition provider, replay fixture, recipe entrypoints, natural-task routing examples, expanded ability chains, or disallowed write defaults | Update the replay fixture and run `composer check:workflow-consumer`. |
 | MCP public exposure, MCP risk metadata, annotations, or read/write server routing | Update the MCP exposure assertions and run `composer check:mcp-exposure`. |
 | Provider helper behavior, third-party demo registration, or Npcink catalog projection defaults | Update the demo or projection assertions and run `composer check:provider-demo`. |
+| Host commit decision or reference approval binding | Run `composer check:host-approval` and the independent real-WordPress proof in the Provider Plugin Guide. |
+| Named registration profiles or package/sub-pack precedence | Run `composer test:profiles` and the independent WordPress proof for all three profiles. |
 | WordPress.org review-risk surfaces such as admin assets, nonce handling, escaping, or forbidden include paths | Update static guards when possible and run `composer check:wporg`; before packaging, also run `composer check:plugin-package` in a WordPress environment. |
 | Bootstrap assumptions, autoloading, or package-loading boundaries | Update `tests/bootstrap-performance.php` when the cold-load budget changes and run `composer perf:bootstrap`. |
 | Performance-sensitive read chains, bounded aggregators, diagnostics, or cache behavior | Update `tests/performance-smoke.php` when the budgeted path changes and run `composer perf:smoke`. |

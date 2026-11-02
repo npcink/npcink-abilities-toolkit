@@ -172,7 +172,7 @@ final class Core_Read_Package {
 		 * @param string              $pack Ability sub-pack.
 		 * @param array<string,mixed> $definition Ability definition.
 		 */
-		return (bool) apply_filters(
+		return \Npcink_Abilities_Toolkit\Registration_Profile::allows_read_pack( $pack ) && (bool) apply_filters(
 			'npcink_abilities_toolkit_should_register_read_ability',
 			in_array( $pack, $enabled, true ),
 			$ability_id,

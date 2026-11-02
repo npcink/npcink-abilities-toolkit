@@ -340,15 +340,7 @@ final class Plugin {
 	 * @return array<string,bool>
 	 */
 	public function get_enabled_packages() {
-		$defaults = array(
-			'core_read'             => true,
-			'core_write'            => true,
-			'core_destructive'      => true,
-			'core_comment'          => true,
-			'npcink_catalog_bridge' => true,
-			'admin_test_page'       => true,
-			'read_cache_hooks'      => true,
-		);
+		$defaults = Registration_Profile::defaults();
 
 		/**
 		 * Filters the built-in package boot map. The default keeps existing
@@ -360,7 +352,7 @@ final class Plugin {
 		 */
 		$enabled = apply_filters( 'npcink_abilities_toolkit_enabled_packages', $defaults );
 
-		return Read_Only_Mode::narrow_packages( is_array( $enabled ) ? $enabled : $defaults );
+		return Read_Only_Mode::narrow_packages( Registration_Profile::narrow_packages( is_array( $enabled ) ? $enabled : $defaults ) );
 	}
 
 	/**

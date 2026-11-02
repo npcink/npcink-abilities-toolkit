@@ -1,7 +1,7 @@
 # Host Proof Status
 
 Status: active tracking note.
-Last reviewed: 2026-10-13.
+Last reviewed: 2026-11-02.
 
 This note records the current host-proof ledger for the freeze/observe period.
 It is intentionally a status document, not an ability backlog. A new Toolkit
@@ -102,6 +102,29 @@ site.
 The completed Block theme / Gutenberg proof does not block basic third-party provider
 onboarding. Provider plugins may register read-only abilities or write-proposal
 abilities through the public helpers without waiting for a new host proof.
+
+### Independent Reference Provider And Host — 2026-11-02
+
+The repository's ACME demo provider and reference third-party host were loaded
+alone with the candidate Toolkit checkout on Local.app WordPress 7.1.4 / PHP
+8.4.21. Npcink AI, Core, Adapter, site plugins and site MU plugins were excluded.
+`tests/third-party-wordpress.php` discovers
+`acme/content-inventory-summary`, `acme/create-draft-proposal` and Toolkit
+`site-info` through real WordPress REST handlers; verifies anonymous and
+subscriber execution refusal; and confirms the provider proposal creates no
+post. In `full`, it previews `create-draft`, refuses pre-approval and modified
+input, commits the exact approved content through the independent host filter,
+and refuses replay without a second draft. No post is created before approval.
+The `read_only` and `core_read` runs remove built-in writes from discovery and
+execution; `core_read` also omits optional read sub-packs. Run-owned drafts
+and the subscriber fixture are cleaned.
+
+Reproduce all three runs with the [Provider Plugin Guide](third-party-plugin-guide.md#verify-an-independent-integration).
+The minimum/current Docker runner includes the same proof. This closes the
+reference integration gap, not evidence of unaffiliated plugin adoption.
+The proof uses in-process REST handlers and a request-local host decision;
+external HTTP authentication, an operator approval UI, durable approvals and
+atomic cross-request replay remain separate host acceptance responsibilities.
 
 ### Flagged Media Signed Lifecycle Proof — 2026-10-13
 

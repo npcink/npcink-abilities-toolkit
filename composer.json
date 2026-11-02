@@ -41,6 +41,14 @@
     "test:smoke-lifecycle": "bash tests/smoke-wp-lifecycle.sh",
     "test:plugin-package-check": "bash tests/plugin-package-check.sh",
     "test:wordpress-smoke-evidence": "@php tests/wordpress-smoke-evidence.php",
+    "test:profiles": [
+      "@php tests/registration-profile.php full",
+      "@php tests/registration-profile.php read_only",
+      "@php tests/registration-profile.php core_read",
+      "@php tests/registration-profile.php invalid",
+      "@php tests/registration-profile.php full operator",
+      "@php tests/registration-profile.php full host"
+    ],
     "test:cron-profile": [
       "@php tests/plugin-cron-profile.php default",
       "@php tests/plugin-cron-profile.php light"
@@ -113,6 +121,7 @@
       "@test:smoke-lifecycle",
       "@test:plugin-package-check",
       "@test:wordpress-smoke-evidence",
+      "@test:profiles",
       "@test:cron-profile",
       "@test:uninstall-cleanup",
       "@perf:bootstrap",

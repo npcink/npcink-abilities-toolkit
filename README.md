@@ -9,6 +9,10 @@ Install this plugin and your AI assistant gets a safe toolbox for WordPress: it 
 - Site owners: review everything on the **AI Ability Set** admin page — no AI model runs here, and nothing is written without host approval.
 - Plugin authors: expose your own abilities through [docs/third-party-plugin-guide.md](docs/third-party-plugin-guide.md).
 - Host products: govern commits through the [Host Approval Contract](docs/host-approval-contract.md) and pick a deployment shape in [docs/host-profiles.md](docs/host-profiles.md) and [docs/permission-matrix.md](docs/permission-matrix.md).
+- New read-only integrations: choose `core_read` or `read_only` using the
+  single profile filter in [Host Profiles](docs/host-profiles.md). Existing
+  installations retain the full catalog; operators can already turn on
+  read-only mode from the status page.
 - REST and external clients: start with [docs/rest-client-quickstart.md](docs/rest-client-quickstart.md).
 - Common setup, authentication, permission, and dry-run failures are covered in [docs/troubleshooting.md](docs/troubleshooting.md).
 

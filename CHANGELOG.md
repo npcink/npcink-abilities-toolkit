@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Require literal boolean host commit authorization; non-boolean filter/global results fail closed for write and destructive abilities. Bind the independent host example to reviewed input, ability, key, caller, expiry and single-use dispatch.
+- Add opt-in `core_read` and `read_only` registration profiles with narrowing-only precedence while retaining the compatible full default and operator read-only control. Add independent provider/host WordPress acceptance.
+
 - Normalize admin nonce, checkbox and redirect inputs; read conditional contract headers from the REST request. Document the narrow required Plugin Check exceptions and detect squash-merged local branches through exact PR receipts.
 
 - Keep taxonomy creation behind final host approval and retain source terms on any failed or unverifiable merge assignment; report individual merge failures.
