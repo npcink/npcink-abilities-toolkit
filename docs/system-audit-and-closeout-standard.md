@@ -359,18 +359,22 @@ through GitHub before changing CI names or declaring the protection current.
 
 ## Advisory Review Delivery
 
-The OpenCodeReview workflow is advisory and never a required check, so a
-failed run blocks nothing and delivers nothing. Before merging, confirm the
-pull request received at least one delivered review round: posted review
-comments on the pull request, not merely a green or absent check. A failed
-run posts a failure marker comment; retry it with a `/open-code-review`
-comment, or record in the pull request why the change merges unreviewed.
-A failed run's `ocr-review-result-*` artifact distinguishes a provider-side
-failure (`comments: 0`, "all N file review(s) failed") from findings that
-were computed but not posted. This rule follows AI Code Review Standard v1
-in `npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`;
-the incident that produced it (PR #185, diagnosed 2026-10-04) is recorded
-there.
+The active 2026-10-27 operator policy retires GitHub/cloud OpenCodeReview and
+uses locally initiated Qwen review. Required deterministic checks remain
+mandatory; do not wait for a cloud review, post retry comments, add provider
+secrets, or re-enable the retired workflow or runner canary.
+
+Use the canonical Toolbox `scripts/local-qwen-review.py` from a local checkout.
+Retain the successful receipt binding base SHA, head SHA and diff hash; record
+the model/receipt hash and a `fix:` or `accept:` line for every finding under
+`## AI Review Triage` in the PR body. Verify the final committed diff and body
+before publishing. A failed, malformed, truncated or stale response does not
+establish review delivery. Material fixes require a new review.
+
+See `AGENTS.md` for this repository's commands and publisher compatibility,
+and `npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`
+for authoritative policy. The old PR #185 cloud failure is historical evidence,
+not a requirement to restore that delivery channel.
 
 ## Worktree Cleanup Decision
 
