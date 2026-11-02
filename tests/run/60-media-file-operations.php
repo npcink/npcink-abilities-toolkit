@@ -853,15 +853,16 @@ unset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][790], $GLOBALS['npc
 $cloud_media_adoption_sources = $core_write_package_source . "\n" . $cloud_media_write_trait;
 npcink_abilities_toolkit_assert_true( false !== strpos( $cloud_media_adoption_sources, 'npcink_cloud_addon_receive_media_derivative_artifact' ), 'adopt-cloud-media-derivative uses the verified Cloud Addon receive seam' );
 npcink_abilities_toolkit_assert_true( false === strpos( $cloud_media_adoption_sources, 'npcink_cloud_addon_download_media_derivative_artifact' ) && false === strpos( $cloud_media_adoption_sources, 'npcink_abilities_toolkit_cloud_media_derivative_artifact_download' ), 'adopt-cloud-media-derivative removes legacy download helper and filter seams' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'npcink_abilities_toolkit_media_file_write_blocked' ), 'media write execution exposes a bounded failure-injection hook for verification tests' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $cloud_media_write_trait, 'npcink_abilities_toolkit_media_file_write_blocked' ), 'active cloud media write execution exposes a bounded failure-injection hook for verification tests' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'npcink_abilities_toolkit_media_file_copy_blocked' ), 'media copy execution exposes a bounded failure-injection hook for verification tests' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'is_media_uploads_path_allowed' ), 'media file helpers enforce uploads path containment' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'generate_attachment_metadata_for_file' ), 'media uploads share an explicit attachment metadata persistence helper' );
 npcink_abilities_toolkit_assert_true( false !== strpos( $core_write_package_source, 'minimal_attachment_metadata_for_file' ), 'media uploads persist minimal dimensions when full WordPress image helpers are unavailable' );
-$write_media_file_reflection = new ReflectionMethod( $core_write_package, 'write_media_file' );
+$write_media_file_reflection = new ReflectionMethod( $core_write_package, 'write_cloud_media_file_exclusive' );
 $write_media_file_reflection->setAccessible( true );
 $outside_uploads_path = sys_get_temp_dir() . '/npcink-abilities-toolkit-outside-uploads-' . getmypid() . '.jpg';
-npcink_abilities_toolkit_assert_same( false, $write_media_file_reflection->invoke( $core_write_package, $outside_uploads_path, 'outside', array() ), 'media write helper rejects targets outside uploads basedir' );
+$outside_uploads_result = $write_media_file_reflection->invoke( $core_write_package, $outside_uploads_path, 'outside', array() );
+npcink_abilities_toolkit_assert_true( is_wp_error( $outside_uploads_result ) && 'npcink_abilities_toolkit_cloud_derivative_path_invalid' === $outside_uploads_result->get_error_code(), 'active media write helper rejects targets outside uploads basedir' );
 npcink_abilities_toolkit_assert_true( ! is_readable( $outside_uploads_path ), 'outside uploads path containment test does not create a file' );
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][88] = (object) array(
 	'ID'           => 88,
