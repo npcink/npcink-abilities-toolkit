@@ -39,10 +39,7 @@ final class Core_WordPress_Read_Definitions {
 						'risk'   => 'read',
 					),
 				),
-				'input_schema'     => array(
-					'type'                 => 'object',
-					'additionalProperties' => false,
-				),
+				'input_schema'     => array( 'type' => 'object', 'additionalProperties' => false, 'default' => array() ),
 				'output_schema'    => array(
 					'type'       => 'object',
 					'properties' => array(

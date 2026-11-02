@@ -103,6 +103,7 @@ npcink_abilities_toolkit_register_readonly(
 		'input_schema'   => array(
 			'type'                 => 'object',
 			'additionalProperties' => false,
+			'default'              => array(),
 		),
 		'output_schema'  => array(
 			'type'       => 'object',

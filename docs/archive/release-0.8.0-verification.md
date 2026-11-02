@@ -7,7 +7,9 @@ Date: 2026-11-02.
 
 - Repository: `npcink-abilities-toolkit`; release metadata and verification for
   the already merged integration-profile and contract-hardening work.
-- Expected files: plugin header/constant, `readme.txt`, `CHANGELOG.md`, this note.
+- Expected files: plugin header/constant, `readme.txt`, `CHANGELOG.md`, this note;
+  the proved parameterless REST read fix, reference provider, focused real
+  WordPress regression and integration guides.
 - Public contracts: opt-in registration profiles retain the full default;
   commit decisions require literal boolean `true`; existing ids and schemas
   remain stable. Core or the consuming host keeps final authorization truth.
@@ -28,6 +30,12 @@ profiles and tightens the documented host boolean decision. It includes the
 merged taxonomy approval/failure, media cleanup/rename, diagnostics redaction,
 post-content round-trip, scheduling, schema-key, pagination, cache invalidation,
 Plugin Check and deterministic package fixes recorded in `CHANGELOG.md`.
+
+Independent HTTPS acceptance found that a real GET without `input` supplies
+`null`, while `site-info` and the parameterless reference reads require an
+object. Their input schemas now declare an empty default. Previously the
+in-process proof supplied an explicit empty array and hid the failure. The
+real WordPress proof now also executes those reads with no request input.
 
 No database migration is required. Hosts must return boolean `true` rather than
 truthy strings, integers or error objects. Profiles must be selected before
