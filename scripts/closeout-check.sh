@@ -72,6 +72,11 @@ if [ -n "$MERGED_LOCAL" ]; then
 	done <<< "$MERGED_LOCAL"
 fi
 
+# Verify exact PR head receipts for squash/rebase merges missed by ancestry.
+if ! php "$ROOT_DIR/scripts/check-local-branch-closeout.php"; then
+	fail "local branch PR receipt verification failed; see branch-specific evidence above."
+fi
+
 # 5. Stale remote topic branches (no open pull request). gh resolves the
 # repository from the origin remote itself, so forked URLs, ports, and
 # non-github.com hosts keep working without parsing the remote URL. One call
@@ -112,4 +117,4 @@ if [ "$FAILURES" -gt 0 ]; then
 	exit 1
 fi
 
-echo "[closeout-check] steady state verified: clean master level with origin, no merged local leftovers, no stale remote topic branches."
+echo "[closeout-check] steady state verified: clean master level with origin, no ancestry-merged or PR-verified merged local leftovers, no stale remote topic branches."
