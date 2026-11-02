@@ -602,6 +602,12 @@ if ( ! function_exists( 'wp_set_object_terms' ) ) {
 			$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
 		}
 		$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'][] = array( (int) $object_id, array_map( 'intval', (array) $terms ) );
+		foreach ( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] ?? array() as $term_id => $object_ids ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_term_objects'][ $term_id ] = array_values( array_diff( $object_ids, array( (int) $object_id ) ) );
+		}
+		foreach ( $terms as $term_id ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_term_objects'][ $term_id ][] = (int) $object_id;
+		}
 		return array();
 	}
 }

@@ -948,3 +948,17 @@ $filtered_read_abilities = $filtered_read_registrar->all();
 	npcink_abilities_toolkit_assert_true( ! isset( $filtered_read_abilities['npcink-abilities-toolkit/list-workflow-recipes'] ), 'core read pack filter removes workflow definition discovery ability' );
 remove_all_filters( 'npcink_abilities_toolkit_enabled_read_packs' );
 
+
+foreach ( array(
+    'Authorization: Bearer audit-secret-123',
+    'Authorization=Basic audit-secret-123',
+    'request {"api_key":"audit-secret-123"}',
+    'request {"authorization":"Bearer audit-secret-123"}',
+    'request {"access_token":"audit-secret-123"}',
+    'password=audit-secret-123',
+    'saved at C:\\sites\\wordpress\\audit-secret-123.php',
+    'saved at \\\\server\\share\\audit-secret-123.php',
+) as $secret_log_line ) {
+    $entry = $parse_log_entry->invoke( $core_read_package, $secret_log_line );
+    npcink_abilities_toolkit_assert_true( false === strpos( wp_json_encode( $entry ), 'audit-secret-123' ), 'diagnostics removes credentials and Windows paths from all response projections' );
+}

@@ -1414,16 +1414,7 @@ private function summarize_diagnostics_top_messages( array $entries ) {
  * @return string
  */
 private function redact_diagnostics_log_line( $line ) {
-	$line = sanitize_text_field( (string) $line );
-	$line = preg_replace( '/([?&](?:key|token|secret|password|pass|pwd|api_key|apikey)=)[^\\s&]+/i', '$1[REDACTED]', $line );
-	$line = preg_replace( '/((?:api[_-]?key|token|secret|password|authorization)\\s*[=:]\\s*)[^\\s,;]+/i', '$1[REDACTED]', $line );
-	$line = preg_replace( '#phar://[^\\s\'"]+#', 'phar://[REDACTED_PATH]', $line );
-	$line = preg_replace( '#/(?:private/)?tmp/[^\\s:\']+#', '[TMP_PATH]', $line );
-	$line = preg_replace( '#/[^\\s:]+/wp-content/#', '[ABSPATH]/wp-content/', $line );
-	$line = preg_replace( '#/Users/[^\\s:]+/#', '[HOME]/', $line );
-	$line = preg_replace( '#/[^\\s:\']+\\.php#', '[PHP_FILE]', $line );
-
-	return is_string( $line ) ? $line : '';
+	return \Npcink_Abilities_Toolkit\Security\Diagnostics_Log_Redactor::redact( (string) $line );
 }
 
 /**
