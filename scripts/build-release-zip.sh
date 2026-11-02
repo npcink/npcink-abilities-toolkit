@@ -42,13 +42,15 @@ cleanup() {
 trap cleanup EXIT
 
 package_dir="$tmpdir/$PLUGIN_SLUG"
-mkdir -p "$package_dir" dist
+source_dir="$tmpdir/source"
+mkdir -p "$package_dir" "$source_dir" dist
+git archive --format=tar "$source_commit" | tar -xf - -C "$source_dir"
 
 rsync_args=("-a")
 while IFS= read -r excluded_path; do
 	rsync_args+=("--exclude=$excluded_path")
 done < <(sed -e 's/\r$//' "$DISTIGNORE_FILE" | awk 'NF && $1 !~ /^#/')
-rsync_args+=("$ROOT_DIR/" "$package_dir/")
+rsync_args+=("$source_dir/" "$package_dir/")
 rsync "${rsync_args[@]}"
 
 # Normalize archive metadata so excluded documentation-only commits do not

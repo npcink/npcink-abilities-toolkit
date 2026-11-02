@@ -102,6 +102,9 @@ Release packaging and SVN preparation require a clean, non-shallow Git
 worktree. If the requested version already has a Git tag, `HEAD` must match that
 tag's commit exactly. The release ZIP command prints the source commit and
 SHA-256 checksum so the reviewed artifact can be tied back to immutable source.
+The builder exports that exact commit with `git archive` before applying
+distribution exclusions. Ignored local dependencies and editor state are never
+build inputs, even when the worktree is otherwise clean.
 
 For Local.app sites that expose MySQL only through a socket, pass the socket to
 WP-CLI through the package check helper:
