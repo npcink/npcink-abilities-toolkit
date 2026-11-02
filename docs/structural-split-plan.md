@@ -284,3 +284,23 @@ Traits own cohesive method implementations only. `Core_Read_Package` and
 `Core_Write_Package` remain the package composition roots and definition owners.
 No trait may introduce workflow runtime, routing decisions, approval storage,
 audit storage, queues, schedules, retries, leases, or final authorization.
+
+## 2026-11-02 Admin Overview Slice
+
+PR #271 changed the status summary, attention notes, and read-only control
+inside the admin page. Its source gate initially failed because `Test_Page`
+grew from the 1,401-line ceiling to 1,518 lines and `Read_Only_Mode` from 138
+to 141. The merged PR raised those ceilings. This concrete UI iteration and
+gate failure justify one focused extraction instead of accepting that growth.
+
+`Overview_Sections` holds the existing status summary, metric, and attention
+renderers in the page's trait context. `Read_Only_Mode_View` holds only the
+existing form. `Test_Page` retains page composition, queries, diagnostics, and
+permissions; `Read_Only_Mode` retains the option, package narrowing, nonce,
+capability, and redirect handling. The extracted markup and escaping stay
+unchanged. The affected baseline entries are tightened to the resulting
+sizes, below their pre-UI ceilings.
+
+This slice does not resume the remaining structural plan or change ability
+contracts, public callbacks, write authority, or admin behavior. Issue #89
+remains an evidence-triggered record.

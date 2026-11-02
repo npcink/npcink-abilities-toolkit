@@ -275,7 +275,9 @@ function npcink_abilities_toolkit_assert_observability_event_is_metadata_only( a
 	);
 }
 
-$admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' );
+// Source assertions below cover the composed page; the structure ratchet checks each file separately.
+$admin_test_page = file_get_contents( __DIR__ . '/../includes/Admin/Test_Page.php' )
+	. file_get_contents( __DIR__ . '/../includes/Admin/Overview_Sections.php' );
 $admin_scenario_cards = file_get_contents( __DIR__ . '/../includes/Admin/Scenario_Cards.php' );
 $admin_welcome_notice = file_get_contents( __DIR__ . '/../includes/Admin/Welcome_Notice.php' );
 $autoloader_source = file_get_contents( __DIR__ . '/../includes/Autoloader.php' );
@@ -715,7 +717,8 @@ npcink_abilities_toolkit_assert_true(
 	&& false !== strpos( $admin_test_page, 'Read_Only_Mode::boot();' ),
 	'overview ability package section renders the ADR 0009 read-only toggle and boots its admin-post handler.'
 );
-$admin_read_only_mode = file_get_contents( __DIR__ . '/../includes/Admin/Read_Only_Mode.php' );
+$admin_read_only_mode = file_get_contents( __DIR__ . '/../includes/Admin/Read_Only_Mode.php' )
+	. file_get_contents( __DIR__ . '/../includes/Admin/Read_Only_Mode_View.php' );
 foreach (
 	array(
 		'npcink_abilities_toolkit_read_only_mode',
