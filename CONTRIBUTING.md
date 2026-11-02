@@ -27,10 +27,15 @@ Complete a copy of `.github/pull_request_template.md`, then publish the clean
 branch and request protected squash auto-merge:
 
 ```bash
-composer pr:publish -- \
+TOOLKIT_REVIEW_TOOLBOX=/absolute/path/to/npcink-workflow-toolbox composer pr:publish -- \
   --title "fix: describe the focused change" \
-  --body-file /absolute/path/to/completed-pr-body.md
+  --body-file /absolute/path/to/completed-pr-body.md \
+  --local-review /absolute/path/to/local-qwen-review.json
 ```
+
+The publisher validates the local Qwen receipt and finding triage before pushing.
+Generate the final committed-diff receipt with the central Toolbox reviewer;
+see `AGENTS.md`. The receipt must cover the latest fetched target base and HEAD.
 
 The publisher requires `Scope`, `Boundary`, `Verification`, and `Risk`, checks
 that the branch includes the latest `origin/master`, and does not delete

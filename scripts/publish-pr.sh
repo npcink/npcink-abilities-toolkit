@@ -5,10 +5,10 @@ set -euo pipefail
 usage() {
 	cat <<'EOF'
 Usage:
-  scripts/publish-pr.sh --title TITLE --body-file PATH [--base BRANCH] [--dry-run]
+  scripts/publish-pr.sh --title TITLE --body-file PATH --local-review PATH [--base BRANCH] [--dry-run]
 
 Publishes the current clean topic branch, creates a pull request from a
-completed body contract, and requests squash auto-merge after required checks.
+completed body contract and verified local Qwen receipt, then requests protected squash auto-merge.
 EOF
 }
 
@@ -27,6 +27,7 @@ title=''
 body_file=''
 base_branch='master'
 dry_run=0
+local_review=''
 invocation_dir="${PWD}"
 
 while [ "$#" -gt 0 ]; do
@@ -42,6 +43,11 @@ while [ "$#" -gt 0 ]; do
 		--body-file)
 			[ "$#" -ge 2 ] || fail '--body-file requires a value'
 			body_file="$2"
+			shift 2
+			;;
+		--local-review)
+			[ "$#" -ge 2 ] || fail '--local-review requires a path'
+			local_review="$2"
 			shift 2
 			;;
 		--base)
@@ -65,6 +71,17 @@ done
 
 [ -n "${title}" ] || fail '--title is required'
 [ -n "${body_file}" ] || fail '--body-file is required'
+[ -n "${local_review}" ] || fail '--local-review PATH is required; cloud AI review is retired'
+case "$local_review" in
+	/*) ;;
+	*) local_review="${invocation_dir}/${local_review}" ;;
+esac
+[ -f "$local_review" ] || fail 'local review receipt not found'
+command -v python3 >/dev/null 2>&1 || fail 'python3 is required'
+[ -n "${TOOLKIT_REVIEW_TOOLBOX:-}" ] || fail 'set TOOLKIT_REVIEW_TOOLBOX to the canonical Toolbox checkout'
+review_verifier="${TOOLKIT_REVIEW_TOOLBOX}/scripts/local-qwen-review.py"
+[ -f "$review_verifier" ] || fail 'canonical local Qwen verifier not found'
+
 
 command -v git >/dev/null 2>&1 || fail 'git is required'
 command -v gh >/dev/null 2>&1 || fail 'GitHub CLI (gh) is required'
@@ -165,6 +182,19 @@ commit_count="$(git rev-list --count "origin/${base_branch}..HEAD")"
 [ "${commit_count}" -gt 0 ] || fail "branch has no commits beyond origin/${base_branch}"
 
 head_sha="$(git rev-parse HEAD)"
+
+# Require the currently fetched target diff, then delegate receipt semantics
+# and finding triage to the platform-owned verifier. Both paths fail before push.
+python3 - "$local_review" "$(git rev-parse "origin/${base_branch}")" <<'PY_REVIEW_BASE' || fail 'review receipt must cover the current target base'
+import json, sys
+try:
+    receipt = json.load(open(sys.argv[1], encoding='utf-8'))
+    assert isinstance(receipt, dict) and receipt.get('base_sha') == sys.argv[2]
+except (ValueError, OSError, AssertionError):
+    sys.exit(1)
+PY_REVIEW_BASE
+python3 "$review_verifier" --verify "$local_review" --head "$head_sha" --body-file "$body_path" \
+	|| fail 'local Qwen exact-diff review or finding triage failed'
 
 if [ "${dry_run}" = '1' ]; then
 	quote_command git push -u origin "${branch}"
