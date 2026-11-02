@@ -910,6 +910,19 @@ $article_publish_preflight = $core_read_package->get_article_publish_preflight_c
 npcink_abilities_toolkit_assert_same( true, $article_publish_preflight['success'] ?? null, 'get-article-publish-preflight-context returns a success envelope' );
 npcink_abilities_toolkit_assert_same( 'npcink-abilities-toolkit/recipes/article-publish-preflight', $article_publish_preflight['data']['recipe'] ?? '', 'get-article-publish-preflight-context declares its recipe id' );
 npcink_abilities_toolkit_assert_true( in_array( 'publish_risk', $article_publish_preflight['data']['sections'] ?? array(), true ), 'get-article-publish-preflight-context includes publish risk' );
+npcink_abilities_toolkit_assert_same( '', $article_publish_preflight['data']['workflow_context']['post_context']['post']['content'] ?? null, 'publish preflight omits nested post body by default' );
+npcink_abilities_toolkit_assert_true( empty( $article_publish_preflight['data']['post_context']['blocks'] ), 'publish preflight omits direct block HTML by default' );
+npcink_abilities_toolkit_assert_true( empty( $article_publish_preflight['data']['workflow_context']['post_context']['blocks'] ), 'publish preflight omits nested block HTML by default' );
+foreach ( array( false, true ) as $preflight_include_content ) {
+	$preflight_content_result = $core_read_package->get_article_publish_preflight_context(
+		array( 'post_id' => 77, 'include_content' => $preflight_include_content )
+	);
+	foreach ( array( $preflight_content_result['data']['post_context'], $preflight_content_result['data']['workflow_context']['post_context'] ) as $preflight_post_context ) {
+		npcink_abilities_toolkit_assert_same( $preflight_include_content ? $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][77]->post_content : '', $preflight_post_context['post']['content'] ?? null, 'publish preflight applies the explicit body-content flag to each post context' );
+		npcink_abilities_toolkit_assert_same( $preflight_include_content, ! empty( $preflight_post_context['blocks'] ), 'publish preflight includes raw block HTML only with explicit content opt-in' );
+	}
+	npcink_abilities_toolkit_assert_same( 5, count( $preflight_content_result['data']['sections'] ), 'publish preflight retains all five review sections with either content flag' );
+}
 $refresh_opportunities = $core_read_package->get_content_refresh_opportunities(
 	array(
 		'post_type'      => 'post',

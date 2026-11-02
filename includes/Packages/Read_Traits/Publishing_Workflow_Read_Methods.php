@@ -451,15 +451,14 @@ trait Publishing_Workflow_Read_Methods {
 			$target_status = 'publish';
 		}
 		$focus_keyword = sanitize_text_field( (string) ( $input['focus_keyword'] ?? '' ) );
-		$window_days = max( 1, min( 365, $this->absint_value( $input['window_days'] ?? 30 ) ) );
 		$include_content = ! empty( $input['include_content'] );
-		$sections = array();
+		$sections = array( 'post_context', 'publishing_checklist', 'publish_risk' );
 
 		$post_context = $this->get_post_context(
 			array(
 				'post_id'           => $post_id,
 				'include_content'   => $include_content,
-				'include_blocks'    => true,
+				'include_blocks'    => $include_content,
 				'include_terms'     => true,
 				'include_media'     => true,
 				'include_revisions' => true,
@@ -468,7 +467,6 @@ trait Publishing_Workflow_Read_Methods {
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $post_context ) ) {
 			return $post_context;
 		}
-		$sections[] = 'post_context';
 
 		$checklist = $this->get_content_publishing_checklist(
 			array(
@@ -479,7 +477,6 @@ trait Publishing_Workflow_Read_Methods {
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $checklist ) ) {
 			return $checklist;
 		}
-		$sections[] = 'publishing_checklist';
 
 		$risk = $this->get_post_publish_risk_report(
 			array(
@@ -491,7 +488,6 @@ trait Publishing_Workflow_Read_Methods {
 		if ( function_exists( 'is_wp_error' ) && is_wp_error( $risk ) ) {
 			return $risk;
 		}
-		$sections[] = 'publish_risk';
 
 		$workflow_context = $this->build_article_workflow_context(
 			array(
@@ -501,13 +497,17 @@ trait Publishing_Workflow_Read_Methods {
 			)
 		);
 		if ( is_array( $workflow_context ) ) {
+			if ( ! $include_content ) {
+				$workflow_context['data']['post_context']['post']['content'] = '';
+				$workflow_context['data']['post_context']['blocks'] = array();
+			}
 			$sections[] = 'workflow_context';
 		}
 
 		$calendar = $this->get_publishing_calendar_context(
 			array(
 				'post_type'   => is_array( $post_context ) ? sanitize_key( (string) ( $post_context['data']['post']['post_type'] ?? 'post' ) ) : 'post',
-				'window_days' => $window_days,
+				'window_days' => $input['window_days'] ?? 30,
 				'per_page'    => 50,
 			)
 		);

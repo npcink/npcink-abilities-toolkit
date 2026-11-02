@@ -36,6 +36,11 @@ Acceptance:
 - every read step returns HTTP 200 through WordPress Abilities API;
 - every read step returns a success envelope;
 - workflow context includes a `publish_risk` section;
+- the bundled preflight defaults `include_content` to false: full post body and
+  raw block HTML are omitted from both its direct post context and its nested
+  workflow post context; bounded summaries/excerpts and computed statistics
+  remain available. Explicit true opts into body and block HTML. The standalone
+  `build-article-workflow-context` keeps its existing full-context defaults;
 - no write or destructive action is committed by this package.
 
 ## Workflow 2: Old Article Refresh Discovery
