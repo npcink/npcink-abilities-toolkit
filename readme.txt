@@ -143,10 +143,10 @@ Uninstalling removes the plugin's stored options, per-admin notice state (welcom
 
 == Screenshots ==
 
-1. Overview tab: site ability status tiles, the ability package list with write safeguards, plain-language capability groups, and next actions.
+1. Overview tab: site ability status tiles and metrics, the ability package list with write safeguards, plain-language capability groups, and next actions.
 2. Ability Catalog view under Developer Tools: searchable catalog with filters, risk grouping, availability, and technical details for support.
 3. Checks view under Developer Tools: read-only checks explained before running, summary results, and raw responses kept behind a support disclosure.
-4. Connection view under Developer Tools: copyable REST endpoint values, raw discovery fetches, and ability ID export.
+4. Connection view under Developer Tools: copyable REST endpoint values, integration guidance, and discovery responses kept in a disclosure.
 
 == Built-In Abilities ==
 

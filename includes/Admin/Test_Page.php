@@ -1183,7 +1183,7 @@ final class Test_Page {
 								<?php
 								printf(
 									/* translators: %d: registered ability count. */
-									esc_html__( '%d IDs', 'npcink-abilities-toolkit' ),
+									esc_html( _n( '%d ID', '%d IDs', count( $registered ), 'npcink-abilities-toolkit' ) ),
 									absint( count( $registered ) )
 								);
 								?>
@@ -1207,7 +1207,7 @@ final class Test_Page {
 								<?php
 								printf(
 									/* translators: %d: registered ability count. */
-									esc_html__( '%d abilities', 'npcink-abilities-toolkit' ),
+									esc_html( _n( '%d ability', '%d abilities', count( $registered ), 'npcink-abilities-toolkit' ) ),
 									absint( count( $registered ) )
 								);
 								?>
