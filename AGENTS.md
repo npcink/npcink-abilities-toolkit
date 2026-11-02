@@ -183,7 +183,8 @@ re-enable its workflow, runner canary, provider secrets, or retry comments.
 Required deterministic CI and conversation resolution remain merge gates.
 
 ```bash
-python3 /Users/muze/gitee/npcink-workflow-toolbox/scripts/local-qwen-review.py \
+TOOLKIT_REVIEW_TOOLBOX=/absolute/path/to/npcink-workflow-toolbox
+python3 "$TOOLKIT_REVIEW_TOOLBOX/scripts/local-qwen-review.py" \
   --base origin/master --head HEAD --output /tmp/toolkit-local-review.json
 ```
 

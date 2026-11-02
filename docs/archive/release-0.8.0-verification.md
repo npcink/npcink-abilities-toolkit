@@ -65,9 +65,9 @@ responsible for their own callbacks and permissions.
 - Local AI review: `qwen3.8-max`, final candidate receipt SHA-256
   `9033eae9dd0320d867f477325d7a512d98a3f2965fd58d406901121aed1b0005`.
   PR #272 records both accepted findings and exact-diff verification.
-- WordPress.org SVN commit: `3779027`, using the existing verified `muze233`
+- WordPress.org SVN commit: `3779027`, using the existing verified maintainer
   Keychain cache noninteractively. Freshness had no out-of-date paths;
-  changes were limited to trunk and the new `tags/0.8.0`. No credentials
+  changes were limited to trunk and the new `tags/0.8.0`. No passwords or application secrets
   entered chat, command arguments, source or logs.
 - Git release ZIP SHA-256:
   `d1ebb04f652cc62c36f6af80fe0fb53a543a333d0335310c49a293c31b91cc4c`.
