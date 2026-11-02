@@ -43,6 +43,7 @@ add_action(
 				'input_schema'   => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
+					'default'              => array(),
 				),
 				'output_schema'  => array(
 					'type'       => 'object',
@@ -76,6 +77,7 @@ add_action(
 				'input_schema'              => array(
 					'type'                 => 'object',
 					'additionalProperties' => false,
+					'default'              => array(),
 				),
 				'output_schema'             => array(
 					'type'       => 'object',

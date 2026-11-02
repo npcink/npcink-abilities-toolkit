@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.8.0 =
+
+Adds optional core_read and read_only registration profiles for integrations while preserving the full default and the operator read-only switch. Host commit authorization now requires the literal boolean true. Fixes premature taxonomy writes, incomplete media cleanup scans, media rename recovery, diagnostics secret redaction, post-content backslash handling and scheduling validation. All final changes still require host approval.
 
 = 0.7.0 =
 
