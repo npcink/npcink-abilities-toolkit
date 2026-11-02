@@ -68,6 +68,9 @@ content plus approval and time behavior, and deletes only its own temporary
 post/term in `finally`. These checks do not establish host approval UI or
 external runtime acceptance.
 
+The minimum/current Docker runner also executes `tests/audit-wordpress.php`,
+so both declared WordPress/PHP endpoints exercise actual persistence behavior.
+
 `tests/release-source-guard.sh` builds the same commit twice with additional
 ignored executable/editor files between builds and checks identical ZIP hashes.
 
