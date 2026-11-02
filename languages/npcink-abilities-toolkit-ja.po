@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.8.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
 "PO-Revision-Date: 2026-10-13 21:33+0800\n"
@@ -5608,3 +5608,70 @@ msgstr "フラグ付きメディアのバックアップ操作を検証できま
 #: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
 msgid "You do not have permission to review flagged media references."
 msgstr "フラグ付きメディアの参照をレビューする権限がありません。"
+
+#: includes/Admin/Overview_Sections.php:93
+#, php-format
+msgid "WordPress %s"
+msgstr "WordPress %s"
+
+#: includes/Admin/Test_Page.php:181
+msgid ""
+"Review the WordPress abilities this site exposes to AI clients, including "
+"which actions are read-only and which require host approval. This plugin "
+"exposes WordPress abilities; it does not run models, approve proposals, or "
+"execute AI workflows by itself."
+msgstr ""
+"このサイトが AI クライアントに公開する WordPress "
+"の能力を確認します。読み取り専用の操作と、ホストの承認が必要な操作を確認できます。このプラグインは WordPress "
+"の能力を公開するものであり、単独でモデルを実行したり、提案を承認したり、AI ワークフローを実行したりすることはありません。"
+
+#: includes/Admin/Test_Page.php:693
+msgid "More filters"
+msgstr "その他のフィルター"
+
+#: includes/Admin/Test_Page.php:953
+msgid "Check details"
+msgstr "チェックの詳細"
+
+#: includes/Admin/Test_Page.php:1101 includes/Admin/Test_Page.php:1110
+#: includes/Admin/Test_Page.php:1119
+msgid "Copy"
+msgstr "コピー"
+
+#: includes/Admin/Test_Page.php:1150
+msgid "Discovery response"
+msgstr "検出レスポンス"
+
+#: includes/Admin/Test_Page.php:1175
+msgid "Copy filtered ability metadata for reviews, tickets, or client wiring."
+msgstr "レビュー、チケット、クライアント接続用に、フィルター済みの能力メタデータをコピーします。"
+
+#: includes/Admin/Test_Page.php:1186
+#, php-format
+msgid "%d ID"
+msgid_plural "%d IDs"
+msgstr[0] "%d 件の ID"
+
+#: includes/Admin/Test_Page.php:1210
+#, php-format
+msgid "%d ability"
+msgid_plural "%d abilities"
+msgstr[0] "%d 件の能力"
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:58
+msgid "Rename recovery evidence could not be recorded."
+msgstr "名前変更の復旧情報を記録できませんでした。"
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:88
+msgid "Renamed attachment metadata could not be verified."
+msgstr "名前変更後の添付ファイルのメタデータを検証できませんでした。"
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:94
+msgid "Rename history could not be saved."
+msgstr "名前変更の履歴を保存できませんでした。"
+
+#: includes/Support/Publish_Time.php:58
+msgid ""
+"Use an unambiguous Y-m-d H:i:s time or RFC3339 timestamp with an explicit "
+"offset."
+msgstr "曖昧さのない Y-m-d H:i:s 形式の日時、または UTC オフセットを明示した RFC3339 タイムスタンプを使用してください。"
