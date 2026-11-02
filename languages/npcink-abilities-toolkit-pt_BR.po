@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Npcink Abilities Toolkit package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Npcink Abilities Toolkit 0.7.0\n"
+"Project-Id-Version: Npcink Abilities Toolkit 0.8.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/npcink-abilities-toolkit\n"
 "POT-Creation-Date: 2026-10-03T12:09:34+00:00\n"
 "PO-Revision-Date: 2026-10-13 21:33+0800\n"
@@ -6367,3 +6367,77 @@ msgstr "Não foi possível verificar a operação de backup da mídia sinalizada
 #: includes/Packages/Read_Traits/Flagged_Media_Read_Methods.php:15
 msgid "You do not have permission to review flagged media references."
 msgstr "Você não tem permissão para revisar referências de mídia sinalizada."
+
+#: includes/Admin/Overview_Sections.php:93
+#, php-format
+msgid "WordPress %s"
+msgstr "WordPress %s"
+
+#: includes/Admin/Test_Page.php:181
+msgid ""
+"Review the WordPress abilities this site exposes to AI clients, including "
+"which actions are read-only and which require host approval. This plugin "
+"exposes WordPress abilities; it does not run models, approve proposals, or "
+"execute AI workflows by itself."
+msgstr ""
+"Confira os recursos do WordPress que este site oferece aos clientes de IA, "
+"incluindo as ações somente de leitura e as que exigem aprovação do host. "
+"Este plugin oferece recursos do WordPress; ele não executa modelos, aprova "
+"propostas nem executa fluxos de trabalho de IA por conta própria."
+
+#: includes/Admin/Test_Page.php:693
+msgid "More filters"
+msgstr "Mais filtros"
+
+#: includes/Admin/Test_Page.php:953
+msgid "Check details"
+msgstr "Detalhes da verificação"
+
+#: includes/Admin/Test_Page.php:1101 includes/Admin/Test_Page.php:1110
+#: includes/Admin/Test_Page.php:1119
+msgid "Copy"
+msgstr "Copiar"
+
+#: includes/Admin/Test_Page.php:1150
+msgid "Discovery response"
+msgstr "Resposta de descoberta"
+
+#: includes/Admin/Test_Page.php:1175
+msgid "Copy filtered ability metadata for reviews, tickets, or client wiring."
+msgstr ""
+"Copie os metadados filtrados dos recursos para revisões, chamados ou conexão"
+" do cliente."
+
+#: includes/Admin/Test_Page.php:1186
+#, php-format
+msgid "%d ID"
+msgid_plural "%d IDs"
+msgstr[0] "%d ID"
+msgstr[1] "%d IDs"
+
+#: includes/Admin/Test_Page.php:1210
+#, php-format
+msgid "%d ability"
+msgid_plural "%d abilities"
+msgstr[0] "%d recurso"
+msgstr[1] "%d recursos"
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:58
+msgid "Rename recovery evidence could not be recorded."
+msgstr "Não foi possível registrar os dados de recuperação da renomeação."
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:88
+msgid "Renamed attachment metadata could not be verified."
+msgstr "Não foi possível verificar os metadados do anexo renomeado."
+
+#: includes/Packages/Write_Traits/Media_Rename_Write_Methods.php:94
+msgid "Rename history could not be saved."
+msgstr "Não foi possível salvar o histórico de renomeação."
+
+#: includes/Support/Publish_Time.php:58
+msgid ""
+"Use an unambiguous Y-m-d H:i:s time or RFC3339 timestamp with an explicit "
+"offset."
+msgstr ""
+"Use uma data e hora inequívoca no formato Y-m-d H:i:s ou um carimbo de "
+"data/hora RFC3339 com deslocamento UTC explícito."
