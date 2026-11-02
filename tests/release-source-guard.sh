@@ -61,7 +61,7 @@ git -C "$PACKAGE_REPO" config user.name "Npcink Release Guard Test"
 git -C "$PACKAGE_REPO" config user.email "release-guard@example.invalid"
 cp "$GUARD" "$PACKAGE_REPO/scripts/check-release-source.sh"
 cp "$BUILDER" "$PACKAGE_REPO/scripts/build-release-zip.sh"
-printf 'dist\ndocs\n' > "$PACKAGE_REPO/.gitignore"
+printf 'dist\ndocs\nnode_modules\n.idea\n' > "$PACKAGE_REPO/.gitignore"
 printf '.git\ndist\ndocs\n' > "$PACKAGE_REPO/.distignore"
 printf '<?php\n/*\nPlugin Name: Reproducible Package\nVersion: 0.5.5\n*/\ndefine( '\''NPCINK_ABILITIES_TOOLKIT_VERSION'\'', '\''0.5.5'\'' );\n' > "$PACKAGE_REPO/npcink-abilities-toolkit.php"
 printf 'Stable tag: 0.5.5\n' > "$PACKAGE_REPO/readme.txt"
@@ -74,6 +74,19 @@ first_package_sha="$(shasum -a 256 "$PACKAGE_REPO/dist/npcink-abilities-toolkit-
 touch "$PACKAGE_REPO"
 VERSION=0.5.5 bash "$PACKAGE_REPO/scripts/build-release-zip.sh" >/dev/null 2>&1
 second_package_sha="$(shasum -a 256 "$PACKAGE_REPO/dist/npcink-abilities-toolkit-0.5.5.zip" | awk '{print $1}')"
+mkdir -p "$PACKAGE_REPO/node_modules/audit-package" "$PACKAGE_REPO/.idea"
+printf 'ignored executable\n' > "$PACKAGE_REPO/node_modules/audit-package/injected.php"
+printf 'local configuration\n' > "$PACKAGE_REPO/.idea/workspace.xml"
+VERSION=0.5.5 bash "$PACKAGE_REPO/scripts/build-release-zip.sh" >/dev/null 2>&1
+polluted_package_sha="$(shasum -a 256 "$PACKAGE_REPO/dist/npcink-abilities-toolkit-0.5.5.zip" | awk '{print $1}')"
+if [[ "$first_package_sha" != "$polluted_package_sha" ]]; then
+	echo "Ignored local files changed the release artifact for the same commit." >&2
+	exit 1
+fi
+if unzip -Z1 "$PACKAGE_REPO/dist/npcink-abilities-toolkit-0.5.5.zip" | grep -Eq 'node_modules|\.idea'; then
+	echo "Ignored local files entered the release artifact." >&2
+	exit 1
+fi
 if [[ "$first_package_sha" != "$second_package_sha" ]]; then
 	echo "Release ZIP checksum changed when only excluded directory metadata changed." >&2
 	exit 1

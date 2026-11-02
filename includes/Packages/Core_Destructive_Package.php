@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Registers destructive WordPress abilities migrated from the Npcink AI plugin.
  */
 final class Core_Destructive_Package {
+	use Taxonomy_Assignment_Write_Methods;
 	use Destructive_Traits\Flagged_Media_Deletion_Methods;
 	/**
 	 * Category registrar.
@@ -129,6 +130,7 @@ final class Core_Destructive_Package {
 						'target_term_id'   => array( 'type' => 'integer' ),
 						'merged'           => array( 'type' => 'boolean' ),
 						'merged_count'     => array( 'type' => 'integer' ),
+						'failures'         => array( 'type' => 'array', 'items' => array( 'type' => 'object' ) ),
 						'removed_term_ids' => array(
 							'type'  => 'array',
 							'items' => array( 'type' => 'integer' ),
@@ -472,9 +474,13 @@ final class Core_Destructive_Package {
 		}
 		$removed_term_ids = array();
 		$merged_object_count = 0;
+		$failures = array();
 		foreach ( $valid_source_ids as $source_term_id ) {
 			$object_ids = get_objects_in_term( $source_term_id, $taxonomy );
-			$object_ids = is_array( $object_ids ) ? $object_ids : array();
+			if ( is_wp_error( $object_ids ) ) {
+				$failures[] = array( 'source_term_id' => $source_term_id, 'code' => $object_ids->get_error_code() );
+				continue;
+			}
 			$source_blocked = false;
 			foreach ( $object_ids as $object_id ) {
 				$object_id = absint( $object_id );
@@ -483,15 +489,24 @@ final class Core_Destructive_Package {
 				}
 				if ( $merged_object_count >= 200 || ! current_user_can( 'edit_post', $object_id ) ) {
 					$source_blocked = true;
+					$failures[] = array( 'source_term_id' => $source_term_id, 'object_id' => $object_id, 'code' => 'term_merge_object_blocked' );
 					continue;
 				}
 				$current_term_ids = wp_get_object_terms( $object_id, $taxonomy, array( 'fields' => 'ids' ) );
 				if ( is_wp_error( $current_term_ids ) ) {
+					$source_blocked = true;
+					$failures[] = array( 'source_term_id' => $source_term_id, 'object_id' => $object_id, 'code' => $current_term_ids->get_error_code() );
 					continue;
 				}
 				$current_term_ids = array_values( array_unique( array_filter( array_map( 'absint', (array) $current_term_ids ) ) ) );
 				$next_term_ids    = array_values( array_unique( array_merge( array_diff( $current_term_ids, array( $source_term_id ) ), array( $target_term_id ) ) ) );
-				wp_set_object_terms( $object_id, $next_term_ids, $taxonomy, false );
+				$assigned = wp_set_object_terms( $object_id, $next_term_ids, $taxonomy, false );
+				$verified = is_wp_error( $assigned ) ? $assigned : wp_get_object_terms( $object_id, $taxonomy, array( 'fields' => 'ids' ) );
+				if ( is_wp_error( $verified ) || ! in_array( $target_term_id, array_map( 'absint', (array) $verified ), true ) || in_array( $source_term_id, array_map( 'absint', (array) $verified ), true ) ) {
+					$source_blocked = true;
+					$failures[] = array( 'source_term_id' => $source_term_id, 'object_id' => $object_id, 'code' => is_wp_error( $verified ) ? $verified->get_error_code() : 'term_assignment_unverified' );
+					continue;
+				}
 				++$merged_object_count;
 			}
 
@@ -500,11 +515,13 @@ final class Core_Destructive_Package {
 				continue;
 			}
 			$deleted = wp_delete_term( $source_term_id, $taxonomy );
-			if ( is_wp_error( $deleted ) || false === $deleted ) {
+			if ( is_wp_error( $deleted ) || ! $deleted ) {
+				$failures[] = array( 'source_term_id' => $source_term_id, 'code' => is_wp_error( $deleted ) ? $deleted->get_error_code() : 'term_delete_failed' );
 				continue;
 			}
 			$removed_term_ids[] = $source_term_id;
 		}
+		$payload['failures']         = $failures;
 		$payload['merged']           = ! empty( $removed_term_ids );
 		$payload['merged_count']     = count( $removed_term_ids );
 		$payload['removed_term_ids'] = $removed_term_ids;
@@ -538,7 +555,7 @@ final class Core_Destructive_Package {
 			is_array( $validated['term_ids'] ?? null ) ? $validated['term_ids'] : array(),
 			is_array( $validated['terms'] ?? null ) ? $validated['terms'] : array(),
 			! empty( $validated['create_missing'] ),
-			$this->should_dry_run( $input )
+			true
 		);
 		if ( is_wp_error( $resolve_result ) ) {
 			return $resolve_result;
@@ -546,7 +563,7 @@ final class Core_Destructive_Package {
 		$resolved_term_ids   = is_array( $resolve_result['term_ids'] ?? null ) ? $resolve_result['term_ids'] : array();
 		$missing_term_labels = is_array( $resolve_result['missing'] ?? null ) ? $resolve_result['missing'] : array();
 		$operation           = (string) $validated['operation'];
-		if ( empty( $resolved_term_ids ) && 'replace' !== $operation ) {
+		if ( empty( $resolved_term_ids ) && empty( $missing_term_labels ) && 'replace' !== $operation ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$query = new \WP_Query( $this->bulk_post_terms_query_args( $validated ) );
@@ -750,7 +767,7 @@ final class Core_Destructive_Package {
 			return new \WP_Error( 'npcink_abilities_toolkit_attachment_invalid', __( 'Attachment ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
 		}
 		$attachment    = $this->get_media_attachment( $attachment_id );
-		if ( is_wp_error( $attachment ) && ! $this->should_dry_run( $input ) ) {
+		if ( is_wp_error( $attachment ) && ! get_post( $attachment_id ) && ! $this->should_dry_run( $input ) ) {
 			$allowed = $this->assert_commit_allowed( 'npcink-abilities-toolkit/delete-media-permanently', $input );
 			if ( is_wp_error( $allowed ) ) {
 				return $allowed;
@@ -1231,68 +1248,6 @@ final class Core_Destructive_Package {
 			return $args;
 	}
 
-	/**
-	 * Resolves term IDs from explicit IDs and labels.
-	 *
-	 * @param string       $taxonomy Taxonomy id.
-	 * @param array<mixed> $term_ids Explicit term ids.
-	 * @param array<mixed> $terms Term labels.
-	 * @param bool         $create_missing Whether missing terms can be created during commit.
-	 * @param bool         $dry_run Whether this is a dry-run.
-	 * @return array{term_ids:array<int,int>,missing:array<int,string>}|\WP_Error
-	 */
-	private function resolve_term_ids_for_assignment( $taxonomy, array $term_ids, array $terms, $create_missing, $dry_run ) {
-		$resolved = array();
-		$missing  = array();
-		foreach ( $term_ids as $term_id ) {
-			$term_id = absint( $term_id );
-			if ( $term_id <= 0 ) {
-				continue;
-			}
-			$term = get_term( $term_id, $taxonomy );
-			if ( $term && ! is_wp_error( $term ) && is_object( $term ) && ! empty( $term->term_id ) ) {
-				$resolved[] = absint( $term->term_id );
-			}
-		}
-		foreach ( $terms as $raw_term ) {
-			$term_label = sanitize_text_field( (string) $raw_term );
-			if ( '' === $term_label ) {
-				continue;
-			}
-			$term_slug = sanitize_title( $term_label );
-			$term      = get_term_by( 'slug', $term_slug, $taxonomy );
-			if ( ! is_object( $term ) || empty( $term->term_id ) ) {
-				$term = get_term_by( 'name', $term_label, $taxonomy );
-			}
-			if ( is_object( $term ) && ! empty( $term->term_id ) ) {
-				$resolved[] = absint( $term->term_id );
-				continue;
-			}
-			if ( ! $create_missing ) {
-				continue;
-			}
-			$missing[] = $term_label;
-			if ( $dry_run ) {
-				continue;
-			}
-			$cap_check = $this->check_taxonomy_capability( $taxonomy, 'manage_terms' );
-			if ( is_wp_error( $cap_check ) ) {
-				return $cap_check;
-			}
-			$created = wp_insert_term( $term_label, $taxonomy, array( 'slug' => $term_slug ) );
-			if ( is_wp_error( $created ) ) {
-				return $created;
-			}
-			$created_term_id = absint( $created['term_id'] ?? 0 );
-			if ( $created_term_id > 0 ) {
-				$resolved[] = $created_term_id;
-			}
-		}
-		return array(
-			'term_ids' => $this->normalize_positive_ids( $resolved ),
-			'missing'  => array_values( array_unique( $missing ) ),
-		);
-	}
 
 	/**
 	 * Returns object term IDs.

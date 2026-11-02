@@ -171,19 +171,9 @@ trait Post_Primitives_Read_Methods {
 
 		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
-		$all_revisions = function_exists( 'wp_get_post_revisions' )
-			? wp_get_post_revisions(
-				$post_id,
-				array(
-					'check_enabled' => false,
-					'order'         => 'DESC',
-					'orderby'       => 'date ID',
-				)
-			)
-			: array();
-		$all_revisions = is_array( $all_revisions ) ? array_values( $all_revisions ) : array();
-		$total = count( $all_revisions );
-		$slice = array_slice( $all_revisions, ( $page - 1 ) * $per_page, $per_page );
+		$revision_page = $this->query_revision_page( $post_id, $per_page, $page );
+		$total = $revision_page['total'];
+		$slice = $revision_page['posts'];
 		$items = array();
 
 		foreach ( $slice as $revision ) {
@@ -687,7 +677,7 @@ trait Post_Primitives_Read_Methods {
 		}
 
 		$max_revisions = max( 1, min( 20, $this->absint_value( $input['max_revisions'] ?? 10 ) ) );
-		$revisions = array_slice( $this->get_revision_objects_for_post( $post_id ), 0, $max_revisions );
+		$revisions = array_slice( $this->get_revision_objects_for_post( $post_id, $max_revisions ), 0, $max_revisions );
 		$current_title = sanitize_text_field( (string) get_the_title( $post_id ) );
 		$current_content = (string) ( $post->post_content ?? '' );
 		$current_text_length = $this->strlen_value( $this->strip_all_tags_value( $current_content ) );
@@ -945,19 +935,9 @@ trait Post_Primitives_Read_Methods {
 
 		$per_page = max( 1, min( 20, absint( $input['per_page'] ?? 10 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
-		$all_revisions = function_exists( 'wp_get_post_revisions' )
-			? wp_get_post_revisions(
-				$post_id,
-				array(
-					'check_enabled' => false,
-					'order'         => 'DESC',
-					'orderby'       => 'date ID',
-				)
-			)
-			: array();
-		$all_revisions = is_array( $all_revisions ) ? array_values( $all_revisions ) : array();
-		$total = count( $all_revisions );
-		$slice = array_slice( $all_revisions, ( $page - 1 ) * $per_page, $per_page );
+		$revision_page = $this->query_revision_page( $post_id, $per_page, $page );
+		$total = $revision_page['total'];
+		$slice = $revision_page['posts'];
 		$items = array();
 		foreach ( $slice as $revision ) {
 			if ( ! is_object( $revision ) ) {
@@ -1110,15 +1090,17 @@ trait Post_Primitives_Read_Methods {
 	 * Reads revisions for a post with a unit-test fallback.
 	 *
 	 * @param int $post_id Post id.
+	 * @param int $limit Maximum revisions.
 	 * @return array<int,object>
 	 */
-	private function get_revision_objects_for_post( $post_id ) {
+	private function get_revision_objects_for_post( $post_id, $limit = 10 ) {
 		$post_id = $this->absint_value( $post_id );
 		$revisions = function_exists( 'wp_get_post_revisions' )
 			? wp_get_post_revisions(
 				$post_id,
 				array(
 					'check_enabled' => false,
+					'numberposts'   => $limit,
 					'order'         => 'DESC',
 					'orderby'       => 'date ID',
 				)
@@ -1531,5 +1513,20 @@ trait Post_Primitives_Read_Methods {
 	 */
 	private function sort_by_post_type( array $left, array $right ) {
 		return strcmp( (string) ( $left['post_type'] ?? '' ), (string) ( $right['post_type'] ?? '' ) );
+	}
+
+	/**
+	 * Pages revisions in SQL, including the total without loading their bodies.
+	 * @param int $post_id Post id.
+	 * @param int $per_page Page size.
+	 * @param int $page Page number.
+	 * @return array{posts:array<int,object>,total:int}
+	 */
+	private function query_revision_page( $post_id, $per_page, $page ) {
+		if ( ! class_exists( '\WP_Query' ) ) {
+			return array( 'posts' => array(), 'total' => 0 );
+		}
+		$query = new \WP_Query( array( 'post_type' => 'revision', 'post_status' => 'inherit', 'post_parent' => $post_id, 'posts_per_page' => $per_page, 'paged' => $page, 'orderby' => array( 'date' => 'DESC', 'ID' => 'DESC' ), 'no_found_rows' => false ) );
+		return array( 'posts' => array_values( (array) $query->posts ), 'total' => (int) $query->found_posts );
 	}
 }

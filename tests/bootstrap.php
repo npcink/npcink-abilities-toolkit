@@ -28,6 +28,7 @@ $GLOBALS['npcink_abilities_toolkit_unit_default_current_user_caps'] = array(
 	'manage_options'     => true,
 	'moderate_comments'  => true,
 	'publish_post'       => true,
+	'read_post'          => true,
 	'upload_files'       => true,
 );
 
@@ -84,7 +85,13 @@ if ( ! function_exists( 'sanitize_email' ) ) {
 
 if ( ! function_exists( 'wp_unslash' ) ) {
 	function wp_unslash( $value ) {
-		return is_array( $value ) ? array_map( 'wp_unslash', $value ) : stripslashes( (string) $value );
+		return is_array( $value ) ? array_map( 'wp_unslash', $value ) : ( is_string( $value ) ? stripslashes( $value ) : $value );
+	}
+}
+
+if ( ! function_exists( 'wp_slash' ) ) {
+	function wp_slash( $value ) {
+		return is_array( $value ) ? array_map( 'wp_slash', $value ) : ( is_string( $value ) ? addslashes( $value ) : $value );
 	}
 }
 
@@ -456,6 +463,7 @@ if ( ! function_exists( 'get_post_type_object' ) ) {
 if ( ! function_exists( 'wp_insert_post' ) ) {
 	function wp_insert_post( $postarr, $wp_error = false ) {
 		unset( $wp_error );
+		$postarr = wp_unslash( $postarr );
 		if ( ! isset( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) || ! is_array( $GLOBALS['npcink_abilities_toolkit_unit_style_posts'] ) ) {
 			$GLOBALS['npcink_abilities_toolkit_unit_style_posts'] = array();
 		}
@@ -503,6 +511,7 @@ if ( ! function_exists( 'wp_insert_attachment' ) ) {
 if ( ! function_exists( 'wp_update_post' ) ) {
 	function wp_update_post( $postarr, $wp_error = false ) {
 		unset( $wp_error );
+		$postarr = wp_unslash( $postarr );
 		if ( isset( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'] ) && is_callable( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'] ) ) {
 			$injected = call_user_func( $GLOBALS['npcink_abilities_toolkit_unit_wp_update_post_callback'], $postarr );
 			if ( is_wp_error( $injected ) ) {
@@ -602,6 +611,12 @@ if ( ! function_exists( 'wp_set_object_terms' ) ) {
 			$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
 		}
 		$GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'][] = array( (int) $object_id, array_map( 'intval', (array) $terms ) );
+		foreach ( $GLOBALS['npcink_abilities_toolkit_unit_term_objects'] ?? array() as $term_id => $object_ids ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_term_objects'][ $term_id ] = array_values( array_diff( $object_ids, array( (int) $object_id ) ) );
+		}
+		foreach ( $terms as $term_id ) {
+			$GLOBALS['npcink_abilities_toolkit_unit_term_objects'][ $term_id ][] = (int) $object_id;
+		}
 		return array();
 	}
 }

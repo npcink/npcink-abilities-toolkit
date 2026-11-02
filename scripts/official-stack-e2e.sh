@@ -770,6 +770,7 @@ run_project_smoke() {
 
 	log "Running project WordPress smoke inside Docker"
 	NPCINK_ABILITIES_TOOLKIT_SMOKE_PROFILE=default wp eval-file /var/www/html/wp-content/plugins/npcink-abilities-toolkit/tests/smoke-wp.php
+	wp eval-file /var/www/html/wp-content/plugins/npcink-abilities-toolkit/tests/audit-wordpress.php
 }
 
 while [[ $# -gt 0 ]]; do

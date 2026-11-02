@@ -493,6 +493,7 @@ npcink_abilities_toolkit_assert_same( array( 302 ), $merge_result['removed_term_
 npcink_abilities_toolkit_assert_same( 2, count( $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] ?? array() ), 'merge-terms reassigns every object of the merged source term' );
 npcink_abilities_toolkit_assert_same( array( 302 ), $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] ?? null, 'merge-terms deletes the merged source term' );
 
+$GLOBALS['npcink_abilities_toolkit_unit_term_objects'] = array( 302 => array( 77, 78 ) );
 $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'edit_post' => false );
 $GLOBALS['npcink_abilities_toolkit_unit_set_object_terms'] = array();
 $GLOBALS['npcink_abilities_toolkit_unit_deleted_terms'] = array();

@@ -1463,7 +1463,7 @@ trait Cloud_Media_Write_Methods {
 				clean_post_cache( $post_id );
 			}
 
-			$updated = wp_update_post( array( 'ID' => $post_id, $field => (string) $after ), true );
+			$updated = wp_update_post( wp_slash( array( 'ID' => $post_id, $field => (string) $after ) ), true );
 			if ( is_wp_error( $updated ) || $post_id !== absint( $updated ) ) {
 				return $this->cloud_media_rollback_locked_post_mutation( $field, $post_id, 'wordpress_update_failed' );
 			}

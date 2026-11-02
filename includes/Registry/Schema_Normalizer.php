@@ -45,10 +45,6 @@ final class Schema_Normalizer {
 				: array();
 
 			foreach ( $properties as $property_key => $property_schema ) {
-				$property_key = sanitize_key( (string) $property_key );
-				if ( '' === $property_key ) {
-					continue;
-				}
 				$properties[ $property_key ] = $this->normalize( $property_schema, '' );
 			}
 

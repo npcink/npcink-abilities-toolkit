@@ -86,6 +86,16 @@ synthetic `npcink-abilities-toolkit/host-approval-probe` ability id and empty
 input, and warn the site operator when the probe comes back allowed — a
 well-scoped callback answers `false` to that probe by construction.
 
+Missing taxonomy labels are resolved without insertion before the gate. Term
+creation for `set-post-terms` and `bulk-update-post-terms` occurs only after
+authorization.
+
+`merge-terms` reports per-source `failures` (`source_term_id`, optional
+`object_id`, and `code`). A source is retained if object enumeration, permission,
+relationship reads/writes, or verification fails. Earlier successful object
+assignments are not rolled back; hosts must inspect both `removed_term_ids` and
+`failures` before reporting completion.
+
 ## 4. Required Host Evidence
 
 The `implementation_posture.v1` metadata (`required_host_evidence`) documents
