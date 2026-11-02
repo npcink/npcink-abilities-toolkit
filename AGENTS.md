@@ -176,20 +176,25 @@ composer check:wporg
 WP_PATH=/path/to/wordpress composer release:verify
 ```
 
-Advisory AI review (optional locally; the CI workflow is authoritative):
+AI review follows the active 2026-10-27 operator policy in
+`npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`:
+use locally initiated Qwen review; cloud OpenCodeReview is retired. Do not
+re-enable its workflow, runner canary, provider secrets, or retry comments.
+Required deterministic CI and conversation resolution remain merge gates.
 
 ```bash
-ocr review --from origin/master --to HEAD
+python3 /Users/muze/gitee/npcink-workflow-toolbox/scripts/local-qwen-review.py \
+  --base origin/master --head HEAD --output /tmp/toolkit-local-review.json
 ```
 
-Treat findings as a second opinion: fix real defects or record why they are
-acceptable. The authoritative review is the one the advisory OpenCodeReview
-workflow posts on the pull request — it is never a required check, and the
-local run must not block publishing: it is known to stall silently or time
-out on large changed files, in which case skip it and handle the findings
-on the pull request, where required conversation resolution makes them
-actionable anyway. Follows AI Code Review Standard v1 in
-`npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`.
+Keep the receipt locally and record its model/hash plus one `fix:` or `accept:`
+line per finding under `## AI Review Triage` in the completed PR template.
+Verify the final committed diff and triage with that script's `--verify`,
+`--head HEAD`, and `--body-file` options before `composer pr:publish`.
+This repository's publisher does not yet accept `--local-review`; use the
+explicit verification command rather than starting the retired cloud lane.
+Material fixes require a fresh final-diff review. An unsuccessful reviewer
+response is not a passed review. The platform document owns the full policy.
 
 Release-facing gate:
 
