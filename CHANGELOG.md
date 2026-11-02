@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.8.0 - 2026-11-02
+
+Integration-profile and contract-hardening release. The compatible full catalog
+remains the default; no new first-party abilities or host authority are added.
+
+- Supply the empty-object default for parameterless `site-info` and reference provider reads so a real REST GET without `input` succeeds; document nested GET input parameters and cover the omitted-input path on minimum/current WordPress.
 - Require literal boolean host commit authorization; non-boolean filter/global results fail closed for write and destructive abilities. Bind the independent host example to reviewed input, ability, key, caller, expiry and single-use dispatch.
 - Add opt-in `core_read` and `read_only` registration profiles with narrowing-only precedence while retaining the compatible full default and operator read-only control. Add independent provider/host WordPress acceptance.
 

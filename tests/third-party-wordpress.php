@@ -53,6 +53,9 @@ try {
 		$check( in_array( $id, $names, true ), 'REST catalog includes ' . $id );
 	}
 	$check( 200 === $run( 'acme/content-inventory-summary', array(), 'GET' )->get_status(), 'Provider read executes through REST.' );
+	foreach ( array( 'acme/content-inventory-summary', 'acme/projected-site-summary', 'npcink-abilities-toolkit/site-info' ) as $id ) {
+		$check( 200 === rest_do_request( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $id . '/run' ) )->get_status(), 'Parameterless REST GET supplies its declared empty default: ' . $id );
+	}
 	$proposal = $run( 'acme/create-draft-proposal', array( 'title' => $run_id ) );
 	$check( 200 === $proposal->get_status() && isset( $proposal->get_data()['diff'] ), 'Provider returns a review artifact through REST.' );
 	$check( 0 === $count(), 'Provider proposal creates no WordPress post.' );

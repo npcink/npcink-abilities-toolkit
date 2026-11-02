@@ -108,7 +108,8 @@ input schema:
 ```bash
 curl -sS \
   -u "admin:APPLICATION_PASSWORD" \
-  "https://example.test/wp-json/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-posts/run?post_type=post&per_page=5"
+  --get --data-urlencode 'input[post_type]=post' --data-urlencode 'input[per_page]=5' \
+  "https://example.test/wp-json/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-posts/run"
 ```
 
 ## Run A Write-Proposal Or Host-Governed Ability
