@@ -188,7 +188,8 @@ head_sha="$(git rev-parse HEAD)"
 python3 - "$local_review" "$(git rev-parse "origin/${base_branch}")" <<'PY_REVIEW_BASE' || fail 'review receipt must cover the current target base'
 import json, sys
 try:
-    receipt = json.load(open(sys.argv[1], encoding='utf-8'))
+    with open(sys.argv[1], encoding='utf-8') as handle:
+        receipt = json.load(handle)
     assert isinstance(receipt, dict) and receipt.get('base_sha') == sys.argv[2]
 except (ValueError, OSError, AssertionError):
     sys.exit(1)
