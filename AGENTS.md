@@ -83,7 +83,7 @@ list guarded by `composer check:boundary`.
   either push/open or update the PR, or explicitly record why the commits remain
   local-only.
 - Publish a completed clean topic branch with
-  `composer pr:publish -- --title "<title>" --body-file <path>`. Start the body
+  `composer pr:publish -- --title "<title>" --body-file <path> --local-review <receipt>`. Start the body
   from `.github/pull_request_template.md`; do not replace it with ad hoc
   `gh pr create --body` text that omits `Scope`, `Boundary`, `Verification`, or
   `Risk`.
@@ -192,8 +192,11 @@ Keep the receipt locally and record its model/hash plus one `fix:` or `accept:`
 line per finding under `## AI Review Triage` in the completed PR template.
 Verify the final committed diff and triage with that script's `--verify`,
 `--head HEAD`, and `--body-file` options before `composer pr:publish`.
-This repository's publisher does not yet accept `--local-review`; use the
-explicit verification command rather than starting the retired cloud lane.
+Set `TOOLKIT_REVIEW_TOOLBOX` to the canonical Toolbox checkout and pass
+`--local-review /tmp/toolkit-local-review.json` to `composer pr:publish`.
+The publisher requires a receipt for the currently fetched target base and
+runs the central verifier before any push, including in `--dry-run` mode.
+Missing, failed, malformed, stale or untriaged receipts block publication.
 Material fixes require a fresh final-diff review. An unsuccessful reviewer
 response is not a passed review. The platform document owns the full policy.
 
