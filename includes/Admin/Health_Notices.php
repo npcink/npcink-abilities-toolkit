@@ -123,7 +123,7 @@ final class Health_Notices {
 			}
 			return;
 		}
-		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? (string) wp_unslash( $_REQUEST['_wpnonce'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$dismiss_nonce = isset( $_REQUEST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( '' === $dismiss_nonce || ! function_exists( 'wp_verify_nonce' ) || ! wp_verify_nonce( $dismiss_nonce, self::DISMISS_ACTION ) ) {
 			$this->redirect_back( 'nonce' );
 			return;
@@ -181,7 +181,7 @@ final class Health_Notices {
 	 */
 	private function render_redirect_error() {
 		$error_code = isset( $_REQUEST['npcink_abilities_toolkit_notice_error'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			? sanitize_key( wp_unslash( $_REQUEST['npcink_abilities_toolkit_notice_error'] ) )
+			? sanitize_key( wp_unslash( $_REQUEST['npcink_abilities_toolkit_notice_error'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only fixed-enum error display; this branch never writes state.
 			: '';
 		if ( 'nonce' !== $error_code ) {
 			return;

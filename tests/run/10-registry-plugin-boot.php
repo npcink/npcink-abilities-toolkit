@@ -513,6 +513,8 @@ $second_etag_response = $catalog_honesty_controller->serve_contract();
 npcink_abilities_toolkit_assert_same( $etag_headers['ETag'], $second_etag_response instanceof WP_REST_Response ? $second_etag_response->get_headers()['ETag'] : '', 'contract ETag stays stable for identical payloads' );
 
 $not_modified_request = new class() {
+	public $if_none_match = '';
+	public function get_header( $name ) { return 'if-none-match' === $name ? $this->if_none_match : null; }
 	/**
 	 * Returns the contract route.
 	 *
@@ -535,11 +537,12 @@ if ( ! function_exists( 'status_header' ) ) {
 		return true;
 	}
 }
-$_SERVER['HTTP_IF_NONE_MATCH'] = (string) ( $etag_headers['ETag'] ?? '' );
+$not_modified_request->if_none_match = (string) ( $etag_headers['ETag'] ?? '' );
+$_SERVER['HTTP_IF_NONE_MATCH'] = '"unrelated-global-value"';
 npcink_abilities_toolkit_assert_same( true, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint answers a matching If-None-Match as served-not-modified' );
 npcink_abilities_toolkit_assert_same( 304, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? 0, 'contract endpoint emits a 304 status when If-None-Match matches' );
 unset( $GLOBALS['npcink_abilities_toolkit_unit_status_header'] );
-$_SERVER['HTTP_IF_NONE_MATCH'] = '"sha256:different"';
+$not_modified_request->if_none_match = '"sha256:different"';
 npcink_abilities_toolkit_assert_same( false, $catalog_honesty_controller->maybe_send_not_modified( false, $etag_response, $not_modified_request, null ), 'contract endpoint keeps serving the body when If-None-Match differs' );
 npcink_abilities_toolkit_assert_same( null, $GLOBALS['npcink_abilities_toolkit_unit_status_header'] ?? null, 'mismatched If-None-Match never emits a 304 status' );
 unset( $_SERVER['HTTP_IF_NONE_MATCH'] );
@@ -1091,10 +1094,16 @@ $_POST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
 $read_only_toggle::handle_toggle();
 npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle rejects callers without manage_options after the CSRF gate' );
 $GLOBALS['npcink_abilities_toolkit_unit_current_user_caps'] = array( 'manage_options' => true );
+$_POST['_wpnonce'] = array( '_valid_npcink_abilities_toolkit_toggle_read_only_mode' );
+$read_only_toggle::handle_toggle();
+npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'array-shaped nonce cannot change read-only state' );
 $_POST['_wpnonce'] = 'expired-nonce';
 $read_only_toggle::handle_toggle();
 npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'the read-only toggle with an invalid POST nonce never reaches the option write' );
 $_POST['_wpnonce'] = '_valid_npcink_abilities_toolkit_toggle_read_only_mode';
+$_POST['read_only_mode'] = array( '1' );
+$read_only_toggle::handle_toggle();
+npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'array-shaped checkbox leaves the existing option unchanged' );
 $_POST['read_only_mode'] = '1';
 $read_only_toggle::handle_toggle();
 npcink_abilities_toolkit_assert_same( '1', $GLOBALS['npcink_abilities_toolkit_unit_options']['npcink_abilities_toolkit_read_only_mode'] ?? null, 'a valid toggle-on persists the option' );

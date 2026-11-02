@@ -307,9 +307,12 @@ commit is on `origin/master`. Back up retained heads in a Git bundle, verify
 the bundle, and record the branch/head/PR/merge mapping. Preserve unpublished
 experiments separately with the reason they are not being shipped.
 
-`git branch --merged` and the local-branch leg of `composer closeout:check`
-only inspect Git ancestry. A green check does not establish that squash-merged
-branches are gone. If `git branch -d` rejects a verified squash-merged head,
+`git branch --merged` only inspects ancestry. `composer closeout:check` also
+checks non-ancestry local heads against associated PR receipts: the exact head
+SHA, repository and master base must match, and the merge commit must exist on
+`origin/master`. Pagination is included; unavailable or malformed receipts
+fail closed. This check only reports evidence and never rewrites or deletes
+refs. If `git branch -d` rejects a verified squash-merged head,
 report it as a cleanup exception. Under `AGENTS.md`, force deletion needs an
 explicit maintainer exception; neither a PR receipt nor a backup changes that
 rule. Do not rewrite refs or ancestry to circumvent the safe deletion check.

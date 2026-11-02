@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Normalize admin nonce, checkbox and redirect inputs; read conditional contract headers from the REST request. Document the narrow required Plugin Check exceptions and detect squash-merged local branches through exact PR receipts.
+
 - Keep taxonomy creation behind final host approval and retain source terms on any failed or unverifiable merge assignment; report individual merge failures.
 - Redact authorization credentials, quoted secret fields, query tokens, and Windows/UNC paths in diagnostics logs.
 - Record and verify media rename recovery, compensate pointer/history failures, and exclusively create rename destinations; reject non-attachment ids in permanent media deletion.
