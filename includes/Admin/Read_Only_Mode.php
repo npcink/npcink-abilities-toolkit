@@ -72,17 +72,20 @@ final class Read_Only_Mode {
 			<input type="hidden" name="action" value="<?php echo esc_attr( self::TOGGLE_ACTION ); ?>" />
 			<input type="hidden" name="redirect_to" value="<?php echo esc_attr( menu_page_url( Test_Page::MENU_SLUG, false ) ); ?>" />
 			<?php echo wp_nonce_field( self::TOGGLE_ACTION, '_wpnonce', true, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			<label for="npcink-abilities-toolkit-readonly-mode">
-				<input id="npcink-abilities-toolkit-readonly-mode" type="checkbox" name="read_only_mode" value="1" <?php checked( $enabled ); ?> />
-				<?php echo esc_html__( 'Read-only mode', 'npcink-abilities-toolkit' ); ?>
-			</label>
-			<p class="description"><?php echo esc_html__( 'Stop registering write and destructive abilities on this site. Read abilities, comment helpers, and this status page keep working. Host products cannot widen past this choice, and it takes effect on the next request.', 'npcink-abilities-toolkit' ); ?></p>
-			<?php if ( $enabled ) : ?>
-				<p class="description npcink-abilities-toolkit-readonly-mode__note"><?php echo esc_html__( 'Read-only mode is on: the write and destructive packages above show Off because of this choice.', 'npcink-abilities-toolkit' ); ?></p>
-			<?php endif; ?>
-			<p class="npcink-abilities-toolkit-actions">
-				<button type="submit" class="button"><?php echo esc_html__( 'Apply', 'npcink-abilities-toolkit' ); ?></button>
-			</p>
+			<div class="npcink-abilities-toolkit-setting-row">
+				<div class="npcink-abilities-toolkit-setting-row__copy">
+					<?php $readonly_blurb = __( 'Stop registering write and destructive abilities on this site. Read abilities, comment helpers, and this status page keep working. Host products cannot widen past this choice, and it takes effect on the next request.', 'npcink-abilities-toolkit' ); ?>
+					<label class="npcink-abilities-toolkit-setting-row__title" for="npcink-abilities-toolkit-readonly-mode" title="<?php echo esc_attr( $readonly_blurb ); ?>"><?php echo esc_html__( 'Read-only mode', 'npcink-abilities-toolkit' ); ?></label>
+					<span class="screen-reader-text"><?php echo esc_html( $readonly_blurb ); ?></span>
+					<?php if ( $enabled ) : ?>
+						<p class="description npcink-abilities-toolkit-readonly-mode__note"><?php echo esc_html__( 'Read-only mode is on: the write and destructive packages above show Off because of this choice.', 'npcink-abilities-toolkit' ); ?></p>
+					<?php endif; ?>
+				</div>
+				<div class="npcink-abilities-toolkit-setting-row__control">
+					<input id="npcink-abilities-toolkit-readonly-mode" type="checkbox" name="read_only_mode" value="1" <?php checked( $enabled ); ?> />
+					<button type="submit" class="button"><?php echo esc_html__( 'Apply', 'npcink-abilities-toolkit' ); ?></button>
+				</div>
+			</div>
 		</form>
 		<?php
 	}

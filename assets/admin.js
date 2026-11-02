@@ -17,6 +17,17 @@
 			|| findOutput();
 	}
 
+	function revealOutput(targetOutput) {
+		if (!targetOutput) {
+			return;
+		}
+		targetOutput.hidden = false;
+		const disclosure = targetOutput.closest('details');
+		if (disclosure) {
+			disclosure.open = true;
+		}
+	}
+
 	const output = findOutput();
 	const root = output ? output.closest('.npcink-abilities-toolkit-admin') : null;
 	const checkSummary = document.getElementById('npcink-abilities-toolkit-check-summary');
@@ -335,7 +346,7 @@
 		}
 
 		setButtonBusy(button, true);
-		targetOutput.hidden = false;
+		revealOutput(targetOutput);
 		targetOutput.value = requestingLabel + ' ' + url + ' ...';
 		try {
 			const headers = {
@@ -393,7 +404,7 @@
 		}
 
 		setButtonBusy(button, true);
-		targetOutput.hidden = false;
+		revealOutput(targetOutput);
 		targetOutput.value = runningLabel + ' ' + check + ' ...';
 		setCheckSummary([
 			{
