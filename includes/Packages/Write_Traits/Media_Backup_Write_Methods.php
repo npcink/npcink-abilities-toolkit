@@ -45,7 +45,7 @@ trait Media_Backup_Write_Methods {
 			$history = $this->get_media_file_replacement_history( absint( $attachment_id ) );
 			$changed = false;
 			foreach ( $history as &$record ) {
-				if ( ! is_array( $record ) || 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
+				if ( 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
 					continue;
 				}
 				$policy = (string) ( $record['backup_cleanup_policy'] ?? '' );
@@ -286,7 +286,7 @@ trait Media_Backup_Write_Methods {
 		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['backup'], $payload['content_reference_repairs'] );
 		if ( function_exists( 'do_action' ) && $this->media_file_operation_is_verified( $payload['verification'] ) ) {
 			do_action( 'npcink_abilities_toolkit_media_file_version_changed', $attachment_id, array(
-				'replacement_id' => (string) ( $payload['replacement_id'] ?? '' ),
+				'replacement_id' => (string) $payload['replacement_id'],
 				'new_media_fingerprint' => (string) ( $payload['after']['media_fingerprint'] ?? '' ),
 				'derived_from_media_fingerprint' => (string) ( $payload['before']['media_fingerprint'] ?? '' ),
 			) );
@@ -358,7 +358,7 @@ trait Media_Backup_Write_Methods {
 		}
 		$rollback_state = $this->capture_cloud_media_adoption_state(
 			$attachment_id,
-			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$payload['content_reference_repairs'],
 			$plan
 		);
 		$batch_manifest = (object) array(
@@ -371,7 +371,7 @@ trait Media_Backup_Write_Methods {
 		$precommit = $this->validate_media_backup_restore_precommit_state(
 			$attachment_id,
 			$plan,
-			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$payload['content_reference_repairs'],
 			$rollback_state
 		);
 		if ( is_wp_error( $precommit ) ) {
@@ -400,7 +400,7 @@ trait Media_Backup_Write_Methods {
 		$payload['verification'] = $this->media_file_operation_verification( $attachment_id, $payload['after'], $payload['current_backup'], $payload['content_reference_repairs'] );
 		if ( function_exists( 'do_action' ) && $this->media_file_operation_is_verified( $payload['verification'] ) ) {
 			do_action( 'npcink_abilities_toolkit_media_file_version_changed', $attachment_id, array(
-				'replacement_id' => (string) ( $payload['replacement_id'] ?? '' ),
+				'replacement_id' => (string) $payload['replacement_id'],
 				'new_media_fingerprint' => (string) ( $payload['after']['media_fingerprint'] ?? '' ),
 				'derived_from_media_fingerprint' => (string) ( $payload['before']['media_fingerprint'] ?? '' ),
 			) );
@@ -596,7 +596,7 @@ trait Media_Backup_Write_Methods {
 				'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
 				'after'              => $after,
 				'backup'             => $current_backup,
-				'new_media_fingerprint' => (string) ( $after['media_fingerprint'] ?? '' ),
+				'new_media_fingerprint' => (string) $after['media_fingerprint'],
 				'derived_from_media_fingerprint' => (string) ( $plan['before']['media_fingerprint'] ?? '' ),
 				'transform_type' => 'restore',
 				'visual_reuse_policy' => 'requires_reidentification',

@@ -815,7 +815,7 @@ trait Post_Primitives_Read_Methods {
 			}
 		}
 
-		if ( $post_id <= 0 && '' === $slug && '' !== $url ) {
+		if ( $post_id <= 0 && '' === $slug ) {
 			$path = wp_parse_url( $url, PHP_URL_PATH );
 			$path = is_string( $path ) ? trim( $path ) : '';
 			$candidate_slug = sanitize_title( basename( trim( $path, '/' ) ) );
@@ -852,7 +852,7 @@ trait Post_Primitives_Read_Methods {
 			'status'     => sanitize_key( (string) ( $post->post_status ?? '' ) ),
 			'edit_link'  => get_edit_post_link( $post_id, 'raw' ),
 			'permalink'  => esc_url_raw( (string) get_permalink( $post_id ) ),
-			'matched_by' => '' !== $matched_by ? $matched_by : 'unknown',
+			'matched_by' => $matched_by,
 		);
 	}
 

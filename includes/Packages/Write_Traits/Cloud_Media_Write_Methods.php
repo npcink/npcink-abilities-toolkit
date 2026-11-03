@@ -73,7 +73,7 @@ trait Cloud_Media_Write_Methods {
 			return $allowed;
 		}
 		$expectation_error = $this->validate_media_content_reference_repair_expectations(
-			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$payload['content_reference_repairs'],
 			is_array( $plan['content_reference_repair_expectations'] ?? null ) ? $plan['content_reference_repair_expectations'] : array()
 		);
 		if ( is_wp_error( $expectation_error ) ) {
@@ -81,7 +81,7 @@ trait Cloud_Media_Write_Methods {
 		}
 		$rollback_state = $this->capture_cloud_media_adoption_state(
 			$attachment_id,
-			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$payload['content_reference_repairs'],
 			$plan
 		);
 		$materialized = $this->materialize_cloud_media_derivative_artifact( $attachment_id, $plan );
@@ -102,7 +102,7 @@ trait Cloud_Media_Write_Methods {
 		$precommit = $this->validate_cloud_media_adoption_precommit_state(
 			$attachment_id,
 			$plan,
-			is_array( $payload['content_reference_repairs'] ?? null ) ? $payload['content_reference_repairs'] : array(),
+			$payload['content_reference_repairs'],
 			$rollback_state
 		);
 		if ( is_wp_error( $precommit ) ) {
@@ -978,7 +978,7 @@ trait Cloud_Media_Write_Methods {
 		$files = is_array( $files ) ? $files : array();
 		$snapshot = array();
 		foreach ( $files as $path ) {
-			if ( is_string( $path ) && is_file( $path ) ) {
+			if ( is_file( $path ) ) {
 				$snapshot[ $path ] = $this->cloud_media_created_file_record( $path );
 			}
 		}

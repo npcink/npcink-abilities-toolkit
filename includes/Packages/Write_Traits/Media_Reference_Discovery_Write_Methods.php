@@ -181,8 +181,8 @@ trait Media_Reference_Discovery_Write_Methods {
 	private function merge_media_content_reference_pairs( array $primary, array $secondary ) {
 		$merged = array();
 		foreach ( array_merge( $primary, $secondary ) as $pair ) {
-			$old = trim( (string) ( is_array( $pair ) ? ( $pair['old'] ?? '' ) : '' ) );
-			$new = trim( (string) ( is_array( $pair ) ? ( $pair['new'] ?? '' ) : '' ) );
+			$old = trim( (string) ( $pair['old'] ?? '' ) );
+			$new = trim( (string) ( $pair['new'] ?? '' ) );
 			if ( '' === $old || '' === $new || $old === $new ) {
 				continue;
 			}
@@ -263,7 +263,7 @@ trait Media_Reference_Discovery_Write_Methods {
 	private function media_content_reference_needles( $attachment_id, array $plan, array $pairs ) {
 		$needles = array( 'wp-image-' . absint( $attachment_id ), '"id":' . absint( $attachment_id ), 'data-id="' . absint( $attachment_id ) . '"' );
 		foreach ( $pairs as $pair ) {
-			$needles[] = (string) ( $pair['old'] ?? '' );
+			$needles[] = (string) $pair['old'];
 		}
 		$before = is_array( $plan['before'] ?? null ) ? $plan['before'] : array();
 		$old_relative = $this->normalize_media_relative_file( (string) ( $before['relative_file'] ?? '' ) );

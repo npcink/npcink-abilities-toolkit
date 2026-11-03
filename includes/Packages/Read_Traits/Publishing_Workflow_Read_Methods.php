@@ -605,10 +605,8 @@ trait Publishing_Workflow_Read_Methods {
 			$data['sections'][] = 'seo_geo_gap_report';
 		}
 		$style = $this->get_site_style_baseline( array( 'mode' => 'site_recent', 'limit' => 5 ) );
-		if ( is_array( $style ) ) {
-			$data['style_baseline'] = $style['data'] ?? array();
-			$data['sections'][] = 'style_baseline';
-		}
+		$data['style_baseline'] = $style['data'] ?? array();
+		$data['sections'][] = 'style_baseline';
 		$link_graph = $this->get_internal_link_graph_health(
 			array(
 				'post_type' => 'post',

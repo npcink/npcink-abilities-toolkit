@@ -246,9 +246,7 @@ trait Content_Refresh_SEO_Read_Methods {
 		}
 
 		$style = $this->get_site_style_baseline( array( 'mode' => 'site_recent', 'limit' => 5 ) );
-		if ( is_array( $style ) ) {
-			$sections[] = 'style_baseline';
-		}
+		$sections[] = 'style_baseline';
 
 		$link_graph = $this->get_internal_link_graph_health(
 			array(
@@ -285,7 +283,7 @@ trait Content_Refresh_SEO_Read_Methods {
 				'recipe'                    => 'npcink-abilities-toolkit/recipes/old-article-refresh-discovery',
 				'refresh_opportunities'     => $refresh_data,
 				'seo_geo_gap_report'        => $gap_data,
-				'style_baseline'            => is_array( $style ) ? ( $style['data'] ?? array() ) : array(),
+				'style_baseline'            => $style['data'] ?? array(),
 				'internal_link_graph'       => is_array( $link_graph ) ? ( $link_graph['data'] ?? array() ) : array(),
 				'selected_link_opportunity' => $link_opportunity,
 				'sections'                  => $sections,
@@ -929,7 +927,7 @@ trait Content_Refresh_SEO_Read_Methods {
 			foreach ( $hrefs as $href ) {
 				$href = (string) $href;
 				if ( 1 === preg_match( '/(?:^|[?&])p=(\d+)/', $href, $id_match ) ) {
-					$target_id = $this->absint_value( $id_match[1] ?? 0 );
+					$target_id = $this->absint_value( $id_match[1] );
 					if ( $target_id > 0 && $target_id !== $source_post_id ) {
 						$links[ $target_id ] = $target_id;
 					}

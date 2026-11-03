@@ -424,7 +424,7 @@ final class Cloud_Derivative_Artifact {
 	/**
 	 * Normalizes one canonical SHA-256 value.
 	 *
-	 * @param string $value Raw digest.
+	 * @param mixed $value Raw digest.
 	 * @return string
 	 */
 	public static function normalize_sha256( $value ) {
@@ -449,7 +449,7 @@ final class Cloud_Derivative_Artifact {
 	/**
 	 * Parses one strict RFC3339 timestamp without relative-date fallbacks.
 	 *
-	 * @param string $value Raw timestamp.
+	 * @param mixed $value Raw timestamp.
 	 * @return int
 	 */
 	public static function expiry_timestamp( $value ) {
@@ -461,7 +461,7 @@ final class Cloud_Derivative_Artifact {
 		$format = false !== strpos( $normalized, '.' ) ? '!Y-m-d\TH:i:s.uP' : '!Y-m-d\TH:i:sP';
 		$parsed = \DateTimeImmutable::createFromFormat( $format, $normalized );
 		$errors = \DateTimeImmutable::getLastErrors();
-		$has_errors = is_array( $errors ) && ( (int) ( $errors['warning_count'] ?? 0 ) > 0 || (int) ( $errors['error_count'] ?? 0 ) > 0 );
+		$has_errors = is_array( $errors ) && ( (int) $errors['warning_count'] > 0 || (int) $errors['error_count'] > 0 );
 		$roundtrip_format = false !== strpos( $normalized, '.' ) ? 'Y-m-d\TH:i:s.uP' : 'Y-m-d\TH:i:sP';
 		if ( $parsed instanceof \DateTimeImmutable && ! $has_errors && $parsed->format( $roundtrip_format ) === $normalized ) {
 			return $parsed->getTimestamp();
