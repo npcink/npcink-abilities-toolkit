@@ -4355,7 +4355,7 @@ msgstr "在发布之前添加更多正文内容。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Slug is set."
-msgstr "子弹已设置。"
+msgstr "固定链接别名已设置。"
 
 #: includes/Packages/Read_Traits/Publishing_Workflow_Read_Methods.php:61
 msgid "Set a stable URL slug before publishing."
