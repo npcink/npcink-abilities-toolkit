@@ -2,7 +2,19 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.8.1 - 2026-11-03
+
+Maintenance release for the Quiet admin layout, complete bundled translations,
+and publish-preflight content boundaries. Existing ability ids, schemas,
+permissions and host-owned final authorization remain unchanged.
+
 - Complete the current admin/error-message template and all seven bundled starter locales; use plural-aware ability/ID counts and refresh the four WordPress.org screenshots for the Quiet Overview and Developer Tools layout.
+- Honor omitted or false `include_content` in publish-preflight context, including nested workflow posts and block HTML; preserve explicit true behavior and all five context sections.
+- Correct the Simplified Chinese URL-slug status in publishing checks.
+- Retire proven redundant internal paths and array fallbacks; reduce measured PHPStan level-4 diagnostics from 659 to 645 without blanket ignores or weakening external-input guards.
+- Record 100 synthetic media-query experiments and retain the current SQL/index after the proposed EXISTS alternative regressed. Harden experiment-owned container cleanup after ambiguous starts; no runtime database migration.
 
 ## 0.8.0 - 2026-11-02
 

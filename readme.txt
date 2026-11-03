@@ -4,7 +4,7 @@ Tags: abilities api, agents, ai, automation
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.8.0
+Stable tag: 0.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -163,6 +163,10 @@ Core governance handoff docs include a catalog snapshot, permission matrix, and 
 Source-level verification commands for contributors are documented in the public repository's README and CONTRIBUTING files.
 
 == Changelog ==
+
+= 0.8.1 =
+
+Completes seven bundled translations and updates screenshots for the Quiet Overview and Developer Tools layout. Publish-preflight context now omits nested post content and block HTML when content is not requested. Corrects the Chinese URL-slug status and simplifies proven internal checks. Ability ids, schemas, permissions, dry-run defaults and final host approval remain unchanged.
 
 = 0.8.0 =
 
