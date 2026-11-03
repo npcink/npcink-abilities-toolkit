@@ -203,3 +203,35 @@ is introduced. Stop after this batch; a later batch can examine locally built
 content-refresh topic counts with its own provenance decision. See the
 [batch record](archive/phpstan-comment-priority-invariants-2026-11-03.md) for
 scope, evidence and limitations.
+
+## Follow-up batch: local topic coverage counts — 2026-11-03
+
+Fresh analysis at `1ecb3be118bfae7b2b8d334e17c4fa61ce8129e0`, after a
+no-change `composer install`, reproduces 638 diagnostics with PHPStan 2.3.4
+and zero analyzer errors. The next `follow_up_batches` entry in the existing
+[classification JSON](evidence/phpstan-level4-debt-2026-11-03.json) records this
+batch separately from the earlier snapshots.
+
+In `get_site_topic_coverage_report`, every `topic_map` row is a local literal
+with `topic`, `count` and `post_ids`. `count` starts at zero and is incremented
+before use. `array_values`, sorting and `array_slice` preserve these fields;
+the local map/rows never escape to a filter, cache or external callback before
+the affected reads. Remove four missing-field defaults: two comparator counts,
+the gap-test count and the gap topic. Preserve existing integer/string casts,
+term sanitization, input/query/object guards, permissions and scan bounds.
+
+The trait decreases **28 → 24**, total and ceiling **638 → 634**, and
+`nullCoalesce.offset` **98 → 94**; all other file/rule counts stay unchanged.
+These are four redundant local defaults, not four confirmed runtime bugs.
+The other 24 trait findings remain deferred, including WordPress properties,
+query/helper return checks, isolated-runtime object fallback and regex matches.
+Seven previously reviewed boundary findings remain; **627** other diagnostics
+await semantic adjudication. No ignore, PHPDoc or conversion is added.
+
+Existing topic-coverage fixtures are reused, with their full baseline/head
+outputs compared for descending counts and one-post coverage gaps. A complete
+tracked baseline and full configured-path committed reports supplement the
+trait-only changed-file ratchet; 0/0 alone is not class-context evidence.
+See the [batch record](archive/phpstan-topic-coverage-invariants-2026-11-03.md)
+for rationale and verification limits. Stop at this batch; the same file's
+local refresh-priority scores are a candidate for a later provenance review.

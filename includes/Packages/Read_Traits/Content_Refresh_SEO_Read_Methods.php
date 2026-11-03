@@ -667,14 +667,14 @@ trait Content_Refresh_SEO_Read_Methods {
 		usort(
 			$topics,
 			static function ( array $a, array $b ) {
-				return (int) ( $b['count'] ?? 0 ) <=> (int) ( $a['count'] ?? 0 );
+				return (int) $b['count'] <=> (int) $a['count'];
 			}
 		);
 		$coverage_gaps = array();
 		foreach ( array_slice( $topics, 0, 12 ) as $topic ) {
-			if ( (int) ( $topic['count'] ?? 0 ) <= 1 ) {
+			if ( (int) $topic['count'] <= 1 ) {
 				$coverage_gaps[] = array(
-					'topic'  => sanitize_text_field( (string) ( $topic['topic'] ?? '' ) ),
+					'topic'  => sanitize_text_field( (string) $topic['topic'] ),
 					'reason' => __( 'Only one scanned post covers this topic; consider adding supporting content or internal links.', 'npcink-abilities-toolkit' ),
 				);
 			}
