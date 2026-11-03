@@ -132,6 +132,9 @@ notes, and status snapshots — live in [archive/](archive/), not in this
 directory. Write new dated records directly into `archive/`. The records still
 cited for durable rules:
 
+- [Toolkit Maintenance Closeout - 2026-11-03](archive/toolkit-maintenance-closeout-2026-11-03.md):
+  review recovery, repeat-use evidence limits, provenance-based cleanup and
+  analysis, screenshot delivery correction, and 0.8.1 preparation handoff.
 - [User Experience Hardening Closeout - 2026-10-02](archive/user-experience-hardening-closeout-2026-10-02.md):
   the advisory review-loop protocol, cache header and invalidation rules.
 - [Release 0.5.6 And Acceptance Review Closeout - 2026-10-02](archive/release-and-acceptance-review-closeout-2026-10-02.md):
