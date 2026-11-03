@@ -133,3 +133,42 @@ runtime defects. Existing dashboard/calendar behavioral checks and the
 permission-filtered calendar checks cover output and access behavior; no new
 ignore, type assertion, query, runtime authority or public schema is introduced.
 The earlier classification table and JSON remain the dated 659-to-653 snapshot.
+
+## Follow-up batch: local Gutenberg catalog arrays — 2026-11-03
+
+After `composer install` (no dependency changes), PHPStan 2.3.4 reproduced the
+645 diagnostics at `fdf0a2e`; the complete JSON report had zero analyzer errors.
+The [current classification](evidence/phpstan-level4-debt-2026-11-03.json)
+refreshes every file/rule count and combines trait class-context entries.
+
+In `Gutenberg_Block_Capability_Catalog_Read_Methods`, all five composer profiles
+are local array literals containing a non-null string `surface`. No filter,
+cache or external callback replaces them before `array_filter`. Remove its
+redundant `is_array` and missing-field fallback. The inspection helper also
+initializes `surface_kind` and `post_type` in its initial literal and in both
+replacement literals; local updates never remove them. Read those required
+keys in surface selection, retaining the existing string casts because
+`sanitize_key` values are filterable. Even a null value still becomes the same
+empty string as the former `?? ''` expression. Values from input, post objects
+and parser output retain their existing sanitization and guards.
+
+This removes five redundant local-invariant findings: four `nullCoalesce.offset`
+and one `function.alreadyNarrowedType`. The file goes from 12 to 7; total and
+ceiling go from 645 to **640**. No runtime defect is established by this batch.
+The remaining file findings are five WordPress post-property defaults and two
+parser-return array checks. Retain them pending separate boundary/model review.
+The other 633 findings are inventoried, not adjudicated as defects or safe edits.
+
+| Rule family | Before | After | Next provenance decision |
+| --- | ---: | ---: | --- |
+| `nullCoalesce.property` | 259 | 259 | Object/stub guarantees versus supported runtime objects |
+| `function.alreadyNarrowedType` | 245 | 244 | Internal results versus external/filter/cache/parser returns |
+| `nullCoalesce.offset` | 104 | 100 | Required local fields versus filterable or third-party shapes |
+| All other rules | 37 | 37 | Branch-specific control flow, constants and filesystem behavior |
+
+The existing catalog/composer, inspection and permission behavior checks are
+reused. No ignore, PHPDoc override, new cast, query, public schema or
+write authority is introduced. Full reports stay in ignored
+`build/maintenance-2026-11-03/`; hashes and focused provenance remain in the
+tracked classification. See the [stage record](archive/phpstan-and-local-git-maintenance-2026-11-03.md)
+for preservation and historical Git exceptions.

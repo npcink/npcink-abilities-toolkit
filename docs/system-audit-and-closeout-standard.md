@@ -330,6 +330,27 @@ translation permission correction and the verified branch preservation ledger.
 
 ### Follow-Up Evidence Lessons
 
+For small static-analysis batches, retain a complete successful report with
+tool version and file/rule totals, then distinguish proven local invariants,
+retained boundary defenses and findings still awaiting semantic review. Run the
+changed-file ratchet after committing: an uncommitted edit can yield a skipped
+comparison and is not evidence for the candidate diff. A selected trait can
+also produce zero findings when analyzed alone. In that case supplement the
+ratchet with complete configured-path reports at the committed base and head,
+check the trait's actual class-context findings and all other file counts, and
+retain the revision-bound comparison rather than claiming a direct-trait 0/0
+result proves the reduction. Export the complete tracked tree for fresh-base
+analysis: release `export-ignore` rules can omit tests, Composer and analyzer
+configuration from `git archive`.
+
+Before removing a worktree, inventory and copy needed ignored artifacts outside
+that worktree. Verify bytes, file modes and symlink targets, including SVN
+metadata and private backups; an all-refs bundle or app snapshot covers a
+different recovery layer. A clean, unmounted directory still belongs to its
+associated chat until ownership/removal eligibility is resolved. For screenshot
+aliases without exact-head PR receipts, compare every changed path with master
+by blob; equal assets establish delivery but do not authorize force deletion.
+
 The [November 3 closeout](archive/toolkit-maintenance-closeout-2026-11-03.md)
 records the maintenance and release-preparation evidence behind these lessons:
 
