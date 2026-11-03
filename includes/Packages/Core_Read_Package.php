@@ -3675,7 +3675,6 @@ final class Core_Read_Package {
 	private function build_menu_item_tree( array $items ) {
 		$nodes = array();
 		foreach ( $items as $item ) {
-			$item = is_array( $item ) ? $item : array();
 			$id = absint( $item['id'] ?? 0 );
 			if ( $id <= 0 ) {
 				continue;

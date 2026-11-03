@@ -367,6 +367,113 @@
       },
       "behavior": "Existing 14 fixture data envelopes match baseline/head; existing taxonomy approval/failure and size/permission tests reused. Transport/cache metadata excluded from output comparison.",
       "limitations": "Trait-only ratchet requires committed full configured-path comparison. No real site/article/SEO writes, release acceptance, new suppression, PHPDoc, cast or ceiling increase. Raw reports/review receipts stay local under build/phpstan-grouped-invariants-2026-11-03/."
+    },
+    {
+      "batch": "helper-invariants",
+      "date": "2026-11-03",
+      "source_base": "c1756b8d3ca9370abd24abf6ca5c6c09364c2c8b",
+      "php_version": "8.4.21",
+      "phpstan_version": "2.3.4",
+      "composer_install": "lock synchronized; no dependency changes",
+      "configuration": "phpstan.neon.dist; all configured paths; --level=4 --memory-limit=4G --no-progress --error-format=json",
+      "before": {
+        "total": 602,
+        "analyzer_errors": 0,
+        "rules": {
+          "isset.property": 5,
+          "function.alreadyNarrowedType": 238,
+          "booleanAnd.rightAlwaysTrue": 7,
+          "nullCoalesce.property": 259,
+          "ternary.alwaysTrue": 5,
+          "function.impossibleType": 3,
+          "nullCoalesce.offset": 68,
+          "notIdentical.alwaysTrue": 7,
+          "greater.alwaysTrue": 3,
+          "deadCode.unreachable": 1,
+          "isset.offset": 1,
+          "identical.alwaysFalse": 1,
+          "booleanNot.alwaysFalse": 3,
+          "if.alwaysFalse": 1
+        }
+      },
+      "after": {
+        "total": 579,
+        "analyzer_errors": 0,
+        "rules": {
+          "isset.property": 5,
+          "function.alreadyNarrowedType": 229,
+          "booleanAnd.rightAlwaysTrue": 6,
+          "nullCoalesce.property": 259,
+          "ternary.alwaysTrue": 4,
+          "function.impossibleType": 3,
+          "nullCoalesce.offset": 62,
+          "deadCode.unreachable": 1,
+          "isset.offset": 1,
+          "notIdentical.alwaysTrue": 5,
+          "identical.alwaysFalse": 1,
+          "booleanNot.alwaysFalse": 2,
+          "if.alwaysFalse": 1
+        }
+      },
+      "file_counts_before_after": {
+        "Packages/Core_Read_Package.php": [
+          23,
+          22
+        ],
+        "Packages/Core_Write_Package.php": [
+          52,
+          51
+        ],
+        "Packages/Read_Traits/Article_Optimization_Read_Methods.php": [
+          14,
+          13
+        ],
+        "Packages/Read_Traits/Article_Production_Read_Methods.php": [
+          3,
+          1
+        ],
+        "Packages/Read_Traits/Block_Theme_Read_Methods.php": [
+          32,
+          29
+        ],
+        "Packages/Read_Traits/Media_Alt_Caption_Read_Methods.php": [
+          4,
+          2
+        ],
+        "Packages/Read_Traits/Media_Read_Methods.php": [
+          24,
+          15
+        ],
+        "Packages/Read_Traits/Media_Reference_Repair_Read_Methods.php": [
+          4,
+          3
+        ],
+        "Packages/Read_Traits/Page_Pattern_Read_Methods.php": [
+          36,
+          33
+        ]
+      },
+      "classification": {
+        "redundant_internal_diagnostics_removed": 23,
+        "confirmed_runtime_defects": 0,
+        "previously_reviewed_boundary_findings_retained": 7,
+        "remaining_not_semantically_adjudicated": 571,
+        "helper_pending_semantic_review": 65,
+        "newly_reviewed_boundary_findings_retained": 1
+      },
+      "provenance": "23 exact removed baseline lines and one retained filterable-mode proof in source-group inventory follow_up_batches/helper-invariants. Original routing snapshot stays historical; field presence does not guarantee a non-null value. All external/filter/cache/filesystem input guards and normalization retained.",
+      "source_group_inventory": "phpstan-level4-source-groups-2026-11-03.json",
+      "input_sha256": {
+        "composer.lock": "5464437aadb483e77b13e68e7effbecb33f168ff8a635c34030bf19032a3297a",
+        "phpstan.neon.dist": "0da5029a7c35f03107ac5bf02ed00ce861673d09d1e3c09b29fbfbdb079acfd2",
+        "tests/phpstan-bootstrap.php": "67c5a33d2d5a49a92bc924b66ef8b3b0c84942b80ea51bdf732f24983dc393c4"
+      },
+      "raw_reports": {
+        "level4-before.json": "44ee456e48b8384033581d41ab4e1758a2b6a8b9abb180d490d8a07cd4154ba5",
+        "level4-after.json": "34935756a1ce7a8b1e14f298227e09161a6a2fec58364981fa2951b76c639a9f"
+      },
+      "behavior": "32 existing fixtures: 25 data/error outputs identical; seven equivalent after individually checked fixture clock/PID fields. Outer transport/cache metadata excluded. Existing test:core/test:all reused; no new implementation-mirroring tests.",
+      "limitations": "No new real-site writes, human acceptance or release verification. Fresh complete tracked baseline has its own Composer install; committed full-config reports supplement selected-path trait ownership. Final head, review and CI/merge/cleanup receipts belong to PR and ignored build/phpstan-helper-invariants-2026-11-03/."
     }
   ]
 }

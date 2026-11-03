@@ -274,3 +274,27 @@ Continue by shared producer, starting with the 89 unresolved helper/control-flow
 locations; inspect the producer once, verify each caller, and combine compatible
 edits before running PR gates. WordPress/filter/parser/file queues need their
 own model/boundary decisions and do not carry a numeric removal target.
+
+## Grouped batch: helper and local control-flow invariants — 2026-11-03
+
+A fresh Composer-synchronized full report at
+`c1756b8d3ca9370abd24abf6ca5c6c09364c2c8b` reproduces 602 findings with zero
+analyzer errors. The next source-inventory entry proves **23** redundant
+findings: locally constructed menu/template/article/media rows, already
+normalized helper results, local insertion maps, nonempty keyword/length
+invariants and metadata history validated before local iteration.
+
+Total and ceiling become **579**; the unresolved helper queue decreases
+89 → 65 (66 diagnostics remain in that group, including the retained mode
+default). Seven previously reviewed boundary findings and one newly reviewed
+filterable mode default remain; 571 findings still need semantic adjudication. No runtime defect is established. All other
+diagnostic messages are unchanged after accounting for source line shifts.
+External input/filter/cache/upload/image/filesystem defenses, field defaults
+where values remain mixed, casts, sanitizers and governance checks remain.
+
+Existing source gates and 32 fixture outputs are reused: 25 match directly;
+seven require explicitly recorded clock/PID normalization. Complete committed
+base/head reports cover class contexts even where selected-trait analysis has
+no findings. See the [batch record](archive/phpstan-helper-invariants-2026-11-03.md)
+for verification limits. Continue by producer; the remaining helper queue is
+not a safe-deletion list and has no numeric removal target.

@@ -183,7 +183,7 @@ trait Media_Alt_Caption_Read_Methods {
 					array_filter(
 						$blocked,
 						static function ( array $item ) {
-							return 'selection_limit_reached' === ( $item['blocked_reason'] ?? '' );
+							return 'selection_limit_reached' === $item['blocked_reason'];
 						}
 					)
 				),
@@ -460,7 +460,7 @@ trait Media_Alt_Caption_Read_Methods {
 	private function media_alt_caption_image_context_evidence_request( array $blocked, $max_items ) {
 		$items = array();
 		foreach ( $blocked as $item ) {
-			if ( ! is_array( $item ) || 'candidate_quality_insufficient' !== (string) ( $item['blocked_reason'] ?? '' ) ) {
+			if ( 'candidate_quality_insufficient' !== (string) ( $item['blocked_reason'] ?? '' ) ) {
 				continue;
 			}
 			$attachment_id = $this->absint_value( $item['attachment_id'] ?? 0 );

@@ -43,9 +43,6 @@ trait Media_Reference_Repair_Read_Methods {
 
 		$record = array();
 		foreach ( $history as $candidate ) {
-			if ( ! is_array( $candidate ) ) {
-				continue;
-			}
 			if ( '' !== $replacement_id && $replacement_id !== (string) ( $candidate['replacement_id'] ?? '' ) ) {
 				continue;
 			}

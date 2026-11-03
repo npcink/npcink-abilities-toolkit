@@ -2983,7 +2983,7 @@ trait Page_Pattern_Read_Methods {
 		$title = $this->pattern_normalize_copy_spaces( $title );
 		foreach ( array( '介绍页', '落地页', '页面草稿', '页面' ) as $suffix ) {
 			$suffix_length = strlen( $suffix );
-			if ( $suffix_length > 0 && substr( $title, -$suffix_length ) === $suffix ) {
+			if ( substr( $title, -$suffix_length ) === $suffix ) {
 				$trimmed = trim( substr( $title, 0, -$suffix_length ) );
 				if ( $this->pattern_copy_display_units( $trimmed ) >= 12 ) {
 					return $trimmed;
@@ -3151,7 +3151,7 @@ trait Page_Pattern_Read_Methods {
 			}
 			$already_present = false;
 			foreach ( $merged as $existing ) {
-				if ( $title === (string) ( $existing['title'] ?? '' ) ) {
+				if ( $title === (string) $existing['title'] ) {
 					$already_present = true;
 					break;
 				}
@@ -3228,7 +3228,7 @@ trait Page_Pattern_Read_Methods {
 			}
 			$already_present = false;
 			foreach ( $normalized as $existing ) {
-				if ( $title === (string) ( $existing['title'] ?? '' ) ) {
+				if ( $title === (string) $existing['title'] ) {
 					$already_present = true;
 					break;
 				}

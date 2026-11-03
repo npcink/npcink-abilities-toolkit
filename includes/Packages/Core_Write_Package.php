@@ -5311,7 +5311,7 @@ final class Core_Write_Package {
 	 * @return array{content:string,content_format:string}
 	 */
 	private function normalize_content_input( array $input, $field = 'content', $title = '' ) {
-		$field          = is_string( $field ) && '' !== $field ? $field : 'content';
+		$field          = '' !== $field ? $field : 'content';
 		$content        = array_key_exists( $field, $input ) ? (string) $input[ $field ] : '';
 		$content_format = $this->resolve_content_format( $content, (string) ( $input['content_format'] ?? '' ) );
 		if ( 'markdown' === $content_format ) {
