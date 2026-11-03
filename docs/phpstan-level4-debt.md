@@ -116,3 +116,20 @@ Taxonomy_Read_Methods goes from 27 to 25 findings, the complete inventory from
 schema, candidate ranking, permissions or write posture and adds no ignore,
 type override or cast. Existing taxonomy suggestion and review-set behavior
 checks cover the affected path; no implementation-mirroring test was added.
+
+## Follow-up batch: local dashboard and calendar status counts — 2026-11-03
+
+Both `get_site_operations_dashboard` and `get_publishing_calendar_context`
+initialize a local `status_counts` array and populate it by iterating a fixed
+literal status list. Every `draft` and `pending` key is assigned an integer,
+including when an external query has no total. No filter or callback receives
+this array before its summary reads. Remove the six redundant `?? 0` defaults
+on those required keys. Keep the fallback on external query totals and all
+post-object, input, and capability guards.
+
+The complete level-4 inventory decreases from 651 to 645 and the numeric ceiling
+follows it. These six diagnostics are local array-provenance findings, not six
+runtime defects. Existing dashboard/calendar behavioral checks and the
+permission-filtered calendar checks cover output and access behavior; no new
+ignore, type assertion, query, runtime authority or public schema is introduced.
+The earlier classification table and JSON remain the dated 659-to-653 snapshot.

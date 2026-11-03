@@ -306,7 +306,7 @@ trait Publishing_Workflow_Read_Methods {
 				'attention_items' => $attention_items,
 				'summary'         => array(
 					'total_content'       => array_sum( array_map( 'intval', $status_counts ) ),
-					'draft_backlog'       => (int) ( $status_counts['draft'] ?? 0 ) + (int) ( $status_counts['pending'] ?? 0 ),
+					'draft_backlog'       => (int) $status_counts['draft'] + (int) $status_counts['pending'],
 					'pending_comments'    => $comment_count,
 					'content_issue_count' => array_sum( array_map( 'intval', is_array( $inventory_data['issue_counts'] ?? null ) ? $inventory_data['issue_counts'] : array() ) ),
 					'next_action'         => ! empty( $attention_items ) || $comment_count > 0 ? 'review_attention_items' : 'operations_clear',
@@ -684,9 +684,9 @@ trait Publishing_Workflow_Read_Methods {
 				'pending_review' => $this->build_calendar_rows_from_ids( (array) ( $pending['post_ids'] ?? array() ) ),
 				'summary'        => array(
 					'scheduled_count' => count( $scheduled ),
-					'draft_count'     => (int) ( $status_counts['draft'] ?? 0 ),
-					'pending_count'   => (int) ( $status_counts['pending'] ?? 0 ),
-					'next_action'     => (int) ( $status_counts['draft'] ?? 0 ) + (int) ( $status_counts['pending'] ?? 0 ) > 0 ? 'review_backlog_and_calendar' : 'calendar_clear',
+					'draft_count'     => (int) $status_counts['draft'],
+					'pending_count'   => (int) $status_counts['pending'],
+					'next_action'     => (int) $status_counts['draft'] + (int) $status_counts['pending'] > 0 ? 'review_backlog_and_calendar' : 'calendar_clear',
 				),
 			),
 			array(
