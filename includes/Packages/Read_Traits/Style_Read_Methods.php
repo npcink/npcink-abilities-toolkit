@@ -206,24 +206,9 @@ trait Style_Read_Methods {
 				'limit'     => max( 1, min( 5, $this->absint_value( $input['limit'] ?? 5 ) ) ),
 			)
 		);
-		if ( is_array( $baseline ) ) {
-			$baseline['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
-			$baseline['meta']['source'] = 'local_site_style_baseline';
-			return $baseline;
-		}
-
-		return $this->build_analysis_success_response(
-			array(
-				'profile' => array(),
-				'samples' => array(),
-				'source'  => 'unavailable',
-			),
-			array(
-				'source'         => 'local_site_style_baseline',
-				'execution_mode' => 'deterministic',
-			),
-			'Site style baseline built.'
-		);
+		$baseline['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
+		$baseline['meta']['source'] = 'local_site_style_baseline';
+		return $baseline;
 	}
 
 	/**

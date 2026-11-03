@@ -4900,27 +4900,6 @@ final class Core_Write_Package {
 	}
 
 	/**
-	 * Writes a media file with a bounded failure-injection hook for verification.
-	 *
-	 * @param string              $target_path Target path.
-	 * @param string              $contents File contents.
-	 * @param array<string,mixed> $context Operation context.
-	 * @return bool
-	 */
-	private function write_media_file( $target_path, $contents, array $context = array() ) {
-		$target_path = (string) $target_path;
-		$contents    = (string) $contents;
-		if ( ! $this->is_media_uploads_path_allowed( $target_path ) ) {
-			return false;
-		}
-		$blocked     = apply_filters( 'npcink_abilities_toolkit_media_file_write_blocked', false, $target_path, strlen( $contents ), $context );
-		if ( true === $blocked ) {
-			return false;
-		}
-		return false !== file_put_contents( $target_path, $contents );
-	}
-
-	/**
 	 * Copies a media file with a bounded failure-injection hook for verification.
 	 *
 	 * @param string              $source_path Source path.

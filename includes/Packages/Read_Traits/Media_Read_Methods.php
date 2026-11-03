@@ -58,7 +58,7 @@ trait Media_Read_Methods {
 
 			if ( ! empty( $input['has_empty_alt'] ) ) {
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Optional bounded media audit filter for missing attachment alt text.
-				$args['meta_query'] = is_array( $args['meta_query'] ?? null ) ? $args['meta_query'] : array();
+				$args['meta_query'] = array();
 				$args['meta_query'][] = array(
 					'relation' => 'OR',
 				array(
