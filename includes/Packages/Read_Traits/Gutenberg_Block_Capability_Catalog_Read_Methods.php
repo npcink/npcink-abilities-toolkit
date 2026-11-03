@@ -305,7 +305,7 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 		return array_filter(
 			$profiles,
 			static function ( $profile ) use ( $surface ) {
-				return is_array( $profile ) && $surface === (string) ( $profile['surface'] ?? '' );
+				return $surface === $profile['surface'];
 			}
 		);
 	}
@@ -761,9 +761,9 @@ trait Gutenberg_Block_Capability_Catalog_Read_Methods {
 		}
 
 		$contract_surface = 'all';
-		if ( 'post_content' === (string) ( $surface['surface_kind'] ?? '' ) && in_array( (string) ( $surface['post_type'] ?? '' ), array( 'post', 'page' ), true ) ) {
+		if ( 'post_content' === (string) $surface['surface_kind'] && in_array( (string) $surface['post_type'], array( 'post', 'page' ), true ) ) {
 			$contract_surface = (string) $surface['post_type'];
-		} elseif ( in_array( (string) ( $surface['surface_kind'] ?? '' ), array( 'site_editor_template', 'site_editor_template_part' ), true ) ) {
+		} elseif ( in_array( (string) $surface['surface_kind'], array( 'site_editor_template', 'site_editor_template_part' ), true ) ) {
 			$contract_surface = 'template';
 		}
 

@@ -1,0 +1,181 @@
+{
+  "date": "2026-11-03",
+  "source_base": "fdf0a2e32a940f7c21750a2966b0838e18ce9082",
+  "phpstan_version": "2.3.4",
+  "level": 4,
+  "report_complete": true,
+  "composer_install": "lock synchronized; no dependency changes",
+  "before": {
+    "total": 645,
+    "analyzer_errors": 0,
+    "rules": {
+      "booleanAnd.rightAlwaysTrue": 7,
+      "booleanNot.alwaysFalse": 3,
+      "deadCode.unreachable": 1,
+      "function.alreadyNarrowedType": 245,
+      "function.impossibleType": 3,
+      "greater.alwaysTrue": 3,
+      "identical.alwaysFalse": 1,
+      "if.alwaysFalse": 1,
+      "isset.offset": 1,
+      "isset.property": 5,
+      "notIdentical.alwaysTrue": 7,
+      "nullCoalesce.offset": 104,
+      "nullCoalesce.property": 259,
+      "ternary.alwaysTrue": 5
+    },
+    "files": {
+      "Admin/Health_Notices.php": 3,
+      "Admin/Test_Page.php": 12,
+      "Packages/Core_Comment_Package.php": 23,
+      "Packages/Core_Destructive_Package.php": 10,
+      "Packages/Core_Read_Package.php": 24,
+      "Packages/Core_Write_Package.php": 69,
+      "Packages/Read_Traits/Article_Block_Plan_Read_Methods.php": 10,
+      "Packages/Read_Traits/Article_Optimization_Read_Methods.php": 16,
+      "Packages/Read_Traits/Article_Production_Read_Methods.php": 5,
+      "Packages/Read_Traits/Block_Theme_Read_Methods.php": 32,
+      "Packages/Read_Traits/Comment_Read_Methods.php": 16,
+      "Packages/Read_Traits/Content_Inventory_Read_Methods.php": 24,
+      "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": 28,
+      "Packages/Read_Traits/Diagnostics_Read_Methods.php": 51,
+      "Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php": 12,
+      "Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php": 1,
+      "Packages/Read_Traits/Internal_Link_Read_Methods.php": 1,
+      "Packages/Read_Traits/Media_Alt_Caption_Read_Methods.php": 4,
+      "Packages/Read_Traits/Media_Read_Methods.php": 24,
+      "Packages/Read_Traits/Media_Reference_Repair_Read_Methods.php": 4,
+      "Packages/Read_Traits/Page_Pattern_Read_Methods.php": 36,
+      "Packages/Read_Traits/Page_Read_Methods.php": 35,
+      "Packages/Read_Traits/Post_Primitives_Read_Methods.php": 76,
+      "Packages/Read_Traits/Publishing_Workflow_Read_Methods.php": 10,
+      "Packages/Read_Traits/Style_Read_Methods.php": 6,
+      "Packages/Read_Traits/Taxonomy_Read_Methods.php": 25,
+      "Packages/Write_Traits/Cloud_Media_Write_Methods.php": 31,
+      "Packages/Write_Traits/Media_Backup_Write_Methods.php": 11,
+      "Packages/Write_Traits/Media_Reference_Discovery_Write_Methods.php": 6,
+      "Packages/Write_Traits/Site_Editor_Write_Methods.php": 13,
+      "Packages/Write_Traits/Taxonomy_Assignment_Write_Methods.php": 2,
+      "Plugin.php": 3,
+      "Registry/Ability_Registrar.php": 4,
+      "Rest/Contract_Controller.php": 6,
+      "Support/Cloud_Derivative_Artifact.php": 10,
+      "Support/Gutenberg_Block_Document.php": 2
+    }
+  },
+  "after": {
+    "total": 640,
+    "analyzer_errors": 0,
+    "rules": {
+      "booleanAnd.rightAlwaysTrue": 7,
+      "booleanNot.alwaysFalse": 3,
+      "deadCode.unreachable": 1,
+      "function.alreadyNarrowedType": 244,
+      "function.impossibleType": 3,
+      "greater.alwaysTrue": 3,
+      "identical.alwaysFalse": 1,
+      "if.alwaysFalse": 1,
+      "isset.offset": 1,
+      "isset.property": 5,
+      "notIdentical.alwaysTrue": 7,
+      "nullCoalesce.offset": 100,
+      "nullCoalesce.property": 259,
+      "ternary.alwaysTrue": 5
+    },
+    "files": {
+      "Admin/Health_Notices.php": 3,
+      "Admin/Test_Page.php": 12,
+      "Packages/Core_Comment_Package.php": 23,
+      "Packages/Core_Destructive_Package.php": 10,
+      "Packages/Core_Read_Package.php": 24,
+      "Packages/Core_Write_Package.php": 69,
+      "Packages/Read_Traits/Article_Block_Plan_Read_Methods.php": 10,
+      "Packages/Read_Traits/Article_Optimization_Read_Methods.php": 16,
+      "Packages/Read_Traits/Article_Production_Read_Methods.php": 5,
+      "Packages/Read_Traits/Block_Theme_Read_Methods.php": 32,
+      "Packages/Read_Traits/Comment_Read_Methods.php": 16,
+      "Packages/Read_Traits/Content_Inventory_Read_Methods.php": 24,
+      "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": 28,
+      "Packages/Read_Traits/Diagnostics_Read_Methods.php": 51,
+      "Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php": 7,
+      "Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php": 1,
+      "Packages/Read_Traits/Internal_Link_Read_Methods.php": 1,
+      "Packages/Read_Traits/Media_Alt_Caption_Read_Methods.php": 4,
+      "Packages/Read_Traits/Media_Read_Methods.php": 24,
+      "Packages/Read_Traits/Media_Reference_Repair_Read_Methods.php": 4,
+      "Packages/Read_Traits/Page_Pattern_Read_Methods.php": 36,
+      "Packages/Read_Traits/Page_Read_Methods.php": 35,
+      "Packages/Read_Traits/Post_Primitives_Read_Methods.php": 76,
+      "Packages/Read_Traits/Publishing_Workflow_Read_Methods.php": 10,
+      "Packages/Read_Traits/Style_Read_Methods.php": 6,
+      "Packages/Read_Traits/Taxonomy_Read_Methods.php": 25,
+      "Packages/Write_Traits/Cloud_Media_Write_Methods.php": 31,
+      "Packages/Write_Traits/Media_Backup_Write_Methods.php": 11,
+      "Packages/Write_Traits/Media_Reference_Discovery_Write_Methods.php": 6,
+      "Packages/Write_Traits/Site_Editor_Write_Methods.php": 13,
+      "Packages/Write_Traits/Taxonomy_Assignment_Write_Methods.php": 2,
+      "Plugin.php": 3,
+      "Registry/Ability_Registrar.php": 4,
+      "Rest/Contract_Controller.php": 6,
+      "Support/Cloud_Derivative_Artifact.php": 10,
+      "Support/Gutenberg_Block_Document.php": 2
+    }
+  },
+  "provenance_assessment": {
+    "scope": "One file reviewed semantically; other file/rule totals are inventory, not a defect verdict.",
+    "removed_redundant_local_invariants": 5,
+    "retained_reviewed_boundary_findings": 7,
+    "remaining_not_semantically_adjudicated": 633,
+    "confirmed_runtime_defects_in_this_batch": 0,
+    "removed": [
+      {
+        "base_line": 308,
+        "identifiers": [
+          "function.alreadyNarrowedType",
+          "nullCoalesce.offset"
+        ],
+        "source": "Every profile is a literal local array with a non-null string surface; no filter/cache/callback replaces rows before array_filter."
+      },
+      {
+        "base_line": 764,
+        "identifiers": [
+          "nullCoalesce.offset",
+          "nullCoalesce.offset"
+        ],
+        "source": "Initial and both replacement surface literals always assign surface_kind and post_type; local updates never remove keys. Retain existing string casts on filterable sanitize_key results; null casts to the same empty string as the former default."
+      },
+      {
+        "base_line": 766,
+        "identifiers": [
+          "nullCoalesce.offset"
+        ],
+        "source": "Same exhaustive local surface construction; preserve string normalization rather than relying on filter return types."
+      }
+    ],
+    "retained": [
+      {
+        "base_lines": [
+          687,
+          732,
+          742,
+          743,
+          744
+        ],
+        "identifier": "nullCoalesce.property",
+        "source": "get_post WordPress object/stub boundary; do not infer broader runtime guarantees from this local-array batch."
+      },
+      {
+        "base_lines": [
+          705,
+          735
+        ],
+        "identifier": "function.alreadyNarrowedType",
+        "source": "parse_blocks WordPress function return with supported isolated-runtime fallback; keep boundary defense pending separate review."
+      }
+    ]
+  },
+  "raw_reports": {
+    "level4-before.json": "7ae9607435af0cf96a2634a9861ec4861418e8f2c6ab8d1ec6603a67861814ca",
+    "level4-after.json": "06c32995ed71b425649080a211a8b5bf14e1dddf525061134c66728b5dbb8913"
+  }
+}
