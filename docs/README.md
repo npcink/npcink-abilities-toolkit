@@ -132,6 +132,9 @@ notes, and status snapshots — live in [archive/](archive/), not in this
 directory. Write new dated records directly into `archive/`. The records still
 cited for durable rules:
 
+- [PHPStan Classification Lessons And Handoff - 2026-11-03](archive/phpstan-classification-lessons-and-handoff-2026-11-03.md):
+  complete classification, producer-based batching, retained-defense decisions,
+  exact validation/merge evidence and safely preserved squash-branch heads.
 - [Toolkit Maintenance Closeout - 2026-11-03](archive/toolkit-maintenance-closeout-2026-11-03.md):
   review recovery, repeat-use evidence limits, provenance-based cleanup and
   analysis, screenshot delivery correction, and 0.8.1 preparation handoff.
