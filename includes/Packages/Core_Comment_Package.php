@@ -513,7 +513,7 @@ final class Core_Comment_Package {
 		usort(
 			$items,
 			static function ( array $a, array $b ) {
-				return (int) ( $b['priority_score'] ?? 0 ) <=> (int) ( $a['priority_score'] ?? 0 );
+				return (int) $b['priority_score'] <=> (int) $a['priority_score'];
 			}
 		);
 

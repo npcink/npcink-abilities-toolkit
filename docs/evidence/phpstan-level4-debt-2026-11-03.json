@@ -177,5 +177,59 @@
   "raw_reports": {
     "level4-before.json": "7ae9607435af0cf96a2634a9861ec4861418e8f2c6ab8d1ec6603a67861814ca",
     "level4-after.json": "06c32995ed71b425649080a211a8b5bf14e1dddf525061134c66728b5dbb8913"
-  }
+  },
+  "follow_up_batches": [
+    {
+      "batch": "comment-priority-local-score",
+      "date": "2026-11-03",
+      "source_base": "bf11b3840891d1eca18b99cf2c9675d6a173342b",
+      "phpstan_version": "2.3.4",
+      "php_version": "8.4.21",
+      "configuration": "phpstan.neon.dist; configured paths, --level=4 --memory-limit=4G --error-format=json --no-progress",
+      "input_sha256": {
+        "composer.lock": "5464437aadb483e77b13e68e7effbecb33f168ff8a635c34030bf19032a3297a",
+        "phpstan.neon.dist": "0da5029a7c35f03107ac5bf02ed00ce861673d09d1e3c09b29fbfbdb079acfd2",
+        "tests/phpstan-bootstrap.php": "67c5a33d2d5a49a92bc924b66ef8b3b0c84942b80ea51bdf732f24983dc393c4",
+        "includes/Packages/Core_Comment_Package.php": "1c9712df1db97953e6e13a6d7e244c4e85f83717a056476c4f87c6b94f48db31"
+      },
+      "composer_install": "lock synchronized; no dependency changes",
+      "report_complete": true,
+      "before": {
+        "total": 640,
+        "analyzer_errors": 0,
+        "file": "Packages/Core_Comment_Package.php",
+        "file_total": 23,
+        "nullCoalesce.offset": 100
+      },
+      "after": {
+        "total": 638,
+        "analyzer_errors": 0,
+        "file": "Packages/Core_Comment_Package.php",
+        "file_total": 21,
+        "nullCoalesce.offset": 98
+      },
+      "other_file_and_rule_counts": "unchanged; full reports compare all configured paths",
+      "removed": [
+        {
+          "base_line": 516,
+          "identifier": "nullCoalesce.offset",
+          "count": 2,
+          "source": "Both comparator operands come only from local items rows. priority_score is initialized by (int) round(confidence * 50), then adjusted only by integer additions; every appended literal includes it. No callback/filter/cache receives items before usort. Existing comparator integer casts are retained."
+        }
+      ],
+      "classification": {
+        "confirmed_runtime_defects": 0,
+        "redundant_local_defaults_removed": 2,
+        "previously_reviewed_boundary_findings_retained": 7,
+        "remaining_not_semantically_adjudicated": 631
+      },
+      "retained": "All 21 remaining findings in Core_Comment_Package are unchanged and deferred: enabled-packs filter, get_comments array/object checks and WP_Comment property defaults. This batch does not adjudicate them as removable or runtime defects. Input, classification normalization, score conversion, query limits, permissions and host-governed handoff stay intact.",
+      "behavioral_evidence": "Reuse tests/run/40-block-theme-comment-flows.php priority-queue success, count, descending-score and compliance-handoff assertions through composer test:core and test:all.",
+      "raw_reports": {
+        "level4-before.json": "06c32995ed71b425649080a211a8b5bf14e1dddf525061134c66728b5dbb8913",
+        "level4-after.json": "5cc26ea436e5f67346f1a29783045e9397fb34c3532679e3c28947ab1b2c92fa"
+      },
+      "limitations": "Source/isolated behavior evidence only; no new Local WordPress, production, human repeat-use or release acceptance. Final committed base/head evidence and review receipt stay local and are bound in the containing PR."
+    }
+  ]
 }
