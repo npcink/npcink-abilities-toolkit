@@ -343,6 +343,19 @@ result proves the reduction. Export the complete tracked tree for fresh-base
 analysis: release `export-ignore` rules can omit tests, Composer and analyzer
 configuration from `git archive`.
 
+Scale classification by shared value producers and proof groups when tiny
+per-finding batches repeat the same investigation and gates. Keep each group
+reviewable: trace every caller and return path, preserve per-occurrence source
+locators and duplicate class contexts, and separate classification from edits.
+A present array key does not prove its value type; preserve conversions with
+runtime meaning. An accepted retained diagnostic can be deliberate redundancy,
+not proof that the guard is necessary on every conforming path. Zero undecided
+dispositions is revision-bound classification completion, not zero diagnostics
+or proof of no bugs. Stop numeric cleanup when further edits would broaden
+scope without evidence; revisit recorded producer, runtime, stub or observed
+failure triggers. The [PHPStan lessons and handoff](archive/phpstan-classification-lessons-and-handoff-2026-11-03.md)
+records the completed example, evidence limits and cleanup exceptions.
+
 Before removing a worktree, inventory and copy needed ignored artifacts outside
 that worktree. Verify bytes, file modes and symlink targets, including SVN
 metadata and private backups; an all-refs bundle or app snapshot covers a
