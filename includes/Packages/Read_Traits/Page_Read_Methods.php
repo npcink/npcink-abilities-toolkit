@@ -398,7 +398,7 @@ trait Page_Read_Methods {
 						array_filter(
 							$items,
 							static function ( array $item ) {
-								return (int) ( $item['issue_count'] ?? 0 ) > 0;
+								return (int) $item['issue_count'] > 0;
 							}
 						)
 					),

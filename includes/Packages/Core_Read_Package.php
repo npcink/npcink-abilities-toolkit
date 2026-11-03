@@ -3774,7 +3774,7 @@ final class Core_Read_Package {
 						array_filter(
 							$issues,
 							static function ( array $issue ) {
-								return 'high' === sanitize_key( (string) ( $issue['severity'] ?? '' ) );
+								return 'high' === sanitize_key( (string) $issue['severity'] );
 							}
 						)
 					),

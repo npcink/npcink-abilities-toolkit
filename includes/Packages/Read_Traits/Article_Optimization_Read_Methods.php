@@ -156,7 +156,7 @@ trait Article_Optimization_Read_Methods {
 						array_filter(
 							$issues,
 							static function ( array $issue ) {
-								return 'high' === sanitize_key( (string) ( $issue['severity'] ?? '' ) );
+								return 'high' === sanitize_key( (string) $issue['severity'] );
 							}
 						)
 					),
@@ -1059,7 +1059,7 @@ trait Article_Optimization_Read_Methods {
 				'、',
 				array_map(
 					static function ( array $row ): string {
-						return sanitize_text_field( (string) ( $row['type'] ?? '' ) );
+						return sanitize_text_field( (string) $row['type'] );
 					},
 					$applied_changes
 				)

@@ -294,6 +294,79 @@
         "level4-after.json": "cf0c50a0f7cd674f71367c7b742c0753f4f635a6ff4ca5896ac85736b5ba0ffe"
       },
       "verification_limit": "A trait-only changed-file ratchet can report 0/0; require final committed base/head full configured-path reports with class-context 28/24 and no other-file growth. No new Local runtime, production, human repeat-use or release acceptance."
+    },
+    {
+      "batch": "grouped-owned-shapes",
+      "date": "2026-11-03",
+      "source_base": "a2305c9e307c6b1b65c59919d354cfa7bd2814b3",
+      "phpstan_version": "2.3.4",
+      "composer_install": "lock synchronized; no dependency changes",
+      "configuration": "phpstan.neon.dist; full configured paths, --level=4 --memory-limit=4G --no-progress --error-format=json",
+      "source_group_inventory": "phpstan-level4-source-groups-2026-11-03.json",
+      "before": {
+        "total": 634,
+        "analyzer_errors": 0,
+        "nullCoalesce.offset": 94,
+        "function.alreadyNarrowedType": 244
+      },
+      "after": {
+        "total": 602,
+        "analyzer_errors": 0,
+        "nullCoalesce.offset": 68,
+        "function.alreadyNarrowedType": 238
+      },
+      "file_counts_before_after": {
+        "Packages/Core_Destructive_Package.php": [
+          10,
+          4
+        ],
+        "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": [
+          24,
+          22
+        ],
+        "Packages/Core_Read_Package.php": [
+          24,
+          23
+        ],
+        "Packages/Read_Traits/Article_Optimization_Read_Methods.php": [
+          16,
+          14
+        ],
+        "Packages/Read_Traits/Page_Read_Methods.php": [
+          35,
+          34
+        ],
+        "Packages/Core_Write_Package.php": [
+          69,
+          52
+        ],
+        "Packages/Read_Traits/Content_Inventory_Read_Methods.php": [
+          24,
+          23
+        ],
+        "Packages/Read_Traits/Article_Production_Read_Methods.php": [
+          5,
+          3
+        ]
+      },
+      "classification": {
+        "redundant_internal_diagnostics_removed": 32,
+        "confirmed_runtime_defects": 0,
+        "previously_reviewed_boundary_findings_retained": 7,
+        "remaining_not_semantically_adjudicated": 595
+      },
+      "provenance": "Ten named proof cases and every baseline diagnostic location are recorded in source_group_inventory. Source routing does not adjudicate the remaining findings. All WP_Error exits, external term/file/parser/object guards, casts and sanitizers stay intact.",
+      "input_sha256": {
+        "composer.lock": "5464437aadb483e77b13e68e7effbecb33f168ff8a635c34030bf19032a3297a",
+        "phpstan.neon.dist": "0da5029a7c35f03107ac5bf02ed00ce861673d09d1e3c09b29fbfbdb079acfd2",
+        "tests/phpstan-bootstrap.php": "67c5a33d2d5a49a92bc924b66ef8b3b0c84942b80ea51bdf732f24983dc393c4"
+      },
+      "raw_reports": {
+        "level4-before.json": "cf0c50a0f7cd674f71367c7b742c0753f4f635a6ff4ca5896ac85736b5ba0ffe",
+        "level4-after.json": "44ee456e48b8384033581d41ab4e1758a2b6a8b9abb180d490d8a07cd4154ba5"
+      },
+      "behavior": "Existing 14 fixture data envelopes match baseline/head; existing taxonomy approval/failure and size/permission tests reused. Transport/cache metadata excluded from output comparison.",
+      "limitations": "Trait-only ratchet requires committed full configured-path comparison. No real site/article/SEO writes, release acceptance, new suppression, PHPDoc, cast or ceiling increase. Raw reports/review receipts stay local under build/phpstan-grouped-invariants-2026-11-03/."
     }
   ]
 }

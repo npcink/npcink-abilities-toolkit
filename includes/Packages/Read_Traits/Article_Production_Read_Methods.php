@@ -142,7 +142,7 @@ trait Article_Production_Read_Methods {
 		if ( $duplicate_found ) {
 			$summary_text = sprintf(
 				'检测到同指纹文章 #%d%s，建议先复核现有稿件。',
-				$this->absint_value( $duplicate['post_id'] ?? 0 ),
+				$this->absint_value( $duplicate['post_id'] ),
 				! empty( $duplicate['title'] ) ? '《' . sanitize_text_field( (string) $duplicate['title'] ) . '》' : ''
 			);
 		}
@@ -1082,7 +1082,7 @@ trait Article_Production_Read_Methods {
 
 		$highest_severity = 'low';
 		foreach ( $items as $item ) {
-			$severity = sanitize_key( (string) ( $item['severity'] ?? 'low' ) );
+			$severity = sanitize_key( (string) $item['severity'] );
 			if ( 'high' === $severity ) {
 				$highest_severity = 'high';
 				break;

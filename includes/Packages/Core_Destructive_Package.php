@@ -560,8 +560,8 @@ final class Core_Destructive_Package {
 		if ( is_wp_error( $resolve_result ) ) {
 			return $resolve_result;
 		}
-		$resolved_term_ids   = is_array( $resolve_result['term_ids'] ?? null ) ? $resolve_result['term_ids'] : array();
-		$missing_term_labels = is_array( $resolve_result['missing'] ?? null ) ? $resolve_result['missing'] : array();
+		$resolved_term_ids   = $resolve_result['term_ids'];
+		$missing_term_labels = $resolve_result['missing'];
 		$operation           = (string) $validated['operation'];
 		if ( empty( $resolved_term_ids ) && empty( $missing_term_labels ) && 'replace' !== $operation ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_terms_required', __( 'Valid terms or term_ids are required for add/remove operations.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -666,7 +666,7 @@ final class Core_Destructive_Package {
 			if ( is_wp_error( $resolve_result ) ) {
 				return $resolve_result;
 			}
-			$resolved_term_ids = is_array( $resolve_result['term_ids'] ?? null ) ? $resolve_result['term_ids'] : array();
+			$resolved_term_ids = $resolve_result['term_ids'];
 			foreach ( $items as $post_id => &$summary ) {
 				$current_term_ids = is_array( $summary['before']['term_ids'] ?? null ) ? $summary['before']['term_ids'] : array();
 				$next_term_ids    = $this->compute_term_update( $current_term_ids, $resolved_term_ids, $operation );

@@ -1385,7 +1385,7 @@ final class Core_Write_Package {
 		}
 
 		$content_payload    = $this->normalize_content_input( $input, 'content', $title );
-		$content            = (string) ( $content_payload['content'] ?? '' );
+		$content            = (string) $content_payload['content'];
 		$content_size_check = $this->assert_text_size( $content, 'content', self::MAX_CONTENT_INPUT_BYTES );
 		if ( is_wp_error( $content_size_check ) ) {
 			return $content_size_check;
@@ -1397,14 +1397,14 @@ final class Core_Write_Package {
 		$payload = array(
 			'post_id'        => 0,
 			'status'         => 'dry_run',
-			'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			'content_format' => (string) $content_payload['content_format'],
 			'edit_link'      => '',
 			'preview_link'   => '',
 			'preview'        => array(
 				'action'             => ( $this->should_dry_run( $input ) && '' !== $soft_block_reason ) ? 'create_draft_soft_blocked' : 'create_draft',
 				'post_type'          => $post_type,
 				'title'              => $title,
-				'content_format'     => (string) ( $content_payload['content_format'] ?? 'html' ),
+				'content_format'     => (string) $content_payload['content_format'],
 				'content_length'     => strlen( $content ),
 				'excerpt_length'     => strlen( $excerpt ),
 				'soft_block_reason'  => $soft_block_reason,
@@ -1446,7 +1446,7 @@ final class Core_Write_Package {
 		return array(
 			'post_id'        => $post_id,
 			'status'         => $this->post_status( $post_id ),
-			'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			'content_format' => (string) $content_payload['content_format'],
 			'edit_link'      => $this->edit_link( $post_id ),
 			'preview_link'   => function_exists( 'get_preview_post_link' ) ? (string) get_preview_post_link( $post_id ) : '',
 			'dry_run'        => false,
@@ -1488,7 +1488,7 @@ final class Core_Write_Package {
 			}
 			$title_for_content      = array_key_exists( 'title', $input ) ? sanitize_text_field( (string) $input['title'] ) : (string) ( $post->post_title ?? '' );
 			$content_payload        = $this->normalize_content_input( $input, 'content', $title_for_content );
-			$new_content            = (string) ( $content_payload['content'] ?? '' );
+			$new_content            = (string) $content_payload['content'];
 			$content_size_check     = $this->assert_text_size( $new_content, 'content', self::MAX_CONTENT_INPUT_BYTES );
 			if ( is_wp_error( $content_size_check ) ) {
 				return $content_size_check;
@@ -1497,7 +1497,7 @@ final class Core_Write_Package {
 			$changes['content']     = array(
 				'before'         => (string) ( $post->post_content ?? '' ),
 				'after'          => $new_content,
-				'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+				'content_format' => (string) $content_payload['content_format'],
 			);
 		}
 		if ( array_key_exists( 'excerpt', $input ) ) {
@@ -2085,8 +2085,8 @@ final class Core_Write_Package {
 		if ( is_wp_error( $resolved ) ) {
 			return $resolved;
 		}
-		$resolved_term_ids = is_array( $resolved['term_ids'] ?? null ) ? $resolved['term_ids'] : array();
-		$missing_terms     = is_array( $resolved['missing'] ?? null ) ? $resolved['missing'] : array();
+		$resolved_term_ids = $resolved['term_ids'];
+		$missing_terms     = $resolved['missing'];
 
 		$next_term_ids = $this->compute_term_update( $current_term_ids, $resolved_term_ids, $mode );
 		$added_term_ids = array_values( array_diff( $next_term_ids, $current_term_ids ) );
@@ -2138,7 +2138,7 @@ final class Core_Write_Package {
 			if ( is_wp_error( $resolved ) ) {
 				return $resolved;
 			}
-			$resolved_term_ids = is_array( $resolved['term_ids'] ?? null ) ? $resolved['term_ids'] : array();
+			$resolved_term_ids = $resolved['term_ids'];
 			$next_term_ids     = $this->compute_term_update( $current_term_ids, $resolved_term_ids, $mode );
 		}
 
@@ -2855,7 +2855,7 @@ final class Core_Write_Package {
 			return $size_check;
 		}
 		$content_payload = $this->normalize_content_input( $input, 'content' );
-		$content         = (string) ( $content_payload['content'] ?? '' );
+		$content         = (string) $content_payload['content'];
 		$content_size_check = $this->assert_text_size( $content, 'content', self::MAX_CONTENT_INPUT_BYTES );
 		if ( is_wp_error( $content_size_check ) ) {
 			return $content_size_check;
@@ -2871,13 +2871,13 @@ final class Core_Write_Package {
 			'post_id'        => $post_id,
 			'created'        => false,
 			'comment_status' => 'preview',
-			'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+			'content_format' => (string) $content_payload['content_format'],
 			'edit_link'      => $this->edit_link( $post_id ),
 			'preview'        => array(
 				'action'         => 'reply_comment',
 				'parent_id'      => $parent_id,
 				'post_id'        => $post_id,
-				'content_format' => (string) ( $content_payload['content_format'] ?? 'html' ),
+				'content_format' => (string) $content_payload['content_format'],
 				'content_length' => strlen( $content ),
 			),
 		);
@@ -5244,12 +5244,12 @@ final class Core_Write_Package {
 			return $this->setting_value_too_large_error( 'depth' );
 		}
 		$stats['nodes'] = absint( $stats['nodes'] ?? 0 ) + 1;
-		if ( absint( $stats['nodes'] ?? 0 ) > self::MAX_SETTING_PATCH_NODES ) {
+		if ( absint( $stats['nodes'] ) > self::MAX_SETTING_PATCH_NODES ) {
 			return $this->setting_value_too_large_error( 'nodes' );
 		}
 		if ( is_string( $value ) || is_numeric( $value ) || is_bool( $value ) ) {
 			$stats['bytes'] = absint( $stats['bytes'] ?? 0 ) + strlen( (string) $value );
-			if ( absint( $stats['bytes'] ?? 0 ) > self::MAX_CONTENT_INPUT_BYTES ) {
+			if ( absint( $stats['bytes'] ) > self::MAX_CONTENT_INPUT_BYTES ) {
 				return $this->setting_value_too_large_error( 'bytes' );
 			}
 			return true;

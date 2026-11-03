@@ -235,3 +235,42 @@ trait-only changed-file ratchet; 0/0 alone is not class-context evidence.
 See the [batch record](archive/phpstan-topic-coverage-invariants-2026-11-03.md)
 for rationale and verification limits. Stop at this batch; the same file's
 local refresh-priority scores are a candidate for a later provenance review.
+
+## Grouped batch: internally owned result shapes — 2026-11-03
+
+The [source-group inventory](evidence/phpstan-level4-source-groups-2026-11-03.json)
+routes every one of the 634 baseline diagnostics to a producer/call-chain queue,
+preserving file, line, rule, duplicate findings and class context. Routing is
+not semantic adjudication. Its ten proof cases establish the 32 edits in this
+batch; all other rows retain their pending or previously reviewed status.
+
+| Investigation queue | Baseline | After |
+| --- | ---: | ---: |
+| Proved internal shapes (this batch) | 32 | 0 |
+| Previously reviewed Gutenberg boundaries | 7 | 7 |
+| WordPress object properties | 259 | 259 |
+| Query/object producer chains | 76 | 76 |
+| Block/parser normalization chains | 46 | 46 |
+| Media/filesystem transaction chains | 51 | 51 |
+| Runtime filter/registry chains | 65 | 65 |
+| Regex/native results | 9 | 9 |
+| Helper/control-flow provenance still unresolved | 89 | 89 |
+
+One PR combines required fields from the private content normalizer, the shared
+taxonomy resolver after WP_Error exits, immediately assigned stats, and locally
+constructed report rows. Keep original casts and sanitizers: field presence
+does not establish reliability of filterable values. External inputs, term
+creation results, query objects, caches, parser returns and filesystem defenses
+are unchanged. No suppressions, PHPDoc, conversions or authority are added.
+
+Complete reports show **634 → 602**, zero analyzer errors: 26 offset defaults
+and six redundant array predicates disappear across eight files. All other
+messages are identical; ceiling becomes 602. Seven previously reviewed findings
+remain; 595 still need semantic decisions. Existing behavior gates and 14
+baseline/head fixture data comparisons cover the edits. See the concise
+[batch evidence](archive/phpstan-grouped-invariants-2026-11-03.md).
+
+Continue by shared producer, starting with the 89 unresolved helper/control-flow
+locations; inspect the producer once, verify each caller, and combine compatible
+edits before running PR gates. WordPress/filter/parser/file queues need their
+own model/boundary decisions and do not carry a numeric removal target.
