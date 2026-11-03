@@ -3,6 +3,17 @@
 import argparse, json, subprocess, statistics, math, re, time, shlex, uuid
 from pathlib import Path
 
+def cleanup_container(docker, name, run_label):
+    """Remove only this run's exact owned container, including ambiguous starts."""
+    owned = docker('ps', '-aq', '--no-trunc', '--filter', 'name=^/' + name + '$',
+                   '--filter', 'label=' + run_label).split()
+    if not owned:
+        return
+    if len(owned) != 1 or not re.fullmatch(r'[0-9a-f]{64}', owned[0]):
+        raise RuntimeError('Unable to identify the single owned benchmark container')
+    docker('rm', '-f', '-v', owned[0])
+    print('Removed owned benchmark container and its anonymous volume.', flush=True)
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--ssh', help='Optional Docker host, e.g. user@host')
@@ -15,7 +26,9 @@ def main():
     fixture = json.loads(args.fixture.read_text())
     (root / 'schema.json').write_text(json.dumps(fixture['schema']))
     (root / 'captured-sql.json').write_text(json.dumps(fixture['captured_sql']))
-    name = 'toolkit-cleanup-bench-' + uuid.uuid4().hex[:12]
+    run_id = uuid.uuid4().hex
+    name = 'toolkit-cleanup-bench-' + run_id[:12]
+    run_label = 'org.npcink.toolkit.benchmark-run=' + run_id
 
     def docker(*argv, input=None, timeout=180):
         command = ['docker', *argv]
@@ -28,10 +41,8 @@ def main():
 
     def sql(text):
         return docker('exec', '-i', name, 'mariadb', '-uroot', '--batch', '--raw', '--skip-column-names', input=text)
-    created = False
     try:
-        docker('run', '--rm', '-d', '--name', name, '--label', 'org.npcink.toolkit.benchmark=media-cleanup', '--network', 'none', '--memory', '1g', '--cpus', '2', '-e', 'MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1', args.image, '--innodb-buffer-pool-size=256M')
-        created = True
+        docker('run', '--rm', '-d', '--name', name, '--label', 'org.npcink.toolkit.benchmark=media-cleanup', '--label', run_label, '--network', 'none', '--memory', '1g', '--cpus', '2', '-e', 'MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1', args.image, '--innodb-buffer-pool-size=256M')
         for attempt in range(60):
             try:
                 docker('exec', name, 'healthcheck.sh', '--connect', '--innodb_initialized')
@@ -101,8 +112,6 @@ def main():
                         print(variant, rows, pattern, cursor, round(item['warm_median_ms'], 3), [(x['table_name'], round((x.get('r_rows') or 0) * (x.get('r_loops') or 0))) for x in scans], flush=True)
         print('Completed', len(records), 'cases')
     finally:
-        if created:
-            docker('rm', '-f', '-v', name)
-            print('Removed owned benchmark container and its anonymous volume.', flush=True)
+        cleanup_container(docker, name, run_label)
 if __name__ == '__main__':
     main()

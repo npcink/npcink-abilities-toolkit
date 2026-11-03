@@ -19,6 +19,10 @@ A disposable MariaDB 11.8.9 container uses 2 CPUs, a 1 GiB memory limit and
 256 MiB InnoDB buffer. It has no network and no published ports. The harness
 creates its own random container, inserts synthetic data into its own database,
 and removes only that container and its anonymous volume in `finally`.
+Cleanup matches an exact name and unique run label, then removes the matching
+immutable container ID. It also runs if the daemon starts the container but the
+client times out before receiving success. An unavailable daemon or ambiguous
+listing fails cleanup explicitly; it is not reported as confirmed removal.
 No production or Local.app data is modified.
 
 - 100,000 / 1,000,000 postmeta rows, with 10,000 / 100,000 attachment posts;
@@ -85,6 +89,32 @@ Omit `--ssh` to use a local Docker daemon. Output must be a new directory.
 The bundled SQL/schema fixture is a named source snapshot; refresh it from the
 real helper before making claims about later query revisions. Record the image
 ID, schema, database version and limits with any new results.
+
+The harness writes `schema.json`, `captured-sql.json` and `results.json` into
+the selected directory. `results.json` contains `server` and 100 `rows`, with
+each row's SQL, EXPLAIN/ANALYZE, timings and ID-oracle verdict. It does not
+directly overwrite the curated JSON under `docs/evidence/`. To summarize a new
+raw run without rerunning queries:
+
+```bash
+python3 - build/media-cleanup-query-fresh/results.json <<'PY'
+import hashlib, json, pathlib, sys
+raw = pathlib.Path(sys.argv[1]).read_bytes()
+data = json.loads(raw)
+print(json.dumps(dict(raw_sha256=hashlib.sha256(raw).hexdigest(),
+                     case_count=len(data['rows']),
+                     all_ids_verified=all(row['ids_verified'] for row in data['rows']),
+                     server=data['server'],
+                     cases=[{k: v for k, v in row.items() if k not in ('explain', 'analyze')}
+                            for row in data['rows']]), indent=2))
+PY
+```
+
+The archived evidence adds the date/source, selects four representative plans
+from those raw rows and retains a separately recorded initial-plan variation.
+That historical variation is not manufactured by a fresh run; new measurements
+may choose different optimizer plans. Keep the dated evidence immutable and
+record a new raw hash and source revision for a new experiment.
 
 This covers two synthetic metadata sizes on one MariaDB version. It does not
 establish MySQL performance, wider rows, other attachment ratios, host filter
