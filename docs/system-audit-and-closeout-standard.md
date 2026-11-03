@@ -359,8 +359,9 @@ through GitHub before changing CI names or declaring the protection current.
 
 ## Advisory Review Delivery
 
-The active 2026-10-27 operator policy retires GitHub/cloud OpenCodeReview and
-uses locally initiated Qwen review. Required deterministic checks remain
+The active 2026-11-03 operator policy retires GitHub/cloud OpenCodeReview and
+uses locally initiated AI review with the configured Qwen or DeepSeek model.
+Required deterministic checks remain
 mandatory; do not wait for a cloud review, post retry comments, add provider
 secrets, or re-enable the retired workflow or runner canary.
 

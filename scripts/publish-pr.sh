@@ -8,7 +8,7 @@ Usage:
   scripts/publish-pr.sh --title TITLE --body-file PATH --local-review PATH [--base BRANCH] [--dry-run]
 
 Publishes the current clean topic branch, creates a pull request from a
-completed body contract and verified local Qwen receipt, then requests protected squash auto-merge.
+completed body contract and verified local AI receipt, then requests protected squash auto-merge.
 EOF
 }
 
@@ -80,7 +80,7 @@ esac
 command -v python3 >/dev/null 2>&1 || fail 'python3 is required'
 [ -n "${TOOLKIT_REVIEW_TOOLBOX:-}" ] || fail 'set TOOLKIT_REVIEW_TOOLBOX to the canonical Toolbox checkout'
 review_verifier="${TOOLKIT_REVIEW_TOOLBOX}/scripts/local-qwen-review.py"
-[ -f "$review_verifier" ] || fail 'canonical local Qwen verifier not found'
+[ -f "$review_verifier" ] || fail 'canonical local AI verifier not found'
 
 
 command -v git >/dev/null 2>&1 || fail 'git is required'
@@ -195,7 +195,7 @@ except (ValueError, OSError, AssertionError):
     sys.exit(1)
 PY_REVIEW_BASE
 python3 "$review_verifier" --verify "$local_review" --head "$head_sha" --body-file "$body_path" \
-	|| fail 'local Qwen exact-diff review or finding triage failed'
+	|| fail 'local AI exact-diff review or finding triage failed'
 
 if [ "${dry_run}" = '1' ]; then
 	quote_command git push -u origin "${branch}"

@@ -33,7 +33,7 @@ TOOLKIT_REVIEW_TOOLBOX=/absolute/path/to/npcink-workflow-toolbox composer pr:pub
   --local-review /absolute/path/to/local-qwen-review.json
 ```
 
-The publisher validates the local Qwen receipt and finding triage before pushing.
+The publisher validates the local AI review receipt (Qwen or DeepSeek) and finding triage before pushing.
 Generate the final committed-diff receipt with the central Toolbox reviewer;
 see `AGENTS.md`. The receipt must cover the latest fetched target base and HEAD.
 
