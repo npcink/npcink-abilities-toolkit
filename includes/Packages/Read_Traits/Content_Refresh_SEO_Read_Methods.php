@@ -169,7 +169,7 @@ trait Content_Refresh_SEO_Read_Methods {
 		usort(
 			$items,
 			static function ( array $a, array $b ) {
-				return (int) ( $b['priority_score'] ?? 0 ) <=> (int) ( $a['priority_score'] ?? 0 );
+				return (int) $b['priority_score'] <=> (int) $a['priority_score'];
 			}
 		);
 		arsort( $issue_counts );

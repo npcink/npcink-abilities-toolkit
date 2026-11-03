@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-03",
+  "source_base": "a2305c9e307c6b1b65c59919d354cfa7bd2814b3",
+  "phpstan_version": "2.3.4",
+  "baseline_total": 634,
+  "analyzer_errors": 0,
+  "purpose": "Complete source-routing inventory; routing is not semantic adjudication or a claim that all remaining diagnostics are defects/safe removals. Locations refer to source_base. Repeated lines preserve multiple diagnostics and class contexts.",
+  "group_definitions": {
+    "reviewed_owned_shapes": "32 diagnostics proved redundant by the named provenance cases; remove in this batch.",
+    "previously_reviewed_boundary": "Seven Gutenberg object/parser findings already reviewed in the earlier batch; retain.",
+    "wordpress_object_properties": "Declared WP_Post/Comment/Term/Post_Type/Taxonomy/Query/User properties, plus screen/user/role isset guards; retain pending upstream/isolated/filter object-model review.",
+    "wordpress_query_object_chain": "Source expressions operate on queried posts/comments/terms/themes/menus/revisions/type objects; investigate producer and filters together. No deletion verdict.",
+    "block_parser_normalization_chain": "Blocks, parsed blocks and normalized/repair rows; trace parse_blocks, isolated fallback, helper normalization and registry producers together. No deletion verdict.",
+    "media_filesystem_transaction_chain": "Media/artifact/backup/discovery paths: mixed native filesystem/image results, metadata and locally assembled transaction snapshots. Trace the exact producer before edits; preserve failure semantics.",
+    "runtime_filter_registry_chain": "Plugin/admin/REST/diagnostic/registry results and method/class-callability checks; investigate runtime version/filter/registry contracts together. No deletion verdict.",
+    "regex_native_result_chain": "Regex match groups or native extension/JSON result checks; verify pattern/capture/error paths before edits. No deletion verdict.",
+    "helper_local_control_flow": "Remaining helper outputs, local rows and control-flow predicates. This is an explicit unresolved-provenance queue, not a proof of locality or a safe-edit list."
+  },
+  "group_totals": {
+    "wordpress_object_properties": 259,
+    "runtime_filter_registry_chain": 65,
+    "helper_local_control_flow": 89,
+    "wordpress_query_object_chain": 76,
+    "reviewed_owned_shapes": 32,
+    "regex_native_result_chain": 9,
+    "block_parser_normalization_chain": 46,
+    "previously_reviewed_boundary": 7,
+    "media_filesystem_transaction_chain": 51
+  },
+  "reviewed_cases": [
+    {
+      "id": "normalized_content",
+      "file": "Packages/Core_Write_Package.php",
+      "lines": [
+        1388,
+        1400,
+        1407,
+        1449,
+        1491,
+        1500,
+        2858,
+        2874,
+        2880
+      ],
+      "count": 9,
+      "proof": "private normalize_content_input always returns one literal with content and content_format. resolve_content_format returns html/markdown/plain. Keep string casts: wp_kses_post/filter values need not satisfy stub string guarantees; null still casts to the former empty-string default. No payload reference escapes."
+    },
+    {
+      "id": "resolved_write_terms",
+      "file": "Packages/Core_Write_Package.php",
+      "lines": [
+        2088,
+        2089,
+        2141
+      ],
+      "count": 6,
+      "proof": "Shared private Taxonomy_Assignment_Write_Methods::resolve_term_ids_for_assignment returns WP_Error or one literal containing term_ids and missing, both built with array_values. Each caller retains the immediately preceding is_wp_error exit. Internal arrays never escape. Preserve all external term lookup/create checks and label normalization inside the resolver."
+    },
+    {
+      "id": "resolved_bulk_terms",
+      "file": "Packages/Core_Destructive_Package.php",
+      "lines": [
+        563,
+        564,
+        669
+      ],
+      "count": 6,
+      "proof": "Same shared resolver proof and retained WP_Error exits as resolved_write_terms; no query, create_missing, dry-run, capability, commit or per-post result verification changes."
+    },
+    {
+      "id": "assigned_stats",
+      "file": "Packages/Core_Write_Package.php",
+      "lines": [
+        5247,
+        5252
+      ],
+      "count": 2,
+      "proof": "Each read immediately follows assignment to that same stats key. Stats originate in the private caller literal and recurse only through the private collector. Keep absint normalization, size bounds, entry fallbacks and error exits."
+    },
+    {
+      "id": "geo_issue_rows",
+      "file": "Packages/Core_Read_Package.php",
+      "lines": [
+        3777
+      ],
+      "count": 1,
+      "proof": "geo_analyze initializes issues empty and appends three literal alternatives, each with a non-null literal severity; no row array escapes before the filter. Keep string cast and sanitize_key."
+    },
+    {
+      "id": "seo_and_applied_rows",
+      "file": "Packages/Read_Traits/Article_Optimization_Read_Methods.php",
+      "lines": [
+        159,
+        1062
+      ],
+      "count": 2,
+      "proof": "build_seo_report_context constructs both issue variants with literal severity; compose_article_optimization_apply_result constructs its only applied_changes variant with literal type=excerpt. No filter/cache receives either row array before the callbacks. Preserve casts and sanitizers; retain input-envelope guards."
+    },
+    {
+      "id": "article_duplicate_and_risk_rows",
+      "file": "Packages/Read_Traits/Article_Production_Read_Methods.php",
+      "lines": [
+        145,
+        1085
+      ],
+      "count": 2,
+      "proof": "duplicate_found requires a nonempty post_id from the only local duplicate literal, whose ID was normalized and checked positive. build_article_ai_risk_review creates every items variant with non-null high/medium severity. Preserve absint_value, string cast, sanitize_key, query/permission/input defenses."
+    },
+    {
+      "id": "inventory_rows",
+      "file": "Packages/Read_Traits/Content_Inventory_Read_Methods.php",
+      "lines": [
+        141
+      ],
+      "count": 1,
+      "proof": "Every local items row contains issue_count=count(issues); the summary reads this local array before response/cache storage. Cached early returns bypass this construction and read. Preserve int cast and cache/input/query/object guards."
+    },
+    {
+      "id": "page_rows",
+      "file": "Packages/Read_Traits/Page_Read_Methods.php",
+      "lines": [
+        401
+      ],
+      "count": 1,
+      "proof": "Every local page items literal contains issue_count=count(issues); no reference escapes before the summary filter. Preserve int cast and WordPress/input/capability guards."
+    },
+    {
+      "id": "refresh_rows",
+      "file": "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php",
+      "lines": [
+        172
+      ],
+      "count": 2,
+      "proof": "Every locally appended item contains priority_score from integer count arithmetic; no reference escapes before usort. Preserve int casts, input/query/post defenses and scan limits."
+    }
+  ],
+  "after_batch_total": 602,
+  "after_batch_previously_reviewed_retained": 7,
+  "after_batch_pending_semantic_review": 595,
+  "raw_report_sha256": "cf0c50a0f7cd674f71367c7b742c0753f4f635a6ff4ca5896ac85736b5ba0ffe",
+  "files": {
+    "Admin/Health_Notices.php": {
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[284,301]},
+      "wordpress_object_properties": {"isset.property":[232]}
+    },
+    "Admin/Test_Page.php": {
+      "runtime_filter_registry_chain": {"booleanAnd.rightAlwaysTrue":[255],"function.alreadyNarrowedType":[257,526,528,744,770,1286,1286,1287,1287,1331,1331]}
+    },
+    "Packages/Core_Comment_Package.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[95]},
+      "wordpress_object_properties": {"nullCoalesce.property":[302,308,309,310,377,399,400,401,402,479,500,501,502,503]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[298,299,356,374,475,476]}
+    },
+    "Packages/Core_Destructive_Package.php": {
+      "reviewed_owned_shapes": {"function.alreadyNarrowedType":[563,564,669],"nullCoalesce.offset":[563,564,669]},
+      "wordpress_object_properties": {"nullCoalesce.property":[1334,1335,1404]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[1329]}
+    },
+    "Packages/Core_Read_Package.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[164,3678]},
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[3777]},
+      "wordpress_object_properties": {"nullCoalesce.property":[3584,3600,3601,3602,3639,3658,3659,3660,3661,3662,3816,3959,3960,3961]},
+      "wordpress_query_object_chain": {"ternary.alwaysTrue":[3134],"function.alreadyNarrowedType":[3552,3577,3581,3634,3821],"function.impossibleType":[3822]}
+    },
+    "Packages/Core_Write_Package.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[1617,3571,3704,3705,3706,3707,3769,3809,3827,3851,3982,4618,4764,4782,4871,5314],"nullCoalesce.offset":[1961,3681,3682,3704,3705,3706,3707,3827,3855,3856,3857,3991,3995,3996,4392,4618,4764,4782,4871,5739,5740]},
+      "regex_native_result_chain": {"nullCoalesce.offset":[5469,5478,5479,5556]},
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[1388,1400,1407,1449,1491,1500,2088,2089,2141,2858,2874,2880,5247,5252],"function.alreadyNarrowedType":[2088,2089,2141]},
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[3965]},
+      "wordpress_object_properties": {"nullCoalesce.property":[3471,5897,5901,5902,5905,6014,6279,6280]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[5724,6274]}
+    },
+    "Packages/Read_Traits/Article_Block_Plan_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[878,920,953,979,1005]},
+      "wordpress_object_properties": {"nullCoalesce.property":[61,64,166,167,168]}
+    },
+    "Packages/Read_Traits/Article_Optimization_Read_Methods.php": {
+      "helper_local_control_flow": {"nullCoalesce.offset":[598],"function.alreadyNarrowedType":[962],"notIdentical.alwaysTrue":[1167]},
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[159,1062]},
+      "wordpress_object_properties": {"nullCoalesce.property":[222,819,820,821,822]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[819,820,821,822],"nullCoalesce.offset":[1258,1258]}
+    },
+    "Packages/Read_Traits/Article_Production_Read_Methods.php": {
+      "helper_local_control_flow": {"greater.alwaysTrue":[211,664]},
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[145,1085]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[126]}
+    },
+    "Packages/Read_Traits/Block_Theme_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[264,517,1570,2884,3011,3045]},
+      "helper_local_control_flow": {"nullCoalesce.offset":[363,674,2265]},
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[2005,2007,2007]},
+      "wordpress_object_properties": {"nullCoalesce.property":[1733,1733,1741,1741,2068,2102,2105,2106,2107,2223]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[1585,1586,1587,1687,1748,1977,2077,2098,2099,2343]}
+    },
+    "Packages/Read_Traits/Comment_Read_Methods.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[99]},
+      "wordpress_object_properties": {"nullCoalesce.property":[54,57,58,59,60,61,62,63,64,67,68,69]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[50,51]}
+    },
+    "Packages/Read_Traits/Comment_Read_Methods.php (in context of class Npcink_Abilities_Toolkit\\Packages\\Core_Read_Package)": {
+      "helper_local_control_flow": {"deadCode.unreachable":[102]}
+    },
+    "Packages/Read_Traits/Content_Inventory_Read_Methods.php": {
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[141]},
+      "wordpress_object_properties": {"nullCoalesce.property":[93,93,109,110,111,535,551,552,553,554,564,565,567,652,652,659,660,661,662,663,665]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[535,648]}
+    },
+    "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[249,288]},
+      "regex_native_result_chain": {"function.alreadyNarrowedType":[908],"nullCoalesce.offset":[908,932]},
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[172,172]},
+      "wordpress_object_properties": {"nullCoalesce.property":[41,66,67,119,122,122,158,159,345,543,581,582,642,660,842]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[885],"function.impossibleType":[886]}
+    },
+    "Packages/Read_Traits/Diagnostics_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[1536,1537]},
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[103,341,347,349,461,543,543,545,585,591,595,748,753,757,765,1459,1532,1534,1534,1550,1552,1552,1554,1555,1557,1572,1579],"booleanAnd.rightAlwaysTrue":[418,766,1456],"isset.offset":[766],"nullCoalesce.offset":[770],"function.impossibleType":[800],"notIdentical.alwaysTrue":[800]},
+      "wordpress_object_properties": {"isset.property":[128,129,133,1456],"nullCoalesce.property":[1435,1436,1437,1438]},
+      "wordpress_query_object_chain": {"booleanAnd.rightAlwaysTrue":[129,133],"function.alreadyNarrowedType":[305,319,1427,1430,1714]}
+    },
+    "Packages/Read_Traits/Gutenberg_Block_Capability_Catalog_Read_Methods.php": {
+      "previously_reviewed_boundary": {"nullCoalesce.property":[687,732,742,743,744],"function.alreadyNarrowedType":[705,735]}
+    },
+    "Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[465]}
+    },
+    "Packages/Read_Traits/Internal_Link_Read_Methods.php": {
+      "helper_local_control_flow": {"identical.alwaysFalse":[85]}
+    },
+    "Packages/Read_Traits/Media_Alt_Caption_Read_Methods.php": {
+      "helper_local_control_flow": {"nullCoalesce.offset":[186],"function.alreadyNarrowedType":[463]},
+      "regex_native_result_chain": {"nullCoalesce.offset":[887]},
+      "wordpress_object_properties": {"nullCoalesce.property":[242]}
+    },
+    "Packages/Read_Traits/Media_Read_Methods.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[147,358,593,1176,1873,2005,2006,2748,3091,3615,3621,3861,4256,4327,4559],"booleanNot.alwaysFalse":[603],"booleanAnd.rightAlwaysTrue":[632],"ternary.alwaysTrue":[1432],"nullCoalesce.offset":[1874],"notIdentical.alwaysTrue":[3545]},
+      "regex_native_result_chain": {"notIdentical.alwaysTrue":[2549]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[1717,2950,3229]}
+    },
+    "Packages/Read_Traits/Media_Reference_Repair_Read_Methods.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[46,150,475,502]}
+    },
+    "Packages/Read_Traits/Page_Pattern_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[281,396,428,791,3366,3438,3461,3575,3667,3802,4042,4063,4090,4145,4217,4254,4314,4340,4377,4591]},
+      "helper_local_control_flow": {"greater.alwaysTrue":[2986],"nullCoalesce.offset":[3154,3231]},
+      "wordpress_object_properties": {"nullCoalesce.property":[70,73,202,203,204,278,294,295,378,425,435,436,437]}
+    },
+    "Packages/Read_Traits/Page_Read_Methods.php": {
+      "reviewed_owned_shapes": {"nullCoalesce.offset":[401]},
+      "wordpress_object_properties": {"nullCoalesce.property":[75,81,85,86,87,89,90,91,92,126,135,137,141,149,150,152,153,154,155,157,158,160,161,207,211,216,217,218,220,352,378]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[428,428,433]}
+    },
+    "Packages/Read_Traits/Post_Primitives_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[544,895,1028,1152]},
+      "helper_local_control_flow": {"notIdentical.alwaysTrue":[818,855]},
+      "wordpress_object_properties": {"nullCoalesce.property":[70,74,75,78,79,84,85,86,135,145,146,147,294,302,306,309,310,311,312,431,432,438,441,445,495,499,500,501,503,507,541,554,571,572,573,574,575,578,579,580,581,582,583,584,585,612,682,768,769,851,852,883,886,893,908,909,1003,1073,1074,1075,1077]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[180,738,943,985,989,1057,1069,1109,1482]}
+    },
+    "Packages/Read_Traits/Publishing_Workflow_Read_Methods.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[608]},
+      "wordpress_object_properties": {"nullCoalesce.property":[45,47,48,49,50,76,98,413,670]}
+    },
+    "Packages/Read_Traits/Style_Read_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[347,399],"nullCoalesce.offset":[352]},
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[476]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[109,113]}
+    },
+    "Packages/Read_Traits/Taxonomy_Read_Methods.php": {
+      "wordpress_object_properties": {"nullCoalesce.property":[92,93,94,95,96,97,98,553,554,1237,1254,1640,1641,1642,1643,1646,1649]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[87,1224,1228,1237,1304,1305,1625,1636]}
+    },
+    "Packages/Write_Traits/Cloud_Media_Write_Methods.php": {
+      "media_filesystem_transaction_chain": {"function.alreadyNarrowedType":[76,908,981,1205,1206,1207,1208],"nullCoalesce.offset":[76,84,105,363,364,365,366,366,614,914,915,916,917,917,1582,1582],"ternary.alwaysTrue":[84,105],"booleanNot.alwaysFalse":[1587]},
+      "wordpress_object_properties": {"nullCoalesce.property":[415,671,685,1395,1411]}
+    },
+    "Packages/Write_Traits/Media_Backup_Write_Methods.php": {
+      "media_filesystem_transaction_chain": {"function.alreadyNarrowedType":[48,156,361],"booleanNot.alwaysFalse":[76],"if.alwaysFalse":[81],"nullCoalesce.offset":[289,361,374,403,599],"ternary.alwaysTrue":[374]}
+    },
+    "Packages/Write_Traits/Media_Reference_Discovery_Write_Methods.php": {
+      "media_filesystem_transaction_chain": {"function.alreadyNarrowedType":[184,185,231],"nullCoalesce.offset":[266]},
+      "wordpress_object_properties": {"nullCoalesce.property":[231,232]}
+    },
+    "Packages/Write_Traits/Site_Editor_Write_Methods.php": {
+      "block_parser_normalization_chain": {"function.alreadyNarrowedType":[66,194,202,345,353]},
+      "wordpress_object_properties": {"nullCoalesce.property":[454,457,458,469]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[426,426,453,454]}
+    },
+    "Packages/Write_Traits/Taxonomy_Assignment_Write_Methods.php": {
+      "helper_local_control_flow": {"nullCoalesce.offset":[68]},
+      "wordpress_query_object_chain": {"function.alreadyNarrowedType":[34]}
+    },
+    "Plugin.php": {
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[280,355,419]}
+    },
+    "Registry/Ability_Registrar.php": {
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[310,311,312,730]}
+    },
+    "Rest/Contract_Controller.php": {
+      "runtime_filter_registry_chain": {"function.alreadyNarrowedType":[83,87,243,243,264,270]}
+    },
+    "Support/Cloud_Derivative_Artifact.php": {
+      "media_filesystem_transaction_chain": {"function.alreadyNarrowedType":[373,374,375,431,456],"nullCoalesce.offset":[373,374,375,464,464]}
+    },
+    "Support/Gutenberg_Block_Document.php": {
+      "helper_local_control_flow": {"function.alreadyNarrowedType":[45],"notIdentical.alwaysTrue":[359]}
+    }
+  }
+}
