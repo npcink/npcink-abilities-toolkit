@@ -462,7 +462,7 @@ trait Gutenberg_Composer_Repair_Read_Methods {
 			'applied_repair_codes' => array_values(
 				array_map(
 					static function ( $repair ) {
-						return is_array( $repair ) ? (string) ( $repair['repair_code'] ?? '' ) : '';
+						return (string) ( $repair['repair_code'] ?? '' );
 					},
 					$applied_repairs
 				)

@@ -1,5 +1,12 @@
 # PHPStan level-4 debt classification — 2026-11-02
 
+Current status after the complete November 3 adjudication: **526 diagnostics,
+ceiling 526, zero analyzer errors; every occurrence in the fresh 579-finding
+inventory has an explicit disposition**. This is not numeric zero or 526 bugs.
+The older sections below remain dated batch evidence; their pending counts are
+historical. The [per-location adjudication](evidence/phpstan-level4-adjudication-2026-11-03.json)
+is the current decision ledger. New source/tool changes require a fresh report.
+
 The complete report contains 659 diagnostics before this batch and 653 after
 it, with zero analyzer-level errors. These numbers are not runtime defect
 counts. Normal source analysis remains level 3; the changed-file and release
@@ -298,3 +305,68 @@ base/head reports cover class contexts even where selected-trait analysis has
 no findings. See the [batch record](archive/phpstan-helper-invariants-2026-11-03.md)
 for verification limits. Continue by producer; the remaining helper queue is
 not a safe-deletion list and has no numeric removal target.
+
+## Complete remaining-inventory adjudication — 2026-11-03
+
+At `72e308c7fffe09c1b0248d8e2cb358f01af64c64`, synchronized Composer tooling
+reproduces **579** diagnostics over all configured paths with PHP 8.4.21 /
+PHPStan 2.3.4 and zero analyzer errors. The 579-to-526 change is explained by
+49 proven internal/native/control-flow simplifications and four accurate
+parameter-type corrections; no runtime defect is established. Across PRs
+#289–#292 and this continuation, the original 640 inventory falls by 114.
+The total ceiling follows the measured result, **526**, without suppression,
+configuration expansion/contraction or dependency changes.
+
+| Disposition of the 579 input occurrences | Count |
+| --- | ---: |
+| Simplified proven local/native/control-flow invariants | 49 |
+| Corrected inaccurate parameter models; runtime guards retained | 4 |
+| Retained WordPress/input/decoder/compatibility defenses | 374 |
+| Retained filter/stub/isolated-runtime/filesystem model discrepancies | 118 |
+| Accepted uniform recursive traversal defenses | 24 |
+| Accepted individually reviewed redundancy at bounded interfaces | 10 |
+
+Every occurrence, including same-line duplicate rules and trait class context,
+has its base location, expression, enclosing function and explicit decision in
+54 proof groups. The immutable source/tree and per-file hashes bind the ledger;
+this is semantic disposition, not relabeling the older 634 source-routing list.
+All 526 surviving diagnostics remain visible. An accepted redundant guard is
+not asserted necessary on every current path, and retention is not a claim
+that a malformed production object was observed.
+
+Simplifications cover private category/catalog storage; validated SEO/download
+helper results; local media-reference pairs, payloads and assigned fingerprints;
+filtered history/inline block rows; mandatory successful regex captures; style
+outer arrays and enum count-map keys; URL branch invariants; native extension,
+glob and DateTime error shapes. Existing casts, trims and sanitizers remain.
+Correct the PHPDoc of public checksum/timestamp validators and block-error
+initialization, plus raw media-asset elements, to reflect the arbitrary input
+they already validate. No runtime validation is deleted to make those types fit.
+
+Retain mutable WordPress fields, raw query/cache/filter/registry/parser/media
+returns, optional alpha capture handling, unguarded regex failure defaults,
+image fact checks, compatibility getters, transactional snapshot checks,
+post-delete and repeated readability observations. Keep string WP_DEBUG_LOG,
+fields=ids object fallback and isolated comment-array count behavior. Keep the
+filterable action mode and term slug/name defaults: required keys do not prove
+non-null sanitized values. Some traversal and aggregation checks are knowingly
+redundant for normalized current producers; accepting that bounded defense
+avoids an unrelated traversal rewrite merely for a smaller number.
+
+Existing source gates and 17191 main assertions pass, along with flagged-media,
+taxonomy failure, audit and rename compensation checks. Ordinary level 3 is
+zero. Forty-one existing fixture data/error outputs compare equivalently;
+38 match exactly and three differ only in 13 individually verified fixture PID
+fields. Outer transport/cache metadata is excluded. Full committed reports use
+a complete tracked baseline with independent Composer installation and exact
+source-line mapping; changed-file ratchet alone is insufficient for traits.
+Final committed ratchets, AI triage, required CI and protected merge receipts
+belong to the PR and ignored evidence directory. See the
+[complete adjudication record](archive/phpstan-complete-adjudication-2026-11-03.md).
+
+The current inventory has **zero undecided dispositions**, with **526 accepted
+retained diagnostics**. This closes the requested classification pass without
+promising numeric zero, production validation or release readiness. Reopen
+specific decisions for changed producers, supported runtimes, stub versions or
+observed behavior; the ledger records those triggers. A future cleanup should
+select one such trigger, rather than delete accepted defenses for a count target.

@@ -281,7 +281,7 @@ final class Health_Notices {
 	 * @return bool
 	 */
 	private function status_page_available() {
-		if ( ! class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) || ! method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
+		if ( ! class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) ) {
 			return false;
 		}
 

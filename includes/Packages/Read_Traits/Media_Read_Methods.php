@@ -589,7 +589,6 @@ trait Media_Read_Methods {
 			$matched = false;
 			$current_paragraph_index = 0;
 			foreach ( $existing_blocks as $block_index => $existing_block ) {
-				$existing_block = is_array( $existing_block ) ? $existing_block : array();
 				if ( empty( $existing_block ) ) {
 					continue;
 				}
@@ -2001,8 +2000,8 @@ trait Media_Read_Methods {
 		private function merge_media_optimization_content_reference_pairs( array $primary, array $secondary ) {
 			$merged = array();
 			foreach ( array_merge( $primary, $secondary ) as $pair ) {
-				$old = trim( (string) ( is_array( $pair ) ? ( $pair['old'] ?? '' ) : '' ) );
-				$new = trim( (string) ( is_array( $pair ) ? ( $pair['new'] ?? '' ) : '' ) );
+				$old = trim( (string) ( $pair['old'] ?? '' ) );
+				$new = trim( (string) ( $pair['new'] ?? '' ) );
 				if ( '' === $old || '' === $new || $old === $new ) {
 					continue;
 				}
@@ -4544,7 +4543,7 @@ trait Media_Read_Methods {
 	/**
 	 * Collects media assets from explicit rows or inline image HTML.
 	 *
-	 * @param array<int,array<string,mixed>> $media_assets Media assets.
+	 * @param array<int,mixed>               $media_assets Raw media assets.
 	 * @param string                         $article_content Article content.
 	 * @return array<int,array<string,mixed>>
 	 */

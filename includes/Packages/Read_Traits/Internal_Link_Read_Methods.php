@@ -82,9 +82,6 @@ trait Internal_Link_Read_Methods {
 		foreach ( $supplied_evidence as $evidence_item ) {
 			$post_id = $this->absint_value( $evidence_item['post_id'] ?? 0 );
 			$key = 0 < $post_id ? $post_id : 'url:' . (string) ( $evidence_item['url'] ?? '' );
-			if ( '' === (string) $key ) {
-				continue;
-			}
 			if ( isset( $targets[ $key ] ) ) {
 				$targets[ $key ] = array_merge( $targets[ $key ], $evidence_item );
 				continue;

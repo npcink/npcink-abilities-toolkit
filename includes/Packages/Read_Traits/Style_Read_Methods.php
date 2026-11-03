@@ -473,7 +473,7 @@ trait Style_Read_Methods {
 		}
 		arsort( $counts );
 		$key = key( $counts );
-		return is_string( $key ) ? sanitize_key( $key ) : '';
+		return sanitize_key( $key );
 	}
 
 	/**

@@ -100,7 +100,7 @@ private function build_php_diagnostics_summary() {
  */
 private function build_php_extension_diagnostics_summary() {
 	$loaded = function_exists( 'get_loaded_extensions' ) ? get_loaded_extensions() : array();
-	$loaded = is_array( $loaded ) ? array_map( 'strtolower', $loaded ) : array();
+	$loaded = array_map( 'strtolower', $loaded );
 	$loaded = array_values( array_unique( array_map( array( $this, 'sanitize_diagnostics_identifier' ), $loaded ) ) );
 	sort( $loaded );
 

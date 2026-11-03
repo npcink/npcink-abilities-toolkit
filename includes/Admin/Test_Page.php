@@ -252,10 +252,8 @@ final class Test_Page {
 		}
 
 		$category_labels = array();
-		if ( null !== $this->categories && is_callable( array( $this->categories, 'all' ) ) ) {
-			foreach ( $this->categories->all() as $category_id => $category ) {
-				$category_labels[ (string) $category_id ] = (string) ( is_array( $category ) ? ( $category['label'] ?? '' ) : '' );
-			}
+		foreach ( $this->categories->all() as $category_id => $category ) {
+			$category_labels[ (string) $category_id ] = (string) ( $category['label'] ?? '' );
 		}
 
 		$groups = array();
@@ -523,11 +521,8 @@ final class Test_Page {
 	 * @return array<string,bool>|null
 	 */
 	private function get_enabled_packages() {
-		if ( class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) && method_exists( \Npcink_Abilities_Toolkit\Plugin::class, 'get_enabled_packages' ) ) {
-			$packages = \Npcink_Abilities_Toolkit\Plugin::instance()->get_enabled_packages();
-			if ( is_array( $packages ) ) {
-				return $packages;
-			}
+		if ( class_exists( \Npcink_Abilities_Toolkit\Plugin::class ) ) {
+			return \Npcink_Abilities_Toolkit\Plugin::instance()->get_enabled_packages();
 		}
 
 		return null;
@@ -741,8 +736,7 @@ final class Test_Page {
 		$categories = array();
 
 		foreach ( $registered as $definition ) {
-			$definition = is_array( $definition ) ? $definition : array();
-			$category   = (string) ( $definition['category'] ?? '' );
+			$category = (string) ( $definition['category'] ?? '' );
 			if ( '' !== $category ) {
 				$categories[ $category ] = $this->get_category_display_label( $category );
 			}
@@ -767,7 +761,6 @@ final class Test_Page {
 		$filtered = array();
 
 		foreach ( $registered as $ability_id => $definition ) {
-			$definition          = is_array( $definition ) ? $definition : array();
 			$definition_risk     = (string) ( $definition['risk_level'] ?? 'other' );
 			$definition_category = (string) ( $definition['category'] ?? '' );
 

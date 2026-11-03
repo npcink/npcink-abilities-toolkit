@@ -1614,7 +1614,6 @@ final class Core_Write_Package {
 		if ( is_wp_error( $written ) ) {
 			return $written;
 		}
-		$written = is_array( $written ) ? $written : array();
 
 		return array(
 			'post_id'   => $post_id,
@@ -3568,7 +3567,7 @@ final class Core_Write_Package {
 		if ( is_wp_error( $download ) ) {
 			return $download;
 		}
-		$tmp_file = (string) ( is_array( $download ) ? ( $download['tmp_file'] ?? '' ) : '' );
+		$tmp_file = (string) $download['tmp_file'];
 		$filetype = $this->validate_remote_media_file( $tmp_file, $filename );
 		if ( is_wp_error( $filetype ) ) {
 			return $filetype;
@@ -4389,7 +4388,7 @@ final class Core_Write_Package {
 			'before'             => is_array( $plan['before'] ?? null ) ? $plan['before'] : array(),
 			'after'              => $after,
 			'backup'             => $backup,
-			'new_media_fingerprint' => (string) ( $after['media_fingerprint'] ?? '' ),
+			'new_media_fingerprint' => (string) $after['media_fingerprint'],
 			'derived_from_media_fingerprint' => (string) ( $plan['before']['media_fingerprint'] ?? '' ),
 			'transform_type' => $this->media_transform_type_from_facts( is_array( $plan['artifact']['transform_facts'] ?? null ) ? $plan['artifact']['transform_facts'] : array() ),
 			'visual_reuse_policy' => $this->media_visual_reuse_policy_from_facts( is_array( $plan['artifact']['transform_facts'] ?? null ) ? $plan['artifact']['transform_facts'] : array() ),
@@ -5466,7 +5465,7 @@ final class Core_Write_Package {
 			'/`([^`]+)`/',
 			function ( $matches ) use ( &$tokens ) {
 				$token             = '__MAA_CODE_' . count( $tokens ) . '__';
-				$tokens[ $token ] = '<code>' . $this->escape_html( (string) ( $matches[1] ?? '' ) ) . '</code>';
+				$tokens[ $token ] = '<code>' . $this->escape_html( (string) $matches[1] ) . '</code>';
 				return $token;
 			},
 			$content
@@ -5475,8 +5474,8 @@ final class Core_Write_Package {
 			'/!\\[([^\\]]*)\\]\\((https?:\\/\\/[^\\s)]+)\\)/',
 			function ( $matches ) use ( &$tokens ) {
 				$token             = '__MAA_IMAGE_' . count( $tokens ) . '__';
-				$alt               = $this->escape_html( (string) ( $matches[1] ?? '' ) );
-				$src               = esc_url_raw( (string) ( $matches[2] ?? '' ) );
+				$alt               = $this->escape_html( (string) $matches[1] );
+				$src               = esc_url_raw( (string) $matches[2] );
 				$tokens[ $token ] = '<img src="' . $src . '" alt="' . $alt . '" />';
 				return $token;
 			},
@@ -5553,7 +5552,7 @@ final class Core_Write_Package {
 		if ( ! preg_match( $pattern, (string) $content, $matches ) ) {
 			return (string) $content;
 		}
-		$heading_text = trim( $strip_tags( html_entity_decode( (string) ( $matches[2] ?? '' ), ENT_QUOTES, 'UTF-8' ) ) );
+		$heading_text = trim( $strip_tags( html_entity_decode( (string) $matches[2], ENT_QUOTES, 'UTF-8' ) ) );
 		if ( strtolower( $heading_text ) !== strtolower( $title ) ) {
 			return (string) $content;
 		}
@@ -5736,8 +5735,8 @@ final class Core_Write_Package {
 			$post_pairs = $this->merge_media_content_reference_pairs( $pairs, $this->media_content_reference_dynamic_sized_pairs( $content, $plan ) );
 			$operations = array();
 			foreach ( $post_pairs as $pair ) {
-				$old = (string) ( $pair['old'] ?? '' );
-				$new = (string) ( $pair['new'] ?? '' );
+				$old = (string) $pair['old'];
+				$new = (string) $pair['new'];
 				if ( '' === $old || '' === $new || $old === $new || false === strpos( $content, $old ) ) {
 					continue;
 				}

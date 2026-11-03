@@ -474,6 +474,150 @@
       },
       "behavior": "32 existing fixtures: 25 data/error outputs identical; seven equivalent after individually checked fixture clock/PID fields. Outer transport/cache metadata excluded. Existing test:core/test:all reused; no new implementation-mirroring tests.",
       "limitations": "No new real-site writes, human acceptance or release verification. Fresh complete tracked baseline has its own Composer install; committed full-config reports supplement selected-path trait ownership. Final head, review and CI/merge/cleanup receipts belong to PR and ignored build/phpstan-helper-invariants-2026-11-03/."
+    },
+    {
+      "batch": "complete-inventory-adjudication",
+      "date": "2026-11-03",
+      "source_base": "72e308c7fffe09c1b0248d8e2cb358f01af64c64",
+      "php_version": "8.4.21",
+      "phpstan_version": "2.3.4",
+      "composer_install": "lock synchronized; no dependency changes",
+      "configuration": "phpstan.neon.dist; all configured paths; --level=4 --memory-limit=4G",
+      "before": {
+        "total": 579,
+        "analyzer_errors": 0,
+        "rules": {
+          "isset.property": 5,
+          "function.alreadyNarrowedType": 229,
+          "booleanAnd.rightAlwaysTrue": 6,
+          "nullCoalesce.property": 259,
+          "ternary.alwaysTrue": 4,
+          "function.impossibleType": 3,
+          "nullCoalesce.offset": 62,
+          "deadCode.unreachable": 1,
+          "isset.offset": 1,
+          "notIdentical.alwaysTrue": 5,
+          "identical.alwaysFalse": 1,
+          "booleanNot.alwaysFalse": 2,
+          "if.alwaysFalse": 1
+        }
+      },
+      "after": {
+        "total": 526,
+        "analyzer_errors": 0,
+        "rules": {
+          "isset.property": 5,
+          "function.alreadyNarrowedType": 202,
+          "nullCoalesce.property": 259,
+          "ternary.alwaysTrue": 1,
+          "function.impossibleType": 3,
+          "nullCoalesce.offset": 43,
+          "deadCode.unreachable": 1,
+          "booleanAnd.rightAlwaysTrue": 5,
+          "isset.offset": 1,
+          "notIdentical.alwaysTrue": 3,
+          "booleanNot.alwaysFalse": 2,
+          "if.alwaysFalse": 1
+        }
+      },
+      "file_counts_before_after": {
+        "Admin/Health_Notices.php": [
+          3,
+          2
+        ],
+        "Admin/Test_Page.php": [
+          12,
+          6
+        ],
+        "Packages/Core_Write_Package.php": [
+          51,
+          42
+        ],
+        "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": [
+          22,
+          19
+        ],
+        "Packages/Read_Traits/Diagnostics_Read_Methods.php": [
+          51,
+          50
+        ],
+        "Packages/Read_Traits/Gutenberg_Composer_Repair_Read_Methods.php": [
+          1,
+          0
+        ],
+        "Packages/Read_Traits/Internal_Link_Read_Methods.php": [
+          1,
+          0
+        ],
+        "Packages/Read_Traits/Media_Read_Methods.php": [
+          15,
+          11
+        ],
+        "Packages/Read_Traits/Post_Primitives_Read_Methods.php": [
+          76,
+          74
+        ],
+        "Packages/Read_Traits/Publishing_Workflow_Read_Methods.php": [
+          10,
+          9
+        ],
+        "Packages/Read_Traits/Style_Read_Methods.php": [
+          6,
+          5
+        ],
+        "Packages/Write_Traits/Cloud_Media_Write_Methods.php": [
+          31,
+          24
+        ],
+        "Packages/Write_Traits/Media_Backup_Write_Methods.php": [
+          11,
+          3
+        ],
+        "Packages/Write_Traits/Media_Reference_Discovery_Write_Methods.php": [
+          6,
+          3
+        ],
+        "Support/Cloud_Derivative_Artifact.php": [
+          10,
+          6
+        ],
+        "Support/Gutenberg_Block_Document.php": [
+          2,
+          1
+        ]
+      },
+      "classification": {
+        "simplified_local_invariants": 49,
+        "corrected_parameter_models_runtime_validation_preserved": 4,
+        "confirmed_runtime_defects": 0,
+        "retained_dispositions": 526,
+        "remaining_not_semantically_adjudicated": 0,
+        "retained_by_category": {
+          "retain-boundary-defense": 374,
+          "retain-model-discrepancy": 118,
+          "retain-traversal-defense": 24,
+          "retain-reviewed-redundancy": 10
+        }
+      },
+      "adjudication_ledger": "phpstan-level4-adjudication-2026-11-03.json",
+      "interpretation": "Each inventory occurrence has an explicit decision, including accepted redundant boundary/traversal defenses. Disposition is not diagnostic suppression, numeric clearance, proof that every defensive path is reachable, or exhaustive runtime validation. Future source/tool changes require fresh inventory. The older 634 routing inventory is not relabeled as semantic review.",
+      "input_sha256": {
+        "composer.lock": "5464437aadb483e77b13e68e7effbecb33f168ff8a635c34030bf19032a3297a",
+        "phpstan.neon.dist": "0da5029a7c35f03107ac5bf02ed00ce861673d09d1e3c09b29fbfbdb079acfd2",
+        "tests/phpstan-bootstrap.php": "67c5a33d2d5a49a92bc924b66ef8b3b0c84942b80ea51bdf732f24983dc393c4"
+      },
+      "raw_reports": {
+        "level4-before.json": "34935756a1ce7a8b1e14f298227e09161a6a2fec58364981fa2951b76c639a9f",
+        "level4-candidate.json": "1b55b3d3102ad5b826140949bbb3ee12739915903545aa7396a6dc6860ff00f6"
+      },
+      "behavior": {
+        "existing_fixtures": 41,
+        "exactly_identical": 38,
+        "equivalent_after_explicit_fixture_pid_normalization": 3,
+        "individually_checked_fields": 13,
+        "scope": "Existing data envelopes/errors only; outer transport/cache metadata excluded. No normalized authority, error, permission, readiness, content or count fields."
+      },
+      "limitations": "No new real-site writes, human acceptance or release verification. Decisions are revision-bound, not suppression. Full committed configured-path reports supplement selected trait counts. Final head/review/CI/merge/cleanup evidence belongs to PR and build/phpstan-complete-triage-2026-11-03/."
     }
   ]
 }

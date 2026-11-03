@@ -34,7 +34,7 @@ final class Gutenberg_Block_Document {
 	 * Normalizes one block list payload recursively.
 	 *
 	 * @param mixed        $blocks Raw block list.
-	 * @param array<mixed> $errors Validation error rows.
+	 * @param mixed        $errors Validation error rows; non-arrays are initialized.
 	 * @param string       $path Path hint.
 	 * @param int          $depth Current recursion depth.
 	 * @param array<mixed> $stats Traversal stats.
