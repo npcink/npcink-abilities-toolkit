@@ -360,7 +360,7 @@ trait Block_Theme_Read_Methods {
 		$batch_blocking_targets = array();
 		foreach ( $block_editor_reviews as $block_editor_review_row ) {
 			if ( empty( $block_editor_review_row['quality_gate']['ready_for_proposal'] ) ) {
-				$batch_blocking_targets[] = sanitize_key( (string) ( $block_editor_review_row['slug'] ?? '' ) );
+				$batch_blocking_targets[] = sanitize_key( (string) $block_editor_review_row['slug'] );
 			}
 		}
 		$batch_ready_for_proposal = ! empty( $write_actions ) && empty( $batch_blocking_targets );
@@ -671,7 +671,7 @@ trait Block_Theme_Read_Methods {
 		$batch_blocking_targets = array();
 		foreach ( $block_editor_reviews as $block_editor_review_row ) {
 			if ( empty( $block_editor_review_row['quality_gate']['ready_for_proposal'] ) ) {
-				$batch_blocking_targets[] = sanitize_key( (string) ( $block_editor_review_row['slug'] ?? '' ) );
+				$batch_blocking_targets[] = sanitize_key( (string) $block_editor_review_row['slug'] );
 			}
 		}
 		$batch_ready_for_proposal = ! empty( $write_actions ) && empty( $batch_blocking_targets );
@@ -2262,7 +2262,7 @@ trait Block_Theme_Read_Methods {
 		$deduped = array();
 		$seen    = array();
 		foreach ( $candidates as $candidate ) {
-			$slug = sanitize_key( (string) ( $candidate['slug'] ?? '' ) );
+			$slug = sanitize_key( (string) $candidate['slug'] );
 			if ( '' === $slug || in_array( $slug, $seen, true ) ) {
 				continue;
 			}

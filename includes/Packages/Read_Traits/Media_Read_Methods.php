@@ -144,7 +144,7 @@ trait Media_Read_Methods {
 			array_filter(
 				$candidates,
 				static function ( $candidate ) {
-					return is_array( $candidate ) && (int) ( $candidate['match_score'] ?? 0 ) >= 90;
+					return (int) ( $candidate['match_score'] ?? 0 ) >= 90;
 				}
 			)
 		);
@@ -355,7 +355,6 @@ trait Media_Read_Methods {
 		$format_attention_count = 0;
 		$vision_fallback_count = 0;
 		foreach ( $assets as $index => $asset ) {
-			$asset = is_array( $asset ) ? $asset : array();
 			$alt = sanitize_text_field( (string) ( $asset['alt'] ?? '' ) );
 			$title = sanitize_text_field( (string) ( $asset['title'] ?? '' ) );
 			$caption = sanitize_textarea_field( (string) ( $asset['caption'] ?? '' ) );
@@ -600,7 +599,7 @@ trait Media_Read_Methods {
 					$this->block_matches_inline_paragraph_target( $existing_block, $plan_row, $current_paragraph_index )
 					|| $this->block_matches_inline_target( $existing_block, $plan_row )
 				) {
-					if ( ! isset( $insertions_by_index[ $block_index ] ) || ! is_array( $insertions_by_index[ $block_index ] ) ) {
+					if ( ! isset( $insertions_by_index[ $block_index ] ) ) {
 						$insertions_by_index[ $block_index ] = array();
 					}
 					$insertions_by_index[ $block_index ][] = $inline_block;
@@ -629,7 +628,7 @@ trait Media_Read_Methods {
 		$composed_blocks = array();
 		foreach ( $existing_blocks as $block_index => $existing_block ) {
 			$composed_blocks[] = $existing_block;
-			if ( ! empty( $insertions_by_index[ $block_index ] ) && is_array( $insertions_by_index[ $block_index ] ) ) {
+			if ( ! empty( $insertions_by_index[ $block_index ] ) ) {
 				foreach ( $insertions_by_index[ $block_index ] as $inserted_block ) {
 					$composed_blocks[] = $inserted_block;
 				}
@@ -1173,7 +1172,7 @@ trait Media_Read_Methods {
 			array(
 				'target_max_width'           => $target_max_width,
 				'large_file_threshold_bytes' => $large_file_threshold,
-				'preferred_format'           => in_array( $target_format, array( 'webp', 'avif', 'original' ), true ) ? $target_format : 'webp',
+				'preferred_format'           => $target_format,
 			)
 		);
 		$skip_reason = $this->resolve_media_derivative_batch_skip_reason(
@@ -1429,7 +1428,7 @@ trait Media_Read_Methods {
 			),
 		);
 		$derivative_preview['content_reference_repairs'] = $this->build_media_optimization_content_reference_repairs( $attachment_id, $current_relative_file, $artifact, $reviewed_file_name );
-		$content_reference_repairs = is_array( $derivative_preview['content_reference_repairs'] ) ? $derivative_preview['content_reference_repairs'] : array();
+		$content_reference_repairs = $derivative_preview['content_reference_repairs'];
 		$derivative_input['expected_content_reference_post_ids'] = array_values(
 			array_map(
 				array( $this, 'absint_value' ),
@@ -2745,9 +2744,6 @@ trait Media_Read_Methods {
 	private function build_media_derivative_batch_blocked_items( array $skipped ) {
 		$blocked_items = array();
 		foreach ( $skipped as $item ) {
-			if ( ! is_array( $item ) ) {
-				continue;
-			}
 			$reason = sanitize_key( (string) ( $item['reason'] ?? 'skipped' ) );
 			$blocked_items[] = array(
 				'attachment_id'        => $this->absint_value( $item['attachment_id'] ?? 0 ),
@@ -3088,7 +3084,6 @@ trait Media_Read_Methods {
 			if ( count( $actions ) >= $max_settings ) {
 				break;
 			}
-			$candidate = is_array( $candidate ) ? $candidate : array();
 			$target_type = sanitize_key( (string) ( $candidate['target_type'] ?? '' ) );
 			$target_name = sanitize_key( (string) ( $candidate['target_name'] ?? '' ) );
 			if ( ! in_array( $target_type, array( 'option', 'theme_mod' ), true ) || '' === $target_name ) {
@@ -3542,7 +3537,7 @@ trait Media_Read_Methods {
 		$seed = '' !== $title ? $title : ( '' !== $file_label ? $file_label : 'Media asset ' . $this->absint_value( $attachment_id ) );
 		$alt_parts = array_filter( array( $seed, '' !== $focus_keyword ? $focus_keyword : '', '' !== $article_title && $article_title !== $seed ? $article_title : '' ) );
 		$caption_seed = '' !== $article_excerpt ? $article_excerpt : ( '' !== $article_title ? $article_title : $seed );
-		$description_seed = trim( implode( ' ', array_filter( array( $caption_seed, '' !== $seed && false === strpos( $caption_seed, $seed ) ? $seed : '' ) ) ) );
+		$description_seed = trim( implode( ' ', array_filter( array( $caption_seed, false === strpos( $caption_seed, $seed ) ? $seed : '' ) ) ) );
 
 		return array(
 			'alt'         => $this->trim_media_seo_text( implode( ' - ', $alt_parts ), 140 ),

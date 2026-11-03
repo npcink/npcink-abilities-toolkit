@@ -208,7 +208,7 @@ trait Article_Production_Read_Methods {
 		if ( count( $paragraph_lengths ) >= 3 ) {
 			$max_length = max( $paragraph_lengths );
 			$min_length = min( $paragraph_lengths );
-			if ( $max_length > 0 && ( $max_length - $min_length ) <= 18 ) {
+			if ( ( $max_length - $min_length ) <= 18 ) {
 				$template_findings[] = '段落长度过于整齐，缺少自然节奏变化。';
 				$naturalness -= 6;
 			}
@@ -661,9 +661,7 @@ trait Article_Production_Read_Methods {
 				'type'     => 'citation_coverage',
 				'priority' => 'medium',
 				'title'    => sprintf( '引用标注：%d 处', $citation_count ),
-				'detail'   => $citation_count > 0
-					? 'GEO 分析已标注引用来源，建议在编辑时保留关键引用。'
-					: '未检测到引用标注，建议补充来源引用以提高 GEO 评分。',
+				'detail'   => 'GEO 分析已标注引用来源，建议在编辑时保留关键引用。',
 			);
 		}
 		if ( ! empty( $faq_page_schema ) ) {

@@ -1159,16 +1159,7 @@ trait Article_Optimization_Read_Methods {
 			}
 		}
 
-		return array_values(
-			array_unique(
-				array_filter(
-					$keywords,
-					static function ( $value ) {
-						return '' !== (string) $value;
-					}
-				)
-			)
-		);
+		return array_values( array_unique( $keywords ) );
 	}
 
 	/**
