@@ -28,7 +28,7 @@ runtime bug counts: this pass establishes no new runtime defect.
 
 The [adjudication ledger](../evidence/phpstan-level4-adjudication-2026-11-03.json)
 records every baseline occurrence with immutable source/tree, file hashes,
-original expression, function, rule, duplicate occurrence and one of 54 explicit
+base source locator, function, rule, duplicate occurrence and one of 54 explicit
 proof/retention groups. This is separate from the older source-routing inventory.
 Dispositions: 374 boundary defenses, 118 model/runtime discrepancies, 24 uniform
 recursive traversal defenses and ten individually accepted redundant checks.

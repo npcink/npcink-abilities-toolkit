@@ -327,7 +327,7 @@ configuration expansion/contraction or dependency changes.
 | Accepted individually reviewed redundancy at bounded interfaces | 10 |
 
 Every occurrence, including same-line duplicate rules and trait class context,
-has its base location, expression, enclosing function and explicit decision in
+has its exact base source location, enclosing function and explicit decision in
 54 proof groups. The immutable source/tree and per-file hashes bind the ledger;
 this is semantic disposition, not relabeling the older 634 source-routing list.
 All 526 surviving diagnostics remain visible. An accepted redundant guard is
