@@ -230,6 +230,70 @@
         "level4-after.json": "5cc26ea436e5f67346f1a29783045e9397fb34c3532679e3c28947ab1b2c92fa"
       },
       "limitations": "Source/isolated behavior evidence only; no new Local WordPress, production, human repeat-use or release acceptance. Final committed base/head evidence and review receipt stay local and are bound in the containing PR."
+    },
+    {
+      "batch": "topic-coverage-local-counts",
+      "date": "2026-11-03",
+      "source_base": "1ecb3be118bfae7b2b8d334e17c4fa61ce8129e0",
+      "phpstan_version": "2.3.4",
+      "php_version": "8.4.21",
+      "composer_install": "lock synchronized; no dependency changes",
+      "configuration": "phpstan.neon.dist; full configured paths including Core_Read_Package class context; --level=4 --memory-limit=4G --no-progress --error-format=json",
+      "input_sha256": {
+        "composer.lock": "5464437aadb483e77b13e68e7effbecb33f168ff8a635c34030bf19032a3297a",
+        "phpstan.neon.dist": "0da5029a7c35f03107ac5bf02ed00ce861673d09d1e3c09b29fbfbdb079acfd2",
+        "tests/phpstan-bootstrap.php": "67c5a33d2d5a49a92bc924b66ef8b3b0c84942b80ea51bdf732f24983dc393c4",
+        "includes/Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php": "8b6b9556c501dfcfb63ba5c77e0935799d7d9fdc6860e231ec7be57c7f615301"
+      },
+      "report_complete": true,
+      "before": {
+        "total": 638,
+        "analyzer_errors": 0,
+        "file": "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php",
+        "file_total": 28,
+        "nullCoalesce.offset": 98
+      },
+      "after": {
+        "total": 634,
+        "analyzer_errors": 0,
+        "file": "Packages/Read_Traits/Content_Refresh_SEO_Read_Methods.php",
+        "file_total": 24,
+        "nullCoalesce.offset": 94
+      },
+      "other_file_and_rule_counts": "unchanged in complete reports",
+      "removed": [
+        {
+          "base_line": 670,
+          "identifier": "nullCoalesce.offset",
+          "count": 2,
+          "source": "Both comparator operands come only from topic_map rows constructed locally with count=0 and incremented before use; array_values preserves every row."
+        },
+        {
+          "base_line": 675,
+          "identifier": "nullCoalesce.offset",
+          "count": 1,
+          "source": "array_slice of the same sorted local topics preserves each count field; only integer increment modifies counts."
+        },
+        {
+          "base_line": 677,
+          "identifier": "nullCoalesce.offset",
+          "count": 1,
+          "source": "Every local topic_map row includes topic. No filter/cache/callback receives the rows before the gap read. Existing string cast and sanitize_text_field remain; required field presence is not used to relax value normalization."
+        }
+      ],
+      "classification": {
+        "redundant_local_defaults_removed": 4,
+        "confirmed_runtime_defects": 0,
+        "previously_reviewed_boundary_findings_retained": 7,
+        "remaining_not_semantically_adjudicated": 627
+      },
+      "retained": "All other 24 trait findings are unchanged and deferred, including WordPress post properties, query return guards, internal-link object fallback, helper-return checks and regex match handling. All input, permission, query bound, term sanitization and existing integer/string conversions remain.",
+      "behavioral_evidence": "Reuse existing topic coverage success/scanned/topics fixture in tests/run/90-media-inventory-article-plans.php through source gates; compare its complete output at exact baseline and head, including sorted counts and one-post coverage gaps.",
+      "raw_reports": {
+        "level4-before.json": "5cc26ea436e5f67346f1a29783045e9397fb34c3532679e3c28947ab1b2c92fa",
+        "level4-after.json": "cf0c50a0f7cd674f71367c7b742c0753f4f635a6ff4ca5896ac85736b5ba0ffe"
+      },
+      "verification_limit": "A trait-only changed-file ratchet can report 0/0; require final committed base/head full configured-path reports with class-context 28/24 and no other-file growth. No new Local runtime, production, human repeat-use or release acceptance."
     }
   ]
 }
