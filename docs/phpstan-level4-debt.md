@@ -172,3 +172,34 @@ write authority is introduced. Full reports stay in ignored
 `build/maintenance-2026-11-03/`; hashes and focused provenance remain in the
 tracked classification. See the [stage record](archive/phpstan-and-local-git-maintenance-2026-11-03.md)
 for preservation and historical Git exceptions.
+
+## Follow-up batch: local comment priority scores — 2026-11-03
+
+At `bf11b3840891d1eca18b99cf2c9675d6a173342b`, a fresh `composer install`
+made no dependency changes and PHPStan 2.3.4 reproduced **640** diagnostics
+with zero analyzer errors over all configured paths. The new batch is recorded
+in `follow_up_batches` in the [classification JSON](evidence/phpstan-level4-debt-2026-11-03.json);
+its root before/after fields remain the earlier Gutenberg snapshot.
+
+`Core_Comment_Package::get_comment_action_priority_queue` initializes `items`
+locally and appends only literal rows with `priority_score`. The score starts
+with `(int) round($confidence * 50)` and changes only through integer additions.
+No filter, cache or external callback receives those rows before `usort`.
+Remove the two `?? 0` defaults in its comparator, retaining the original integer
+casts and every normalization step. These are redundant local defaults, not
+two confirmed runtime bugs or a claim about external comment objects.
+
+The file decreases **23 → 21**, repository total and ceiling **640 → 638**,
+and `nullCoalesce.offset` **100 → 98**. Every other file and rule count stays
+unchanged. All 21 remaining findings in this file are deferred: filter-return
+checks, queried comment array/object checks and WordPress property defaults.
+They remain unchanged; this batch does not establish that they are removable.
+The previous seven reviewed Gutenberg boundary findings remain; **631** other
+remaining diagnostics still await semantic adjudication.
+
+Existing comment queue sorting/count/success and compliance-handoff checks are
+reused. No new ignore, PHPDoc, conversion, public contract or runtime authority
+is introduced. Stop after this batch; a later batch can examine locally built
+content-refresh topic counts with its own provenance decision. See the
+[batch record](archive/phpstan-comment-priority-invariants-2026-11-03.md) for
+scope, evidence and limitations.
