@@ -1,7 +1,7 @@
 # System Audit And Closeout Standard
 
 Status: active operating standard.
-Last updated: 2026-10-14.
+Last updated: 2026-11-03.
 
 This document turns the 2026-07-30 system audit and closeout into a reusable
 development standard for `npcink-abilities-toolkit`. It records both the
@@ -276,7 +276,8 @@ Use the repository publisher:
 ```bash
 composer pr:publish -- \
   --title "describe the focused change" \
-  --body-file /absolute/path/to/completed-pr-body.md
+  --body-file /absolute/path/to/completed-pr-body.md \
+  --local-review /absolute/path/to/successful-local-review.json
 ```
 
 Wait for every required check on the final head revision. If a push changes the
@@ -326,6 +327,37 @@ earlier clean matrix is not a claim about the current sibling checkouts.
 
 The [October 14 closeout](archive/session-closeout-2026-10-14.md) records the
 translation permission correction and the verified branch preservation ledger.
+
+### Follow-Up Evidence Lessons
+
+The [November 3 closeout](archive/toolkit-maintenance-closeout-2026-11-03.md)
+records the maintenance and release-preparation evidence behind these lessons:
+
+- Move a milestone summary out of ignored `build/` into `docs/archive/` before
+  handoff. Retain sensitive fixtures, credentials and raw local state outside
+  version control; a summary must remain useful without those local files.
+- A failed model request is failed review evidence. A later successful review
+  with a changed key and model does not isolate the cause or prove the former
+  provider's quota recovered. Follow central review policy rather than adding
+  provider rules to Toolkit.
+- Identify legacy fixtures by source, run identity, exact content and current
+  references before reversible isolation. A title prefix alone is insufficient;
+  removing old fixtures does not prove the lifecycle root cause is fixed.
+- Record repeated HTTP semantic results, content omission and credential
+  revocation separately from human repeat-use, recommendation quality and time
+  saved. Preserve an operator's decision to observe before redesigning.
+- Classify static-analysis findings by value provenance. Internal required keys,
+  host-filtered values and filesystem observations need different treatment;
+  a falling diagnostic total is not a count of runtime defects fixed.
+- Verify preserved screenshot blobs against current exports and check intervening
+  UI source changes before declaring them undelivered. Missing branch ancestry
+  and missing delivered assets are different findings.
+- Keep candidate, squash-merged source and artifact identities distinct. Equal
+  package hashes do not make an old exact-HEAD runtime receipt current. Recheck
+  the intended release source, SVN freshness and publication state when resuming.
+- Distinguish source delivery, release readiness and Git steady-state cleanup in
+  the final report. A clean master and remote do not clear retained local refs;
+  a backed-up cleanup exception can be handed off without claiming it passed.
 
 ## Evidence Matrix By Change Type
 
