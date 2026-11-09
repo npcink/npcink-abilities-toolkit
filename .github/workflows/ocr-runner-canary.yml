@@ -92,7 +92,7 @@ jobs:
         # and record the new tag-to-commit pair.
         # This pins the Action wrapper; ocr_version still defaults to latest.
         # It does not establish CLI reproducibility or fix prior HTTP 400s.
-        uses: alibaba/open-code-review@375f64cd6f67a48a135da83cfcf59c52669a09cb
+        uses: alibaba/open-code-review@891df1b63f380845d882a289a67a6e36c331120c
         with:
           llm_url: ${{ secrets.OCR_LLM_URL }}
           llm_auth_token: ${{ secrets.OCR_LLM_AUTH_TOKEN }}
