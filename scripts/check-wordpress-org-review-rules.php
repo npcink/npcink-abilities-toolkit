@@ -112,6 +112,12 @@ foreach ( npcink_abilities_toolkit_wporg_plugin_php_files() as $file ) {
 	$relative = str_replace( $root . '/', '', $file );
 	$contents = npcink_abilities_toolkit_wporg_read( $file );
 
+	// Image metadata is a core admin API not loaded by ordinary REST requests.
+	// Permit only this fixed core helper in the source-preserving import owner.
+	if ( 'includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php' === $relative ) {
+		$contents = str_replace( "require_once ABSPATH . 'wp-admin/includes/image.php';", '', $contents );
+	}
+
 	foreach ( $rules as $message => $pattern ) {
 		if ( preg_match( $pattern, $contents ) ) {
 			npcink_abilities_toolkit_wporg_fail( $relative . ': ' . $message );

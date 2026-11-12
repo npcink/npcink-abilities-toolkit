@@ -5670,3 +5670,19 @@ msgid ""
 "Use an unambiguous Y-m-d H:i:s time or RFC3339 timestamp with an explicit "
 "offset."
 msgstr "명확한 Y-m-d H:i:s 형식의 날짜와 시간 또는 UTC 오프셋을 명시한 RFC3339 타임스탬프를 사용하세요."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Save Cloud Image As New Media"
+msgstr "클라우드 이미지를 새 미디어로 저장"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Imports a verified Cloud image as a new attachment after host approval. Preserves the source and existing article references."
+msgstr "호스트 승인 후 검증된 클라우드 이미지를 새 첨부 파일로 가져옵니다. 원본과 기존 글의 참조를 유지합니다."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The processed image could not be saved as new media. Review the source and result before trying again."
+msgstr "처리된 이미지를 새 미디어로 저장하지 못했습니다. 원본과 결과를 확인한 후 다시 시도하세요."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
+msgstr "가져오기 실패 후 새 미디어를 삭제하지 못했습니다. 이 첨부 파일을 확인한 후 다시 시도하세요."

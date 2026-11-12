@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Core_Write_Package {
 	use Taxonomy_Assignment_Write_Methods;
 	use Cloud_Media_Write_Methods;
+	use Cloud_Media_Import_Write_Methods;
 	use Media_Backup_Write_Methods;
 	use Media_Rename_Write_Methods;
 	use Flagged_Media_Restore_Write_Methods;
@@ -1107,6 +1108,7 @@ final class Core_Write_Package {
 					),
 					'execute_callback' => array( $this, 'rename_media_file' ),
 				),
+				'npcink-abilities-toolkit/import-cloud-media-derivative' => $this->cloud_media_import_definition(),
 				'npcink-abilities-toolkit/adopt-cloud-media-derivative' => array(
 					'label'           => __( 'Adopt Cloud Media Derivative', 'npcink-abilities-toolkit' ),
 					'description'     => __( 'Adopts one approved short-lived Cloud derivative artifact as the attachment main file, with local backup and rollback metadata.', 'npcink-abilities-toolkit' ),

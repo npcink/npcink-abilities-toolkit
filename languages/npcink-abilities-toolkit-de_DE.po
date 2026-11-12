@@ -6520,3 +6520,19 @@ msgid ""
 msgstr ""
 "Verwenden Sie eine eindeutige Zeitangabe im Format Y-m-d H:i:s oder einen "
 "RFC3339-Zeitstempel mit explizitem UTC-Offset."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Save Cloud Image As New Media"
+msgstr "Cloud-Bild als neues Medium speichern"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Imports a verified Cloud image as a new attachment after host approval. Preserves the source and existing article references."
+msgstr "Importiert nach Host-Freigabe ein verifiziertes Cloud-Bild als neuen Anhang. Quelle und bestehende Artikelverweise bleiben erhalten."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The processed image could not be saved as new media. Review the source and result before trying again."
+msgstr "Das verarbeitete Bild konnte nicht als neues Medium gespeichert werden. Prüfen Sie Quelle und Ergebnis vor einem erneuten Versuch."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
+msgstr "Das neue Medium konnte nach einem fehlgeschlagenen Import nicht entfernt werden. Prüfen Sie den Anhang vor einem erneuten Versuch."
