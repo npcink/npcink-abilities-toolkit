@@ -208,3 +208,12 @@ Recommended rollout order:
 - Treat actual file mutation as high risk and host-approved.
 - Do not submit or adopt Cloud derivative artifacts without exact SHA-256,
   size, dimension, MIME, and expiry evidence.
+
+## Reviewed replacement source guard — 2026-11-12
+
+`adopt-cloud-media-derivative` exposes the existing optional
+`expected_current_media_fingerprint` guard in its input schema (canonical
+`sha256:<64 lowercase hex>`). The Toolbox replacement request supplies the
+reviewed source fingerprint. Existing expected-state validation rejects changed
+bytes before transfer/write; existing precommit CAS, backup and restore remain.
+This additive field introduces no new writer or replacement implementation.

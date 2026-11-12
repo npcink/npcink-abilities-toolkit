@@ -1123,6 +1123,7 @@ final class Core_Write_Package {
 							'derivative_artifact'            => Cloud_Derivative_Artifact::schema(),
 							'expected_current_relative_file' => array( 'type' => 'string' ),
 							'expected_current_mime_type'     => array( 'type' => 'string' ),
+							'expected_current_media_fingerprint' => array( 'type' => 'string', 'pattern' => '^sha256:[0-9a-f]{64}$' ),
 							'expected_derivative_mime_type'  => array( 'type' => 'string' ),
 							'expected_storage_provider'      => array( 'type' => 'string' ),
 							'expected_storage_adapter'       => array( 'type' => 'string' ),

@@ -1136,4 +1136,7 @@ require __DIR__ . '/run/90-media-inventory-article-plans.php';
 require __DIR__ . '/run/95-content-intent-routing.php';
 require __DIR__ . '/run/99-page-patterns-closeout.php';
 
+$adopt_contract = substr( $core_write_source, strpos( $core_write_source, "'npcink-abilities-toolkit/adopt-cloud-media-derivative' => array(" ), 4500 );
+npcink_abilities_toolkit_assert_true( false !== strpos( $adopt_contract, "'expected_current_media_fingerprint' => array( 'type' => 'string', 'pattern' => '^sha256:[0-9a-f]{64}$' )" ), 'Cloud adoption exposes its existing source fingerprint drift guard in the public schema' );
+
 echo "OK: {$assertions} assertions\n";
