@@ -6441,3 +6441,19 @@ msgid ""
 msgstr ""
 "Use uma data e hora inequívoca no formato Y-m-d H:i:s ou um carimbo de "
 "data/hora RFC3339 com deslocamento UTC explícito."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Save Cloud Image As New Media"
+msgstr "Salvar imagem da nuvem como nova mídia"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Imports a verified Cloud image as a new attachment after host approval. Preserves the source and existing article references."
+msgstr "Importa uma imagem verificada da nuvem como um novo anexo após aprovação do site. Preserva o original e as referências dos artigos."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The processed image could not be saved as new media. Review the source and result before trying again."
+msgstr "Não foi possível salvar a imagem processada como nova mídia. Revise o original e o resultado antes de tentar novamente."
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
+msgstr "Não foi possível remover a nova mídia após a falha na importação. Revise este anexo antes de tentar novamente."

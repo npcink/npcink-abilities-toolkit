@@ -5675,3 +5675,19 @@ msgid ""
 "Use an unambiguous Y-m-d H:i:s time or RFC3339 timestamp with an explicit "
 "offset."
 msgstr "曖昧さのない Y-m-d H:i:s 形式の日時、または UTC オフセットを明示した RFC3339 タイムスタンプを使用してください。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Save Cloud Image As New Media"
+msgstr "クラウド画像を新しいメディアとして保存"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Imports a verified Cloud image as a new attachment after host approval. Preserves the source and existing article references."
+msgstr "ホストの承認後、検証済みのクラウド画像を新しい添付ファイルとして取り込みます。元画像と記事内の既存の参照を保持します。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The processed image could not be saved as new media. Review the source and result before trying again."
+msgstr "処理済み画像を新しいメディアとして保存できませんでした。元画像と結果を確認してから再試行してください。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
+msgstr "取り込み失敗後に新しいメディアを削除できませんでした。この添付ファイルを確認してから再試行してください。"

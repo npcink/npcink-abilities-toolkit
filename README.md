@@ -376,3 +376,10 @@ composer validate:composer
 ```
 
 The demo provider plugin lives in `examples/demo-plugin/`.
+
+### Save a processed Cloud image as new media
+
+`npcink-abilities-toolkit/import-cloud-media-derivative` imports a verified Cloud
+artifact as a distinct attachment after host approval, preserving the source and
+article references. It does not replace an attachment. See
+[the contract](docs/cloud-media-import-v1.md).

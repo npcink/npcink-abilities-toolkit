@@ -5533,3 +5533,19 @@ msgid ""
 "Use an unambiguous Y-m-d H:i:s time or RFC3339 timestamp with an explicit "
 "offset."
 msgstr "请使用无歧义的 Y-m-d H:i:s 时间，或带有明确 UTC 偏移量的 RFC3339 时间戳。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Save Cloud Image As New Media"
+msgstr "将云端处理图片另存为新媒体"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "Imports a verified Cloud image as a new attachment after host approval. Preserves the source and existing article references."
+msgstr "经主机批准后，将已验证的云端图片保存为新附件。保留原图和文章中的现有引用。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The processed image could not be saved as new media. Review the source and result before trying again."
+msgstr "无法将处理后的图片另存为新媒体。请检查原图和处理结果后重试。"
+
+#: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
+msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
+msgstr "导入失败后无法移除新媒体。请先检查此附件，再重试。"
