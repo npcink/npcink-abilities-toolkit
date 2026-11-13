@@ -6,6 +6,7 @@ wp_set_current_user( $users[0]->ID );
 $categories = new \Npcink_Abilities_Toolkit\Registry\Category_Registrar();
 $registrar = new \Npcink_Abilities_Toolkit\Registry\Ability_Registrar( $categories, new \Npcink_Abilities_Toolkit\Registry\Contract_Normalizer( new \Npcink_Abilities_Toolkit\Registry\Schema_Normalizer() ) );
 $package = new \Npcink_Abilities_Toolkit\Packages\Core_Write_Package( $categories, $registrar );
+$reader = new \Npcink_Abilities_Toolkit\Packages\Core_Read_Package( $categories, $registrar );
 $invoke = static function ( $method, ...$args ) use ( $package ) { $reflection = new ReflectionMethod( $package, $method ); $reflection->setAccessible( true ); return $reflection->invokeArgs( $package, $args ); };
 $check = static function ( $ok, $message ) { if ( ! $ok ) { throw new RuntimeException( $message ); } echo "PASS: $message\n"; };
 $id = 0; $shared_id = 0; $scope = null; $block_delete = null;
@@ -33,6 +34,8 @@ try {
 	$save = static function ( $rows ) use ( $id ) { update_post_meta( $id, '_npcink_ai_media_file_replacement_history', $rows ); };
 	$get = static function () use ( $id ) { return get_post_meta( $id, '_npcink_ai_media_file_replacement_history', true ); };
 	$save( array( $record, $legacy ) );
+	$read = $reader->list_media_backups( array( 'attachment_id' => $id ) );
+	$check( ! is_wp_error( $read ) && ! empty( $read['data']['backups'][0]['temporary_backup']['restorable'] ), 'Installed read ability projects the active recovery window' );
 	$scope = static function ( $query ) use ( $id ) { if ( '_npcink_ai_media_file_replacement_history' === $query->get( 'meta_key' ) && $query->get( 'npcink_abilities_toolkit_cleanup_after_id' ) !== '' ) { $query->set( 'post__in', array( $id ) ); } };
 	add_action( 'pre_get_posts', $scope );
 	$package->cleanup_expired_media_backups();
@@ -72,6 +75,8 @@ try {
 	$check( ! is_file( $path ) && 'cleaned' === $receipt['state'] && $expected_bytes === $receipt['removed_bytes'], 'Retry removes exactly the frozen old file set and reports actual reclaimed bytes' );
 	$package->cleanup_expired_media_backups();
 	$check( $get()[0]['temporary_backup']['removed_bytes'] === $expected_bytes && is_file( $dir . '/current.png' ) && is_file( $backup_dir . '/legacy.png' ) && $get()[1] === $legacy, 'Repeated maintenance preserves current files and historical manual backups without double-counting' );
+	$read = $reader->list_media_backups( array( 'attachment_id' => $id ) );
+	$check( ! is_wp_error( $read ) && $expected_bytes === $read['data']['backups'][0]['temporary_backup']['removed_bytes'] && ! $read['data']['backups'][0]['temporary_backup']['restorable'], 'Installed read ability reports actual cleanup bytes and disables recovery' );
 	$check( glob( $dir . '/source*' ) === array(), 'No old original or thumbnail files remain after successful cleanup' );
 } finally {
 	if ( $block_delete ) { remove_filter( 'wp_delete_file', $block_delete ); }

@@ -116,7 +116,7 @@ trait Temporary_Media_Backup_Write_Methods {
 	/** @return mixed */
 	private function with_media_backup_lock( callable $callback ) {
 		$uploads = wp_upload_dir( null, false );
-		$path = (string) ( $uploads['basedir'] ?? '' ) . '/.npcink-media-backup.lock';
+		$path = (string) $uploads['basedir'] . '/.npcink-media-backup.lock';
 		if ( ! empty( $uploads['error'] ) || ! $this->is_media_uploads_path_allowed( $path ) || is_link( $path ) ) {
 			return new \WP_Error( 'npcink_media_backup_lock_unavailable', 'Media maintenance is unavailable.', array( 'status' => 409 ) );
 		}
