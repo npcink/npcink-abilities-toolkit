@@ -191,8 +191,9 @@ trait Temporary_Media_Backup_Write_Methods {
 		$base = rtrim( $this->media_uploads_base_dir(), '/' );
 		for ( $parent = dirname( $path ); strlen( $parent ) > strlen( $base ); $parent = dirname( $parent ) ) { if ( is_link( $parent ) ) { return array(); } }
 		$stat = lstat( $path );
+		if ( ! $stat || ( $stat['mode'] & 0170000 ) !== 0100000 || (int) $stat['nlink'] !== 1 ) { return array(); }
 		$sha = hash_file( 'sha256', $path );
-		if ( ! $stat || ( $stat['mode'] & 0170000 ) !== 0100000 || (int) $stat['nlink'] !== 1 || ! is_string( $sha ) ) { return array(); }
+		if ( ! is_string( $sha ) ) { return array(); }
 		return array( 'device' => (int) $stat['dev'], 'inode' => (int) $stat['ino'], 'filesize_bytes' => (int) $stat['size'], 'sha256' => $sha );
 	}
 

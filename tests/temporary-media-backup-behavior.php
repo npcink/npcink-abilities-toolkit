@@ -75,6 +75,11 @@ try {
 	$db->rows = array(); unset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][9902] );
 	$bad = $input; $bad['expected_current_media_fingerprint'] = 'sha256:' . str_repeat( '0', 64 );
 	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $bad ) ), 'Temporary retention requires exact source evidence' );
+	if ( function_exists( 'posix_mkfifo' ) ) {
+		$fifo = $dir . '/fifo.png'; posix_mkfifo( $fifo, 0600 ); $started = microtime( true );
+		temporary_check( array() === $invoke( 'temporary_media_file_snapshot', $fifo ) && microtime( true ) - $started < 1, 'FIFO paths are rejected before opening or hashing without blocking' );
+		unlink( $fifo );
+	}
 	$link = $dir . '/linked.png';
 	link( $dir . '/source.png', $link );
 	temporary_check( array() === $invoke( 'temporary_media_file_snapshot', $link ), 'Hardlinked files cannot enter automatic cleanup' );
