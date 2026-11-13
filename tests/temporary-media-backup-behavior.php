@@ -125,7 +125,6 @@ try {
 	$history = array_fill( 0, 25, array( 'replacement_id' => 'old', 'temporary_backup' => $group ) );
 	temporary_check( 25 === count( $invoke( 'retain_temporary_media_history', $history ) ), 'Pending ownership survives the legacy twenty-row history cap' );
 	$budget = new ReflectionProperty( $package, 'temporary_media_files_remaining' ); $budget->setAccessible( true );
-	$exhausted = new ReflectionProperty( $package, 'temporary_media_budget_exhausted' ); $exhausted->setAccessible( true );
 	$many = $record; $many['temporary_backup'] = $group; $many['temporary_backup']['files'] = array(); $many['temporary_backup']['state'] = 'retained'; $many['temporary_backup']['expires_at_gmt'] = gmdate( 'c', time() - 1 );
 	for ( $i = 0; $i < 40; ++$i ) {
 		$relative = $relative_dir . '/budget-' . $i . '.png'; file_put_contents( $uploads['basedir'] . '/' . $relative, 'budget-image' );
@@ -134,7 +133,7 @@ try {
 	$budget->setValue( $package, 32 ); $db->queries = 0;
 	$partial = $invoke( 'cleanup_temporary_media_group', $id, $many, true );
 	temporary_check( 32 === count( array_filter( $partial['temporary_backup']['files'], static function ( $f ) { return 'removed' === $f['state']; } ) ) && $db->queries <= 384 && ! empty( $partial['temporary_backup']['cleanup_resume'] ), 'File budget bounds all reference queries and persists partial progress' );
-	$budget->setValue( $package, 32 ); $exhausted->setValue( $package, false );
+	$budget->setValue( $package, 32 );
 	$completed = $invoke( 'cleanup_temporary_media_group', $id, $partial, true );
 	temporary_check( 'cleaned' === $completed['temporary_backup']['state'] && empty( $completed['temporary_backup']['cleanup_resume'] ), 'Next pass resumes remaining files without double counting' );
 	$budget->setValue( $package, 1 ); $db->referenced = true;

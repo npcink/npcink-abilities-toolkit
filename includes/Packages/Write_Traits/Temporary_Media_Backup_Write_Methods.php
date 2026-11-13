@@ -24,7 +24,7 @@ trait Temporary_Media_Backup_Write_Methods {
 			return array( 'retention_days' => self::MEDIA_BACKUP_RETENTION_DAYS, 'expired' => 0, 'removed' => 0, 'processed_attachments' => 0, 'has_more' => false, 'next_cursor' => 0, 'error_code' => $result->get_error_code() );
 		}
 		$this->temporary_media_files_remaining = 32;
-		$this->temporary_media_budget_exhausted = false;
+		$budget_exhausted = false;
 		$retention_days = (int) apply_filters( 'npcink_abilities_toolkit_media_backup_retention_days', self::MEDIA_BACKUP_RETENTION_DAYS );
 		$retention_days = max( 1, min( 365, $retention_days ) );
 		$cutoff = time() - ( $retention_days * ( defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400 ) );
@@ -56,12 +56,13 @@ trait Temporary_Media_Backup_Write_Methods {
 				if ( ! empty( $record['temporary_backup'] ) ) {
 					if ( $this->temporary_media_group_cleanup_eligible( $record['temporary_backup'] ) ) { ++$expired; }
 					$updated = $this->cleanup_temporary_media_group( (int) $attachment_id, $record, $execute );
+					$budget_exhausted = ! empty( $updated['temporary_backup']['cleanup_resume'] );
 					if ( $execute && $updated !== $record ) {
 						$removed_count = static function ( $row ) { return count( array_filter( $row['temporary_backup']['files'], static function ( $file ) { return 'removed' === ( $file['state'] ?? '' ); } ) ); };
 						$removed += max( 0, $removed_count( $updated ) - $removed_count( $record ) );
 						$record = $updated; $changed = true;
 					}
-					if ( $this->temporary_media_budget_exhausted ) { break; }
+					if ( $budget_exhausted ) { break; }
 					continue;
 				}
 				if ( 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
@@ -109,7 +110,7 @@ trait Temporary_Media_Backup_Write_Methods {
 			if ( $changed && function_exists( 'update_post_meta' ) ) {
 				update_post_meta( absint( $attachment_id ), '_npcink_ai_media_file_replacement_history', $history, $previous_history );
 			}
-			if ( $this->temporary_media_budget_exhausted ) { $has_more = true; break; }
+			if ( $budget_exhausted ) { $has_more = true; break; }
 			$last_complete = (int) $attachment_id;
 		}
 		$this->temporary_media_files_remaining = null;
@@ -129,8 +130,6 @@ trait Temporary_Media_Backup_Write_Methods {
 
 	/** @var int|null Remaining temporary-file candidates in this maintenance call. */
 	private $temporary_media_files_remaining = null;
-	/** @var bool Stop after persisting resumable group progress. */
-	private $temporary_media_budget_exhausted = false;
 
 	/** @var bool Prevent cooperative restore/cleanup overlap. */
 	private $media_backup_lock_active = false;
@@ -303,7 +302,7 @@ trait Temporary_Media_Backup_Write_Methods {
 			if ( null !== $this->temporary_media_files_remaining ) {
 				if ( $this->temporary_media_files_remaining <= 0 ) {
 					$group['next_file_index'] = $index; $group['cleanup_resume'] = true;
-					$this->temporary_media_budget_exhausted = true; break;
+					break;
 				}
 				--$this->temporary_media_files_remaining;
 			}
