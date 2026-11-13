@@ -80,6 +80,7 @@ try {
 	$untouched = $invoke( 'cleanup_temporary_media_group', $id, $record, true );
 	temporary_check( $record === $untouched && is_file( $dir . '/source.png' ), 'Cleanup respects the recovery window' );
 	$record['temporary_backup']['expires_at_gmt'] = gmdate( 'c', time() - 1 );
+	temporary_check( true === $invoke( 'temporary_media_group_cleanup_eligible', $record['temporary_backup'] ), 'Expired managed groups share maintenance eligibility in preview and execution' );
 	temporary_check( is_wp_error( $invoke( 'validate_temporary_media_restore', $record['temporary_backup'] ) ), 'Expired group cannot be restored even before maintenance runs' );
 	$db->referenced = true;
 	$blocked = $invoke( 'cleanup_temporary_media_group', $id, $record, true );

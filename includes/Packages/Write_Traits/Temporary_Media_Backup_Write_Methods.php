@@ -46,8 +46,13 @@ trait Temporary_Media_Backup_Write_Methods {
 			$changed = false;
 			foreach ( $history as &$record ) {
 				if ( ! empty( $record['temporary_backup'] ) ) {
+					if ( $this->temporary_media_group_cleanup_eligible( $record['temporary_backup'] ) ) { ++$expired; }
 					$updated = $this->cleanup_temporary_media_group( (int) $attachment_id, $record, $execute );
-					if ( $execute && $updated !== $record ) { $record = $updated; $changed = true; }
+					if ( $execute && $updated !== $record ) {
+						$removed_count = static function ( $row ) { return count( array_filter( $row['temporary_backup']['files'], static function ( $file ) { return 'removed' === ( $file['state'] ?? '' ); } ) ); };
+						$removed += max( 0, $removed_count( $updated ) - $removed_count( $record ) );
+						$record = $updated; $changed = true;
+					}
 					continue;
 				}
 				if ( 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
@@ -251,11 +256,16 @@ trait Temporary_Media_Backup_Write_Methods {
 		return '';
 	}
 
+	/** The maintenance preview and executor share the same expiry boundary. */
+	private function temporary_media_group_cleanup_eligible( array $group ): bool {
+		$expires = strtotime( (string) ( $group['expires_at_gmt'] ?? '' ) );
+		return 'temporary_7_days.v1' === ( $group['version'] ?? '' ) && false !== $expires && $expires <= time() && is_array( $group['files'] ?? null ) && count( $group['files'] ) <= 64 && in_array( $group['state'] ?? '', array( 'retained', 'blocked' ), true );
+	}
+
 	/** Mutates only frozen file entries. Returns truthful measured bytes, not estimates. */
 	private function cleanup_temporary_media_group( int $id, array $record, bool $execute ): array {
 		$group = $record['temporary_backup'];
-		if ( 'temporary_7_days.v1' !== ( $group['version'] ?? '' ) || false === strtotime( (string) ( $group['expires_at_gmt'] ?? '' ) ) || ! is_array( $group['files'] ?? null ) || count( $group['files'] ) > 64 ) { return $record; }
-		if ( ! in_array( $group['state'] ?? '', array( 'retained', 'blocked' ), true ) || strtotime( (string) ( $group['expires_at_gmt'] ?? '' ) ) > time() ) { return $record; }
+		if ( ! $this->temporary_media_group_cleanup_eligible( $group ) ) { return $record; }
 		$blocked = false;
 		foreach ( $group['files'] as &$file ) {
 			if ( in_array( $file['state'] ?? '', array( 'removed', 'missing', 'current_image' ), true ) ) { continue; }

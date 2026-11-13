@@ -62,13 +62,15 @@ try {
 	update_option( $option, $uploads['baseurl'] . '/' . $name . '/' . rawurlencode( '图像.png' ), false );
 	$package->cleanup_expired_media_backups();
 	$check( is_file( $unicode_path ) && 'local_reference' === $get()[0]['temporary_backup']['files'][0]['reason'], 'Installed encoded Unicode URL in theme options prevents cleanup' );
-	delete_option( $option ); $package->cleanup_expired_media_backups();
+	delete_option( $option ); $unicode_cleanup = $package->cleanup_expired_media_backups();
+	$check( 1 === $unicode_cleanup['expired'] && 1 === $unicode_cleanup['removed'], 'Maintenance counts the expired temporary group and actually removed file' );
 	$check( ! is_file( $unicode_path ), 'Unicode file cleans up only after its encoded reference is removed' );
 	$save( array( $record, $legacy ) );
 	$record['temporary_backup']['expires_at_gmt'] = gmdate( 'c', time() - 1 );
 	$later = $record; $later['replacement_id'] = 'later-installed'; $later['temporary_backup']['expires_at_gmt'] = gmdate( 'c', time() + DAY_IN_SECONDS );
 	$save( array( $record, $later, $legacy ) );
-	$before = $get(); $package->cleanup_expired_media_backups( false );
+	$before = $get(); $preview = $package->cleanup_expired_media_backups( false );
+	$check( 1 === $preview['expired'] && 0 === $preview['removed'], 'Maintenance preview counts an expired temporary group without claiming deletion' );
 	$check( $get() === $before && is_file( $path ), 'Cleanup preview performs no file or metadata writes' );
 	$package->cleanup_expired_media_backups();
 	$check( is_file( $path ) && 'another_recovery' === $get()[0]['temporary_backup']['files'][0]['reason'], 'Continuous replacement protects a newer recovery window' );

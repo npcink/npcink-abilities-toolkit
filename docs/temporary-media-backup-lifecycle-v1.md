@@ -38,7 +38,10 @@ reference_check_unavailable, file_changed, state_changed and delete_failed.
 Changed/unsafe files are retained; actual successful deletes alone increment
 removed_bytes. Missing files add no claimed savings. Current files become
 terminal current_image entries, and restored groups never delete their files.
-Repeated maintenance is idempotent. Cron may run after the seven-day deadline;
+Maintenance expired counts include eligible temporary groups in preview and
+execution; removed counts include newly deleted files, excluding missing/current
+files and prior removals. A group can contain multiple files. Repeated
+maintenance is idempotent. Cron may run after the seven-day deadline;
 that deadline ends recovery, not a promise of immediate cleanup. Reported bytes
 are deleted logical file sizes, not physical disk accounting. External/CDN and
 arbitrary plugin-owned references are outside detection; users review these
