@@ -9,7 +9,7 @@ $package = new \Npcink_Abilities_Toolkit\Packages\Core_Write_Package( $categorie
 $reader = new \Npcink_Abilities_Toolkit\Packages\Core_Read_Package( $categories, $registrar );
 $invoke = static function ( $method, ...$args ) use ( $package ) { $reflection = new ReflectionMethod( $package, $method ); $reflection->setAccessible( true ); return $reflection->invokeArgs( $package, $args ); };
 $check = static function ( $ok, $message ) { if ( ! $ok ) { throw new RuntimeException( $message ); } echo "PASS: $message\n"; };
-$id = 0; $shared_id = 0; $scope = null; $block_delete = null;
+$id = 0; $shared_id = 0; $root_backup_path = ''; $scope = null; $block_delete = null;
 $uploads = wp_upload_dir(); $name = 'temporary-backup-smoke-' . wp_generate_uuid4();
 $dir = $uploads['basedir'] . '/' . $name;
 $backup_dir = $uploads['basedir'] . '/npcink-abilities-toolkit-backups/' . $name;
@@ -108,6 +108,20 @@ try {
 	$read = $reader->list_media_backups( array( 'attachment_id' => $id ) );
 	$check( ! is_wp_error( $read ) && $expected_bytes === $read['data']['backups'][0]['temporary_backup']['removed_bytes'] && ! $read['data']['backups'][0]['temporary_backup']['restorable'], 'Installed read ability reports actual cleanup bytes and disables recovery' );
 	$check( glob( $dir . '/source*' ) === array(), 'No old original or thumbnail files remain after successful cleanup' );
+	$root_file = $name . '-root-original.png'; $root_backup_path = $uploads['basedir'] . '/' . $root_file;
+	copy( $dir . '/current.png', $root_backup_path );
+	update_attached_file( $shared_id, $uploads['basedir'] . '/' . $name . '-root-edited.png' );
+	update_post_meta( $shared_id, '_wp_attachment_backup_sizes', array( 'full-orig' => array( 'file' => $root_file ) ) );
+	$root_state = array( 'relative_file' => $root_file, 'metadata' => array( 'file' => $root_file ), 'media_fingerprint' => 'fixture-root' );
+	$root_group = $invoke( 'plan_temporary_media_backup', $root_state, array( 'attachment_id' => $id, 'backup_lifecycle' => 'temporary_7_days.v1', 'expected_current_media_fingerprint' => 'fixture-root' ) );
+	$root_group['expires_at_gmt'] = gmdate( 'c', time() - 1 );
+	$save( array( array( 'replacement_id' => 'root-installed', 'temporary_backup' => $root_group ) ) );
+	$package->cleanup_expired_media_backups();
+	$check( is_file( $root_backup_path ) && 'another_attachment' === $get()[0]['temporary_backup']['files'][0]['reason'], 'Installed root-level WordPress edit backup prevents deletion' );
+	delete_post_meta( $shared_id, '_wp_attachment_backup_sizes' );
+	$package->cleanup_expired_media_backups();
+	$check( ! is_file( $root_backup_path ), 'Root-level file cleans up only after its edit-backup reference is removed' );
+
 	$many = array();
 	for ( $g = 0; $g < 2; ++$g ) {
 		$metadata = array( 'file' => $name . '/budget-' . $g . '-0.png', 'sizes' => array() );
@@ -130,6 +144,7 @@ try {
 	if ( $block_delete ) { remove_filter( 'wp_delete_file', $block_delete ); }
 	if ( $scope ) { remove_action( 'pre_get_posts', $scope ); }
 	delete_option( $option );
+	if ( $root_backup_path && is_file( $root_backup_path ) ) { wp_delete_file( $root_backup_path ); }
 	if ( null === $old_cursor ) { delete_option( $cursor_name ); } else { update_option( $cursor_name, $old_cursor ); }
 	foreach ( array( $shared_id, $id ) as $attachment_id ) { if ( $attachment_id > 0 ) { wp_delete_attachment( $attachment_id, true ); } }
 	foreach ( array( $dir, $backup_dir ) as $owned ) { if ( is_dir( $owned ) ) { foreach ( glob( $owned . '/*' ) as $file ) { wp_delete_file( $file ); } rmdir( $owned ); } }

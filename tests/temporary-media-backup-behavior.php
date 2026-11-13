@@ -69,6 +69,10 @@ try {
 	$db->reference_needle = str_replace( '\\/', '/', $db->reference_needle );
 	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'JSON Unicode with unescaped slashes protects local references' );
 	$db->reference_needle = '';
+	$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][9902]['_wp_attached_file'] = 'edited.png';
+	$db->rows = array( (object) array( 'post_id' => 9902, 'meta_key' => '_wp_attachment_backup_sizes', 'meta_value' => serialize( array( 'full-orig' => array( 'file' => 'source.png' ) ) ) ) );
+	temporary_check( 'another_attachment' === $invoke( 'temporary_media_reference_blocker', $id, 'source.png', 'root-backup' ), 'Root-level WordPress image-edit backups protect their original file' );
+	$db->rows = array(); unset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][9902] );
 	$bad = $input; $bad['expected_current_media_fingerprint'] = 'sha256:' . str_repeat( '0', 64 );
 	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $bad ) ), 'Temporary retention requires exact source evidence' );
 	$link = $dir . '/linked.png';

@@ -244,7 +244,9 @@ trait Temporary_Media_Backup_Write_Methods {
 			if ( '_wp_attachment_metadata' === $row->meta_key && is_array( $value ) && in_array( $path, $this->cloud_media_metadata_file_paths( $value ), true ) ) { return 'another_attachment'; }
 			if ( '_wp_attachment_backup_sizes' === $row->meta_key && is_array( $value ) ) {
 				$main = (string) get_post_meta( $other_id, '_wp_attached_file', true );
-				foreach ( $value as $size ) { if ( is_array( $size ) && dirname( $main ) . '/' . ( $size['file'] ?? '' ) === $relative ) { return 'another_attachment'; } }
+				$directory = dirname( $main );
+				$prefix = '.' === $directory ? '' : $directory . '/';
+				foreach ( $value as $size ) { if ( is_array( $size ) && $this->normalize_media_relative_file( $prefix . ( $size['file'] ?? '' ) ) === $relative ) { return 'another_attachment'; } }
 			}
 			if ( '_npcink_ai_media_file_replacement_history' !== $row->meta_key || ! is_array( $value ) ) { continue; }
 			foreach ( $value as $record ) {
