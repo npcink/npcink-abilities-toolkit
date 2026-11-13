@@ -334,6 +334,8 @@ trait Media_Backup_Write_Methods {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function validate_media_backup_restore_precommit_state( $attachment_id, array $plan, array $reviewed_repairs, array $rollback_state ) {
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
 		$result = $this->validate_cloud_media_adoption_precommit_state( $attachment_id, $plan, $reviewed_repairs, $rollback_state );
 		$drift_fields = array();
 		if ( is_wp_error( $result ) ) {
@@ -490,6 +492,8 @@ trait Media_Backup_Write_Methods {
 		$after['media_fingerprint'] = $this->normalize_media_sha256( (string) hash_file( 'sha256', $target_path ) );
 		$current_backup = is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array();
 		$current_backup['filesize_bytes'] = absint( filesize( $current_backup_path ) );
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
 		$pointer_state = $after;
 		if ( is_array( $plan['_restore_metadata'] ?? null ) ) { $pointer_state['_metadata'] = $plan['_restore_metadata']; }
 		$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $pointer_state, $batch_manifest );
@@ -504,6 +508,8 @@ trait Media_Backup_Write_Methods {
 			$valid = $this->validate_temporary_media_restore( $plan['temporary_backup'], false );
 			if ( is_wp_error( $valid ) ) { return $valid; }
 		}
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
 		$history_updated = $this->record_media_backup_restore_history(
 			$attachment_id,
 			(string) ( $plan['replacement_id'] ?? '' ),

@@ -9,12 +9,16 @@ Toolkit freezes the source main file, metadata-owned sizes and original_image
 (maximum 64 regular local files) with device/inode/size/SHA-256 in the existing
 replacement history. Files stay at their original paths for seven days; no extra
 original copy is created. Up to 50 pending groups per attachment are allowed;
-pending groups survive the legacy 20-row history display cap.
+pending groups survive the legacy 20-row history display cap. Restore excludes
+its selected group from the resulting pending count, so recovery remains possible
+at the fifty-group cap.
 
 Existing list-media-backups adds a temporary_backup receipt: policy, state,
 expires_at_gmt, restorable, removed_bytes, retained_bytes and blocked_reasons.
 Restore eligibility is advisory until the restore ability revalidates every
-file and deadline. Restore reuses the exact saved original metadata/sizes and
+file and deadline, both during planning and immediately before pointer/metadata
+commit. The selected original group and superseded-current group stay separate;
+late source drift/expiry stops recovery and uses existing compensation if needed. Restore reuses the exact saved original metadata/sizes and
 marks that group restored, outside cleanup scope. The superseded current version
 gets a new seven-day group. Recognized article thumbnail references still
 consolidate to the main URL; restore is not byte-exact post-text undo.
@@ -24,7 +28,7 @@ A nonblocking uploads flock serializes cooperative Cloud adoption, restore and
 cleanup. Each delete checks canonical containment, parent/file symlinks,
 hardlinks, file identity/size/hash, current metadata, other attachment uses,
 other active recoveries, and exact uploads-relative path variants in local
-posts/meta/options. Candidate scans fail closed above 500 rows or on DB errors.
+posts/meta/options, including segment-encoded Unicode URLs and JSON forms. Candidate scans fail closed above 500 rows or on DB errors.
 A final wp_delete_file filter rejects redirected deletion and rechecks state;
 failed deletion remains retryable. History updates use a previous-value guard.
 Uncooperative external filesystem/database writers are not globally locked.

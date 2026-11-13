@@ -212,7 +212,7 @@ trait Media_Replacement_Write_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_restore_target_exists', __( 'The original media file path already exists with different content.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 
-		$restore_temporary = $temporary ? $this->plan_temporary_media_backup( $current, array( 'attachment_id' => $attachment_id, 'backup_lifecycle' => 'temporary_7_days.v1', 'expected_current_media_fingerprint' => $current['media_fingerprint'] ) ) : array();
+		$restore_temporary = $temporary ? $this->plan_temporary_media_backup( $current, array( 'attachment_id' => $attachment_id, 'backup_lifecycle' => 'temporary_7_days.v1', 'expected_current_media_fingerprint' => $current['media_fingerprint'] ), $backup_id ) : array();
 		if ( is_wp_error( $restore_temporary ) ) { return $restore_temporary; }
 		$restore_id = 'media_restore_' . gmdate( 'Ymd_His' ) . '_' . substr( md5( $attachment_id . '|' . $backup_id . '|' . $target_relative . '|' . microtime( true ) ), 0, 8 );
 		$current_backup_relative = $restore_temporary ? (string) $current['relative_file'] : $this->backup_relative_file_for_current_media( $current, $restore_id, 'npcink-abilities-toolkit-restore-backup' );
@@ -244,6 +244,7 @@ trait Media_Replacement_Write_Methods {
 			'_history'       => $history,
 			'temporary_backup' => $restore_temporary,
 			'_restore_metadata' => $temporary['metadata'] ?? null,
+			'_restore_source_group' => $temporary,
 			'_backup_relative_file' => $backup_relative,
 			'_backup_path'   => $backup_path,
 			'_backup_file_snapshot' => $this->cloud_media_current_file_snapshot( $backup_path ),

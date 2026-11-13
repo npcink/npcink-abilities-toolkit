@@ -16,9 +16,12 @@ class Temporary_Backup_Reference_Db extends Npcink_Abilities_Toolkit_Unit_Wpdb {
 	public $rows = array();
 	public $referenced = false;
 	public $fail = false;
+	public $reference_needle = '';
+	public $prepared_values = array();
+	public function prepare( $query, ...$args ) { $this->prepared_values = $args; return parent::prepare( $query, ...$args ); }
 	public function esc_like( $value ) { return addcslashes( $value, '_%\\' ); }
 	public function get_results( $query ) { return $this->rows; }
-	public function get_var( $query ) { if ( $this->fail ) { $this->last_error = 'fixture query failure'; return null; } return $this->referenced ? 1 : null; }
+	public function get_var( $query ) { if ( $this->fail ) { $this->last_error = 'fixture query failure'; return null; } return $this->referenced || ( $this->reference_needle && in_array( '%' . $this->esc_like( $this->reference_needle ) . '%', $this->prepared_values, true ) ) ? 1 : null; }
 }
 $categories = new Category_Registrar();
 $package = new Core_Write_Package( $categories, new Ability_Registrar( $categories, new Contract_Normalizer( new Schema_Normalizer() ) ) );
@@ -39,6 +42,28 @@ try {
 	$group = $invoke( 'plan_temporary_media_backup', $current, $input );
 	temporary_check( is_array( $group ) && count( $group['files'] ) === 2 && abs( strtotime( $group['expires_at_gmt'] ) - time() - 7 * DAY_IN_SECONDS ) < 3, 'Snapshot freezes original and sizes with a seven-day window' );
 	temporary_check( array() === $invoke( 'plan_temporary_media_backup', $current, array() ), 'Legacy replacements receive no new lifecycle' );
+	$restore_plan = array( '_restore_source_group' => $group );
+	$thumbnail_bytes = file_get_contents( $dir . '/source-150x150.png' );
+	file_put_contents( $dir . '/source-150x150.png', 'changed-after-restore-planning' );
+	$late_error = $invoke( 'validate_media_backup_restore_precommit_state', $id, $restore_plan, array(), array() );
+	temporary_check( is_wp_error( $late_error ) && 'npcink_temporary_media_backup_changed' === $late_error->get_error_code(), 'Restore precommit revalidates original thumbnails after planning' );
+	file_put_contents( $dir . '/source-150x150.png', $thumbnail_bytes );
+	$restore_plan['_restore_source_group']['expires_at_gmt'] = gmdate( 'c', time() - 1 );
+	$late_error = $invoke( 'validate_media_backup_restore_precommit_state', $id, $restore_plan, array(), array() );
+	temporary_check( is_wp_error( $late_error ) && 'npcink_temporary_media_backup_unavailable' === $late_error->get_error_code(), 'Restore precommit rechecks the selected original recovery deadline' );
+	$pending = array();
+	for ( $i = 0; $i < 50; ++$i ) { $pending[] = array( 'replacement_id' => 'pending-' . $i, 'temporary_backup' => $group ); }
+	$GLOBALS['npcink_abilities_toolkit_unit_post_meta'][$id]['_npcink_ai_media_file_replacement_history'] = $pending;
+	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $input ) ), 'Ordinary replacement stops at fifty pending groups' );
+	temporary_check( is_array( $invoke( 'plan_temporary_media_backup', $current, $input, 'pending-0' ) ), 'Restore may replace a selected pending group at the fifty-group limit' );
+	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $input, 'not-a-selected-group' ) ), 'An unknown recovery cannot bypass the pending-group limit' );
+	unset( $GLOBALS['npcink_abilities_toolkit_unit_post_meta'][$id] );
+	$unicode = $relative_dir . '/图像.png'; file_put_contents( $dir . '/图像.png', 'unicode-image' );
+	$db->reference_needle = $relative_dir . '/%E5%9B%BE%E5%83%8F.png';
+	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'Segment-encoded Unicode URL references preserve old files' );
+	$db->reference_needle = str_replace( '/', '\\/', $db->reference_needle );
+	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'JSON-escaped encoded URL references preserve old files' );
+	$db->reference_needle = '';
 	$bad = $input; $bad['expected_current_media_fingerprint'] = 'sha256:' . str_repeat( '0', 64 );
 	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $bad ) ), 'Temporary retention requires exact source evidence' );
 	$link = $dir . '/linked.png';

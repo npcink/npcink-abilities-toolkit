@@ -139,12 +139,12 @@ trait Temporary_Media_Backup_Write_Methods {
 	}
 
 	/** Freeze only metadata-owned local files, never a filename glob. @return array<string,mixed>|\WP_Error */
-	private function plan_temporary_media_backup( array $current, array $input ) {
+	private function plan_temporary_media_backup( array $current, array $input, string $restoring_replacement_id = '' ) {
 		if ( ! isset( $input['backup_lifecycle'] ) ) { return array(); }
 		if ( 'temporary_7_days.v1' !== $input['backup_lifecycle'] || ! empty( $input['batch_id'] ) || ( $input['expected_current_media_fingerprint'] ?? '' ) !== ( $current['media_fingerprint'] ?? null ) ) {
 			return new \WP_Error( 'npcink_temporary_media_backup_invalid', 'Temporary backup requires an exact reviewed single-image source.', array( 'status' => 409 ) );
 		}
-		$pending = array_filter( $this->get_media_file_replacement_history( (int) ( $input['attachment_id'] ?? 0 ) ), static function ( $row ) { return in_array( $row['temporary_backup']['state'] ?? '', array( 'retained', 'blocked' ), true ); } );
+		$pending = array_filter( $this->get_media_file_replacement_history( (int) ( $input['attachment_id'] ?? 0 ) ), static function ( $row ) use ( $restoring_replacement_id ) { return ( '' === $restoring_replacement_id || ( $row['replacement_id'] ?? '' ) !== $restoring_replacement_id ) && in_array( $row['temporary_backup']['state'] ?? '', array( 'retained', 'blocked' ), true ); } );
 		if ( count( $pending ) >= 50 ) { return new \WP_Error( 'npcink_temporary_media_backup_limit', 'Too many retained image versions. Resolve existing cleanup before replacing again.', array( 'status' => 409 ) ); }
 		$metadata = is_array( $current['metadata'] ?? null ) ? $current['metadata'] : array();
 		$metadata['file'] = (string) $current['relative_file'];
@@ -190,6 +190,11 @@ trait Temporary_Media_Backup_Write_Methods {
 		return true;
 	}
 
+	/** Recheck the selected original group separately from the superseded-current backup. @return true|\WP_Error */
+	private function validate_temporary_media_restore_source( array $plan ) {
+		return ! empty( $plan['_restore_source_group'] ) ? $this->validate_temporary_media_restore( $plan['_restore_source_group'] ) : true;
+	}
+
 	/** Pending file groups must never disappear behind the legacy 20-row history cap. @return array<int,array<string,mixed>> */
 	private function retain_temporary_media_history( array $history ): array {
 		$keep = array();
@@ -231,7 +236,8 @@ trait Temporary_Media_Backup_Write_Methods {
 			}
 		}
 		// Search exact uploads-relative strings (including JSON escaped form); no guessed filename matching.
-		foreach ( array_unique( array( $relative, str_replace( '/', '\\/', $relative ), rawurlencode( $relative ) ) ) as $needle ) {
+		$encoded = implode( '/', array_map( 'rawurlencode', explode( '/', $relative ) ) );
+		foreach ( array_unique( array( $relative, str_replace( '/', '\\/', $relative ), rawurlencode( $relative ), $encoded, str_replace( '/', '\\/', $encoded ) ) ) as $needle ) {
 			$like = '%' . $wpdb->esc_like( $needle ) . '%';
 			$wpdb->last_error = '';
 			$post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s OR post_excerpt LIKE %s LIMIT 1", $like, $like ) );
