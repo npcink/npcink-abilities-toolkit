@@ -98,7 +98,9 @@
       "@test",
       "@lint:php"
     ],
+    "test:temporary-media-backup": "@php tests/temporary-media-backup-behavior.php",
     "test:all": [
+      "@test:temporary-media-backup",
       "@validate:composer",
       "@audit:composer",
       "@check:boundary",

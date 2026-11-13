@@ -217,3 +217,11 @@ Recommended rollout order:
 reviewed source fingerprint. Existing expected-state validation rejects changed
 bytes before transfer/write; existing precommit CAS, backup and restore remain.
 This additive field introduces no new writer or replacement implementation.
+
+## Seven-day single-image lifecycle amendment — 2026-11-13
+
+The optional `backup_lifecycle=temporary_7_days.v1` adoption contract retains
+original metadata-owned files in place for seven days and reuses existing
+maintenance for guarded cleanup. This supersedes dedicated-copy wording above
+only for this explicit opt-in. Historical callers and backup policies are
+unchanged. See [temporary lifecycle](temporary-media-backup-lifecycle-v1.md).

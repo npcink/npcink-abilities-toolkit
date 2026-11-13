@@ -132,7 +132,7 @@ trait Media_Rename_Write_Methods {
 	private function store_media_rename_record( $id, array $record ) {
 		$history = array_values( array_filter( $this->get_media_file_replacement_history( $id ), static function ( $row ) use ( $record ) { return ( $row['replacement_id'] ?? '' ) !== $record['replacement_id']; } ) );
 		$history[] = $record;
-		$history = array_slice( $history, -20 );
+		$history = $this->retain_temporary_media_history( $history );
 		update_post_meta( $id, '_npcink_ai_media_file_replacement_history', $history );
 		update_post_meta( $id, '_npcink_ai_media_latest_file_replacement', $record );
 		return get_post_meta( $id, '_npcink_ai_media_file_replacement_history', true ) === $history
