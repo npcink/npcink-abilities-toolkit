@@ -789,6 +789,7 @@ trait Media_Read_Methods {
 						'requires_approval' => true,
 					),
 				);
+				$backup_row['temporary_backup'] = \Npcink_Abilities_Toolkit\Support\Temporary_Media_Backup_Receipt::from_record( $record );
 				$backups[] = $backup_row;
 			}
 

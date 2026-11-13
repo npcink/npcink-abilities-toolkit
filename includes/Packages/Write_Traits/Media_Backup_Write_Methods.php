@@ -15,97 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 trait Media_Backup_Write_Methods {
 	/**
-	 * Removes expired hidden media backup files while retaining history evidence.
-	 *
-	 * This is maintenance only; it is not a workflow queue or a write ability.
-	 *
-	 * @param bool $execute Whether to remove files and persist expiry markers. False returns a read-only preview.
-	 * @param bool $include_manual Whether a confirmed maintenance run may process manual-confirmation records.
-	 * @return array<string,mixed>
-	 */
-	public function cleanup_expired_media_backups( bool $execute = true, bool $include_manual = false ): array {
-		$retention_days = (int) apply_filters( 'npcink_abilities_toolkit_media_backup_retention_days', self::MEDIA_BACKUP_RETENTION_DAYS );
-		$retention_days = max( 1, min( 365, $retention_days ) );
-		$cutoff = time() - ( $retention_days * ( defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400 ) );
-		$removed = 0;
-		$expired = 0;
-
-		$cursor_option = $include_manual ? self::MEDIA_BACKUP_MANUAL_CLEANUP_CURSOR_OPTION : self::MEDIA_BACKUP_CLEANUP_CURSOR_OPTION;
-		$cursor = function_exists( 'get_option' ) ? absint( get_option( $cursor_option, 0 ) ) : 0;
-		$batch = $this->media_backup_cleanup_attachment_ids_after( $cursor );
-		if ( empty( $batch ) && $cursor > 0 ) {
-			$cursor = 0;
-			$batch = $this->media_backup_cleanup_attachment_ids_after( 0 );
-		}
-		$has_more = count( $batch ) > self::MAX_MEDIA_BACKUP_CLEANUP_ATTACHMENTS;
-		$batch = array_slice( $batch, 0, self::MAX_MEDIA_BACKUP_CLEANUP_ATTACHMENTS );
-		$processed_attachments = count( $batch );
-
-		foreach ( $batch as $attachment_id ) {
-			$history = $this->get_media_file_replacement_history( absint( $attachment_id ) );
-			$changed = false;
-			foreach ( $history as &$record ) {
-				if ( 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
-					continue;
-				}
-				$policy = (string) ( $record['backup_cleanup_policy'] ?? '' );
-				if ( '' !== $policy && self::MEDIA_BACKUP_CLEANUP_AUTOMATIC !== $policy && self::MEDIA_BACKUP_CLEANUP_MANUAL !== $policy ) {
-					continue;
-				}
-				if ( self::MEDIA_BACKUP_CLEANUP_MANUAL === $policy && ! $include_manual ) {
-					continue;
-				}
-				$backup = is_array( $record['backup'] ?? null ) ? $record['backup'] : array();
-				$relative = $this->normalize_media_relative_file( (string) ( $backup['relative_file'] ?? '' ) );
-				if ( '' === $relative || 0 !== strpos( $relative, 'npcink-abilities-toolkit-backups/' ) ) {
-					continue;
-				}
-				$created = strtotime( (string) ( $record['replaced_at_gmt'] ?? '' ) );
-				if ( false === $created || $created > $cutoff ) {
-					continue;
-				}
-				++$expired;
-				if ( ! $execute ) {
-					continue;
-				}
-				$path = $this->media_uploads_path_for_relative_file( $relative );
-				$file_existed = '' !== $path && is_file( $path );
-				$file_removed = ! $file_existed;
-				if ( ! $file_removed && function_exists( 'wp_delete_file' ) ) {
-					wp_delete_file( $path );
-					$file_removed = ! is_file( $path );
-				}
-				if ( ! $file_removed ) {
-					continue;
-				}
-				if ( $file_existed ) {
-					++$removed;
-				}
-				$record['status'] = 'backup_expired';
-				$record['backup']['file_exists'] = false;
-				$record['backup']['expired_at_gmt'] = gmdate( 'c' );
-				$changed = true;
-			}
-			unset( $record );
-			if ( $changed && function_exists( 'update_post_meta' ) ) {
-				update_post_meta( absint( $attachment_id ), '_npcink_ai_media_file_replacement_history', $history );
-			}
-		}
-
-		$next_cursor = 0;
-		if ( $execute ) {
-			$next_cursor = $has_more ? absint( end( $batch ) ) : 0;
-			if ( $next_cursor > 0 && function_exists( 'update_option' ) ) {
-				update_option( $cursor_option, $next_cursor, false );
-			} elseif ( function_exists( 'delete_option' ) ) {
-				delete_option( $cursor_option );
-			}
-		}
-
-		return \Npcink_Abilities_Toolkit\Support\Flagged_Media_Backup::add_cleanup_counts( array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor ), $execute );
-	}
-
-	/**
 	 * Returns one stable ID-ordered cleanup window plus a look-ahead row.
 	 *
 	 * @param int $after_id Last attachment ID processed by an earlier run.
@@ -318,6 +227,10 @@ trait Media_Backup_Write_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to restore this media file.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
 		}
 
+		if ( ! $this->should_dry_run( $input ) && ! $this->media_backup_lock_active ) {
+			return $this->with_media_backup_lock( function () use ( $input ) { return $this->restore_existing_media_backup( $input ); } );
+		}
+
 		$backup_id = sanitize_text_field( (string) ( $input['backup_id'] ?? '' ) );
 		if ( '' === $backup_id ) {
 			return new \WP_Error( 'npcink_abilities_toolkit_backup_id_required', __( 'A backup_id is required for media backup restore.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
@@ -421,6 +334,8 @@ trait Media_Backup_Write_Methods {
 	 * @return array<string,mixed>|\WP_Error
 	 */
 	private function validate_media_backup_restore_precommit_state( $attachment_id, array $plan, array $reviewed_repairs, array $rollback_state ) {
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
 		$result = $this->validate_cloud_media_adoption_precommit_state( $attachment_id, $plan, $reviewed_repairs, $rollback_state );
 		$drift_fields = array();
 		if ( is_wp_error( $result ) ) {
@@ -544,9 +459,11 @@ trait Media_Backup_Write_Methods {
 			'attachment_id' => $attachment_id,
 			'relative_file' => $current_backup_relative,
 		);
-		$current_backup_created = '' !== $current_backup_path && $this->ensure_media_directory( dirname( $current_backup_path ) )
+		$current_backup_created = ! empty( $plan['temporary_backup'] ) && $current_backup_path === $current_path
+			? array()
+			: ( '' !== $current_backup_path && $this->ensure_media_directory( dirname( $current_backup_path ) )
 			? $this->copy_cloud_media_file_exclusive( $current_path, $current_backup_path, $current_backup_context )
-			: new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) );
+			: new \WP_Error( 'npcink_abilities_toolkit_media_backup_failed', __( 'The current attachment file could not be backed up before restore.', 'npcink-abilities-toolkit' ), array( 'status' => 500 ) ) );
 		if ( is_wp_error( $current_backup_created ) ) {
 			return $current_backup_created;
 		}
@@ -575,7 +492,11 @@ trait Media_Backup_Write_Methods {
 		$after['media_fingerprint'] = $this->normalize_media_sha256( (string) hash_file( 'sha256', $target_path ) );
 		$current_backup = is_array( $plan['current_backup'] ?? null ) ? $plan['current_backup'] : array();
 		$current_backup['filesize_bytes'] = absint( filesize( $current_backup_path ) );
-		$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $after, $batch_manifest );
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
+		$pointer_state = $after;
+		if ( is_array( $plan['_restore_metadata'] ?? null ) ) { $pointer_state['_metadata'] = $plan['_restore_metadata']; }
+		$updated = $this->update_media_file_pointer( $attachment_id, $target_relative, (string) ( $after['mime_type'] ?? '' ), $pointer_state, $batch_manifest );
 		if ( is_wp_error( $updated ) ) {
 			return $updated;
 		}
@@ -583,11 +504,18 @@ trait Media_Backup_Write_Methods {
 		if ( is_wp_error( $content_reference_repairs ) ) {
 			return $content_reference_repairs;
 		}
+		if ( ! empty( $plan['temporary_backup'] ) ) {
+			$valid = $this->validate_temporary_media_restore( $plan['temporary_backup'], false );
+			if ( is_wp_error( $valid ) ) { return $valid; }
+		}
+		$source_valid = $this->validate_temporary_media_restore_source( $plan );
+		if ( is_wp_error( $source_valid ) ) { return $source_valid; }
 		$history_updated = $this->record_media_backup_restore_history(
 			$attachment_id,
 			(string) ( $plan['replacement_id'] ?? '' ),
 			array(
 				'replacement_id'     => (string) ( $plan['restore_id'] ?? '' ),
+				'temporary_backup' => $plan['temporary_backup'] ?? array(),
 				'operation'          => 'restore_media_backup',
 				'status'             => 'active',
 				'replaced_at_gmt'    => gmdate( 'c' ),
@@ -660,6 +588,7 @@ trait Media_Backup_Write_Methods {
 				array( 'status' => 409, 'drift_fields' => $drift_fields )
 			);
 		}
+		if ( $backup_path === $target_path ) { return true; }
 		if ( ! file_exists( $target_path ) ) {
 			$created = $this->copy_cloud_media_file_exclusive( $backup_path, $target_path, $context );
 			if ( is_wp_error( $created ) ) {
@@ -729,6 +658,7 @@ trait Media_Backup_Write_Methods {
 		foreach ( $history as &$existing ) {
 			if ( $replacement_id === (string) ( $existing['replacement_id'] ?? '' ) ) {
 				$existing['status'] = 'rolled_back';
+				if ( ! empty( $existing['temporary_backup'] ) ) { $existing['temporary_backup']['state'] = 'restored'; }
 				$existing['rolled_back_at_gmt'] = gmdate( 'c' );
 				$matched = true;
 			}
@@ -738,7 +668,7 @@ trait Media_Backup_Write_Methods {
 			return new \WP_Error( 'npcink_abilities_toolkit_replacement_not_found', __( 'Replacement history was not found for restore.', 'npcink-abilities-toolkit' ), array( 'status' => 409 ) );
 		}
 		$history[] = $record;
-		$history = array_slice( $history, -20 );
+		$history = $this->retain_temporary_media_history( $history );
 		$history_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_file_replacement_history', $history );
 		if ( is_wp_error( $history_updated ) ) {
 			return $history_updated;
@@ -895,7 +825,7 @@ trait Media_Backup_Write_Methods {
 	private function append_media_file_replacement_history( $attachment_id, array $record, $batch_manifest = null ) {
 		$history = $this->get_media_file_replacement_history( $attachment_id );
 		$history[] = $record;
-		$history = array_slice( $history, -20 );
+		$history = $this->retain_temporary_media_history( $history );
 		if ( is_object( $batch_manifest ) ) {
 			$history_updated = $this->cloud_media_cas_update_post_meta( $batch_manifest, $attachment_id, '_npcink_ai_media_file_replacement_history', $history );
 			if ( is_wp_error( $history_updated ) ) {

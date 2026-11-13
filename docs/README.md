@@ -125,6 +125,8 @@ change, or deciding whether a development stage is complete.
 Release evidence lives in the per-release verification notes under
 [archive/](archive/) (`release-X.Y.Z-verification.md`).
 
+- [Temporary replacement file groups v1](temporary-media-backup-lifecycle-v1.md) — opt-in seven-day retention, guarded cleanup and read receipts.
+
 ## Historical Records
 
 Dated one-time records — closeouts, release verifications, post-publication

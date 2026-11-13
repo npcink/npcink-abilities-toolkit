@@ -178,7 +178,8 @@ WP_PATH=/path/to/wordpress composer release:verify
 
 AI review follows the active 2026-11-03 operator policy in
 `npcink-workflow-toolbox` `docs/platform/ai-code-review-standard-v1.md`:
-use locally initiated AI review with the configured Qwen or DeepSeek model;
+use locally initiated AI review with the configured operator-approved model
+(Qwen, DeepSeek, or exact `gpt-6.1-sol` authorized on 2026-11-13);
 cloud OpenCodeReview is retired. Do not
 re-enable its workflow, runner canary, provider secrets, or retry comments.
 Required deterministic CI and conversation resolution remain merge gates.
