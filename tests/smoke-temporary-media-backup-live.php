@@ -62,6 +62,9 @@ try {
 	update_option( $option, $uploads['baseurl'] . '/' . $name . '/' . rawurlencode( '图像.png' ), false );
 	$package->cleanup_expired_media_backups();
 	$check( is_file( $unicode_path ) && 'local_reference' === $get()[0]['temporary_backup']['files'][0]['reason'], 'Installed encoded Unicode URL in theme options prevents cleanup' );
+	update_option( $option, wp_json_encode( array( 'image' => $uploads['baseurl'] . '/' . $name . '/图像.png' ) ), false );
+	$package->cleanup_expired_media_backups();
+	$check( is_file( $unicode_path ) && 'local_reference' === $get()[0]['temporary_backup']['files'][0]['reason'], 'Real wp_json_encode option with Unicode escapes prevents cleanup' );
 	delete_option( $option ); $unicode_cleanup = $package->cleanup_expired_media_backups();
 	$check( 1 === $unicode_cleanup['expired'] && 1 === $unicode_cleanup['removed'], 'Maintenance counts the expired temporary group and actually removed file' );
 	$check( ! is_file( $unicode_path ), 'Unicode file cleans up only after its encoded reference is removed' );
@@ -105,6 +108,24 @@ try {
 	$read = $reader->list_media_backups( array( 'attachment_id' => $id ) );
 	$check( ! is_wp_error( $read ) && $expected_bytes === $read['data']['backups'][0]['temporary_backup']['removed_bytes'] && ! $read['data']['backups'][0]['temporary_backup']['restorable'], 'Installed read ability reports actual cleanup bytes and disables recovery' );
 	$check( glob( $dir . '/source*' ) === array(), 'No old original or thumbnail files remain after successful cleanup' );
+	$many = array();
+	for ( $g = 0; $g < 2; ++$g ) {
+		$metadata = array( 'file' => $name . '/budget-' . $g . '-0.png', 'sizes' => array() );
+		for ( $i = 0; $i < 20; ++$i ) {
+			$file = 'budget-' . $g . '-' . $i . '.png'; copy( $dir . '/current.png', $dir . '/' . $file );
+			if ( $i ) { $metadata['sizes'][ 'size-' . $i ] = array( 'file' => $file ); }
+		}
+		$state = array( 'relative_file' => $metadata['file'], 'metadata' => $metadata, 'media_fingerprint' => 'fixture-budget' );
+		$planned = $invoke( 'plan_temporary_media_backup', $state, array( 'attachment_id' => $id, 'backup_lifecycle' => 'temporary_7_days.v1', 'expected_current_media_fingerprint' => 'fixture-budget' ) );
+		$planned['expires_at_gmt'] = gmdate( 'c', time() - 1 );
+		$many[] = array( 'replacement_id' => 'budget-' . $g, 'temporary_backup' => $planned );
+	}
+	$save( $many ); global $wpdb; $before_queries = $wpdb->num_queries;
+	$first = $package->cleanup_expired_media_backups();
+	$check( 32 === $first['removed'] && $first['has_more'] && $wpdb->num_queries - $before_queries < 450, 'Public maintenance bounds a two-group run to 32 files and bounded queries' );
+	$second = $package->cleanup_expired_media_backups();
+	$check( 8 === $second['removed'] && ! $second['has_more'] && array( 'cleaned', 'cleaned' ) === array_column( array_column( $get(), 'temporary_backup' ), 'state' ) && is_file( $dir . '/current.png' ), 'Public maintenance resumes across groups and preserves the current file' );
+	$save( array( $record, $legacy ) );
 } finally {
 	if ( $block_delete ) { remove_filter( 'wp_delete_file', $block_delete ); }
 	if ( $scope ) { remove_action( 'pre_get_posts', $scope ); }

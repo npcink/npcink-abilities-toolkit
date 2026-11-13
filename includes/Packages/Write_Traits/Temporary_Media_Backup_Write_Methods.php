@@ -23,6 +23,8 @@ trait Temporary_Media_Backup_Write_Methods {
 			if ( ! is_wp_error( $result ) ) { return $result; }
 			return array( 'retention_days' => self::MEDIA_BACKUP_RETENTION_DAYS, 'expired' => 0, 'removed' => 0, 'processed_attachments' => 0, 'has_more' => false, 'next_cursor' => 0, 'error_code' => $result->get_error_code() );
 		}
+		$this->temporary_media_files_remaining = 32;
+		$this->temporary_media_budget_exhausted = false;
 		$retention_days = (int) apply_filters( 'npcink_abilities_toolkit_media_backup_retention_days', self::MEDIA_BACKUP_RETENTION_DAYS );
 		$retention_days = max( 1, min( 365, $retention_days ) );
 		$cutoff = time() - ( $retention_days * ( defined( 'DAY_IN_SECONDS' ) ? DAY_IN_SECONDS : 86400 ) );
@@ -38,13 +40,19 @@ trait Temporary_Media_Backup_Write_Methods {
 		}
 		$has_more = count( $batch ) > self::MAX_MEDIA_BACKUP_CLEANUP_ATTACHMENTS;
 		$batch = array_slice( $batch, 0, self::MAX_MEDIA_BACKUP_CLEANUP_ATTACHMENTS );
-		$processed_attachments = count( $batch );
+		$processed_attachments = 0;
+		$last_complete = $cursor;
 
 		foreach ( $batch as $attachment_id ) {
 			$history = $this->get_media_file_replacement_history( absint( $attachment_id ) );
 			$previous_history = $history;
 			$changed = false;
-			foreach ( $history as &$record ) {
+			++$processed_attachments;
+			$start = 0;
+			foreach ( $history as $index => $row ) { if ( ! empty( $row['temporary_backup']['cleanup_resume'] ) ) { $start = $index; break; } }
+			foreach ( array_keys( $history ) as $index ) {
+				if ( $index < $start ) { continue; }
+				$record =& $history[ $index ];
 				if ( ! empty( $record['temporary_backup'] ) ) {
 					if ( $this->temporary_media_group_cleanup_eligible( $record['temporary_backup'] ) ) { ++$expired; }
 					$updated = $this->cleanup_temporary_media_group( (int) $attachment_id, $record, $execute );
@@ -53,6 +61,7 @@ trait Temporary_Media_Backup_Write_Methods {
 						$removed += max( 0, $removed_count( $updated ) - $removed_count( $record ) );
 						$record = $updated; $changed = true;
 					}
+					if ( $this->temporary_media_budget_exhausted ) { break; }
 					continue;
 				}
 				if ( 'backup_expired' === (string) ( $record['status'] ?? '' ) ) {
@@ -100,11 +109,14 @@ trait Temporary_Media_Backup_Write_Methods {
 			if ( $changed && function_exists( 'update_post_meta' ) ) {
 				update_post_meta( absint( $attachment_id ), '_npcink_ai_media_file_replacement_history', $history, $previous_history );
 			}
+			if ( $this->temporary_media_budget_exhausted ) { $has_more = true; break; }
+			$last_complete = (int) $attachment_id;
 		}
+		$this->temporary_media_files_remaining = null;
 
 		$next_cursor = 0;
 		if ( $execute ) {
-			$next_cursor = $has_more ? absint( end( $batch ) ) : 0;
+			$next_cursor = $has_more ? $last_complete : 0;
 			if ( $next_cursor > 0 && function_exists( 'update_option' ) ) {
 				update_option( $cursor_option, $next_cursor, false );
 			} elseif ( function_exists( 'delete_option' ) ) {
@@ -114,6 +126,11 @@ trait Temporary_Media_Backup_Write_Methods {
 
 		return \Npcink_Abilities_Toolkit\Support\Flagged_Media_Backup::add_cleanup_counts( array( 'retention_days' => $retention_days, 'expired' => $expired, 'removed' => $removed, 'processed_attachments' => $processed_attachments, 'has_more' => $has_more, 'next_cursor' => $next_cursor ), $execute );
 	}
+
+	/** @var int|null Remaining temporary-file candidates in this maintenance call. */
+	private $temporary_media_files_remaining = null;
+	/** @var bool Stop after persisting resumable group progress. */
+	private $temporary_media_budget_exhausted = false;
 
 	/** @var bool Prevent cooperative restore/cleanup overlap. */
 	private $media_backup_lock_active = false;
@@ -240,18 +257,29 @@ trait Temporary_Media_Backup_Write_Methods {
 				} elseif ( 'backup_expired' !== ( $record['status'] ?? '' ) && ( $record['backup']['relative_file'] ?? '' ) === $relative ) { return 'another_recovery'; }
 			}
 		}
-		// Search exact uploads-relative strings (including JSON escaped form); no guessed filename matching.
+		// Batch all exact representations into one scan per table, including default JSON Unicode escaping.
 		$encoded = implode( '/', array_map( 'rawurlencode', explode( '/', $relative ) ) );
-		foreach ( array_unique( array( $relative, str_replace( '/', '\\/', $relative ), rawurlencode( $relative ), $encoded, str_replace( '/', '\\/', $encoded ) ) ) as $needle ) {
+		$json = wp_json_encode( $relative );
+		if ( ! is_string( $json ) ) { return 'reference_check_unavailable'; }
+		$json = substr( $json, 1, -1 );
+		$needles = array_unique( array( $relative, str_replace( '/', '\\/', $relative ), rawurlencode( $relative ), $encoded, str_replace( '/', '\\/', $encoded ), $json, str_replace( '\\/', '/', $json ) ) );
+		$post_clauses = $value_clauses = $post_args = $value_args = array();
+		foreach ( $needles as $needle ) {
 			$like = '%' . $wpdb->esc_like( $needle ) . '%';
+			$post_clauses[] = '(post_content LIKE %s OR post_excerpt LIKE %s)';
+			$post_args[] = $like; $post_args[] = $like;
+			$value_clauses[] = 'meta_value LIKE %s'; $value_args[] = $like;
+		}
+		$queries = array(
+			$wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE " . implode( ' OR ', $post_clauses ) . ' LIMIT 1', ...$post_args ),
+			$wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_key NOT IN ('_wp_attached_file','_wp_attachment_metadata','_wp_attachment_backup_sizes','_npcink_ai_media_file_replacement_history','_npcink_ai_media_latest_file_replacement','_npcink_ai_media_optimized_derivatives','_npcink_ai_media_latest_optimized_derivative') AND (" . implode( ' OR ', $value_clauses ) . ') LIMIT 1', ...$value_args ),
+			$wpdb->prepare( "SELECT option_id FROM {$wpdb->options} WHERE option_name NOT LIKE %s AND (" . str_replace( 'meta_value', 'option_value', implode( ' OR ', $value_clauses ) ) . ') LIMIT 1', $wpdb->esc_like( '_transient_' ) . '%', ...$value_args ),
+		);
+		foreach ( $queries as $query ) {
 			$wpdb->last_error = '';
-			$post = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s OR post_excerpt LIKE %s LIMIT 1", $like, $like ) );
+			$found = $wpdb->get_var( $query );
 			if ( $wpdb->last_error ) { return 'reference_check_unavailable'; }
-			$meta = $wpdb->get_var( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->postmeta} WHERE meta_key NOT IN ('_wp_attached_file','_wp_attachment_metadata','_wp_attachment_backup_sizes','_npcink_ai_media_file_replacement_history','_npcink_ai_media_latest_file_replacement','_npcink_ai_media_optimized_derivatives','_npcink_ai_media_latest_optimized_derivative') AND meta_value LIKE %s LIMIT 1", $like ) );
-			if ( $wpdb->last_error ) { return 'reference_check_unavailable'; }
-			$option = $wpdb->get_var( $wpdb->prepare( "SELECT option_id FROM {$wpdb->options} WHERE option_name NOT LIKE %s AND option_value LIKE %s LIMIT 1", $wpdb->esc_like( '_transient_' ) . '%', $like ) );
-			if ( $wpdb->last_error ) { return 'reference_check_unavailable'; }
-			if ( $post || $meta || $option ) { return 'local_reference'; }
+			if ( $found ) { return 'local_reference'; }
 		}
 		return '';
 	}
@@ -266,9 +294,19 @@ trait Temporary_Media_Backup_Write_Methods {
 	private function cleanup_temporary_media_group( int $id, array $record, bool $execute ): array {
 		$group = $record['temporary_backup'];
 		if ( ! $this->temporary_media_group_cleanup_eligible( $group ) ) { return $record; }
-		$blocked = false;
-		foreach ( $group['files'] as &$file ) {
+		$start = min( count( $group['files'] ), max( 0, (int) ( $group['next_file_index'] ?? 0 ) ) );
+		unset( $group['cleanup_resume'], $group['next_file_index'] );
+		foreach ( array_keys( $group['files'] ) as $index ) {
+			if ( $index < $start ) { continue; }
+			$file =& $group['files'][ $index ];
 			if ( in_array( $file['state'] ?? '', array( 'removed', 'missing', 'current_image' ), true ) ) { continue; }
+			if ( null !== $this->temporary_media_files_remaining ) {
+				if ( $this->temporary_media_files_remaining <= 0 ) {
+					$group['next_file_index'] = $index; $group['cleanup_resume'] = true;
+					$this->temporary_media_budget_exhausted = true; break;
+				}
+				--$this->temporary_media_files_remaining;
+			}
 			$relative = (string) ( $file['relative_file'] ?? '' );
 			$path = $this->media_uploads_path_for_relative_file( $relative );
 			$reason = $this->temporary_media_reference_blocker( $id, $relative, (string) $record['replacement_id'] );
@@ -277,20 +315,23 @@ trait Temporary_Media_Backup_Write_Methods {
 			$current = $this->temporary_media_file_snapshot( $path );
 			foreach ( array( 'device', 'inode', 'filesize_bytes', 'sha256' ) as $key ) { if ( ! $current || ( $file[ $key ] ?? null ) !== $current[ $key ] ) { $reason = $reason ?: 'file_changed'; } }
 			$file['reason'] = $reason;
-			if ( $reason ) { $blocked = true; continue; }
+			if ( $reason ) { continue; }
 			if ( ! $execute ) { continue; }
 			// A second guard after filters/queries prevents known cooperative state drift.
-			if ( $this->temporary_media_reference_blocker( $id, $relative, (string) $record['replacement_id'] ) || $current !== $this->temporary_media_file_snapshot( $path ) ) { $file['reason'] = 'state_changed'; $blocked = true; continue; }
+			if ( $this->temporary_media_reference_blocker( $id, $relative, (string) $record['replacement_id'] ) || $current !== $this->temporary_media_file_snapshot( $path ) ) { $file['reason'] = 'state_changed'; continue; }
 			$guard = function ( $candidate ) use ( $path, $current, $id, $relative, $record ) { return $candidate === $path && $current === $this->temporary_media_file_snapshot( $path ) && ! $this->temporary_media_reference_blocker( $id, $relative, (string) $record['replacement_id'] ) ? $path : ''; };
 			add_filter( 'wp_delete_file', $guard, PHP_INT_MAX );
 			try { wp_delete_file( $path ); } finally { remove_filter( 'wp_delete_file', $guard, PHP_INT_MAX ); }
 			clearstatcache( true, $path );
-			if ( file_exists( $path ) || is_link( $path ) ) { $file['reason'] = 'delete_failed'; $blocked = true; continue; }
+			if ( file_exists( $path ) || is_link( $path ) ) { $file['reason'] = 'delete_failed'; continue; }
 			$file['state'] = 'removed';
 			$group['removed_bytes'] += (int) $file['filesize_bytes'];
 		}
 		unset( $file );
-		if ( $execute ) { $group['state'] = $blocked ? 'blocked' : 'cleaned'; }
+		if ( $execute ) {
+			$remaining = array_filter( $group['files'], static function ( $file ) { return ! in_array( $file['state'] ?? '', array( 'removed', 'missing', 'current_image' ), true ); } );
+			$group['state'] = $remaining ? ( array_filter( array_column( $remaining, 'reason' ) ) ? 'blocked' : 'retained' ) : 'cleaned';
+		}
 		$record['temporary_backup'] = $group;
 		return $record;
 	}

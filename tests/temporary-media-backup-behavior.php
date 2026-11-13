@@ -18,10 +18,11 @@ class Temporary_Backup_Reference_Db extends Npcink_Abilities_Toolkit_Unit_Wpdb {
 	public $fail = false;
 	public $reference_needle = '';
 	public $prepared_values = array();
+	public $queries = 0;
 	public function prepare( $query, ...$args ) { $this->prepared_values = $args; return parent::prepare( $query, ...$args ); }
 	public function esc_like( $value ) { return addcslashes( $value, '_%\\' ); }
-	public function get_results( $query ) { return $this->rows; }
-	public function get_var( $query ) { if ( $this->fail ) { $this->last_error = 'fixture query failure'; return null; } return $this->referenced || ( $this->reference_needle && in_array( '%' . $this->esc_like( $this->reference_needle ) . '%', $this->prepared_values, true ) ) ? 1 : null; }
+	public function get_results( $query ) { ++$this->queries; return $this->rows; }
+	public function get_var( $query ) { ++$this->queries; if ( $this->fail ) { $this->last_error = 'fixture query failure'; return null; } return $this->referenced || ( $this->reference_needle && in_array( '%' . $this->esc_like( $this->reference_needle ) . '%', $this->prepared_values, true ) ) ? 1 : null; }
 }
 $categories = new Category_Registrar();
 $package = new Core_Write_Package( $categories, new Ability_Registrar( $categories, new Contract_Normalizer( new Schema_Normalizer() ) ) );
@@ -63,6 +64,10 @@ try {
 	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'Segment-encoded Unicode URL references preserve old files' );
 	$db->reference_needle = str_replace( '/', '\\/', $db->reference_needle );
 	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'JSON-escaped encoded URL references preserve old files' );
+	$db->reference_needle = substr( wp_json_encode( $unicode ), 1, -1 );
+	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'Default JSON Unicode escaping protects local references' );
+	$db->reference_needle = str_replace( '\\/', '/', $db->reference_needle );
+	temporary_check( 'local_reference' === $invoke( 'temporary_media_reference_blocker', $id, $unicode, 'unicode-unit' ), 'JSON Unicode with unescaped slashes protects local references' );
 	$db->reference_needle = '';
 	$bad = $input; $bad['expected_current_media_fingerprint'] = 'sha256:' . str_repeat( '0', 64 );
 	temporary_check( is_wp_error( $invoke( 'plan_temporary_media_backup', $current, $bad ) ), 'Temporary retention requires exact source evidence' );
@@ -119,6 +124,24 @@ try {
 	temporary_check( $record === $invoke( 'cleanup_temporary_media_group', $id, $record, true ), 'Successful restore cancels the original group cleanup' );
 	$history = array_fill( 0, 25, array( 'replacement_id' => 'old', 'temporary_backup' => $group ) );
 	temporary_check( 25 === count( $invoke( 'retain_temporary_media_history', $history ) ), 'Pending ownership survives the legacy twenty-row history cap' );
+	$budget = new ReflectionProperty( $package, 'temporary_media_files_remaining' ); $budget->setAccessible( true );
+	$exhausted = new ReflectionProperty( $package, 'temporary_media_budget_exhausted' ); $exhausted->setAccessible( true );
+	$many = $record; $many['temporary_backup'] = $group; $many['temporary_backup']['files'] = array(); $many['temporary_backup']['state'] = 'retained'; $many['temporary_backup']['expires_at_gmt'] = gmdate( 'c', time() - 1 );
+	for ( $i = 0; $i < 40; ++$i ) {
+		$relative = $relative_dir . '/budget-' . $i . '.png'; file_put_contents( $uploads['basedir'] . '/' . $relative, 'budget-image' );
+		$file = $invoke( 'temporary_media_file_snapshot', $uploads['basedir'] . '/' . $relative ); $file['relative_file'] = $relative; $file['state'] = 'retained'; $many['temporary_backup']['files'][] = $file;
+	}
+	$budget->setValue( $package, 32 ); $db->queries = 0;
+	$partial = $invoke( 'cleanup_temporary_media_group', $id, $many, true );
+	temporary_check( 32 === count( array_filter( $partial['temporary_backup']['files'], static function ( $f ) { return 'removed' === $f['state']; } ) ) && $db->queries <= 384 && ! empty( $partial['temporary_backup']['cleanup_resume'] ), 'File budget bounds all reference queries and persists partial progress' );
+	$budget->setValue( $package, 32 ); $exhausted->setValue( $package, false );
+	$completed = $invoke( 'cleanup_temporary_media_group', $id, $partial, true );
+	temporary_check( 'cleaned' === $completed['temporary_backup']['state'] && empty( $completed['temporary_backup']['cleanup_resume'] ), 'Next pass resumes remaining files without double counting' );
+	$budget->setValue( $package, 1 ); $db->referenced = true;
+	$many['temporary_backup']['files'] = array_slice( $many['temporary_backup']['files'], 0, 2 );
+	$partial = $invoke( 'cleanup_temporary_media_group', $id, $many, true );
+	temporary_check( 1 === $partial['temporary_backup']['next_file_index'], 'Blocked prefix advances progress instead of starving later files' );
+	$budget->setValue( $package, null ); $db->referenced = false;
 } finally {
 	$GLOBALS['wpdb'] = $original_db;
 	foreach ( glob( $dir . '/*' ) as $path ) { unlink( $path ); }

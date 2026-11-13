@@ -28,7 +28,14 @@ A nonblocking uploads flock serializes cooperative Cloud adoption, restore and
 cleanup. Each delete checks canonical containment, parent/file symlinks,
 hardlinks, file identity/size/hash, current metadata, other attachment uses,
 other active recoveries, and exact uploads-relative path variants in local
-posts/meta/options, including segment-encoded Unicode URLs and JSON forms. Candidate scans fail closed above 500 rows or on DB errors.
+posts/meta/options, including segment-encoded Unicode URLs and JSON forms.
+JSON Unicode escapes are included with escaped or literal slashes. Candidate
+scans fail closed above 500 rows or on DB errors. Reference variants share one
+query per table; each maintenance call checks at most 32 temporary file
+candidates (at most 384 explicit reference queries, plus WordPress bookkeeping).
+Partial file/group progress is persisted in the existing history and resumes
+through the existing attachment cursor, including blocked prefixes. Preview
+uses the same budget without writes.
 A final wp_delete_file filter rejects redirected deletion and rechecks state;
 failed deletion remains retryable. History updates use a previous-value guard.
 Uncooperative external filesystem/database writers are not globally locked.
