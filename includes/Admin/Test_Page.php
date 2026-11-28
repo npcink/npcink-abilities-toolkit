@@ -232,7 +232,7 @@ final class Test_Page {
 		} elseif ( 'checks' === $active_sub ) {
 			$this->render_site_checks( $registered );
 		} elseif ( 'scenarios' === $active_sub ) {
-			( new Scenario_Cards() )->render();
+			( new Scenario_Cards() )->render( $registered );
 		} else {
 			$this->render_developer_access( $abilities_url, $categories_url, $contract_url, $registered );
 		}

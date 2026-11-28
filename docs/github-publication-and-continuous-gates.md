@@ -92,7 +92,8 @@ The PHP CI matrix matches the package runtime floor:
 The WordPress runtime matrix covers:
 
 - WordPress `6.9.4` with PHP `8.0`;
-- WordPress `7.0` with PHP `8.5`.
+- WordPress `7.1.5` with PHP `8.5`.
+- WordPress `7.2-RC3` with PHP `8.5` is an advisory CI job, not required release evidence.
 
 PHPStan also analyzes against PHP `8.0`, matching `composer.json`'s
 `php >=8.0` requirement.

@@ -214,7 +214,8 @@ final class Core_Read_Package {
 					),
 					'input_schema'     => array(
 						'type'                 => 'object',
-						'properties'           => array(),
+						'default'              => array(),
+						'properties'           => array( 'include_entrypoint_status' => array( 'type' => 'boolean', 'default' => false ) ),
 						'additionalProperties' => false,
 					),
 					'output_schema'    => array(
@@ -3075,15 +3076,15 @@ final class Core_Read_Package {
 
 		/**
 		 * Returns read-only workflow recipe definitions.
-		 *
+		 * @param mixed $input Ability input.
 		 * @return array<string,mixed>|\WP_Error
 		 */
-		public function list_workflow_recipes() {
+		public function list_workflow_recipes( $input = array() ) {
 			$denied = $this->callback_capability_error( 'manage_options' );
 			if ( $denied ) {
 				return $denied;
 			}
-			return Workflow_Definition_Provider::manifest();
+			return \Npcink_Abilities_Toolkit\Workflow\Entrypoint_Status::discovery( $input, $this->abilities->all() );
 		}
 
 		/**

@@ -121,7 +121,7 @@ minimum or official-stack assumptions change.
 
 When Docker runs on the M4 test host instead of the source machine, run
 `composer smoke:wp-m4` from a clean Toolkit checkout. It archives the exact
-current Git revision, runs WordPress 6.9.4/PHP 8.0 and WordPress 7.0/PHP 8.5 on
+current Git revision, runs WordPress 6.9.4/PHP 8.0 and WordPress 7.1.5/PHP 8.5 on
 M4, cleans the remote workspace, and writes ignored revision-bound evidence to
 `build/m4-wordpress-smoke-evidence.json`. Pass that path through
 `NPCINK_TOOLKIT_WORDPRESS_SMOKE_EVIDENCE` to `composer release:verify`; stale,

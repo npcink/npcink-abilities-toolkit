@@ -4862,3 +4862,32 @@ msgstr ""
 #: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
 msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
 msgstr ""
+
+#: includes/Admin/Overview_Sections.php
+msgid "Toolkit registry"
+msgstr ""
+
+#: includes/Admin/Overview_Sections.php
+msgid "The Toolkit registry is ready for inspection."
+msgstr ""
+
+#: includes/Admin/Catalog_Presentation.php
+#, php-format
+msgid "%1$d bundled, %2$d from other providers. Exposure metadata: REST %3$d, MCP %4$d."
+msgstr ""
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry not registered with the current configuration."
+msgstr ""
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry marked for MCP discovery."
+msgstr ""
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry marked for REST, not default MCP."
+msgstr ""
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry registered without REST or MCP exposure."
+msgstr ""

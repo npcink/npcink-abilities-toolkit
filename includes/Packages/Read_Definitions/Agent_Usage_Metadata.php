@@ -37,9 +37,9 @@ final class Agent_Usage_Metadata {
 	 * @return array<string,array<string,string[]>>
 	 */
 	private static function metadata() {
-		return array(
+		return Compatibility_Usage_Metadata::definitions() + array(
 			'npcink-abilities-toolkit/list-workflow-recipes' => array(
-				'when_to_use'     => array( 'Discover supported host-side workflow recipes before choosing a multi-step path.' ),
+				'when_to_use'     => array( 'Discover static host-side recipes; request include_entrypoint_status before selecting a registry entry for the current channel.' ),
 				'not_for'         => array( 'Do not use this to execute, schedule, approve, audit, or commit workflow steps.' ),
 				'best_for'        => array( 'Selecting the right entry ability for article, refresh, comment, diagnostics, or governance handoff work.' ),
 				'stopping_points' => array( 'After selecting a recipe, call the listed abilities through the host; this package does not run the workflow.' ),

@@ -46,6 +46,14 @@ referenced entrypoints are enabled before selecting a recipe. Recipes do not
 execute or re-enable omitted abilities. Use `full` plus explicit package
 opt-outs only when approved writes are required.
 
+Clients may call `list-workflow-recipes` with `include_entrypoint_status: true`.
+Each case then includes `entrypoint_status` (`registered`, `rest_exposed`,
+`mcp_public`). Use it to flag missing registry entries or missing channel
+exposure, then confirm caller authorization and any additional steps with the
+host. These booleans do not grant access and are not a full workflow readiness
+check. Omitting the option preserves the static manifest, as do the source
+provider and the recipe-detail ability.
+
 See [ADR 0010](adr/0010-opt-in-registration-profiles.md). Full default behavior
 is retained under ADR 0008; the operator switch already shipped under ADR 0009.
 

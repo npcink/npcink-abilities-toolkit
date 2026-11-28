@@ -42,10 +42,23 @@ https://make.wordpress.org/core/2026/07/02/merge-proposal-expanding-wordpress-co
 | `core/get-user-info` | `npcink-abilities-toolkit/list-users` | `toolkit_extension` | Keep Toolkit. Core returns the current authenticated user, while Toolkit provides a bounded user-list and author-context contract; the schemas and cardinality are intentionally different. |
 | `core/get-environment-info` | `npcink-abilities-toolkit/wp-diagnostics-summary`, `npcink-abilities-toolkit/wp-ops-diagnostics-detail` | `toolkit_extension` | Keep Toolkit. The diagnostic contracts add bounded profiles, redaction, severity summaries, and support evidence not represented by the generic Core environment response. |
 
-Future Core content, comment, taxonomy, media, theme, plugin, and management
-abilities must be added as new observed rows only after they appear in a
-testable WordPress release. Do not convert proposal directions into successor
-ids.
+### WordPress 7.2 release-candidate watch
+
+The 7.2-RC3 Core distribution includes the three read abilities below. These
+are source observations for a candidate, not consumer equivalence or a
+preference decision. On WordPress 7.1.4 the official AI plugin can supply the
+same IDs; the `core/` prefix alone does not identify their provider.
+
+| Core candidate | Compare with | What to verify before migration |
+| --- | --- | --- |
+| `core/content-query` | `get-post`, `list-posts`, `search-posts` | Object types, draft visibility, search/filter semantics, projected fields, pagination and errors in the same task. |
+| `core/users-query` | `list-users` | Public author results vs privileged user enumeration, projected fields and pagination. |
+| `core/settings-get` | `site-info`, `wp-diagnostics-summary` | Safe settings selection is not site identity or operational diagnostics; keep the existing contracts. |
+
+Keep the Toolkit IDs and WordPress 6.9 fallback. Re-observe the stable release
+and compare Core and Toolkit through both consumer hosts before making a
+preference or deprecation decision. Do not turn proposal directions into
+successor IDs.
 
 ## Automated Gate
 

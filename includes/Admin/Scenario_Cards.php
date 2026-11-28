@@ -23,13 +23,10 @@ final class Scenario_Cards {
 	/**
 	 * Renders the scenario overview grid, or its explicit empty state.
 	 *
+	 * @param array<string,mixed> $registered Toolkit registry snapshot.
 	 * @return void
 	 */
-	public function render() {
-		if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
-			return;
-		}
-
+	public function render( array $registered ) {
 		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
 		if ( empty( $cases ) ) {
@@ -49,7 +46,7 @@ final class Scenario_Cards {
 			</p>
 			<div class="npcink-abilities-toolkit-scenarios__grid">
 				<?php foreach ( $cases as $case ) : ?>
-					<?php $case = is_array( $case ) ? $case : array(); ?>
+					<?php $entry = (string) ( $case['entrypoint_ability_id'] ?? '' ); ?>
 					<div class="npcink-abilities-toolkit-scenarios__item">
 						<h3><?php echo esc_html( Scenario_Translations::translate( (string) ( $case['title'] ?? '' ) ) ); ?></h3>
 						<ul>
@@ -59,7 +56,9 @@ final class Scenario_Cards {
 						</ul>
 						<p class="description">
 							<?php echo esc_html__( 'Entry ability:', 'npcink-abilities-toolkit' ); ?>
-							<code><?php echo esc_html( (string) ( $case['entrypoint_ability_id'] ?? '' ) ); ?></code>
+							<code><?php echo esc_html( $entry ); ?></code>
+							<br>
+							<?php echo esc_html( Catalog_Presentation::entrypoint_label( $entry, $registered ) ); ?>
 						</p>
 					</div>
 				<?php endforeach; ?>

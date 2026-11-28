@@ -56,6 +56,17 @@ try {
 	foreach ( array( 'acme/content-inventory-summary', 'acme/projected-site-summary', 'npcink-abilities-toolkit/site-info' ) as $id ) {
 		$check( 200 === rest_do_request( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $id . '/run' ) )->get_status(), 'Parameterless REST GET supplies its declared empty default: ' . $id );
 	}
+	$recipe_id = 'npcink-abilities-toolkit/list-workflow-recipes';
+	$recipes = $run( $recipe_id, array( 'include_entrypoint_status' => true ), 'GET' );
+	if ( 'core_read' === $profile ) {
+		$check( 404 === $recipes->get_status(), 'Core-read profile has no recipe discovery endpoint.' );
+	} else {
+		$check( 200 === $recipes->get_status(), 'Recipe discovery accepts the opt-in status through REST.' );
+		$cases = $recipes->get_data()['cases'] ?? array();
+		$check( array( 'registered' => true, 'rest_exposed' => true, 'mcp_public' => false ) === ( $cases['article_publish_preflight']['entrypoint_status'] ?? null ), 'Article preflight status matches the REST-only exposure.' );
+		$default_recipes = rest_do_request( new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $recipe_id . '/run' ) );
+		$check( 200 === $default_recipes->get_status() && npcink_abilities_toolkit_get_workflow_definitions() === $default_recipes->get_data(), 'Parameterless REST recipe discovery keeps the original manifest.' );
+	}
 	$proposal = $run( 'acme/create-draft-proposal', array( 'title' => $run_id ) );
 	$check( 200 === $proposal->get_status() && isset( $proposal->get_data()['diff'] ), 'Provider returns a review artifact through REST.' );
 	$check( 0 === $count(), 'Provider proposal creates no WordPress post.' );
