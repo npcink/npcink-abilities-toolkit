@@ -16,52 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 trait Taxonomy_Read_Methods {
 	/**
-	 * Lists taxonomy terms.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error
-	 */
-	public function list_terms( $input ) {
-		return $this->list_terms_for_taxonomy( $input, false );
-	}
-
-	/**
-	 * Lists taxonomy terms with taxonomy included in the response.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error
-	 */
-	public function list_taxonomy_terms( $input ) {
-		return $this->list_terms_for_taxonomy( $input, true );
-	}
-
-	/**
-	 * Lists post categories.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error
-	 */
-	public function list_categories( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		$input['taxonomy'] = 'category';
-
-		return $this->list_terms( $input );
-	}
-
-	/**
-	 * Lists post tags.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error
-	 */
-	public function list_tags( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		$input['taxonomy'] = 'post_tag';
-
-		return $this->list_terms( $input );
-	}
-
-	/**
 	 * Gets one taxonomy term.
 	 *
 	 * @param mixed $input Input args.
@@ -1581,23 +1535,19 @@ trait Taxonomy_Read_Methods {
 	}
 
 	/**
-	 * Lists terms for a taxonomy.
+	 * Lists taxonomy terms across all levels unless a parent is specified.
 	 *
 	 * @param mixed $input Input args.
-	 * @param bool  $include_taxonomy Include taxonomy in the response.
 	 * @return array<string,mixed>|\WP_Error
 	 */
-	private function list_terms_for_taxonomy( $input, $include_taxonomy ) {
+	public function list_taxonomy_terms( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		$taxonomy = sanitize_key( (string) ( $input['taxonomy'] ?? 'category' ) );
 		$search = sanitize_text_field( (string) ( $input['search'] ?? '' ) );
-		$parent = absint( $input['parent'] ?? 0 );
 		$hide_empty = ! empty( $input['hide_empty'] );
 		$include_sample_posts = ! empty( $input['include_sample_posts'] );
 		$sample_post_limit = max( 1, min( 5, absint( $input['sample_post_limit'] ?? 3 ) ) );
-		$per_page_max = $include_taxonomy ? 100 : 50;
-		$per_page_default = $include_taxonomy ? 20 : 10;
-		$per_page = max( 1, min( $per_page_max, absint( $input['per_page'] ?? $per_page_default ) ) );
+		$per_page = max( 1, min( 100, absint( $input['per_page'] ?? 20 ) ) );
 		$page = max( 1, absint( $input['page'] ?? 1 ) );
 		$offset = ( $page - 1 ) * $per_page;
 
@@ -1611,8 +1561,8 @@ trait Taxonomy_Read_Methods {
 			'number'     => $per_page,
 			'offset'     => $offset,
 		);
-		if ( $include_taxonomy ) {
-			$args['parent'] = $parent;
+		if ( isset( $input['parent'] ) ) {
+			$args['parent'] = absint( $input['parent'] );
 		}
 		if ( '' !== $search ) {
 			$args['search'] = $search;
@@ -1637,30 +1587,24 @@ trait Taxonomy_Read_Methods {
 				continue;
 			}
 			$row = array(
-				'id'    => absint( $term->term_id ?? 0 ),
-				'name'  => sanitize_text_field( (string) ( $term->name ?? '' ) ),
-				'slug'  => sanitize_title( (string) ( $term->slug ?? '' ) ),
-				'count' => absint( $term->count ?? 0 ),
+				'id'     => absint( $term->term_id ?? 0 ),
+				'name'   => sanitize_text_field( (string) ( $term->name ?? '' ) ),
+				'slug'   => sanitize_title( (string) ( $term->slug ?? '' ) ),
+				'parent' => absint( $term->parent ?? 0 ),
+				'count'  => absint( $term->count ?? 0 ),
 			);
-			if ( $include_taxonomy ) {
-				$row['parent'] = absint( $term->parent ?? 0 );
-			}
 			if ( $include_sample_posts ) {
 				$row['sample_posts'] = $this->build_term_sample_posts( $taxonomy, absint( $term->term_id ?? 0 ), $sample_post_limit );
 			}
 			$items[] = $row;
 		}
 
-		$response = array(
+		return array(
+			'taxonomy' => $taxonomy,
 			'total'    => $total,
 			'page'     => $page,
 			'per_page' => $per_page,
 			'items'    => $items,
 		);
-		if ( $include_taxonomy ) {
-			$response = array_merge( array( 'taxonomy' => $taxonomy ), $response );
-		}
-
-		return $response;
 	}
 }

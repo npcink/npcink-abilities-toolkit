@@ -289,7 +289,7 @@ final class Workflow_Definition_Provider {
 				'preferred_ability_id'           => 'npcink-abilities-toolkit/build-article-production-fingerprint',
 				'entrypoint_ability_id'          => 'npcink-abilities-toolkit/build-article-production-fingerprint',
 				'expanded_ability_ids'           => array(
-					'npcink-abilities-toolkit/extract-style-baseline',
+					'npcink-abilities-toolkit/get-site-style-baseline',
 					'npcink-abilities-toolkit/build-article-production-fingerprint',
 					'npcink-abilities-toolkit/check-article-production-duplicate',
 					'npcink-abilities-toolkit/review-article-output-light',

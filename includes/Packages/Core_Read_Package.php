@@ -257,50 +257,6 @@ final class Core_Read_Package {
 					),
 					'execute_callback' => array( $this, 'get_workflow_recipe' ),
 				),
-			'npcink-abilities-toolkit/list-terms'      => array(
-				'label'            => __( 'List Terms', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a paginated list of terms for a taxonomy.', 'npcink-abilities-toolkit' ),
-				'category'         => 'npcink-abilities-toolkit-data',
-				'capability'       => 'manage_categories',
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
-						'taxonomy'   => array( 'type' => 'string', 'default' => 'category' ),
-						'search'     => array( 'type' => 'string' ),
-						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
-						'include_sample_posts' => array( 'type' => 'boolean', 'default' => false ),
-						'sample_post_limit' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 3 ),
-						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 10 ),
-						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
-					),
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'total'    => array( 'type' => 'integer' ),
-						'page'     => array( 'type' => 'integer' ),
-						'per_page' => array( 'type' => 'integer' ),
-						'items'    => array(
-							'type'  => 'array',
-							'items' => array(
-								'type'       => 'object',
-								'properties' => array(
-									'id'    => array( 'type' => 'integer' ),
-									'name'  => array( 'type' => 'string' ),
-									'slug'  => array( 'type' => 'string' ),
-									'count' => array( 'type' => 'integer' ),
-									'sample_posts' => array( 'type' => 'array', 'items' => array( 'type' => 'object', 'additionalProperties' => true ) ),
-								),
-								'required'   => array( 'id', 'name' ),
-							),
-						),
-					),
-					'required'   => array( 'total', 'items' ),
-				),
-				'execute_callback' => array( $this, 'list_terms' ),
-			),
 			'npcink-abilities-toolkit/list-taxonomy-terms' => array(
 				'label'            => __( 'List Taxonomy Terms', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Returns a paginated term list for one taxonomy, including parent information.', 'npcink-abilities-toolkit' ),
@@ -313,7 +269,7 @@ final class Core_Read_Package {
 					'properties' => array(
 						'taxonomy'   => array( 'type' => 'string', 'default' => 'category' ),
 						'search'     => array( 'type' => 'string' ),
-						'parent'     => array( 'type' => 'integer', 'minimum' => 0 ),
+						'parent'     => array( 'type' => 'integer', 'minimum' => 0, 'description' => 'Omit for all levels, pass 0 for root terms, or pass a term ID for its direct children.' ),
 						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
 						'include_sample_posts' => array( 'type' => 'boolean', 'default' => false ),
 						'sample_post_limit' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 3 ),
@@ -347,68 +303,6 @@ final class Core_Read_Package {
 					'required'   => array( 'taxonomy', 'total', 'items' ),
 				),
 				'execute_callback' => array( $this, 'list_taxonomy_terms' ),
-			),
-			'npcink-abilities-toolkit/list-categories' => array(
-				'label'            => __( 'List Categories', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a paginated list of post categories.', 'npcink-abilities-toolkit' ),
-				'category'         => 'npcink-abilities-toolkit-data',
-				'capability'       => 'manage_categories',
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
-						'search'     => array( 'type' => 'string' ),
-						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
-						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 10 ),
-						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
-					),
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'total'    => array( 'type' => 'integer' ),
-						'page'     => array( 'type' => 'integer' ),
-						'per_page' => array( 'type' => 'integer' ),
-						'items'    => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'object' ),
-						),
-					),
-					'required'   => array( 'total', 'items' ),
-				),
-				'execute_callback' => array( $this, 'list_categories' ),
-			),
-			'npcink-abilities-toolkit/list-tags'       => array(
-				'label'            => __( 'List Tags', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a paginated list of post tags.', 'npcink-abilities-toolkit' ),
-				'category'         => 'npcink-abilities-toolkit-data',
-				'capability'       => 'manage_categories',
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
-						'search'     => array( 'type' => 'string' ),
-						'hide_empty' => array( 'type' => 'boolean', 'default' => false ),
-						'per_page'   => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 10 ),
-						'page'       => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
-					),
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'total'    => array( 'type' => 'integer' ),
-						'page'     => array( 'type' => 'integer' ),
-						'per_page' => array( 'type' => 'integer' ),
-						'items'    => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'object' ),
-						),
-					),
-					'required'   => array( 'total', 'items' ),
-				),
-				'execute_callback' => array( $this, 'list_tags' ),
 			),
 			'npcink-abilities-toolkit/get-term'        => array(
 				'label'            => __( 'Get Term', 'npcink-abilities-toolkit' ),
@@ -929,54 +823,6 @@ final class Core_Read_Package {
 					'additionalProperties' => false,
 				),
 				'execute_callback' => array( $this, 'extract_reference_post_style' ),
-			),
-			'npcink-abilities-toolkit/extract-style-baseline' => array(
-				'label'            => __( 'Extract Site Style Baseline', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Extracts a lightweight site-wide or author-specific writing-style baseline from recent posts.', 'npcink-abilities-toolkit' ),
-				'category'         => 'npcink-abilities-toolkit-data',
-				'capability'       => 'edit_posts',
-				'required_scope'   => 'post.write',
-				'required_scopes'  => array( 'post.write' ),
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'annotations'      => array(
-					'instructions' => 'Read a small recent post sample and return lightweight site/author style baseline only.',
-				),
-				'input_schema'     => array(
-					'type'                 => 'object',
-					'properties'           => array(
-						'mode'      => array(
-							'type' => 'string',
-							'enum' => array( 'off', 'site_recent', 'author_recent' ),
-						),
-						'author_id' => array( 'type' => 'integer', 'minimum' => 1 ),
-						'limit'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5 ),
-					),
-					'additionalProperties' => false,
-				),
-				'output_schema'    => array(
-					'type'                 => 'object',
-					'properties'           => array(
-						'success' => array( 'type' => 'boolean' ),
-						'data'    => array(
-							'type'                 => 'object',
-							'properties'           => array(
-								'profile' => array( 'type' => 'object', 'additionalProperties' => true ),
-								'samples' => array(
-									'type'  => 'array',
-									'items' => array( 'type' => 'object', 'additionalProperties' => true ),
-								),
-								'source'  => array( 'type' => 'string' ),
-							),
-							'required'             => array( 'profile', 'samples', 'source' ),
-							'additionalProperties' => false,
-						),
-						'meta'    => array( 'type' => 'object', 'additionalProperties' => true ),
-					),
-					'required'             => array( 'success', 'data' ),
-					'additionalProperties' => false,
-				),
-				'execute_callback' => array( $this, 'extract_style_baseline' ),
 			),
 			'npcink-abilities-toolkit/build-article-production-fingerprint' => array(
 				'label'            => __( 'Build Article Production Fingerprint', 'npcink-abilities-toolkit' ),
@@ -2786,7 +2632,7 @@ final class Core_Read_Package {
 				'input_schema'     => array(
 					'type'                 => 'object',
 					'properties'           => array(
-						'mode'      => array( 'type' => 'string', 'enum' => array( 'site_recent', 'author_recent' ), 'default' => 'site_recent' ),
+						'mode'      => array( 'type' => 'string', 'enum' => array( 'off', 'site_recent', 'author_recent' ), 'default' => 'site_recent' ),
 						'author_id' => array( 'type' => 'integer', 'minimum' => 1 ),
 						'limit'     => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 5, 'default' => 5 ),
 					),

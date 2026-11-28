@@ -6,8 +6,14 @@
   exposure in the admin overview. Show why a recipe entry is unavailable and
   provide opt-in entrypoint status to discovery clients without changing the
   static recipe manifest or exposure policy.
-- Clarify preferred and compatibility-only read entrypoints, and test the
-  supported minimum and current WordPress lines plus an advisory 7.2 RC lane.
+- **Breaking:** Remove five redundant read IDs without aliases. Replace
+  `list-terms`, `list-categories`, and `list-tags` with `list-taxonomy-terms`
+  (`taxonomy: category` or `post_tag`); omit `parent` for all levels, pass `0`
+  for root terms, or pass a term ID for its direct children. Use
+  `list-post-revisions` for revision history and `get-site-style-baseline`
+  instead of `extract-style-baseline`. Migrate the article-production recipe.
+- Test the supported minimum and current WordPress lines plus an advisory
+  7.2 RC lane.
 
 ## 0.8.1 - 2026-11-03
 

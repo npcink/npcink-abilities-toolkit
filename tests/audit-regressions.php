@@ -82,11 +82,9 @@ foreach ( array( '2030-01-02T09:00:00+14:59', 'tomorrow', '2030-02-30 09:00:00',
 $check( ! is_wp_error( Publish_Time::parse( '2030-11-03T01:30:00-04:00', 'site' ) ), 'an explicit offset resolves a repeated DST time' );
 
 $GLOBALS['npcink_abilities_toolkit_unit_style_posts'][101] = (object) array( 'ID' => 101, 'post_type' => 'post', 'post_status' => 'draft' );
-foreach ( array( 'list_revisions', 'list_post_revisions' ) as $method ) {
-	$result = $r->$method( array( 'post_id' => 101, 'per_page' => 1, 'page' => 2 ) );
-	$check( 5000 === $result['total'] && 1 === count( $result['items'] ), $method . ' preserves total with one loaded revision' );
-	$check( 1 === $GLOBALS['audit_query_args']['posts_per_page'] && 2 === $GLOBALS['audit_query_args']['paged'], $method . ' paginates in the query' );
-}
+$result = $r->list_post_revisions( array( 'post_id' => 101, 'per_page' => 1, 'page' => 2 ) );
+$check( 5000 === $result['total'] && 1 === count( $result['items'] ), 'list-post-revisions preserves total with one loaded revision' );
+$check( 1 === $GLOBALS['audit_query_args']['posts_per_page'] && 2 === $GLOBALS['audit_query_args']['paged'], 'list-post-revisions paginates in the query' );
 $plugin = Npcink_Abilities_Toolkit\Plugin::instance();
 $plugin->bump_read_cache_version();
 $key = $invoke( $r, 'build_read_cache_key', 'content_inventory_health', array() );

@@ -69,14 +69,16 @@ trait Style_Read_Methods {
 	 * @param mixed $input Input args.
 	 * @return array<string,mixed>
 	 */
-	public function extract_style_baseline( $input ) {
+	public function get_site_style_baseline( $input ) {
 		$input = is_array( $input ) ? $input : array();
 		$mode = sanitize_key( (string) ( $input['mode'] ?? 'site_recent' ) );
 		if ( ! in_array( $mode, array( 'off', 'site_recent', 'author_recent' ), true ) ) {
 			$mode = 'site_recent';
 		}
 		if ( 'off' === $mode ) {
-			return $this->empty_style_profile_result( 'off' );
+			$result = $this->empty_style_profile_result( 'off' );
+			$result['meta']['source'] = 'local_site_style_baseline';
+			return $result;
 		}
 
 		$author_id = $this->absint_value( $input['author_id'] ?? 0 );
@@ -84,22 +86,23 @@ trait Style_Read_Methods {
 			$author_id = $this->absint_value( get_current_user_id() );
 		}
 
-		$cache_key = 'npcink_ai_style_baseline_' . $mode . '_' . ( $author_id > 0 ? 'author_' . $author_id : 'site' ) . '_v' . $this->get_style_baseline_cache_version();
+		$limit = max( 1, min( 5, $this->absint_value( $input['limit'] ?? 5 ) ) );
+		$cache_key = 'npcink_ai_style_baseline_' . $mode . '_' . ( 'author_recent' === $mode && $author_id > 0 ? 'author_' . $author_id : 'site' ) . '_n' . $limit . '_v' . $this->get_style_baseline_cache_version();
 		if ( function_exists( 'get_transient' ) ) {
 			$cached = get_transient( $cache_key );
 			if ( false !== $cached && is_array( $cached ) && isset( $cached['success'], $cached['data'] ) ) {
+				$cached['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
 				return $cached;
 			}
 		}
 
-		$limit = max( 1, min( 5, $this->absint_value( $input['limit'] ?? 4 ) ) );
 		$query_args = array(
 			'post_type'        => 'post',
 			'post_status'      => 'publish',
 			'posts_per_page'   => $limit,
 			'orderby'          => 'date',
 			'order'            => 'DESC',
-				'suppress_filters' => false,
+			'suppress_filters' => false,
 		);
 		if ( 'author_recent' === $mode && $author_id > 0 ) {
 			$query_args['author'] = $author_id;
@@ -123,6 +126,7 @@ trait Style_Read_Methods {
 				'source'  => $mode,
 			),
 			'meta'    => array(
+				'source'           => 'local_site_style_baseline',
 				'contract_version' => 'v1',
 				'execution_mode'   => 'projection_only',
 			),
@@ -133,6 +137,7 @@ trait Style_Read_Methods {
 			set_transient( $cache_key, $result, $ttl );
 		}
 
+		$result['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
 		return $result;
 	}
 
@@ -185,30 +190,6 @@ trait Style_Read_Methods {
 				'execution_mode'   => 'projection_only',
 			),
 		);
-	}
-
-	/**
-	 * Builds a compact site style baseline.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>
-	 */
-	public function get_site_style_baseline( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		$mode = sanitize_key( (string) ( $input['mode'] ?? 'site_recent' ) );
-		if ( ! in_array( $mode, array( 'site_recent', 'author_recent' ), true ) ) {
-			$mode = 'site_recent';
-		}
-		$baseline = $this->extract_style_baseline(
-			array(
-				'mode'      => $mode,
-				'author_id' => $this->absint_value( $input['author_id'] ?? 0 ),
-				'limit'     => max( 1, min( 5, $this->absint_value( $input['limit'] ?? 5 ) ) ),
-			)
-		);
-		$baseline['message'] = __( 'Site style baseline built.', 'npcink-abilities-toolkit' );
-		$baseline['meta']['source'] = 'local_site_style_baseline';
-		return $baseline;
 	}
 
 	/**

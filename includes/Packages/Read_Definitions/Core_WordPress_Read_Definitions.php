@@ -430,37 +430,6 @@ final class Core_WordPress_Read_Definitions {
 				),
 				'execute_callback' => array( $callbacks, 'get_post_stats' ),
 			),
-			'npcink-abilities-toolkit/list-revisions'  => array(
-				'label'            => __( 'List Revisions', 'npcink-abilities-toolkit' ),
-				'description'      => __( 'Returns a paginated list of post revisions using the legacy response shape.', 'npcink-abilities-toolkit' ),
-				'category'         => 'npcink-abilities-toolkit-data',
-				'capability'       => 'edit_posts',
-				'contract_version' => 'v1',
-				'source'           => 'official',
-				'input_schema'     => array(
-					'type'       => 'object',
-					'properties' => array(
-						'post_id'  => array( 'type' => 'integer', 'minimum' => 1 ),
-						'per_page' => array( 'type' => 'integer', 'minimum' => 1, 'maximum' => 50, 'default' => 10 ),
-						'page'     => array( 'type' => 'integer', 'minimum' => 1, 'default' => 1 ),
-					),
-					'required'   => array( 'post_id' ),
-				),
-				'output_schema'    => array(
-					'type'       => 'object',
-					'properties' => array(
-						'total'    => array( 'type' => 'integer' ),
-						'page'     => array( 'type' => 'integer' ),
-						'per_page' => array( 'type' => 'integer' ),
-						'items'    => array(
-							'type'  => 'array',
-							'items' => array( 'type' => 'object' ),
-						),
-					),
-					'required'   => array( 'total', 'items' ),
-				),
-				'execute_callback' => array( $callbacks, 'list_revisions' ),
-			),
 			'npcink-abilities-toolkit/get-post-meta'   => array(
 				'label'            => __( 'Get Post Meta', 'npcink-abilities-toolkit' ),
 				'description'      => __( 'Reads one explicitly requested non-sensitive post meta key.', 'npcink-abilities-toolkit' ),

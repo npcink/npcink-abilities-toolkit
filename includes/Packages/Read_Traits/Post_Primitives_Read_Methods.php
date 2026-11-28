@@ -150,54 +150,6 @@ trait Post_Primitives_Read_Methods {
 	}
 
 	/**
-	 * Lists revisions using the legacy list-revisions response shape.
-	 *
-	 * @param mixed $input Input args.
-	 * @return array<string,mixed>|\WP_Error
-	 */
-	public function list_revisions( $input ) {
-		$input = is_array( $input ) ? $input : array();
-		$post_id = absint( $input['post_id'] ?? 0 );
-		if ( $post_id <= 0 ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_post_invalid', __( 'Post ID is invalid.', 'npcink-abilities-toolkit' ), array( 'status' => 400 ) );
-		}
-		$post = get_post( $post_id );
-		if ( ! $post ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_post_not_found', __( 'Post was not found.', 'npcink-abilities-toolkit' ), array( 'status' => 404 ) );
-		}
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'npcink_abilities_toolkit_permission_denied', __( 'You do not have permission to read this post revision history.', 'npcink-abilities-toolkit' ), array( 'status' => 403 ) );
-		}
-
-		$per_page = max( 1, min( 50, absint( $input['per_page'] ?? 10 ) ) );
-		$page = max( 1, absint( $input['page'] ?? 1 ) );
-		$revision_page = $this->query_revision_page( $post_id, $per_page, $page );
-		$total = $revision_page['total'];
-		$slice = $revision_page['posts'];
-		$items = array();
-
-		foreach ( $slice as $revision ) {
-			if ( ! is_object( $revision ) ) {
-				continue;
-			}
-			$author_id = absint( $revision->post_author ?? 0 );
-			$items[] = array(
-				'id'     => absint( $revision->ID ?? 0 ),
-				'date'   => sanitize_text_field( (string) ( $revision->post_date ?? '' ) ),
-				'author' => $author_id > 0 ? sanitize_text_field( (string) get_the_author_meta( 'display_name', $author_id ) ) : '',
-				'title'  => sanitize_text_field( (string) ( $revision->post_title ?? '' ) ),
-			);
-		}
-
-		return array(
-			'total'    => $total,
-			'page'     => $page,
-			'per_page' => $per_page,
-			'items'    => $items,
-		);
-	}
-
-	/**
 	 * Gets post meta.
 	 *
 	 * @param mixed $input Input args.

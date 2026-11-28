@@ -955,7 +955,7 @@ $expected_workflow_replay_cases = array(
 		'required_inputs'    => array(),
 		'expected_sections'  => array( 'production_fingerprint', 'duplicate_candidate', 'review', 'publication_decision', 'handoff' ),
 		'expanded_abilities' => array(
-			'npcink-abilities-toolkit/extract-style-baseline',
+			'npcink-abilities-toolkit/get-site-style-baseline',
 			'npcink-abilities-toolkit/build-article-production-fingerprint',
 			'npcink-abilities-toolkit/check-article-production-duplicate',
 			'npcink-abilities-toolkit/review-article-output-light',

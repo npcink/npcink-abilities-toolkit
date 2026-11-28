@@ -14,11 +14,11 @@ entry recommendations, not a new registry or an MCP allowlist.
 | Triage a comment queue | `get-comment-compliance-handoff` | A review set, no moderation action. |
 | Check site readiness | `wp-diagnostics-summary` | A bounded and redacted WordPress report. |
 
-Prefer `list-post-revisions` for new revision-list clients; keep
-`list-revisions` for its distinct legacy shape/limits. Prefer a taxonomy-scoped
-list to the category/tag convenience wrappers, and check `parent` semantics
-before substituting `list-taxonomy-terms` for `list-terms`. The Gutenberg
-evaluation suite is for explicit QA requests, not article/page composition.
+Use `list-post-revisions` to read the revision history of a known post. For
+categories, tags, or other taxonomies use `list-taxonomy-terms`: omit `parent`
+for all levels, pass `0` for roots, or pass a term ID for its direct children.
+The Gutenberg evaluation suite is for explicit QA requests, not article/page
+composition.
 
 The WordPress smoke suite exercises representative contracts for these six
 tasks. This is not evidence of a model choosing them unassisted or an operator
