@@ -40,7 +40,7 @@ trait Overview_Sections {
 		$status_label      = $package_ready ? __( 'working', 'npcink-abilities-toolkit' ) : __( 'needs attention', 'npcink-abilities-toolkit' );
 		$status_state      = $package_ready ? 'ok' : 'warning';
 		$status_detail     = $package_ready
-			? __( "AI clients can discover this site's abilities.", 'npcink-abilities-toolkit' )
+			? __( 'The Toolkit registry is ready for inspection.', 'npcink-abilities-toolkit' )
 			: __( 'Review the attention notes below.', 'npcink-abilities-toolkit' );
 		$write_value       = $write_count > 0 ? __( 'host approval', 'npcink-abilities-toolkit' ) : __( 'read-only', 'npcink-abilities-toolkit' );
 		$write_detail      = $write_count > 0
@@ -67,10 +67,10 @@ trait Overview_Sections {
 					true
 				);
 				$this->render_status_metric(
-					__( 'Available abilities', 'npcink-abilities-toolkit' ),
+					__( 'Toolkit registry', 'npcink-abilities-toolkit' ),
 					(string) count( $registered ),
 					empty( $registered ) ? 'warning' : 'ok',
-					__( 'Abilities exposed by this WordPress site.', 'npcink-abilities-toolkit' )
+					Catalog_Presentation::registry_summary( $registered )
 				);
 				$this->render_status_metric(
 					__( 'Write safeguards', 'npcink-abilities-toolkit' ),

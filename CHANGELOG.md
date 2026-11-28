@@ -2,7 +2,12 @@
 
 ## Unreleased
 
-No changes yet.
+- Distinguish bundled and external provider registrations from REST and MCP
+  exposure in the admin overview. Show why a recipe entry is unavailable and
+  provide opt-in entrypoint status to discovery clients without changing the
+  static recipe manifest or exposure policy.
+- Clarify preferred and compatibility-only read entrypoints, and test the
+  supported minimum and current WordPress lines plus an advisory 7.2 RC lane.
 
 ## 0.8.1 - 2026-11-03
 

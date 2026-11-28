@@ -455,7 +455,7 @@ foreach (
 	npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, $required ), 'scenario card renderer keeps the read-only scenario overview: ' . $required );
 }
 npcink_abilities_toolkit_assert_true( false !== strpos( $admin_scenario_cards, "Scenario_Translations::translate( (string) ( \$case['title'] ?? '' ) )" ) && false !== strpos( $admin_scenario_cards, 'Scenario_Translations::translate( (string) $task )' ), 'scenario cards localize recipe titles and tasks through the literal translation map while the recipe payloads stay untranslated contract data.' );
-npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Scenario_Cards() )->render();' ), 'admin test page delegates the scenario overview to the scenario card renderer.' );
+npcink_abilities_toolkit_assert_true( false !== strpos( $admin_test_page, '( new Scenario_Cards() )->render( $registered );' ), 'admin test page passes the current registry to the scenario card renderer.' );
 
 foreach (
 	array(

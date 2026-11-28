@@ -23,47 +23,47 @@ final class Scenario_Cards {
 	/**
 	 * Renders the scenario overview grid, or its explicit empty state.
 	 *
+	 * @param array<string,mixed> $registered Toolkit registry snapshot.
 	 * @return void
 	 */
-	public function render() {
+	public function render( array $registered ) {
 		if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
 			return;
 		}
 
 		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
-		if ( empty( $cases ) ) {
-			?>
-			<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
-				<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
-				<p class="description"><?php echo esc_html__( 'No workflow scenarios are published on this site yet. Scenarios appear here when the bundled recipe catalog provides them.', 'npcink-abilities-toolkit' ); ?></p>
-			</section>
-			<?php
-			return;
-		}
 		?>
 		<section id="npcink-abilities-toolkit-scenarios" class="npcink-abilities-toolkit-scenarios" aria-labelledby="npcink-abilities-toolkit-scenarios-title">
 			<h2 id="npcink-abilities-toolkit-scenarios-title"><?php echo esc_html__( 'Workflow scenarios', 'npcink-abilities-toolkit' ); ?></h2>
-			<p class="description">
-				<?php echo esc_html__( 'Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes.', 'npcink-abilities-toolkit' ); ?>
-			</p>
-			<div class="npcink-abilities-toolkit-scenarios__grid">
-				<?php foreach ( $cases as $case ) : ?>
-					<?php $case = is_array( $case ) ? $case : array(); ?>
-					<div class="npcink-abilities-toolkit-scenarios__item">
-						<h3><?php echo esc_html( Scenario_Translations::translate( (string) ( $case['title'] ?? '' ) ) ); ?></h3>
-						<ul>
-							<?php foreach ( array_slice( (array) ( $case['natural_tasks'] ?? array() ), 0, 3 ) as $task ) : ?>
-								<li><?php echo esc_html( Scenario_Translations::translate( (string) $task ) ); ?></li>
-							<?php endforeach; ?>
-						</ul>
-						<p class="description">
-							<?php echo esc_html__( 'Entry ability:', 'npcink-abilities-toolkit' ); ?>
-							<code><?php echo esc_html( (string) ( $case['entrypoint_ability_id'] ?? '' ) ); ?></code>
-						</p>
-					</div>
-				<?php endforeach; ?>
-			</div>
+			<?php if ( empty( $cases ) ) : ?>
+				<p class="description"><?php echo esc_html__( 'No workflow scenarios are published on this site yet. Scenarios appear here when the bundled recipe catalog provides them.', 'npcink-abilities-toolkit' ); ?></p>
+			<?php else : ?>
+				<p class="description">
+					<?php echo esc_html__( 'Recommended ability chains a host product can run for common site tasks. This page lists them for review only; hosts own execution, approvals, and final writes.', 'npcink-abilities-toolkit' ); ?>
+				</p>
+				<div class="npcink-abilities-toolkit-scenarios__grid">
+					<?php foreach ( $cases as $case ) : ?>
+						<?php
+						$case  = is_array( $case ) ? $case : array();
+						$entry = (string) ( $case['entrypoint_ability_id'] ?? '' );
+						?>
+						<div class="npcink-abilities-toolkit-scenarios__item">
+							<h3><?php echo esc_html( Scenario_Translations::translate( (string) ( $case['title'] ?? '' ) ) ); ?></h3>
+							<ul>
+								<?php foreach ( array_slice( (array) ( $case['natural_tasks'] ?? array() ), 0, 3 ) as $task ) : ?>
+									<li><?php echo esc_html( Scenario_Translations::translate( (string) $task ) ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+							<p class="description">
+								<?php echo esc_html__( 'Entry ability:', 'npcink-abilities-toolkit' ); ?>
+								<code><?php echo esc_html( $entry ); ?></code><br>
+								<?php echo esc_html( Catalog_Presentation::entrypoint_label( $entry, $registered ) ); ?>
+							</p>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</section>
 		<?php
 	}

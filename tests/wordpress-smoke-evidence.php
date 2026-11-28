@@ -22,7 +22,7 @@ $base = array(
 	'generated_at'         => '2026-09-05T00:00:00Z',
 	'profiles'             => array(
 		'wordpress-6.9.4-php-8.0' => array( 'wordpress' => '6.9.4', 'php' => '8.0', 'assertions' => 441, 'status' => 'passed' ),
-		'wordpress-7.0-php-8.5'  => array( 'wordpress' => '7.0', 'php' => '8.5', 'assertions' => 441, 'status' => 'passed' ),
+		'wordpress-7.1.5-php-8.5' => array( 'wordpress' => '7.1.5', 'php' => '8.5', 'assertions' => 441, 'status' => 'passed' ),
 	),
 );
 
@@ -46,7 +46,7 @@ if ( 0 === $run( $stale ) ) {
 }
 
 $missing_profile = $base;
-unset( $missing_profile['profiles']['wordpress-7.0-php-8.5'] );
+unset( $missing_profile['profiles']['wordpress-7.1.5-php-8.5'] );
 if ( 0 === $run( $missing_profile ) ) {
 	fwrite( STDERR, "FAIL: Incomplete compatibility evidence was accepted.\n" );
 	exit( 1 );

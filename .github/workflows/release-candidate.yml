@@ -24,8 +24,8 @@ jobs:
             http-port: "8901"
           - name: current
             php-version: "8.5"
-            wordpress-version: "7.0"
-            project-name: npcink_abilities_rc_wp70_php85
+            wordpress-version: "7.1.5"
+            project-name: npcink_abilities_rc_wp71_php85
             http-port: "8902"
 
     steps:

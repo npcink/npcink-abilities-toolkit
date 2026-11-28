@@ -55,7 +55,7 @@ if ( false === strtotime( (string) ( $data['generated_at'] ?? '' ) ) ) {
 
 $required_profiles = array(
 	'wordpress-6.9.4-php-8.0' => array( 'wordpress' => '6.9.4', 'php' => '8.0' ),
-	'wordpress-7.0-php-8.5'  => array( 'wordpress' => '7.0', 'php' => '8.5' ),
+	'wordpress-7.1.5-php-8.5' => array( 'wordpress' => '7.1.5', 'php' => '8.5' ),
 );
 $profiles = is_array( $data['profiles'] ?? null ) ? $data['profiles'] : array();
 foreach ( $required_profiles as $profile_id => $expected ) {

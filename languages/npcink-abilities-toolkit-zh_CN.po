@@ -5549,3 +5549,32 @@ msgstr "无法将处理后的图片另存为新媒体。请检查原图和处理
 #: includes/Packages/Write_Traits/Cloud_Media_Import_Write_Methods.php
 msgid "The new media could not be removed after a failed import. Review this attachment before retrying."
 msgstr "导入失败后无法移除新媒体。请先检查此附件，再重试。"
+
+#: includes/Admin/Overview_Sections.php
+msgid "Toolkit registry"
+msgstr "Toolkit 注册表"
+
+#: includes/Admin/Overview_Sections.php
+msgid "The Toolkit registry is ready for inspection."
+msgstr "可查看 Toolkit 注册表。"
+
+#: includes/Admin/Catalog_Presentation.php
+#, php-format
+msgid "%1$d bundled, %2$d from other providers. Exposure metadata: REST %3$d, MCP %4$d."
+msgstr "内置 %1$d 项，其他提供方 %2$d 项。标记为可发现：REST %3$d 项，MCP %4$d 项。"
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry not registered with the current configuration."
+msgstr "当前配置未注册此入口。"
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry marked for MCP discovery."
+msgstr "此入口已标记为可通过 MCP 发现。"
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry marked for REST, not default MCP."
+msgstr "此入口可通过 REST 发现，未标记为默认 MCP 入口。"
+
+#: includes/Admin/Catalog_Presentation.php
+msgid "Entry registered without REST or MCP exposure."
+msgstr "此入口已注册，未标记为通过 REST 或 MCP 公开。"

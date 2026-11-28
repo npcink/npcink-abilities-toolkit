@@ -44,6 +44,7 @@
     "test:profiles": [
       "@php tests/registration-profile.php full",
       "@php tests/registration-profile.php read_only",
+      "@php tests/registration-profile.php read_only media",
       "@php tests/registration-profile.php core_read",
       "@php tests/registration-profile.php invalid",
       "@php tests/registration-profile.php full operator",
@@ -81,7 +82,7 @@
     "smoke:wp": "bash tests/smoke-wp.sh",
     "smoke:block-theme-host-proof": "bash scripts/block-theme-host-proof.sh",
     "smoke:wp-minimum": "bash scripts/minimum-wordpress-smoke.sh",
-    "smoke:wp-current": "MINIMUM_WP_VERSION=7.0 MINIMUM_WP_PHP_VERSION=8.5 MINIMUM_WP_PROJECT_NAME=npcink_abilities_wp70_php85 MINIMUM_WP_HTTP_PORT=8902 WORDPRESS_SMOKE_LABEL=Current bash scripts/minimum-wordpress-smoke.sh",
+    "smoke:wp-current": "MINIMUM_WP_VERSION=7.1.5 MINIMUM_WP_PHP_VERSION=8.5 MINIMUM_WP_PROJECT_NAME=npcink_abilities_wp71_php85 MINIMUM_WP_HTTP_PORT=8902 WORDPRESS_SMOKE_LABEL=Current bash scripts/minimum-wordpress-smoke.sh",
     "smoke:wp-m4": "bash scripts/run-m4-wordpress-smoke.sh",
     "e2e:official-stack": "bash scripts/official-stack-e2e.sh",
     "release:verify": "bash scripts/release-verify.sh",

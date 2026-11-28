@@ -53,7 +53,7 @@ minimum_output="$(ssh "$M4_HOST" "cd '$remote_dir/repo' && MINIMUM_WP_PROJECT_NA
 printf '%s\n' "$minimum_output"
 minimum_assertions="$(printf '%s\n' "$minimum_output" | sed -nE 's/^Smoke OK: ([0-9]+) assertions$/\1/p' | tail -n 1)"
 
-current_output="$(ssh "$M4_HOST" "cd '$remote_dir/repo' && MINIMUM_WP_VERSION=7.0 MINIMUM_WP_PHP_VERSION=8.5 MINIMUM_WP_PROJECT_NAME='npcink_toolkit_70_${short_revision}' MINIMUM_WP_HTTP_PORT=8912 WORDPRESS_SMOKE_LABEL=Current bash scripts/minimum-wordpress-smoke.sh" 2>&1)"
+current_output="$(ssh "$M4_HOST" "cd '$remote_dir/repo' && MINIMUM_WP_VERSION=7.1.5 MINIMUM_WP_PHP_VERSION=8.5 MINIMUM_WP_PROJECT_NAME='npcink_toolkit_71_${short_revision}' MINIMUM_WP_HTTP_PORT=8912 WORDPRESS_SMOKE_LABEL=Current bash scripts/minimum-wordpress-smoke.sh" 2>&1)"
 printf '%s\n' "$current_output"
 current_assertions="$(printf '%s\n' "$current_output" | sed -nE 's/^Smoke OK: ([0-9]+) assertions$/\1/p' | tail -n 1)"
 
@@ -79,7 +79,7 @@ jq -n \
 		generated_at: $generated_at,
 		profiles: {
 			"wordpress-6.9.4-php-8.0": {wordpress: "6.9.4", php: "8.0", assertions: $minimum_assertions, status: "passed"},
-			"wordpress-7.0-php-8.5": {wordpress: "7.0", php: "8.5", assertions: $current_assertions, status: "passed"}
+			"wordpress-7.1.5-php-8.5": {wordpress: "7.1.5", php: "8.5", assertions: $current_assertions, status: "passed"}
 		}
 	}' > "$OUTPUT_PATH"
 

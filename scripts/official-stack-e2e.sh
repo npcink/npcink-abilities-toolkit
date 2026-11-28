@@ -670,6 +670,7 @@ run_mcp_http_probe() {
 	local discover_payload="$payload_dir/discover-abilities.request.json"
 	local get_info_payload="$payload_dir/get-delete-post-permanently-info.request.json"
 	local execute_read_payload="$payload_dir/execute-site-info.request.json"
+	local recipe_payload="$payload_dir/execute-recipe-discovery.request.json"
 	local execute_write_payload="$payload_dir/execute-create-draft.request.json"
 	local execute_destructive_payload="$payload_dir/execute-delete-post-permanently.request.json"
 	local initialize_body="$payload_dir/initialize.response.json"
@@ -677,6 +678,7 @@ run_mcp_http_probe() {
 	local discover_body="$payload_dir/discover-abilities.response.json"
 	local get_info_body="$payload_dir/get-delete-post-permanently-info.response.json"
 	local execute_read_body="$payload_dir/execute-site-info.response.json"
+	local recipe_body="$payload_dir/execute-recipe-discovery.response.json"
 	local execute_write_body="$payload_dir/execute-create-draft.response.json"
 	local execute_destructive_body="$payload_dir/execute-delete-post-permanently.response.json"
 	local headers="$payload_dir/headers.txt"
@@ -700,6 +702,9 @@ EOF
 EOF
 	cat > "$execute_read_payload" <<'EOF'
 {"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/site-info","parameters":{}}}}
+EOF
+	cat > "$recipe_payload" <<'EOF'
+{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/list-workflow-recipes","parameters":{"include_entrypoint_status":true}}}}
 EOF
 	cat > "$execute_write_payload" <<'EOF'
 {"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"npcink-abilities-toolkit/create-draft","parameters":{"post_type":"post","title":"MCP E2E Draft","content":"MCP E2E dry run content","dry_run":true}}}}
@@ -747,6 +752,16 @@ EOF
 
 	log "Running MCP HTTP read entrypoint execute"
 	json_rpc_request "$app_password" "$session_id" "$execute_read_payload" "$execute_read_body" "$headers"
+	json_rpc_request "$app_password" "$session_id" "$recipe_payload" "$recipe_body" "$headers"
+	php -r '
+		$result = json_decode((string) file_get_contents($argv[1]), true)["result"] ?? array();
+		$payload = $result["structuredContent"] ?? json_decode((string) ($result["content"][0]["text"] ?? ""), true);
+		$status = $payload["data"]["cases"]["article_publish_preflight"]["entrypoint_status"] ?? array();
+		if (!empty($result["isError"]) || true !== ($payload["success"] ?? null) || true !== ($status["registered"] ?? null) || true !== ($status["rest_exposed"] ?? null) || false !== ($status["mcp_public"] ?? null)) {
+			fwrite(STDERR, "MCP recipe discovery did not report the REST-only article preflight entrypoint\n");
+			exit(1);
+		}
+	' "$recipe_body"
 
 	log "Running MCP HTTP governed write dry-run execute"
 	json_rpc_request "$app_password" "$session_id" "$execute_write_payload" "$execute_write_body" "$headers"

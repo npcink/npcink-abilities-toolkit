@@ -1,5 +1,32 @@
 # Agent Workflow Validation
 
+## First entrypoints for host acceptance
+
+Choose from the current host's authorized discovery results. The following are
+entry recommendations, not a new registry or an MCP allowlist.
+
+| Task | Prefer | Acceptance result |
+| --- | --- | --- |
+| Find a known article by keyword | `search-posts` | Bounded candidate IDs and summaries, not a post edit. |
+| Review a draft before publishing | `get-article-publish-preflight-context` | Checklist and risk context, not a status change. |
+| Optimize an existing article | `read-post-optimization-context` | The selected post and SEO/context evidence before planning any change. |
+| Plan media metadata remediation | `build-media-inventory-fix-plan` | Reviewable dry-run actions, no media mutation. |
+| Triage a comment queue | `get-comment-compliance-handoff` | A review set, no moderation action. |
+| Check site readiness | `wp-diagnostics-summary` | A bounded and redacted WordPress report. |
+
+Prefer `list-post-revisions` for new revision-list clients; keep
+`list-revisions` for its distinct legacy shape/limits. Prefer a taxonomy-scoped
+list to the category/tag convenience wrappers, and check `parent` semantics
+before substituting `list-taxonomy-terms` for `list-terms`. The Gutenberg
+evaluation suite is for explicit QA requests, not article/page composition.
+
+The WordPress smoke suite exercises representative contracts for these six
+tasks. This is not evidence of a model choosing them unassisted or an operator
+accepting the result. For a structured two-revision comparison, try native
+WordPress revision reads first; add no Toolkit contract unless more than one
+host needs the same bounded review artifact and the existing interfaces fail
+that task.
+
 Status: active for 0.3 stabilization.
 
 This document defines the first ten end-to-end workflows that should be proven
