@@ -108,10 +108,9 @@ Recommended future entry: `npcink-abilities-toolkit/recipes/content-tag-proposal
 Ability chain:
 
 1. `npcink-abilities-toolkit/get-post-context`
-2. `npcink-abilities-toolkit/list-tags`
-3. `npcink-abilities-toolkit/list-taxonomy-terms`
-4. `npcink-abilities-toolkit/propose-post-taxonomy-terms`
-5. Optional dry-run: `npcink-abilities-toolkit/set-post-terms`
+2. `npcink-abilities-toolkit/list-taxonomy-terms` with `taxonomy: post_tag`
+3. `npcink-abilities-toolkit/propose-post-taxonomy-terms`
+4. Optional dry-run: `npcink-abilities-toolkit/set-post-terms`
 
 Host-owned pieces:
 

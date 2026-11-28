@@ -354,25 +354,31 @@ npcink_abilities_toolkit_assert_same( 'scene', $reference_style['data']['profile
 npcink_abilities_toolkit_assert_same( 'action', $reference_style['data']['profile']['dominant_ending_style'] ?? '', 'extract-reference-post-style detects action endings' );
 npcink_abilities_toolkit_assert_true( false !== strpos( (string) ( $reference_style['data']['profile']['style_brief'] ?? '' ), '段落平均长度约' ), 'extract-reference-post-style returns a compact style brief' );
 $GLOBALS['npcink_abilities_toolkit_unit_transients'] = array();
-$author_baseline = $core_read_package->extract_style_baseline(
+$author_baseline = $core_read_package->get_site_style_baseline(
 	array(
 		'mode'      => 'author_recent',
 		'author_id' => 7,
 		'limit'     => 4,
 	)
 );
-npcink_abilities_toolkit_assert_same( true, $author_baseline['success'] ?? null, 'extract-style-baseline returns a success envelope' );
-npcink_abilities_toolkit_assert_same( 'author_recent', $author_baseline['data']['source'] ?? '', 'extract-style-baseline keeps author source when author samples exist' );
-npcink_abilities_toolkit_assert_same( 2, $author_baseline['data']['profile']['sample_count'] ?? null, 'extract-style-baseline profiles author samples' );
+npcink_abilities_toolkit_assert_same( true, $author_baseline['success'] ?? null, 'get-site-style-baseline returns a success envelope' );
+npcink_abilities_toolkit_assert_same( 'author_recent', $author_baseline['data']['source'] ?? '', 'get-site-style-baseline keeps author source when author samples exist' );
+npcink_abilities_toolkit_assert_same( 2, $author_baseline['data']['profile']['sample_count'] ?? null, 'get-site-style-baseline profiles author samples' );
 $GLOBALS['npcink_abilities_toolkit_unit_transients'] = array();
-$site_baseline = $core_read_package->extract_style_baseline(
+$site_baseline = $core_read_package->get_site_style_baseline(
 	array(
 		'mode'  => 'site_recent',
 		'limit' => 3,
 	)
 );
-npcink_abilities_toolkit_assert_same( 'site_recent', $site_baseline['data']['source'] ?? '', 'extract-style-baseline keeps site source for site baselines' );
-npcink_abilities_toolkit_assert_same( 3, $site_baseline['data']['profile']['sample_count'] ?? null, 'extract-style-baseline profiles site samples' );
+npcink_abilities_toolkit_assert_same( 'site_recent', $site_baseline['data']['source'] ?? '', 'get-site-style-baseline keeps site source for site baselines' );
+npcink_abilities_toolkit_assert_same( 3, $site_baseline['data']['profile']['sample_count'] ?? null, 'get-site-style-baseline profiles site samples' );
+$short_baseline = $core_read_package->get_site_style_baseline( array( 'limit' => 1 ) );
+npcink_abilities_toolkit_assert_same( 1, $short_baseline['data']['profile']['sample_count'] ?? null, 'get-site-style-baseline does not reuse a cached result for another limit' );
+npcink_abilities_toolkit_assert_same( $site_baseline, $core_read_package->get_site_style_baseline( array( 'limit' => 3 ) ), 'get-site-style-baseline returns the same response on cache hit' );
+$disabled_baseline = $core_read_package->get_site_style_baseline( array( 'mode' => 'off' ) );
+npcink_abilities_toolkit_assert_same( 'off', $disabled_baseline['data']['source'] ?? '', 'get-site-style-baseline honors the explicit off mode' );
+npcink_abilities_toolkit_assert_same( array(), $disabled_baseline['data']['samples'] ?? null, 'get-site-style-baseline returns no samples in off mode' );
 $optimization_report = $core_read_package->build_article_optimization_report(
 	array(
 		'post'           => array(

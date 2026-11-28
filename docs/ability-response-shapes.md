@@ -16,7 +16,7 @@ family, derived from its declared `output_schema` top-level properties:
 | Family | Marker | Shape | Examples |
 | --- | --- | --- | --- |
 | `success_envelope` | declares `success` | `{ success, data, meta, message }` with the payload inside `data` | most report, suggestion, and plan abilities |
-| `paginated_collection` | declares `total` and `items` | raw paginated rows with no envelope | `list-comments`, `list-menus`, `list-terms` |
+| `paginated_collection` | declares `total` and `items` | raw paginated rows with no envelope | `list-comments`, `list-menus`, `list-taxonomy-terms` |
 | `raw` | neither marker | a single resource object, a redacted report, or a manifest | `get-post`, `wp-ops-diagnostics-detail`, `list-workflow-recipes` |
 
 The `raw` family intentionally groups several sub-conventions that predate the

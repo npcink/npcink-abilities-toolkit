@@ -65,10 +65,7 @@ already scanned ID range instead of shifting page boundaries.
 - `npcink-abilities-toolkit/suggest-post-taxonomy-terms`
 - `npcink-abilities-toolkit/build-taxonomy-tag-review-set`
 - `npcink-abilities-toolkit/propose-post-taxonomy-terms`
-- `npcink-abilities-toolkit/list-terms`
 - `npcink-abilities-toolkit/list-taxonomy-terms`
-- `npcink-abilities-toolkit/list-categories`
-- `npcink-abilities-toolkit/list-tags`
 - `npcink-abilities-toolkit/get-term`
 - `npcink-abilities-toolkit/list-users`
 - `npcink-abilities-toolkit/list-comments`
@@ -77,7 +74,6 @@ already scanned ID range instead of shifting page boundaries.
 - `npcink-abilities-toolkit/search-posts`
 - `npcink-abilities-toolkit/search-post-meta`
 - `npcink-abilities-toolkit/get-post-stats`
-- `npcink-abilities-toolkit/list-revisions`
 - `npcink-abilities-toolkit/get-post-meta`
 - `npcink-abilities-toolkit/list-pages`
 - `npcink-abilities-toolkit/get-page`
@@ -417,7 +413,6 @@ editor state only; normal author Save/Update remains the persistence owner.
 - `npcink-abilities-toolkit/build-content-metadata-apply-plan`
 - `npcink-abilities-toolkit/compose-article-optimization-apply-result`
 - `npcink-abilities-toolkit/extract-reference-post-style`
-- `npcink-abilities-toolkit/extract-style-baseline`
 - `npcink-abilities-toolkit/build-article-production-fingerprint`
 - `npcink-abilities-toolkit/check-article-production-duplicate`
 - `npcink-abilities-toolkit/review-article-output-light`

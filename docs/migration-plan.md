@@ -49,10 +49,7 @@ Current migrated core read package:
 - `npcink-abilities-toolkit/get-post-blocks`
 - `npcink-abilities-toolkit/list-post-revisions`
 - `npcink-abilities-toolkit/list-media`
-- `npcink-abilities-toolkit/list-terms`
 - `npcink-abilities-toolkit/list-taxonomy-terms`
-- `npcink-abilities-toolkit/list-categories`
-- `npcink-abilities-toolkit/list-tags`
 - `npcink-abilities-toolkit/get-term`
 - `npcink-abilities-toolkit/propose-post-excerpt`
 - `npcink-abilities-toolkit/resolve-post-metadata-plan`
@@ -74,7 +71,7 @@ Current migrated core read package:
 - `npcink-abilities-toolkit/build-article-optimization-apply-plan`
 - `npcink-abilities-toolkit/compose-article-optimization-apply-result`
 - `npcink-abilities-toolkit/extract-reference-post-style`
-- `npcink-abilities-toolkit/extract-style-baseline`
+- `npcink-abilities-toolkit/get-site-style-baseline`
 - `npcink-abilities-toolkit/build-article-production-fingerprint`
 - `npcink-abilities-toolkit/check-article-production-duplicate`
 - `npcink-abilities-toolkit/review-article-output-light`
@@ -83,7 +80,6 @@ Current migrated core read package:
 - `npcink-abilities-toolkit/resolve-article-publication-decision`
 - `npcink-abilities-toolkit/build-article-style-profile`
 - `npcink-abilities-toolkit/get-post-stats`
-- `npcink-abilities-toolkit/list-revisions`
 - `npcink-abilities-toolkit/get-post-meta`
 - `npcink-abilities-toolkit/list-pages`
 - `npcink-abilities-toolkit/get-page`

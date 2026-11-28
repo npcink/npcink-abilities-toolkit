@@ -431,15 +431,6 @@
             "family": "success_envelope",
             "runtime_verified": false
         },
-        "npcink-abilities-toolkit/extract-style-baseline": {
-            "keys": [
-                "success",
-                "data",
-                "meta"
-            ],
-            "family": "success_envelope",
-            "runtime_verified": true
-        },
         "npcink-abilities-toolkit/geo-analyze": {
             "keys": [
                 "success",
@@ -893,16 +884,6 @@
             "family": "raw",
             "runtime_verified": false
         },
-        "npcink-abilities-toolkit/list-categories": {
-            "keys": [
-                "total",
-                "page",
-                "per_page",
-                "items"
-            ],
-            "family": "paginated_collection",
-            "runtime_verified": false
-        },
         "npcink-abilities-toolkit/list-comments": {
             "keys": [
                 "total",
@@ -989,26 +970,6 @@
             "family": "paginated_collection",
             "runtime_verified": false
         },
-        "npcink-abilities-toolkit/list-revisions": {
-            "keys": [
-                "total",
-                "page",
-                "per_page",
-                "items"
-            ],
-            "family": "paginated_collection",
-            "runtime_verified": false
-        },
-        "npcink-abilities-toolkit/list-tags": {
-            "keys": [
-                "total",
-                "page",
-                "per_page",
-                "items"
-            ],
-            "family": "paginated_collection",
-            "runtime_verified": false
-        },
         "npcink-abilities-toolkit/list-taxonomies": {
             "keys": [
                 "total",
@@ -1020,16 +981,6 @@
         "npcink-abilities-toolkit/list-taxonomy-terms": {
             "keys": [
                 "taxonomy",
-                "total",
-                "page",
-                "per_page",
-                "items"
-            ],
-            "family": "paginated_collection",
-            "runtime_verified": false
-        },
-        "npcink-abilities-toolkit/list-terms": {
-            "keys": [
                 "total",
                 "page",
                 "per_page",

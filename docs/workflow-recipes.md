@@ -196,7 +196,7 @@ Ability sequence:
 
 1. Preferred entrypoint: `npcink-abilities-toolkit/build-article-production-fingerprint`
 2. Expanded sequence when the host needs individual calls:
-   `npcink-abilities-toolkit/extract-style-baseline`,
+   `npcink-abilities-toolkit/get-site-style-baseline`,
    `npcink-abilities-toolkit/build-article-production-fingerprint`,
    `npcink-abilities-toolkit/check-article-production-duplicate`,
    `npcink-abilities-toolkit/review-article-output-light`,

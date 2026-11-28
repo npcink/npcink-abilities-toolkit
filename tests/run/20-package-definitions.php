@@ -46,6 +46,9 @@ $core_destructive_package->boot();
 $core_comment_package = new Core_Comment_Package( $package_categories, $package_registrar );
 $core_comment_package->boot();
 $package_abilities = $package_registrar->all();
+foreach ( array( 'list-terms', 'list-categories', 'list-tags', 'list-revisions', 'extract-style-baseline' ) as $removed_read_slug ) {
+	npcink_abilities_toolkit_assert_true( ! isset( $package_abilities[ 'npcink-abilities-toolkit/' . $removed_read_slug ] ), "Retired read ability {$removed_read_slug} has no registration or alias" );
+}
 $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/site-info',
 	'npcink-abilities-toolkit/list-post-types',
@@ -59,10 +62,7 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/list-post-revisions',
 	'npcink-abilities-toolkit/list-media',
 	'npcink-abilities-toolkit/resolve-media-attachment-by-url',
-	'npcink-abilities-toolkit/list-terms',
 	'npcink-abilities-toolkit/list-taxonomy-terms',
-	'npcink-abilities-toolkit/list-categories',
-	'npcink-abilities-toolkit/list-tags',
 	'npcink-abilities-toolkit/get-term',
 	'npcink-abilities-toolkit/propose-post-excerpt',
 	'npcink-abilities-toolkit/resolve-post-metadata-plan',
@@ -94,7 +94,6 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/build-article-audio-adoption-plan',
 	'npcink-abilities-toolkit/compose-article-optimization-apply-result',
 	'npcink-abilities-toolkit/extract-reference-post-style',
-	'npcink-abilities-toolkit/extract-style-baseline',
 	'npcink-abilities-toolkit/build-article-production-fingerprint',
 	'npcink-abilities-toolkit/check-article-production-duplicate',
 	'npcink-abilities-toolkit/review-article-output-light',
@@ -103,7 +102,6 @@ $migrated_read_ability_ids = array(
 	'npcink-abilities-toolkit/resolve-article-publication-decision',
 	'npcink-abilities-toolkit/build-article-style-profile',
 	'npcink-abilities-toolkit/get-post-stats',
-	'npcink-abilities-toolkit/list-revisions',
 	'npcink-abilities-toolkit/get-post-meta',
 	'npcink-abilities-toolkit/list-pages',
 	'npcink-abilities-toolkit/get-page',
@@ -862,8 +860,8 @@ npcink_abilities_toolkit_assert_same( 'comment_queue_context', $package_abilitie
 	);
 	$media_governance_definitions = Media_Governance_Read_Definitions::definitions( $core_read_package );
 	npcink_abilities_toolkit_assert_same( $media_governance_definition_ids, array_keys( $media_governance_definitions ), 'media governance definition provider owns the expected 24 definitions in stable source order' );
-	npcink_abilities_toolkit_assert_same( 117, count( $core_read_definition_ids ), 'core read package preserves the 117-definition public surface after media provider split' );
-	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete 117-definition public order' );
+	npcink_abilities_toolkit_assert_same( 112, count( $core_read_definition_ids ), 'core read package exposes 112 definitions after removing redundant entrypoints' );
+	npcink_abilities_toolkit_assert_same( array_keys( Core_Read_Pack_Classifier::known_pack_map() ), $core_read_definition_ids, 'core read package preserves the classifier map as the complete public order' );
 	npcink_abilities_toolkit_assert_true( false !== strpos( $core_read_package_source, 'Media_Governance_Read_Definitions::definitions( $this )' ), 'core read package composes media governance definitions through the dedicated provider' );
 	foreach ( $media_governance_definition_ids as $media_ability_id ) {
 		$inline_definition_pattern = "/'" . preg_quote( $media_ability_id, '/' ) . "'\\s*=>\\s*array\\s*\\(/";

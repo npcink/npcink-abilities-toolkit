@@ -36,8 +36,8 @@ Useful value:
 Rewrite as:
 
 1. Read post context with `npcink-abilities-toolkit/get-post-context`.
-2. Read existing taxonomy terms with `npcink-abilities-toolkit/list-tags` or
-   `npcink-abilities-toolkit/list-taxonomy-terms`.
+2. Read existing tags with `npcink-abilities-toolkit/list-taxonomy-terms` and
+   `taxonomy: post_tag`.
 3. Generate a proposal in the host product or a future proposal-only ability.
 4. Preview taxonomy writes with `npcink-abilities-toolkit/set-post-terms`.
 5. Commit only through host approval.

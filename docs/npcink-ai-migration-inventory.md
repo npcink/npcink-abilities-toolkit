@@ -2,6 +2,10 @@
 
 This inventory tracks the migration from `npcink-abilities-toolkit/includes/abilities` into this standalone Abilities API package plugin.
 
+This is a historical inventory. For current entrypoints and removals, see
+[First-party Ability Packs](first-party-ability-packs.md) and the
+[changelog](../CHANGELOG.md).
+
 ## Added After 0.2
 
 These abilities are new standalone first-party abilities, not migrated from the

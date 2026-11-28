@@ -654,10 +654,7 @@ foreach (
 				'npcink-abilities-toolkit/build-pattern-page-plan',
 			'npcink-abilities-toolkit/build-article-block-plan',
 		'npcink-abilities-toolkit/list-media',
-		'npcink-abilities-toolkit/list-terms',
 		'npcink-abilities-toolkit/list-taxonomy-terms',
-		'npcink-abilities-toolkit/list-categories',
-		'npcink-abilities-toolkit/list-tags',
 		'npcink-abilities-toolkit/get-term',
 		'npcink-abilities-toolkit/propose-post-excerpt',
 		'npcink-abilities-toolkit/resolve-post-metadata-plan',
@@ -690,7 +687,6 @@ foreach (
 			'npcink-abilities-toolkit/build-article-optimization-apply-plan',
 			'npcink-abilities-toolkit/compose-article-optimization-apply-result',
 			'npcink-abilities-toolkit/extract-reference-post-style',
-			'npcink-abilities-toolkit/extract-style-baseline',
 			'npcink-abilities-toolkit/build-article-production-fingerprint',
 			'npcink-abilities-toolkit/check-article-production-duplicate',
 			'npcink-abilities-toolkit/review-article-output-light',
@@ -699,7 +695,6 @@ foreach (
 			'npcink-abilities-toolkit/resolve-article-publication-decision',
 			'npcink-abilities-toolkit/build-article-style-profile',
 			'npcink-abilities-toolkit/get-post-stats',
-		'npcink-abilities-toolkit/list-revisions',
 		'npcink-abilities-toolkit/get-post-meta',
 		'npcink-abilities-toolkit/list-pages',
 		'npcink-abilities-toolkit/get-page',
@@ -752,6 +747,43 @@ foreach (
 $categories_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/categories' );
 $categories_response = rest_do_request( $categories_request );
 npcink_abilities_toolkit_smoke_assert( 200 === (int) $categories_response->get_status(), 'Authenticated categories REST catalog returns 200.' );
+
+foreach ( array( 'list-terms', 'list-categories', 'list-tags', 'list-revisions', 'extract-style-baseline' ) as $removed_read_slug ) {
+	$removed_read_id = 'npcink-abilities-toolkit/' . $removed_read_slug;
+	npcink_abilities_toolkit_smoke_assert( ! wp_has_ability( $removed_read_id ), "Retired read ability {$removed_read_slug} is not registered." );
+	foreach ( array( '', '/run' ) as $suffix ) {
+		$removed_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/' . $removed_read_id . $suffix );
+		$removed_response = rest_do_request( $removed_request );
+		npcink_abilities_toolkit_smoke_assert( 404 === (int) $removed_response->get_status(), "Retired read ability {$removed_read_slug}{$suffix} returns 404." );
+	}
+}
+
+$term_search = 'toolkit-smoke-taxonomy-' . wp_generate_uuid4();
+$term_ids    = array();
+$parent_id   = 0;
+foreach ( array( 'root', 'child', 'grandchild' ) as $level ) {
+	$term = wp_insert_term( $term_search . '-' . $level, 'category', array( 'parent' => $parent_id ) );
+	npcink_abilities_toolkit_smoke_assert( ! is_wp_error( $term ), "Inserts the taxonomy listing {$level} fixture." );
+	$parent_id          = (int) $term['term_id'];
+	$term_ids[ $level ] = $parent_id;
+	npcink_abilities_toolkit_smoke_register_term_fixture( $parent_id, 'category' );
+}
+foreach ( array( array( null, array_values( $term_ids ) ), array( 0, array( $term_ids['root'] ) ), array( $term_ids['root'], array( $term_ids['child'] ) ) ) as list( $parent, $expected_ids ) ) {
+	$term_list_input = array( 'taxonomy' => 'category', 'search' => $term_search );
+	if ( null !== $parent ) {
+		$term_list_input['parent'] = $parent;
+	}
+	$term_list_request = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/list-taxonomy-terms/run' );
+	$term_list_request->set_query_params( array( 'input' => $term_list_input ) );
+	$term_list_response = rest_do_request( $term_list_request );
+	$term_list_data     = $term_list_response->get_data();
+	$actual_ids         = array_column( $term_list_data['items'] ?? array(), 'id' );
+	sort( $actual_ids );
+	sort( $expected_ids );
+	$parent_label = null === $parent ? 'omitted' : (string) $parent;
+	npcink_abilities_toolkit_smoke_assert( 200 === $term_list_response->get_status() && $expected_ids === $actual_ids, "Taxonomy listing returns the expected rows with parent {$parent_label}." );
+	npcink_abilities_toolkit_smoke_assert( count( $expected_ids ) === ( $term_list_data['total'] ?? null ), "Taxonomy listing count honors parent {$parent_label}." );
+}
 
 $diagnostics_run_request  = new WP_REST_Request( 'GET', '/wp-abilities/v1/abilities/npcink-abilities-toolkit/wp-diagnostics-summary/run' );
 $diagnostics_run_request->set_query_params( array( 'input' => array() ) );
