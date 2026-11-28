@@ -56,6 +56,7 @@ if ( isset( $abilities['npcink-abilities-toolkit/list-workflow-recipes'] ) ) {
 	$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 	$check( $manifest === $callback( array() ), 'default discovery preserves the static manifest' );
 	$check( $manifest === $callback( array( 'include_entrypoint_status' => false ) ), 'explicit false preserves the static manifest' );
+	$check( $manifest === $callback( array( 'include_entrypoint_status' => 'false' ) ), 'unsanitized false cannot opt in' );
 	$rows = $callback( array( 'include_entrypoint_status' => true ) )['cases'];
 	$check( array_keys( $manifest['cases'] ) === array_keys( $rows ), 'visibility does not hide static recipes' );
 	$check( array( 'registered' => true, 'rest_exposed' => true, 'mcp_public' => false ) === $rows['media_optimization']['entrypoint_status'], 'media plan is registered for REST but not default MCP' );

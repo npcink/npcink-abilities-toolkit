@@ -21,7 +21,7 @@ final class Entrypoint_Status {
 	 */
 	public static function discovery( $input, array $registered ): array {
 		$manifest = Workflow_Definition_Provider::manifest();
-		if ( is_array( $input ) && ! empty( $input['include_entrypoint_status'] ) ) {
+		if ( is_array( $input ) && true === ( $input['include_entrypoint_status'] ?? false ) ) {
 			foreach ( (array) $manifest['cases'] as $key => $case ) {
 				$case['entrypoint_status']  = self::describe( (string) $case['entrypoint_ability_id'], $registered );
 				$manifest['cases'][ $key ] = $case;

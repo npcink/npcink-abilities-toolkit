@@ -27,6 +27,10 @@ final class Scenario_Cards {
 	 * @return void
 	 */
 	public function render( array $registered ) {
+		if ( ! function_exists( 'npcink_abilities_toolkit_get_workflow_definitions' ) ) {
+			return;
+		}
+
 		$manifest = npcink_abilities_toolkit_get_workflow_definitions();
 		$cases    = isset( $manifest['cases'] ) && is_array( $manifest['cases'] ) ? $manifest['cases'] : array();
 		if ( empty( $cases ) ) {
@@ -46,7 +50,10 @@ final class Scenario_Cards {
 			</p>
 			<div class="npcink-abilities-toolkit-scenarios__grid">
 				<?php foreach ( $cases as $case ) : ?>
-					<?php $entry = (string) ( $case['entrypoint_ability_id'] ?? '' ); ?>
+					<?php
+					$case  = is_array( $case ) ? $case : array();
+					$entry = (string) ( $case['entrypoint_ability_id'] ?? '' );
+					?>
 					<div class="npcink-abilities-toolkit-scenarios__item">
 						<h3><?php echo esc_html( Scenario_Translations::translate( (string) ( $case['title'] ?? '' ) ) ); ?></h3>
 						<ul>
