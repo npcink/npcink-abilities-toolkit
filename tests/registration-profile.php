@@ -57,7 +57,9 @@ if ( isset( $abilities['npcink-abilities-toolkit/list-workflow-recipes'] ) ) {
 	$check( $manifest === $callback( array() ), 'default discovery preserves the static manifest' );
 	$check( $manifest === $callback( array( 'include_entrypoint_status' => false ) ), 'explicit false preserves the static manifest' );
 	$check( $manifest === $callback( array( 'include_entrypoint_status' => 'false' ) ), 'unsanitized false cannot opt in' );
+	$check( $manifest === $callback( array( 'include_entrypoint_status' => 'yes' ) ), 'an invalid raw boolean cannot opt in' );
 	$rows = $callback( array( 'include_entrypoint_status' => true ) )['cases'];
+	$check( $rows === $callback( array( 'include_entrypoint_status' => 'TRUE' ) )['cases'], 'legacy raw query true is accepted case-insensitively' );
 	$check( array_keys( $manifest['cases'] ) === array_keys( $rows ), 'visibility does not hide static recipes' );
 	$check( array( 'registered' => true, 'rest_exposed' => true, 'mcp_public' => false ) === $rows['media_optimization']['entrypoint_status'], 'media plan is registered for REST but not default MCP' );
 	$check( ( 'media' !== $mode ) === $rows['diagnostics_triage']['entrypoint_status']['registered'], 'disabled diagnostics remains visible as an unregistered entrypoint' );

@@ -21,7 +21,10 @@ final class Entrypoint_Status {
 	 */
 	public static function discovery( $input, array $registered ): array {
 		$manifest = Workflow_Definition_Provider::manifest();
-		if ( is_array( $input ) && true === ( $input['include_entrypoint_status'] ?? false ) ) {
+		$include  = is_array( $input ) ? ( $input['include_entrypoint_status'] ?? false ) : false;
+		// WordPress 6.9 validates REST booleans without coercing them before execution.
+		$include  = is_string( $include ) ? strtolower( $include ) : $include;
+		if ( in_array( $include, array( true, 1, '1', 'true' ), true ) ) {
 			foreach ( (array) $manifest['cases'] as $key => $case ) {
 				$case['entrypoint_status']  = self::describe( (string) $case['entrypoint_ability_id'], $registered );
 				$manifest['cases'][ $key ] = $case;
