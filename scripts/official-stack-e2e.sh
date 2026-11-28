@@ -755,9 +755,9 @@ EOF
 	json_rpc_request "$app_password" "$session_id" "$recipe_payload" "$recipe_body" "$headers"
 	php -r '
 		$result = json_decode((string) file_get_contents($argv[1]), true)["result"] ?? array();
-		$data = $result["structuredContent"] ?? json_decode((string) ($result["content"][0]["text"] ?? ""), true);
-		$status = $data["cases"]["article_publish_preflight"]["entrypoint_status"] ?? array();
-		if (!empty($result["isError"]) || true !== ($status["registered"] ?? null) || true !== ($status["rest_exposed"] ?? null) || false !== ($status["mcp_public"] ?? null)) {
+		$payload = $result["structuredContent"] ?? json_decode((string) ($result["content"][0]["text"] ?? ""), true);
+		$status = $payload["data"]["cases"]["article_publish_preflight"]["entrypoint_status"] ?? array();
+		if (!empty($result["isError"]) || true !== ($payload["success"] ?? null) || true !== ($status["registered"] ?? null) || true !== ($status["rest_exposed"] ?? null) || false !== ($status["mcp_public"] ?? null)) {
 			fwrite(STDERR, "MCP recipe discovery did not report the REST-only article preflight entrypoint\n");
 			exit(1);
 		}
